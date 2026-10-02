@@ -1,0 +1,95 @@
+import { defineAsyncComponent } from 'vue';
+import { getImages } from '@/utils';
+const Modal = defineAsyncComponent(() => import('@/components/shared/Modal.vue'));
+const props = defineProps();
+const emits = defineEmits(['closeModal']);
+function close() {
+    emits('closeModal');
+}
+const __VLS_ctx = {
+    ...{},
+    ...{},
+    ...{},
+    ...{},
+    ...{},
+};
+let __VLS_components;
+let __VLS_intrinsics;
+let __VLS_directives;
+let __VLS_0;
+/** @ts-ignore @type {typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
+Modal;
+// @ts-ignore
+const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
+    ...{ 'onCloseModal': {} },
+    modalOpen: (props.modalOpen),
+    staticBackdrop: (true),
+}));
+const __VLS_2 = __VLS_1({
+    ...{ 'onCloseModal': {} },
+    modalOpen: (props.modalOpen),
+    staticBackdrop: (true),
+}, ...__VLS_functionalComponentArgsRest(__VLS_1));
+let __VLS_5;
+const __VLS_6 = ({ closeModal: {} },
+    { onCloseModal: (...[$event]) => {
+            __VLS_ctx.close();
+            // @ts-ignore
+            [close,];
+        } });
+var __VLS_7 = {};
+const { default: __VLS_8 } = __VLS_3.slots;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "modal-body" },
+});
+/** @type {__VLS_StyleScopedClasses['modal-body']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
+    ...{ class: "modal-toggle-wrapper" },
+});
+/** @type {__VLS_StyleScopedClasses['modal-toggle-wrapper']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
+    ...{ class: "modal-img" },
+});
+/** @type {__VLS_StyleScopedClasses['modal-img']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({});
+__VLS_asFunctionalElement1(__VLS_intrinsics.img)({
+    src: (__VLS_ctx.getImages('gif/time.gif')),
+    alt: "alarm",
+});
+__VLS_asFunctionalElement1(__VLS_intrinsics.h4, __VLS_intrinsics.h4)({
+    ...{ class: "text-center pb-2" },
+});
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['pb-2']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({
+    ...{ class: "text-center" },
+});
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.b, __VLS_intrinsics.b)({
+    ...{ class: "txt-warning" },
+});
+/** @type {__VLS_StyleScopedClasses['txt-warning']} */ ;
+__VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
+    ...{ onClick: (...[$event]) => {
+            __VLS_ctx.close();
+            // @ts-ignore
+            [close, getImages,];
+        } },
+    ...{ class: "btn btn-warning d-flex m-auto" },
+    type: "button",
+});
+/** @type {__VLS_StyleScopedClasses['btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['btn-warning']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['m-auto']} */ ;
+// @ts-ignore
+[];
+var __VLS_3;
+var __VLS_4;
+// @ts-ignore
+[];
+const __VLS_export = (await import('vue')).defineComponent({
+    emits: {},
+    __typeProps: {},
+});
+export default {};

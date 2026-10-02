@@ -1,0 +1,415 @@
+import type { Card, DefaultDemo } from '@/types/kanban'
+
+export function generateRandomNumber() {
+  return Math.floor(Math.random() * 10) + 1
+}
+
+export function generateRandomUsers() {
+  const shuffled = [...users].sort(() => 0.5 - Math.random())
+  const randomCount = Math.floor(Math.random() * users.length) + 1
+  return shuffled.slice(0, randomCount)
+}
+
+export const users = [
+  { profile: 'dashboard/user/10.jpg', name: 'Marley Ford' },
+  { profile: 'dashboard/user/11.jpg', name: 'Gray Curran' },
+  { name: 'Andrew' },
+  { profile: 'dashboard/user/1.jpg', name: 'Yarrow  Wix' },
+  { profile: 'dashboard/user/3.jpg', name: 'Sarah Wilson' },
+  { name: 'Marley Ford' },
+  { profile: 'dashboard/user/4.jpg', name: 'Richard Taylor' },
+  { profile: 'dashboard/user/5.jpg', name: 'Linda Brown' },
+  { profile: 'dashboard/user/6.jpg', name: 'Jessica Anderson' },
+  { profile: 'dashboard/user/7.jpg', name: 'Thomas Jones' },
+  { name: 'Gray Curran' },
+  { name: 'Sarah Wilson' },
+  { name: 'Linda Brown' },
+]
+
+export const taskPriority = ['Low', 'Medium', 'Urgent']
+
+export const defaultDemoCards: DefaultDemo[] = [
+  {
+    title: 'In Review',
+    addCard: false,
+    cards: [
+      {
+        id: 1,
+        title: 'CRUD Complete',
+        userName: 'Millie Valdez',
+        userProfile: 'dashboard/user/1.jpg',
+        date: '23/02/24',
+        taskPriority: 'Low',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 2,
+        title: 'Managing CI/CD',
+        userName: 'Peregrine Huxley',
+        userProfile: 'dashboard/user/5.jpg',
+        date: '05/04/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'Pending',
+    addCard: false,
+    cards: [
+      {
+        id: 3,
+        title: 'Scheduled Calls',
+        userName: 'Thaddeus Mercer',
+        userProfile: 'user/3.jpg',
+        date: '23/07/24',
+        taskPriority: 'Medium',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 4,
+        title: 'Upcoming Meetings',
+        userName: 'Aurora Sterling',
+        userProfile: 'dashboard/user/4.jpg',
+        date: '12/05/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'In Progress',
+    addCard: false,
+    cards: [
+      {
+        id: 5,
+        title: 'Issues to Fix',
+        userName: 'Juniper Ashford',
+        userProfile: 'dashboard/user/12.jpg',
+        date: '28/06/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 6,
+        title: 'Emails to Send',
+        userName: 'Elowen Hartley',
+        userProfile: 'dashboard/user/11.jpg',
+        date: '08/08/24',
+        taskPriority: 'Low',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'Completed',
+    addCard: false,
+    cards: [
+      {
+        id: 7,
+        title: 'Code Review',
+        userName: 'Evander Whitman',
+        userProfile: 'dashboard/user/13.jpg',
+        date: '14/09/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 8,
+        title: 'Bug Tracking',
+        userName: 'Peregrine Huxley',
+        userProfile: 'dashboard/user/4.jpg',
+        date: '12/10/24',
+        taskPriority: 'Medium',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+]
+
+export const customBoardCards: DefaultDemo[] = [
+  {
+    title: 'In Review (Item Only in Working)',
+    class: 'bg-primary',
+    cards: [
+      {
+        id: 1,
+        title: 'Ticket Resolution',
+        userName: 'Alia Bond',
+        userProfile: 'dashboard/user/1.jpg',
+        date: '02/02/24',
+        taskPriority: 'Medium',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 2,
+        title: 'Performance Tuning',
+        userName: 'Josie Coffey',
+        userProfile: 'dashboard/user/2.jpg',
+        date: '10/03/24',
+        taskPriority: 'Low',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'Pending',
+    class: 'bg-secondary',
+    cards: [
+      {
+        id: 3,
+        title: 'Log Analysis',
+        userName: 'Tobias Murray',
+        userProfile: 'dashboard/user/7.jpg',
+        date: '08/04/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 4,
+        title: 'Database Maintenance',
+        userName: 'Zavier Walter',
+        userProfile: 'user/14.png',
+        date: '15/05/24',
+        taskPriority: 'Low',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'In Progress (Item Only in Working)',
+    class: 'bg-warning',
+    cards: [
+      {
+        id: 5,
+        title: 'User Support',
+        userName: 'Morgan Mathews',
+        userProfile: 'user/6.jpg',
+        date: '27/10/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 6,
+        title: 'Software Updates',
+        userName: 'Kehlani Soto',
+        userProfile: 'user/3.png',
+        date: '17/11/24',
+        taskPriority: 'Low',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'Completed',
+    class: 'bg-success',
+    cards: [
+      {
+        id: 7,
+        title: 'Installing Software',
+        userName: 'Yusuf Houston',
+        userProfile: 'user/14.png',
+        date: '02/05/24',
+        taskPriority: 'Medium',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 8,
+        title: 'Testing',
+        userName: 'Mia McKinney',
+        userProfile: 'dashboard-9/user/4.png',
+        date: '02/02/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+]
+
+export const apiBoardsCards: DefaultDemo[] = [
+  {
+    title: 'In Review',
+    cards: [
+      {
+        id: 1,
+        title: 'Configure VPN',
+        userName: 'Eva Duke',
+        userProfile: 'dashboard/user/2.jpg',
+        date: '30/01/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 2,
+        title: 'Docker Maintain',
+        userName: 'Jaylen Michael',
+        userProfile: 'user/12.png',
+        date: '18/07/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'Pending',
+    cards: [
+      {
+        id: 3,
+        title: 'User Support',
+        userName: 'Leila McDowell',
+        userProfile: 'dashboard/user/8.jpg',
+        date: '01/04/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 4,
+        title: 'Project Planning',
+        userName: 'Jeffery Hurley',
+        userProfile: 'dashboard/user/7.jpg',
+        date: '14/04/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'In Progress',
+    cards: [
+      {
+        id: 5,
+        title: 'Security Check',
+        userName: 'Bobby Robertson',
+        userProfile: 'dashboard/user/1.jpg',
+        date: '19/06/24',
+        taskPriority: 'Urgent',
+        bannerImage: 'other-images/maintenance-bg.jpg',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 6,
+        title: 'Email Management',
+        userName: 'Wren Morrison',
+        userProfile: 'dashboard/user/9.jpg',
+        date: '27/07/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+  {
+    title: 'Completed',
+    cards: [
+      {
+        id: 11,
+        title: 'Capacity Planning',
+        userName: 'Maria Wheeler',
+        userProfile: 'dashboard/user/11.jpg',
+        date: '18/08/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+      {
+        id: 12,
+        title: 'Minify Images',
+        userName: 'Regina Pratt',
+        userProfile: 'dashboard/user/3.jpg',
+        bannerImage: 'other-images/sidebar-bg.jpg',
+        date: '29/09/24',
+        taskPriority: 'Urgent',
+        comments: generateRandomNumber(),
+        attachment: generateRandomNumber(),
+        members: generateRandomUsers(),
+      },
+    ],
+  },
+]
+
+export const defaultBoard: DefaultDemo = {
+  title: 'Kanban Default',
+  addCard: false,
+  cards: [
+    {
+      id: 1,
+      title: 'VPN Setup',
+      userName: 'Max Melton',
+      userProfile: 'dashboard/user/10.jpg',
+      date: '12/06/24',
+      taskPriority: 'Urgent',
+      comments: generateRandomNumber(),
+      attachment: generateRandomNumber(),
+      members: generateRandomUsers(),
+    },
+    {
+      id: 2,
+      title: 'Audits',
+      userName: 'Elliot Gallegos',
+      userProfile: 'dashboard/user/12.jpg',
+      bannerImage: 'other-images/maintenance-bg.jpg',
+      date: '20/08/24',
+      taskPriority: 'Urgent',
+      comments: generateRandomNumber(),
+      attachment: generateRandomNumber(),
+      members: generateRandomUsers(),
+    },
+  ],
+}
+
+export const element: Card = {
+  id: 1,
+  title: 'Minify Images',
+  userName: 'Clayton Wilkins',
+  userProfile: 'dashboard/user/7.jpg',
+  bannerImage: 'other-images/mountain.jpg',
+  date: '20/08/24',
+  taskPriority: 'Urgent',
+  comments: generateRandomNumber(),
+  attachment: generateRandomNumber(),
+  members: generateRandomUsers(),
+}
