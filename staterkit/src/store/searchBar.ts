@@ -1,48 +1,48 @@
-import { defineStore } from "pinia";
-import { menu } from "@/core/data/menu";
-import { ref } from "vue";
-import { MenuItem } from "@/types/menu";
+import { defineStore } from 'pinia'
+import { menu } from '@/core/data/menu'
+import { ref } from 'vue'
+import { MenuItem } from '@/types/menu'
 
 interface search {
-  icon?: string;
-  path?: string;
-  title?: string;
-  iconForDisplay?: string;
+  icon?: string
+  path?: string
+  title?: string
+  iconForDisplay?: string
 }
 
-export const useSearch = defineStore("search", () => {
-  const active = ref<boolean>(false);
-  const show = ref<boolean>(false);
-  const searchData = ref<search[]>([]);
+export const useSearch = defineStore('search', () => {
+  const active = ref<boolean>(false)
+  const show = ref<boolean>(false)
+  const searchData = ref<search[]>([])
 
   function searchTerm(terms: string) {
-    terms = terms.toLowerCase();
-    const items: search[] = [];
+    terms = terms.toLowerCase()
+    const items: search[] = []
 
     const searchItem = (item: MenuItem, nearestIcon?: string) => {
-      const currentIcon = item.icon || nearestIcon;
+      const currentIcon = item.icon || nearestIcon
 
-      const title = (item.title || "").toLowerCase();
+      const title = (item.title || '').toLowerCase()
 
-      if (title.includes(terms) && item.type === "link") {
-        items.push({ ...item, iconForDisplay: currentIcon });
+      if (title.includes(terms) && item.type === 'link') {
+        items.push({ ...item, iconForDisplay: currentIcon })
       }
 
       if (item.children) {
-        item.children.forEach((child) => searchItem(child, currentIcon));
+        item.children.forEach((child) => searchItem(child, currentIcon))
       }
-    };
+    }
 
-    menu.forEach((menuItem) => searchItem(menuItem, menuItem.icon));
-    searchData.value = items;
+    menu.forEach((menuItem) => searchItem(menuItem, menuItem.icon))
+    searchData.value = items
   }
 
   function toggleSearch() {
-    show.value = !show.value;
+    show.value = !show.value
   }
 
   function closeSearch() {
-    show.value = false;
+    show.value = false
   }
 
   return {
@@ -52,5 +52,5 @@ export const useSearch = defineStore("search", () => {
     toggleSearch,
     closeSearch,
     show,
-  };
-});
+  }
+})

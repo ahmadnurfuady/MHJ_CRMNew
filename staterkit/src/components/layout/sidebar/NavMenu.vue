@@ -5,9 +5,7 @@
         'sidebar-main-title': menuItem?.type == 'headtitle',
         'sidebar-list': menuItem?.icon,
       },
-      menuItem?.title && menuState.pinedArray.includes(menuItem.title)
-        ? 'pined'
-        : '',
+      menuItem?.title && menuState.pinedArray.includes(menuItem.title) ? 'pined' : '',
     ]"
   >
     <div v-if="menuItem?.type == 'headtitle'">
@@ -26,7 +24,7 @@
     >
     <router-link
       :to="menuItem?.children ? '' : menuItem?.path || ''"
-      v-if="menuItem && menuItem?.title && !isExternal(menuItem.path)"
+      v-if="menuItem && menuItem?.title"
       :class="[
         {
           active: (menuItem.path && isActive(menuItem.path)) || menuItem.active,
@@ -58,29 +56,6 @@
         ></i>
       </div>
     </router-link>
-
-    <a
-      v-else-if="menuItem && menuItem.title && isExternal(menuItem.path)"
-      :href="menuItem.path"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="sidebar-link sidebar-title"
-    >
-      <SvgIcon
-        :icon="menuItem.icon"
-        svgClass="stroke-icon"
-        v-if="menuItem.icon && layoutState.svgIcon == 'stroke-svg'"
-        type="stroke"
-      />
-      <SvgIcon
-        :icon="menuItem.icon"
-        svgClass="fill-icon"
-        v-if="menuItem.icon && layoutState.svgIcon == 'fill-svg'"
-        type="fill"
-      />
-
-      <span class="lan-3">{{ $t(menuItem.title) }}</span>
-    </a>
     <ul
       class="sidebar-submenu"
       v-if="menuItem?.children"
@@ -95,42 +70,36 @@
   </li>
 </template>
 <script lang="ts" setup>
-import { defineAsyncComponent } from "vue";
-import { useMenu } from "@/store/menu";
-import { useRoute, useRouter } from "vue-router";
-import { storeToRefs } from "pinia";
-import { useLayout } from "@/store/layout";
-import { MenuItem } from "@/types/menu";
+import { defineAsyncComponent } from 'vue'
+import { useMenu } from '@/store/menu'
+import { useRoute, useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
+import { useLayout } from '@/store/layout'
+import { MenuItem } from '@/types/menu'
 
-const SvgIcon = defineAsyncComponent(
-  () => import("@/components/shared/SvgIcon.vue"),
-);
+const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
-const router = useRouter();
-const route = useRoute();
-const store = useMenu();
-const storeLayout = useLayout();
-const { menuState } = storeToRefs(store);
-const { layoutState } = storeToRefs(storeLayout);
-const { getPined, toggleMenu } = store;
+const router = useRouter()
+const route = useRoute()
+const store = useMenu()
+const storeLayout = useLayout()
+const { menuState } = storeToRefs(store)
+const { layoutState } = storeToRefs(storeLayout)
+const { getPined, toggleMenu } = store
 
 const props = defineProps<{
-  menuItem: MenuItem;
-}>();
+  menuItem: MenuItem
+}>()
 
 function isActive(path: string) {
-  return path === route.path;
-}
-
-function isExternal(path?: string) {
-  return !!path && (path.startsWith("http://") || path.startsWith("https://"));
+  return path === route.path
 }
 
 const onMenuClick = (menuItem: MenuItem) => {
   if (menuItem.children && menuItem.children.length) {
-    toggleMenu(menuItem);
+    toggleMenu(menuItem)
   } else if (menuItem.path) {
-    router.push(menuItem.path);
+    router.push(menuItem.path)
   }
-};
+}
 </script>

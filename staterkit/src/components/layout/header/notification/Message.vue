@@ -8,11 +8,7 @@
       >
         <div class="d-flex w-100 notification-data align-items-center gap-2">
           <div class="user-alerts flex-shrink-0">
-            <img
-              class="rounded-circle img-fluid img-40"
-              :src="getImages(item.image)"
-              alt="user"
-            />
+            <img class="rounded-circle img-fluid img-40" :src="getImages(item.image)" alt="user" />
           </div>
           <div class="flex-grow-1">
             <div class="common-space user-id w-100">
@@ -35,10 +31,10 @@
 </template>
 
 <script setup lang="ts">
-import { getImages } from "@/utils";
-import type { NotificationItem } from "@/types/header";
+import { getImages } from '@/utils'
+import type { NotificationItem } from '@/types/header'
 
 const props = defineProps<{
-  items: NotificationItem[];
-}>();
+  items: NotificationItem[]
+}>()
 </script>

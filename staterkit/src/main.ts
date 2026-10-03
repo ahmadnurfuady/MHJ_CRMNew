@@ -1,6 +1,9 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import { Tooltip, Popover, ScrollSpy } from "bootstrap";
+import VueApexCharts from 'vue3-apexcharts';
+import draggable from 'vuedraggable';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue';
 
 import App from "./App.vue";
 import router from "./router";
@@ -47,7 +50,10 @@ app
   .use(createPinia())
   .use(router)
   .use(i18n)
-  .component(VueFeather.name!, VueFeather);
+  .component(VueFeather.name!, VueFeather)
+  .component('apexchart', VueApexCharts)
+  .component('draggable', draggable)
+  .component('OverlayScrollbars', OverlayScrollbarsComponent);
 
 app.directive("tooltip", {
   mounted(el) {

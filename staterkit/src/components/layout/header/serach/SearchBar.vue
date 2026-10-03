@@ -24,51 +24,48 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, watch, defineAsyncComponent } from "vue";
-import { useSearch } from "@/store/searchBar";
-import { storeToRefs } from "pinia";
-import { useRoute } from "vue-router";
+import { ref, watch, defineAsyncComponent } from 'vue'
+import { useSearch } from '@/store/searchBar'
+import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 
 const SearchResult = defineAsyncComponent(
-  () => import("@/components/layout/header/serach/SearchResult.vue"),
-);
-const SvgIcon = defineAsyncComponent(
-  () => import("@/components/shared/SvgIcon.vue"),
-);
+  () => import('@/components/layout/header/serach/SearchResult.vue')
+)
+const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
-const store = useSearch();
-const terms = ref<string>("");
-const { searchData: menuItems, show } = storeToRefs(store);
-const { searchTerm, closeSearch } = store;
-const searchResult = ref<boolean>(false);
-const searchResultEmpty = ref<boolean>(false);
-const route = useRoute();
+const store = useSearch()
+const terms = ref<string>('')
+const { searchData: menuItems, show } = storeToRefs(store)
+const { searchTerm, closeSearch } = store
+const searchResult = ref<boolean>(false)
+const searchResultEmpty = ref<boolean>(false)
+const route = useRoute()
 
-const searchTerms = () => searchTerm(terms.value);
+const searchTerms = () => searchTerm(terms.value)
 
 const removeFix = () => {
-  searchResult.value = false;
-  terms.value = "";
-  closeSearch();
-};
+  searchResult.value = false
+  terms.value = ''
+  closeSearch()
+}
 
 watch(
   [menuItems, terms],
   () => {
     if (terms.value) {
-      searchResult.value = true;
+      searchResult.value = true
     } else {
-      removeFix();
+      removeFix()
     }
-    searchResultEmpty.value = menuItems.value.length === 0;
-  },
-  { deep: true },
-);
+    searchResultEmpty.value = menuItems.value.length === 0
+  }
+)
 
 watch(
   () => route.fullPath,
   () => {
-    removeFix();
-  },
-);
+    removeFix()
+  }
+)
 </script>

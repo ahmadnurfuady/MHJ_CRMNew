@@ -7,22 +7,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
-const loaderHide = ref(false);
-let timeoutId: ReturnType<typeof setTimeout> | null = null;
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+const loaderHide = ref(false)
+let timeoutId: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
-  if (timeoutId) clearTimeout(timeoutId);
+  if (timeoutId) clearTimeout(timeoutId)
   timeoutId = setTimeout(() => {
-    loaderHide.value = true;
-    timeoutId = null;
-  }, 1000);
-});
+    loaderHide.value = true
+    timeoutId = null
+  }, 1000)
+})
 
 onBeforeUnmount(() => {
   if (timeoutId) {
-    clearTimeout(timeoutId);
-    timeoutId = null;
+    clearTimeout(timeoutId)
+    timeoutId = null
   }
-});
+})
 </script>

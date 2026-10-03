@@ -3,7 +3,7 @@
     <Logo />
     <div class="left-header col-xxl-5 col-xl-6 col-lg-5 col-md-4 col-sm-3 p-0">
       <div>
-        <a class="toggle-sidebar" href="javascript:void(0)">
+        <a class="toggle-sidebar" href="#">
           <i class="iconly-Category icli"> </i
         ></a>
         <div class="d-flex align-items-center gap-2">
@@ -12,14 +12,10 @@
         </div>
       </div>
       <div class="welcome-content d-xl-block d-none">
-        <span class="text-truncate col-12"
-          >Here’s what’s happening with your store today.
-        </span>
+        <span class="text-truncate col-12">Here’s what’s happening with your store today. </span>
       </div>
     </div>
-    <div
-      class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto"
-    >
+    <div class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto">
       <ul class="nav-menus">
         <li class="d-md-block d-none">
           <SearchBar />
@@ -51,34 +47,22 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent } from "vue";
-import { getImages } from "@/utils/index";
+import { defineAsyncComponent } from 'vue'
+import { getImages } from '@/utils/index'
 
 const SearchBar = defineAsyncComponent(
-  () => import("@/components/layout/header/serach/SearchBar.vue"),
-);
-const SearchInput = defineAsyncComponent(
-  () => import("@/components/layout/header/SearchInput.vue"),
-);
-const Language = defineAsyncComponent(
-  () => import("@/components/layout/header/Language.vue"),
-);
-const Logo = defineAsyncComponent(
-  () => import("@/components/layout/header/Logo.vue"),
-);
-const FullScreen = defineAsyncComponent(
-  () => import("@/components/layout/header/FullScreen.vue"),
-);
+  () => import('@/components/layout/header/serach/SearchBar.vue')
+)
+const SearchInput = defineAsyncComponent(() => import('@/components/layout/header/SearchInput.vue'))
+const Language = defineAsyncComponent(() => import('@/components/layout/header/Language.vue'))
+const Logo = defineAsyncComponent(() => import('@/components/layout/header/Logo.vue'))
+const FullScreen = defineAsyncComponent(() => import('@/components/layout/header/FullScreen.vue'))
 const BookmarkSearch = defineAsyncComponent(
-  () => import("@/components/layout/header/BookmarkSearch.vue"),
-);
-const Mode = defineAsyncComponent(
-  () => import("@/components/layout/header/Mode.vue"),
-);
+  () => import('@/components/layout/header/BookmarkSearch.vue')
+)
+const Mode = defineAsyncComponent(() => import('@/components/layout/header/Mode.vue'))
 const NotificationBox = defineAsyncComponent(
-  () => import("@/components/layout/header/NotificationBox.vue"),
-);
-const Profile = defineAsyncComponent(
-  () => import("@/components/layout/header/Profile.vue"),
-);
+  () => import('@/components/layout/header/NotificationBox.vue')
+)
+const Profile = defineAsyncComponent(() => import('@/components/layout/header/Profile.vue'))
 </script>

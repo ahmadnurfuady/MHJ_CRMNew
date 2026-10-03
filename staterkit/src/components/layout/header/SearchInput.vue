@@ -17,23 +17,12 @@
   </div>
   <div class="form-group search-form" :class="{ open: filtered }">
     <div
-      :class="
-        searchResult
-          ? 'Typeahead-menu is-open custom-scrollbar'
-          : 'Typeahead-menu '
-      "
+      :class="searchResult ? 'Typeahead-menu is-open custom-scrollbar' : 'Typeahead-menu '"
       v-if="menuItems.length"
     >
-      <div
-        class="ProfileCard u-cf"
-        v-for="(menuItem, index) in menuItems"
-        :key="index"
-      >
+      <div class="ProfileCard u-cf" v-for="(menuItem, index) in menuItems" :key="index">
         <div class="ProfileCard-avatar header-search">
-          <SvgIcon
-            :icon="menuItem.icon || menuItem.iconForDisplay"
-            type="fill"
-          />
+          <SvgIcon :icon="menuItem.icon || menuItem.iconForDisplay" type="fill" />
         </div>
         <div class="ProfileCard-details">
           <div class="ProfileCard-realName">
@@ -46,9 +35,7 @@
         </div>
       </div>
     </div>
-    <div
-      :class="searchResultEmpty ? 'Typeahead-menu is-open' : 'Typeahead-menu'"
-    >
+    <div :class="searchResultEmpty ? 'Typeahead-menu is-open' : 'Typeahead-menu'">
       <div class="tt-dataset tt-dataset-0">
         <div class="EmptyMessage">
           Your search turned up 0 results. Opps There are no result found.
@@ -58,49 +45,46 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { defineAsyncComponent, ref, watch } from "vue";
-import { storeToRefs } from "pinia";
-import { useSearch } from "@/store/searchBar";
+import { defineAsyncComponent, ref, watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useSearch } from '@/store/searchBar'
 
-const SvgIcon = defineAsyncComponent(
-  () => import("@/components/shared/SvgIcon.vue"),
-);
-const filtered = ref<boolean>(false);
-const terms = ref<string>("");
+const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
+const filtered = ref<boolean>(false)
+const terms = ref<string>('')
 
-const store = useSearch();
-const { searchData: menuItems } = storeToRefs(store);
-const { searchTerm, toggleSearch } = store;
+const store = useSearch()
+const { searchData: menuItems } = storeToRefs(store)
+const { searchTerm, toggleSearch } = store
 
-const searchResult = ref<boolean>(false);
-const searchResultEmpty = ref<boolean>(false);
+const searchResult = ref<boolean>(false)
+const searchResultEmpty = ref<boolean>(false)
 
 watch(
-  () => [menuItems, terms],
+  () => [menuItems.value, terms.value],
   () => {
     if (terms.value) {
-      addFix();
+      addFix()
     } else {
-      removeFix();
+      removeFix()
     }
 
-    searchResultEmpty.value = !menuItems.value.length;
-  },
-  { deep: true },
-);
+    searchResultEmpty.value = !menuItems.value.length
+  }
+)
 function searchTerms() {
-  searchTerm(terms.value);
+  searchTerm(terms.value)
 }
 function addFix() {
-  searchResult.value = true;
+  searchResult.value = true
 }
 
 function removeFix() {
-  searchResult.value = false;
-  terms.value = "";
+  searchResult.value = false
+  terms.value = ''
 }
 
 function collapseFilter() {
-  filtered.value = !filtered.value;
+  filtered.value = !filtered.value
 }
 </script>

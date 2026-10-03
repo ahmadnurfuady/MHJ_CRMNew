@@ -8,7 +8,7 @@
         <div class="col-6 p-0">
           <ol class="breadcrumb">
             <li class="breadcrumb-item">
-              <router-link :to="routes.Pages.SamplePages1">
+              <router-link :to="routes.Dashboards.Default">
                 <SvgIcon icon="home" svgClass="stroke-icon" type="stroke" />
               </router-link>
             </li>
@@ -23,22 +23,18 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, defineAsyncComponent } from "vue";
-import { useRoute } from "vue-router";
-import { routes } from "@/router/routes";
+import { computed, defineAsyncComponent } from 'vue'
+import { useRoute } from 'vue-router'
+import { routes } from '@/router/routes'
 
 interface Breadcrumb {
-  text: string;
-  subText: string;
+  text: string
+  subText: string
 }
 
-const SvgIcon = defineAsyncComponent(
-  () => import("@/components/shared/SvgIcon.vue"),
-);
+const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
-const route = useRoute();
-const breadcrumbs = computed(
-  () => (route.meta.breadcrumb as Breadcrumb[]) || [],
-);
-const pageTitle = computed(() => (route.meta.mainTitle as string) || "");
+const route = useRoute()
+const breadcrumbs = computed(() => (route.meta.breadcrumb as Breadcrumb[]) || [])
+const pageTitle = computed(() => (route.meta.mainTitle as string) || '')
 </script>

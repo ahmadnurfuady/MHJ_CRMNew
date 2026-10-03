@@ -5,21 +5,21 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue";
-import { useWindowScroll } from "@vueuse/core";
+import { ref, watch } from 'vue'
+import { useWindowScroll } from '@vueuse/core'
 
-const show = ref(false);
-const { y } = useWindowScroll();
+const show = ref(false)
+const { y } = useWindowScroll()
 
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(
   y,
   (pos) => {
-    show.value = pos > 300;
+    show.value = pos > 300
   },
-  { immediate: true },
-);
+  { immediate: true }
+)
 </script>

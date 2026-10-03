@@ -19,37 +19,37 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
-import { onClickOutside } from "@vueuse/core";
-import { language } from "@/core/data/language";
-import { useI18n } from "vue-i18n";
+import { ref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+import { language } from '@/core/data/language'
+import { useI18n } from 'vue-i18n'
 interface selected {
-  language: string;
-  text?: string;
-  icon: string;
+  language: string
+  text?: string
+  icon: string
 }
 
-const i18n = useI18n();
-const data = language;
-const active = ref<boolean>(false);
-const dropdownRef = ref<HTMLElement | null>(null);
+const i18n = useI18n()
+const data = language
+const active = ref<boolean>(false)
+const dropdownRef = ref<HTMLElement | null>(null)
 const selectedLanguage = ref<selected>({
-  language: "English",
-  text: "EN",
-  icon: "flag-icon-us",
-});
+  language: 'English',
+  text: 'EN',
+  icon: 'flag-icon-us',
+})
 
 function selectLanguage(language: selected) {
-  active.value = false;
-  i18n.locale.value = language.language;
-  selectedLanguage.value = language;
+  active.value = false
+  i18n.locale.value = language.language
+  selectedLanguage.value = language
 }
 
 function openDropDown() {
-  active.value = !active.value;
+  active.value = !active.value
 }
 
 onClickOutside(dropdownRef, () => {
-  active.value = false;
-});
+  active.value = false
+})
 </script>
