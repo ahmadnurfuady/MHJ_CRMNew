@@ -13,11 +13,15 @@
             <div>
               <router-link class="logo text-start" :to="'/'">
                 <img
-                  class="img-fluid for-light"
+                  class="img-fluid for-light login-logo"
                   :src="getImages('logo/logo_dark.png')"
                   alt="logo"
                 />
-                <img class="img-fluid for-dark" :src="getImages('logo/logo.png')" alt="logo" />
+                <img
+                  class="img-fluid for-dark login-logo"
+                  :src="getImages('logo/logo.png')"
+                  alt="logo"
+                />
               </router-link>
             </div>
             <div class="login-main">
@@ -36,3 +40,11 @@ import { getImages } from '@/utils/index'
 import { routes } from '@/router/routes'
 const LoginForm = defineAsyncComponent(() => import('@/module/auth/LoginForm.vue'))
 </script>
+
+<style scoped>
+.login-logo {
+  max-width: 150px;
+  max-height: 70px;
+  object-fit: contain;
+}
+</style>

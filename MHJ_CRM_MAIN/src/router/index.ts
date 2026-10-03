@@ -11,6 +11,7 @@ const router = createRouter({
           path: 'login',
           name: 'LoginPage',
           component: () => import('@/components/layout/auth/LoginPage.vue'),
+          meta: { title: 'Login | MHJ CRM' },
         },
       ],
     },
@@ -1572,7 +1573,9 @@ const router = createRouter({
 })
 router.beforeEach((to, from, next) => {
   if (typeof to.meta.title === 'string') {
-    document.title = to.meta.title
+    document.title = to.meta.title.replace(/Riho - Premium Vue Admin Template/g, 'MHJ CRM')
+  } else {
+    document.title = 'MHJ CRM - PT. Mulya Husada Jaya'
   }
   const path = ['/auth/login', '/auth/register']
   if (path.includes(to.path) || localStorage.getItem('user')) {

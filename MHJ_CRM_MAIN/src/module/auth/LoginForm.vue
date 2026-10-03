@@ -47,14 +47,33 @@
     <h6 class="text-muted mt-4 or">Or Sign in with</h6>
     <div class="social mt-4">
       <div class="btn-showcase">
-        <a class="btn btn-light" href="https://www.linkedin.com/login" target="_blank">
-          <vue-feather :type="'linkedin'" class="txt-linkedin"></vue-feather> LinkedIn </a
-        ><a class="btn btn-light" href="https://twitter.com/login?lang=en" target="_blank">
-          <vue-feather :type="'twitter'" class="txt-twitter"></vue-feather>twitter</a
-        ><a class="btn btn-light" href="https://www.facebook.com/" target="_blank">
-          <vue-feather :type="'facebook'" class="txt-fb"></vue-feather>
-          facebook</a
+        <a
+          class="btn btn-light social-disabled"
+          href="javascript:void(0)"
+          role="button"
+          aria-disabled="true"
+          @click.prevent
         >
+          <vue-feather :type="'linkedin'" class="txt-linkedin"></vue-feather> LinkedIn
+        </a>
+        <a
+          class="btn btn-light social-disabled"
+          href="javascript:void(0)"
+          role="button"
+          aria-disabled="true"
+          @click.prevent
+        >
+          <vue-feather :type="'twitter'" class="txt-twitter"></vue-feather>twitter
+        </a>
+        <a
+          class="btn btn-light social-disabled"
+          href="javascript:void(0)"
+          role="button"
+          aria-disabled="true"
+          @click.prevent
+        >
+          <vue-feather :type="'facebook'" class="txt-fb"></vue-feather> facebook
+        </a>
       </div>
     </div>
     <p class="mt-4 mb-0 text-center">
