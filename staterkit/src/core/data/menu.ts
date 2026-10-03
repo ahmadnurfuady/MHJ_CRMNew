@@ -7,6 +7,13 @@ export const menu: MenuItem[] = [
     type: "headtitle",
   },
   {
+    path: routes.Dashboard.Crm,
+    title: "Dashboard CRM",
+    icon: "pie-chart",
+    type: "link",
+    active: false,
+  },
+  {
     title: "Sample Pages",
     icon: "home",
     type: "sub",

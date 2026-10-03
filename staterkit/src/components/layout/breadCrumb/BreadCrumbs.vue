@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div v-if="!route.meta.hideBreadcrumb" class="container-fluid">
     <div class="page-title">
       <div class="row">
         <div class="col-6">

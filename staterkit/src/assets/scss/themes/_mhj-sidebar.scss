@@ -1,0 +1,130 @@
+// MHJ shell treatment: keep the existing Riho sidebar behavior while using
+// the light CRM palette consistently on every route and layout state.
+.page-wrapper.compact-wrapper {
+  .page-header .header-wrapper .header-logo-wrapper,
+  .page-body-wrapper div.sidebar-wrapper,
+  .sidebar-wrapper .sidebar-main,
+  .sidebar-wrapper .sidebar-main .sidebar-links {
+    background: #ffffff !important;
+  }
+
+  .page-header .header-wrapper .header-logo-wrapper {
+    border-right: 1px solid #e2e8f0;
+
+    .for-light {
+      display: inline-block !important;
+    }
+
+    .for-dark {
+      display: none !important;
+    }
+  }
+
+  .page-body-wrapper div.sidebar-wrapper {
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 2px 0 12px rgba(15, 23, 42, 0.035) !important;
+
+    .sidebar-main .sidebar-links {
+      .sidebar-main-title h6 {
+        color: #718096 !important;
+      }
+
+      li.sidebar-list {
+        i.fa-thumb-tack {
+          color: #94a3b8 !important;
+        }
+
+        > .sidebar-link {
+          color: #64748b !important;
+          background: transparent !important;
+          border-radius: 12px;
+
+          span,
+          .according-menu i {
+            color: #64748b !important;
+          }
+
+          svg.stroke-icon {
+            stroke: #64748b !important;
+          }
+
+          svg.fill-icon {
+            fill: #64748b !important;
+          }
+
+          &:hover {
+            color: #18a6e4 !important;
+            background: #f3faff !important;
+
+            span,
+            .according-menu i {
+              color: #18a6e4 !important;
+            }
+
+            svg.stroke-icon {
+              stroke: #18a6e4 !important;
+            }
+
+            svg.fill-icon {
+              fill: #18a6e4 !important;
+            }
+          }
+
+          &.active {
+            color: #18a6e4 !important;
+            background: #ddf2fb !important;
+
+            span,
+            .according-menu i {
+              color: #18a6e4 !important;
+            }
+
+            svg.stroke-icon {
+              stroke: #18a6e4 !important;
+            }
+
+            svg.fill-icon {
+              fill: #18a6e4 !important;
+            }
+          }
+        }
+
+        > ul.sidebar-submenu {
+          margin-top: 5px;
+          padding: 2px 0 5px !important;
+          background: #ffffff !important;
+
+          &::before {
+            border-color: #d8e4ec !important;
+          }
+
+          li > a {
+            color: #64748b !important;
+            background: transparent !important;
+            border-radius: 10px;
+
+            &::after {
+              background-color: #b8c7d3 !important;
+            }
+
+            &:hover,
+            &.active {
+              color: #18a6e4 !important;
+              background: #f3faff !important;
+
+              &::after {
+                background-color: #18a6e4 !important;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1199px) {
+  .page-wrapper.compact-wrapper .page-body-wrapper div.sidebar-wrapper {
+    background: #ffffff !important;
+  }
+}

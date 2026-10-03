@@ -25,7 +25,7 @@ export const layout: LayoutConfig = {
   },
   color: {
     layoutVersion: "light",
-    primaryColor: "#006666",
-    secondaryColor: "#FE6A49",
+    primaryColor: "#18A6E4",
+    secondaryColor: "#006878",
   },
 };

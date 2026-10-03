@@ -4,7 +4,7 @@ import { routes } from "./routes";
 const Body = () => import("@/layout/Body.vue");
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.VITE_BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "",
@@ -14,6 +14,16 @@ const router = createRouter({
       path: "/",
       component: Body,
       children: [
+        {
+          path: routes.Dashboard.Crm,
+          name: "CrmDashboard",
+          component: () => import("@/pages/dashboard/CrmDashboard.vue"),
+          meta: {
+            mainTitle: "Dashboard CRM",
+            title: "Dashboard CRM | MHJ Medika",
+            hideBreadcrumb: true,
+          },
+        },
         {
           path: routes.Pages.SamplePages1,
           name: "SamplePage1",
