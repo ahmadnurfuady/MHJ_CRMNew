@@ -34,7 +34,7 @@ export const areaChart2 = {
         vAxis: { minValue: 0, ticks: [0, 750, 1500, 2250, 3000] },
         width: '100%',
         height: 400,
-        colors: [primaryColor, secondaryColor, '#0284C7', '#F59E0B'],
+        colors: [primaryColor, secondaryColor, '#05933f', '#FFAE1A'],
     },
 };
 //Column Chart 1
@@ -56,7 +56,7 @@ export const columnChart1 = {
         },
         height: 400,
         width: '100%',
-        colors: [primaryColor, secondaryColor, '#0284C7'],
+        colors: [primaryColor, secondaryColor, '#51bb25'],
     },
 };
 // Column Chart 2
@@ -80,7 +80,7 @@ export const columnChart2 = {
         },
         height: 400,
         width: '100%',
-        colors: [primaryColor, secondaryColor, '#0284C7'],
+        colors: [primaryColor, secondaryColor, '#51bb25'],
     },
 };
 // Gantt Chart
@@ -147,7 +147,7 @@ export const ganttChartOptions = {
         arrow: {
             angle: 100,
             width: 5,
-            color: '#0284C7',
+            color: '#05933f',
             radius: 0,
         },
         palette: [
@@ -186,7 +186,7 @@ export const lineChart = {
             subtitle: 'in millions of dollars (USD)',
         },
         vAxis: { ticks: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90] },
-        colors: [primaryColor, secondaryColor, '#0284C7'],
+        colors: [primaryColor, secondaryColor, '#51bb25'],
         height: 500,
         width: '100%',
     },
@@ -210,7 +210,7 @@ export const comboChart = {
         series: { 5: { type: 'line' } },
         height: 500,
         width: '100%',
-        colors: [primaryColor, secondaryColor, '#0284C7', '#a927f9', '#f8d62b'],
+        colors: [primaryColor, secondaryColor, '#51bb25', '#a927f9', '#f8d62b'],
     },
 };
 // Bar Chart
@@ -225,9 +225,9 @@ export const barChart = {
             },
         ],
         ['Copper', 10, '#a927f9'],
-        ['Silver', 12, '#F59E0B'],
-        ['Gold', 14, '#84D7EB'],
-        ['Platinum', 16, 'color: #18A6E4'],
+        ['Silver', 12, '#FFAE1A'],
+        ['Gold', 14, '#FE6A49'],
+        ['Platinum', 16, 'color: #006666'],
     ],
     options: {
         title: 'Density of Precious Metals, in g/cm^3',
@@ -289,7 +289,7 @@ export const pieChart1 = {
         title: 'My Daily Activities',
         width: '100%',
         height: 300,
-        colors: ['#ffb829', '#0284C7', '#a927f9', secondaryColor, primaryColor],
+        colors: ['#ffb829', '#05933f', '#a927f9', secondaryColor, primaryColor],
     },
 };
 // Pie Chart 2
@@ -308,7 +308,7 @@ export const pieChart2 = {
         pieHole: 0.4,
         width: '100%',
         height: 300,
-        colors: ['#ffb829', '#a927f9', '#0284C7', secondaryColor, primaryColor],
+        colors: ['#ffb829', '#a927f9', '#05933f', secondaryColor, primaryColor],
     },
 };
 // Pie Chart 3
@@ -350,16 +350,16 @@ export const pieChart3 = {
             '#d86f13',
             primaryColor,
             secondaryColor,
-            '#0284C7',
+            '#05933f',
             '#a927f9',
             '#ffb829',
             '#d86f13',
             primaryColor,
             '#ffb829',
-            '#0284C7',
+            '#05933f',
             primaryColor,
             secondaryColor,
-            '#0284C7',
+            '#05933f',
             primaryColor,
             '#a927f9',
             '#ffb829',
@@ -368,7 +368,7 @@ export const pieChart3 = {
             '#a927f9',
             secondaryColor,
             primaryColor,
-            '#0284C7',
+            '#05933f',
         ],
     },
 };
@@ -388,6 +388,6 @@ export const pieChart4 = {
         is3D: true,
         width: '100%',
         height: 300,
-        colors: ['#ffb829', '#a927f9', '#0284C7', secondaryColor, primaryColor],
+        colors: ['#ffb829', '#a927f9', '#05933f', secondaryColor, primaryColor],
     },
 };

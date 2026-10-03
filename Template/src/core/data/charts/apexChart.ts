@@ -300,7 +300,7 @@ export const columnChartOptions: ApexOptions = {
       formatter: (val: number) => `$ ${val} thousands`,
     },
   },
-  colors: [primaryColor, secondaryColor, '#84D7EB'],
+  colors: [primaryColor, secondaryColor, '#8DD4B4'],
 }
 
 export const bubbleChartOptions: ApexOptions = {
@@ -339,7 +339,7 @@ export const bubbleChartOptions: ApexOptions = {
   stroke: {
     width: 0,
   },
-  colors: [primaryColor, secondaryColor, '#84D7EB', '#FFC38D'],
+  colors: [primaryColor, secondaryColor, '#8DD4B4', '#FFC38D'],
 }
 
 export const stepLineChartOptions: ApexOptions = {
@@ -417,10 +417,10 @@ export const annotationChartOptions: ApexOptions = {
       {
         x: new Date('26 Nov 2017').getTime(),
         x2: new Date('28 Nov 2017').getTime(),
-        fillColor: '#BAE6FD',
+        fillColor: '#B3F7CA',
         opacity: 0.4,
         label: {
-          borderColor: '#BAE6FD',
+          borderColor: '#B3F7CA',
           style: {
             fontSize: '10px',
             color: '#fff',
@@ -496,14 +496,14 @@ export const pieChartOptions: ApexOptions = {
     type: 'pie',
   },
   labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
-  colors: [primaryColor, secondaryColor, '#0284C7', '#a927f9', '#F59E0B'],
+  colors: [primaryColor, secondaryColor, '#05933f', '#a927f9', '#FFAE1A'],
 }
 export const donutChartOptions: ApexOptions = {
   chart: {
     width: 380,
     type: 'donut',
   },
-  colors: ['#d86f13', '#F59E0B', primaryColor, '#0284C7', '#a927f9'],
+  colors: ['#d86f13', '#FFAE1A', primaryColor, '#05933f', '#a927f9'],
 }
 
 export const mixChartOption: ApexOptions = {
@@ -717,7 +717,7 @@ export const radialBarChartOptions: ApexOptions = {
       },
     },
   ],
-  colors: [secondaryColor, '#0284C7', '#ffb829', primaryColor],
+  colors: [secondaryColor, '#05933f', '#ffb829', primaryColor],
 }
 
 export function generateData(baseval: number, count: number, yrange: { min: number; max: number }) {

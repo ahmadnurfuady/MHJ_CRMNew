@@ -72,7 +72,7 @@ export const events = ref<EventInput[]>([
     start: startOfDay(new Date()),
     all_day: true,
     background_color: '#3a53a3',
-    border_color: '#F59E0B',
+    border_color: '#FFAE1A',
   },
   {
     title: 'A long event that spans 2 months',
@@ -86,8 +86,8 @@ export const events = ref<EventInput[]>([
     title: 'A draggable and resizable event',
     start: addHours(startOfDay(new Date()), 2),
     end: addHours(new Date(), 2),
-    background_color: '#F59E0B',
-    border_color: '#F59E0B',
+    background_color: '#FFAE1A',
+    border_color: '#FFAE1A',
   },
 ])
 

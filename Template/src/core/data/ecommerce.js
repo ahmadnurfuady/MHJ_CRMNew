@@ -1960,7 +1960,7 @@ export const sellerChartTwo = {
         type: 'area',
         dropShadow: {
             enabled: true,
-            color: '#84D7EB',
+            color: '#8DD4B4',
             top: 8,
             left: 0,
             blur: 2,
@@ -1970,7 +1970,7 @@ export const sellerChartTwo = {
             show: false,
         },
     },
-    colors: ['#84D7EB'],
+    colors: ['#8DD4B4'],
     dataLabels: {
         enabled: true,
         style: {
@@ -2677,7 +2677,7 @@ export const invoice3Products = [
         license: 'Regular License',
         qty: 2,
         price: 30,
-        color: '#0284C7',
+        color: '#54ba4a',
     },
     {
         title: 'Vuejs Admin template',

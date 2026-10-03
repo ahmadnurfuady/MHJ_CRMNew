@@ -1,0 +1,30 @@
+<template>
+  <div class="error-wrapper maintenance-bg">
+    <div class="container">
+      <ul class="maintenance-icons">
+        <li>
+          <i class="fa-solid fa-gear"></i>
+        </li>
+        <li>
+          <i class="fa-solid fa-gear"></i>
+        </li>
+        <li>
+          <i class="fa-solid fa-gear"></i>
+        </li>
+      </ul>
+      <div class="maintenance-heading">
+        <h2 class="headline">MAINTENANCE</h2>
+      </div>
+      <h4 class="sub-content">
+        Our site is currently under maintenance we will be back shortly
+        <br />
+        thank you for patience
+      </h4>
+      <div>
+        <router-link class="btn btn-primary-gradien btn-lg text-light" :to="'/'"
+          >BACK TO HOME PAGE</router-link
+        >
+      </div>
+    </div>
+  </div>
+</template>

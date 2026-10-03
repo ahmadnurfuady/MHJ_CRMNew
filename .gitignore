@@ -30,3 +30,10 @@ lerna-debug.log*
 
 # TypeScript cache
 *.tsbuildinfo
+
+
+.agents
+.claude
+
+template/public
+APLIKASIERP.pdf

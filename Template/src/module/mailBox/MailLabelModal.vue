@@ -41,7 +41,7 @@
                 class="form-control form-control-color"
                 id="exampleColorInput"
                 type="color"
-                value="#18A6E4"
+                value="#006666"
                 title="Choose your color"
               />
             </div>

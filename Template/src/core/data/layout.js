@@ -7,7 +7,7 @@ export const layout = {
     },
     color: {
         layoutVersion: 'light',
-        primaryColor: '#18A6E4',
-        secondaryColor: '#84D7EB',
+        primaryColor: '#006666',
+        secondaryColor: '#FE6A49',
     },
 };

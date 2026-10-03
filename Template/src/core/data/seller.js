@@ -325,7 +325,7 @@ export const salesOverviewCharts = [
                 type: 'area',
                 dropShadow: {
                     enabled: true,
-                    color: '#F59E0B',
+                    color: '#FFAE1A',
                     top: 8,
                     left: 0,
                     blur: 2,
@@ -335,7 +335,7 @@ export const salesOverviewCharts = [
                     show: false,
                 },
             },
-            colors: ['#F59E0B'],
+            colors: ['#FFAE1A'],
             dataLabels: {
                 enabled: true,
                 formatter: function (val) {
@@ -431,7 +431,7 @@ export const salesOverviewCharts = [
                 type: 'area',
                 dropShadow: {
                     enabled: true,
-                    color: '#0284C7',
+                    color: '#65c15c',
                     top: 8,
                     left: 0,
                     blur: 2,
@@ -441,7 +441,7 @@ export const salesOverviewCharts = [
                     show: false,
                 },
             },
-            colors: ['#0284C7'],
+            colors: ['#65c15c'],
             dataLabels: {
                 enabled: true,
             },
@@ -529,7 +529,7 @@ export const salesOverviewCharts = [
                 type: 'area',
                 dropShadow: {
                     enabled: true,
-                    color: '#18A6E4',
+                    color: '#006666',
                     top: 8,
                     left: 0,
                     blur: 2,
@@ -539,7 +539,7 @@ export const salesOverviewCharts = [
                     show: false,
                 },
             },
-            colors: ['#18A6E4'],
+            colors: ['#006666'],
             dataLabels: {
                 enabled: true,
             },

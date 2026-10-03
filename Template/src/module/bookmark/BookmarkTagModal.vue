@@ -15,7 +15,7 @@
           </div>
           <div class="mt-0 col-md-12">
             <label>Tag color</label>
-            <input class="form-color d-block" type="color" value="#18A6E4" />
+            <input class="form-color d-block" type="color" value="#006666" />
           </div>
         </div>
         <button class="btn btn-primary me-2" type="button">Save</button>
