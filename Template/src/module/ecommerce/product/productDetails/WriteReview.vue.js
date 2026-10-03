@@ -161,7 +161,7 @@ for (const [data] of __VLS_vFor((__VLS_ctx.reviews))) {
     });
     /** @type {__VLS_StyleScopedClasses['common-flex']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.RatingStars} */
+    /** @ts-ignore @type { | typeof __VLS_components.RatingStars} */
     RatingStars;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -185,7 +185,7 @@ for (const [data] of __VLS_vFor((__VLS_ctx.reviews))) {
     [reviews, getImages,];
 }
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.ReviewModal} */
+/** @ts-ignore @type { | typeof __VLS_components.ReviewModal} */
 ReviewModal;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));

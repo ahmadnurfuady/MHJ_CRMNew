@@ -47,7 +47,7 @@ if (props.project) {
     /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
     /** @type {__VLS_StyleScopedClasses['c-o-light']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -111,7 +111,7 @@ if (props.project) {
         /** @type {__VLS_StyleScopedClasses['common-space']} */ ;
         if (props.project.teamMember && props.project.teamMember.length) {
             let __VLS_5;
-            /** @ts-ignore @type {typeof __VLS_components.GroupItem} */
+            /** @ts-ignore @type { | typeof __VLS_components.GroupItem} */
             GroupItem;
             // @ts-ignore
             const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

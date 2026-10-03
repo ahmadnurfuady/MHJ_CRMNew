@@ -30,7 +30,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -45,7 +45,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('common-flex common-offcanvas'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -58,7 +58,7 @@ const { default: __VLS_6 } = __VLS_3.slots;
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openOffcanvas('top');
+            return (__VLS_ctx.openOffcanvas('top'));
             // @ts-ignore
             [openOffcanvas,];
         } },
@@ -69,7 +69,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openOffcanvas('end');
+            return (__VLS_ctx.openOffcanvas('end'));
             // @ts-ignore
             [openOffcanvas,];
         } },
@@ -80,7 +80,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-secondary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openOffcanvas('bottom');
+            return (__VLS_ctx.openOffcanvas('bottom'));
             // @ts-ignore
             [openOffcanvas,];
         } },
@@ -91,7 +91,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-dark']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openOffcanvas('start');
+            return (__VLS_ctx.openOffcanvas('start'));
             // @ts-ignore
             [openOffcanvas,];
         } },
@@ -112,14 +112,16 @@ if (__VLS_ctx.details.direction) {
         details: (__VLS_ctx.details),
     }, ...__VLS_functionalComponentArgsRest(__VLS_9));
     let __VLS_13;
-    const __VLS_14 = ({ closeOffcanvas: {} },
-        { onCloseOffcanvas: (...[$event]) => {
-                if (!(__VLS_ctx.details.direction))
-                    return;
-                __VLS_ctx.handleOffcanvas();
-                // @ts-ignore
-                [details, details, activeComponent, handleOffcanvas,];
-            } });
+    const __VLS_14 = {
+        /** @type {typeof __VLS_13.closeOffcanvas} */
+        onCloseOffcanvas: (...[$event]) => {
+            if (!(__VLS_ctx.details.direction))
+                throw 0;
+            return (__VLS_ctx.handleOffcanvas());
+            // @ts-ignore
+            [details, details, activeComponent, handleOffcanvas,];
+        },
+    };
     var __VLS_11;
     var __VLS_12;
 }

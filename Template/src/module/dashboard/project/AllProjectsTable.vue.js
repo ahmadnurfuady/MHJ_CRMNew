@@ -11,7 +11,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -28,12 +28,12 @@ const __VLS_2 = __VLS_1({
     header: ('total-revenue'),
     cardBodyClass: ('pt-0'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -96,7 +96,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     });
     /** @type {__VLS_StyleScopedClasses['widgetsChart']} */ ;
     let __VLS_14;
-    /** @ts-ignore @type {typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart} */
+    /** @ts-ignore @type { | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart} */
     apexchart;
     // @ts-ignore
     const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -113,7 +113,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_15));
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
     let __VLS_19;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -140,7 +140,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     });
     /** @type {__VLS_StyleScopedClasses['project-link']} */ ;
     let __VLS_25;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -160,7 +160,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     });
     /** @type {__VLS_StyleScopedClasses['project-link']} */ ;
     let __VLS_30;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({
@@ -181,7 +181,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     });
     /** @type {__VLS_StyleScopedClasses['product-sub']} */ ;
     let __VLS_35;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({
@@ -213,7 +213,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     });
     /** @type {__VLS_StyleScopedClasses['product-sub']} */ ;
     let __VLS_41;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_42 = __VLS_asFunctionalComponent1(__VLS_41, new __VLS_41({
@@ -245,7 +245,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
     });
     /** @type {__VLS_StyleScopedClasses['product-sub']} */ ;
     let __VLS_47;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_48 = __VLS_asFunctionalComponent1(__VLS_47, new __VLS_47({
@@ -307,7 +307,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.projectTable))) {
         role: "menu",
     });
     let __VLS_53;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_54 = __VLS_asFunctionalComponent1(__VLS_53, new __VLS_53({

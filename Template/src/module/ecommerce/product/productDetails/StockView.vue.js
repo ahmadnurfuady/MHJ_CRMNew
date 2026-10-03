@@ -18,7 +18,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.details))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
     __VLS_asFunctionalElement1(__VLS_intrinsics.b, __VLS_intrinsics.b)({});
-    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (item.title) }, null, null);
+    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (item.title), }, null, null);
     __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({
         ...{ class: (item.class) },
     });

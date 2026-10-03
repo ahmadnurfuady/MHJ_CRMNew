@@ -14,7 +14,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.details || props.comment) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -25,7 +25,7 @@ if (props.details || props.comment) {
         border: (false),
         padding: (false),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_5 = {};
+    var __VLS_5;
     const { default: __VLS_6 } = __VLS_3.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "blog-single" },
@@ -93,7 +93,7 @@ if (props.details || props.comment) {
     }
     if (props.comment) {
         let __VLS_7;
-        /** @ts-ignore @type {typeof __VLS_components.DetailsPageComment} */
+        /** @ts-ignore @type { | typeof __VLS_components.DetailsPageComment} */
         DetailsPageComment;
         // @ts-ignore
         const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({

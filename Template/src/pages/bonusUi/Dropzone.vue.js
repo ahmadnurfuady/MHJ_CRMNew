@@ -21,7 +21,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-lg-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -56,7 +56,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.form, __VLS_intrinsics.form)({
 /** @type {__VLS_StyleScopedClasses['dropzone-secondary']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.FilePond} */
+/** @ts-ignore @type { | typeof __VLS_components.FilePond} */
 FilePond;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -75,7 +75,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-lg-6']} */ ;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -111,7 +111,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.form, __VLS_intrinsics.form)({
 /** @type {__VLS_StyleScopedClasses['dropzone-secondary']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.FilePond} */
+/** @ts-ignore @type { | typeof __VLS_components.FilePond} */
 FilePond;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({

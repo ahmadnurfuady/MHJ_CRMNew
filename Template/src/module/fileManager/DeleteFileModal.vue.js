@@ -20,7 +20,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
+/** @ts-ignore @type { | typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
 Modal;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -36,13 +36,15 @@ const __VLS_2 = __VLS_1({
     modalCentered: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal();
-            // @ts-ignore
-            [closeModal,];
-        } });
-var __VLS_7 = {};
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal());
+        // @ts-ignore
+        [closeModal,];
+    },
+};
+var __VLS_7;
 const { default: __VLS_8 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "modal-body" },
@@ -50,7 +52,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['modal-body']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.remove();
+            return (__VLS_ctx.remove());
             // @ts-ignore
             [remove,];
         } },
@@ -63,7 +65,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['mt-10']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.closeModal();
+            return (__VLS_ctx.closeModal());
             // @ts-ignore
             [closeModal,];
         } },

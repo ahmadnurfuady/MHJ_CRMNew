@@ -25,7 +25,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -58,7 +58,7 @@ for (const [articles, index] of __VLS_vFor((__VLS_ctx.browseArticles))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({});
     __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -78,7 +78,7 @@ for (const [articles, index] of __VLS_vFor((__VLS_ctx.browseArticles))) {
         });
         __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
         let __VLS_11;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -108,7 +108,7 @@ for (const [articles, index] of __VLS_vFor((__VLS_ctx.browseArticles))) {
         });
         __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
         let __VLS_16;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({

@@ -42,7 +42,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['layout-grid']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeSidebarSetting('horizontal-wrapper ', 'Horizontal');
+            return (__VLS_ctx.customizeSidebarSetting('horizontal-wrapper ', 'Horizontal'));
             // @ts-ignore
             [customizeSidebarSetting,];
         } },
@@ -74,7 +74,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['body']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeSidebarSetting('compact-wrapper', 'default');
+            return (__VLS_ctx.customizeSidebarSetting('compact-wrapper', 'default'));
             // @ts-ignore
             [customizeSidebarSetting,];
         } },

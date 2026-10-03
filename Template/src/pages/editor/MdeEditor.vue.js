@@ -22,14 +22,14 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
 const { default: __VLS_5 } = __VLS_3.slots;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.MdEditor} */
+/** @ts-ignore @type { | typeof __VLS_components.MdEditor} */
 MdEditor;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({

@@ -66,7 +66,7 @@ for (const [tab] of __VLS_vFor((__VLS_ctx.searchTabs))) {
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.activeTab = tab.id;
+                return (__VLS_ctx.activeTab = tab.id);
                 // @ts-ignore
                 [searchTabs, activeTab,];
             } },

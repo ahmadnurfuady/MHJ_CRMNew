@@ -25,7 +25,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.VerticalSlider} */
+/** @ts-ignore @type { | typeof __VLS_components.VerticalSlider} */
 VerticalSlider;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -36,7 +36,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.NestedSwiper} */
+/** @ts-ignore @type { | typeof __VLS_components.NestedSwiper} */
 NestedSwiper;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -47,7 +47,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.MouseWheelVariant} */
+/** @ts-ignore @type { | typeof __VLS_components.MouseWheelVariant} */
 MouseWheelVariant;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -58,7 +58,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.AutoPlayVariant} */
+/** @ts-ignore @type { | typeof __VLS_components.AutoPlayVariant} */
 AutoPlayVariant;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -68,7 +68,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.EffectCoverflow} */
+/** @ts-ignore @type { | typeof __VLS_components.EffectCoverflow} */
 EffectCoverflow;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));

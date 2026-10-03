@@ -39,14 +39,16 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['nav-tabs']} */ ;
 /** @type {__VLS_StyleScopedClasses['border-tab']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.projectTab))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(tab.value);
+                return (__VLS_ctx.handleTab(tab.value));
                 // @ts-ignore
                 [projectTab, handleTab,];
             } },
         ...{ class: "nav-item" },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
@@ -64,7 +66,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.projectTab))) {
     [activeTab,];
 }
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

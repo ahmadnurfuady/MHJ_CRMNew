@@ -108,7 +108,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['d-block']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.addTags();
+            return (__VLS_ctx.addTags());
             // @ts-ignore
             [tag, addTags,];
         } },

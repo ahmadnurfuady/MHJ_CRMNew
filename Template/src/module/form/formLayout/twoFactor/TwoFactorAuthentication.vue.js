@@ -14,7 +14,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -36,7 +36,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.img)({
 });
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal();
+            return (__VLS_ctx.openModal());
             // @ts-ignore
             [getImages, openModal,];
         } },
@@ -51,7 +51,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 [];
 var __VLS_3;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.TwoFactorAuthenticationModal} */
+/** @ts-ignore @type { | typeof __VLS_components.TwoFactorAuthenticationModal} */
 TwoFactorAuthenticationModal;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -63,12 +63,14 @@ const __VLS_8 = __VLS_7({
     modalOpen: (__VLS_ctx.authenticationModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_7));
 let __VLS_11;
-const __VLS_12 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.authenticationModalOpen = false;
-            // @ts-ignore
-            [authenticationModalOpen, authenticationModalOpen,];
-        } });
+const __VLS_12 = {
+    /** @type {typeof __VLS_11.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.authenticationModalOpen = false);
+        // @ts-ignore
+        [authenticationModalOpen, authenticationModalOpen,];
+    },
+};
 var __VLS_9;
 var __VLS_10;
 // @ts-ignore

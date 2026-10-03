@@ -9,7 +9,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -24,7 +24,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('card-wrapper input-radius'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -69,7 +69,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['icofont-pencil-alt-5']} */ ;
 /** @type {__VLS_StyleScopedClasses['txt-primary']} */ ;
 let __VLS_8;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -95,7 +95,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -147,7 +147,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group-text']} */ ;
 let __VLS_18;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -185,7 +185,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['icofont-ui-zoom-out']} */ ;
 /** @type {__VLS_StyleScopedClasses['txt-secondary']} */ ;
 let __VLS_23;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_24 = __VLS_asFunctionalComponent1(__VLS_23, new __VLS_23({
@@ -234,7 +234,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['icofont-users']} */ ;
 /** @type {__VLS_StyleScopedClasses['txt-primary']} */ ;
 let __VLS_28;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_29 = __VLS_asFunctionalComponent1(__VLS_28, new __VLS_28({
@@ -272,7 +272,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['icofont-credit-card']} */ ;
 /** @type {__VLS_StyleScopedClasses['txt-secondary']} */ ;
 let __VLS_33;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_34 = __VLS_asFunctionalComponent1(__VLS_33, new __VLS_33({
@@ -310,7 +310,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['icofont-download']} */ ;
 /** @type {__VLS_StyleScopedClasses['txt-primary']} */ ;
 let __VLS_38;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_39 = __VLS_asFunctionalComponent1(__VLS_38, new __VLS_38({
@@ -348,7 +348,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['icofont-ui-copy']} */ ;
 /** @type {__VLS_StyleScopedClasses['txt-secondary']} */ ;
 let __VLS_43;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_44 = __VLS_asFunctionalComponent1(__VLS_43, new __VLS_43({

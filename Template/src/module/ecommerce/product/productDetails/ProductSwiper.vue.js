@@ -61,7 +61,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['owl-carousel']} */ ;
 /** @type {__VLS_StyleScopedClasses['owl-theme']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Swiper | typeof __VLS_components.Swiper} */
+/** @ts-ignore @type { | typeof __VLS_components.Swiper | typeof __VLS_components.Swiper} */
 Swiper;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -86,7 +86,7 @@ const __VLS_2 = __VLS_1({
 const { default: __VLS_5 } = __VLS_3.slots;
 for (const [product, index] of __VLS_vFor((__VLS_ctx.products?.images))) {
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.SwiperSlide | typeof __VLS_components.SwiperSlide} */
+    /** @ts-ignore @type { | typeof __VLS_components.SwiperSlide | typeof __VLS_components['Swiper-slide'] | typeof __VLS_components.SwiperSlide | typeof __VLS_components['Swiper-slide']} */
     SwiperSlide;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -122,7 +122,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['owl-theme']} */ ;
 /** @type {__VLS_StyleScopedClasses['product-tab-slider']} */ ;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.Swiper | typeof __VLS_components.Swiper} */
+/** @ts-ignore @type { | typeof __VLS_components.Swiper | typeof __VLS_components.Swiper} */
 Swiper;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -150,13 +150,15 @@ const __VLS_14 = __VLS_13({
     ...{ class: "Swiper" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_13));
 let __VLS_17;
-const __VLS_18 = ({ swiper: {} },
-    { onSwiper: (__VLS_ctx.setThumbsSwiper) });
+const __VLS_18 = {
+    /** @type {typeof __VLS_17.swiper} */
+    onSwiper: (__VLS_ctx.setThumbsSwiper),
+};
 /** @type {__VLS_StyleScopedClasses['Swiper']} */ ;
 const { default: __VLS_19 } = __VLS_15.slots;
 for (const [product, index] of __VLS_vFor((__VLS_ctx.products?.images))) {
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.SwiperSlide | typeof __VLS_components.SwiperSlide} */
+    /** @ts-ignore @type { | typeof __VLS_components.SwiperSlide | typeof __VLS_components['Swiper-slide'] | typeof __VLS_components.SwiperSlide | typeof __VLS_components['Swiper-slide']} */
     SwiperSlide;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({

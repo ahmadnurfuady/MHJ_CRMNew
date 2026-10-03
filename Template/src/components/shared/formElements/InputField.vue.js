@@ -49,15 +49,15 @@ if (__VLS_ctx.inputType !== 'textarea' && __VLS_ctx.inputType !== 'file') {
         ...{ onFocusout: (__VLS_ctx.onInput) },
         ...{ onFocus: (...[$event]) => {
                 if (!(__VLS_ctx.inputType !== 'textarea' && __VLS_ctx.inputType !== 'file'))
-                    return;
-                __VLS_ctx.showBadge();
+                    throw 0;
+                return (__VLS_ctx.showBadge());
                 // @ts-ignore
                 [inputType, inputType, onInput, onInput, showBadge,];
             } },
         ...{ onBlur: (...[$event]) => {
                 if (!(__VLS_ctx.inputType !== 'textarea' && __VLS_ctx.inputType !== 'file'))
-                    return;
-                __VLS_ctx.hideBadge();
+                    throw 0;
+                return (__VLS_ctx.hideBadge());
                 // @ts-ignore
                 [hideBadge,];
             } },
@@ -101,19 +101,19 @@ else if (__VLS_ctx.inputType == 'textarea') {
         ...{ onFocusout: (__VLS_ctx.onInput) },
         ...{ onFocus: (...[$event]) => {
                 if (!!(props.datalist?.length))
-                    return;
+                    throw 0;
                 if (!(__VLS_ctx.inputType == 'textarea'))
-                    return;
-                __VLS_ctx.showBadge();
+                    throw 0;
+                return (__VLS_ctx.showBadge());
                 // @ts-ignore
                 [inputType, onInput, onInput, showBadge,];
             } },
         ...{ onBlur: (...[$event]) => {
                 if (!!(props.datalist?.length))
-                    return;
+                    throw 0;
                 if (!(__VLS_ctx.inputType == 'textarea'))
-                    return;
-                __VLS_ctx.hideBadge();
+                    throw 0;
+                return (__VLS_ctx.hideBadge());
                 // @ts-ignore
                 [hideBadge,];
             } },
@@ -183,7 +183,7 @@ if (props.helperText) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({
         ...{ class: "fst-italic c-o-light" },
     });
-    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (`*${props.helperText}`) }, null, null);
+    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (`*${props.helperText}`), }, null, null);
     /** @type {__VLS_StyleScopedClasses['fst-italic']} */ ;
     /** @type {__VLS_StyleScopedClasses['c-o-light']} */ ;
 }

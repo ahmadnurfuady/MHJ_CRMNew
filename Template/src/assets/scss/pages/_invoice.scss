@@ -770,7 +770,7 @@
   }
 
   .btn-download {
-    background: rgba(0, 102, 102, 0.1);
+    background: rgba($primary-color, 0.1);
     color: $primary-color;
   }
 
@@ -1138,7 +1138,7 @@
   }
 
   .btn-download {
-    background: rgba(0, 102, 102, 0.1);
+    background: rgba($primary-color, 0.1);
     color: $primary-color;
   }
 
@@ -1486,7 +1486,7 @@
   }
 
   .btn-download {
-    background: rgba(0, 102, 102, 0.1);
+    background: rgba($primary-color, 0.1);
     color: $primary-color;
     border-radius: 10px;
     padding: 18px 27px;
@@ -1539,7 +1539,7 @@
     list-style: none;
     display: flex;
     align-items: center;
-    background: linear-gradient(291deg, #006666 21.2%, #006666 83.92%);
+    background: linear-gradient(291deg, $primary-color 21.2%, $primary-color 83.92%);
     padding: 31px 80px;
     border-bottom-left-radius: 100px;
     gap: 28px;
@@ -1867,7 +1867,7 @@
   }
 
   .btn-secondary {
-    background-color: rgba(0, 102, 102, 0.1) !important;
+    background-color: rgba($primary-color, 0.1) !important;
     color: $primary-color !important;
     border-radius: 10px;
     padding: 18px 27px;

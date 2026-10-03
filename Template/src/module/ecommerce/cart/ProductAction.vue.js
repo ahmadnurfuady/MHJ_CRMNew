@@ -24,7 +24,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['touchspin-wrapper']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.$emit('decrement', __VLS_ctx.item);
+            return (__VLS_ctx.$emit('decrement', __VLS_ctx.item));
             // @ts-ignore
             [$emit, item,];
         } },
@@ -47,7 +47,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['spin-outline-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.$emit('increment', __VLS_ctx.item);
+            return (__VLS_ctx.$emit('increment', __VLS_ctx.item));
             // @ts-ignore
             [$emit, item, item,];
         } },
@@ -78,7 +78,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 });
 /** @type {__VLS_StyleScopedClasses['square-white']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -89,7 +89,7 @@ const __VLS_2 = __VLS_1({
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.$emit('delete', __VLS_ctx.item);
+            return (__VLS_ctx.$emit('delete', __VLS_ctx.item));
             // @ts-ignore
             [$emit, item, item, item,];
         } },
@@ -99,7 +99,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 /** @type {__VLS_StyleScopedClasses['square-white']} */ ;
 /** @type {__VLS_StyleScopedClasses['trash-3']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

@@ -22,15 +22,17 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Searchbox} */
+/** @ts-ignore @type { | typeof __VLS_components.Searchbox} */
 Searchbox;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
 for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "col-xl-4 xl-50 col-md-6 box-col-6" },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
     /** @type {__VLS_StyleScopedClasses['xl-50']} */ ;
@@ -69,7 +71,7 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
     });
     /** @type {__VLS_StyleScopedClasses['card-header-right-icon']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.CardDropdown | typeof __VLS_components.CardDropdown} */
+    /** @ts-ignore @type { | typeof __VLS_components.CardDropdown | typeof __VLS_components.CardDropdown} */
     CardDropdown;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -85,7 +87,9 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
     });
     /** @type {__VLS_StyleScopedClasses['card-body']} */ ;
     for (const [project, index] of __VLS_vFor((__VLS_ctx.projects))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         if (project.status == status.value) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                 ...{ class: "progress-project-box" },
@@ -101,7 +105,7 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
             if (!project.projectBanner) {
                 if (project.developer && project.developer.length) {
                     let __VLS_10;
-                    /** @ts-ignore @type {typeof __VLS_components.GroupItem} */
+                    /** @ts-ignore @type { | typeof __VLS_components.GroupItem} */
                     GroupItem;
                     // @ts-ignore
                     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -163,7 +167,7 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
             /** @type {__VLS_StyleScopedClasses['progress-bar']} */ ;
             if (project.developer && project.developer.length && project.projectBanner) {
                 let __VLS_15;
-                /** @ts-ignore @type {typeof __VLS_components.GroupItem} */
+                /** @ts-ignore @type { | typeof __VLS_components.GroupItem} */
                 GroupItem;
                 // @ts-ignore
                 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -190,7 +194,7 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
                 ngbTooltip: "Attachment",
             });
             let __VLS_20;
-            /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+            /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
             SvgIcon;
             // @ts-ignore
             const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -209,7 +213,7 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
                 ngbTooltip: "Comments",
             });
             let __VLS_25;
-            /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+            /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
             SvgIcon;
             // @ts-ignore
             const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -229,7 +233,7 @@ for (const [status, index] of __VLS_vFor((__VLS_ctx.projectStatus))) {
             /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
             /** @type {__VLS_StyleScopedClasses['c-o-light']} */ ;
             let __VLS_30;
-            /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+            /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
             SvgIcon;
             // @ts-ignore
             const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({

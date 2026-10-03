@@ -46,7 +46,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['dropzone-wrapper']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.DropZone | typeof __VLS_components.DropZone} */
+/** @ts-ignore @type { | typeof __VLS_components.DropZone | typeof __VLS_components.DropZone} */
 DropZone;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -99,7 +99,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['dropzone-wrapper']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.DropZone | typeof __VLS_components.DropZone} */
+/** @ts-ignore @type { | typeof __VLS_components.DropZone | typeof __VLS_components.DropZone} */
 DropZone;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -146,7 +146,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['product-buttons']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleTab(-1);
+            return (__VLS_ctx.handleTab(-1));
             // @ts-ignore
             [handleTab,];
         } },
@@ -155,7 +155,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 });
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 let __VLS_14;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -166,7 +166,7 @@ const __VLS_16 = __VLS_15({
 }, ...__VLS_functionalComponentArgsRest(__VLS_15));
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleTab(1);
+            return (__VLS_ctx.handleTab(1));
             // @ts-ignore
             [handleTab,];
         } },
@@ -175,7 +175,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 });
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({

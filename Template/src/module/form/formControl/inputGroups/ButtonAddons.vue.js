@@ -9,7 +9,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -24,7 +24,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('card-wrapper input-group-wrapper btn-addon'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -46,7 +46,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['btn-outline-secondary']} */ ;
 let __VLS_8;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -64,7 +64,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -102,7 +102,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['btn-light']} */ ;
 let __VLS_18;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -120,7 +120,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_23;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_24 = __VLS_asFunctionalComponent1(__VLS_23, new __VLS_23({

@@ -47,7 +47,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-8']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -66,10 +66,12 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['stepper-horizontal']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.tabs))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "stepper-one step" },
         ...{ class: ({ 'active done': tab.id < __VLS_ctx.activeTab }) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['stepper-one']} */ ;
     /** @type {__VLS_StyleScopedClasses['step']} */ ;
@@ -103,7 +105,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['shipping-content']} */ ;
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.UserInformation} */
+    /** @ts-ignore @type { | typeof __VLS_components.UserInformation} */
     UserInformation;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({}));
@@ -111,7 +113,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.ShippingInformation} */
+    /** @ts-ignore @type { | typeof __VLS_components.ShippingInformation} */
     ShippingInformation;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({}));
@@ -119,7 +121,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_16;
-    /** @ts-ignore @type {typeof __VLS_components.PaymentInformation} */
+    /** @ts-ignore @type { | typeof __VLS_components.PaymentInformation} */
     PaymentInformation;
     // @ts-ignore
     const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({}));
@@ -127,7 +129,7 @@ if (__VLS_ctx.activeTab === 3) {
 }
 if (__VLS_ctx.activeTab === 4) {
     let __VLS_21;
-    /** @ts-ignore @type {typeof __VLS_components.OrderComplete} */
+    /** @ts-ignore @type { | typeof __VLS_components.OrderComplete} */
     OrderComplete;
     // @ts-ignore
     const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({}));
@@ -143,7 +145,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['mt-3']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(-1);
+            return (__VLS_ctx.handleStep(-1));
             // @ts-ignore
             [activeTab, activeTab, activeTab, activeTab, handleStep,];
         } },
@@ -155,7 +157,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['button-light-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.activeTab == __VLS_ctx.checkoutTabs.length ? __VLS_ctx.placeOrder() : __VLS_ctx.handleStep(1);
+            return (__VLS_ctx.activeTab == __VLS_ctx.checkoutTabs.length ? __VLS_ctx.placeOrder() : __VLS_ctx.handleStep(1));
             // @ts-ignore
             [activeTab, activeTab, handleStep, checkoutTabs, placeOrder,];
         } },
@@ -173,7 +175,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 let __VLS_26;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({

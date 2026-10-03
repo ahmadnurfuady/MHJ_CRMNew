@@ -37,7 +37,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal();
+            return (__VLS_ctx.openModal());
             // @ts-ignore
             [openModal,];
         } },
@@ -225,7 +225,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
 /** @type {__VLS_StyleScopedClasses['form-check-label']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.P | typeof __VLS_components.P} */
+/** @ts-ignore @type { | typeof __VLS_components.P | typeof __VLS_components.P} */
 P;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -267,7 +267,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
 /** @type {__VLS_StyleScopedClasses['form-check-label']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -284,7 +284,7 @@ const __VLS_8 = __VLS_7({
 }, ...__VLS_functionalComponentArgsRest(__VLS_7));
 /** @type {__VLS_StyleScopedClasses['future-date']} */ ;
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.AddressModal} */
+/** @ts-ignore @type { | typeof __VLS_components.AddressModal} */
 AddressModal;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -296,12 +296,14 @@ const __VLS_13 = __VLS_12({
     modalOpen: (__VLS_ctx.isModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_12));
 let __VLS_16;
-const __VLS_17 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.isModalOpen = false;
-            // @ts-ignore
-            [isModalOpen, isModalOpen,];
-        } });
+const __VLS_17 = {
+    /** @type {typeof __VLS_16.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.isModalOpen = false);
+        // @ts-ignore
+        [isModalOpen, isModalOpen,];
+    },
+};
 var __VLS_14;
 var __VLS_15;
 // @ts-ignore

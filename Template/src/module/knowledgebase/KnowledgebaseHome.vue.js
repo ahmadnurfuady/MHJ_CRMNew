@@ -41,7 +41,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-100']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -58,7 +58,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['form-control-plaintext']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-100']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.FeatureCard} */
+/** @ts-ignore @type { | typeof __VLS_components.FeatureCard} */
 FeatureCard;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

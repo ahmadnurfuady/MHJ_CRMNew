@@ -27,7 +27,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -46,7 +46,7 @@ const __VLS_2 = __VLS_1({
     buttonText: ('View All'),
     path: (__VLS_ctx.routes.App.Task),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
     ...{ class: "schedule-wrapper nav nav-tabs" },
@@ -57,7 +57,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 for (const [activities, index] of __VLS_vFor((__VLS_ctx.recentActivity.activities))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(activities);
+                return (__VLS_ctx.handleTab(activities));
                 // @ts-ignore
                 [recentActivity, recentActivity, recentActivity, routes, handleTab,];
             } },
@@ -101,9 +101,11 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 });
 /** @type {__VLS_StyleScopedClasses['activity-update']} */ ;
 for (const [activity, index] of __VLS_vFor((__VLS_ctx.filteredActivity))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
         ...{ class: "d-flex align-items-center" },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
     /** @type {__VLS_StyleScopedClasses['align-items-center']} */ ;
@@ -128,7 +130,7 @@ for (const [activity, index] of __VLS_vFor((__VLS_ctx.filteredActivity))) {
     /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
     (activity.createdTime);
     let __VLS_7;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({

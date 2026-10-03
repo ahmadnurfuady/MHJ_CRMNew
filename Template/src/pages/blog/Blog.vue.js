@@ -27,7 +27,7 @@ for (const [blog] of __VLS_vFor((__VLS_ctx.blogs.slice(0, 1)))) {
     /** @type {__VLS_StyleScopedClasses['set-col-12']} */ ;
     /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.SingleBlog} */
+    /** @ts-ignore @type { | typeof __VLS_components.SingleBlog} */
     SingleBlog;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -47,7 +47,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 for (const [blog] of __VLS_vFor((__VLS_ctx.blogs.slice(1, 3)))) {
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.HorizontalBlog} */
+    /** @ts-ignore @type { | typeof __VLS_components.HorizontalBlog} */
     HorizontalBlog;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -70,7 +70,7 @@ for (const [blog] of __VLS_vFor((__VLS_ctx.blogs.slice(3, __VLS_ctx.blogs.length
     /** @type {__VLS_StyleScopedClasses['col-xxl-3']} */ ;
     /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.VerticalBlog} */
+    /** @ts-ignore @type { | typeof __VLS_components.VerticalBlog} */
     VerticalBlog;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({

@@ -49,7 +49,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.allItem.slice(0, 4)))) {
         });
         /** @type {__VLS_StyleScopedClasses['rating']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.RatingStars} */
+        /** @ts-ignore @type { | typeof __VLS_components.RatingStars} */
         RatingStars;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -136,7 +136,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.allItem.slice(4, 6)))) {
         });
         /** @type {__VLS_StyleScopedClasses['rating']} */ ;
         let __VLS_5;
-        /** @ts-ignore @type {typeof __VLS_components.RatingStars} */
+        /** @ts-ignore @type { | typeof __VLS_components.RatingStars} */
         RatingStars;
         // @ts-ignore
         const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

@@ -17,7 +17,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -32,7 +32,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('theme-form'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -56,7 +56,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 let __VLS_8;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -67,7 +67,7 @@ const __VLS_10 = __VLS_9({
 }, ...__VLS_functionalComponentArgsRest(__VLS_9));
 const { default: __VLS_13 } = __VLS_11.slots;
 let __VLS_14;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -97,7 +97,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -108,7 +108,7 @@ const __VLS_21 = __VLS_20({
 }, ...__VLS_functionalComponentArgsRest(__VLS_20));
 const { default: __VLS_24 } = __VLS_22.slots;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -138,7 +138,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({
@@ -149,7 +149,7 @@ const __VLS_32 = __VLS_31({
 }, ...__VLS_functionalComponentArgsRest(__VLS_31));
 const { default: __VLS_35 } = __VLS_33.slots;
 let __VLS_36;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_37 = __VLS_asFunctionalComponent1(__VLS_36, new __VLS_36({
@@ -187,7 +187,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 let __VLS_41;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_42 = __VLS_asFunctionalComponent1(__VLS_41, new __VLS_41({
@@ -198,7 +198,7 @@ const __VLS_43 = __VLS_42({
 }, ...__VLS_functionalComponentArgsRest(__VLS_42));
 const { default: __VLS_46 } = __VLS_44.slots;
 let __VLS_47;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_48 = __VLS_asFunctionalComponent1(__VLS_47, new __VLS_47({
@@ -235,7 +235,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 let __VLS_52;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_53 = __VLS_asFunctionalComponent1(__VLS_52, new __VLS_52({
@@ -246,7 +246,7 @@ const __VLS_54 = __VLS_53({
 }, ...__VLS_functionalComponentArgsRest(__VLS_53));
 const { default: __VLS_57 } = __VLS_55.slots;
 let __VLS_58;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_59 = __VLS_asFunctionalComponent1(__VLS_58, new __VLS_58({

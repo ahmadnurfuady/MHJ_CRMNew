@@ -40,7 +40,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -71,7 +71,7 @@ if (__VLS_ctx.images) {
     /** @type {__VLS_StyleScopedClasses['grid']} */ ;
     /** @type {__VLS_StyleScopedClasses['my-gallery']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.MasonryWall | typeof __VLS_components.MasonryWall} */
+    /** @ts-ignore @type { | typeof __VLS_components.MasonryWall | typeof __VLS_components.MasonryWall} */
     MasonryWall;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -108,7 +108,7 @@ if (__VLS_ctx.images) {
 [];
 var __VLS_3;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.VueEasyLightbox} */
+/** @ts-ignore @type { | typeof __VLS_components.VueEasyLightbox} */
 VueEasyLightbox;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -124,8 +124,10 @@ const __VLS_14 = __VLS_13({
     index: (__VLS_ctx.state.indexRef),
 }, ...__VLS_functionalComponentArgsRest(__VLS_13));
 let __VLS_17;
-const __VLS_18 = ({ hide: {} },
-    { onHide: (__VLS_ctx.onHide) });
+const __VLS_18 = {
+    /** @type {typeof __VLS_17.hide} */
+    onHide: (__VLS_ctx.onHide),
+};
 var __VLS_15;
 var __VLS_16;
 // @ts-ignore

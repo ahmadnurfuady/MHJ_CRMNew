@@ -35,7 +35,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SocialAppProfile} */
+/** @ts-ignore @type { | typeof __VLS_components.SocialAppProfile} */
 SocialAppProfile;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -45,12 +45,14 @@ const __VLS_2 = __VLS_1({
     ...{ 'onCurrentTab': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ currentTab: {} },
-    { onCurrentTab: (...[$event]) => {
-            __VLS_ctx.handleCurrentTab($event);
-            // @ts-ignore
-            [handleCurrentTab,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.currentTab} */
+    onCurrentTab: (...[$event]) => {
+        return (__VLS_ctx.handleCurrentTab($event));
+        // @ts-ignore
+        [handleCurrentTab,];
+    },
+};
 var __VLS_3;
 var __VLS_4;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -66,7 +68,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 if (__VLS_ctx.activeTab == 'timeline') {
     let __VLS_7;
-    /** @ts-ignore @type {typeof __VLS_components.SocialAppTimeline} */
+    /** @ts-ignore @type { | typeof __VLS_components.SocialAppTimeline} */
     SocialAppTimeline;
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({}));
@@ -74,7 +76,7 @@ if (__VLS_ctx.activeTab == 'timeline') {
 }
 if (__VLS_ctx.activeTab == 'about') {
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.SocialAppAbout} */
+    /** @ts-ignore @type { | typeof __VLS_components.SocialAppAbout} */
     SocialAppAbout;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({}));
@@ -82,7 +84,7 @@ if (__VLS_ctx.activeTab == 'about') {
 }
 if (__VLS_ctx.activeTab == 'friends') {
     let __VLS_17;
-    /** @ts-ignore @type {typeof __VLS_components.SocialAppFriends} */
+    /** @ts-ignore @type { | typeof __VLS_components.SocialAppFriends} */
     SocialAppFriends;
     // @ts-ignore
     const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({}));
@@ -90,7 +92,7 @@ if (__VLS_ctx.activeTab == 'friends') {
 }
 if (__VLS_ctx.activeTab == 'photos') {
     let __VLS_22;
-    /** @ts-ignore @type {typeof __VLS_components.SocialAppPhotos} */
+    /** @ts-ignore @type { | typeof __VLS_components.SocialAppPhotos} */
     SocialAppPhotos;
     // @ts-ignore
     const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({}));

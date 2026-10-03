@@ -8,7 +8,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -17,7 +17,7 @@ const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
 const __VLS_2 = __VLS_1({
     cardClass: ('common-hover'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ class: "effect-card custom-effect-card" },
@@ -31,7 +31,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['common-box1']} */ ;
 /** @type {__VLS_StyleScopedClasses['common-align']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({

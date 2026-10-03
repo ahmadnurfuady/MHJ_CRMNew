@@ -23,7 +23,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.TooltipFormValidation} */
+/** @ts-ignore @type { | typeof __VLS_components.TooltipFormValidation} */
 TooltipFormValidation;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -33,7 +33,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.BrowserDefault} */
+/** @ts-ignore @type { | typeof __VLS_components.BrowserDefault} */
 BrowserDefault;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -43,7 +43,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.ValidationForm} */
+/** @ts-ignore @type { | typeof __VLS_components.ValidationForm} */
 ValidationForm;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));

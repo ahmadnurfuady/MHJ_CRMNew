@@ -23,7 +23,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['customizer-mix']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeMixLayout('light');
+            return (__VLS_ctx.customizeMixLayout('light'));
             // @ts-ignore
             [customizeMixLayout,];
         } },
@@ -58,7 +58,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['body']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeMixLayout('dark-sidebar');
+            return (__VLS_ctx.customizeMixLayout('dark-sidebar'));
             // @ts-ignore
             [customizeMixLayout, mixLayout,];
         } },
@@ -94,7 +94,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['body']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeMixLayout('dark-only');
+            return (__VLS_ctx.customizeMixLayout('dark-only'));
             // @ts-ignore
             [customizeMixLayout, mixLayout,];
         } },

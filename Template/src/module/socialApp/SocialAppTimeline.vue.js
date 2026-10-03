@@ -24,7 +24,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-5']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SocialAppLeftPanel} */
+/** @ts-ignore @type { | typeof __VLS_components.SocialAppLeftPanel} */
 SocialAppLeftPanel;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -47,7 +47,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 for (const [post, index] of __VLS_vFor((__VLS_ctx.userPost))) {
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -90,7 +90,7 @@ for (const [post, index] of __VLS_vFor((__VLS_ctx.userPost))) {
     /** @type {__VLS_StyleScopedClasses['pull-right']} */ ;
     /** @type {__VLS_StyleScopedClasses['mt-0']} */ ;
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -153,9 +153,11 @@ for (const [post, index] of __VLS_vFor((__VLS_ctx.userPost))) {
     });
     /** @type {__VLS_StyleScopedClasses['social-chat']} */ ;
     for (const [comment, index] of __VLS_vFor((post.comments))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: (comment.isReply ? 'other-msg' : 'your-msg') },
-            key: (index),
         });
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: "d-flex" },
@@ -261,7 +263,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['xl-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.SocialAppRightPanel} */
+/** @ts-ignore @type { | typeof __VLS_components.SocialAppRightPanel} */
 SocialAppRightPanel;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({}));

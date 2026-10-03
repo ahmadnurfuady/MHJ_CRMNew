@@ -46,7 +46,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.ticketListStatus))) {
     /** @type {__VLS_StyleScopedClasses['total-num']} */ ;
     /** @type {__VLS_StyleScopedClasses['counter']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Counter} */
+    /** @ts-ignore @type { | typeof __VLS_components.Counter} */
     Counter;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

@@ -69,12 +69,12 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 for (const [digit, index] of __VLS_vFor((__VLS_ctx.otpDigits))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
         ...{ onInput: (...[$event]) => {
-                __VLS_ctx.handleInput(index);
+                return (__VLS_ctx.handleInput(index));
                 // @ts-ignore
                 [getImages, otpDigits, handleInput,];
             } },
         ...{ onKeydown: (...[$event]) => {
-                __VLS_ctx.handleKeyDown(index, $event);
+                return (__VLS_ctx.handleKeyDown(index, $event));
                 // @ts-ignore
                 [handleKeyDown,];
             } },

@@ -46,7 +46,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.settingTabs))) {
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(tab.value);
+                return (__VLS_ctx.handleTab(tab.value));
                 // @ts-ignore
                 [settingTabs, handleTab,];
             } },
@@ -76,7 +76,7 @@ if (__VLS_ctx.activeTab === 'facebook-pixel') {
     });
     /** @type {__VLS_StyleScopedClasses['row']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -124,7 +124,7 @@ if (__VLS_ctx.activeTab === 'facebook-pixel') {
     });
     /** @type {__VLS_StyleScopedClasses['row']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -142,7 +142,7 @@ if (__VLS_ctx.activeTab === 'facebook-pixel') {
     });
     /** @type {__VLS_StyleScopedClasses['col-md-9']} */ ;
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -167,7 +167,7 @@ else if (__VLS_ctx.activeTab === 'google-analytics') {
     });
     /** @type {__VLS_StyleScopedClasses['row']} */ ;
     let __VLS_17;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({
@@ -214,7 +214,7 @@ else if (__VLS_ctx.activeTab === 'google-analytics') {
     });
     /** @type {__VLS_StyleScopedClasses['row']} */ ;
     let __VLS_23;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_24 = __VLS_asFunctionalComponent1(__VLS_23, new __VLS_23({
@@ -232,7 +232,7 @@ else if (__VLS_ctx.activeTab === 'google-analytics') {
     });
     /** @type {__VLS_StyleScopedClasses['col-md-9']} */ ;
     let __VLS_29;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_30 = __VLS_asFunctionalComponent1(__VLS_29, new __VLS_29({

@@ -87,8 +87,8 @@ if (__VLS_ctx.pagination) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.pagination))
-                    return;
-                __VLS_ctx.handlePage(-1);
+                    throw 0;
+                return (__VLS_ctx.handlePage(-1));
                 // @ts-ignore
                 [pagination, currentPage, handlePage,];
             } },
@@ -97,18 +97,20 @@ if (__VLS_ctx.pagination) {
     });
     /** @type {__VLS_StyleScopedClasses['page-link']} */ ;
     for (const [page] of __VLS_vFor((__VLS_ctx.pagination.pages))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (page),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ class: "page-item" },
             ...{ class: ({ active: __VLS_ctx.currentPage === page }) },
-            key: (page),
         });
         /** @type {__VLS_StyleScopedClasses['page-item']} */ ;
         /** @type {__VLS_StyleScopedClasses['active']} */ ;
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.pagination))
-                        return;
-                    __VLS_ctx.setPage(page);
+                        throw 0;
+                    return (__VLS_ctx.setPage(page));
                     // @ts-ignore
                     [pagination, currentPage, setPage,];
                 } },
@@ -129,8 +131,8 @@ if (__VLS_ctx.pagination) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.pagination))
-                    return;
-                __VLS_ctx.handlePage(1);
+                    throw 0;
+                return (__VLS_ctx.handlePage(1));
                 // @ts-ignore
                 [pagination, currentPage, handlePage,];
             } },

@@ -51,7 +51,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.productState.additionalTabs))) 
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleAdditionalTab(tab.value, index + 1);
+                return (__VLS_ctx.handleAdditionalTab(tab.value, index + 1));
                 // @ts-ignore
                 [productState, handleAdditionalTab,];
             } },
@@ -82,7 +82,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['meta-body']} */ ;
 if (__VLS_ctx.productState.additionalActiveTab == 'inventory') {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.InventoryDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.InventoryDetails} */
     InventoryDetails;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -98,28 +98,32 @@ if (__VLS_ctx.productState.additionalActiveTab == 'inventory') {
         additionalTabId: (__VLS_ctx.productState.additionalTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
     let __VLS_5;
-    const __VLS_6 = ({ previousPage: {} },
-        { onPreviousPage: (...[$event]) => {
-                if (!(__VLS_ctx.productState.additionalActiveTab == 'inventory'))
-                    return;
-                __VLS_ctx.handlePreviousPage($event);
-                // @ts-ignore
-                [productState, productState, handlePreviousPage,];
-            } });
-    const __VLS_7 = ({ nextPage: {} },
-        { onNextPage: (...[$event]) => {
-                if (!(__VLS_ctx.productState.additionalActiveTab == 'inventory'))
-                    return;
-                __VLS_ctx.handleAdditionalPage($event);
-                // @ts-ignore
-                [handleAdditionalPage,];
-            } });
+    const __VLS_6 = {
+        /** @type {typeof __VLS_5.previousPage} */
+        onPreviousPage: (...[$event]) => {
+            if (!(__VLS_ctx.productState.additionalActiveTab == 'inventory'))
+                throw 0;
+            return (__VLS_ctx.handlePreviousPage($event));
+            // @ts-ignore
+            [productState, productState, handlePreviousPage,];
+        },
+    };
+    const __VLS_7 = {
+        /** @type {typeof __VLS_5.nextPage} */
+        onNextPage: (...[$event]) => {
+            if (!(__VLS_ctx.productState.additionalActiveTab == 'inventory'))
+                throw 0;
+            return (__VLS_ctx.handleAdditionalPage($event));
+            // @ts-ignore
+            [handleAdditionalPage,];
+        },
+    };
     var __VLS_3;
     var __VLS_4;
 }
 if (__VLS_ctx.productState.additionalActiveTab == 'seo_tag') {
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.SEOTagDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.SEOTagDetails} */
     SEOTagDetails;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -131,20 +135,22 @@ if (__VLS_ctx.productState.additionalActiveTab == 'seo_tag') {
         additionalTabId: (__VLS_ctx.productState.additionalTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_9));
     let __VLS_13;
-    const __VLS_14 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.additionalActiveTab == 'seo_tag'))
-                    return;
-                __VLS_ctx.handleAdditionalPage($event);
-                // @ts-ignore
-                [productState, productState, handleAdditionalPage,];
-            } });
+    const __VLS_14 = {
+        /** @type {typeof __VLS_13.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.additionalActiveTab == 'seo_tag'))
+                throw 0;
+            return (__VLS_ctx.handleAdditionalPage($event));
+            // @ts-ignore
+            [productState, productState, handleAdditionalPage,];
+        },
+    };
     var __VLS_11;
     var __VLS_12;
 }
 if (__VLS_ctx.productState.additionalActiveTab == 'shipping') {
     let __VLS_15;
-    /** @ts-ignore @type {typeof __VLS_components.ShippingDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.ShippingDetails} */
     ShippingDetails;
     // @ts-ignore
     const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -156,20 +162,22 @@ if (__VLS_ctx.productState.additionalActiveTab == 'shipping') {
         additionalTabId: (__VLS_ctx.productState.additionalTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_16));
     let __VLS_20;
-    const __VLS_21 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.additionalActiveTab == 'shipping'))
-                    return;
-                __VLS_ctx.handleAdditionalPage($event);
-                // @ts-ignore
-                [productState, productState, handleAdditionalPage,];
-            } });
+    const __VLS_21 = {
+        /** @type {typeof __VLS_20.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.additionalActiveTab == 'shipping'))
+                throw 0;
+            return (__VLS_ctx.handleAdditionalPage($event));
+            // @ts-ignore
+            [productState, productState, handleAdditionalPage,];
+        },
+    };
     var __VLS_18;
     var __VLS_19;
 }
 if (__VLS_ctx.productState.additionalActiveTab == 'variations') {
     let __VLS_22;
-    /** @ts-ignore @type {typeof __VLS_components.VariationDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.VariationDetails} */
     VariationDetails;
     // @ts-ignore
     const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({
@@ -181,20 +189,22 @@ if (__VLS_ctx.productState.additionalActiveTab == 'variations') {
         additionalTabId: (__VLS_ctx.productState.additionalTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_23));
     let __VLS_27;
-    const __VLS_28 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.additionalActiveTab == 'variations'))
-                    return;
-                __VLS_ctx.handleAdditionalPage($event);
-                // @ts-ignore
-                [productState, productState, handleAdditionalPage,];
-            } });
+    const __VLS_28 = {
+        /** @type {typeof __VLS_27.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.additionalActiveTab == 'variations'))
+                throw 0;
+            return (__VLS_ctx.handleAdditionalPage($event));
+            // @ts-ignore
+            [productState, productState, handleAdditionalPage,];
+        },
+    };
     var __VLS_25;
     var __VLS_26;
 }
 if (__VLS_ctx.productState.additionalActiveTab == 'publish') {
     let __VLS_29;
-    /** @ts-ignore @type {typeof __VLS_components.PublicationDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.PublicationDetails} */
     PublicationDetails;
     // @ts-ignore
     const __VLS_30 = __VLS_asFunctionalComponent1(__VLS_29, new __VLS_29({
@@ -206,14 +216,16 @@ if (__VLS_ctx.productState.additionalActiveTab == 'publish') {
         additionalTabId: (__VLS_ctx.productState.additionalTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_30));
     let __VLS_34;
-    const __VLS_35 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.additionalActiveTab == 'publish'))
-                    return;
-                __VLS_ctx.handleAdditionalPage($event);
-                // @ts-ignore
-                [productState, productState, handleAdditionalPage,];
-            } });
+    const __VLS_35 = {
+        /** @type {typeof __VLS_34.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.additionalActiveTab == 'publish'))
+                throw 0;
+            return (__VLS_ctx.handleAdditionalPage($event));
+            // @ts-ignore
+            [productState, productState, handleAdditionalPage,];
+        },
+    };
     var __VLS_32;
     var __VLS_33;
 }

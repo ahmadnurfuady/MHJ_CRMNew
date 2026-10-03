@@ -23,7 +23,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.policy))) {
     /** @type {__VLS_StyleScopedClasses['form-label']} */ ;
     (item.title);
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Editor} */
+    /** @ts-ignore @type { | typeof __VLS_components.Editor} */
     Editor;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));

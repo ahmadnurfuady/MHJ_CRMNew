@@ -27,7 +27,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -65,7 +65,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['img-container']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.Cropper} */
+/** @ts-ignore @type { | typeof __VLS_components.Cropper} */
 Cropper;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -89,9 +89,11 @@ const __VLS_9 = __VLS_8({
     ...{ class: "cropper" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 let __VLS_12;
-const __VLS_13 = ({ change: {} },
-    { onChange: (__VLS_ctx.onChange) });
-var __VLS_14 = {};
+const __VLS_13 = {
+    /** @type {typeof __VLS_12.change} */
+    onChange: (__VLS_ctx.onChange),
+};
+var __VLS_14;
 /** @type {__VLS_StyleScopedClasses['cropper']} */ ;
 var __VLS_10;
 var __VLS_11;
@@ -207,7 +209,7 @@ if (__VLS_ctx.result && __VLS_ctx.result.image) {
 [imageSrc, onChange, result, result, result, result, result, result, result, result,];
 var __VLS_3;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({}));
@@ -230,7 +232,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['btn-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.zoom(2);
+            return (__VLS_ctx.zoom(2));
             // @ts-ignore
             [zoom,];
         } },
@@ -252,7 +254,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-magnifying-glass-plus']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.zoom(0.5);
+            return (__VLS_ctx.zoom(0.5));
             // @ts-ignore
             [zoom, vTooltip,];
         } },
@@ -282,7 +284,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['btn-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.move('left');
+            return (__VLS_ctx.move('left'));
             // @ts-ignore
             [vTooltip, move,];
         } },
@@ -304,7 +306,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-arrow-left']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.move('right');
+            return (__VLS_ctx.move('right'));
             // @ts-ignore
             [vTooltip, move,];
         } },
@@ -326,7 +328,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-arrow-right']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.move('top');
+            return (__VLS_ctx.move('top'));
             // @ts-ignore
             [vTooltip, move,];
         } },
@@ -348,7 +350,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-arrow-up']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.move('bottom');
+            return (__VLS_ctx.move('bottom'));
             // @ts-ignore
             [vTooltip, move,];
         } },
@@ -374,7 +376,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['btn-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.rotate(-45);
+            return (__VLS_ctx.rotate(-45));
             // @ts-ignore
             [vTooltip, rotate,];
         } },
@@ -396,7 +398,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-rotate-left']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.rotate(45);
+            return (__VLS_ctx.rotate(45));
             // @ts-ignore
             [vTooltip, rotate,];
         } },
@@ -422,7 +424,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['btn-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.flip(true, false);
+            return (__VLS_ctx.flip(true, false));
             // @ts-ignore
             [vTooltip, flip,];
         } },
@@ -444,7 +446,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-arrows-left-right']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.flip(false, true);
+            return (__VLS_ctx.flip(false, true));
             // @ts-ignore
             [vTooltip, flip,];
         } },
@@ -470,7 +472,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['btn-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.resize(2, 2);
+            return (__VLS_ctx.resize(2, 2));
             // @ts-ignore
             [vTooltip, resize,];
         } },
@@ -492,7 +494,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-maximize']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.resize(1, 2);
+            return (__VLS_ctx.resize(1, 2));
             // @ts-ignore
             [vTooltip, resize,];
         } },
@@ -514,7 +516,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-arrows-up-down']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.resize(2, 1);
+            return (__VLS_ctx.resize(2, 1));
             // @ts-ignore
             [vTooltip, resize,];
         } },
@@ -536,7 +538,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-arrows-left-right']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.resize(0.5, 0.5);
+            return (__VLS_ctx.resize(0.5, 0.5));
             // @ts-ignore
             [vTooltip, resize,];
         } },
@@ -558,7 +560,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-minimize']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.maximize();
+            return (__VLS_ctx.maximize());
             // @ts-ignore
             [vTooltip, maximize,];
         } },
@@ -580,7 +582,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-expand']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.center();
+            return (__VLS_ctx.center());
             // @ts-ignore
             [vTooltip, center,];
         } },
@@ -639,7 +641,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['fa-upload']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.reset();
+            return (__VLS_ctx.reset());
             // @ts-ignore
             [vTooltip, onFileChange, reset,];
         } },

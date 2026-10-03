@@ -27,7 +27,7 @@ for (const [friend, index] of __VLS_vFor((__VLS_ctx.userCard))) {
     /** @type {__VLS_StyleScopedClasses['col-ed-4']} */ ;
     /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -59,7 +59,7 @@ for (const [friend, index] of __VLS_vFor((__VLS_ctx.userCard))) {
     });
     /** @type {__VLS_StyleScopedClasses['edit-icon']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -73,7 +73,7 @@ for (const [friend, index] of __VLS_vFor((__VLS_ctx.userCard))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
     __VLS_asFunctionalElement1(__VLS_intrinsics.h5, __VLS_intrinsics.h5)({});
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({

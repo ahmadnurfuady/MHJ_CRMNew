@@ -62,7 +62,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -79,7 +79,7 @@ const __VLS_2 = __VLS_1({
     cardClass: ('height-equal'),
     cardBodyClass: ('custom-input'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -96,7 +96,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.form, __VLS_intrinsics.form)({
 /** @type {__VLS_StyleScopedClasses['form-wizard']} */ ;
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.StudentValidationPersonalInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.StudentValidationPersonalInfo} */
     StudentValidationPersonalInfo;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -110,7 +110,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_13;
-    /** @ts-ignore @type {typeof __VLS_components.StudentValidationProfile} */
+    /** @ts-ignore @type { | typeof __VLS_components.StudentValidationProfile} */
     StudentValidationProfile;
     // @ts-ignore
     const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -124,7 +124,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_18;
-    /** @ts-ignore @type {typeof __VLS_components.StudentValidationSocialLinks} */
+    /** @ts-ignore @type { | typeof __VLS_components.StudentValidationSocialLinks} */
     StudentValidationSocialLinks;
     // @ts-ignore
     const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -144,7 +144,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['pt-3']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(-1);
+            return (__VLS_ctx.handleStep(-1));
             // @ts-ignore
             [activeTab, activeTab, activeTab, form, form, form, formSubmitted, formSubmitted, formSubmitted, handleStep,];
         } },
@@ -157,7 +157,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-secondary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(1);
+            return (__VLS_ctx.handleStep(1));
             // @ts-ignore
             [activeTab, handleStep,];
         } },

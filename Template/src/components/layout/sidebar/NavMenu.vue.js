@@ -55,8 +55,8 @@ if (__VLS_ctx.menuItem?.type != 'headtitle' && __VLS_ctx.menuItem?.icon) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.menuItem?.type != 'headtitle' && __VLS_ctx.menuItem?.icon))
-                    return;
-                __VLS_ctx.getPined(__VLS_ctx.menuItem);
+                    throw 0;
+                return (__VLS_ctx.getPined(__VLS_ctx.menuItem));
                 // @ts-ignore
                 [menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuState, getPined,];
             } },
@@ -76,7 +76,7 @@ if (__VLS_ctx.menuItem?.badgeType) {
 }
 if (__VLS_ctx.menuItem && __VLS_ctx.menuItem?.title) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -100,19 +100,21 @@ if (__VLS_ctx.menuItem && __VLS_ctx.menuItem?.title) {
             ]) },
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
     let __VLS_5;
-    const __VLS_6 = ({ click: {} },
-        { onClick: (...[$event]) => {
-                if (!(__VLS_ctx.menuItem && __VLS_ctx.menuItem?.title))
-                    return;
-                __VLS_ctx.onMenuClick(__VLS_ctx.menuItem);
-                // @ts-ignore
-                [menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, isActive, onMenuClick,];
-            } });
+    const __VLS_6 = {
+        /** @type {typeof __VLS_5.click} */
+        onClick: (...[$event]) => {
+            if (!(__VLS_ctx.menuItem && __VLS_ctx.menuItem?.title))
+                throw 0;
+            return (__VLS_ctx.onMenuClick(__VLS_ctx.menuItem));
+            // @ts-ignore
+            [menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, menuItem, isActive, onMenuClick,];
+        },
+    };
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
     const { default: __VLS_7 } = __VLS_3.slots;
     if (__VLS_ctx.menuItem.icon && __VLS_ctx.layoutState.svgIcon == 'stroke-svg') {
         let __VLS_8;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -128,7 +130,7 @@ if (__VLS_ctx.menuItem && __VLS_ctx.menuItem?.title) {
     }
     if (__VLS_ctx.menuItem.icon && __VLS_ctx.layoutState.svgIcon == 'fill-svg') {
         let __VLS_13;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -176,7 +178,7 @@ if (__VLS_ctx.menuItem?.children) {
     /** @type {__VLS_StyleScopedClasses['sidebar-submenu']} */ ;
     for (const [childItem, index] of __VLS_vFor((__VLS_ctx.menuItem?.children))) {
         let __VLS_18;
-        /** @ts-ignore @type {typeof __VLS_components.NavMenu} */
+        /** @ts-ignore @type { | typeof __VLS_components.NavMenu} */
         NavMenu;
         // @ts-ignore
         const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({

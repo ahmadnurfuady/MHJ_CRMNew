@@ -57,8 +57,8 @@ if (__VLS_ctx.search == '') {
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.search == ''))
-                        return;
-                    __VLS_ctx.setActiveUser(item);
+                        throw 0;
+                    return (__VLS_ctx.setActiveUser(item));
                     // @ts-ignore
                     [search, activeUsers, setActiveUser,];
                 } },

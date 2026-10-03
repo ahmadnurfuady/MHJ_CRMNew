@@ -16,7 +16,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -31,10 +31,10 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('map-z-index'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.lMap | typeof __VLS_components.LMap | typeof __VLS_components.lMap | typeof __VLS_components.LMap} */
+/** @ts-ignore @type { | typeof __VLS_components.lMap | typeof __VLS_components.LMap | typeof __VLS_components['l-map'] | typeof __VLS_components.lMap | typeof __VLS_components.LMap | typeof __VLS_components['l-map']} */
 lMap;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -51,7 +51,7 @@ const __VLS_9 = __VLS_8({
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 const { default: __VLS_12 } = __VLS_10.slots;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.lMarker | typeof __VLS_components.LMarker | typeof __VLS_components.lMarker | typeof __VLS_components.LMarker} */
+/** @ts-ignore @type { | typeof __VLS_components.lMarker | typeof __VLS_components.LMarker | typeof __VLS_components['l-marker'] | typeof __VLS_components.lMarker | typeof __VLS_components.LMarker | typeof __VLS_components['l-marker']} */
 lMarker;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -66,7 +66,7 @@ const __VLS_15 = __VLS_14({
 }, ...__VLS_functionalComponentArgsRest(__VLS_14));
 const { default: __VLS_18 } = __VLS_16.slots;
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.lPopup | typeof __VLS_components.LPopup} */
+/** @ts-ignore @type { | typeof __VLS_components.lPopup | typeof __VLS_components.LPopup | typeof __VLS_components['l-popup']} */
 lPopup;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -79,7 +79,7 @@ const __VLS_21 = __VLS_20({
 [simpleWithMarker, simpleWithMarker, simpleWithMarker, simpleWithMarker, simpleWithMarker,];
 var __VLS_16;
 let __VLS_24;
-/** @ts-ignore @type {typeof __VLS_components.lTileLayer | typeof __VLS_components.LTileLayer} */
+/** @ts-ignore @type { | typeof __VLS_components.lTileLayer | typeof __VLS_components.LTileLayer | typeof __VLS_components['l-tile-layer']} */
 lTileLayer;
 // @ts-ignore
 const __VLS_25 = __VLS_asFunctionalComponent1(__VLS_24, new __VLS_24({

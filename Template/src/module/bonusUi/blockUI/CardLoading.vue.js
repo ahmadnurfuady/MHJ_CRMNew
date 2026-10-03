@@ -28,7 +28,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -45,7 +45,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardClass: ('height-equal card-block-wrapper'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -94,7 +94,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['common-flex']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.loading('custom');
+            return (__VLS_ctx.loading('custom'));
             // @ts-ignore
             [getImages, loading,];
         } },
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['block-btn-4']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.loading('dots');
+            return (__VLS_ctx.loading('dots'));
             // @ts-ignore
             [loading,];
         } },
@@ -118,7 +118,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['block-btn-5']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.loading('bars');
+            return (__VLS_ctx.loading('bars'));
             // @ts-ignore
             [loading,];
         } },
@@ -129,7 +129,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-primary']} */ ;
 /** @type {__VLS_StyleScopedClasses['block-btn-6']} */ ;
 let __VLS_8;
-/** @ts-ignore @type {typeof __VLS_components.loadingOverlay | typeof __VLS_components.LoadingOverlay | typeof __VLS_components.loadingOverlay | typeof __VLS_components.LoadingOverlay} */
+/** @ts-ignore @type { | typeof __VLS_components.loadingOverlay | typeof __VLS_components.LoadingOverlay | typeof __VLS_components['loading-overlay'] | typeof __VLS_components.loadingOverlay | typeof __VLS_components.LoadingOverlay | typeof __VLS_components['loading-overlay']} */
 loadingOverlay;
 // @ts-ignore
 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({

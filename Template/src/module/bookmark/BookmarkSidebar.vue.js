@@ -38,7 +38,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleFilter();
+            return (__VLS_ctx.toggleFilter());
             // @ts-ignore
             [toggleFilter,];
         } },
@@ -60,7 +60,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['email-left-aside']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -111,7 +111,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal();
+            return (__VLS_ctx.openModal());
             // @ts-ignore
             [state, getImages, userDetails, userDetails, userDetails, userDetails, openModal,];
         } },
@@ -123,7 +123,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-mail']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-100']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -151,7 +151,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.bookmarkState.bookmarkTabsList))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(item);
+                return (__VLS_ctx.handleTab(item));
                 // @ts-ignore
                 [bookmarkState, handleTab,];
             } },
@@ -180,14 +180,14 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['pull-right']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openTagModal();
+            return (__VLS_ctx.openTagModal());
             // @ts-ignore
             [openTagModal,];
         } },
     href: "#",
 });
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -202,7 +202,7 @@ for (const [tag] of __VLS_vFor((__VLS_ctx.bookmarkState.bookmarkTagsList))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(tag);
+                return (__VLS_ctx.handleTab(tag));
                 // @ts-ignore
                 [bookmarkState, handleTab,];
             } },
@@ -220,7 +220,7 @@ for (const [tag] of __VLS_vFor((__VLS_ctx.bookmarkState.bookmarkTagsList))) {
 [];
 var __VLS_3;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.BookmarkTagModal} */
+/** @ts-ignore @type { | typeof __VLS_components.BookmarkTagModal} */
 BookmarkTagModal;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -232,12 +232,14 @@ const __VLS_18 = __VLS_17({
     modalOpen: (__VLS_ctx.state.isTagModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_17));
 let __VLS_21;
-const __VLS_22 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal();
-            // @ts-ignore
-            [state, closeModal,];
-        } });
+const __VLS_22 = {
+    /** @type {typeof __VLS_21.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal());
+        // @ts-ignore
+        [state, closeModal,];
+    },
+};
 var __VLS_19;
 var __VLS_20;
 // @ts-ignore

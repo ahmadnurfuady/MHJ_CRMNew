@@ -14,7 +14,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.billingDetails) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -29,12 +29,12 @@ if (props.billingDetails) {
         rightSideDetails: (true),
         cardBodyClass: ('pt-0'),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_5 = {};
+    var __VLS_5;
     const { default: __VLS_6 } = __VLS_3.slots;
     {
         const { header3: __VLS_7 } = __VLS_3.slots;
         let __VLS_8;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({

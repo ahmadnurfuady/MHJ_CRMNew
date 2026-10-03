@@ -90,8 +90,8 @@ else {
         __VLS_asFunctionalElement1(__VLS_intrinsics.figure, __VLS_intrinsics.figure)({
             ...{ onClick: (...[$event]) => {
                     if (!!(__VLS_ctx.tour))
-                        return;
-                    __VLS_ctx.showImg(index);
+                        throw 0;
+                    return (__VLS_ctx.showImg(index));
                     // @ts-ignore
                     [getImages, getImages, tour, images, showImg,];
                 } },
@@ -107,7 +107,7 @@ else {
         [getImages,];
     }
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox | typeof __VLS_components['vue-easy-lightbox']} */
     vueEasyLightbox;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -123,8 +123,10 @@ else {
         imgs: (__VLS_ctx.previewImages),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
     let __VLS_5;
-    const __VLS_6 = ({ hide: {} },
-        { onHide: (__VLS_ctx.handleHide) });
+    const __VLS_6 = {
+        /** @type {typeof __VLS_5.hide} */
+        onHide: (__VLS_ctx.handleHide),
+    };
     var __VLS_3;
     var __VLS_4;
 }

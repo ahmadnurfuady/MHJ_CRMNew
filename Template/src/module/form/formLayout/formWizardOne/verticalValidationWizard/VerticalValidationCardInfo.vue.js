@@ -90,7 +90,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -128,7 +128,7 @@ if (props.form) {
     });
     /** @type {__VLS_StyleScopedClasses['input-group-text']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -151,7 +151,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['col-md-4']} */ ;
     /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -162,7 +162,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_11));
     const { default: __VLS_15 } = __VLS_13.slots;
     let __VLS_16;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -188,7 +188,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['col-md-4']} */ ;
     /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
     let __VLS_21;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({
@@ -199,7 +199,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_22));
     const { default: __VLS_26 } = __VLS_24.slots;
     let __VLS_27;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_28 = __VLS_asFunctionalComponent1(__VLS_27, new __VLS_27({
@@ -227,7 +227,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['col-md-4']} */ ;
     /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
     let __VLS_32;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_33 = __VLS_asFunctionalComponent1(__VLS_32, new __VLS_32({
@@ -238,7 +238,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_33));
     const { default: __VLS_37 } = __VLS_35.slots;
     let __VLS_38;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_39 = __VLS_asFunctionalComponent1(__VLS_38, new __VLS_38({
@@ -266,7 +266,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
     /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
     let __VLS_43;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_44 = __VLS_asFunctionalComponent1(__VLS_43, new __VLS_43({
@@ -277,7 +277,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_44));
     const { default: __VLS_48 } = __VLS_46.slots;
     let __VLS_49;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_50 = __VLS_asFunctionalComponent1(__VLS_49, new __VLS_49({
@@ -307,7 +307,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['form-check']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
     let __VLS_54;
-    /** @ts-ignore @type {typeof __VLS_components.Checkbox} */
+    /** @ts-ignore @type { | typeof __VLS_components.Checkbox} */
     Checkbox;
     // @ts-ignore
     const __VLS_55 = __VLS_asFunctionalComponent1(__VLS_54, new __VLS_54({

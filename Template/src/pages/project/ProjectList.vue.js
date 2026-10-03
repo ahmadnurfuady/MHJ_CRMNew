@@ -35,7 +35,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['project-list']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -63,7 +63,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.ProjectCostPerformance} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectCostPerformance} */
 ProjectCostPerformance;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({}));
@@ -75,7 +75,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.ProjectRating} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectRating} */
 ProjectRating;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({}));
@@ -87,7 +87,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.ProjectProfessionalTeam} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectProfessionalTeam} */
 ProjectProfessionalTeam;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({}));
@@ -99,7 +99,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_21;
-/** @ts-ignore @type {typeof __VLS_components.TotalProjects} */
+/** @ts-ignore @type { | typeof __VLS_components.TotalProjects} */
 TotalProjects;
 // @ts-ignore
 const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({}));
@@ -110,7 +110,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_26;
-/** @ts-ignore @type {typeof __VLS_components.ProjectStatusTab} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectStatusTab} */
 ProjectStatusTab;
 // @ts-ignore
 const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({
@@ -120,12 +120,14 @@ const __VLS_28 = __VLS_27({
     ...{ 'onActiveTabValue': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_27));
 let __VLS_31;
-const __VLS_32 = ({ activeTabValue: {} },
-    { onActiveTabValue: (...[$event]) => {
-            __VLS_ctx.handleActiveTab($event);
-            // @ts-ignore
-            [handleActiveTab,];
-        } });
+const __VLS_32 = {
+    /** @type {typeof __VLS_31.activeTabValue} */
+    onActiveTabValue: (...[$event]) => {
+        return (__VLS_ctx.handleActiveTab($event));
+        // @ts-ignore
+        [handleActiveTab,];
+    },
+};
 var __VLS_29;
 var __VLS_30;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -133,7 +135,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_33;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_34 = __VLS_asFunctionalComponent1(__VLS_33, new __VLS_33({
@@ -161,7 +163,9 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 /** @type {__VLS_StyleScopedClasses['g-4']} */ ;
 for (const [project, index] of __VLS_vFor((__VLS_ctx.projects))) {
-    (index);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     if (__VLS_ctx.activeTab == 'all' || project.status == __VLS_ctx.activeTab) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: "col-xxl-3 col-md-6 col-ed-4 box-col-6" },
@@ -171,7 +175,7 @@ for (const [project, index] of __VLS_vFor((__VLS_ctx.projects))) {
         /** @type {__VLS_StyleScopedClasses['col-ed-4']} */ ;
         /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
         let __VLS_39;
-        /** @ts-ignore @type {typeof __VLS_components.ProjectDetails} */
+        /** @ts-ignore @type { | typeof __VLS_components.ProjectDetails} */
         ProjectDetails;
         // @ts-ignore
         const __VLS_40 = __VLS_asFunctionalComponent1(__VLS_39, new __VLS_39({

@@ -44,7 +44,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.InvoiceSixHeader} */
+/** @ts-ignore @type { | typeof __VLS_components.InvoiceSixHeader} */
 InvoiceSixHeader;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['invoice-table']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.InvoiceSixTable} */
+/** @ts-ignore @type { | typeof __VLS_components.InvoiceSixTable} */
 InvoiceSixTable;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -149,7 +149,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['print-btn']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handlePrint();
+            return (__VLS_ctx.handlePrint());
             // @ts-ignore
             [getImages, getImages, handlePrint,];
         } },

@@ -20,7 +20,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -32,9 +32,11 @@ const __VLS_2 = __VLS_1({
     icon: "full-screen",
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ click: {} },
-    { onClick: (__VLS_ctx.toggleFullscreen) });
-var __VLS_7 = {};
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.click} */
+    onClick: (__VLS_ctx.toggleFullscreen),
+};
+var __VLS_7;
 var __VLS_3;
 var __VLS_4;
 // @ts-ignore

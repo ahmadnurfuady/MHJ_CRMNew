@@ -37,7 +37,7 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.imgDetails))) {
     });
     /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -58,7 +58,9 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.imgDetails))) {
     /** @type {__VLS_StyleScopedClasses['my-gallery']} */ ;
     /** @type {__VLS_StyleScopedClasses['gallery']} */ ;
     for (const [image, i] of __VLS_vFor((details.images))) {
-        (i);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (i),
+        });
         if (details.text) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.figure, __VLS_intrinsics.figure)({
                 ...{ onClick: (() => __VLS_ctx.showImg(i, details.images)) },
@@ -96,9 +98,11 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.imgDetails))) {
             /** @type {__VLS_StyleScopedClasses['common-align']} */ ;
             /** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
             for (const [button] of __VLS_vFor((image.buttons))) {
+                __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                    key: (button.color),
+                });
                 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                     ...{ class: (`btn btn-${button.color}`) },
-                    key: (button.color),
                 });
                 (button.title);
                 // @ts-ignore
@@ -133,7 +137,7 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.imgDetails))) {
 }
 if (__VLS_ctx.lightBoxImages) {
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.VueEasyLightbox} */
+    /** @ts-ignore @type { | typeof __VLS_components.VueEasyLightbox} */
     VueEasyLightbox;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -149,8 +153,10 @@ if (__VLS_ctx.lightBoxImages) {
         index: (__VLS_ctx.state.indexRef),
     }, ...__VLS_functionalComponentArgsRest(__VLS_7));
     let __VLS_11;
-    const __VLS_12 = ({ hide: {} },
-        { onHide: (__VLS_ctx.onHide) });
+    const __VLS_12 = {
+        /** @type {typeof __VLS_11.hide} */
+        onHide: (__VLS_ctx.onHide),
+    };
     var __VLS_9;
     var __VLS_10;
 }

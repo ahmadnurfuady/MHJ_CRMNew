@@ -31,19 +31,20 @@ if (props.list) {
         });
         /** @type {__VLS_StyleScopedClasses['list-group']} */ ;
         for (const [item] of __VLS_vFor((props.list.children))) {
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (item.id),
+            });
             let __VLS_0;
-            /** @ts-ignore @type {typeof __VLS_components.SwapItems} */
+            /** @ts-ignore @type { | typeof __VLS_components.SwapItems} */
             SwapItems;
             // @ts-ignore
             const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
                 list: (item),
                 depth: (__VLS_ctx.depth + 1),
-                key: (item.id),
             }));
             const __VLS_2 = __VLS_1({
                 list: (item),
                 depth: (__VLS_ctx.depth + 1),
-                key: (item.id),
             }, ...__VLS_functionalComponentArgsRest(__VLS_1));
             // @ts-ignore
             [getImages, depth,];

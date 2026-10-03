@@ -30,7 +30,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h4, __VLS_intrinsics.h4)({
 (__VLS_ctx.currentTask?.title);
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.printWindow();
+            return (__VLS_ctx.printWindow());
             // @ts-ignore
             [currentTask, printWindow,];
         } },
@@ -39,7 +39,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 /** @type {__VLS_StyleScopedClasses['txt-primary']} */ ;
 /** @type {__VLS_StyleScopedClasses['f-w-600']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -100,7 +100,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.currentTask?.data))) {
     });
     /** @type {__VLS_StyleScopedClasses['me-2']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -113,7 +113,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.currentTask?.data))) {
         href: "#",
     });
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -125,13 +125,13 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.currentTask?.data))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.store.warningAlert(index);
+                return (__VLS_ctx.store.warningAlert(index));
                 // @ts-ignore
                 [currentTask, store,];
             } },
     });
     let __VLS_15;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({

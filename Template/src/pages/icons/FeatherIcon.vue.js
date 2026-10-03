@@ -41,7 +41,7 @@ for (const [list, index] of __VLS_vFor((__VLS_ctx.featherIcon))) {
     });
     /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -66,7 +66,7 @@ for (const [list, index] of __VLS_vFor((__VLS_ctx.featherIcon))) {
     for (const [icons, i] of __VLS_vFor((list.icons))) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ onClick: (...[$event]) => {
-                    __VLS_ctx.getDetails(icons);
+                    return (__VLS_ctx.getDetails(icons));
                     // @ts-ignore
                     [featherIcon, getDetails,];
                 } },
@@ -81,7 +81,7 @@ for (const [list, index] of __VLS_vFor((__VLS_ctx.featherIcon))) {
         });
         /** @type {__VLS_StyleScopedClasses['media']} */ ;
         let __VLS_6;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -135,8 +135,8 @@ if (__VLS_ctx.details.detailsVisible) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.details.detailsVisible))
-                    return;
-                __VLS_ctx.details.detailsVisible = false;
+                    throw 0;
+                return (__VLS_ctx.details.detailsVisible = false);
                 // @ts-ignore
                 [details, details,];
             } },
@@ -149,7 +149,7 @@ if (__VLS_ctx.details.detailsVisible) {
     });
     /** @type {__VLS_StyleScopedClasses['icon-first']} */ ;
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -198,8 +198,8 @@ if (__VLS_ctx.details.detailsVisible) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.details.detailsVisible))
-                    return;
-                __VLS_ctx.copyText(__VLS_ctx.details.icon);
+                    throw 0;
+                return (__VLS_ctx.copyText(__VLS_ctx.details.icon));
                 // @ts-ignore
                 [details, details, details, details, copyText,];
             } },

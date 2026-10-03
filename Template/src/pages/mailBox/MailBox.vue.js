@@ -38,7 +38,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.MailBoxSidebar} */
+/** @ts-ignore @type { | typeof __VLS_components.MailBoxSidebar} */
 MailBoxSidebar;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -62,7 +62,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['email-list']} */ ;
 /** @type {__VLS_StyleScopedClasses['hide']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.MailBoxHeader} */
+/** @ts-ignore @type { | typeof __VLS_components.MailBoxHeader} */
 MailBoxHeader;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -90,7 +90,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 });
 /** @type {__VLS_StyleScopedClasses['mail-header-tabs']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.HeaderTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.HeaderTabs} */
 HeaderTabs;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -105,7 +105,7 @@ if (__VLS_ctx.mailState.isOpenMail) {
     /** @type {__VLS_StyleScopedClasses['email-read']} */ ;
     /** @type {__VLS_StyleScopedClasses['show']} */ ;
     let __VLS_15;
-    /** @ts-ignore @type {typeof __VLS_components.MailDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.MailDetails} */
     MailDetails;
     // @ts-ignore
     const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));

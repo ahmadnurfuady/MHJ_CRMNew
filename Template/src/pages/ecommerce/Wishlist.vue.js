@@ -38,7 +38,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -93,7 +93,7 @@ if (__VLS_ctx.wishlistItemsList && __VLS_ctx.wishlistItemsList.length) {
         });
         /** @type {__VLS_StyleScopedClasses['wishlist-image']} */ ;
         let __VLS_6;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -117,8 +117,8 @@ if (__VLS_ctx.wishlistItemsList && __VLS_ctx.wishlistItemsList.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.wishlistItemsList && __VLS_ctx.wishlistItemsList.length))
-                        return;
-                    __VLS_ctx.removeItem(item);
+                        throw 0;
+                    return (__VLS_ctx.removeItem(item));
                     // @ts-ignore
                     [removeItem,];
                 } },
@@ -141,7 +141,7 @@ if (__VLS_ctx.wishlistItemsList && __VLS_ctx.wishlistItemsList.length) {
         /** @type {__VLS_StyleScopedClasses['brand-name']} */ ;
         (item.brand);
         let __VLS_12;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -181,7 +181,7 @@ if (__VLS_ctx.wishlistItemsList && __VLS_ctx.wishlistItemsList.length) {
         });
         /** @type {__VLS_StyleScopedClasses['common-flex']} */ ;
         let __VLS_18;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({

@@ -9,7 +9,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -24,7 +24,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('rounded-timeline'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -40,10 +40,12 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['timeline']} */ ;
 for (const [details, index] of __VLS_vFor((__VLS_ctx.halfRoundedTimeline))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (details.id),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "container" },
         ...{ class: (index % 2 === 0 ? 'left' : 'right') },
-        key: (details.id),
     });
     /** @type {__VLS_StyleScopedClasses['container']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({

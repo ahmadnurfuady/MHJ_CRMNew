@@ -83,7 +83,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['card-header-right-icon']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openPermissionModal();
+            return (__VLS_ctx.openPermissionModal());
             // @ts-ignore
             [openPermissionModal,];
         } },
@@ -116,7 +116,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['table-responsive']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Table | typeof __VLS_components.Table} */
+/** @ts-ignore @type { | typeof __VLS_components.Table | typeof __VLS_components.Table} */
 Table;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -140,16 +140,18 @@ const __VLS_2 = __VLS_1({
     selectedRows: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ action: {} },
-    { onAction: (...[$event]) => {
-            __VLS_ctx.handleAction($event);
-            // @ts-ignore
-            [tableConfig, handleAction,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.action} */
+    onAction: (...[$event]) => {
+        return (__VLS_ctx.handleAction($event));
+        // @ts-ignore
+        [tableConfig, handleAction,];
+    },
+};
 var __VLS_3;
 var __VLS_4;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.RolesPermissionModal} */
+/** @ts-ignore @type { | typeof __VLS_components.RolesPermissionModal} */
 RolesPermissionModal;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -161,12 +163,14 @@ const __VLS_9 = __VLS_8({
     modalOpen: (__VLS_ctx.isModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 let __VLS_12;
-const __VLS_13 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.isModalOpen = false;
-            // @ts-ignore
-            [isModalOpen, isModalOpen,];
-        } });
+const __VLS_13 = {
+    /** @type {typeof __VLS_12.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.isModalOpen = false);
+        // @ts-ignore
+        [isModalOpen, isModalOpen,];
+    },
+};
 var __VLS_10;
 var __VLS_11;
 // @ts-ignore

@@ -41,7 +41,7 @@ for (const [list, index] of __VLS_vFor((__VLS_ctx.themifyIcon))) {
     });
     /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -65,7 +65,7 @@ for (const [list, index] of __VLS_vFor((__VLS_ctx.themifyIcon))) {
     for (const [icons, i] of __VLS_vFor((list.icons))) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ onClick: (...[$event]) => {
-                    __VLS_ctx.getDetails(icons);
+                    return (__VLS_ctx.getDetails(icons));
                     // @ts-ignore
                     [themifyIcon, getDetails,];
                 } },
@@ -115,8 +115,8 @@ if (__VLS_ctx.details.detailsVisible) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.details.detailsVisible))
-                    return;
-                __VLS_ctx.details.detailsVisible = false;
+                    throw 0;
+                return (__VLS_ctx.details.detailsVisible = false);
                 // @ts-ignore
                 [details, details,];
             } },
@@ -172,8 +172,8 @@ if (__VLS_ctx.details.detailsVisible) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.details.detailsVisible))
-                    return;
-                __VLS_ctx.copyText(__VLS_ctx.details.icon);
+                    throw 0;
+                return (__VLS_ctx.copyText(__VLS_ctx.details.icon));
                 // @ts-ignore
                 [details, details, details, details, copyText,];
             } },

@@ -20,7 +20,9 @@ if (props.badgeDetails) {
     });
     /** @type {__VLS_StyleScopedClasses['badge-spacing']} */ ;
     for (const [badge, index] of __VLS_vFor((props.badgeDetails))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         if (props.type == 'outline') {
             __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
                 ...{ class: ([
@@ -50,7 +52,9 @@ if (props.badgeDetails) {
         }
         else if (__VLS_ctx.type == 'icon') {
             for (const [icon, i] of __VLS_vFor((props.badgeIcons))) {
-                (i);
+                __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                    key: (i),
+                });
                 if (i === index) {
                     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
                         ...{ class: ([
@@ -68,7 +72,7 @@ if (props.badgeDetails) {
                     /** @type {__VLS_StyleScopedClasses['p-2']} */ ;
                     /** @type {__VLS_StyleScopedClasses['b-ln-height']} */ ;
                     let __VLS_0;
-                    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+                    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
                     vueFeather;
                     // @ts-ignore
                     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

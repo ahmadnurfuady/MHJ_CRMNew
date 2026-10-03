@@ -23,7 +23,9 @@ if (props.items) {
         ...{ class: (props.class) },
     });
     for (const [item, index] of __VLS_vFor((props.items.slice(0, props.showItems)))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         if (item && item.profile) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
                 ...{ class: "d-inline-block" },

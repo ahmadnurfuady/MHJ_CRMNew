@@ -12,7 +12,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.details) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -33,10 +33,12 @@ if (props.details) {
         cardClass: ('height-equal'),
         cardBodyClass: (props.details.cardBodyClass),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_5 = {};
+    var __VLS_5;
     const { default: __VLS_6 } = __VLS_3.slots;
     for (const [list, index] of __VLS_vFor((props.details.details))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
             ...{ class: (`pb-2 ${list.titleClass}`) },
         });

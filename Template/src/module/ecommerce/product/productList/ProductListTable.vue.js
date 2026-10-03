@@ -62,7 +62,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Table | typeof __VLS_components.Table} */
+/** @ts-ignore @type { | typeof __VLS_components.Table | typeof __VLS_components.Table} */
 Table;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -84,13 +84,15 @@ const __VLS_2 = __VLS_1({
     selectedRows: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ action: {} },
-    { onAction: (...[$event]) => {
-            __VLS_ctx.handleAction($event);
-            // @ts-ignore
-            [tableConfig, pageSize, handleAction,];
-        } });
-var __VLS_7 = {};
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.action} */
+    onAction: (...[$event]) => {
+        return (__VLS_ctx.handleAction($event));
+        // @ts-ignore
+        [tableConfig, pageSize, handleAction,];
+    },
+};
+var __VLS_7;
 const { default: __VLS_8 } = __VLS_3.slots;
 {
     const { name: __VLS_9 } = __VLS_3.slots;
@@ -130,7 +132,7 @@ const { default: __VLS_8 } = __VLS_3.slots;
     const { star: __VLS_11 } = __VLS_3.slots;
     const [{ row }] = __VLS_vSlot(__VLS_11);
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.RatingStars} */
+    /** @ts-ignore @type { | typeof __VLS_components.RatingStars} */
     RatingStars;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({

@@ -32,7 +32,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SimpleTab} */
+/** @ts-ignore @type { | typeof __VLS_components.SimpleTab} */
 SimpleTab;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -43,7 +43,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.IconTab} */
+/** @ts-ignore @type { | typeof __VLS_components.IconTab} */
 IconTab;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -54,7 +54,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.VerticalTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.VerticalTabs} */
 VerticalTabs;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -65,7 +65,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.PillsTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.PillsTabs} */
 PillsTabs;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -75,7 +75,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.JustifyTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.JustifyTabs} */
 JustifyTabs;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -85,7 +85,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.MaterialLeftTab} */
+/** @ts-ignore @type { | typeof __VLS_components.MaterialLeftTab} */
 MaterialLeftTab;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -95,7 +95,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.MaterialStyleTab} */
+/** @ts-ignore @type { | typeof __VLS_components.MaterialStyleTab} */
 MaterialStyleTab;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({}));
@@ -105,7 +105,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.BorderTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.BorderTabs} */
 BorderTabs;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({}));
@@ -115,7 +115,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.BackgroundPillTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.BackgroundPillTabs} */
 BackgroundPillTabs;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({}));
@@ -125,7 +125,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_45;
-/** @ts-ignore @type {typeof __VLS_components.ArrowTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.ArrowTabs} */
 ArrowTabs;
 // @ts-ignore
 const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({}));
@@ -135,7 +135,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_50;
-/** @ts-ignore @type {typeof __VLS_components.BottomTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.BottomTabs} */
 BottomTabs;
 // @ts-ignore
 const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({}));
@@ -145,7 +145,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_55;
-/** @ts-ignore @type {typeof __VLS_components.AnimatedTabs} */
+/** @ts-ignore @type { | typeof __VLS_components.AnimatedTabs} */
 AnimatedTabs;
 // @ts-ignore
 const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({}));

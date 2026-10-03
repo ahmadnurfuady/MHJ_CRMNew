@@ -31,7 +31,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['mode']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -43,8 +43,10 @@ const __VLS_2 = __VLS_1({
     type: ('moon'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ click: {} },
-    { onClick: (__VLS_ctx.toggleTheme) });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.click} */
+    onClick: (__VLS_ctx.toggleTheme),
+};
 var __VLS_3;
 var __VLS_4;
 // @ts-ignore

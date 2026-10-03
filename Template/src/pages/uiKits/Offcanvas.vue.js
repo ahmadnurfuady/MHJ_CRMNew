@@ -22,7 +22,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.OffcanvasDirections} */
+/** @ts-ignore @type { | typeof __VLS_components.OffcanvasDirections} */
 OffcanvasDirections;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -32,7 +32,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.OffcanvasVariations} */
+/** @ts-ignore @type { | typeof __VLS_components.OffcanvasVariations} */
 OffcanvasVariations;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));

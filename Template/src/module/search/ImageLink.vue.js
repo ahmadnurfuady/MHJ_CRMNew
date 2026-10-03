@@ -67,7 +67,7 @@ for (const [src, index] of __VLS_vFor((__VLS_ctx.search))) {
     [search, showImg, getImages,];
 }
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox | typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox} */
+/** @ts-ignore @type { | typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox | typeof __VLS_components['vue-easy-lightbox'] | typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox | typeof __VLS_components['vue-easy-lightbox']} */
 vueEasyLightbox;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -83,8 +83,10 @@ const __VLS_2 = __VLS_1({
     imgs: (__VLS_ctx.lightBoxImages),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ hide: {} },
-    { onHide: (__VLS_ctx.handleHide) });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.hide} */
+    onHide: (__VLS_ctx.handleHide),
+};
 var __VLS_3;
 var __VLS_4;
 // @ts-ignore

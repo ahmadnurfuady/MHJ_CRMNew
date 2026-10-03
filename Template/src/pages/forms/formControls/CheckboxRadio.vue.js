@@ -31,7 +31,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.DefaultCheckbox} */
+/** @ts-ignore @type { | typeof __VLS_components.DefaultCheckbox} */
 DefaultCheckbox;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -41,7 +41,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.CustomCheckbox} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomCheckbox} */
 CustomCheckbox;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -51,7 +51,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.DefaultRadio} */
+/** @ts-ignore @type { | typeof __VLS_components.DefaultRadio} */
 DefaultRadio;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -61,7 +61,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.ImageCheckbox} */
+/** @ts-ignore @type { | typeof __VLS_components.ImageCheckbox} */
 ImageCheckbox;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -71,7 +71,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.ImageRadio} */
+/** @ts-ignore @type { | typeof __VLS_components.ImageRadio} */
 ImageRadio;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -81,7 +81,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.CustomRadioButton} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomRadioButton} */
 CustomRadioButton;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -91,7 +91,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.DefaultSwitches} */
+/** @ts-ignore @type { | typeof __VLS_components.DefaultSwitches} */
 DefaultSwitches;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({}));
@@ -101,7 +101,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.InlineInputTypes} */
+/** @ts-ignore @type { | typeof __VLS_components.InlineInputTypes} */
 InlineInputTypes;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({}));
@@ -111,7 +111,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.AnimatedButtons} */
+/** @ts-ignore @type { | typeof __VLS_components.AnimatedButtons} */
 AnimatedButtons;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({}));
@@ -121,7 +121,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_45;
-/** @ts-ignore @type {typeof __VLS_components.BasicRadioCheckbox} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicRadioCheckbox} */
 BasicRadioCheckbox;
 // @ts-ignore
 const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({}));
@@ -131,7 +131,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_50;
-/** @ts-ignore @type {typeof __VLS_components.RadioToggleButton} */
+/** @ts-ignore @type { | typeof __VLS_components.RadioToggleButton} */
 RadioToggleButton;
 // @ts-ignore
 const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({}));
@@ -141,7 +141,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_55;
-/** @ts-ignore @type {typeof __VLS_components.OutlineCheckboxStyle} */
+/** @ts-ignore @type { | typeof __VLS_components.OutlineCheckboxStyle} */
 OutlineCheckboxStyle;
 // @ts-ignore
 const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({}));

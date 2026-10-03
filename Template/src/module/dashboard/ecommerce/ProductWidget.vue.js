@@ -30,7 +30,7 @@ for (const [widget, index] of __VLS_vFor((__VLS_ctx.widgets))) {
     });
     /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -59,7 +59,7 @@ for (const [widget, index] of __VLS_vFor((__VLS_ctx.widgets))) {
     });
     /** @type {__VLS_StyleScopedClasses['product-icon']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -85,7 +85,7 @@ for (const [widget, index] of __VLS_vFor((__VLS_ctx.widgets))) {
         });
         /** @type {__VLS_StyleScopedClasses['product-icon']} */ ;
         let __VLS_11;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({

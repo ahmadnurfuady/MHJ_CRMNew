@@ -30,7 +30,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.BasicForm} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicForm} */
 BasicForm;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -40,7 +40,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.FloatingForm} */
+/** @ts-ignore @type { | typeof __VLS_components.FloatingForm} */
 FloatingForm;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -50,7 +50,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.SelectSizing} */
+/** @ts-ignore @type { | typeof __VLS_components.SelectSizing} */
 SelectSizing;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -60,7 +60,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.FormControlSizing} */
+/** @ts-ignore @type { | typeof __VLS_components.FormControlSizing} */
 FormControlSizing;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -70,7 +70,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.FileInput} */
+/** @ts-ignore @type { | typeof __VLS_components.FileInput} */
 FileInput;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -80,7 +80,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.FlatInputStyle} */
+/** @ts-ignore @type { | typeof __VLS_components.FlatInputStyle} */
 FlatInputStyle;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -90,7 +90,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.BasicInputControl} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicInputControl} */
 BasicInputControl;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({}));
@@ -100,7 +100,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.BasicFloatingInputControl} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicFloatingInputControl} */
 BasicFloatingInputControl;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({}));
@@ -110,7 +110,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.EdgesInputStyle} */
+/** @ts-ignore @type { | typeof __VLS_components.EdgesInputStyle} */
 EdgesInputStyle;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({}));
@@ -120,7 +120,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_45;
-/** @ts-ignore @type {typeof __VLS_components.RaiseInputStyle} */
+/** @ts-ignore @type { | typeof __VLS_components.RaiseInputStyle} */
 RaiseInputStyle;
 // @ts-ignore
 const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({}));

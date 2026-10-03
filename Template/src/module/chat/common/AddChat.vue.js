@@ -49,7 +49,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['dropdown-item']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -66,7 +66,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['dropdown-item']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -88,7 +88,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['two']} */ ;
 /** @type {__VLS_StyleScopedClasses['uk-textarea']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.EmojiChat} */
+/** @ts-ignore @type { | typeof __VLS_components.EmojiChat} */
 EmojiChat;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -98,8 +98,10 @@ const __VLS_12 = __VLS_11({
     ...{ 'onSelectEmoji': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_11));
 let __VLS_15;
-const __VLS_16 = ({ selectEmoji: {} },
-    { onSelectEmoji: (__VLS_ctx.appendEmoji) });
+const __VLS_16 = {
+    /** @type {typeof __VLS_15.selectEmoji} */
+    onSelectEmoji: (__VLS_ctx.appendEmoji),
+};
 var __VLS_13;
 var __VLS_14;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({

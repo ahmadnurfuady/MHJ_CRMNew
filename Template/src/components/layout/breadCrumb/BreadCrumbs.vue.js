@@ -44,7 +44,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 });
 /** @type {__VLS_StyleScopedClasses['breadcrumb-item']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -55,7 +55,7 @@ const __VLS_2 = __VLS_1({
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 const { default: __VLS_5 } = __VLS_3.slots;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -72,7 +72,9 @@ const __VLS_8 = __VLS_7({
 [pageTitle, routes,];
 var __VLS_3;
 for (const [crumb, index] of __VLS_vFor((__VLS_ctx.breadcrumbs))) {
-    (index);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
         ...{ class: "breadcrumb-item" },
     });

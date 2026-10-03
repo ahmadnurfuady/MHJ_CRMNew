@@ -54,7 +54,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['modal-body']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.form, __VLS_intrinsics.form)({
     ...{ onSubmit: (...[$event]) => {
-            __VLS_ctx.save();
+            return (__VLS_ctx.save());
             // @ts-ignore
             [save,];
         } },

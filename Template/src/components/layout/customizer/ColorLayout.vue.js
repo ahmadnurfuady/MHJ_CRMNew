@@ -20,7 +20,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['customizer-color']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('light', '#006666', '#FF6150');
+            return (__VLS_ctx.handleColorLayout('light', '#006666', '#FF6150'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -31,7 +31,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('light', '#1D5B79', '#A16B56');
+            return (__VLS_ctx.handleColorLayout('light', '#1D5B79', '#A16B56'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -42,7 +42,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('light', '#4A55A2', '#F0A360');
+            return (__VLS_ctx.handleColorLayout('light', '#4A55A2', '#F0A360'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -53,7 +53,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('light', '#167A93', '#eeb82f');
+            return (__VLS_ctx.handleColorLayout('light', '#167A93', '#eeb82f'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -64,7 +64,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('light', '#423964', '#FFA47A');
+            return (__VLS_ctx.handleColorLayout('light', '#423964', '#FFA47A'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -75,7 +75,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('light', '#4b2a4b', '#FE7088');
+            return (__VLS_ctx.handleColorLayout('light', '#4b2a4b', '#FE7088'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -93,7 +93,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['dark']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('dark-only', '#006666', '#6b7024');
+            return (__VLS_ctx.handleColorLayout('dark-only', '#006666', '#6b7024'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -104,7 +104,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('dark-only', '#1D5B79', '#583729');
+            return (__VLS_ctx.handleColorLayout('dark-only', '#1D5B79', '#583729'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -115,7 +115,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('dark-only', '#4A55A2', '#FFA47A');
+            return (__VLS_ctx.handleColorLayout('dark-only', '#4A55A2', '#FFA47A'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -126,7 +126,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('dark-only', '#167A93', '#F0A360');
+            return (__VLS_ctx.handleColorLayout('dark-only', '#167A93', '#F0A360'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -137,7 +137,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('dark-only', '#423964', '#468B97');
+            return (__VLS_ctx.handleColorLayout('dark-only', '#423964', '#468B97'));
             // @ts-ignore
             [handleColorLayout,];
         } },
@@ -148,7 +148,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleColorLayout('dark-only', '#4b2a4b', '#4b2a4b');
+            return (__VLS_ctx.handleColorLayout('dark-only', '#4b2a4b', '#4b2a4b'));
             // @ts-ignore
             [handleColorLayout,];
         } },

@@ -63,7 +63,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.addNewTask();
+            return (__VLS_ctx.addNewTask());
             // @ts-ignore
             [addNewTask, addNewTask, task,];
         } },
@@ -112,7 +112,7 @@ for (const [todo, index] of __VLS_vFor((__VLS_ctx.todoList))) {
     /** @type {__VLS_StyleScopedClasses['task-container']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.h4, __VLS_intrinsics.h4)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.taskComplete(todo.id);
+                return (__VLS_ctx.taskComplete(todo.id));
                 // @ts-ignore
                 [todoList, taskComplete,];
             } },
@@ -144,7 +144,7 @@ for (const [todo, index] of __VLS_vFor((__VLS_ctx.todoList))) {
     /** @type {__VLS_StyleScopedClasses['task-action-btn']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.remove(index);
+                return (__VLS_ctx.remove(index));
                 // @ts-ignore
                 [remove,];
             } },

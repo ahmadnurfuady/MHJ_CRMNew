@@ -19,7 +19,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
+/** @ts-ignore @type { | typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
 Modal;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -33,13 +33,15 @@ const __VLS_2 = __VLS_1({
     modalCentered: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.close();
-            // @ts-ignore
-            [close,];
-        } });
-var __VLS_7 = {};
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.close());
+        // @ts-ignore
+        [close,];
+    },
+};
+var __VLS_7;
 const { default: __VLS_8 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "modal-content" },
@@ -72,7 +74,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.img)({
     alt: "user vector",
 });
 let __VLS_9;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_10 = __VLS_asFunctionalComponent1(__VLS_9, new __VLS_9({
@@ -86,7 +88,7 @@ const __VLS_11 = __VLS_10({
 /** @type {__VLS_StyleScopedClasses['edit-icon']} */ ;
 const { default: __VLS_14 } = __VLS_12.slots;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -125,7 +127,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['balance-icon']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -162,7 +164,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['balance-icon']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({

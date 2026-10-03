@@ -145,7 +145,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['bootstrap-touchspin']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.decrement();
+            return (__VLS_ctx.decrement());
             // @ts-ignore
             [productDetails, productDetails, productDetails, productDetails, productDetails, productDetails, getImages, goToDetails, decrement,];
         } },
@@ -172,7 +172,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.increment();
+            return (__VLS_ctx.increment());
             // @ts-ignore
             [counter, increment,];
         } },
@@ -190,7 +190,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-plus']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -202,7 +202,7 @@ const __VLS_2 = __VLS_1({
 const { default: __VLS_5 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.addToCart(__VLS_ctx.productDetails);
+            return (__VLS_ctx.addToCart(__VLS_ctx.productDetails));
             // @ts-ignore
             [productDetails, routes, addToCart,];
         } },
@@ -217,7 +217,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 [];
 var __VLS_3;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -233,8 +233,10 @@ const __VLS_8 = __VLS_7({
     dataBsDismiss: "modal",
 }, ...__VLS_functionalComponentArgsRest(__VLS_7));
 let __VLS_11;
-const __VLS_12 = ({ click: {} },
-    { onClick: (__VLS_ctx.goToDetails) });
+const __VLS_12 = {
+    /** @type {typeof __VLS_11.click} */
+    onClick: (__VLS_ctx.goToDetails),
+};
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 /** @type {__VLS_StyleScopedClasses['btn-primary']} */ ;
 /** @type {__VLS_StyleScopedClasses['ms-2']} */ ;

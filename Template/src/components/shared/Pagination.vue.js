@@ -54,8 +54,8 @@ if (props.paginate) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(props.paginate))
-                    return;
-                __VLS_ctx.pageSet(1);
+                    throw 0;
+                return (__VLS_ctx.pageSet(1));
                 // @ts-ignore
                 [pageSet,];
             } },
@@ -72,8 +72,8 @@ if (props.paginate) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(props.paginate))
-                    return;
-                __VLS_ctx.pageSet(props.paginate.currentPage - 1);
+                    throw 0;
+                return (__VLS_ctx.pageSet(props.paginate.currentPage - 1));
                 // @ts-ignore
                 [pageSet,];
             } },
@@ -82,18 +82,20 @@ if (props.paginate) {
     });
     /** @type {__VLS_StyleScopedClasses['page-link']} */ ;
     for (const [page] of __VLS_vFor((props.paginate.pages))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (page),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ class: "page-item" },
             ...{ class: ({ active: props.paginate.currentPage == page }) },
-            key: (page),
         });
         /** @type {__VLS_StyleScopedClasses['page-item']} */ ;
         /** @type {__VLS_StyleScopedClasses['active']} */ ;
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(props.paginate))
-                        return;
-                    __VLS_ctx.pageSet(page);
+                        throw 0;
+                    return (__VLS_ctx.pageSet(page));
                     // @ts-ignore
                     [pageSet,];
                 } },
@@ -114,8 +116,8 @@ if (props.paginate) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(props.paginate))
-                    return;
-                __VLS_ctx.pageSet(props.paginate.currentPage + 1);
+                    throw 0;
+                return (__VLS_ctx.pageSet(props.paginate.currentPage + 1));
                 // @ts-ignore
                 [pageSet,];
             } },
@@ -132,8 +134,8 @@ if (props.paginate) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(props.paginate))
-                    return;
-                __VLS_ctx.pageSet(props.paginate.totalPages);
+                    throw 0;
+                return (__VLS_ctx.pageSet(props.paginate.totalPages));
                 // @ts-ignore
                 [pageSet,];
             } },

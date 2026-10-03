@@ -33,7 +33,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['d-inline-block']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.select, __VLS_intrinsics.select)({
     ...{ onChange: (...[$event]) => {
-            __VLS_ctx.onChangeSort($event);
+            return (__VLS_ctx.onChangeSort($event));
             // @ts-ignore
             [filteredProducts, onChangeSort,];
         } },

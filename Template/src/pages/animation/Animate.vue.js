@@ -59,7 +59,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -121,7 +121,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -145,17 +145,19 @@ const __VLS_8 = __VLS_7({
     showOptions: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_7));
 let __VLS_11;
-const __VLS_12 = ({ 'update:modelValue': {} },
-    { 'onUpdate:modelValue': (...[$event]) => {
-            __VLS_ctx.handlePosition($event);
-            // @ts-ignore
-            [animated, animation, animation, getImages, animation_value, animationValues, handlePosition,];
-        } });
+const __VLS_12 = {
+    /** @type {typeof __VLS_11.'update:modelValue'} */
+    'onUpdate:modelValue': (...[$event]) => {
+        return (__VLS_ctx.handlePosition($event));
+        // @ts-ignore
+        [animated, animation, animation, getImages, animation_value, animationValues, handlePosition,];
+    },
+};
 var __VLS_9;
 var __VLS_10;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.animate();
+            return (__VLS_ctx.animate());
             // @ts-ignore
             [animate,];
         } },
@@ -173,7 +175,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -201,7 +203,9 @@ const { default: __VLS_18 } = __VLS_16.slots;
     [];
 }
 for (const [list] of __VLS_vFor((__VLS_ctx.animationValues))) {
-    (list.value);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (list.value),
+    });
     for (const [item] of __VLS_vFor((list.data))) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             key: (item.value),

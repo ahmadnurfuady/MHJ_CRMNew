@@ -13,7 +13,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -32,7 +32,7 @@ const __VLS_2 = __VLS_1({
     buttonText: ('View All'),
     path: (__VLS_ctx.routes.Chat.PrivateChat),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({});
 for (const [member, index] of __VLS_vFor((__VLS_ctx.teamMembers))) {
@@ -68,7 +68,7 @@ for (const [member, index] of __VLS_vFor((__VLS_ctx.teamMembers))) {
     });
     /** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
     let __VLS_7;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -83,7 +83,7 @@ for (const [member, index] of __VLS_vFor((__VLS_ctx.teamMembers))) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_8));
     __VLS_asFunctionalDirective(__VLS_directives.vTooltip, {})(null, { ...__VLS_directiveBindingRestFields, }, null, null);
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({

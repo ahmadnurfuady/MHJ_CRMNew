@@ -26,7 +26,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -53,7 +53,7 @@ const { default: __VLS_5 } = __VLS_3.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.code, __VLS_intrinsics.code)({});
 }
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.CommonTouchspin} */
+/** @ts-ignore @type { | typeof __VLS_components.CommonTouchspin} */
 CommonTouchspin;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({}));
@@ -64,7 +64,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -91,7 +91,7 @@ const { default: __VLS_17 } = __VLS_15.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.code, __VLS_intrinsics.code)({});
 }
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.CommonTouchspin} */
+/** @ts-ignore @type { | typeof __VLS_components.CommonTouchspin} */
 CommonTouchspin;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_24;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_25 = __VLS_asFunctionalComponent1(__VLS_24, new __VLS_24({
@@ -133,7 +133,7 @@ const { default: __VLS_29 } = __VLS_27.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.code, __VLS_intrinsics.code)({});
 }
 let __VLS_31;
-/** @ts-ignore @type {typeof __VLS_components.PrefixPostfixTouchspin} */
+/** @ts-ignore @type { | typeof __VLS_components.PrefixPostfixTouchspin} */
 PrefixPostfixTouchspin;
 // @ts-ignore
 const __VLS_32 = __VLS_asFunctionalComponent1(__VLS_31, new __VLS_31({
@@ -148,7 +148,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_36;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_37 = __VLS_asFunctionalComponent1(__VLS_36, new __VLS_36({
@@ -175,7 +175,7 @@ const { default: __VLS_41 } = __VLS_39.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.code, __VLS_intrinsics.code)({});
 }
 let __VLS_43;
-/** @ts-ignore @type {typeof __VLS_components.PrefixPostfixTouchspin} */
+/** @ts-ignore @type { | typeof __VLS_components.PrefixPostfixTouchspin} */
 PrefixPostfixTouchspin;
 // @ts-ignore
 const __VLS_44 = __VLS_asFunctionalComponent1(__VLS_43, new __VLS_43({
@@ -192,7 +192,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_48;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_49 = __VLS_asFunctionalComponent1(__VLS_48, new __VLS_48({
@@ -219,7 +219,7 @@ const { default: __VLS_53 } = __VLS_51.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.code, __VLS_intrinsics.code)({});
 }
 let __VLS_55;
-/** @ts-ignore @type {typeof __VLS_components.CommonTouchspin} */
+/** @ts-ignore @type { | typeof __VLS_components.CommonTouchspin} */
 CommonTouchspin;
 // @ts-ignore
 const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({}));

@@ -20,9 +20,11 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppRightPanelAccordion))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: (accordionItem.class) },
-        key: (index),
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "card" },
@@ -63,7 +65,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppRightPanelAc
         /** @type {__VLS_StyleScopedClasses['card-body']} */ ;
         /** @type {__VLS_StyleScopedClasses['filter-cards-view']} */ ;
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
-        __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.myProfile.introduction) }, null, null);
+        __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.myProfile.introduction), }, null, null);
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: "social-network theme-form" },
         });
@@ -78,10 +80,12 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppRightPanelAc
         });
         /** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
         for (const [platform, index] of __VLS_vFor((__VLS_ctx.myProfile.socialNetworks))) {
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (index),
+            });
             __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
                 ...{ class: (`btn social-btn btn-${platform.platformClass} text-center`) },
                 title: (platform.platformName),
-                key: (index),
             });
             __VLS_asFunctionalDirective(__VLS_directives.vTooltip, {})(null, { ...__VLS_directiveBindingRestFields, }, null, null);
             __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
@@ -99,7 +103,9 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppRightPanelAc
         /** @type {__VLS_StyleScopedClasses['social-list']} */ ;
         /** @type {__VLS_StyleScopedClasses['filter-cards-view']} */ ;
         for (const [friend, index] of __VLS_vFor((__VLS_ctx.friends))) {
-            (index);
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (index),
+            });
             if (!friend.isFollower) {
                 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                     ...{ class: "d-flex" },
@@ -139,7 +145,9 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppRightPanelAc
         /** @type {__VLS_StyleScopedClasses['social-list']} */ ;
         /** @type {__VLS_StyleScopedClasses['filter-cards-view']} */ ;
         for (const [friend, index] of __VLS_vFor((__VLS_ctx.friends))) {
-            (index);
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (index),
+            });
             if (!friend.isFollowing) {
                 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                     ...{ class: "d-flex" },

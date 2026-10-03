@@ -24,7 +24,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.TextInputClipboard} */
+/** @ts-ignore @type { | typeof __VLS_components.TextInputClipboard} */
 TextInputClipboard;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -35,7 +35,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.TextareaClipboard} */
+/** @ts-ignore @type { | typeof __VLS_components.TextareaClipboard} */
 TextareaClipboard;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -46,7 +46,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.ClipboardOnParagraph} */
+/** @ts-ignore @type { | typeof __VLS_components.ClipboardOnParagraph} */
 ClipboardOnParagraph;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -57,7 +57,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.CopyPortion} */
+/** @ts-ignore @type { | typeof __VLS_components.CopyPortion} */
 CopyPortion;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));

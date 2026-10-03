@@ -55,7 +55,7 @@ if (__VLS_ctx.currentStore) {
         /** @type {__VLS_StyleScopedClasses['col-xxl-3']} */ ;
         /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.StoreGeneralDetails} */
+        /** @ts-ignore @type { | typeof __VLS_components.StoreGeneralDetails} */
         StoreGeneralDetails;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -84,7 +84,7 @@ if (__VLS_ctx.currentStore) {
     });
     /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.SalesOverview} */
+    /** @ts-ignore @type { | typeof __VLS_components.SalesOverview} */
     SalesOverview;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -94,7 +94,7 @@ if (__VLS_ctx.currentStore) {
     });
     /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.TopSellingProduct} */
+    /** @ts-ignore @type { | typeof __VLS_components.TopSellingProduct} */
     TopSellingProduct;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -104,7 +104,7 @@ if (__VLS_ctx.currentStore) {
     });
     /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
     let __VLS_15;
-    /** @ts-ignore @type {typeof __VLS_components.SellerRecentOrder} */
+    /** @ts-ignore @type { | typeof __VLS_components.SellerRecentOrder} */
     SellerRecentOrder;
     // @ts-ignore
     const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -135,7 +135,7 @@ if (__VLS_ctx.currentStore) {
     });
     /** @type {__VLS_StyleScopedClasses['card-header-right-icon']} */ ;
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -176,7 +176,7 @@ if (__VLS_ctx.currentStore) {
     /** @type {__VLS_StyleScopedClasses['table-responsive']} */ ;
     /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
     let __VLS_26;
-    /** @ts-ignore @type {typeof __VLS_components.ProductListTable | typeof __VLS_components.ProductListTable} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProductListTable | typeof __VLS_components.ProductListTable} */
     ProductListTable;
     // @ts-ignore
     const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({
@@ -194,7 +194,7 @@ if (__VLS_ctx.currentStore) {
     /** @type {__VLS_StyleScopedClasses['ord-xxl-1']} */ ;
     /** @type {__VLS_StyleScopedClasses['box-ord-1']} */ ;
     let __VLS_31;
-    /** @ts-ignore @type {typeof __VLS_components.SellerDetailsSidebar} */
+    /** @ts-ignore @type { | typeof __VLS_components.SellerDetailsSidebar} */
     SellerDetailsSidebar;
     // @ts-ignore
     const __VLS_32 = __VLS_asFunctionalComponent1(__VLS_31, new __VLS_31({

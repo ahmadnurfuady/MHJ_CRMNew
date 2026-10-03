@@ -62,7 +62,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['common-flex']} */ ;
 /** @type {__VLS_StyleScopedClasses['star-box']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.RatingStars} */
+/** @ts-ignore @type { | typeof __VLS_components.RatingStars} */
 RatingStars;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

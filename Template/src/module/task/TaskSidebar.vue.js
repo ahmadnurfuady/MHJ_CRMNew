@@ -34,7 +34,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.collapseFilter();
+            return (__VLS_ctx.collapseFilter());
             // @ts-ignore
             [collapseFilter,];
         } },
@@ -115,7 +115,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-mail']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-100']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -141,7 +141,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.task))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.setActiveTask(item);
+                return (__VLS_ctx.setActiveTask(item));
                 // @ts-ignore
                 [filtered, getImages, task, setActiveTask,];
             } },
@@ -177,7 +177,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.task))) {
             'data-bs-target': "#createtag",
         });
         let __VLS_5;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -220,19 +220,19 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['tab-content']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.TaskList} */
+/** @ts-ignore @type { | typeof __VLS_components.TaskList} */
 TaskList;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
 const __VLS_12 = __VLS_11({}, ...__VLS_functionalComponentArgsRest(__VLS_11));
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.NewTask} */
+/** @ts-ignore @type { | typeof __VLS_components.NewTask} */
 NewTask;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
 const __VLS_17 = __VLS_16({}, ...__VLS_functionalComponentArgsRest(__VLS_16));
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.CreateTaskTag} */
+/** @ts-ignore @type { | typeof __VLS_components.CreateTaskTag} */
 CreateTaskTag;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));

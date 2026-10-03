@@ -86,7 +86,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.filter();
+            return (__VLS_ctx.filter());
             // @ts-ignore
             [filter,];
         } },
@@ -111,11 +111,13 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ref: "externalEventsList",
 });
 for (const [event] of __VLS_vFor((__VLS_ctx.defaultEventList))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (event.title),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event" },
         'data-title': (event.title),
         draggable: "true",
-        key: (event.title),
     });
     /** @type {__VLS_StyleScopedClasses['fc-event']} */ ;
     /** @type {__VLS_StyleScopedClasses['fc-h-event']} */ ;
@@ -151,7 +153,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xxl-9']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.FullCalendar} */
+/** @ts-ignore @type { | typeof __VLS_components.FullCalendar} */
 FullCalendar;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -241,7 +243,7 @@ for (const [event, i] of __VLS_vFor((__VLS_ctx.events))) {
     /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.events.splice(i, 1);
+                return (__VLS_ctx.events.splice(i, 1));
                 // @ts-ignore
                 [removeAfterDrop, calendarOptions, addEvent, events, events, formatDateInput, formatDateInput,];
             } },

@@ -43,7 +43,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['bootstrap-select']} */ ;
 /** @type {__VLS_StyleScopedClasses['search-picker']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -67,12 +67,14 @@ const __VLS_2 = __VLS_1({
     required: (false),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ 'update:modelValue': {} },
-    { 'onUpdate:modelValue': (...[$event]) => {
-            __VLS_ctx.onChange($event, 'rating');
-            // @ts-ignore
-            [form, rating, onChange,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.'update:modelValue'} */
+    'onUpdate:modelValue': (...[$event]) => {
+        return (__VLS_ctx.onChange($event, 'rating'));
+        // @ts-ignore
+        [form, rating, onChange,];
+    },
+};
 var __VLS_3;
 var __VLS_4;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -94,7 +96,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['bootstrap-select']} */ ;
 /** @type {__VLS_StyleScopedClasses['search-picker']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -116,12 +118,14 @@ const __VLS_9 = __VLS_8({
     required: (false),
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 let __VLS_12;
-const __VLS_13 = ({ 'update:modelValue': {} },
-    { 'onUpdate:modelValue': (...[$event]) => {
-            __VLS_ctx.onChange($event, 'status');
-            // @ts-ignore
-            [form, onChange, reviewStatus,];
-        } });
+const __VLS_13 = {
+    /** @type {typeof __VLS_12.'update:modelValue'} */
+    'onUpdate:modelValue': (...[$event]) => {
+        return (__VLS_ctx.onChange($event, 'status'));
+        // @ts-ignore
+        [form, onChange, reviewStatus,];
+    },
+};
 var __VLS_10;
 var __VLS_11;
 // @ts-ignore

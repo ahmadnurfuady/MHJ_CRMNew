@@ -110,7 +110,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['anchor']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({});
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -178,7 +178,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.RegisterPersonalInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.RegisterPersonalInfo} */
     RegisterPersonalInfo;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -192,7 +192,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.RegisterAccountInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.RegisterAccountInfo} */
     RegisterAccountInfo;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -206,7 +206,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_16;
-    /** @ts-ignore @type {typeof __VLS_components.RegisterIdentityInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.RegisterIdentityInfo} */
     RegisterIdentityInfo;
     // @ts-ignore
     const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -220,7 +220,7 @@ if (__VLS_ctx.activeTab === 3) {
 }
 if (__VLS_ctx.activeTab === 4) {
     let __VLS_21;
-    /** @ts-ignore @type {typeof __VLS_components.RegisterAddressInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.RegisterAddressInfo} */
     RegisterAddressInfo;
     // @ts-ignore
     const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({
@@ -238,7 +238,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['action-bar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.activeTab == __VLS_ctx.registerTab.length ? __VLS_ctx.finish() : __VLS_ctx.handleStep(1);
+            return (__VLS_ctx.activeTab == __VLS_ctx.registerTab.length ? __VLS_ctx.finish() : __VLS_ctx.handleStep(1));
             // @ts-ignore
             [getImages, registerTab, activeTab, activeTab, activeTab, activeTab, activeTab, form, form, form, form, formSubmitted, formSubmitted, formSubmitted, formSubmitted, finish, handleStep,];
         } },
@@ -250,7 +250,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 (__VLS_ctx.activeTab == __VLS_ctx.registerTab.length ? 'Finish' : 'Next');
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(-1);
+            return (__VLS_ctx.handleStep(-1));
             // @ts-ignore
             [registerTab, activeTab, handleStep,];
         } },

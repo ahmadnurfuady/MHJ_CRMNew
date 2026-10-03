@@ -35,7 +35,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -76,7 +76,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['alert-light-light']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark-helper']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -105,7 +105,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['alert-light-light']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark-helper']} */ ;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -136,7 +136,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['alert-light-light']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark-helper']} */ ;
 let __VLS_17;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({
@@ -165,7 +165,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['h-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['dark-helper']} */ ;
 let __VLS_22;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({
@@ -192,7 +192,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_27;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_28 = __VLS_asFunctionalComponent1(__VLS_27, new __VLS_27({
@@ -233,7 +233,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['h-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 let __VLS_34;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_35 = __VLS_asFunctionalComponent1(__VLS_34, new __VLS_34({
@@ -261,7 +261,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 /** @type {__VLS_StyleScopedClasses['subtract-border']} */ ;
 let __VLS_39;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_40 = __VLS_asFunctionalComponent1(__VLS_39, new __VLS_39({
@@ -289,7 +289,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['h-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 let __VLS_44;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_45 = __VLS_asFunctionalComponent1(__VLS_44, new __VLS_44({
@@ -312,7 +312,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_49;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_50 = __VLS_asFunctionalComponent1(__VLS_49, new __VLS_49({
@@ -355,7 +355,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['h-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 let __VLS_56;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_57 = __VLS_asFunctionalComponent1(__VLS_56, new __VLS_56({
@@ -388,7 +388,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['h-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 let __VLS_61;
-/** @ts-ignore @type {typeof __VLS_components.Border | typeof __VLS_components.Border} */
+/** @ts-ignore @type { | typeof __VLS_components.Border | typeof __VLS_components.Border} */
 Border;
 // @ts-ignore
 const __VLS_62 = __VLS_asFunctionalComponent1(__VLS_61, new __VLS_61({
@@ -421,7 +421,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['h-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['border']} */ ;
 let __VLS_66;
-/** @ts-ignore @type {typeof __VLS_components.ExtendedBackgroundColors} */
+/** @ts-ignore @type { | typeof __VLS_components.ExtendedBackgroundColors} */
 ExtendedBackgroundColors;
 // @ts-ignore
 const __VLS_67 = __VLS_asFunctionalComponent1(__VLS_66, new __VLS_66({}));
@@ -434,7 +434,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_71;
-/** @ts-ignore @type {typeof __VLS_components.BorderColors} */
+/** @ts-ignore @type { | typeof __VLS_components.BorderColors} */
 BorderColors;
 // @ts-ignore
 const __VLS_72 = __VLS_asFunctionalComponent1(__VLS_71, new __VLS_71({}));
@@ -444,7 +444,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_76;
-/** @ts-ignore @type {typeof __VLS_components.ImagesSizes} */
+/** @ts-ignore @type { | typeof __VLS_components.ImagesSizes} */
 ImagesSizes;
 // @ts-ignore
 const __VLS_77 = __VLS_asFunctionalComponent1(__VLS_76, new __VLS_76({}));
@@ -454,7 +454,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
 let __VLS_81;
-/** @ts-ignore @type {typeof __VLS_components.FontStyle} */
+/** @ts-ignore @type { | typeof __VLS_components.FontStyle} */
 FontStyle;
 // @ts-ignore
 const __VLS_82 = __VLS_asFunctionalComponent1(__VLS_81, new __VLS_81({}));
@@ -464,7 +464,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_86;
-/** @ts-ignore @type {typeof __VLS_components.FontWeightClass} */
+/** @ts-ignore @type { | typeof __VLS_components.FontWeightClass} */
 FontWeightClass;
 // @ts-ignore
 const __VLS_87 = __VLS_asFunctionalComponent1(__VLS_86, new __VLS_86({}));
@@ -474,7 +474,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_91;
-/** @ts-ignore @type {typeof __VLS_components.TextColorsClass} */
+/** @ts-ignore @type { | typeof __VLS_components.TextColorsClass} */
 TextColorsClass;
 // @ts-ignore
 const __VLS_92 = __VLS_asFunctionalComponent1(__VLS_91, new __VLS_91({}));
@@ -484,7 +484,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_96;
-/** @ts-ignore @type {typeof __VLS_components.PaddingClass} */
+/** @ts-ignore @type { | typeof __VLS_components.PaddingClass} */
 PaddingClass;
 // @ts-ignore
 const __VLS_97 = __VLS_asFunctionalComponent1(__VLS_96, new __VLS_96({}));
@@ -496,7 +496,7 @@ for (const [types, index] of __VLS_vFor((__VLS_ctx.borderTypes))) {
     });
     /** @type {__VLS_StyleScopedClasses['col-xl-3']} */ ;
     let __VLS_101;
-    /** @ts-ignore @type {typeof __VLS_components.BorderType | typeof __VLS_components.BorderType} */
+    /** @ts-ignore @type { | typeof __VLS_components.BorderType | typeof __VLS_components.BorderType} */
     BorderType;
     // @ts-ignore
     const __VLS_102 = __VLS_asFunctionalComponent1(__VLS_101, new __VLS_101({
@@ -513,7 +513,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_106;
-/** @ts-ignore @type {typeof __VLS_components.OneSidePaddingClass} */
+/** @ts-ignore @type { | typeof __VLS_components.OneSidePaddingClass} */
 OneSidePaddingClass;
 // @ts-ignore
 const __VLS_107 = __VLS_asFunctionalComponent1(__VLS_106, new __VLS_106({}));
@@ -523,7 +523,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_111;
-/** @ts-ignore @type {typeof __VLS_components.MarginClass} */
+/** @ts-ignore @type { | typeof __VLS_components.MarginClass} */
 MarginClass;
 // @ts-ignore
 const __VLS_112 = __VLS_asFunctionalComponent1(__VLS_111, new __VLS_111({}));
@@ -533,7 +533,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_116;
-/** @ts-ignore @type {typeof __VLS_components.OneSideMarginClass} */
+/** @ts-ignore @type { | typeof __VLS_components.OneSideMarginClass} */
 OneSideMarginClass;
 // @ts-ignore
 const __VLS_117 = __VLS_asFunctionalComponent1(__VLS_116, new __VLS_116({}));
@@ -543,7 +543,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_121;
-/** @ts-ignore @type {typeof __VLS_components.FontSize} */
+/** @ts-ignore @type { | typeof __VLS_components.FontSize} */
 FontSize;
 // @ts-ignore
 const __VLS_122 = __VLS_asFunctionalComponent1(__VLS_121, new __VLS_121({}));

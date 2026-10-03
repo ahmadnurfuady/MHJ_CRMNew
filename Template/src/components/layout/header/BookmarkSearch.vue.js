@@ -26,7 +26,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     href: "#",
 });
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -92,7 +92,7 @@ for (const [menuItem, index] of __VLS_vFor((__VLS_ctx.state.bookmarkItems.slice(
     });
     /** @type {__VLS_StyleScopedClasses['bookmark-icon']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -169,7 +169,7 @@ if (__VLS_ctx.searchMenuItems.length) {
         /** @type {__VLS_StyleScopedClasses['ProfileCard-avatar']} */ ;
         /** @type {__VLS_StyleScopedClasses['header-search']} */ ;
         let __VLS_10;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -191,7 +191,7 @@ if (__VLS_ctx.searchMenuItems.length) {
         });
         /** @type {__VLS_StyleScopedClasses['ProfileCard-realName']} */ ;
         let __VLS_15;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -215,8 +215,8 @@ if (__VLS_ctx.searchMenuItems.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.searchMenuItems.length))
-                        return;
-                    __VLS_ctx.addToBookmark(menuItem);
+                        throw 0;
+                    return (__VLS_ctx.addToBookmark(menuItem));
                     // @ts-ignore
                     [addToBookmark,];
                 } },

@@ -26,7 +26,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -114,7 +114,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-col-2']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -138,12 +138,14 @@ const __VLS_9 = __VLS_8({
     showOptions: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 let __VLS_12;
-const __VLS_13 = ({ 'update:modelValue': {} },
-    { 'onUpdate:modelValue': (...[$event]) => {
-            __VLS_ctx.handlePosition($event, 'inValue');
-            // @ts-ignore
-            [getImages, modalValue, modalInValues, handlePosition,];
-        } });
+const __VLS_13 = {
+    /** @type {typeof __VLS_12.'update:modelValue'} */
+    'onUpdate:modelValue': (...[$event]) => {
+        return (__VLS_ctx.handlePosition($event, 'inValue'));
+        // @ts-ignore
+        [getImages, modalValue, modalInValues, handlePosition,];
+    },
+};
 var __VLS_10;
 var __VLS_11;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -158,7 +160,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-col-2']} */ ;
 let __VLS_14;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -182,12 +184,14 @@ const __VLS_16 = __VLS_15({
     showOptions: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_15));
 let __VLS_19;
-const __VLS_20 = ({ 'update:modelValue': {} },
-    { 'onUpdate:modelValue': (...[$event]) => {
-            __VLS_ctx.handlePosition($event, 'outValue');
-            // @ts-ignore
-            [modalValue, handlePosition, modalOutValues,];
-        } });
+const __VLS_20 = {
+    /** @type {typeof __VLS_19.'update:modelValue'} */
+    'onUpdate:modelValue': (...[$event]) => {
+        return (__VLS_ctx.handlePosition($event, 'outValue'));
+        // @ts-ignore
+        [modalValue, handlePosition, modalOutValues,];
+    },
+};
 var __VLS_17;
 var __VLS_18;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -198,7 +202,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['w-100']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal();
+            return (__VLS_ctx.openModal());
             // @ts-ignore
             [openModal,];
         } },
@@ -211,7 +215,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 [];
 var __VLS_3;
 let __VLS_21;
-/** @ts-ignore @type {typeof __VLS_components.AnimatedModals} */
+/** @ts-ignore @type { | typeof __VLS_components.AnimatedModals} */
 AnimatedModals;
 // @ts-ignore
 const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({
@@ -225,12 +229,14 @@ const __VLS_23 = __VLS_22({
     dialogClass: (__VLS_ctx.modalDialogClass),
 }, ...__VLS_functionalComponentArgsRest(__VLS_22));
 let __VLS_26;
-const __VLS_27 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal();
-            // @ts-ignore
-            [modalOpen, modalDialogClass, closeModal,];
-        } });
+const __VLS_27 = {
+    /** @type {typeof __VLS_26.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal());
+        // @ts-ignore
+        [modalOpen, modalDialogClass, closeModal,];
+    },
+};
 var __VLS_24;
 var __VLS_25;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -259,7 +265,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 /** @type {__VLS_StyleScopedClasses['me-auto']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toastVisible = false;
+            return (__VLS_ctx.toastVisible = false);
             // @ts-ignore
             [toastVisible, toastVisible,];
         } },

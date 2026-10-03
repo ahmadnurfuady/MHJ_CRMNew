@@ -22,7 +22,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.AspectRatios} */
+/** @ts-ignore @type { | typeof __VLS_components.AspectRatios} */
 AspectRatios;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -32,7 +32,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.CustomRatio} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomRatio} */
 CustomRatio;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -42,7 +42,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.DefaultRatio} */
+/** @ts-ignore @type { | typeof __VLS_components.DefaultRatio} */
 DefaultRatio;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));

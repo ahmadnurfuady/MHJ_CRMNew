@@ -5,11 +5,27 @@ $theme-body-sub-title-color: #ffffff;
 $body-color: #f5f5f5;
 $main-body-color: #f5f5f5;
 
-// Theme colors variables
-$primary-color: #006666;
-$secondary-color: #fe6a49;
-$success-color: #00ac46;
-$info-color: #173878;
+// Brand palette — monokrom biru (sama dengan sidebar).
+// SATU-SATUNYA tempat nilai warna brand. Ganti di sini, style.scss (:root) dan
+// semua komponen ikut berubah.
+$brand-primary: #18a6e4;
+$brand-primary-hover: #1493cc;
+$brand-primary-dark: #0e7490;
+$brand-primary-soft: #ddf2fb;
+$brand-primary-soft-light: #e0f2fe;
+$brand-primary-strong: #0284c7;
+$brand-primary-deep: #0369a1;
+$brand-primary-border: #bae6fd;
+$brand-primary-wash: #f0f9ff;
+$brand-secondary: #84d7eb;
+// Triplet RGB untuk dipakai di rgba(var(...), alpha)
+$primary-rgb: red($brand-primary), green($brand-primary), blue($brand-primary);
+
+// Theme colors variables (turunan dari palette brand di atas)
+$primary-color: $brand-primary;
+$secondary-color: $brand-secondary;
+$success-color: $brand-primary-strong;
+$info-color: $brand-primary-dark;
 $warning-color: #ffae1a;
 $danger-color: #e72929;
 $light-color: #e6e9eb;
@@ -55,19 +71,23 @@ $light-txt-color: #86909c;
 $light-bg-gry-color: #f9f9f9;
 $folder-color: #efa000;
 // gradient colors
-$gradient-primary: linear-gradient(26deg, var(--theme-default) 0%, #006666 100%);
-$gradient-bg-primary: linear-gradient(103.75deg, #173878 -13.9%, var(--theme-default) 79.68%);
+$gradient-primary: linear-gradient(26deg, var(--theme-default) 0%, $brand-primary-dark 100%);
+$gradient-bg-primary: linear-gradient(
+  103.75deg,
+  $brand-primary-deep -13.9%,
+  var(--theme-default) 79.68%
+);
 $gradient-card-bg-primary: radial-gradient(
   circle,
-  rgba(27, 174, 174, 1) 2%,
-  rgba(26, 148, 148, 1) 50%,
-  rgba(4, 143, 143, 1) 100%
+  $brand-primary 2%,
+  $brand-primary-hover 50%,
+  $brand-primary-dark 100%
 );
-$gradient-landing-color: linear-gradient(180deg, #24b5b5 0%, #228585 100%);
+$gradient-landing-color: linear-gradient(180deg, $brand-primary 0%, $brand-primary-dark 100%);
 
 // light colors
-$primary-light-color: #006666;
-$secondary-light-color: #fe6a49;
+$primary-light-color: $brand-primary;
+$secondary-light-color: $brand-secondary;
 $warning-light-color: #ffae1a;
 $danger-light-color: #fe6a49;
 $light-light-color: #e6e9eb;

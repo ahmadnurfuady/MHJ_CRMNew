@@ -42,7 +42,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['current_lang']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openDropDown();
+            return (__VLS_ctx.openDropDown());
             // @ts-ignore
             [active, openDropDown,];
         } },
@@ -63,7 +63,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 for (const [language, index] of __VLS_vFor((__VLS_ctx.data))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.selectLanguage(language);
+                return (__VLS_ctx.selectLanguage(language));
                 // @ts-ignore
                 [active, selectedLanguage, data, selectLanguage,];
             } },

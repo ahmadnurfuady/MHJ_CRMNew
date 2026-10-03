@@ -48,7 +48,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -59,7 +59,7 @@ const __VLS_2 = __VLS_1({
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 const { default: __VLS_5 } = __VLS_3.slots;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -76,7 +76,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -87,7 +87,7 @@ const __VLS_13 = __VLS_12({
 }, ...__VLS_functionalComponentArgsRest(__VLS_12));
 const { default: __VLS_16 } = __VLS_14.slots;
 let __VLS_17;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({
@@ -128,7 +128,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.productPriceTabs))) {
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.activeTab = tab.value;
+                return (__VLS_ctx.activeTab = tab.value);
                 // @ts-ignore
                 [vTooltip, productPriceTabs, activeTab,];
             } },
@@ -144,7 +144,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.productPriceTabs))) {
     [activeTab,];
 }
 let __VLS_22;
-/** @ts-ignore @type {typeof __VLS_components.PricingTabContent} */
+/** @ts-ignore @type { | typeof __VLS_components.PricingTabContent} */
 PricingTabContent;
 // @ts-ignore
 const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({
@@ -161,7 +161,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['product-buttons']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleTab(-1);
+            return (__VLS_ctx.handleTab(-1));
             // @ts-ignore
             [activeTab, form, handleTab,];
         } },
@@ -170,7 +170,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 });
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 let __VLS_27;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_28 = __VLS_asFunctionalComponent1(__VLS_27, new __VLS_27({
@@ -181,7 +181,7 @@ const __VLS_29 = __VLS_28({
 }, ...__VLS_functionalComponentArgsRest(__VLS_28));
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleTab(1);
+            return (__VLS_ctx.handleTab(1));
             // @ts-ignore
             [handleTab,];
         } },
@@ -190,7 +190,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 });
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 let __VLS_32;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_33 = __VLS_asFunctionalComponent1(__VLS_32, new __VLS_32({

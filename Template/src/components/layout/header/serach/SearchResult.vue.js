@@ -30,7 +30,7 @@ if (__VLS_ctx.menuItems.length) {
         /** @type {__VLS_StyleScopedClasses['header-search']} */ ;
         if (item.iconForDisplay || item.icon) {
             let __VLS_0;
-            /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+            /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
             SvgIcon;
             // @ts-ignore
             const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -52,7 +52,7 @@ if (__VLS_ctx.menuItems.length) {
         /** @type {__VLS_StyleScopedClasses['ProfileCard-realName']} */ ;
         __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
         let __VLS_5;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

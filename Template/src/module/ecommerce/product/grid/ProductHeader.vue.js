@@ -47,7 +47,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['justify-content-md-end']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -87,7 +87,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['d-inline-block']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.gridView();
+            return (__VLS_ctx.gridView());
             // @ts-ignore
             [gridView,];
         } },
@@ -96,7 +96,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 /** @type {__VLS_StyleScopedClasses['icon-grid']} */ ;
 /** @type {__VLS_StyleScopedClasses['grid-layout-view']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -112,7 +112,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['d-inline-block']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.listView();
+            return (__VLS_ctx.listView());
             // @ts-ignore
             [listView,];
         } },
@@ -122,7 +122,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 /** @type {__VLS_StyleScopedClasses['m-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['list-layout-view']} */ ;
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -133,7 +133,7 @@ const __VLS_13 = __VLS_12({
 }, ...__VLS_functionalComponentArgsRest(__VLS_12));
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.collapseFilter();
+            return (__VLS_ctx.collapseFilter());
             // @ts-ignore
             [collapseFilter,];
         } },
@@ -146,7 +146,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 });
 /** @type {__VLS_StyleScopedClasses['ms-2']} */ ;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -166,7 +166,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.grid2(true);
+            return (__VLS_ctx.grid2(true));
             // @ts-ignore
             [grid2,];
         } },
@@ -189,7 +189,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['bg-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.grid3();
+            return (__VLS_ctx.grid3());
             // @ts-ignore
             [grid3,];
         } },
@@ -218,7 +218,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['bg-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.grid4();
+            return (__VLS_ctx.grid4());
             // @ts-ignore
             [grid4,];
         } },
@@ -253,7 +253,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['bg-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.grid6();
+            return (__VLS_ctx.grid6());
             // @ts-ignore
             [grid6,];
         } },
@@ -299,7 +299,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['line-grid-15']} */ ;
 /** @type {__VLS_StyleScopedClasses['bg-primary']} */ ;
 let __VLS_21;
-/** @ts-ignore @type {typeof __VLS_components.ShowingProduct} */
+/** @ts-ignore @type { | typeof __VLS_components.ShowingProduct} */
 ShowingProduct;
 // @ts-ignore
 const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({}));
@@ -336,7 +336,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 /** @type {__VLS_StyleScopedClasses['f-w-700']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.collapseFilter();
+            return (__VLS_ctx.collapseFilter());
             // @ts-ignore
             [filtered, collapseFilter,];
         } },
@@ -350,7 +350,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-chevron-down']} */ ;
 /** @type {__VLS_StyleScopedClasses['toggle-data']} */ ;
 let __VLS_26;
-/** @ts-ignore @type {typeof __VLS_components.ProductFilterBar} */
+/** @ts-ignore @type { | typeof __VLS_components.ProductFilterBar} */
 ProductFilterBar;
 // @ts-ignore
 const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({
@@ -360,8 +360,10 @@ const __VLS_28 = __VLS_27({
     ...{ 'onAllFilters': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_27));
 let __VLS_31;
-const __VLS_32 = ({ allFilters: {} },
-    { onAllFilters: (__VLS_ctx.allFilter) });
+const __VLS_32 = {
+    /** @type {typeof __VLS_31.allFilters} */
+    onAllFilters: (__VLS_ctx.allFilter),
+};
 var __VLS_29;
 var __VLS_30;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -370,7 +372,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-9']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_33;
-/** @ts-ignore @type {typeof __VLS_components.ProductSearch} */
+/** @ts-ignore @type { | typeof __VLS_components.ProductSearch} */
 ProductSearch;
 // @ts-ignore
 const __VLS_34 = __VLS_asFunctionalComponent1(__VLS_33, new __VLS_33({
@@ -380,12 +382,14 @@ const __VLS_35 = __VLS_34({
     ...{ 'onUpdateSearch': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_34));
 let __VLS_38;
-const __VLS_39 = ({ updateSearch: {} },
-    { onUpdateSearch: (__VLS_ctx.updateSearchTerm) });
+const __VLS_39 = {
+    /** @type {typeof __VLS_38.updateSearch} */
+    onUpdateSearch: (__VLS_ctx.updateSearchTerm),
+};
 var __VLS_36;
 var __VLS_37;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.ProductDetail} */
+/** @ts-ignore @type { | typeof __VLS_components.ProductDetail} */
 ProductDetail;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({

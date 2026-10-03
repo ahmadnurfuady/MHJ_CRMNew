@@ -18,9 +18,11 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (__VLS_ctx.getFilteredEmails.length) {
     for (const [email, index] of __VLS_vFor((__VLS_ctx.getFilteredEmails))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ class: "inbox-data project" },
-            key: (index),
         });
         /** @type {__VLS_StyleScopedClasses['inbox-data']} */ ;
         /** @type {__VLS_StyleScopedClasses['project']} */ ;
@@ -48,7 +50,7 @@ if (__VLS_ctx.getFilteredEmails.length) {
         });
         /** @type {__VLS_StyleScopedClasses['form-check-label']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -62,14 +64,16 @@ if (__VLS_ctx.getFilteredEmails.length) {
             ...{ class: ('important-mail ' + (email.isFavorite ? 'active' : '')) },
         }, ...__VLS_functionalComponentArgsRest(__VLS_1));
         let __VLS_5;
-        const __VLS_6 = ({ click: {} },
-            { onClick: (...[$event]) => {
-                    if (!(__VLS_ctx.getFilteredEmails.length))
-                        return;
-                    __VLS_ctx.addToFavorite(email);
-                    // @ts-ignore
-                    [getFilteredEmails, getFilteredEmails, addToFavorite,];
-                } });
+        const __VLS_6 = {
+            /** @type {typeof __VLS_5.click} */
+            onClick: (...[$event]) => {
+                if (!(__VLS_ctx.getFilteredEmails.length))
+                    throw 0;
+                return (__VLS_ctx.addToFavorite(email));
+                // @ts-ignore
+                [getFilteredEmails, getFilteredEmails, addToFavorite,];
+            },
+        };
         var __VLS_3;
         var __VLS_4;
         if (__VLS_ctx.mailState.activeTab == 'sent') {
@@ -104,8 +108,8 @@ if (__VLS_ctx.getFilteredEmails.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.getFilteredEmails.length))
-                        return;
-                    __VLS_ctx.openEmail(email);
+                        throw 0;
+                    return (__VLS_ctx.openEmail(email));
                     // @ts-ignore
                     [mailState, getImages, getTextColor, getTextColor, getUserText, getUserText, getUserText, openEmail,];
                 } },
@@ -137,8 +141,8 @@ if (__VLS_ctx.getFilteredEmails.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.getFilteredEmails.length))
-                        return;
-                    email.isRead = !email.isRead;
+                        throw 0;
+                    return (email.isRead = !email.isRead);
                     // @ts-ignore
                     [];
                 } },
@@ -149,8 +153,8 @@ if (__VLS_ctx.getFilteredEmails.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.getFilteredEmails.length))
-                        return;
-                    __VLS_ctx.deleteMail(email);
+                        throw 0;
+                    return (__VLS_ctx.deleteMail(email));
                     // @ts-ignore
                     [deleteMail,];
                 } },

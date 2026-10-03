@@ -33,7 +33,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.DefaultList} */
+/** @ts-ignore @type { | typeof __VLS_components.DefaultList} */
 DefaultList;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -44,7 +44,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.ActiveLists} */
+/** @ts-ignore @type { | typeof __VLS_components.ActiveLists} */
 ActiveLists;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -55,7 +55,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.FlushLists} */
+/** @ts-ignore @type { | typeof __VLS_components.FlushLists} */
 FlushLists;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -67,7 +67,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.ContextualClassesList} */
+/** @ts-ignore @type { | typeof __VLS_components.ContextualClassesList} */
 ContextualClassesList;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -79,7 +79,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.HorizontalLists} */
+/** @ts-ignore @type { | typeof __VLS_components.HorizontalLists} */
 HorizontalLists;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -89,7 +89,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.CustomContentLists} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomContentLists} */
 CustomContentLists;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -100,7 +100,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.CheckboxList} */
+/** @ts-ignore @type { | typeof __VLS_components.CheckboxList} */
 CheckboxList;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({}));
@@ -111,7 +111,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.RadioList} */
+/** @ts-ignore @type { | typeof __VLS_components.RadioList} */
 RadioList;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({}));
@@ -122,7 +122,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.NumberList} */
+/** @ts-ignore @type { | typeof __VLS_components.NumberList} */
 NumberList;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({}));
@@ -133,7 +133,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_45;
-/** @ts-ignore @type {typeof __VLS_components.JavaScriptBehaviorList} */
+/** @ts-ignore @type { | typeof __VLS_components.JavaScriptBehaviorList} */
 JavaScriptBehaviorList;
 // @ts-ignore
 const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({}));
@@ -144,7 +144,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xxl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_50;
-/** @ts-ignore @type {typeof __VLS_components.NumberBadgeList} */
+/** @ts-ignore @type { | typeof __VLS_components.NumberBadgeList} */
 NumberBadgeList;
 // @ts-ignore
 const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({}));
@@ -155,7 +155,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xxl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_55;
-/** @ts-ignore @type {typeof __VLS_components.DisabledLists} */
+/** @ts-ignore @type { | typeof __VLS_components.DisabledLists} */
 DisabledLists;
 // @ts-ignore
 const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({}));
@@ -165,7 +165,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xxl-4']} */ ;
 let __VLS_60;
-/** @ts-ignore @type {typeof __VLS_components.ScrollableLists} */
+/** @ts-ignore @type { | typeof __VLS_components.ScrollableLists} */
 ScrollableLists;
 // @ts-ignore
 const __VLS_61 = __VLS_asFunctionalComponent1(__VLS_60, new __VLS_60({}));

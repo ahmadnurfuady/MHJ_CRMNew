@@ -30,7 +30,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['xl-40']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.JobFilter} */
+/** @ts-ignore @type { | typeof __VLS_components.JobFilter} */
 JobFilter;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -98,7 +98,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({
 /** @type {__VLS_StyleScopedClasses['mt-0']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.Rate} */
+/** @ts-ignore @type { | typeof __VLS_components.Rate} */
 Rate;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -116,7 +116,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.JobApplyPersonalDetails} */
+/** @ts-ignore @type { | typeof __VLS_components.JobApplyPersonalDetails} */
 JobApplyPersonalDetails;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -126,7 +126,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.JobApplyEductionDetails} */
+/** @ts-ignore @type { | typeof __VLS_components.JobApplyEductionDetails} */
 JobApplyEductionDetails;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -136,7 +136,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.JobApplyExperienceDetails} */
+/** @ts-ignore @type { | typeof __VLS_components.JobApplyExperienceDetails} */
 JobApplyExperienceDetails;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -146,7 +146,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 });
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.JobApplyDocuments} */
+/** @ts-ignore @type { | typeof __VLS_components.JobApplyDocuments} */
 JobApplyDocuments;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));

@@ -29,7 +29,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['customizer-header']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.closecustomizer();
+            return (__VLS_ctx.closecustomizer());
             // @ts-ignore
             [closecustomizer,];
         } },
@@ -62,7 +62,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['plus-popup']} */ ;
 /** @type {__VLS_StyleScopedClasses['mt-2']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.teleport | typeof __VLS_components.Teleport | typeof __VLS_components.teleport | typeof __VLS_components.Teleport} */
+/** @ts-ignore @type { | typeof __VLS_components.teleport | typeof __VLS_components.Teleport | typeof __VLS_components.teleport | typeof __VLS_components.Teleport} */
 teleport;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -140,7 +140,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['modal-footer']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.copy();
+            return (__VLS_ctx.copy());
             // @ts-ignore
             [layout, layout, layout, layout, layout, layout, copy,];
         } },

@@ -13,7 +13,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.details) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -32,7 +32,7 @@ if (props.details) {
         header: (props.details.bgColor),
         cardClass: ('card-absolute'),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_5 = {};
+    var __VLS_5;
     const { default: __VLS_6 } = __VLS_3.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "d-flex list-behavior-1 align-items-center" },
@@ -58,7 +58,7 @@ if (props.details) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({
         ...{ class: "mb-xl-0 mb-sm-4" },
     });
-    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (props.details.text) }, null, null);
+    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (props.details.text), }, null, null);
     /** @type {__VLS_StyleScopedClasses['mb-xl-0']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-sm-4']} */ ;
     // @ts-ignore

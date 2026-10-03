@@ -43,7 +43,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -87,7 +87,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['form-input']} */ ;
 /** @type {__VLS_StyleScopedClasses['position-relative']} */ ;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.InputField | typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -126,7 +126,7 @@ const __VLS_14 = __VLS_13({
 const { default: __VLS_17 } = __VLS_15.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.togglePassword('password');
+            return (__VLS_ctx.togglePassword('password'));
             // @ts-ignore
             [showPassword, form, togglePassword,];
         } },
@@ -148,7 +148,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
 let __VLS_18;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -162,7 +162,7 @@ const __VLS_20 = __VLS_19({
 /** @type {__VLS_StyleScopedClasses['col-form-label']} */ ;
 const { default: __VLS_23 } = __VLS_21.slots;
 let __VLS_24;
-/** @ts-ignore @type {typeof __VLS_components.InputField | typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_25 = __VLS_asFunctionalComponent1(__VLS_24, new __VLS_24({
@@ -182,7 +182,7 @@ const __VLS_26 = __VLS_25({
 const { default: __VLS_29 } = __VLS_27.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.togglePassword('confirmPassword');
+            return (__VLS_ctx.togglePassword('confirmPassword'));
             // @ts-ignore
             [showPassword, form, togglePassword,];
         } },
@@ -237,7 +237,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.p, __VLS_intrinsics.p)({
 /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({

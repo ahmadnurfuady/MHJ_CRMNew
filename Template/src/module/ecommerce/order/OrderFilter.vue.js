@@ -21,12 +21,12 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "row g-3 custom-input" },
@@ -40,7 +40,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -51,7 +51,7 @@ const __VLS_9 = __VLS_8({
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 const { default: __VLS_12 } = __VLS_10.slots;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -75,7 +75,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_18;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -86,7 +86,7 @@ const __VLS_20 = __VLS_19({
 }, ...__VLS_functionalComponentArgsRest(__VLS_19));
 const { default: __VLS_23 } = __VLS_21.slots;
 let __VLS_24;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_25 = __VLS_asFunctionalComponent1(__VLS_24, new __VLS_24({
@@ -110,7 +110,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_29;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_30 = __VLS_asFunctionalComponent1(__VLS_29, new __VLS_29({
@@ -121,7 +121,7 @@ const __VLS_31 = __VLS_30({
 }, ...__VLS_functionalComponentArgsRest(__VLS_30));
 const { default: __VLS_34 } = __VLS_32.slots;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({
@@ -149,7 +149,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({
@@ -160,7 +160,7 @@ const __VLS_42 = __VLS_41({
 }, ...__VLS_functionalComponentArgsRest(__VLS_41));
 const { default: __VLS_45 } = __VLS_43.slots;
 let __VLS_46;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_47 = __VLS_asFunctionalComponent1(__VLS_46, new __VLS_46({

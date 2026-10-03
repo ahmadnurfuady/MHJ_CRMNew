@@ -37,7 +37,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xxl-3']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.BookmarkSidebar} */
+/** @ts-ignore @type { | typeof __VLS_components.BookmarkSidebar} */
 BookmarkSidebar;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -94,7 +94,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleListView(false);
+            return (__VLS_ctx.toggleListView(false));
             // @ts-ignore
             [bookmarkState, bookmarkState, toggleListView,];
         } },
@@ -103,7 +103,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 });
 /** @type {__VLS_StyleScopedClasses['grid-bookmark-view']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -115,7 +115,7 @@ const __VLS_7 = __VLS_6({
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleListView(true);
+            return (__VLS_ctx.toggleListView(true));
             // @ts-ignore
             [toggleListView,];
         } },
@@ -124,7 +124,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
 });
 /** @type {__VLS_StyleScopedClasses['list-layout-view']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -139,14 +139,14 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['card-body']} */ ;
 /** @type {__VLS_StyleScopedClasses['pb-0']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.BookmarkDetails} */
+/** @ts-ignore @type { | typeof __VLS_components.BookmarkDetails} */
 BookmarkDetails;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
 const __VLS_17 = __VLS_16({}, ...__VLS_functionalComponentArgsRest(__VLS_16));
 if (__VLS_ctx.bookmarkState.isBookmarkModalOpen) {
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.BookmarkModal} */
+    /** @ts-ignore @type { | typeof __VLS_components.BookmarkModal} */
     BookmarkModal;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -160,14 +160,16 @@ if (__VLS_ctx.bookmarkState.isBookmarkModalOpen) {
         modalTitle: ('Edit Bookmark'),
     }, ...__VLS_functionalComponentArgsRest(__VLS_21));
     let __VLS_25;
-    const __VLS_26 = ({ closeModal: {} },
-        { onCloseModal: (...[$event]) => {
-                if (!(__VLS_ctx.bookmarkState.isBookmarkModalOpen))
-                    return;
-                __VLS_ctx.closeModal();
-                // @ts-ignore
-                [bookmarkState, bookmarkState, closeModal,];
-            } });
+    const __VLS_26 = {
+        /** @type {typeof __VLS_25.closeModal} */
+        onCloseModal: (...[$event]) => {
+            if (!(__VLS_ctx.bookmarkState.isBookmarkModalOpen))
+                throw 0;
+            return (__VLS_ctx.closeModal());
+            // @ts-ignore
+            [bookmarkState, bookmarkState, closeModal,];
+        },
+    };
     var __VLS_23;
     var __VLS_24;
 }

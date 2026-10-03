@@ -40,7 +40,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.PositionSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.PositionSweetAlert} */
 PositionSweetAlert;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -62,7 +62,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.PositionSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.PositionSweetAlert} */
 PositionSweetAlert;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -84,7 +84,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.PositionSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.PositionSweetAlert} */
 PositionSweetAlert;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.PositionSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.PositionSweetAlert} */
 PositionSweetAlert;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -128,7 +128,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.BasicSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicSweetAlert} */
 BasicSweetAlert;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -142,7 +142,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.TitleTextSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.TitleTextSweetAlert} */
 TitleTextSweetAlert;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -156,7 +156,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.DismissAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.DismissAlert} */
 DismissAlert;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({}));
@@ -170,7 +170,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.HtmlTextAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.HtmlTextAlert} */
 HtmlTextAlert;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({}));
@@ -184,7 +184,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.ConfirmationAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.ConfirmationAlert} */
 ConfirmationAlert;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({}));
@@ -198,7 +198,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_45;
-/** @ts-ignore @type {typeof __VLS_components.AnimatedAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.AnimatedAlert} */
 AnimatedAlert;
 // @ts-ignore
 const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({}));
@@ -212,7 +212,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_50;
-/** @ts-ignore @type {typeof __VLS_components.ConfirmationTriggerSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.ConfirmationTriggerSweetAlert} */
 ConfirmationTriggerSweetAlert;
 // @ts-ignore
 const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({}));
@@ -226,7 +226,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_55;
-/** @ts-ignore @type {typeof __VLS_components.ImageMessageSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.ImageMessageSweetAlert} */
 ImageMessageSweetAlert;
 // @ts-ignore
 const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({}));
@@ -240,7 +240,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_60;
-/** @ts-ignore @type {typeof __VLS_components.TimerSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.TimerSweetAlert} */
 TimerSweetAlert;
 // @ts-ignore
 const __VLS_61 = __VLS_asFunctionalComponent1(__VLS_60, new __VLS_60({}));
@@ -254,7 +254,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_65;
-/** @ts-ignore @type {typeof __VLS_components.AJAXRequestSweetAlert} */
+/** @ts-ignore @type { | typeof __VLS_components.AJAXRequestSweetAlert} */
 AJAXRequestSweetAlert;
 // @ts-ignore
 const __VLS_66 = __VLS_asFunctionalComponent1(__VLS_65, new __VLS_65({}));
@@ -268,7 +268,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_70;
-/** @ts-ignore @type {typeof __VLS_components.ConfirmationApprovalSweetalert} */
+/** @ts-ignore @type { | typeof __VLS_components.ConfirmationApprovalSweetalert} */
 ConfirmationApprovalSweetalert;
 // @ts-ignore
 const __VLS_71 = __VLS_asFunctionalComponent1(__VLS_70, new __VLS_70({}));
@@ -282,7 +282,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_75;
-/** @ts-ignore @type {typeof __VLS_components.RTLSupportSweetalert} */
+/** @ts-ignore @type { | typeof __VLS_components.RTLSupportSweetalert} */
 RTLSupportSweetalert;
 // @ts-ignore
 const __VLS_76 = __VLS_asFunctionalComponent1(__VLS_75, new __VLS_75({}));
@@ -296,7 +296,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_80;
-/** @ts-ignore @type {typeof __VLS_components.PasswordGeneratorSweetalert} */
+/** @ts-ignore @type { | typeof __VLS_components.PasswordGeneratorSweetalert} */
 PasswordGeneratorSweetalert;
 // @ts-ignore
 const __VLS_81 = __VLS_asFunctionalComponent1(__VLS_80, new __VLS_80({}));
@@ -310,7 +310,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_85;
-/** @ts-ignore @type {typeof __VLS_components.DateSweetalert} */
+/** @ts-ignore @type { | typeof __VLS_components.DateSweetalert} */
 DateSweetalert;
 // @ts-ignore
 const __VLS_86 = __VLS_asFunctionalComponent1(__VLS_85, new __VLS_85({}));
@@ -324,7 +324,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_90;
-/** @ts-ignore @type {typeof __VLS_components.CustomPositionedSweetalert} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomPositionedSweetalert} */
 CustomPositionedSweetalert;
 // @ts-ignore
 const __VLS_91 = __VLS_asFunctionalComponent1(__VLS_90, new __VLS_90({}));
@@ -338,7 +338,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-4']} */ ;
 let __VLS_95;
-/** @ts-ignore @type {typeof __VLS_components.FormSweetalert} */
+/** @ts-ignore @type { | typeof __VLS_components.FormSweetalert} */
 FormSweetalert;
 // @ts-ignore
 const __VLS_96 = __VLS_asFunctionalComponent1(__VLS_95, new __VLS_95({}));

@@ -57,7 +57,7 @@ if (props.cardType === 'simple') {
             var __VLS_6 = {};
             if (props.dropdownType && props.options) {
                 let __VLS_8;
-                /** @ts-ignore @type {typeof __VLS_components.CardDropdown} */
+                /** @ts-ignore @type { | typeof __VLS_components.CardDropdown} */
                 CardDropdown;
                 // @ts-ignore
                 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -118,7 +118,7 @@ else if (props.cardType == 'classic') {
             });
             /** @type {__VLS_StyleScopedClasses['card-header-right-btn']} */ ;
             let __VLS_23;
-            /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+            /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
             routerLink;
             // @ts-ignore
             const __VLS_24 = __VLS_asFunctionalComponent1(__VLS_23, new __VLS_23({

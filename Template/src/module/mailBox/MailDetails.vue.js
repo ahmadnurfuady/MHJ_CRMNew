@@ -37,8 +37,8 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.mailState.currentMailDetails))
-                    return;
-                __VLS_ctx.goPrevious();
+                    throw 0;
+                return (__VLS_ctx.goPrevious());
                 // @ts-ignore
                 [mailState, goPrevious,];
             } },
@@ -46,7 +46,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     });
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -74,7 +74,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalDirective(__VLS_directives.vTooltip, {})(null, { ...__VLS_directiveBindingRestFields, }, null, null);
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -92,7 +92,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalDirective(__VLS_directives.vTooltip, {})(null, { ...__VLS_directiveBindingRestFields, }, null, null);
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -112,7 +112,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalDirective(__VLS_directives.vTooltip, {})(null, { ...__VLS_directiveBindingRestFields, }, null, null);
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_15;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -131,7 +131,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     /** @type {__VLS_StyleScopedClasses['bg-light-danger']} */ ;
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -151,7 +151,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalDirective(__VLS_directives.vTooltip, {})(null, { ...__VLS_directiveBindingRestFields, }, null, null);
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_25;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -214,7 +214,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     /** @type {__VLS_StyleScopedClasses['p-0']} */ ;
     /** @type {__VLS_StyleScopedClasses['dropdown-button']} */ ;
     let __VLS_30;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({
@@ -259,8 +259,8 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.mailState.currentMailDetails))
-                    return;
-                __VLS_ctx.addToFavorite(__VLS_ctx.mailState.currentMailDetails);
+                    throw 0;
+                return (__VLS_ctx.addToFavorite(__VLS_ctx.mailState.currentMailDetails));
                 // @ts-ignore
                 [mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, mailState, vTooltip, vTooltip, vTooltip, vTooltip, vTooltip, getImages, getTextColor, getTextColor, getUserText, getUserText, getUserText, addToFavorite,];
             } },
@@ -268,7 +268,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     });
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_35;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({
@@ -282,8 +282,8 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.mailState.currentMailDetails))
-                    return;
-                __VLS_ctx.print();
+                    throw 0;
+                return (__VLS_ctx.print());
                 // @ts-ignore
                 [mailState, print,];
             } },
@@ -292,7 +292,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     });
     /** @type {__VLS_StyleScopedClasses['light-square']} */ ;
     let __VLS_40;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({
@@ -314,7 +314,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     });
     /** @type {__VLS_StyleScopedClasses['dropdown-toggle']} */ ;
     let __VLS_45;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_46 = __VLS_asFunctionalComponent1(__VLS_45, new __VLS_45({
@@ -367,7 +367,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     /** @type {__VLS_StyleScopedClasses['user-footer']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
     let __VLS_50;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({
@@ -419,7 +419,7 @@ if (__VLS_ctx.mailState.currentMailDetails) {
     /** @type {__VLS_StyleScopedClasses['toolbar-box']} */ ;
     if (__VLS_ctx.editor) {
         let __VLS_55;
-        /** @ts-ignore @type {typeof __VLS_components.ckeditor | typeof __VLS_components.Ckeditor | typeof __VLS_components.ckeditor | typeof __VLS_components.Ckeditor} */
+        /** @ts-ignore @type { | typeof __VLS_components.ckeditor | typeof __VLS_components.Ckeditor | typeof __VLS_components.ckeditor | typeof __VLS_components.Ckeditor} */
         ckeditor;
         // @ts-ignore
         const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({

@@ -15,7 +15,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.commonButtons))) {
     });
     /** @type {__VLS_StyleScopedClasses['col-xxl-6']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -51,7 +51,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.commonButtons))) {
         /** @type {__VLS_StyleScopedClasses['btn']} */ ;
         if (button.icon) {
             let __VLS_7;
-            /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+            /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
             vueFeather;
             // @ts-ignore
             const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({

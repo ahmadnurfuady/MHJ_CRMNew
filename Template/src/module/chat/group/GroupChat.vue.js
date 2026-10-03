@@ -203,7 +203,7 @@ for (const [chat, index] of __VLS_vFor((__VLS_ctx.currentChat.chat?.messages))) 
     [getImages, currentChat, currentChat, currentChat,];
 }
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.AddChat} */
+/** @ts-ignore @type { | typeof __VLS_components.AddChat} */
 AddChat;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));

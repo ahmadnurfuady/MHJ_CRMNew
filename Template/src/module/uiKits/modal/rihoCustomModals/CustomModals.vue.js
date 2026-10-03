@@ -25,7 +25,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -60,7 +60,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['custom-alert']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.CustomModalCard | typeof __VLS_components.CustomModalCard} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomModalCard | typeof __VLS_components.CustomModalCard} */
 CustomModalCard;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -74,7 +74,7 @@ const __VLS_9 = __VLS_8({
 const { default: __VLS_12 } = __VLS_10.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('profileModal');
+            return (__VLS_ctx.openModal('profileModal'));
             // @ts-ignore
             [dialog1Title, dialog1Description, openModal,];
         } },
@@ -96,7 +96,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['custom-alert']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.CustomModalCard | typeof __VLS_components.CustomModalCard} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomModalCard | typeof __VLS_components.CustomModalCard} */
 CustomModalCard;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -110,7 +110,7 @@ const __VLS_15 = __VLS_14({
 const { default: __VLS_18 } = __VLS_16.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('resultModal');
+            return (__VLS_ctx.openModal('resultModal'));
             // @ts-ignore
             [openModal, dialog2Title, dialog2Description,];
         } },
@@ -132,7 +132,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['custom-alert']} */ ;
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.CustomModalCard | typeof __VLS_components.CustomModalCard} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomModalCard | typeof __VLS_components.CustomModalCard} */
 CustomModalCard;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -146,7 +146,7 @@ const __VLS_21 = __VLS_20({
 const { default: __VLS_24 } = __VLS_22.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('balanceModal');
+            return (__VLS_ctx.openModal('balanceModal'));
             // @ts-ignore
             [openModal, dialog3Title, dialog3Description,];
         } },
@@ -164,7 +164,7 @@ var __VLS_22;
 [];
 var __VLS_3;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.ProfileModal} */
+/** @ts-ignore @type { | typeof __VLS_components.ProfileModal} */
 ProfileModal;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -176,16 +176,18 @@ const __VLS_27 = __VLS_26({
     modalOpen: (__VLS_ctx.modals.profileModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_26));
 let __VLS_30;
-const __VLS_31 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('profileModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_31 = {
+    /** @type {typeof __VLS_30.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('profileModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_28;
 var __VLS_29;
 let __VLS_32;
-/** @ts-ignore @type {typeof __VLS_components.ResultModal} */
+/** @ts-ignore @type { | typeof __VLS_components.ResultModal} */
 ResultModal;
 // @ts-ignore
 const __VLS_33 = __VLS_asFunctionalComponent1(__VLS_32, new __VLS_32({
@@ -197,16 +199,18 @@ const __VLS_34 = __VLS_33({
     modalOpen: (__VLS_ctx.modals.resultModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_33));
 let __VLS_37;
-const __VLS_38 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('resultModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_38 = {
+    /** @type {typeof __VLS_37.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('resultModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_35;
 var __VLS_36;
 let __VLS_39;
-/** @ts-ignore @type {typeof __VLS_components.BalanceModal} */
+/** @ts-ignore @type { | typeof __VLS_components.BalanceModal} */
 BalanceModal;
 // @ts-ignore
 const __VLS_40 = __VLS_asFunctionalComponent1(__VLS_39, new __VLS_39({
@@ -218,12 +222,14 @@ const __VLS_41 = __VLS_40({
     modalOpen: (__VLS_ctx.modals.balanceModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_40));
 let __VLS_44;
-const __VLS_45 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('balanceModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_45 = {
+    /** @type {typeof __VLS_44.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('balanceModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_42;
 var __VLS_43;
 // @ts-ignore

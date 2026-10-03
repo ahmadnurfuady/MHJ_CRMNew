@@ -31,7 +31,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -72,7 +72,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.productState.tabs))) {
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(tab.value, index + 1);
+                return (__VLS_ctx.handleTab(tab.value, index + 1));
                 // @ts-ignore
                 [productState, handleTab,];
             } },
@@ -91,7 +91,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.productState.tabs))) {
     });
     /** @type {__VLS_StyleScopedClasses['product-icons']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -132,7 +132,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 if (__VLS_ctx.productState.activeTab == 'product') {
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.AddProductDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.AddProductDetails} */
     AddProductDetails;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -144,20 +144,22 @@ if (__VLS_ctx.productState.activeTab == 'product') {
         activeTabId: (__VLS_ctx.productState.activeTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_12));
     let __VLS_16;
-    const __VLS_17 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.activeTab == 'product'))
-                    return;
-                __VLS_ctx.handlePage($event);
-                // @ts-ignore
-                [productState, productState, handlePage,];
-            } });
+    const __VLS_17 = {
+        /** @type {typeof __VLS_16.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.activeTab == 'product'))
+                throw 0;
+            return (__VLS_ctx.handlePage($event));
+            // @ts-ignore
+            [productState, productState, handlePage,];
+        },
+    };
     var __VLS_14;
     var __VLS_15;
 }
 if (__VLS_ctx.productState.activeTab == 'gallery') {
     let __VLS_18;
-    /** @ts-ignore @type {typeof __VLS_components.ProductGallery} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProductGallery} */
     ProductGallery;
     // @ts-ignore
     const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -169,20 +171,22 @@ if (__VLS_ctx.productState.activeTab == 'gallery') {
         activeTabId: (__VLS_ctx.productState.activeTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_19));
     let __VLS_23;
-    const __VLS_24 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.activeTab == 'gallery'))
-                    return;
-                __VLS_ctx.handlePage($event);
-                // @ts-ignore
-                [productState, productState, handlePage,];
-            } });
+    const __VLS_24 = {
+        /** @type {typeof __VLS_23.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.activeTab == 'gallery'))
+                throw 0;
+            return (__VLS_ctx.handlePage($event));
+            // @ts-ignore
+            [productState, productState, handlePage,];
+        },
+    };
     var __VLS_21;
     var __VLS_22;
 }
 if (__VLS_ctx.productState.activeTab == 'category') {
     let __VLS_25;
-    /** @ts-ignore @type {typeof __VLS_components.ProductCategories} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProductCategories} */
     ProductCategories;
     // @ts-ignore
     const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -194,20 +198,22 @@ if (__VLS_ctx.productState.activeTab == 'category') {
         activeTabId: (__VLS_ctx.productState.activeTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_26));
     let __VLS_30;
-    const __VLS_31 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.activeTab == 'category'))
-                    return;
-                __VLS_ctx.handlePage($event);
-                // @ts-ignore
-                [productState, productState, handlePage,];
-            } });
+    const __VLS_31 = {
+        /** @type {typeof __VLS_30.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.activeTab == 'category'))
+                throw 0;
+            return (__VLS_ctx.handlePage($event));
+            // @ts-ignore
+            [productState, productState, handlePage,];
+        },
+    };
     var __VLS_28;
     var __VLS_29;
 }
 if (__VLS_ctx.productState.activeTab == 'pricing') {
     let __VLS_32;
-    /** @ts-ignore @type {typeof __VLS_components.ProductPriceDiscount} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProductPriceDiscount} */
     ProductPriceDiscount;
     // @ts-ignore
     const __VLS_33 = __VLS_asFunctionalComponent1(__VLS_32, new __VLS_32({
@@ -219,20 +225,22 @@ if (__VLS_ctx.productState.activeTab == 'pricing') {
         activeTabId: (__VLS_ctx.productState.activeTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_33));
     let __VLS_37;
-    const __VLS_38 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.activeTab == 'pricing'))
-                    return;
-                __VLS_ctx.handlePage($event);
-                // @ts-ignore
-                [productState, productState, handlePage,];
-            } });
+    const __VLS_38 = {
+        /** @type {typeof __VLS_37.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.activeTab == 'pricing'))
+                throw 0;
+            return (__VLS_ctx.handlePage($event));
+            // @ts-ignore
+            [productState, productState, handlePage,];
+        },
+    };
     var __VLS_35;
     var __VLS_36;
 }
 if (__VLS_ctx.productState.activeTab == 'advance') {
     let __VLS_39;
-    /** @ts-ignore @type {typeof __VLS_components.AdditionalOptions} */
+    /** @ts-ignore @type { | typeof __VLS_components.AdditionalOptions} */
     AdditionalOptions;
     // @ts-ignore
     const __VLS_40 = __VLS_asFunctionalComponent1(__VLS_39, new __VLS_39({
@@ -244,14 +252,16 @@ if (__VLS_ctx.productState.activeTab == 'advance') {
         activeTabId: (__VLS_ctx.productState.activeTabId),
     }, ...__VLS_functionalComponentArgsRest(__VLS_40));
     let __VLS_44;
-    const __VLS_45 = ({ changeTab: {} },
-        { onChangeTab: (...[$event]) => {
-                if (!(__VLS_ctx.productState.activeTab == 'advance'))
-                    return;
-                __VLS_ctx.handlePage($event);
-                // @ts-ignore
-                [productState, productState, handlePage,];
-            } });
+    const __VLS_45 = {
+        /** @type {typeof __VLS_44.changeTab} */
+        onChangeTab: (...[$event]) => {
+            if (!(__VLS_ctx.productState.activeTab == 'advance'))
+                throw 0;
+            return (__VLS_ctx.handlePage($event));
+            // @ts-ignore
+            [productState, productState, handlePage,];
+        },
+    };
     var __VLS_42;
     var __VLS_43;
 }

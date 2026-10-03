@@ -102,8 +102,8 @@ if (__VLS_ctx.cartItems.length > 0) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.cartItems.length > 0))
-                        return;
-                    __VLS_ctx.removeItem(item.id);
+                        throw 0;
+                    return (__VLS_ctx.removeItem(item.id));
                     // @ts-ignore
                     [cartItems, cartItems, getImages, removeItem,];
                 } },
@@ -115,7 +115,7 @@ if (__VLS_ctx.cartItems.length > 0) {
         });
         /** @type {__VLS_StyleScopedClasses['bg-danger']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -188,7 +188,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.messageItems))) {
     (item.text);
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.removeItem(item.id);
+                return (__VLS_ctx.removeItem(item.id));
                 // @ts-ignore
                 [cartItems, getImages, getImages, removeItem, messageItems, messageItems,];
             } },
@@ -200,7 +200,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.messageItems))) {
     });
     /** @type {__VLS_StyleScopedClasses['bg-light']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -224,7 +224,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({

@@ -36,7 +36,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-lg-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.BasicModals} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicModals} */
 BasicModals;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -46,7 +46,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-lg-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.SizesModals} */
+/** @ts-ignore @type { | typeof __VLS_components.SizesModals} */
 SizesModals;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -56,7 +56,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.FullscreenModals} */
+/** @ts-ignore @type { | typeof __VLS_components.FullscreenModals} */
 FullscreenModals;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -67,7 +67,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -93,7 +93,7 @@ const { default: __VLS_20 } = __VLS_18.slots;
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('centeredModal');
+            return (__VLS_ctx.openModal('centeredModal'));
             // @ts-ignore
             [openModal,];
         } },
@@ -111,7 +111,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_22;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({
@@ -139,7 +139,7 @@ const { default: __VLS_27 } = __VLS_25.slots;
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('connectAccountModal');
+            return (__VLS_ctx.openModal('connectAccountModal'));
             // @ts-ignore
             [openModal,];
         } },
@@ -155,7 +155,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 let __VLS_29;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_30 = __VLS_asFunctionalComponent1(__VLS_29, new __VLS_29({
@@ -181,7 +181,7 @@ const { default: __VLS_34 } = __VLS_32.slots;
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('staticBackdrop');
+            return (__VLS_ctx.openModal('staticBackdrop'));
             // @ts-ignore
             [openModal,];
         } },
@@ -198,7 +198,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_36;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_37 = __VLS_asFunctionalComponent1(__VLS_36, new __VLS_36({
@@ -228,7 +228,7 @@ const { default: __VLS_41 } = __VLS_39.slots;
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('gridModal');
+            return (__VLS_ctx.openModal('gridModal'));
             // @ts-ignore
             [openModal,];
         } },
@@ -245,7 +245,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_43;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_44 = __VLS_asFunctionalComponent1(__VLS_43, new __VLS_43({
@@ -275,7 +275,7 @@ const { default: __VLS_48 } = __VLS_46.slots;
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openModal('scrollingContentModal');
+            return (__VLS_ctx.openModal('scrollingContentModal'));
             // @ts-ignore
             [openModal,];
         } },
@@ -292,13 +292,13 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_50;
-/** @ts-ignore @type {typeof __VLS_components.CustomModals} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomModals} */
 CustomModals;
 // @ts-ignore
 const __VLS_51 = __VLS_asFunctionalComponent1(__VLS_50, new __VLS_50({}));
 const __VLS_52 = __VLS_51({}, ...__VLS_functionalComponentArgsRest(__VLS_51));
 let __VLS_55;
-/** @ts-ignore @type {typeof __VLS_components.CenteredModal} */
+/** @ts-ignore @type { | typeof __VLS_components.CenteredModal} */
 CenteredModal;
 // @ts-ignore
 const __VLS_56 = __VLS_asFunctionalComponent1(__VLS_55, new __VLS_55({
@@ -310,16 +310,18 @@ const __VLS_57 = __VLS_56({
     modalOpen: (__VLS_ctx.modals.centeredModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_56));
 let __VLS_60;
-const __VLS_61 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('centeredModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_61 = {
+    /** @type {typeof __VLS_60.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('centeredModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_58;
 var __VLS_59;
 let __VLS_62;
-/** @ts-ignore @type {typeof __VLS_components.ConnectAccountModal} */
+/** @ts-ignore @type { | typeof __VLS_components.ConnectAccountModal} */
 ConnectAccountModal;
 // @ts-ignore
 const __VLS_63 = __VLS_asFunctionalComponent1(__VLS_62, new __VLS_62({
@@ -331,16 +333,18 @@ const __VLS_64 = __VLS_63({
     modalOpen: (__VLS_ctx.modals.connectAccountModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_63));
 let __VLS_67;
-const __VLS_68 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('connectAccountModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_68 = {
+    /** @type {typeof __VLS_67.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('connectAccountModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_65;
 var __VLS_66;
 let __VLS_69;
-/** @ts-ignore @type {typeof __VLS_components.StaticBackdropModal} */
+/** @ts-ignore @type { | typeof __VLS_components.StaticBackdropModal} */
 StaticBackdropModal;
 // @ts-ignore
 const __VLS_70 = __VLS_asFunctionalComponent1(__VLS_69, new __VLS_69({
@@ -352,16 +356,18 @@ const __VLS_71 = __VLS_70({
     modalOpen: (__VLS_ctx.modals.staticBackdrop),
 }, ...__VLS_functionalComponentArgsRest(__VLS_70));
 let __VLS_74;
-const __VLS_75 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('staticBackdrop');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_75 = {
+    /** @type {typeof __VLS_74.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('staticBackdrop'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_72;
 var __VLS_73;
 let __VLS_76;
-/** @ts-ignore @type {typeof __VLS_components.GridModal} */
+/** @ts-ignore @type { | typeof __VLS_components.GridModal} */
 GridModal;
 // @ts-ignore
 const __VLS_77 = __VLS_asFunctionalComponent1(__VLS_76, new __VLS_76({
@@ -373,16 +379,18 @@ const __VLS_78 = __VLS_77({
     modalOpen: (__VLS_ctx.modals.gridModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_77));
 let __VLS_81;
-const __VLS_82 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('gridModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_82 = {
+    /** @type {typeof __VLS_81.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('gridModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_79;
 var __VLS_80;
 let __VLS_83;
-/** @ts-ignore @type {typeof __VLS_components.ScrollingLongModal} */
+/** @ts-ignore @type { | typeof __VLS_components.ScrollingLongModal} */
 ScrollingLongModal;
 // @ts-ignore
 const __VLS_84 = __VLS_asFunctionalComponent1(__VLS_83, new __VLS_83({
@@ -394,12 +402,14 @@ const __VLS_85 = __VLS_84({
     modalOpen: (__VLS_ctx.modals.scrollingContentModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_84));
 let __VLS_88;
-const __VLS_89 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal('scrollingContentModal');
-            // @ts-ignore
-            [modals, closeModal,];
-        } });
+const __VLS_89 = {
+    /** @type {typeof __VLS_88.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal('scrollingContentModal'));
+        // @ts-ignore
+        [modals, closeModal,];
+    },
+};
 var __VLS_86;
 var __VLS_87;
 // @ts-ignore

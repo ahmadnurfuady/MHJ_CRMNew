@@ -29,7 +29,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['xl-100']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-8']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -115,7 +115,7 @@ if (__VLS_ctx.productState.cart.length) {
     /** @type {__VLS_StyleScopedClasses['c-o-light']} */ ;
     /** @type {__VLS_StyleScopedClasses['f-w-600']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -183,7 +183,7 @@ if (__VLS_ctx.productState.cart.length) {
         /** @type {__VLS_StyleScopedClasses['c-o-light']} */ ;
         (item.salePrice);
         let __VLS_11;
-        /** @ts-ignore @type {typeof __VLS_components.ProductAction} */
+        /** @ts-ignore @type { | typeof __VLS_components.ProductAction} */
         ProductAction;
         // @ts-ignore
         const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -199,12 +199,18 @@ if (__VLS_ctx.productState.cart.length) {
             item: (item),
         }, ...__VLS_functionalComponentArgsRest(__VLS_12));
         let __VLS_16;
-        const __VLS_17 = ({ delete: {} },
-            { onDelete: (__VLS_ctx.removeProduct) });
-        const __VLS_18 = ({ increment: {} },
-            { onIncrement: (__VLS_ctx.increment) });
-        const __VLS_19 = ({ decrement: {} },
-            { onDecrement: (__VLS_ctx.decrement) });
+        const __VLS_17 = {
+            /** @type {typeof __VLS_16.delete} */
+            onDelete: (__VLS_ctx.removeProduct),
+        };
+        const __VLS_18 = {
+            /** @type {typeof __VLS_16.increment} */
+            onIncrement: (__VLS_ctx.increment),
+        };
+        const __VLS_19 = {
+            /** @type {typeof __VLS_16.decrement} */
+            onDecrement: (__VLS_ctx.decrement),
+        };
         var __VLS_14;
         var __VLS_15;
         // @ts-ignore
@@ -213,7 +219,7 @@ if (__VLS_ctx.productState.cart.length) {
 }
 else {
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.EmptyCart} */
+    /** @ts-ignore @type { | typeof __VLS_components.EmptyCart} */
     EmptyCart;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));

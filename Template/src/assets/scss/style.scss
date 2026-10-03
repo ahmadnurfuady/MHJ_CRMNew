@@ -115,21 +115,22 @@
 @import './utils/variables';
 
 :root {
-  // Global appearance defaults. The layout store overrides these at runtime.
-  --app-primary: #18a6e4;
-  --app-primary-rgb: 24, 166, 228;
-  --app-primary-hover: #1493cc;
-  --app-primary-dark: #0e7490;
-  --app-primary-dark-rgb: 14, 116, 144;
-  --app-primary-soft: #ddf2fb;
-  --app-primary-soft-light: #e0f2fe;
-  --app-primary-strong: #0284c7;
-  --app-primary-strong-rgb: 2, 132, 199;
-  --app-primary-deep: #0369a1;
-  --app-primary-border: #bae6fd;
-  --app-primary-wash: #f0f9ff;
-  --app-secondary: #84d7eb;
-  --app-secondary-rgb: 132, 215, 235;
+  // Global appearance defaults, diambil dari palette brand di utils/_variables.scss.
+  // The layout store overrides these at runtime.
+  --app-primary: #{$brand-primary};
+  --app-primary-rgb: #{red($brand-primary)}, #{green($brand-primary)}, #{blue($brand-primary)};
+  --app-primary-hover: #{$brand-primary-hover};
+  --app-primary-dark: #{$brand-primary-dark};
+  --app-primary-dark-rgb: #{red($brand-primary-dark)}, #{green($brand-primary-dark)}, #{blue($brand-primary-dark)};
+  --app-primary-soft: #{$brand-primary-soft};
+  --app-primary-soft-light: #{$brand-primary-soft-light};
+  --app-primary-strong: #{$brand-primary-strong};
+  --app-primary-strong-rgb: #{red($brand-primary-strong)}, #{green($brand-primary-strong)}, #{blue($brand-primary-strong)};
+  --app-primary-deep: #{$brand-primary-deep};
+  --app-primary-border: #{$brand-primary-border};
+  --app-primary-wash: #{$brand-primary-wash};
+  --app-secondary: #{$brand-secondary};
+  --app-secondary-rgb: #{red($brand-secondary)}, #{green($brand-secondary)}, #{blue($brand-secondary)};
   --app-font-family: 'Montserrat', sans-serif;
 
   // MHJ Medika — brand

@@ -48,7 +48,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -65,7 +65,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('px-0 pt-0'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "list-product" },
@@ -78,7 +78,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['table-responsive']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.Table | typeof __VLS_components.Table} */
+/** @ts-ignore @type { | typeof __VLS_components.Table | typeof __VLS_components.Table} */
 Table;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -100,12 +100,14 @@ const __VLS_9 = __VLS_8({
     selectedRows: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 let __VLS_12;
-const __VLS_13 = ({ action: {} },
-    { onAction: (...[$event]) => {
-            __VLS_ctx.handleAction($event);
-            // @ts-ignore
-            [tableConfig, handleAction,];
-        } });
+const __VLS_13 = {
+    /** @type {typeof __VLS_12.action} */
+    onAction: (...[$event]) => {
+        return (__VLS_ctx.handleAction($event));
+        // @ts-ignore
+        [tableConfig, handleAction,];
+    },
+};
 const { default: __VLS_14 } = __VLS_10.slots;
 {
     const { orderNumber: __VLS_15 } = __VLS_10.slots;
@@ -143,7 +145,7 @@ const { default: __VLS_14 } = __VLS_10.slots;
     /** @type {__VLS_StyleScopedClasses['rounded-circle']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.navigate();
+                return (__VLS_ctx.navigate());
                 // @ts-ignore
                 [getImages, navigate,];
             } },

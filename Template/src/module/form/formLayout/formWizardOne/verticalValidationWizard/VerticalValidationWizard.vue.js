@@ -74,7 +74,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -87,7 +87,7 @@ const __VLS_2 = __VLS_1({
     border: (true),
     padding: (false),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -119,15 +119,17 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['flex-column']} */ ;
 /** @type {__VLS_StyleScopedClasses['header-vertical-wizard']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.verticalValidation))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(index + 1);
+                return (__VLS_ctx.handleTab(index + 1));
                 // @ts-ignore
                 [verticalValidation, handleTab,];
             } },
         ...{ class: "nav-link" },
         ...{ class: ({ active: __VLS_ctx.activeTab === index + 1 }) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['nav-link']} */ ;
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
@@ -172,7 +174,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.VerticalValidationPersonalInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.VerticalValidationPersonalInfo} */
     VerticalValidationPersonalInfo;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -186,7 +188,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_13;
-    /** @ts-ignore @type {typeof __VLS_components.VerticalValidationCardInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.VerticalValidationCardInfo} */
     VerticalValidationCardInfo;
     // @ts-ignore
     const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -200,7 +202,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_18;
-    /** @ts-ignore @type {typeof __VLS_components.VerticalValidationNetBanking} */
+    /** @ts-ignore @type { | typeof __VLS_components.VerticalValidationNetBanking} */
     VerticalValidationNetBanking;
     // @ts-ignore
     const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -223,8 +225,8 @@ if (__VLS_ctx.activeTab !== 1 && __VLS_ctx.activeTab !== __VLS_ctx.verticalValid
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.activeTab !== 1 && __VLS_ctx.activeTab !== __VLS_ctx.verticalValidation.length))
-                    return;
-                __VLS_ctx.handleStep(-1);
+                    throw 0;
+                return (__VLS_ctx.handleStep(-1));
                 // @ts-ignore
                 [verticalValidation, activeTab, activeTab, activeTab, activeTab, activeTab, form, form, form, formSubmitted, formSubmitted, formSubmitted, handleStep,];
             } },
@@ -237,8 +239,8 @@ if (__VLS_ctx.activeTab >= 1 && __VLS_ctx.activeTab < __VLS_ctx.verticalValidati
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.activeTab >= 1 && __VLS_ctx.activeTab < __VLS_ctx.verticalValidation.length))
-                    return;
-                __VLS_ctx.handleStep(1);
+                    throw 0;
+                return (__VLS_ctx.handleStep(1));
                 // @ts-ignore
                 [verticalValidation, activeTab, activeTab, handleStep,];
             } },
@@ -252,8 +254,8 @@ if (__VLS_ctx.activeTab === __VLS_ctx.verticalValidation.length) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.activeTab === __VLS_ctx.verticalValidation.length))
-                    return;
-                __VLS_ctx.handleStep(1);
+                    throw 0;
+                return (__VLS_ctx.handleStep(1));
                 // @ts-ignore
                 [verticalValidation, activeTab, handleStep,];
             } },

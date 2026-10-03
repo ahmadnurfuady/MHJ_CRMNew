@@ -13,7 +13,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['container-fluid']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.draggable | typeof __VLS_components.Draggable | typeof __VLS_components.draggable | typeof __VLS_components.Draggable} */
+/** @ts-ignore @type { | typeof __VLS_components.draggable | typeof __VLS_components.Draggable | typeof __VLS_components.draggable | typeof __VLS_components.Draggable} */
 draggable;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -63,7 +63,9 @@ const { default: __VLS_5 } = __VLS_3.slots;
         ...{ class: (`list-group ${element.class}`) },
     });
     for (const [item, index] of __VLS_vFor((element.details))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         if (item.list) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
                 ...{ class: "list-group-item" },
@@ -90,7 +92,9 @@ const { default: __VLS_5 } = __VLS_3.slots;
         [cards,];
     }
     for (const [item, index] of __VLS_vFor((element.details))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         if (element.cardType == 'classic') {
             __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
                 ...{ class: (`pb-2 ${item.titleClass}`) },

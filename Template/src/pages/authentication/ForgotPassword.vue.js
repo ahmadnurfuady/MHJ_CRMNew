@@ -40,7 +40,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -76,7 +76,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['login-main']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.form, __VLS_intrinsics.form)({
     ...{ onSubmit: (...[$event]) => {
-            __VLS_ctx.sendOTP();
+            return (__VLS_ctx.sendOTP());
             // @ts-ignore
             [sendOTP,];
         } },
@@ -89,7 +89,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -114,7 +114,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-sm-3']} */ ;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -141,7 +141,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-8']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-sm-9']} */ ;
 let __VLS_17;
-/** @ts-ignore @type {typeof __VLS_components.InputField} */
+/** @ts-ignore @type { | typeof __VLS_components.InputField} */
 InputField;
 // @ts-ignore
 const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({
@@ -186,7 +186,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['reset-password-link']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleOTP();
+            return (__VLS_ctx.handleOTP());
             // @ts-ignore
             [handleOTP,];
         } },
@@ -227,15 +227,15 @@ if (__VLS_ctx.otpSent) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
             ...{ onInput: (...[$event]) => {
                     if (!(__VLS_ctx.otpSent))
-                        return;
-                    __VLS_ctx.handleInput(index);
+                        throw 0;
+                    return (__VLS_ctx.handleInput(index));
                     // @ts-ignore
                     [resendEnabled, resendEnabled, timer, timer, otpSent, otpDigits, handleInput,];
                 } },
             ...{ onKeydown: (...[$event]) => {
                     if (!(__VLS_ctx.otpSent))
-                        return;
-                    __VLS_ctx.handleKeyDown(index, $event);
+                        throw 0;
+                    return (__VLS_ctx.handleKeyDown(index, $event));
                     // @ts-ignore
                     [handleKeyDown,];
                 } },
@@ -254,8 +254,8 @@ if (__VLS_ctx.otpSent) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.otpSent))
-                    return;
-                __VLS_ctx.verifyOTP();
+                    throw 0;
+                return (__VLS_ctx.verifyOTP());
                 // @ts-ignore
                 [verifyOTP,];
             } },

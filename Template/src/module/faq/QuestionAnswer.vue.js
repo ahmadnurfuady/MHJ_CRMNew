@@ -12,7 +12,9 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 for (const [items] of __VLS_vFor((__VLS_ctx.faqQuestionAnswer))) {
-    (items.id);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (items.id),
+    });
     if (items.headerTitle) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: "faq-title" },
@@ -22,9 +24,11 @@ for (const [items] of __VLS_vFor((__VLS_ctx.faqQuestionAnswer))) {
         (items.headerTitle);
     }
     for (const [item] of __VLS_vFor((items.details))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (item.id),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: "card" },
-            key: (item.id),
         });
         /** @type {__VLS_StyleScopedClasses['card']} */ ;
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -34,7 +38,7 @@ for (const [items] of __VLS_vFor((__VLS_ctx.faqQuestionAnswer))) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.h5, __VLS_intrinsics.h5)({});
         __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
             ...{ onClick: (...[$event]) => {
-                    __VLS_ctx.toggleAccordion(item.id);
+                    return (__VLS_ctx.toggleAccordion(item.id));
                     // @ts-ignore
                     [faqQuestionAnswer, toggleAccordion,];
                 } },
@@ -48,7 +52,7 @@ for (const [items] of __VLS_vFor((__VLS_ctx.faqQuestionAnswer))) {
         /** @type {__VLS_StyleScopedClasses['ps-0']} */ ;
         /** @type {__VLS_StyleScopedClasses['collapsed']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

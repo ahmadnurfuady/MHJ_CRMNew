@@ -49,7 +49,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['modal-content']} */ ;
 /** @type {__VLS_StyleScopedClasses['category-popup']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
+/** @ts-ignore @type { | typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
 Modal;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -67,8 +67,10 @@ const __VLS_2 = __VLS_1({
     modalCentered: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ closeModal: {} },
-    { onCloseModal: (__VLS_ctx.close) });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.closeModal} */
+    onCloseModal: (__VLS_ctx.close),
+};
 const { default: __VLS_7 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "modal-body p-0 custom-input" },
@@ -86,7 +88,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['p-20']} */ ;
 if (props.modalOpen) {
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.CategoryForm} */
+    /** @ts-ignore @type { | typeof __VLS_components.CategoryForm} */
     CategoryForm;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -100,8 +102,10 @@ if (props.modalOpen) {
         categoryStatus: (__VLS_ctx.categoryStatus),
     }, ...__VLS_functionalComponentArgsRest(__VLS_9));
     let __VLS_13;
-    const __VLS_14 = ({ closeModal: {} },
-        { onCloseModal: (__VLS_ctx.close) });
+    const __VLS_14 = {
+        /** @type {typeof __VLS_13.closeModal} */
+        onCloseModal: (__VLS_ctx.close),
+    };
     var __VLS_11;
     var __VLS_12;
 }

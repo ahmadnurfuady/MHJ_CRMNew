@@ -59,7 +59,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 });
 /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -78,7 +78,7 @@ const __VLS_2 = __VLS_1({
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 /** @type {__VLS_StyleScopedClasses['dropdown-toggle']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -151,7 +151,7 @@ for (const [item, index] of __VLS_vFor((__VLS_ctx.contact))) {
         });
         /** @type {__VLS_StyleScopedClasses['contact-edit']} */ ;
         let __VLS_10;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({

@@ -51,7 +51,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['accordion-light-primary']} */ ;
     /** @type {__VLS_StyleScopedClasses['txt-primary']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -133,7 +133,7 @@ if (props.form) {
     });
     /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -162,7 +162,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['form-check']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.Checkbox} */
+    /** @ts-ignore @type { | typeof __VLS_components.Checkbox} */
     Checkbox;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({

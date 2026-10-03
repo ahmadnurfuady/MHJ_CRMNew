@@ -83,7 +83,7 @@ if (__VLS_ctx.appState.userProfile.profile) {
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
     ...{ onChange: (...[$event]) => {
-            __VLS_ctx.onFileSelected($event);
+            return (__VLS_ctx.onFileSelected($event));
             // @ts-ignore
             [appState, profileImage, onFileSelected,];
         } },
@@ -97,8 +97,8 @@ if (__VLS_ctx.appState.userProfile.profile) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.appState.userProfile.profile))
-                    return;
-                __VLS_ctx.removeProfile();
+                    throw 0;
+                return (__VLS_ctx.removeProfile());
                 // @ts-ignore
                 [appState, removeProfile,];
             } },
@@ -116,8 +116,8 @@ if (__VLS_ctx.appState.userProfile.profile && __VLS_ctx.fileInput) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.appState.userProfile.profile && __VLS_ctx.fileInput))
-                    return;
-                __VLS_ctx.fileInput.click();
+                    throw 0;
+                return (__VLS_ctx.fileInput.click());
                 // @ts-ignore
                 [appState, fileInput, fileInput,];
             } },
@@ -187,7 +187,9 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['border-tab']} */ ;
 /** @type {__VLS_StyleScopedClasses['tabs-scoial']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.appState.tabs))) {
-    (index);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     if (index == 2) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ class: "nav-item" },
@@ -215,7 +217,7 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.appState.tabs))) {
     }
     __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleActiveTab(tab.value);
+                return (__VLS_ctx.handleActiveTab(tab.value));
                 // @ts-ignore
                 [appState, appState, appState, handleActiveTab,];
             } },

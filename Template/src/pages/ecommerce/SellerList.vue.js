@@ -70,7 +70,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['common-f-start']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.filterStore();
+            return (__VLS_ctx.filterStore());
             // @ts-ignore
             [filterStore,];
         } },
@@ -80,15 +80,17 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['seller-filter']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 for (const [category, index] of __VLS_vFor((__VLS_ctx.sellerState.storesCategory))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.filterStore(category.id);
+                return (__VLS_ctx.filterStore(category.id));
                 // @ts-ignore
                 [filterStore, sellerState, sellerState,];
             } },
         ...{ class: "seller-filter" },
         ...{ class: ({ active: __VLS_ctx.sellerState.activeCategory === category.id }) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['seller-filter']} */ ;
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
@@ -110,7 +112,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group-text']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -124,7 +126,7 @@ const __VLS_2 = __VLS_1({
 /** @type {__VLS_StyleScopedClasses['text-gray']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
     ...{ onInput: (...[$event]) => {
-            __VLS_ctx.searchStores();
+            return (__VLS_ctx.searchStores());
             // @ts-ignore
             [searchStores,];
         } },
@@ -136,7 +138,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openSellerModal();
+            return (__VLS_ctx.openSellerModal());
             // @ts-ignore
             [sellerState, openSellerModal,];
         } },
@@ -151,7 +153,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-solid']} */ ;
 /** @type {__VLS_StyleScopedClasses['fa-plus']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.AddSellerModal} */
+/** @ts-ignore @type { | typeof __VLS_components.AddSellerModal} */
 AddSellerModal;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -163,12 +165,14 @@ const __VLS_7 = __VLS_6({
     modalOpen: (__VLS_ctx.sellerState.isModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_6));
 let __VLS_10;
-const __VLS_11 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.sellerState.isModalOpen = false;
-            // @ts-ignore
-            [sellerState, sellerState,];
-        } });
+const __VLS_11 = {
+    /** @type {typeof __VLS_10.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.sellerState.isModalOpen = false);
+        // @ts-ignore
+        [sellerState, sellerState,];
+    },
+};
 var __VLS_8;
 var __VLS_9;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -187,7 +191,7 @@ for (const [store, index] of __VLS_vFor((__VLS_ctx.sellerState.filteredStores)))
     /** @type {__VLS_StyleScopedClasses['seller-box']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -233,7 +237,7 @@ for (const [store, index] of __VLS_vFor((__VLS_ctx.sellerState.filteredStores)))
     __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
     (store.totalEarning);
     let __VLS_17;
-    /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+    /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
     routerLink;
     // @ts-ignore
     const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({

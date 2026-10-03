@@ -22,7 +22,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['layout-grid']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customSvg('stroke-svg');
+            return (__VLS_ctx.customSvg('stroke-svg'));
             // @ts-ignore
             [customSvg,];
         } },
@@ -51,7 +51,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['badge-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customSvg('fill-svg');
+            return (__VLS_ctx.customSvg('fill-svg'));
             // @ts-ignore
             [customSvg, svg,];
         } },

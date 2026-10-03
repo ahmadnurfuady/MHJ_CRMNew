@@ -61,11 +61,14 @@ if (__VLS_ctx.filteredContact.length) {
     /** @type {__VLS_StyleScopedClasses['flex-column']} */ ;
     /** @type {__VLS_StyleScopedClasses['nav-pills']} */ ;
     for (const [contact, index] of __VLS_vFor((__VLS_ctx.filteredContact))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.filteredContact.length))
-                        return;
-                    __VLS_ctx.handleContact(contact);
+                        throw 0;
+                    return (__VLS_ctx.handleContact(contact));
                     // @ts-ignore
                     [contactState, contactState, filteredContact, filteredContact, filteredContact, handleContact,];
                 } },
@@ -73,7 +76,6 @@ if (__VLS_ctx.filteredContact.length) {
             ...{ class: ({
                     active: contact.id == __VLS_ctx.contactState.activeContact?.id,
                 }) },
-            key: (index),
         });
         /** @type {__VLS_StyleScopedClasses['contact-tab-0']} */ ;
         /** @type {__VLS_StyleScopedClasses['nav-link']} */ ;
@@ -145,7 +147,7 @@ if (__VLS_ctx.filteredContact.length) {
         });
         /** @type {__VLS_StyleScopedClasses['profile-mail']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.GeneralDetails} */
+        /** @ts-ignore @type { | typeof __VLS_components.GeneralDetails} */
         GeneralDetails;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -160,7 +162,7 @@ if (__VLS_ctx.filteredContact.length) {
     /** @type {__VLS_StyleScopedClasses['contact-editform']} */ ;
     /** @type {__VLS_StyleScopedClasses['ps-0']} */ ;
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.EditContactForm} */
+    /** @ts-ignore @type { | typeof __VLS_components.EditContactForm} */
     EditContactForm;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));

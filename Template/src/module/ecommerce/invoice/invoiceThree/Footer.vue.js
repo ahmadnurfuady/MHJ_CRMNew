@@ -23,7 +23,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['action-buttons']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handlePrint();
+            return (__VLS_ctx.handlePrint());
             // @ts-ignore
             [handlePrint,];
         } },

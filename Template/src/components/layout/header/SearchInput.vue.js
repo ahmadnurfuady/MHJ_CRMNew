@@ -53,7 +53,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 });
 /** @type {__VLS_StyleScopedClasses['input-show']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -65,12 +65,14 @@ const __VLS_2 = __VLS_1({
     icon: "search-header",
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ click: {} },
-    { onClick: (...[$event]) => {
-            __VLS_ctx.collapseFilter();
-            // @ts-ignore
-            [collapseFilter,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.click} */
+    onClick: (...[$event]) => {
+        return (__VLS_ctx.collapseFilter());
+        // @ts-ignore
+        [collapseFilter,];
+    },
+};
 var __VLS_3;
 var __VLS_4;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -111,7 +113,7 @@ if (__VLS_ctx.menuItems.length) {
         /** @type {__VLS_StyleScopedClasses['ProfileCard-avatar']} */ ;
         /** @type {__VLS_StyleScopedClasses['header-search']} */ ;
         let __VLS_7;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -133,14 +135,14 @@ if (__VLS_ctx.menuItems.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.menuItems.length))
-                        return;
-                    __VLS_ctx.removeFix();
+                        throw 0;
+                    return (__VLS_ctx.removeFix());
                     // @ts-ignore
                     [filtered, filtered, filtered, searchTerms, terms, menuItems, menuItems, searchResult, removeFix,];
                 } },
         });
         let __VLS_12;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({

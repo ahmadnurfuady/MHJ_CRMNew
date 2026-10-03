@@ -30,7 +30,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleFilter();
+            return (__VLS_ctx.toggleFilter());
             // @ts-ignore
             [toggleFilter,];
         } },
@@ -52,7 +52,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['email-left-aside']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -104,7 +104,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openContactModal();
+            return (__VLS_ctx.openContactModal());
             // @ts-ignore
             [sidebarOpen, getImages, userDetails, userDetails, userDetails, userDetails, openContactModal,];
         } },
@@ -116,7 +116,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['btn-mail']} */ ;
 /** @type {__VLS_StyleScopedClasses['w-100']} */ ;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -142,7 +142,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.contactState.tabList.slice(0, 1)))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleActiveTab(item);
+                return (__VLS_ctx.handleActiveTab(item));
                 // @ts-ignore
                 [contactState, handleActiveTab,];
             } },
@@ -164,7 +164,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.categoryModal();
+            return (__VLS_ctx.categoryModal());
             // @ts-ignore
             [categoryModal,];
         } },
@@ -184,7 +184,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.contactState.tabList.slice(1)))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleActiveTab(item);
+                return (__VLS_ctx.handleActiveTab(item));
                 // @ts-ignore
                 [contactState, handleActiveTab,];
             } },
@@ -205,7 +205,7 @@ for (const [item] of __VLS_vFor((__VLS_ctx.contactState.tabList.slice(1)))) {
 var __VLS_3;
 if (__VLS_ctx.contactState.openAddContactModal) {
     let __VLS_11;
-    /** @ts-ignore @type {typeof __VLS_components.AddContactModal} */
+    /** @ts-ignore @type { | typeof __VLS_components.AddContactModal} */
     AddContactModal;
     // @ts-ignore
     const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({}));
@@ -213,7 +213,7 @@ if (__VLS_ctx.contactState.openAddContactModal) {
 }
 if (__VLS_ctx.contactState.openCategoryModal) {
     let __VLS_16;
-    /** @ts-ignore @type {typeof __VLS_components.ContactCategoryModal} */
+    /** @ts-ignore @type { | typeof __VLS_components.ContactCategoryModal} */
     ContactCategoryModal;
     // @ts-ignore
     const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({}));

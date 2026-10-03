@@ -31,7 +31,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.RevenueGrowth} */
+/** @ts-ignore @type { | typeof __VLS_components.RevenueGrowth} */
 RevenueGrowth;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -52,7 +52,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.SaleCard} */
+/** @ts-ignore @type { | typeof __VLS_components.SaleCard} */
 SaleCard;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -63,7 +63,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.Deliveries} */
+/** @ts-ignore @type { | typeof __VLS_components.Deliveries} */
 Deliveries;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -79,7 +79,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.TopProducts} */
+/** @ts-ignore @type { | typeof __VLS_components.TopProducts} */
 TopProducts;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -91,7 +91,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.NewUser} */
+/** @ts-ignore @type { | typeof __VLS_components.NewUser} */
 NewUser;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -103,7 +103,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.TeamActivities} */
+/** @ts-ignore @type { | typeof __VLS_components.TeamActivities} */
 TeamActivities;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -115,7 +115,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.UserVisits} */
+/** @ts-ignore @type { | typeof __VLS_components.UserVisits} */
 UserVisits;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({
@@ -133,7 +133,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_35;
-/** @ts-ignore @type {typeof __VLS_components.LatestTransactions} */
+/** @ts-ignore @type { | typeof __VLS_components.LatestTransactions} */
 LatestTransactions;
 // @ts-ignore
 const __VLS_36 = __VLS_asFunctionalComponent1(__VLS_35, new __VLS_35({}));
@@ -145,7 +145,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-6']} */ ;
 let __VLS_40;
-/** @ts-ignore @type {typeof __VLS_components.BestSellingProducts} */
+/** @ts-ignore @type { | typeof __VLS_components.BestSellingProducts} */
 BestSellingProducts;
 // @ts-ignore
 const __VLS_41 = __VLS_asFunctionalComponent1(__VLS_40, new __VLS_40({}));

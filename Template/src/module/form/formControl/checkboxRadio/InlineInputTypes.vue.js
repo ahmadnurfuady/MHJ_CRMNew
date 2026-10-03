@@ -15,7 +15,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -28,7 +28,7 @@ const __VLS_2 = __VLS_1({
     border: (true),
     padding: (false),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -74,7 +74,7 @@ for (const [checkbox, index] of __VLS_vFor((__VLS_ctx.inlineCheckboxList))) {
     /** @type {__VLS_StyleScopedClasses['form-check']} */ ;
     /** @type {__VLS_StyleScopedClasses['form-check-inline']} */ ;
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.Checkbox} */
+    /** @ts-ignore @type { | typeof __VLS_components.Checkbox} */
     Checkbox;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({

@@ -80,8 +80,8 @@ if (__VLS_ctx.cart.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.cart.length))
-                        return;
-                    __VLS_ctx.decrement(item);
+                        throw 0;
+                    return (__VLS_ctx.decrement(item));
                     // @ts-ignore
                     [cart, cart, getImages, decrement,];
                 } },
@@ -101,8 +101,8 @@ if (__VLS_ctx.cart.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.cart.length))
-                        return;
-                    __VLS_ctx.increment(item);
+                        throw 0;
+                    return (__VLS_ctx.increment(item));
                     // @ts-ignore
                     [increment,];
                 } },
@@ -125,8 +125,8 @@ if (__VLS_ctx.cart.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.cart.length))
-                        return;
-                    __VLS_ctx.removeProducts(item);
+                        throw 0;
+                    return (__VLS_ctx.removeProducts(item));
                     // @ts-ignore
                     [removeProducts,];
                 } },
@@ -135,7 +135,7 @@ if (__VLS_ctx.cart.length) {
         });
         /** @type {__VLS_StyleScopedClasses['bg-danger']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -192,7 +192,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['text-center']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

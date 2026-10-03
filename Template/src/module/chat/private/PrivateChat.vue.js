@@ -96,7 +96,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['contact-edit']} */ ;
 /** @type {__VLS_StyleScopedClasses['chat-alert']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -111,7 +111,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['contact-edit']} */ ;
 /** @type {__VLS_StyleScopedClasses['chat-alert']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -220,7 +220,7 @@ for (const [chat, index] of __VLS_vFor((__VLS_ctx.currentChat.chat?.messages))) 
     [currentChat, currentChat, currentChat, getImages,];
 }
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.AddChat} */
+/** @ts-ignore @type { | typeof __VLS_components.AddChat} */
 AddChat;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));

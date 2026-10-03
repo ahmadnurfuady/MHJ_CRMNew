@@ -20,13 +20,13 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.TodoSidebar} */
+/** @ts-ignore @type { | typeof __VLS_components.TodoSidebar} */
 TodoSidebar;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.AddTask} */
+/** @ts-ignore @type { | typeof __VLS_components.AddTask} */
 AddTask;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));

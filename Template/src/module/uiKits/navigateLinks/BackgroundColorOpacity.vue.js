@@ -9,7 +9,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -26,7 +26,7 @@ const __VLS_2 = __VLS_1({
     cardClass: ('height-equal'),
     cardBodyClass: ('bg-opacity-wrapper'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -48,9 +48,11 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     href: "#",
 });
 for (const [value] of __VLS_vFor((__VLS_ctx.bgColor))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (value.opacity),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: (`p-2 mb-3 text-${value.color} bg-opacity-${value.opacity}`) },
-        key: (value.opacity),
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         href: "#",

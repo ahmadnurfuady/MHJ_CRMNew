@@ -127,14 +127,14 @@ if (__VLS_ctx.filteredProducts.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.filteredProducts.length))
-                        return;
-                    __VLS_ctx.addToCars(product);
+                        throw 0;
+                    return (__VLS_ctx.addToCars(product));
                     // @ts-ignore
                     [uiState, uiState, uiState, uiState, uiState, uiState, filteredProducts, filteredProducts, getImages, addToCars,];
                 } },
         });
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -157,8 +157,8 @@ if (__VLS_ctx.filteredProducts.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.filteredProducts.length))
-                        return;
-                    __VLS_ctx.openModal(product);
+                        throw 0;
+                    return (__VLS_ctx.openModal(product));
                     // @ts-ignore
                     [openModal,];
                 } },
@@ -186,7 +186,7 @@ if (__VLS_ctx.filteredProducts.length) {
         /** @type {__VLS_StyleScopedClasses['fa-code-compare']} */ ;
         /** @type {__VLS_StyleScopedClasses['fa-rotate-90']} */ ;
         let __VLS_6;
-        /** @ts-ignore @type {typeof __VLS_components.ProductModel} */
+        /** @ts-ignore @type { | typeof __VLS_components.ProductModel} */
         ProductModel;
         // @ts-ignore
         const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -200,7 +200,7 @@ if (__VLS_ctx.filteredProducts.length) {
         });
         /** @type {__VLS_StyleScopedClasses['product-details']} */ ;
         let __VLS_11;
-        /** @ts-ignore @type {typeof __VLS_components.RatingStars} */
+        /** @ts-ignore @type { | typeof __VLS_components.RatingStars} */
         RatingStars;
         // @ts-ignore
         const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -210,7 +210,7 @@ if (__VLS_ctx.filteredProducts.length) {
             rating: (product.star),
         }, ...__VLS_functionalComponentArgsRest(__VLS_12));
         let __VLS_16;
-        /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+        /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
         routerLink;
         // @ts-ignore
         const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({

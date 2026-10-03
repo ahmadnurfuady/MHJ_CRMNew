@@ -38,7 +38,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
+/** @ts-ignore @type { | typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
 Transition;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -62,7 +62,7 @@ if (props.modalOpen) {
     });
     /** @type {__VLS_StyleScopedClasses['modal-dialog']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
+    /** @ts-ignore @type { | typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
     OnClickOutside;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -74,14 +74,16 @@ if (props.modalOpen) {
         ...{ class: "modal-content" },
     }, ...__VLS_functionalComponentArgsRest(__VLS_7));
     let __VLS_11;
-    const __VLS_12 = ({ trigger: {} },
-        { onTrigger: (...[$event]) => {
-                if (!(props.modalOpen))
-                    return;
-                __VLS_ctx.close();
-                // @ts-ignore
-                [close,];
-            } });
+    const __VLS_12 = {
+        /** @type {typeof __VLS_11.trigger} */
+        onTrigger: (...[$event]) => {
+            if (!(props.modalOpen))
+                throw 0;
+            return (__VLS_ctx.close());
+            // @ts-ignore
+            [close,];
+        },
+    };
     /** @type {__VLS_StyleScopedClasses['modal-content']} */ ;
     const { default: __VLS_13 } = __VLS_9.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -104,8 +106,8 @@ if (props.modalOpen) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.form, __VLS_intrinsics.form)({
         ...{ onSubmit: (...[$event]) => {
                 if (!(props.modalOpen))
-                    return;
-                __VLS_ctx.submitForm();
+                    throw 0;
+                return (__VLS_ctx.submitForm());
                 // @ts-ignore
                 [submitForm,];
             } },
@@ -120,7 +122,7 @@ if (props.modalOpen) {
     });
     /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
     let __VLS_14;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -133,7 +135,7 @@ if (props.modalOpen) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_15));
     const { default: __VLS_19 } = __VLS_17.slots;
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -158,7 +160,7 @@ if (props.modalOpen) {
     });
     /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
     let __VLS_25;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -171,7 +173,7 @@ if (props.modalOpen) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_26));
     const { default: __VLS_30 } = __VLS_28.slots;
     let __VLS_31;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_32 = __VLS_asFunctionalComponent1(__VLS_31, new __VLS_31({
@@ -200,7 +202,7 @@ if (props.modalOpen) {
     });
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_36;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_37 = __VLS_asFunctionalComponent1(__VLS_36, new __VLS_36({
@@ -213,7 +215,7 @@ if (props.modalOpen) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_37));
     const { default: __VLS_41 } = __VLS_39.slots;
     let __VLS_42;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_43 = __VLS_asFunctionalComponent1(__VLS_42, new __VLS_42({
@@ -245,7 +247,7 @@ if (props.modalOpen) {
     /** @type {__VLS_StyleScopedClasses['form-check']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_47;
-    /** @ts-ignore @type {typeof __VLS_components.Checkbox} */
+    /** @ts-ignore @type { | typeof __VLS_components.Checkbox} */
     Checkbox;
     // @ts-ignore
     const __VLS_48 = __VLS_asFunctionalComponent1(__VLS_47, new __VLS_47({
@@ -280,7 +282,7 @@ if (props.modalOpen) {
 [];
 var __VLS_3;
 let __VLS_52;
-/** @ts-ignore @type {typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
+/** @ts-ignore @type { | typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
 Transition;
 // @ts-ignore
 const __VLS_53 = __VLS_asFunctionalComponent1(__VLS_52, new __VLS_52({

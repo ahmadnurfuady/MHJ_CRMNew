@@ -38,7 +38,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -57,7 +57,7 @@ const { default: __VLS_5 } = __VLS_3.slots;
 for (const [image, index] of __VLS_vFor((__VLS_ctx.images))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.figure, __VLS_intrinsics.figure)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.showImg(index);
+                return (__VLS_ctx.showImg(index));
                 // @ts-ignore
                 [images, showImg,];
             } },
@@ -82,7 +82,7 @@ for (const [image, index] of __VLS_vFor((__VLS_ctx.images))) {
 [];
 var __VLS_3;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox} */
+/** @ts-ignore @type { | typeof __VLS_components.vueEasyLightbox | typeof __VLS_components.VueEasyLightbox | typeof __VLS_components['vue-easy-lightbox']} */
 vueEasyLightbox;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -98,8 +98,10 @@ const __VLS_8 = __VLS_7({
     index: (__VLS_ctx.state.indexRef),
 }, ...__VLS_functionalComponentArgsRest(__VLS_7));
 let __VLS_11;
-const __VLS_12 = ({ hide: {} },
-    { onHide: (__VLS_ctx.onHide) });
+const __VLS_12 = {
+    /** @type {typeof __VLS_11.hide} */
+    onHide: (__VLS_ctx.onHide),
+};
 var __VLS_9;
 var __VLS_10;
 // @ts-ignore

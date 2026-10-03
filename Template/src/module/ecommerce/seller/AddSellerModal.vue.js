@@ -35,7 +35,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
+/** @ts-ignore @type { | typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
 Modal;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -55,13 +55,15 @@ const __VLS_2 = __VLS_1({
     modalCentered: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal();
-            // @ts-ignore
-            [closeModal,];
-        } });
-var __VLS_7 = {};
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal());
+        // @ts-ignore
+        [closeModal,];
+    },
+};
+var __VLS_7;
 const { default: __VLS_8 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "modal-body basic-wizard important-validation" },
@@ -76,6 +78,9 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['stepper-horizontal']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.addSellerTabs))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: ([
                 `stepper-${tab.class}`,
@@ -84,7 +89,6 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.addSellerTabs))) {
                         (__VLS_ctx.activeTab === __VLS_ctx.addSellerTabs.length && tab.id === __VLS_ctx.addSellerTabs.length),
                 },
             ]) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
     /** @type {__VLS_StyleScopedClasses['done']} */ ;
@@ -115,7 +119,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_9;
-    /** @ts-ignore @type {typeof __VLS_components.SellerPersonalInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.SellerPersonalInfo} */
     SellerPersonalInfo;
     // @ts-ignore
     const __VLS_10 = __VLS_asFunctionalComponent1(__VLS_9, new __VLS_9({}));
@@ -123,7 +127,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_14;
-    /** @ts-ignore @type {typeof __VLS_components.CompanyContactDetails} */
+    /** @ts-ignore @type { | typeof __VLS_components.CompanyContactDetails} */
     CompanyContactDetails;
     // @ts-ignore
     const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({}));
@@ -131,7 +135,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_19;
-    /** @ts-ignore @type {typeof __VLS_components.CompanyOverview} */
+    /** @ts-ignore @type { | typeof __VLS_components.CompanyOverview} */
     CompanyOverview;
     // @ts-ignore
     const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({}));
@@ -139,7 +143,7 @@ if (__VLS_ctx.activeTab === 3) {
 }
 if (__VLS_ctx.activeTab === 4) {
     let __VLS_24;
-    /** @ts-ignore @type {typeof __VLS_components.FinancialInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.FinancialInfo} */
     FinancialInfo;
     // @ts-ignore
     const __VLS_25 = __VLS_asFunctionalComponent1(__VLS_24, new __VLS_24({}));
@@ -181,7 +185,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['justify-content-end']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(-1);
+            return (__VLS_ctx.handleStep(-1));
             // @ts-ignore
             [activeTab, activeTab, activeTab, activeTab, activeTab, getImages, handleStep,];
         } },
@@ -193,7 +197,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['button-light-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(1);
+            return (__VLS_ctx.handleStep(1));
             // @ts-ignore
             [activeTab, handleStep,];
         } },

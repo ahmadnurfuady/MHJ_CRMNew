@@ -12,7 +12,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.chart) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -23,7 +23,7 @@ if (props.chart) {
         cardClass: ('widget-2 budget-card'),
         cardBodyClass: ('common-space'),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_5 = {};
+    var __VLS_5;
     const { default: __VLS_6 } = __VLS_3.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({});
     __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
@@ -38,7 +38,7 @@ if (props.chart) {
         ...{ class: (`f-14 txt-${props.chart.profitType == 'profit' ? 'success' : 'danger'} f-w-500`) },
     });
     let __VLS_7;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -61,7 +61,7 @@ if (props.chart) {
     });
     if (props.chart.chartDetails.chart) {
         let __VLS_12;
-        /** @ts-ignore @type {typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart} */
+        /** @ts-ignore @type { | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart} */
         apexchart;
         // @ts-ignore
         const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({

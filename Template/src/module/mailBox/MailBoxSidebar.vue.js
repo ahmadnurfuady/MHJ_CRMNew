@@ -36,7 +36,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleSidebar();
+            return (__VLS_ctx.toggleSidebar());
             // @ts-ignore
             [toggleSidebar,];
         } },
@@ -59,7 +59,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['email-left-aside']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -76,7 +76,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['email-app-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.composeEmail();
+            return (__VLS_ctx.composeEmail());
             // @ts-ignore
             [sidebarOpen, composeEmail,];
         } },
@@ -110,8 +110,8 @@ if (__VLS_ctx.mailState.sidebar) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.mailState.sidebar))
-                        return;
-                    __VLS_ctx.handleTabChange(item.value);
+                        throw 0;
+                    return (__VLS_ctx.handleTabChange(item.value));
                     // @ts-ignore
                     [mailState, mailState, handleTabChange,];
                 } },
@@ -121,7 +121,7 @@ if (__VLS_ctx.mailState.sidebar) {
         /** @type {__VLS_StyleScopedClasses['nav-link']} */ ;
         /** @type {__VLS_StyleScopedClasses['active']} */ ;
         let __VLS_6;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -163,7 +163,7 @@ if (__VLS_ctx.mailState.sidebar) {
         });
         /** @type {__VLS_StyleScopedClasses['nav-link']} */ ;
         let __VLS_11;
-        /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
         SvgIcon;
         // @ts-ignore
         const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -187,8 +187,8 @@ if (__VLS_ctx.mailState.sidebar) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.mailState.sidebar))
-                    return;
-                __VLS_ctx.openLabelModal();
+                    throw 0;
+                return (__VLS_ctx.openLabelModal());
                 // @ts-ignore
                 [openLabelModal,];
             } },
@@ -207,7 +207,7 @@ if (__VLS_ctx.mailState.sidebar) {
 [];
 var __VLS_3;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.ComposeEmailModal} */
+/** @ts-ignore @type { | typeof __VLS_components.ComposeEmailModal} */
 ComposeEmailModal;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -219,16 +219,18 @@ const __VLS_18 = __VLS_17({
     modalOpen: (__VLS_ctx.isMailModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_17));
 let __VLS_21;
-const __VLS_22 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.isMailModalOpen = false;
-            // @ts-ignore
-            [isMailModalOpen, isMailModalOpen,];
-        } });
+const __VLS_22 = {
+    /** @type {typeof __VLS_21.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.isMailModalOpen = false);
+        // @ts-ignore
+        [isMailModalOpen, isMailModalOpen,];
+    },
+};
 var __VLS_19;
 var __VLS_20;
 let __VLS_23;
-/** @ts-ignore @type {typeof __VLS_components.MailLabelModal} */
+/** @ts-ignore @type { | typeof __VLS_components.MailLabelModal} */
 MailLabelModal;
 // @ts-ignore
 const __VLS_24 = __VLS_asFunctionalComponent1(__VLS_23, new __VLS_23({
@@ -240,12 +242,14 @@ const __VLS_25 = __VLS_24({
     modalOpen: (__VLS_ctx.isLabelModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_24));
 let __VLS_28;
-const __VLS_29 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.isLabelModalOpen = false;
-            // @ts-ignore
-            [isLabelModalOpen, isLabelModalOpen,];
-        } });
+const __VLS_29 = {
+    /** @type {typeof __VLS_28.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.isLabelModalOpen = false);
+        // @ts-ignore
+        [isLabelModalOpen, isLabelModalOpen,];
+    },
+};
 var __VLS_26;
 var __VLS_27;
 // @ts-ignore

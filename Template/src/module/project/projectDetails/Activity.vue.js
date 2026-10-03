@@ -39,7 +39,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['common-space']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.h4, __VLS_intrinsics.h4)({});
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.CardDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.CardDropdown} */
 CardDropdown;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -57,7 +57,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -87,7 +87,7 @@ for (const [activity, index] of __VLS_vFor((__VLS_ctx.projectActivity))) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.h5, __VLS_intrinsics.h5)({
         ...{ class: "f-w-600" },
     });
-    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (activity.title) }, null, null);
+    __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (activity.title), }, null, null);
     /** @type {__VLS_StyleScopedClasses['f-w-600']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
         ...{ class: "date-time" },
@@ -130,7 +130,7 @@ for (const [activity, index] of __VLS_vFor((__VLS_ctx.projectActivity))) {
             });
             /** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
             let __VLS_11;
-            /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+            /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
             SvgIcon;
             // @ts-ignore
             const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -186,7 +186,7 @@ for (const [activity, index] of __VLS_vFor((__VLS_ctx.projectActivity))) {
         });
         /** @type {__VLS_StyleScopedClasses['project-teammate']} */ ;
         let __VLS_16;
-        /** @ts-ignore @type {typeof __VLS_components.GroupItem} */
+        /** @ts-ignore @type { | typeof __VLS_components.GroupItem} */
         GroupItem;
         // @ts-ignore
         const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -249,7 +249,7 @@ for (const [activity, index] of __VLS_vFor((__VLS_ctx.projectActivity))) {
             (details.task);
             __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
             let __VLS_21;
-            /** @ts-ignore @type {typeof __VLS_components.GroupItem} */
+            /** @ts-ignore @type { | typeof __VLS_components.GroupItem} */
             GroupItem;
             // @ts-ignore
             const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({
@@ -270,7 +270,7 @@ for (const [activity, index] of __VLS_vFor((__VLS_ctx.projectActivity))) {
             (details.dueDate);
             __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
             let __VLS_26;
-            /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+            /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
             routerLink;
             // @ts-ignore
             const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({

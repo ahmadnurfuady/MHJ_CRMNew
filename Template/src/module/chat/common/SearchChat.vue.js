@@ -41,7 +41,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group-text']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+/** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather'] | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
 vueFeather;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -108,7 +108,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['tab-content']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.RecentChats} */
+/** @ts-ignore @type { | typeof __VLS_components.RecentChats} */
 RecentChats;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -118,7 +118,7 @@ const __VLS_7 = __VLS_6({
     search: (__VLS_ctx.search),
 }, ...__VLS_functionalComponentArgsRest(__VLS_6));
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.ChatContacts} */
+/** @ts-ignore @type { | typeof __VLS_components.ChatContacts} */
 ChatContacts;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));

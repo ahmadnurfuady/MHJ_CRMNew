@@ -35,7 +35,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleSidebar();
+            return (__VLS_ctx.toggleSidebar());
             // @ts-ignore
             [toggleSidebar,];
         } },
@@ -58,7 +58,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['email-left-aside']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -71,9 +71,11 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['accordion']} */ ;
 /** @type {__VLS_StyleScopedClasses['seller-profile']} */ ;
 for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.sellerDetailsAccordion))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "accordion-item" },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['accordion-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -104,7 +106,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.sellerDetailsAccordio
     /** @type {__VLS_StyleScopedClasses['bg-white']} */ ;
     if (accordionItem.value == 'details') {
         let __VLS_6;
-        /** @ts-ignore @type {typeof __VLS_components.SellerDetails} */
+        /** @ts-ignore @type { | typeof __VLS_components.SellerDetails} */
         SellerDetails;
         // @ts-ignore
         const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -116,7 +118,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.sellerDetailsAccordio
     }
     if (accordionItem.value == 'rating') {
         let __VLS_11;
-        /** @ts-ignore @type {typeof __VLS_components.SellerRating} */
+        /** @ts-ignore @type { | typeof __VLS_components.SellerRating} */
         SellerRating;
         // @ts-ignore
         const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({}));
@@ -124,7 +126,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.sellerDetailsAccordio
     }
     if (accordionItem.value == 'notification') {
         let __VLS_16;
-        /** @ts-ignore @type {typeof __VLS_components.SellerNotification} */
+        /** @ts-ignore @type { | typeof __VLS_components.SellerNotification} */
         SellerNotification;
         // @ts-ignore
         const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({}));
@@ -132,7 +134,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.sellerDetailsAccordio
     }
     if (accordionItem.value == 'policy') {
         let __VLS_21;
-        /** @ts-ignore @type {typeof __VLS_components.SellerPolicies} */
+        /** @ts-ignore @type { | typeof __VLS_components.SellerPolicies} */
         SellerPolicies;
         // @ts-ignore
         const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({}));
@@ -140,7 +142,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.sellerDetailsAccordio
     }
     if (accordionItem.value == 'review') {
         let __VLS_26;
-        /** @ts-ignore @type {typeof __VLS_components.SellerProductReview} */
+        /** @ts-ignore @type { | typeof __VLS_components.SellerProductReview} */
         SellerProductReview;
         // @ts-ignore
         const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({}));

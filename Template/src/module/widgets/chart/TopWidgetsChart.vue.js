@@ -12,7 +12,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.chart) {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+    /** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
     Card;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -23,7 +23,7 @@ if (props.chart) {
         cardClass: ('o-hidden'),
         cardBodyClass: ('row pb-0 m-0'),
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_5 = {};
+    var __VLS_5;
     const { default: __VLS_6 } = __VLS_3.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "col-xl-9 col-lg-8 col-9 p-0" },
@@ -61,7 +61,7 @@ if (props.chart) {
             id: "chart-widget1",
         });
         let __VLS_8;
-        /** @ts-ignore @type {typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart} */
+        /** @ts-ignore @type { | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart | typeof __VLS_components.apexchart | typeof __VLS_components.Apexchart} */
         apexchart;
         // @ts-ignore
         const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -76,7 +76,7 @@ if (props.chart) {
             series: (props.chart.chartSeries),
             options: (props.chart.chartDetails),
         }, ...__VLS_functionalComponentArgsRest(__VLS_9));
-        var __VLS_13 = {};
+        var __VLS_13;
         var __VLS_11;
     }
     var __VLS_3;

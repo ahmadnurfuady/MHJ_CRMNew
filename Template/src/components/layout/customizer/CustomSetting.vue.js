@@ -23,37 +23,37 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['show']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.LayoutType} */
+/** @ts-ignore @type { | typeof __VLS_components.LayoutType} */
 LayoutType;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
 const __VLS_2 = __VLS_1({}, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.SidebarType} */
+/** @ts-ignore @type { | typeof __VLS_components.SidebarType} */
 SidebarType;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
 const __VLS_7 = __VLS_6({}, ...__VLS_functionalComponentArgsRest(__VLS_6));
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.SidebarIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SidebarIcon} */
 SidebarIcon;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
 const __VLS_12 = __VLS_11({}, ...__VLS_functionalComponentArgsRest(__VLS_11));
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.CustomColor} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomColor} */
 CustomColor;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
 const __VLS_17 = __VLS_16({}, ...__VLS_functionalComponentArgsRest(__VLS_16));
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.ColorLayout} */
+/** @ts-ignore @type { | typeof __VLS_components.ColorLayout} */
 ColorLayout;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
 const __VLS_22 = __VLS_21({}, ...__VLS_functionalComponentArgsRest(__VLS_21));
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.MixLayout} */
+/** @ts-ignore @type { | typeof __VLS_components.MixLayout} */
 MixLayout;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));

@@ -12,7 +12,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['container-fluid']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.ProjectCreate} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectCreate} */
 ProjectCreate;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));

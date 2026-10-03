@@ -67,8 +67,8 @@ if (__VLS_ctx.show) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
                 ...{ onClick: (...[$event]) => {
                         if (!(__VLS_ctx.show))
-                            return;
-                        __VLS_ctx.handleEmojiClick(emojiItem);
+                            throw 0;
+                        return (__VLS_ctx.handleEmojiClick(emojiItem));
                         // @ts-ignore
                         [toggleEmojiPicker, show, categories, emojiByCategory, handleEmojiClick,];
                     } },

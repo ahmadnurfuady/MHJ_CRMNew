@@ -39,7 +39,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -62,14 +62,16 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['icon-lists']} */ ;
 /** @type {__VLS_StyleScopedClasses['flag-icons']} */ ;
 for (const [icon] of __VLS_vFor((__VLS_ctx.flagIcon))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (icon.name),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.getDetails(icon.countryCode);
+                return (__VLS_ctx.getDetails(icon.countryCode));
                 // @ts-ignore
                 [flagIcon, getDetails,];
             } },
         ...{ class: "col-12 col-sm-6 col-xl-4" },
-        key: (icon.name),
     });
     /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
     /** @type {__VLS_StyleScopedClasses['col-sm-6']} */ ;
@@ -126,8 +128,8 @@ if (__VLS_ctx.details.detailsVisible) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.details.detailsVisible))
-                    return;
-                __VLS_ctx.details.detailsVisible = false;
+                    throw 0;
+                return (__VLS_ctx.details.detailsVisible = false);
                 // @ts-ignore
                 [details, details,];
             } },
@@ -183,8 +185,8 @@ if (__VLS_ctx.details.detailsVisible) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.details.detailsVisible))
-                    return;
-                __VLS_ctx.copyText(__VLS_ctx.details.icon);
+                    throw 0;
+                return (__VLS_ctx.copyText(__VLS_ctx.details.icon));
                 // @ts-ignore
                 [details, details, details, details, copyText,];
             } },

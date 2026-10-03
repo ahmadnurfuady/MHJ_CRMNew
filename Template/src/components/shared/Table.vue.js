@@ -116,21 +116,23 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                 __VLS_asFunctionalElement1(__VLS_intrinsics.select, __VLS_intrinsics.select)({
                     ...{ onChange: (...[$event]) => {
                             if (!(props.tableConfig))
-                                return;
+                                throw 0;
                             if (!(props.search || props.dateFilter || props.showPaginate))
-                                return;
+                                throw 0;
                             if (!(props.showPaginate))
-                                return;
-                            __VLS_ctx.handleSelect($event);
+                                throw 0;
+                            return (__VLS_ctx.handleSelect($event));
                             // @ts-ignore
                             [handleSelect,];
                         } },
                 });
                 for (const [pages] of __VLS_vFor((__VLS_ctx.pageSizeOptions))) {
+                    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                        key: (pages.value),
+                    });
                     __VLS_asFunctionalElement1(__VLS_intrinsics.option, __VLS_intrinsics.option)({
                         value: (pages.value),
                         selected: (pages.selected),
-                        key: (pages.value),
                     });
                     (pages.title);
                     // @ts-ignore
@@ -167,12 +169,12 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
                     ...{ onClick: (...[$event]) => {
                             if (!(props.tableConfig))
-                                return;
+                                throw 0;
                             if (!(props.search || props.dateFilter || props.showPaginate))
-                                return;
+                                throw 0;
                             if (!(props.dateFilter))
-                                return;
-                            __VLS_ctx.handleDropdown();
+                                throw 0;
+                            return (__VLS_ctx.handleDropdown());
                             // @ts-ignore
                             [handleDropdown,];
                         } },
@@ -187,12 +189,12 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(props.tableConfig))
-                                    return;
+                                    throw 0;
                                 if (!(props.search || props.dateFilter || props.showPaginate))
-                                    return;
+                                    throw 0;
                                 if (!(props.dateFilter))
-                                    return;
-                                __VLS_ctx.handleDateFilter(option.value);
+                                    throw 0;
+                                return (__VLS_ctx.handleDateFilter(option.value));
                                 // @ts-ignore
                                 [tableState, tableState, tableState, dateOptions, handleDateFilter,];
                             } },
@@ -208,7 +210,7 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                 }
                 if (__VLS_ctx.tableState.selectedValue && __VLS_ctx.tableState.selectedValue === 'custom') {
                     let __VLS_0;
-                    /** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+                    /** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
                     Flatpickr;
                     // @ts-ignore
                     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -222,8 +224,10 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                         config: (__VLS_ctx.tableState.config),
                     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
                     let __VLS_5;
-                    const __VLS_6 = ({ onChange: {} },
-                        { onOnChange: (__VLS_ctx.handleDate) });
+                    const __VLS_6 = {
+                        /** @type {typeof __VLS_5.onChange} */
+                        onOnChange: (__VLS_ctx.handleDate),
+                    };
                     var __VLS_3;
                     var __VLS_4;
                 }
@@ -238,12 +242,12 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                 __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
                     ...{ onKeyup: (...[$event]) => {
                             if (!(props.tableConfig))
-                                return;
+                                throw 0;
                             if (!(props.search || props.dateFilter || props.showPaginate))
-                                return;
+                                throw 0;
                             if (!(props.search))
-                                return;
-                            __VLS_ctx.searchTerm(__VLS_ctx.tableState.searchText);
+                                throw 0;
+                            return (__VLS_ctx.searchTerm(__VLS_ctx.tableState.searchText));
                             // @ts-ignore
                             [tableState, tableState, tableState, tableState, tableState, handleDate, searchTerm,];
                         } },
@@ -274,10 +278,10 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
             __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
                 ...{ onChange: (...[$event]) => {
                         if (!(props.tableConfig))
-                            return;
+                            throw 0;
                         if (!(props.hasCheckbox))
-                            return;
-                        __VLS_ctx.checkUncheckAll($event, props);
+                            throw 0;
+                        return (__VLS_ctx.checkUncheckAll($event, props));
                         // @ts-ignore
                         [tableState, tableState, tableState, checkUncheckAll,];
                     } },
@@ -295,18 +299,20 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
             __VLS_asFunctionalElement1(__VLS_intrinsics.th, __VLS_intrinsics.th)({});
         }
         for (const [column] of __VLS_vFor((props.tableConfig.columns))) {
-            (column.fieldValue);
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (column.fieldValue),
+            });
             if (!column.hideColumn) {
                 if (column.sort) {
                     __VLS_asFunctionalElement1(__VLS_intrinsics.th, __VLS_intrinsics.th)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(props.tableConfig))
-                                    return;
+                                    throw 0;
                                 if (!(!column.hideColumn))
-                                    return;
+                                    throw 0;
                                 if (!(column.sort))
-                                    return;
-                                __VLS_ctx.onSort(String(column.sortableKey ?? column.fieldValue), props);
+                                    throw 0;
+                                return (__VLS_ctx.onSort(String(column.sortableKey ?? column.fieldValue), props));
                                 // @ts-ignore
                                 [tableState, tableState, onSort,];
                             } },
@@ -341,7 +347,9 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
         if (__VLS_ctx.tableState.tableRecords && __VLS_ctx.tableState.tableRecords.length) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.tbody, __VLS_intrinsics.tbody)({});
             for (const [details, index] of __VLS_vFor((__VLS_ctx.tableState.tableRecords))) {
-                (index);
+                __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                    key: (index),
+                });
                 __VLS_asFunctionalElement1(__VLS_intrinsics.tr, __VLS_intrinsics.tr)({
                     ...{ class: ({
                             selected: __VLS_ctx.hasId(details) &&
@@ -359,12 +367,12 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                     __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
                         ...{ onChange: (...[$event]) => {
                                 if (!(props.tableConfig))
-                                    return;
+                                    throw 0;
                                 if (!(__VLS_ctx.tableState.tableRecords && __VLS_ctx.tableState.tableRecords.length))
-                                    return;
+                                    throw 0;
                                 if (!(props.hasCheckbox))
-                                    return;
-                                __VLS_ctx.onItemChecked($event);
+                                    throw 0;
+                                return (__VLS_ctx.onItemChecked($event));
                                 // @ts-ignore
                                 [tableState, tableState, tableState, tableState, tableState, tableState, hasId, onItemChecked,];
                             } },
@@ -378,12 +386,12 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                     __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({
                         ...{ onClick: (...[$event]) => {
                                 if (!(props.tableConfig))
-                                    return;
+                                    throw 0;
                                 if (!(__VLS_ctx.tableState.tableRecords && __VLS_ctx.tableState.tableRecords.length))
-                                    return;
+                                    throw 0;
                                 if (!(props.rowDetails))
-                                    return;
-                                __VLS_ctx.openRowDetails(__VLS_ctx.getTableRowId(details));
+                                    throw 0;
+                                return (__VLS_ctx.openRowDetails(__VLS_ctx.getTableRowId(details)));
                                 // @ts-ignore
                                 [tableState, getTableRowId, getTableRowId, getTableRowId, getTableRowId, openRowDetails,];
                             } },
@@ -396,7 +404,9 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                     });
                 }
                 for (const [column] of __VLS_vFor((props.tableConfig.columns))) {
-                    (column.fieldValue);
+                    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                        key: (column.fieldValue),
+                    });
                     if (!column.hideColumn) {
                         __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({
                             ...{ class: (column.class ? column.class : '') },
@@ -420,7 +430,7 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                         }
                         else {
                             __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
-                            __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.columnValue(details, column.fieldValue)) }, null, null);
+                            __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.columnValue(details, column.fieldValue)), }, null, null);
                         }
                     }
                     // @ts-ignore
@@ -436,19 +446,21 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                     /** @type {__VLS_StyleScopedClasses['gap-2']} */ ;
                     /** @type {__VLS_StyleScopedClasses['justify-content-start']} */ ;
                     for (const [row, i] of __VLS_vFor((props.tableConfig.rowAction))) {
-                        (i);
+                        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                            key: (i),
+                        });
                         if (row.type === 'button' || row.label === 'Create') {
                             __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
                                 ...{ onClick: (...[$event]) => {
                                         if (!(props.tableConfig))
-                                            return;
+                                            throw 0;
                                         if (!(__VLS_ctx.tableState.tableRecords && __VLS_ctx.tableState.tableRecords.length))
-                                            return;
+                                            throw 0;
                                         if (!(props.tableConfig.rowAction))
-                                            return;
+                                            throw 0;
                                         if (!(row.type === 'button' || row.label === 'Create'))
-                                            return;
-                                        __VLS_ctx.handleAction(row, details);
+                                            throw 0;
+                                        return (__VLS_ctx.handleAction(row, details));
                                         // @ts-ignore
                                         [handleAction,];
                                     } },
@@ -466,7 +478,7 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                         }
                         else if (['Edit', 'Delete', 'View'].includes(row.label)) {
                             let __VLS_11;
-                            /** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+                            /** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
                             routerLink;
                             // @ts-ignore
                             const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -480,27 +492,29 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                                 to: (row.path || ''),
                             }, ...__VLS_functionalComponentArgsRest(__VLS_12));
                             let __VLS_16;
-                            const __VLS_17 = ({ click: {} },
-                                { onClick: (...[$event]) => {
-                                        if (!(props.tableConfig))
-                                            return;
-                                        if (!(__VLS_ctx.tableState.tableRecords && __VLS_ctx.tableState.tableRecords.length))
-                                            return;
-                                        if (!(props.tableConfig.rowAction))
-                                            return;
-                                        if (!!(row.type === 'button' || row.label === 'Create'))
-                                            return;
-                                        if (!(['Edit', 'Delete', 'View'].includes(row.label)))
-                                            return;
-                                        __VLS_ctx.handleAction(row, details);
-                                        // @ts-ignore
-                                        [handleAction,];
-                                    } });
+                            const __VLS_17 = {
+                                /** @type {typeof __VLS_16.click} */
+                                onClick: (...[$event]) => {
+                                    if (!(props.tableConfig))
+                                        throw 0;
+                                    if (!(__VLS_ctx.tableState.tableRecords && __VLS_ctx.tableState.tableRecords.length))
+                                        throw 0;
+                                    if (!(props.tableConfig.rowAction))
+                                        throw 0;
+                                    if (!!(row.type === 'button' || row.label === 'Create'))
+                                        throw 0;
+                                    if (!(['Edit', 'Delete', 'View'].includes(row.label)))
+                                        throw 0;
+                                    return (__VLS_ctx.handleAction(row, details));
+                                    // @ts-ignore
+                                    [handleAction,];
+                                },
+                            };
                             /** @type {__VLS_StyleScopedClasses['square-white']} */ ;
                             const { default: __VLS_18 } = __VLS_14.slots;
                             if (['Edit', 'Delete'].includes(row.label)) {
                                 let __VLS_19;
-                                /** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+                                /** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
                                 SvgIcon;
                                 // @ts-ignore
                                 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -560,7 +574,7 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                         __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
                         (column.title);
                         __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
-                        __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.columnValue(details, column.fieldValue)) }, null, null);
+                        __VLS_asFunctionalDirective(__VLS_directives.vHtml, {})(null, { ...__VLS_directiveBindingRestFields, value: (__VLS_ctx.columnValue(details, column.fieldValue)), }, null, null);
                         // @ts-ignore
                         [tableState, hasId, columnValue,];
                     }
@@ -584,7 +598,7 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
         var __VLS_24 = {};
         if (props.tableConfig.data.length && props.pagination) {
             let __VLS_26;
-            /** @ts-ignore @type {typeof __VLS_components.Pagination} */
+            /** @ts-ignore @type { | typeof __VLS_components.Pagination} */
             Pagination;
             // @ts-ignore
             const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({
@@ -604,16 +618,18 @@ const __VLS_export = ((__VLS_props, __VLS_ctx, __VLS_exposed, __VLS_setup = (asy
                 selectedItems: (__VLS_ctx.tableState.selected.length),
             }, ...__VLS_functionalComponentArgsRest(__VLS_27));
             let __VLS_31;
-            const __VLS_32 = ({ setPage: {} },
-                { onSetPage: (...[$event]) => {
-                        if (!(props.tableConfig))
-                            return;
-                        if (!(props.tableConfig.data.length && props.pagination))
-                            return;
-                        __VLS_ctx.setPage($event);
-                        // @ts-ignore
-                        [tableState, tableState, tableState, getColSpan, getColSpan, setPage,];
-                    } });
+            const __VLS_32 = {
+                /** @type {typeof __VLS_31.setPage} */
+                onSetPage: (...[$event]) => {
+                    if (!(props.tableConfig))
+                        throw 0;
+                    if (!(props.tableConfig.data.length && props.pagination))
+                        throw 0;
+                    return (__VLS_ctx.setPage($event));
+                    // @ts-ignore
+                    [tableState, tableState, tableState, getColSpan, getColSpan, setPage,];
+                },
+            };
             var __VLS_29;
             var __VLS_30;
         }

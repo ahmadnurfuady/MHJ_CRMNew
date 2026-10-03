@@ -26,7 +26,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
+/** @ts-ignore @type { | typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
 Transition;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -55,7 +55,7 @@ if (props.modalOpen) {
     /** @type {__VLS_StyleScopedClasses['modal-dialog']} */ ;
     /** @type {__VLS_StyleScopedClasses['modal-dialog-centered']} */ ;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
+    /** @ts-ignore @type { | typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
     OnClickOutside;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -69,8 +69,10 @@ if (props.modalOpen) {
         ...{ class: (__VLS_ctx.contentClass) },
     }, ...__VLS_functionalComponentArgsRest(__VLS_7));
     let __VLS_11;
-    const __VLS_12 = ({ trigger: {} },
-        { onTrigger: (__VLS_ctx.closeModal) });
+    const __VLS_12 = {
+        /** @type {typeof __VLS_11.trigger} */
+        onTrigger: (__VLS_ctx.closeModal),
+    };
     /** @type {__VLS_StyleScopedClasses['modal-content']} */ ;
     const { default: __VLS_13 } = __VLS_9.slots;
     if (props.title) {
@@ -100,7 +102,7 @@ if (props.modalOpen) {
 [];
 var __VLS_3;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
+/** @ts-ignore @type { | typeof __VLS_components.Transition | typeof __VLS_components.Transition} */
 Transition;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({

@@ -12,7 +12,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.draggable | typeof __VLS_components.Draggable | typeof __VLS_components.draggable | typeof __VLS_components.Draggable} */
+/** @ts-ignore @type { | typeof __VLS_components.draggable | typeof __VLS_components.Draggable | typeof __VLS_components.draggable | typeof __VLS_components.Draggable} */
 draggable;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -29,7 +29,7 @@ const __VLS_2 = __VLS_1({
     ...{ class: "kanban-drag" },
     animation: (150),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 /** @type {__VLS_StyleScopedClasses['kanban-drag']} */ ;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
@@ -53,7 +53,7 @@ const { default: __VLS_6 } = __VLS_3.slots;
         /** @type {__VLS_StyleScopedClasses['nested-sortable']} */ ;
         /** @type {__VLS_StyleScopedClasses['ms-3']} */ ;
         let __VLS_8;
-        /** @ts-ignore @type {typeof __VLS_components.SortableItem} */
+        /** @ts-ignore @type { | typeof __VLS_components.SortableItem} */
         SortableItem;
         // @ts-ignore
         const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({

@@ -10,7 +10,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -25,14 +25,14 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardBodyClass: ('map-z-index'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "map-js-height" },
 });
 /** @type {__VLS_StyleScopedClasses['map-js-height']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.GoogleMap | typeof __VLS_components.GoogleMap} */
+/** @ts-ignore @type { | typeof __VLS_components.GoogleMap | typeof __VLS_components.GoogleMap} */
 GoogleMap;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -53,7 +53,7 @@ const __VLS_9 = __VLS_8({
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
 const { default: __VLS_12 } = __VLS_10.slots;
 let __VLS_13;
-/** @ts-ignore @type {typeof __VLS_components.AdvancedMarker} */
+/** @ts-ignore @type { | typeof __VLS_components.AdvancedMarker} */
 AdvancedMarker;
 // @ts-ignore
 const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({

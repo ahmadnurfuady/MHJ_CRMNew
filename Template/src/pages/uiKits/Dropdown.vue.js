@@ -34,7 +34,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.BasicDropdowns} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicDropdowns} */
 BasicDropdowns;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -44,7 +44,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.RoundedDropdowns} */
+/** @ts-ignore @type { | typeof __VLS_components.RoundedDropdowns} */
 RoundedDropdowns;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -55,7 +55,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.SplitDropdowns} */
+/** @ts-ignore @type { | typeof __VLS_components.SplitDropdowns} */
 SplitDropdowns;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -66,7 +66,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.HeadingDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.HeadingDropdown} */
 HeadingDropdown;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -77,7 +77,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-4']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-md-6']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.WithInputDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.WithInputDropdown} */
 WithInputDropdown;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -90,7 +90,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['order-xl-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['order-lg-5']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.DarkDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.DarkDropdown} */
 DarkDropdown;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));
@@ -102,7 +102,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['order-xxl-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['order-lg-3']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({
@@ -131,7 +131,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['common-flex']} */ ;
 let __VLS_37;
-/** @ts-ignore @type {typeof __VLS_components.UniqueDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.UniqueDropdown} */
 UniqueDropdown;
 // @ts-ignore
 const __VLS_38 = __VLS_asFunctionalComponent1(__VLS_37, new __VLS_37({}));
@@ -144,7 +144,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['order-xxl-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['order-lg-2']} */ ;
 let __VLS_42;
-/** @ts-ignore @type {typeof __VLS_components.JustifyContentsDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.JustifyContentsDropdown} */
 JustifyContentsDropdown;
 // @ts-ignore
 const __VLS_43 = __VLS_asFunctionalComponent1(__VLS_42, new __VLS_42({}));
@@ -154,7 +154,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-lg-12']} */ ;
 let __VLS_47;
-/** @ts-ignore @type {typeof __VLS_components.AlignmentOptionsDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.AlignmentOptionsDropdown} */
 AlignmentOptionsDropdown;
 // @ts-ignore
 const __VLS_48 = __VLS_asFunctionalComponent1(__VLS_47, new __VLS_47({}));
@@ -166,7 +166,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['order-xxl-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['order-lg-4']} */ ;
 let __VLS_52;
-/** @ts-ignore @type {typeof __VLS_components.HelperCardsDropdown} */
+/** @ts-ignore @type { | typeof __VLS_components.HelperCardsDropdown} */
 HelperCardsDropdown;
 // @ts-ignore
 const __VLS_53 = __VLS_asFunctionalComponent1(__VLS_52, new __VLS_52({}));
@@ -178,7 +178,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['order-xxl-0']} */ ;
 /** @type {__VLS_StyleScopedClasses['order-lg-1']} */ ;
 let __VLS_57;
-/** @ts-ignore @type {typeof __VLS_components.DividerDropdowns} */
+/** @ts-ignore @type { | typeof __VLS_components.DividerDropdowns} */
 DividerDropdowns;
 // @ts-ignore
 const __VLS_58 = __VLS_asFunctionalComponent1(__VLS_57, new __VLS_57({}));
@@ -188,7 +188,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md-12']} */ ;
 let __VLS_62;
-/** @ts-ignore @type {typeof __VLS_components.DropdownSizing} */
+/** @ts-ignore @type { | typeof __VLS_components.DropdownSizing} */
 DropdownSizing;
 // @ts-ignore
 const __VLS_63 = __VLS_asFunctionalComponent1(__VLS_62, new __VLS_62({}));
@@ -199,7 +199,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['col-lg-6']} */ ;
 let __VLS_67;
-/** @ts-ignore @type {typeof __VLS_components.DropdownOptions} */
+/** @ts-ignore @type { | typeof __VLS_components.DropdownOptions} */
 DropdownOptions;
 // @ts-ignore
 const __VLS_68 = __VLS_asFunctionalComponent1(__VLS_67, new __VLS_67({}));

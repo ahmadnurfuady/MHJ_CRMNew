@@ -17,9 +17,11 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['style-1']} */ ;
 /** @type {__VLS_StyleScopedClasses['faq-accordion']} */ ;
 for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppLeftPanelAccordion))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "card" },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['card']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -60,7 +62,7 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppLeftPanelAcc
         /** @type {__VLS_StyleScopedClasses['socialprofile']} */ ;
         /** @type {__VLS_StyleScopedClasses['filter-cards-view']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.MyProfile} */
+        /** @ts-ignore @type { | typeof __VLS_components.MyProfile} */
         MyProfile;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -118,7 +120,9 @@ for (const [accordionItem, index] of __VLS_vFor((__VLS_ctx.socialAppLeftPanelAcc
         /** @type {__VLS_StyleScopedClasses['social-status']} */ ;
         /** @type {__VLS_StyleScopedClasses['filter-cards-view']} */ ;
         for (const [friend, index] of __VLS_vFor((__VLS_ctx.friends))) {
-            (index);
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (index),
+            });
             if (friend.lastActivityTime && friend.userProfile) {
                 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                     ...{ class: "d-flex" },

@@ -46,7 +46,7 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.list))) {
     /** @type {__VLS_StyleScopedClasses['touchspin-wrapper']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.changeValue(details.id, -1);
+                return (__VLS_ctx.changeValue(details.id, -1));
                 // @ts-ignore
                 [list, changeValue,];
             } },
@@ -64,7 +64,7 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.list))) {
     });
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.changeValue(details.id, 1);
+                return (__VLS_ctx.changeValue(details.id, 1));
                 // @ts-ignore
                 [changeValue, touchSpinClass,];
             } },

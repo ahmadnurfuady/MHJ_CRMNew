@@ -49,7 +49,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -62,7 +62,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
     const { default: __VLS_5 } = __VLS_3.slots;
     let __VLS_6;
-    /** @ts-ignore @type {typeof __VLS_components.Select} */
+    /** @ts-ignore @type { | typeof __VLS_components.Select} */
     Select;
     // @ts-ignore
     const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -84,14 +84,16 @@ if (props.form) {
         options: (__VLS_ctx.country),
     }, ...__VLS_functionalComponentArgsRest(__VLS_7));
     let __VLS_11;
-    const __VLS_12 = ({ 'update:modelValue': {} },
-        { 'onUpdate:modelValue': (...[$event]) => {
-                if (!(props.form))
-                    return;
-                __VLS_ctx.countryChange($event);
-                // @ts-ignore
-                [formSubmitted, country, countryChange,];
-            } });
+    const __VLS_12 = {
+        /** @type {typeof __VLS_11.'update:modelValue'} */
+        'onUpdate:modelValue': (...[$event]) => {
+            if (!(props.form))
+                throw 0;
+            return (__VLS_ctx.countryChange($event));
+            // @ts-ignore
+            [formSubmitted, country, countryChange,];
+        },
+    };
     var __VLS_9;
     var __VLS_10;
     // @ts-ignore
@@ -103,7 +105,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_13;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -116,7 +118,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_14));
     const { default: __VLS_18 } = __VLS_16.slots;
     let __VLS_19;
-    /** @ts-ignore @type {typeof __VLS_components.Select} */
+    /** @ts-ignore @type { | typeof __VLS_components.Select} */
     Select;
     // @ts-ignore
     const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -138,14 +140,16 @@ if (props.form) {
         options: (__VLS_ctx.states),
     }, ...__VLS_functionalComponentArgsRest(__VLS_20));
     let __VLS_24;
-    const __VLS_25 = ({ 'update:modelValue': {} },
-        { 'onUpdate:modelValue': (...[$event]) => {
-                if (!(props.form))
-                    return;
-                __VLS_ctx.stateChange($event);
-                // @ts-ignore
-                [formSubmitted, states, stateChange,];
-            } });
+    const __VLS_25 = {
+        /** @type {typeof __VLS_24.'update:modelValue'} */
+        'onUpdate:modelValue': (...[$event]) => {
+            if (!(props.form))
+                throw 0;
+            return (__VLS_ctx.stateChange($event));
+            // @ts-ignore
+            [formSubmitted, states, stateChange,];
+        },
+    };
     var __VLS_22;
     var __VLS_23;
     // @ts-ignore
@@ -157,7 +161,7 @@ if (props.form) {
     /** @type {__VLS_StyleScopedClasses['form-group']} */ ;
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_26;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({
@@ -170,7 +174,7 @@ if (props.form) {
     }, ...__VLS_functionalComponentArgsRest(__VLS_27));
     const { default: __VLS_31 } = __VLS_29.slots;
     let __VLS_32;
-    /** @ts-ignore @type {typeof __VLS_components.Select} */
+    /** @ts-ignore @type { | typeof __VLS_components.Select} */
     Select;
     // @ts-ignore
     const __VLS_33 = __VLS_asFunctionalComponent1(__VLS_32, new __VLS_32({

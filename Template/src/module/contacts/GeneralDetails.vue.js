@@ -62,8 +62,8 @@ if (__VLS_ctx.contactState.activeContact) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.contactState.activeContact))
-                    return;
-                __VLS_ctx.editContact();
+                    throw 0;
+                return (__VLS_ctx.editContact());
                 // @ts-ignore
                 [contactState, contactState, contactState, contactState, contactState, contactState, getImages, editContact,];
             } },
@@ -73,8 +73,8 @@ if (__VLS_ctx.contactState.activeContact) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.contactState.activeContact))
-                    return;
-                __VLS_ctx.deleteContact();
+                    throw 0;
+                return (__VLS_ctx.deleteContact());
                 // @ts-ignore
                 [deleteContact,];
             } },
@@ -84,8 +84,8 @@ if (__VLS_ctx.contactState.activeContact) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.contactState.activeContact))
-                    return;
-                __VLS_ctx.showHistory();
+                    throw 0;
+                return (__VLS_ctx.showHistory());
                 // @ts-ignore
                 [showHistory,];
             } },
@@ -95,8 +95,8 @@ if (__VLS_ctx.contactState.activeContact) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.contactState.activeContact))
-                    return;
-                __VLS_ctx.printContact();
+                    throw 0;
+                return (__VLS_ctx.printContact());
                 // @ts-ignore
                 [printContact,];
             } },

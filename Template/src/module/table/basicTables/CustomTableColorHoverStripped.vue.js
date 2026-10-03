@@ -37,7 +37,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -52,7 +52,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardClass: ('common-striped'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -81,9 +81,11 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.thead, __VLS_intrinsics.thead)({
 /** @type {__VLS_StyleScopedClasses['tbl-strip-thad-bdr']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.tr, __VLS_intrinsics.tr)({});
 for (const [column] of __VLS_vFor((__VLS_ctx.tableConfig.columns))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (column.fieldValue),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.th, __VLS_intrinsics.th)({
         scope: "col",
-        key: (column.fieldValue),
     });
     (column.title);
     // @ts-ignore
@@ -96,7 +98,9 @@ for (const [details, index] of __VLS_vFor((__VLS_ctx.tableConfig.data))) {
         key: (index),
     });
     for (const [column] of __VLS_vFor((__VLS_ctx.tableConfig.columns))) {
-        (column.fieldValue);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (column.fieldValue),
+        });
         if (['budget', 'domesticGross'].includes(String(column.fieldValue))) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.td, __VLS_intrinsics.td)({});
             (__VLS_ctx.columnValue(details, column.fieldValue));

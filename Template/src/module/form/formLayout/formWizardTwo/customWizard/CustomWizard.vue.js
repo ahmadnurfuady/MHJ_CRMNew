@@ -77,7 +77,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -90,7 +90,7 @@ const __VLS_2 = __VLS_1({
     border: (true),
     padding: (false),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "horizontal-wizard-wrapper" },
@@ -118,15 +118,17 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['nav-pills']} */ ;
 /** @type {__VLS_StyleScopedClasses['horizontal-options']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.customWizard))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(index + 1);
+                return (__VLS_ctx.handleTab(index + 1));
                 // @ts-ignore
                 [type, type, customWizard, handleTab,];
             } },
         ...{ class: "nav-link" },
         ...{ class: ({ active: __VLS_ctx.activeTab === index + 1 }) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['nav-link']} */ ;
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
@@ -171,7 +173,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_7;
-    /** @ts-ignore @type {typeof __VLS_components.CustomWizardPersonalInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.CustomWizardPersonalInfo} */
     CustomWizardPersonalInfo;
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -185,7 +187,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.CustomWizardConnectAccount} */
+    /** @ts-ignore @type { | typeof __VLS_components.CustomWizardConnectAccount} */
     CustomWizardConnectAccount;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -199,7 +201,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_17;
-    /** @ts-ignore @type {typeof __VLS_components.CustomWizardInquiries} */
+    /** @ts-ignore @type { | typeof __VLS_components.CustomWizardInquiries} */
     CustomWizardInquiries;
     // @ts-ignore
     const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({
@@ -213,7 +215,7 @@ if (__VLS_ctx.activeTab === 3) {
 }
 if (__VLS_ctx.activeTab === 4) {
     let __VLS_22;
-    /** @ts-ignore @type {typeof __VLS_components.CustomWizardComplete} */
+    /** @ts-ignore @type { | typeof __VLS_components.CustomWizardComplete} */
     CustomWizardComplete;
     // @ts-ignore
     const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({}));
@@ -229,8 +231,8 @@ if (__VLS_ctx.activeTab !== 1 && __VLS_ctx.activeTab !== __VLS_ctx.customWizard.
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.activeTab !== 1 && __VLS_ctx.activeTab !== __VLS_ctx.customWizard.length))
-                    return;
-                __VLS_ctx.handleStep(-1);
+                    throw 0;
+                return (__VLS_ctx.handleStep(-1));
                 // @ts-ignore
                 [type, customWizard, activeTab, activeTab, activeTab, activeTab, activeTab, activeTab, form, form, form, formSubmitted, formSubmitted, formSubmitted, handleStep,];
             } },
@@ -243,8 +245,8 @@ if (__VLS_ctx.activeTab >= 1 && __VLS_ctx.activeTab < __VLS_ctx.customWizard.len
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.activeTab >= 1 && __VLS_ctx.activeTab < __VLS_ctx.customWizard.length))
-                    return;
-                __VLS_ctx.handleStep(1);
+                    throw 0;
+                return (__VLS_ctx.handleStep(1));
                 // @ts-ignore
                 [customWizard, activeTab, activeTab, handleStep,];
             } },

@@ -16,7 +16,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -29,7 +29,7 @@ const __VLS_2 = __VLS_1({
     border: (true),
     padding: (false),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -58,7 +58,7 @@ for (const [tab] of __VLS_vFor((__VLS_ctx.borderTab))) {
     /** @type {__VLS_StyleScopedClasses['nav-item']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleTab(tab.value);
+                return (__VLS_ctx.handleTab(tab.value));
                 // @ts-ignore
                 [borderTab, handleTab,];
             } },
@@ -192,7 +192,7 @@ else if (__VLS_ctx.activeTab === 'contact') {
     });
     /** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -203,7 +203,7 @@ else if (__VLS_ctx.activeTab === 'contact') {
     }, ...__VLS_functionalComponentArgsRest(__VLS_9));
     const { default: __VLS_13 } = __VLS_11.slots;
     let __VLS_14;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -226,7 +226,7 @@ else if (__VLS_ctx.activeTab === 'contact') {
     });
     /** @type {__VLS_StyleScopedClasses['mb-0']} */ ;
     let __VLS_19;
-    /** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
     InputWrapper;
     // @ts-ignore
     const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -237,7 +237,7 @@ else if (__VLS_ctx.activeTab === 'contact') {
     }, ...__VLS_functionalComponentArgsRest(__VLS_20));
     const { default: __VLS_24 } = __VLS_22.slots;
     let __VLS_25;
-    /** @ts-ignore @type {typeof __VLS_components.InputField} */
+    /** @ts-ignore @type { | typeof __VLS_components.InputField} */
     InputField;
     // @ts-ignore
     const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({

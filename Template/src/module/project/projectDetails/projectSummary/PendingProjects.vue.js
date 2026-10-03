@@ -38,7 +38,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -57,7 +57,7 @@ const __VLS_2 = __VLS_1({
     buttonText: ('View All'),
     path: (__VLS_ctx.routes.Project.ProjectList),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "recent-table table-responsive custom-scrollbar project-pending-table" },
@@ -67,7 +67,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 /** @type {__VLS_StyleScopedClasses['project-pending-table']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.Table | typeof __VLS_components.Table} */
+/** @ts-ignore @type { | typeof __VLS_components.Table | typeof __VLS_components.Table} */
 Table;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({

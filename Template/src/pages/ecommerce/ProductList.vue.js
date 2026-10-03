@@ -58,7 +58,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['card-no-border']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.collapseFilter();
+            return (__VLS_ctx.collapseFilter());
             // @ts-ignore
             [filtered, collapseFilter,];
         } },
@@ -77,7 +77,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-chevron-down']} */ ;
 /** @type {__VLS_StyleScopedClasses['toggle-data']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.ProductFilter} */
+/** @ts-ignore @type { | typeof __VLS_components.ProductFilter} */
 ProductFilter;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -101,7 +101,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['card-header-right-icon']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink} */
+/** @ts-ignore @type { | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link'] | typeof __VLS_components.routerLink | typeof __VLS_components.RouterLink | typeof __VLS_components['router-link']} */
 routerLink;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -143,7 +143,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 /** @type {__VLS_StyleScopedClasses['product-list-table']} */ ;
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.ProductListTable} */
+/** @ts-ignore @type { | typeof __VLS_components.ProductListTable} */
 ProductListTable;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({}));

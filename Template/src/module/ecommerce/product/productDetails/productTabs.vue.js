@@ -72,7 +72,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['show']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Description} */
+/** @ts-ignore @type { | typeof __VLS_components.Description} */
 Description;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -89,7 +89,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['show']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.AdditionalInfo} */
+/** @ts-ignore @type { | typeof __VLS_components.AdditionalInfo} */
 AdditionalInfo;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['show']} */ ;
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.WriteReview} */
+/** @ts-ignore @type { | typeof __VLS_components.WriteReview} */
 WriteReview;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));

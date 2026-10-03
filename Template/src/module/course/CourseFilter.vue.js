@@ -18,7 +18,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleSidebar();
+            return (__VLS_ctx.toggleSidebar());
             // @ts-ignore
             [toggleSidebar,];
         } },
@@ -105,7 +105,7 @@ for (const [items] of __VLS_vFor((__VLS_ctx.courseSidebar))) {
         });
         /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+        /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
         vueFeather;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -119,9 +119,11 @@ for (const [items] of __VLS_vFor((__VLS_ctx.courseSidebar))) {
         /** @type {__VLS_StyleScopedClasses['search-icon']} */ ;
     }
     for (const [content] of __VLS_vFor((items.details))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (content.id),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: (content.class) },
-            key: (content.id),
         });
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: "learning-header" },
@@ -133,7 +135,9 @@ for (const [items] of __VLS_vFor((__VLS_ctx.courseSidebar))) {
         /** @type {__VLS_StyleScopedClasses['f-w-600']} */ ;
         (content.subTitle);
         for (const [item] of __VLS_vFor((content.item))) {
-            (item.id);
+            __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                key: (item.id),
+            });
             if (!item.badge) {
                 __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
                     ...{ class: "d-block" },
@@ -189,7 +193,7 @@ for (const [items] of __VLS_vFor((__VLS_ctx.courseSidebar))) {
             });
             /** @type {__VLS_StyleScopedClasses['d-block']} */ ;
             let __VLS_5;
-            /** @ts-ignore @type {typeof __VLS_components.Rate} */
+            /** @ts-ignore @type { | typeof __VLS_components.Rate} */
             Rate;
             // @ts-ignore
             const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({

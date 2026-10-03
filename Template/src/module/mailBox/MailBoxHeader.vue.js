@@ -41,21 +41,23 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 });
 /** @type {__VLS_StyleScopedClasses['mail-filters']} */ ;
 for (const [type, index] of __VLS_vFor((__VLS_ctx.emailTypes))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.handleType(type.value);
+                return (__VLS_ctx.handleType(type.value));
                 // @ts-ignore
                 [emailTypes, handleType,];
             } },
         ...{ class: "common-align mail-header-option" },
         ...{ class: ({ active: __VLS_ctx.mailState.emailType == type.value }) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['common-align']} */ ;
     /** @type {__VLS_StyleScopedClasses['mail-header-option']} */ ;
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

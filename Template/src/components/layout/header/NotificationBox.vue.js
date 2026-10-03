@@ -19,7 +19,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['notification-box']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -79,7 +79,7 @@ for (const [tab] of __VLS_vFor((__VLS_ctx.tabs))) {
     /** @type {__VLS_StyleScopedClasses['p-0']} */ ;
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
-                __VLS_ctx.activeTab = tab.id;
+                return (__VLS_ctx.activeTab = tab.id);
                 // @ts-ignore
                 [tabs, activeTab,];
             } },
@@ -106,7 +106,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['tab-content']} */ ;
 if (__VLS_ctx.activeTab === 'all') {
     let __VLS_5;
-    /** @ts-ignore @type {typeof __VLS_components.All} */
+    /** @ts-ignore @type { | typeof __VLS_components.All} */
     All;
     // @ts-ignore
     const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -118,7 +118,7 @@ if (__VLS_ctx.activeTab === 'all') {
 }
 if (__VLS_ctx.activeTab === 'messages') {
     let __VLS_10;
-    /** @ts-ignore @type {typeof __VLS_components.MessagesList} */
+    /** @ts-ignore @type { | typeof __VLS_components.MessagesList} */
     MessagesList;
     // @ts-ignore
     const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -130,7 +130,7 @@ if (__VLS_ctx.activeTab === 'messages') {
 }
 if (__VLS_ctx.activeTab === 'cart') {
     let __VLS_15;
-    /** @ts-ignore @type {typeof __VLS_components.CartBox} */
+    /** @ts-ignore @type { | typeof __VLS_components.CartBox} */
     CartBox;
     // @ts-ignore
     const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));

@@ -15,7 +15,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openCustomizerSetting('settings');
+            return (__VLS_ctx.openCustomizerSetting('settings'));
             // @ts-ignore
             [openCustomizerSetting,];
         } },

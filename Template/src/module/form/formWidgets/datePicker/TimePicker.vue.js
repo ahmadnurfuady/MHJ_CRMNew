@@ -59,7 +59,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -70,7 +70,7 @@ const __VLS_2 = __VLS_1({
     headerTitle: ('Time Picker'),
     cardBodyClass: ('main-flatpickr'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -95,7 +95,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_8;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -120,7 +120,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_14;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_15 = __VLS_asFunctionalComponent1(__VLS_14, new __VLS_14({
@@ -145,7 +145,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_19;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_20 = __VLS_asFunctionalComponent1(__VLS_19, new __VLS_19({
@@ -170,7 +170,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({
@@ -195,7 +195,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_30;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_31 = __VLS_asFunctionalComponent1(__VLS_30, new __VLS_30({
@@ -220,7 +220,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_36;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_37 = __VLS_asFunctionalComponent1(__VLS_36, new __VLS_36({
@@ -245,7 +245,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_41;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_42 = __VLS_asFunctionalComponent1(__VLS_41, new __VLS_41({
@@ -270,7 +270,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_47;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_48 = __VLS_asFunctionalComponent1(__VLS_47, new __VLS_47({
@@ -295,7 +295,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_52;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_53 = __VLS_asFunctionalComponent1(__VLS_52, new __VLS_52({
@@ -320,7 +320,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_58;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_59 = __VLS_asFunctionalComponent1(__VLS_58, new __VLS_58({
@@ -345,7 +345,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_63;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_64 = __VLS_asFunctionalComponent1(__VLS_63, new __VLS_63({
@@ -370,7 +370,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_69;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_70 = __VLS_asFunctionalComponent1(__VLS_69, new __VLS_69({
@@ -395,7 +395,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['row']} */ ;
 let __VLS_74;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_75 = __VLS_asFunctionalComponent1(__VLS_74, new __VLS_74({
@@ -420,7 +420,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 let __VLS_80;
-/** @ts-ignore @type {typeof __VLS_components.Flatpickr} */
+/** @ts-ignore @type { | typeof __VLS_components.Flatpickr} */
 Flatpickr;
 // @ts-ignore
 const __VLS_81 = __VLS_asFunctionalComponent1(__VLS_80, new __VLS_80({

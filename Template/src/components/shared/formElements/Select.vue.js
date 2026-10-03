@@ -39,7 +39,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
+/** @ts-ignore @type { | typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
 OnClickOutside;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -49,12 +49,14 @@ const __VLS_2 = __VLS_1({
     ...{ 'onTrigger': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ trigger: {} },
-    { onTrigger: (...[$event]) => {
-            __VLS_ctx.showDropdown = false;
-            // @ts-ignore
-            [showDropdown,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.trigger} */
+    onTrigger: (...[$event]) => {
+        return (__VLS_ctx.showDropdown = false);
+        // @ts-ignore
+        [showDropdown,];
+    },
+};
 const { default: __VLS_7 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "smart-select" },
@@ -62,7 +64,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['smart-select']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleDropdown($event);
+            return (__VLS_ctx.toggleDropdown($event));
             // @ts-ignore
             [toggleDropdown,];
         } },
@@ -124,7 +126,7 @@ if (!__VLS_ctx.disableClearButton &&
     });
     /** @type {__VLS_StyleScopedClasses['clear-btn']} */ ;
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather} */
+    /** @ts-ignore @type { | typeof __VLS_components.vueFeather | typeof __VLS_components.VueFeather | typeof __VLS_components['vue-feather']} */
     vueFeather;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -142,8 +144,8 @@ if (__VLS_ctx.showDropdown) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
         ...{ onKeydown: (...[$event]) => {
                 if (!(__VLS_ctx.showDropdown))
-                    return;
-                __VLS_ctx.handleKeydown($event);
+                    throw 0;
+                return (__VLS_ctx.handleKeydown($event));
                 // @ts-ignore
                 [showDropdown, multiSelect, displaySelected, displaySelected, displaySelected, displaySelected, displaySelected, displaySelected, isPlaceholder, placeholder, disableClearButton, clear, handleKeydown,];
             } },
@@ -159,7 +161,9 @@ if (__VLS_ctx.showDropdown) {
     });
     /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
     for (const [option, index] of __VLS_vFor((__VLS_ctx.filteredOptions))) {
-        (index);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         if (option && option.data && Array.isArray(option.data) && props.showOptions) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                 ...{ class: "disabled" },
@@ -167,19 +171,21 @@ if (__VLS_ctx.showDropdown) {
             /** @type {__VLS_StyleScopedClasses['disabled']} */ ;
             (option[__VLS_ctx.displayKey]);
             for (const [child, childIndex] of __VLS_vFor((option.data))) {
+                __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+                    key: (childIndex),
+                });
                 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
                     ...{ onClick: (...[$event]) => {
                             if (!(__VLS_ctx.showDropdown))
-                                return;
+                                throw 0;
                             if (!(option && option.data && Array.isArray(option.data) && props.showOptions))
-                                return;
-                            __VLS_ctx.handleSelect(child);
+                                throw 0;
+                            return (__VLS_ctx.handleSelect(child));
                             // @ts-ignore
                             [search, filteredOptions, displayKey, handleSelect,];
                         } },
                     ...{ class: ({ selected: __VLS_ctx.isSelected(child) }) },
                     ref: ((el) => __VLS_ctx.setOptionRef(el, index)),
-                    key: (childIndex),
                 });
                 /** @type {__VLS_StyleScopedClasses['selected']} */ ;
                 (child[__VLS_ctx.displayKey]);
@@ -191,10 +197,10 @@ if (__VLS_ctx.showDropdown) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
                 ...{ onClick: (...[$event]) => {
                         if (!(__VLS_ctx.showDropdown))
-                            return;
+                            throw 0;
                         if (!!(option && option.data && Array.isArray(option.data) && props.showOptions))
-                            return;
-                        __VLS_ctx.handleSelect(option);
+                            throw 0;
+                        return (__VLS_ctx.handleSelect(option));
                         // @ts-ignore
                         [handleSelect,];
                     } },

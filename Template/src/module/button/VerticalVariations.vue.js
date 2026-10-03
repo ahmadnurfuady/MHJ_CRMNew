@@ -93,7 +93,9 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['btn-group-vertical']} */ ;
 for (const [index] of __VLS_vFor((3))) {
-    (index);
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
         ...{ class: "btn-check" },
         id: ('vbtn-radio' + index),

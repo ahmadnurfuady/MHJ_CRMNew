@@ -38,7 +38,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-3']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-3']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.ProjectDetailsTab} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectDetailsTab} */
 ProjectDetailsTab;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -48,12 +48,14 @@ const __VLS_2 = __VLS_1({
     ...{ 'onActiveTab': {} },
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ activeTab: {} },
-    { onActiveTab: (...[$event]) => {
-            __VLS_ctx.handleActiveTab($event);
-            // @ts-ignore
-            [handleActiveTab,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.activeTab} */
+    onActiveTab: (...[$event]) => {
+        return (__VLS_ctx.handleActiveTab($event));
+        // @ts-ignore
+        [handleActiveTab,];
+    },
+};
 var __VLS_3;
 var __VLS_4;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
@@ -72,7 +74,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.ProjectDetailsHeader} */
+/** @ts-ignore @type { | typeof __VLS_components.ProjectDetailsHeader} */
 ProjectDetailsHeader;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({}));
@@ -94,7 +96,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['active']} */ ;
 if (__VLS_ctx.activeTab === 'summary') {
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.ProjectSummary} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProjectSummary} */
     ProjectSummary;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({}));
@@ -102,7 +104,7 @@ if (__VLS_ctx.activeTab === 'summary') {
 }
 if (__VLS_ctx.activeTab === 'status') {
     let __VLS_17;
-    /** @ts-ignore @type {typeof __VLS_components.ProjectStatus} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProjectStatus} */
     ProjectStatus;
     // @ts-ignore
     const __VLS_18 = __VLS_asFunctionalComponent1(__VLS_17, new __VLS_17({}));
@@ -110,7 +112,7 @@ if (__VLS_ctx.activeTab === 'status') {
 }
 if (__VLS_ctx.activeTab === 'finance') {
     let __VLS_22;
-    /** @ts-ignore @type {typeof __VLS_components.ProjectFinance} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProjectFinance} */
     ProjectFinance;
     // @ts-ignore
     const __VLS_23 = __VLS_asFunctionalComponent1(__VLS_22, new __VLS_22({}));
@@ -118,7 +120,7 @@ if (__VLS_ctx.activeTab === 'finance') {
 }
 if (__VLS_ctx.activeTab === 'team') {
     let __VLS_27;
-    /** @ts-ignore @type {typeof __VLS_components.ProjectTeam} */
+    /** @ts-ignore @type { | typeof __VLS_components.ProjectTeam} */
     ProjectTeam;
     // @ts-ignore
     const __VLS_28 = __VLS_asFunctionalComponent1(__VLS_27, new __VLS_27({}));
@@ -126,7 +128,7 @@ if (__VLS_ctx.activeTab === 'team') {
 }
 if (__VLS_ctx.activeTab === 'attachment') {
     let __VLS_32;
-    /** @ts-ignore @type {typeof __VLS_components.Attachments} */
+    /** @ts-ignore @type { | typeof __VLS_components.Attachments} */
     Attachments;
     // @ts-ignore
     const __VLS_33 = __VLS_asFunctionalComponent1(__VLS_32, new __VLS_32({}));
@@ -134,7 +136,7 @@ if (__VLS_ctx.activeTab === 'attachment') {
 }
 if (__VLS_ctx.activeTab === 'activity') {
     let __VLS_37;
-    /** @ts-ignore @type {typeof __VLS_components.Activity} */
+    /** @ts-ignore @type { | typeof __VLS_components.Activity} */
     Activity;
     // @ts-ignore
     const __VLS_38 = __VLS_asFunctionalComponent1(__VLS_37, new __VLS_37({}));

@@ -62,7 +62,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
     ...{ onChange: (...[$event]) => {
-            __VLS_ctx.handleChange($event);
+            return (__VLS_ctx.handleChange($event));
             // @ts-ignore
             [handleChange,];
         } },

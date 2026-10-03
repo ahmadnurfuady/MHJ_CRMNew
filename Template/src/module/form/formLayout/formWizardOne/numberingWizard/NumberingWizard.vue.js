@@ -67,7 +67,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -84,7 +84,7 @@ const __VLS_2 = __VLS_1({
     cardClass: ('height-equal'),
     cardBodyClass: ('basic-wizard important-validation'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -101,6 +101,9 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['stepper-horizontal']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 for (const [tab, index] of __VLS_vFor((__VLS_ctx.numberingTabs))) {
+    __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+        key: (index),
+    });
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: ([
                 `stepper-${tab.class}`,
@@ -109,7 +112,6 @@ for (const [tab, index] of __VLS_vFor((__VLS_ctx.numberingTabs))) {
                         (__VLS_ctx.activeTab === __VLS_ctx.numberingTabs.length && tab.id === __VLS_ctx.numberingTabs.length),
                 },
             ]) },
-        key: (index),
     });
     /** @type {__VLS_StyleScopedClasses['active']} */ ;
     /** @type {__VLS_StyleScopedClasses['done']} */ ;
@@ -140,7 +142,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 if (__VLS_ctx.activeTab === 1) {
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.NumericWizardBasicInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.NumericWizardBasicInfo} */
     NumericWizardBasicInfo;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -154,7 +156,7 @@ if (__VLS_ctx.activeTab === 1) {
 }
 if (__VLS_ctx.activeTab === 2) {
     let __VLS_13;
-    /** @ts-ignore @type {typeof __VLS_components.NumericWizardCardInfo} */
+    /** @ts-ignore @type { | typeof __VLS_components.NumericWizardCardInfo} */
     NumericWizardCardInfo;
     // @ts-ignore
     const __VLS_14 = __VLS_asFunctionalComponent1(__VLS_13, new __VLS_13({
@@ -168,7 +170,7 @@ if (__VLS_ctx.activeTab === 2) {
 }
 if (__VLS_ctx.activeTab === 3) {
     let __VLS_18;
-    /** @ts-ignore @type {typeof __VLS_components.NumericWizardFeedback} */
+    /** @ts-ignore @type { | typeof __VLS_components.NumericWizardFeedback} */
     NumericWizardFeedback;
     // @ts-ignore
     const __VLS_19 = __VLS_asFunctionalComponent1(__VLS_18, new __VLS_18({
@@ -182,7 +184,7 @@ if (__VLS_ctx.activeTab === 3) {
 }
 if (__VLS_ctx.activeTab === 4) {
     let __VLS_23;
-    /** @ts-ignore @type {typeof __VLS_components.NumericWizardCompleted} */
+    /** @ts-ignore @type { | typeof __VLS_components.NumericWizardCompleted} */
     NumericWizardCompleted;
     // @ts-ignore
     const __VLS_24 = __VLS_asFunctionalComponent1(__VLS_23, new __VLS_23({}));
@@ -197,7 +199,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['justify-content-end']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(-1);
+            return (__VLS_ctx.handleStep(-1));
             // @ts-ignore
             [activeTab, activeTab, activeTab, activeTab, form, form, form, formSubmitted, formSubmitted, formSubmitted, handleStep,];
         } },
@@ -209,7 +211,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['button-light-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleStep(1);
+            return (__VLS_ctx.handleStep(1));
             // @ts-ignore
             [activeTab, handleStep,];
         } },

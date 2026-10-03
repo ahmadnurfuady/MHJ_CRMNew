@@ -33,7 +33,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.decrement(0);
+            return (__VLS_ctx.decrement(0));
             // @ts-ignore
             [decrement,];
         } },
@@ -65,7 +65,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.input)({
 });
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.increment(0);
+            return (__VLS_ctx.increment(0));
             // @ts-ignore
             [counter, increment,];
         } },
@@ -82,7 +82,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['input-group']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.decrement(1);
+            return (__VLS_ctx.decrement(1));
             // @ts-ignore
             [decrement,];
         } },
@@ -114,7 +114,7 @@ else {
 }
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.increment(1);
+            return (__VLS_ctx.increment(1));
             // @ts-ignore
             [counter, increment,];
         } },

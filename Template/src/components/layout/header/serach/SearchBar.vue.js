@@ -51,7 +51,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 });
 /** @type {__VLS_StyleScopedClasses['input-icon']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -78,7 +78,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['u-posRelative']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.SearchResult} */
+/** @ts-ignore @type { | typeof __VLS_components.SearchResult} */
 SearchResult;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -94,8 +94,10 @@ const __VLS_7 = __VLS_6({
     searchResultEmpty: (__VLS_ctx.searchResultEmpty),
 }, ...__VLS_functionalComponentArgsRest(__VLS_6));
 let __VLS_10;
-const __VLS_11 = ({ clearSearch: {} },
-    { onClearSearch: (__VLS_ctx.removeFix) });
+const __VLS_11 = {
+    /** @type {typeof __VLS_10.clearSearch} */
+    onClearSearch: (__VLS_ctx.removeFix),
+};
 var __VLS_8;
 var __VLS_9;
 // @ts-ignore

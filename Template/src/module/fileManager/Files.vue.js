@@ -16,7 +16,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -52,7 +52,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['top-menu']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openDialog('New File', 'file');
+            return (__VLS_ctx.openDialog('New File', 'file'));
             // @ts-ignore
             [openDialog,];
         } },
@@ -64,7 +64,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-file-circle-plus']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openDialog('New Folder', 'folder');
+            return (__VLS_ctx.openDialog('New Folder', 'folder'));
             // @ts-ignore
             [openDialog,];
         } },
@@ -76,7 +76,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-folder-open']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.openDialog('Rename', 'rename');
+            return (__VLS_ctx.openDialog('Rename', 'rename'));
             // @ts-ignore
             [openDialog,];
         } },
@@ -88,7 +88,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-pen-to-square']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.deleteModal();
+            return (__VLS_ctx.deleteModal());
             // @ts-ignore
             [deleteModal,];
         } },
@@ -108,7 +108,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['path-action-btns']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.navigate('back');
+            return (__VLS_ctx.navigate('back'));
             // @ts-ignore
             [navigate,];
         } },
@@ -122,7 +122,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-arrow-left']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.navigate('next');
+            return (__VLS_ctx.navigate('next'));
             // @ts-ignore
             [navigate, fileManagerState,];
         } },
@@ -136,7 +136,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.i, __VLS_intrinsics.i)({
 /** @type {__VLS_StyleScopedClasses['fa-arrow-right']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.goHome();
+            return (__VLS_ctx.goHome());
             // @ts-ignore
             [fileManagerState, goHome,];
         } },
@@ -176,15 +176,15 @@ if (__VLS_ctx.fileManagerState.visibleFiles.length) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ onDblclick: (...[$event]) => {
                     if (!(__VLS_ctx.fileManagerState.visibleFiles.length))
-                        return;
-                    file.type == 'folder' ? __VLS_ctx.openFolder(file.id) : '';
+                        throw 0;
+                    return (file.type == 'folder' ? __VLS_ctx.openFolder(file.id) : '');
                     // @ts-ignore
                     [fileManagerState, fileManagerState, fileManagerState, openFolder,];
                 } },
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.fileManagerState.visibleFiles.length))
-                        return;
-                    __VLS_ctx.select(file);
+                        throw 0;
+                    return (__VLS_ctx.select(file));
                     // @ts-ignore
                     [select,];
                 } },
@@ -202,10 +202,10 @@ if (__VLS_ctx.fileManagerState.visibleFiles.length) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                 ...{ onClick: (...[$event]) => {
                         if (!(__VLS_ctx.fileManagerState.visibleFiles.length))
-                            return;
+                            throw 0;
                         if (!(file.type == 'file'))
-                            return;
-                        __VLS_ctx.select(file);
+                            throw 0;
+                        return (__VLS_ctx.select(file));
                         // @ts-ignore
                         [fileManagerState, fileManagerState, select,];
                     } },
@@ -223,19 +223,19 @@ if (__VLS_ctx.fileManagerState.visibleFiles.length) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
                 ...{ onDblclick: (...[$event]) => {
                         if (!(__VLS_ctx.fileManagerState.visibleFiles.length))
-                            return;
+                            throw 0;
                         if (!(file.type == 'folder'))
-                            return;
-                        __VLS_ctx.openFolder(file.id);
+                            throw 0;
+                        return (__VLS_ctx.openFolder(file.id));
                         // @ts-ignore
                         [openFolder,];
                     } },
                 ...{ onClick: (...[$event]) => {
                         if (!(__VLS_ctx.fileManagerState.visibleFiles.length))
-                            return;
+                            throw 0;
                         if (!(file.type == 'folder'))
-                            return;
-                        __VLS_ctx.select(file);
+                            throw 0;
+                        return (__VLS_ctx.select(file));
                         // @ts-ignore
                         [select,];
                     } },
@@ -267,7 +267,7 @@ if (!__VLS_ctx.fileManagerState.visibleFiles.length) {
     });
     /** @type {__VLS_StyleScopedClasses['folderEmpty']} */ ;
     let __VLS_7;
-    /** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+    /** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
     SvgIcon;
     // @ts-ignore
     const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -285,7 +285,7 @@ if (!__VLS_ctx.fileManagerState.visibleFiles.length) {
 var __VLS_3;
 if (__VLS_ctx.fileManagerState.isModalOpen) {
     let __VLS_12;
-    /** @ts-ignore @type {typeof __VLS_components.FilesModal} */
+    /** @ts-ignore @type { | typeof __VLS_components.FilesModal} */
     FilesModal;
     // @ts-ignore
     const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -299,28 +299,32 @@ if (__VLS_ctx.fileManagerState.isModalOpen) {
         modalDetails: (__VLS_ctx.fileManagerState.modalDetails),
     }, ...__VLS_functionalComponentArgsRest(__VLS_13));
     let __VLS_17;
-    const __VLS_18 = ({ fileForm: {} },
-        { onFileForm: (...[$event]) => {
-                if (!(__VLS_ctx.fileManagerState.isModalOpen))
-                    return;
-                __VLS_ctx.handleForm($event);
-                // @ts-ignore
-                [fileManagerState, fileManagerState, handleForm,];
-            } });
-    const __VLS_19 = ({ closeModal: {} },
-        { onCloseModal: (...[$event]) => {
-                if (!(__VLS_ctx.fileManagerState.isModalOpen))
-                    return;
-                __VLS_ctx.closeModal($event);
-                // @ts-ignore
-                [closeModal,];
-            } });
+    const __VLS_18 = {
+        /** @type {typeof __VLS_17.fileForm} */
+        onFileForm: (...[$event]) => {
+            if (!(__VLS_ctx.fileManagerState.isModalOpen))
+                throw 0;
+            return (__VLS_ctx.handleForm($event));
+            // @ts-ignore
+            [fileManagerState, fileManagerState, handleForm,];
+        },
+    };
+    const __VLS_19 = {
+        /** @type {typeof __VLS_17.closeModal} */
+        onCloseModal: (...[$event]) => {
+            if (!(__VLS_ctx.fileManagerState.isModalOpen))
+                throw 0;
+            return (__VLS_ctx.closeModal($event));
+            // @ts-ignore
+            [closeModal,];
+        },
+    };
     var __VLS_15;
     var __VLS_16;
 }
 if (__VLS_ctx.fileManagerState.deleteModalOpen) {
     let __VLS_20;
-    /** @ts-ignore @type {typeof __VLS_components.DeleteFileModal} */
+    /** @ts-ignore @type { | typeof __VLS_components.DeleteFileModal} */
     DeleteFileModal;
     // @ts-ignore
     const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -334,22 +338,26 @@ if (__VLS_ctx.fileManagerState.deleteModalOpen) {
         modalOpen: (__VLS_ctx.fileManagerState.deleteModalOpen),
     }, ...__VLS_functionalComponentArgsRest(__VLS_21));
     let __VLS_25;
-    const __VLS_26 = ({ delete: {} },
-        { onDelete: (...[$event]) => {
-                if (!(__VLS_ctx.fileManagerState.deleteModalOpen))
-                    return;
-                __VLS_ctx.remove($event);
-                // @ts-ignore
-                [fileManagerState, fileManagerState, remove,];
-            } });
-    const __VLS_27 = ({ closeModal: {} },
-        { onCloseModal: (...[$event]) => {
-                if (!(__VLS_ctx.fileManagerState.deleteModalOpen))
-                    return;
-                __VLS_ctx.fileManagerState.deleteModalOpen = false;
-                // @ts-ignore
-                [fileManagerState,];
-            } });
+    const __VLS_26 = {
+        /** @type {typeof __VLS_25.delete} */
+        onDelete: (...[$event]) => {
+            if (!(__VLS_ctx.fileManagerState.deleteModalOpen))
+                throw 0;
+            return (__VLS_ctx.remove($event));
+            // @ts-ignore
+            [fileManagerState, fileManagerState, remove,];
+        },
+    };
+    const __VLS_27 = {
+        /** @type {typeof __VLS_25.closeModal} */
+        onCloseModal: (...[$event]) => {
+            if (!(__VLS_ctx.fileManagerState.deleteModalOpen))
+                throw 0;
+            return (__VLS_ctx.fileManagerState.deleteModalOpen = false);
+            // @ts-ignore
+            [fileManagerState,];
+        },
+    };
     var __VLS_23;
     var __VLS_24;
 }

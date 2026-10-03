@@ -26,7 +26,7 @@ let __VLS_intrinsics;
 let __VLS_directives;
 if (props.dropdownType == 'simple') {
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
+    /** @ts-ignore @type { | typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
     OnClickOutside;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -36,14 +36,16 @@ if (props.dropdownType == 'simple') {
         ...{ 'onTrigger': {} },
     }, ...__VLS_functionalComponentArgsRest(__VLS_1));
     let __VLS_5;
-    const __VLS_6 = ({ trigger: {} },
-        { onTrigger: (...[$event]) => {
-                if (!(props.dropdownType == 'simple'))
-                    return;
-                __VLS_ctx.show = false;
-                // @ts-ignore
-                [show,];
-            } });
+    const __VLS_6 = {
+        /** @type {typeof __VLS_5.trigger} */
+        onTrigger: (...[$event]) => {
+            if (!(props.dropdownType == 'simple'))
+                throw 0;
+            return (__VLS_ctx.show = false);
+            // @ts-ignore
+            [show,];
+        },
+    };
     const { default: __VLS_7 } = __VLS_3.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "dropdown icon-dropdown" },
@@ -53,8 +55,8 @@ if (props.dropdownType == 'simple') {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(props.dropdownType == 'simple'))
-                    return;
-                __VLS_ctx.openDropdown();
+                    throw 0;
+                return (__VLS_ctx.openDropdown());
                 // @ts-ignore
                 [openDropdown,];
             } },
@@ -75,17 +77,19 @@ if (props.dropdownType == 'simple') {
     /** @type {__VLS_StyleScopedClasses['dropdown-menu-end']} */ ;
     /** @type {__VLS_StyleScopedClasses['show']} */ ;
     for (const [option, index] of __VLS_vFor((props.options))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(props.dropdownType == 'simple'))
-                        return;
-                    __VLS_ctx.selectItem(option.title);
+                        throw 0;
+                    return (__VLS_ctx.selectItem(option.title));
                     // @ts-ignore
                     [show, selectItem,];
                 } },
             ...{ class: "dropdown-item" },
             href: "#",
-            key: (index),
         });
         /** @type {__VLS_StyleScopedClasses['dropdown-item']} */ ;
         (option.title);
@@ -99,7 +103,7 @@ if (props.dropdownType == 'simple') {
 }
 if (props.dropdownType == 'classic') {
     let __VLS_8;
-    /** @ts-ignore @type {typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
+    /** @ts-ignore @type { | typeof __VLS_components.OnClickOutside | typeof __VLS_components.OnClickOutside} */
     OnClickOutside;
     // @ts-ignore
     const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -109,14 +113,16 @@ if (props.dropdownType == 'classic') {
         ...{ 'onTrigger': {} },
     }, ...__VLS_functionalComponentArgsRest(__VLS_9));
     let __VLS_13;
-    const __VLS_14 = ({ trigger: {} },
-        { onTrigger: (...[$event]) => {
-                if (!(props.dropdownType == 'classic'))
-                    return;
-                __VLS_ctx.show = false;
-                // @ts-ignore
-                [show,];
-            } });
+    const __VLS_14 = {
+        /** @type {typeof __VLS_13.trigger} */
+        onTrigger: (...[$event]) => {
+            if (!(props.dropdownType == 'classic'))
+                throw 0;
+            return (__VLS_ctx.show = false);
+            // @ts-ignore
+            [show,];
+        },
+    };
     const { default: __VLS_15 } = __VLS_11.slots;
     __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
         ...{ class: "dropdown" },
@@ -126,8 +132,8 @@ if (props.dropdownType == 'classic') {
     __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
         ...{ onClick: (...[$event]) => {
                 if (!(props.dropdownType == 'classic'))
-                    return;
-                __VLS_ctx.openDropdown();
+                    throw 0;
+                return (__VLS_ctx.openDropdown());
                 // @ts-ignore
                 [openDropdown,];
             } },
@@ -144,15 +150,17 @@ if (props.dropdownType == 'classic') {
     /** @type {__VLS_StyleScopedClasses['dropdown-menu']} */ ;
     /** @type {__VLS_StyleScopedClasses['show']} */ ;
     for (const [option, index] of __VLS_vFor((props.options))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (index),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ onClick: (...[$event]) => {
                     if (!(props.dropdownType == 'classic'))
-                        return;
-                    __VLS_ctx.selectItem(option.title);
+                        throw 0;
+                    return (__VLS_ctx.selectItem(option.title));
                     // @ts-ignore
                     [show, selectItem, selectedItem,];
                 } },
-            key: (index),
         });
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ class: "dropdown-item" },

@@ -26,7 +26,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.AnimatedTimeline} */
+/** @ts-ignore @type { | typeof __VLS_components.AnimatedTimeline} */
 AnimatedTimeline;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -39,7 +39,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['notification']} */ ;
 /** @type {__VLS_StyleScopedClasses['main-timeline']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.BasicTimeline} */
+/** @ts-ignore @type { | typeof __VLS_components.BasicTimeline} */
 BasicTimeline;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -49,7 +49,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-xl-6']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.HoveringTimeline} */
+/** @ts-ignore @type { | typeof __VLS_components.HoveringTimeline} */
 HoveringTimeline;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -62,7 +62,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['notification']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.VariationTimeline} */
+/** @ts-ignore @type { | typeof __VLS_components.VariationTimeline} */
 VariationTimeline;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));
@@ -74,7 +74,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-xl-7']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.HorizontalTimeline} */
+/** @ts-ignore @type { | typeof __VLS_components.HorizontalTimeline} */
 HorizontalTimeline;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({}));
@@ -85,7 +85,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['col-sm-12']} */ ;
 /** @type {__VLS_StyleScopedClasses['box-col-12']} */ ;
 let __VLS_25;
-/** @ts-ignore @type {typeof __VLS_components.HalfRoundedTimeline} */
+/** @ts-ignore @type { | typeof __VLS_components.HalfRoundedTimeline} */
 HalfRoundedTimeline;
 // @ts-ignore
 const __VLS_26 = __VLS_asFunctionalComponent1(__VLS_25, new __VLS_25({}));

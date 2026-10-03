@@ -40,7 +40,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.h6, __VLS_intrinsics.h6)({
 /** @type {__VLS_StyleScopedClasses['mb-sm-3']} */ ;
 /** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.GroupItem} */
+/** @ts-ignore @type { | typeof __VLS_components.GroupItem} */
 GroupItem;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

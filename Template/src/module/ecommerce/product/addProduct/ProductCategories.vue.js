@@ -57,7 +57,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-md']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.InputWrapper | typeof __VLS_components.InputWrapper} */
 InputWrapper;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -68,7 +68,7 @@ const __VLS_2 = __VLS_1({
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 const { default: __VLS_5 } = __VLS_3.slots;
 let __VLS_6;
-/** @ts-ignore @type {typeof __VLS_components.Select} */
+/** @ts-ignore @type { | typeof __VLS_components.Select} */
 Select;
 // @ts-ignore
 const __VLS_7 = __VLS_asFunctionalComponent1(__VLS_6, new __VLS_6({
@@ -98,7 +98,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['category-btn']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.createCategoryModal();
+            return (__VLS_ctx.createCategoryModal());
             // @ts-ignore
             [createCategoryModal,];
         } },
@@ -123,7 +123,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
 });
 /** @type {__VLS_StyleScopedClasses['form-label']} */ ;
 let __VLS_11;
-/** @ts-ignore @type {typeof __VLS_components.TagInput} */
+/** @ts-ignore @type { | typeof __VLS_components.TagInput} */
 TagInput;
 // @ts-ignore
 const __VLS_12 = __VLS_asFunctionalComponent1(__VLS_11, new __VLS_11({
@@ -138,7 +138,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['product-buttons']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleTab(-1);
+            return (__VLS_ctx.handleTab(-1));
             // @ts-ignore
             [items, handleTab,];
         } },
@@ -147,7 +147,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 });
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 let __VLS_16;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_17 = __VLS_asFunctionalComponent1(__VLS_16, new __VLS_16({
@@ -158,7 +158,7 @@ const __VLS_18 = __VLS_17({
 }, ...__VLS_functionalComponentArgsRest(__VLS_17));
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.handleTab(1);
+            return (__VLS_ctx.handleTab(1));
             // @ts-ignore
             [handleTab,];
         } },
@@ -167,7 +167,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 });
 /** @type {__VLS_StyleScopedClasses['btn']} */ ;
 let __VLS_21;
-/** @ts-ignore @type {typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
+/** @ts-ignore @type { | typeof __VLS_components.SvgIcon | typeof __VLS_components.SvgIcon} */
 SvgIcon;
 // @ts-ignore
 const __VLS_22 = __VLS_asFunctionalComponent1(__VLS_21, new __VLS_21({
@@ -177,7 +177,7 @@ const __VLS_23 = __VLS_22({
     icon: ('front-arrow'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_22));
 let __VLS_26;
-/** @ts-ignore @type {typeof __VLS_components.CreateCategoryModal} */
+/** @ts-ignore @type { | typeof __VLS_components.CreateCategoryModal} */
 CreateCategoryModal;
 // @ts-ignore
 const __VLS_27 = __VLS_asFunctionalComponent1(__VLS_26, new __VLS_26({
@@ -189,12 +189,14 @@ const __VLS_28 = __VLS_27({
     modalOpen: (__VLS_ctx.openCategoryModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_27));
 let __VLS_31;
-const __VLS_32 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.openCategoryModal = false;
-            // @ts-ignore
-            [openCategoryModal, openCategoryModal,];
-        } });
+const __VLS_32 = {
+    /** @type {typeof __VLS_31.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.openCategoryModal = false);
+        // @ts-ignore
+        [openCategoryModal, openCategoryModal,];
+    },
+};
 var __VLS_29;
 var __VLS_30;
 // @ts-ignore

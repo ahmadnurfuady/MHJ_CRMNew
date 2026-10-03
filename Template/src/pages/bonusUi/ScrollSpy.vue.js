@@ -24,7 +24,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.NavbarScrollspy} */
+/** @ts-ignore @type { | typeof __VLS_components.NavbarScrollspy} */
 NavbarScrollspy;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -34,7 +34,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.NestedScrollspy} */
+/** @ts-ignore @type { | typeof __VLS_components.NestedScrollspy} */
 NestedScrollspy;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({}));
@@ -44,7 +44,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.ListGroupScrollspy} */
+/** @ts-ignore @type { | typeof __VLS_components.ListGroupScrollspy} */
 ListGroupScrollspy;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({}));
@@ -54,7 +54,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.CustomScrollspy} */
+/** @ts-ignore @type { | typeof __VLS_components.CustomScrollspy} */
 CustomScrollspy;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({}));

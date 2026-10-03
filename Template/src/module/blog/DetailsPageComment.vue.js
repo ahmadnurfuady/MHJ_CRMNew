@@ -19,9 +19,11 @@ if (props.comments) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.hr)({});
     __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({});
     for (const [comment] of __VLS_vFor((__VLS_ctx.comments))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (comment.id),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
             ...{ class: (comment.reply ? 'is-reply' : 'is-sent') },
-            key: (comment.id),
         });
         __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
             ...{ class: (`media d-flex ${comment.comments == 598 ? 'align-self-center' : ''}`) },

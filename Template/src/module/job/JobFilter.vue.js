@@ -18,7 +18,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['md-sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.toggleSidebar();
+            return (__VLS_ctx.toggleSidebar());
             // @ts-ignore
             [toggleSidebar,];
         } },
@@ -105,7 +105,7 @@ for (const [items] of __VLS_vFor((__VLS_ctx.sidebarDetails))) {
         });
         /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
         let __VLS_0;
-        /** @ts-ignore @type {typeof __VLS_components.FeatherIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.FeatherIcon} */
         FeatherIcon;
         // @ts-ignore
         const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -135,7 +135,7 @@ for (const [items] of __VLS_vFor((__VLS_ctx.sidebarDetails))) {
         });
         /** @type {__VLS_StyleScopedClasses['form-control']} */ ;
         let __VLS_5;
-        /** @ts-ignore @type {typeof __VLS_components.FeatherIcon} */
+        /** @ts-ignore @type { | typeof __VLS_components.FeatherIcon} */
         FeatherIcon;
         // @ts-ignore
         const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -152,10 +152,12 @@ for (const [items] of __VLS_vFor((__VLS_ctx.sidebarDetails))) {
         ...{ class: (items.class) },
     });
     for (const [item] of __VLS_vFor((items.details))) {
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (item.id),
+        });
         __VLS_asFunctionalElement1(__VLS_intrinsics.label, __VLS_intrinsics.label)({
             ...{ class: "d-block" },
             for: (item.checkId),
-            key: (item.id),
         });
         /** @type {__VLS_StyleScopedClasses['d-block']} */ ;
         __VLS_asFunctionalElement1(__VLS_intrinsics.input)({

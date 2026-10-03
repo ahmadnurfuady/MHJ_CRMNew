@@ -305,7 +305,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['counter']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.ProfilePost} */
+/** @ts-ignore @type { | typeof __VLS_components.ProfilePost} */
 ProfilePost;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -315,7 +315,7 @@ const __VLS_2 = __VLS_1({
     tour: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.ProfilePost2} */
+/** @ts-ignore @type { | typeof __VLS_components.ProfilePost2} */
 ProfilePost2;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -325,7 +325,7 @@ const __VLS_7 = __VLS_6({
     tour: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_6));
 let __VLS_10;
-/** @ts-ignore @type {typeof __VLS_components.ProfilePost3} */
+/** @ts-ignore @type { | typeof __VLS_components.ProfilePost3} */
 ProfilePost3;
 // @ts-ignore
 const __VLS_11 = __VLS_asFunctionalComponent1(__VLS_10, new __VLS_10({
@@ -335,7 +335,7 @@ const __VLS_12 = __VLS_11({
     tour: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_11));
 let __VLS_15;
-/** @ts-ignore @type {typeof __VLS_components.ProfilePost4} */
+/** @ts-ignore @type { | typeof __VLS_components.ProfilePost4} */
 ProfilePost4;
 // @ts-ignore
 const __VLS_16 = __VLS_asFunctionalComponent1(__VLS_15, new __VLS_15({
@@ -345,7 +345,7 @@ const __VLS_17 = __VLS_16({
     tour: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_16));
 let __VLS_20;
-/** @ts-ignore @type {typeof __VLS_components.VOnboardingWrapper} */
+/** @ts-ignore @type { | typeof __VLS_components.VOnboardingWrapper} */
 VOnboardingWrapper;
 // @ts-ignore
 const __VLS_21 = __VLS_asFunctionalComponent1(__VLS_20, new __VLS_20({
@@ -358,7 +358,7 @@ const __VLS_22 = __VLS_21({
     steps: (__VLS_ctx.steps),
     ...{ class: "tour-visit" },
 }, ...__VLS_functionalComponentArgsRest(__VLS_21));
-var __VLS_25 = {};
+var __VLS_25;
 /** @type {__VLS_StyleScopedClasses['tour-visit']} */ ;
 var __VLS_23;
 // @ts-ignore

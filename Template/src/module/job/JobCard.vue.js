@@ -85,7 +85,7 @@ if (props.details) {
     });
     /** @type {__VLS_StyleScopedClasses['ps-sm-1']} */ ;
     let __VLS_0;
-    /** @ts-ignore @type {typeof __VLS_components.Rate} */
+    /** @ts-ignore @type { | typeof __VLS_components.Rate} */
     Rate;
     // @ts-ignore
     const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({

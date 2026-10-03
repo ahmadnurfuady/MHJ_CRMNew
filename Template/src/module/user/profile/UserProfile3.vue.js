@@ -172,7 +172,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['ms-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['counter']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.number | typeof __VLS_components.Number} */
+/** @ts-ignore @type { | typeof __VLS_components.number | typeof __VLS_components.Number} */
 number;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -193,7 +193,7 @@ const __VLS_2 = __VLS_1({
     delay: (0),
     easing: "Power1.easeOut",
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 /** @type {__VLS_StyleScopedClasses['counter']} */ ;
 /** @type {__VLS_StyleScopedClasses['follow-num']} */ ;
 var __VLS_3;
@@ -219,7 +219,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['ms-2']} */ ;
 /** @type {__VLS_StyleScopedClasses['counter']} */ ;
 let __VLS_7;
-/** @ts-ignore @type {typeof __VLS_components.number | typeof __VLS_components.Number} */
+/** @ts-ignore @type { | typeof __VLS_components.number | typeof __VLS_components.Number} */
 number;
 // @ts-ignore
 const __VLS_8 = __VLS_asFunctionalComponent1(__VLS_7, new __VLS_7({
@@ -240,7 +240,7 @@ const __VLS_9 = __VLS_8({
     delay: (0),
     easing: "Power1.easeOut",
 }, ...__VLS_functionalComponentArgsRest(__VLS_8));
-var __VLS_12 = {};
+var __VLS_12;
 /** @type {__VLS_StyleScopedClasses['counter']} */ ;
 /** @type {__VLS_StyleScopedClasses['follow-num']} */ ;
 var __VLS_10;

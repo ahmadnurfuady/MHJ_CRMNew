@@ -72,7 +72,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 });
 /** @type {__VLS_StyleScopedClasses['col-12']} */ ;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.CategoryFilter} */
+/** @ts-ignore @type { | typeof __VLS_components.CategoryFilter} */
 CategoryFilter;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({}));
@@ -97,7 +97,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['card-header-right-icon']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.createCategoryModal();
+            return (__VLS_ctx.createCategoryModal());
             // @ts-ignore
             [createCategoryModal,];
         } },
@@ -131,7 +131,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
 /** @type {__VLS_StyleScopedClasses['table-responsive']} */ ;
 /** @type {__VLS_StyleScopedClasses['custom-scrollbar']} */ ;
 let __VLS_5;
-/** @ts-ignore @type {typeof __VLS_components.Table | typeof __VLS_components.Table} */
+/** @ts-ignore @type { | typeof __VLS_components.Table | typeof __VLS_components.Table} */
 Table;
 // @ts-ignore
 const __VLS_6 = __VLS_asFunctionalComponent1(__VLS_5, new __VLS_5({
@@ -151,16 +151,18 @@ const __VLS_7 = __VLS_6({
     showPaginate: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_6));
 let __VLS_10;
-const __VLS_11 = ({ action: {} },
-    { onAction: (...[$event]) => {
-            __VLS_ctx.handleAction($event);
-            // @ts-ignore
-            [tableConfig, handleAction,];
-        } });
+const __VLS_11 = {
+    /** @type {typeof __VLS_10.action} */
+    onAction: (...[$event]) => {
+        return (__VLS_ctx.handleAction($event));
+        // @ts-ignore
+        [tableConfig, handleAction,];
+    },
+};
 var __VLS_8;
 var __VLS_9;
 let __VLS_12;
-/** @ts-ignore @type {typeof __VLS_components.CreateCategoryModal} */
+/** @ts-ignore @type { | typeof __VLS_components.CreateCategoryModal} */
 CreateCategoryModal;
 // @ts-ignore
 const __VLS_13 = __VLS_asFunctionalComponent1(__VLS_12, new __VLS_12({
@@ -172,12 +174,14 @@ const __VLS_14 = __VLS_13({
     modalOpen: (__VLS_ctx.openCategoryModal),
 }, ...__VLS_functionalComponentArgsRest(__VLS_13));
 let __VLS_17;
-const __VLS_18 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.openCategoryModal = false;
-            // @ts-ignore
-            [openCategoryModal, openCategoryModal,];
-        } });
+const __VLS_18 = {
+    /** @type {typeof __VLS_17.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.openCategoryModal = false);
+        // @ts-ignore
+        [openCategoryModal, openCategoryModal,];
+    },
+};
 var __VLS_15;
 var __VLS_16;
 // @ts-ignore

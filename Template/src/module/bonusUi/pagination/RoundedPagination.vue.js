@@ -14,7 +14,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Card | typeof __VLS_components.Card} */
+/** @ts-ignore @type { | typeof __VLS_components.Card | typeof __VLS_components.Card} */
 Card;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -29,7 +29,7 @@ const __VLS_2 = __VLS_1({
     padding: (false),
     cardClass: ('height-equal'),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-var __VLS_5 = {};
+var __VLS_5;
 const { default: __VLS_6 } = __VLS_3.slots;
 {
     const { header5: __VLS_7 } = __VLS_3.slots;
@@ -57,8 +57,8 @@ if (__VLS_ctx.pagination) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.pagination))
-                    return;
-                __VLS_ctx.handlePage(-1);
+                    throw 0;
+                return (__VLS_ctx.handlePage(-1));
                 // @ts-ignore
                 [pagination, handlePage,];
             } },
@@ -80,10 +80,10 @@ if (__VLS_ctx.pagination) {
         __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
             ...{ onClick: (...[$event]) => {
                     if (!(__VLS_ctx.pagination))
-                        return;
+                        throw 0;
                     if (!(__VLS_ctx.currentPage >= 4))
-                        return;
-                    __VLS_ctx.setPage(1);
+                        throw 0;
+                    return (__VLS_ctx.setPage(1));
                     // @ts-ignore
                     [currentPage, currentPage, setPage,];
                 } },
@@ -107,7 +107,9 @@ if (__VLS_ctx.pagination) {
         /** @type {__VLS_StyleScopedClasses['rounded-circle']} */ ;
     }
     for (const [page] of __VLS_vFor((__VLS_ctx.pagination.pages))) {
-        (page);
+        __VLS_asFunctionalElement1(__VLS_intrinsics.template)({
+            key: (page),
+        });
         if (page !== __VLS_ctx.pagination.totalItems) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
                 ...{ class: "page-item" },
@@ -116,10 +118,10 @@ if (__VLS_ctx.pagination) {
             __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
                 ...{ onClick: (...[$event]) => {
                         if (!(__VLS_ctx.pagination))
-                            return;
+                            throw 0;
                         if (!(page !== __VLS_ctx.pagination.totalItems))
-                            return;
-                        __VLS_ctx.setPage(page);
+                            throw 0;
+                        return (__VLS_ctx.setPage(page));
                         // @ts-ignore
                         [pagination, pagination, currentPage, setPage,];
                     } },
@@ -153,8 +155,8 @@ if (__VLS_ctx.pagination) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.pagination))
-                    return;
-                __VLS_ctx.setPage(__VLS_ctx.pagination.totalItems);
+                    throw 0;
+                return (__VLS_ctx.setPage(__VLS_ctx.pagination.totalItems));
                 // @ts-ignore
                 [pagination, pagination, currentPage, setPage,];
             } },
@@ -171,8 +173,8 @@ if (__VLS_ctx.pagination) {
     __VLS_asFunctionalElement1(__VLS_intrinsics.a, __VLS_intrinsics.a)({
         ...{ onClick: (...[$event]) => {
                 if (!(__VLS_ctx.pagination))
-                    return;
-                __VLS_ctx.handlePage(1);
+                    throw 0;
+                return (__VLS_ctx.handlePage(1));
                 // @ts-ignore
                 [pagination, handlePage,];
             } },

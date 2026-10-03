@@ -25,7 +25,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.ul, __VLS_intrinsics.ul)({
 /** @type {__VLS_StyleScopedClasses['layout-grid']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeLayoutType('ltr');
+            return (__VLS_ctx.customizeLayoutType('ltr'));
             // @ts-ignore
             [customizeLayoutType,];
         } },
@@ -64,7 +64,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({
 /** @type {__VLS_StyleScopedClasses['badge-primary']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeLayoutType('rtl');
+            return (__VLS_ctx.customizeLayoutType('rtl'));
             // @ts-ignore
             [customizeLayoutType, layoutType,];
         } },
@@ -103,7 +103,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
 /** @type {__VLS_StyleScopedClasses['sidebar']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.li, __VLS_intrinsics.li)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.customizeLayoutType('box-layout');
+            return (__VLS_ctx.customizeLayoutType('box-layout'));
             // @ts-ignore
             [customizeLayoutType, layoutType,];
         } },

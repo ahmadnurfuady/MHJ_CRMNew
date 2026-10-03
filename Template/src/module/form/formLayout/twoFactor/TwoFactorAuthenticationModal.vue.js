@@ -22,7 +22,7 @@ let __VLS_components;
 let __VLS_intrinsics;
 let __VLS_directives;
 let __VLS_0;
-/** @ts-ignore @type {typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
+/** @ts-ignore @type { | typeof __VLS_components.Modal | typeof __VLS_components.Modal} */
 Modal;
 // @ts-ignore
 const __VLS_1 = __VLS_asFunctionalComponent1(__VLS_0, new __VLS_0({
@@ -38,12 +38,14 @@ const __VLS_2 = __VLS_1({
     modalCentered: (true),
 }, ...__VLS_functionalComponentArgsRest(__VLS_1));
 let __VLS_5;
-const __VLS_6 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.closeModal();
-            // @ts-ignore
-            [closeModal,];
-        } });
+const __VLS_6 = {
+    /** @type {typeof __VLS_5.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.closeModal());
+        // @ts-ignore
+        [closeModal,];
+    },
+};
 const { default: __VLS_7 } = __VLS_3.slots;
 __VLS_asFunctionalElement1(__VLS_intrinsics.div, __VLS_intrinsics.div)({
     ...{ class: "modal-body" },
@@ -127,7 +129,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.span, __VLS_intrinsics.span)({});
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.next();
+            return (__VLS_ctx.next());
             // @ts-ignore
             [next,];
         } },
@@ -140,7 +142,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 /** @type {__VLS_StyleScopedClasses['mt-3']} */ ;
 __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
     ...{ onClick: (...[$event]) => {
-            __VLS_ctx.closeModal();
+            return (__VLS_ctx.closeModal());
             // @ts-ignore
             [closeModal,];
         } },
@@ -157,7 +159,7 @@ __VLS_asFunctionalElement1(__VLS_intrinsics.button, __VLS_intrinsics.button)({
 var __VLS_3;
 var __VLS_4;
 let __VLS_8;
-/** @ts-ignore @type {typeof __VLS_components.QRCodeModal} */
+/** @ts-ignore @type { | typeof __VLS_components.QRCodeModal} */
 QRCodeModal;
 // @ts-ignore
 const __VLS_9 = __VLS_asFunctionalComponent1(__VLS_8, new __VLS_8({
@@ -169,12 +171,14 @@ const __VLS_10 = __VLS_9({
     modalOpen: (__VLS_ctx.qrCodeModalOpen),
 }, ...__VLS_functionalComponentArgsRest(__VLS_9));
 let __VLS_13;
-const __VLS_14 = ({ closeModal: {} },
-    { onCloseModal: (...[$event]) => {
-            __VLS_ctx.qrCodeModalOpen = false;
-            // @ts-ignore
-            [qrCodeModalOpen, qrCodeModalOpen,];
-        } });
+const __VLS_14 = {
+    /** @type {typeof __VLS_13.closeModal} */
+    onCloseModal: (...[$event]) => {
+        return (__VLS_ctx.qrCodeModalOpen = false);
+        // @ts-ignore
+        [qrCodeModalOpen, qrCodeModalOpen,];
+    },
+};
 var __VLS_11;
 var __VLS_12;
 // @ts-ignore
