@@ -701,15 +701,15 @@ export const radialBarChartOptions: ApexOptions = {
               value: {
                 offsetY: 4,
               },
-              barLabels: {
-                enabled: true,
-                useSeriesColors: false,
-                fontSize: '12px',
-                formatter: function (seriesName: string, opts?: { seriesIndex: number; w: { globals: { series: number[] } } }) {
-                  return (
-                    seriesName + ':  ' + (opts?.w?.globals?.series?.[opts?.seriesIndex] ?? '')
-                  )
-                },
+            },
+            barLabels: {
+              enabled: true,
+              useSeriesColors: false,
+              fontSize: '12px',
+              formatter: function (seriesName: string, opts?: { seriesIndex: number; w: { globals: { series: number[] } } }) {
+                return (
+                  seriesName + ':  ' + (opts?.w?.globals?.series?.[opts?.seriesIndex] ?? '')
+                )
               },
             },
           },

@@ -1,4 +1,5 @@
 import { CardToggleOption, Color, SelectField } from '@/types/common'
+import { getStoredAppearance } from '@/config/appearance'
 
 export const dayFilterOptions: CardToggleOption[] = [
   {
@@ -159,8 +160,10 @@ export const classLevelFilterOptions: CardToggleOption[] = [
   },
 ]
 
-export const primaryColor: string = localStorage.getItem('primary_color') || '#18A6E4'
-export const secondaryColor: string = localStorage.getItem('secondary_color') || '#84D7EB'
+const storedAppearance = getStoredAppearance()
+
+export const primaryColor: string = storedAppearance.primaryColor
+export const secondaryColor: string = storedAppearance.secondaryColor
 export const successColor: string = '#0284C7'
 export const warningColor: string = '#F59E0B'
 

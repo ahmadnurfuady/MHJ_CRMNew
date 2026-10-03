@@ -1,3 +1,4 @@
+import { getStoredAppearance } from '@/config/appearance';
 export const dayFilterOptions = [
     {
         id: 1,
@@ -148,8 +149,9 @@ export const classLevelFilterOptions = [
         title: 'Class 12',
     },
 ];
-export const primaryColor = localStorage.getItem('primary_color') || '#18A6E4';
-export const secondaryColor = localStorage.getItem('secondary_color') || '#84D7EB';
+const storedAppearance = getStoredAppearance();
+export const primaryColor = storedAppearance.primaryColor;
+export const secondaryColor = storedAppearance.secondaryColor;
 export const successColor = '#0284C7';
 export const warningColor = '#F59E0B';
 export function initInputField() {

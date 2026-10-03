@@ -8,8 +8,11 @@ import {
   OrderStatusChartDetails,
 } from '@/types/widgets/chart'
 
-const primary = localStorage.getItem('primary_color') || '#18A6E4'
-const secondary = localStorage.getItem('secondary_color') || '#84D7EB'
+import { getStoredAppearance } from '@/config/appearance'
+
+const storedAppearance = getStoredAppearance()
+const primary = storedAppearance.primaryColor
+const secondary = storedAppearance.secondaryColor
 
 const trigoStrength = 3
 

@@ -4,25 +4,41 @@
   Tokens live in utils/_variables.scss (SCSS) and :root in style.scss (CSS vars).
 ==========================**/
 
+// Runtime appearance aliases. They only affect this final override layer;
+// legacy Sass variables remain available as compile-time fallbacks.
+$color-brand-primary: var(--app-primary);
+$color-brand-primary-hover: var(--app-primary-hover);
+$color-brand-primary-dark: var(--app-primary-dark);
+$color-brand-soft: var(--app-primary-soft);
+$color-brand-soft-light: var(--app-primary-soft-light);
+$color-brand-secondary: var(--app-secondary);
+$color-brand-sky-strong: var(--app-primary-strong);
+$color-brand-sky-deep: var(--app-primary-deep);
+$color-brand-sky-border: var(--app-primary-border);
+$color-brand-sky-wash: var(--app-primary-wash);
+$color-surface-sidebar: var(--app-primary);
+$font-Montserrat: var(--app-font-family);
+$shadow-soft: var(--shadow-soft);
+
 $mhj-light: 'body:not(.dark-only)';
 $mhj-blue-sidebar: 'body:not(.dark-only):not(.dark-sidebar)';
 
 // Bootstrap 5 runtime variables, so plain Bootstrap utilities follow the palette too
 :root {
   --bs-primary: #{$color-brand-primary};
-  --bs-primary-rgb: 24, 166, 228;
+  --bs-primary-rgb: var(--app-primary-rgb);
   --bs-success: #{$color-brand-sky-strong};
-  --bs-success-rgb: 2, 132, 199;
+  --bs-success-rgb: var(--app-primary-strong-rgb);
   --bs-info: #{$color-brand-primary-dark};
-  --bs-info-rgb: 14, 116, 144;
+  --bs-info-rgb: var(--app-primary-dark-rgb);
   --bs-warning: #{$color-warning-amber};
   --bs-warning-rgb: 245, 158, 11;
   --bs-danger: #{$color-danger};
   --bs-danger-rgb: 239, 68, 68;
   --bs-link-color: #{$color-brand-primary};
-  --bs-link-color-rgb: 24, 166, 228;
+  --bs-link-color-rgb: var(--app-primary-rgb);
   --bs-link-hover-color: #{$color-brand-primary-dark};
-  --bs-link-hover-color-rgb: 14, 116, 144;
+  --bs-link-hover-color-rgb: var(--app-primary-dark-rgb);
   --bs-body-font-family: #{$font-Montserrat};
   --bs-border-color: #{$color-border-subtle};
   --bs-progress-bg: #{$color-progress-track};
@@ -429,7 +445,7 @@ body.dark-sidebar {
 
   &:hover {
     box-shadow:
-      0 6px 24px -2px rgba(24, 166, 228, 0.1),
+      0 6px 24px -2px rgba(var(--app-primary-rgb), 0.1),
       0 2px 8px -1px rgba(0, 0, 0, 0.04);
   }
 
@@ -640,22 +656,22 @@ body.dark-sidebar {
   }
 
   &--pulse {
-    box-shadow: 0 0 0 0 rgba(24, 166, 228, 0.3);
+    box-shadow: 0 0 0 0 rgba(var(--app-primary-rgb), 0.3);
     animation: mhj-pulse 1.8s ease-out infinite;
   }
 }
 
 @keyframes mhj-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(24, 166, 228, 0.3);
+    box-shadow: 0 0 0 0 rgba(var(--app-primary-rgb), 0.3);
   }
 
   70% {
-    box-shadow: 0 0 0 8px rgba(24, 166, 228, 0);
+    box-shadow: 0 0 0 8px rgba(var(--app-primary-rgb), 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgba(24, 166, 228, 0);
+    box-shadow: 0 0 0 0 rgba(var(--app-primary-rgb), 0);
   }
 }
 
@@ -771,7 +787,7 @@ body.dark-sidebar {
 
     &:focus {
       border-color: $color-brand-primary;
-      box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.15);
+      box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb), 0.15);
     }
   }
 

@@ -674,13 +674,13 @@ export const radialBarChartOptions = {
                             value: {
                                 offsetY: 4,
                             },
-                            barLabels: {
-                                enabled: true,
-                                useSeriesColors: false,
-                                fontSize: '12px',
-                                formatter: function (seriesName, opts) {
-                                    return (seriesName + ':  ' + (opts?.w?.globals?.series?.[opts?.seriesIndex] ?? ''));
-                                },
+                        },
+                        barLabels: {
+                            enabled: true,
+                            useSeriesColors: false,
+                            fontSize: '12px',
+                            formatter: function (seriesName, opts) {
+                                return (seriesName + ':  ' + (opts?.w?.globals?.series?.[opts?.seriesIndex] ?? ''));
                             },
                         },
                     },

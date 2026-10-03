@@ -1,3 +1,5 @@
+import { defaultAppearance } from '@/config/appearance'
+
 export interface LayoutSettings {
   layoutType: string
   layout: string
@@ -9,6 +11,7 @@ export interface LayoutColor {
   layoutVersion: string
   primaryColor: string
   secondaryColor: string
+  fontFamily: string
 }
 
 export interface LayoutConfig {
@@ -25,7 +28,8 @@ export const layout: LayoutConfig = {
   },
   color: {
     layoutVersion: 'light',
-    primaryColor: '#18A6E4',
-    secondaryColor: '#84D7EB',
+    primaryColor: defaultAppearance.primaryColor,
+    secondaryColor: defaultAppearance.secondaryColor,
+    fontFamily: defaultAppearance.fontFamily,
   },
 }

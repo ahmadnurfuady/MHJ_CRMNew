@@ -148,7 +148,7 @@ $instagram-color: linear-gradient(
 $light-body-bg-color: #fafdff;
 
 //fonts
-$font-Montserrat: 'Montserrat', sans-serif;
+$font-Montserrat: var(--app-font-family);
 // $font-roboto: Roboto;
 $font-serif: $font-Montserrat;
 $landing-cursive: 'Caveat', cursive;

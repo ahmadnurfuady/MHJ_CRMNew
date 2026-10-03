@@ -1,6 +1,8 @@
 import { monthDataSeries1, chartDatas } from '@/core/data/chartData';
-const primary = localStorage.getItem('primary_color') || '#18A6E4';
-const secondary = localStorage.getItem('secondary_color') || '#84D7EB';
+import { getStoredAppearance } from '@/config/appearance';
+const storedAppearance = getStoredAppearance();
+const primary = storedAppearance.primaryColor;
+const secondary = storedAppearance.secondaryColor;
 const trigoStrength = 3;
 const customFunction1 = ({ seriesIndex, dataPointIndex, w }) => {
     return w.globals.series[seriesIndex][dataPointIndex];

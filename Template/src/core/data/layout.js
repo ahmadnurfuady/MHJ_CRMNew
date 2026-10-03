@@ -1,3 +1,4 @@
+import { defaultAppearance } from '@/config/appearance';
 export const layout = {
     settings: {
         layoutType: 'ltr',
@@ -7,7 +8,8 @@ export const layout = {
     },
     color: {
         layoutVersion: 'light',
-        primaryColor: '#18A6E4',
-        secondaryColor: '#84D7EB',
+        primaryColor: defaultAppearance.primaryColor,
+        secondaryColor: defaultAppearance.secondaryColor,
+        fontFamily: defaultAppearance.fontFamily,
     },
 };
