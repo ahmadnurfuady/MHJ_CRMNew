@@ -1,0 +1,89 @@
+export const leftRibbons = [
+  {
+    id: 1,
+    class: 'ribbon-wrapper alert-light-light',
+    ribbonClass: 'primary ribbon-space-bottom',
+    ribbonText: 'SAVE 10%',
+    text: 'Ribbon designs use the class of <b>ribbon-space-bottom</b> through create top-start ribbon and common class use "ribbon".',
+  },
+  {
+    id: 2,
+    class: 'ribbon-wrapper',
+    ribbonClass: 'secondary ribbon-clip',
+    ribbonText: 'SAVE 50%',
+    text: 'Ribbon designs use the class of <b>ribbon-clip</b> through create top-start ribbon and common class use "ribbon".',
+  },
+  {
+    id: 3,
+    class: 'ribbon-vertical-left-wrapper vertical-lp-space alert-light-light',
+    ribbonClass: 'warning ribbon-vertical-left',
+    ribbonText: '<i class="icofont icofont-love"></i>',
+    text: 'Ribbon designs use the class of <b>ribbon-vertical-left</b> through create top-start ribbon and common class use "ribbon".',
+  },
+  {
+    id: 4,
+    class: 'ribbon-wrapper',
+    ribbonClass: 'info ribbon-bookmark',
+    ribbonText: 'Cashback 20%',
+    text: 'Ribbon designs use the class of <b>ribbon-bookmark</b> through create top-start ribbon and common class use "ribbon".',
+  },
+  {
+    id: 5,
+    class: 'ribbon-wrapper-bottom clip-bp-space alert-light-light',
+    ribbonClass: 'dark ribbon-clip-bottom',
+    ribbonText: '40% OFF',
+    text: 'Ribbon designs use the class of <b>ribbon-clip-bottom</b> through create bottom-start ribbon and common class use "ribbon".',
+  },
+  {
+    id: 6,
+    class: 'ribbon-vertical-left-wrapper vertical-lp-space',
+    ribbonClass: 'bookmark ribbon-vertical-left ribbon-danger',
+    ribbonText: '<i class="icon-gift"></i>',
+    text: 'Ribbon designs use the class of <b>ribbon-vertical-left</b> through create top-start ribbon and common class use "ribbon".',
+  },
+]
+
+export const rightRibbons = [
+  {
+    id: 1,
+    class: 'ribbon-wrapper',
+    ribbonClass: 'dark ribbon-right',
+    ribbonText: '50% OFF',
+    text: 'Ribbon designs use the class of <b>ribbon-right</b> through create top-end ribbon and common class use "ribbon".',
+  },
+  {
+    id: 2,
+    class: 'ribbon-wrapper-right alert-light-light',
+    ribbonClass: 'primary ribbon-clip-right ribbon-right',
+    ribbonText: 'SAVE 50%',
+    text: 'Ribbon designs use the class of <b>ribbon-right & ribbon-clip-right</b> through create top-end ribbon and common class use "ribbon".',
+  },
+  {
+    id: 3,
+    class: 'ribbon-vertical-right-wrapper vertical-rp-space',
+    ribbonClass: 'bookmark ribbon-vertical-right ribbon-secondary',
+    ribbonText: '<i class="icon-signal"></i>',
+    text: 'Ribbon designs use the class of <b>ribbon-vertical-right & ribbon-bookmark</b> through create top-end ribbon and common class use "ribbon".',
+  },
+  {
+    id: 4,
+    class: 'ribbon-wrapper alert-light-light',
+    ribbonClass: 'warning ribbon-bookmark ribbon-right',
+    ribbonText: 'SAVE 20%',
+    text: 'Ribbon designs use the class of <b>ribbon-right & ribbon-bookmark</b> through create top-end ribbon and common class use "ribbon".',
+  },
+  {
+    id: 5,
+    class: 'ribbon-wrapper-bottom clip-bp-space',
+    ribbonClass: 'success ribbon-clip-bottom-right',
+    ribbonText: 'Cashback 10%',
+    text: 'Ribbon designs use the class of <b>ribbon-clip-bottom-right</b> through create bottom-end ribbon and common class use "ribbon".',
+  },
+  {
+    id: 6,
+    class: 'ribbon-vertical-right-wrapper vertical-rp-space alert-light-light',
+    ribbonClass: 'danger ribbon-vertical-right',
+    ribbonText: '<i class="fa fa-taxi"></i>',
+    text: 'Ribbon designs use the class of <b>ribbon-vertical-right</b> through create top-end ribbon and common class use "ribbon".',
+  },
+]

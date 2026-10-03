@@ -180,9 +180,9 @@
   --body-font-color: #475569;
   --chart-border: #e2e8f0;
   --recent-chart-bg: #fcfcfd;
-  --light-bg: #f1f5f9;
+  --light-bg: #eef1f6;
   --white: #fff;
-  --light2: #f8fafc;
+  --light2: #f5f6f9;
   --sidebar-border: rgba(0, 0, 0, 0.1);
   --chart-text-color: rgba(82, 82, 108, 0.8);
   --recent-dashed-border: rgba(82, 82, 108, 0.3);
@@ -432,6 +432,3 @@ body.dark-only.box-layout {
 @import 'layout/sidebar';
 @import 'layout/rtl';
 @import 'layout/box-layout';
-
-// *** MHJ Medika theme (loaded last so it wins over template defaults) ***
-@import 'themes/mhj';

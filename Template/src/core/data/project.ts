@@ -133,7 +133,7 @@ export const projectDetails: ProjectDetails = {
             },
           },
         },
-        colors: ['#18A6E4', '#84D7EB', '#F59E0B'],
+        colors: ['#006666', '#FE6A49', '#FFAE1A'],
         labels: ['Pending', 'In Progress', 'Completed'],
         legend: {
           show: false,
@@ -295,7 +295,7 @@ export const projectDetails: ProjectDetails = {
             top: 8,
             left: 0,
             blur: 6,
-            // color: ["#7366FF", "#0284C7"],
+            // color: ["#7366FF", "#54BA4A"],
             opacity: 0.4,
           },
         },
@@ -369,7 +369,7 @@ export const projectDetails: ProjectDetails = {
         legend: {
           show: false,
         },
-        colors: [primaryColor, '#0284C7'],
+        colors: [primaryColor, '#65c15c'],
         fill: {
           type: 'gradient',
           gradient: {
@@ -394,7 +394,7 @@ export const projectDetails: ProjectDetails = {
             {
               seriesIndex: 1,
               dataPointIndex: 3,
-              fillColor: '#0284C7',
+              fillColor: '#54BA4A',
               strokeColor: 'var(--white)',
               size: 5,
             },
@@ -912,7 +912,7 @@ export const projectDetails: ProjectDetails = {
               },
             },
           },
-          colors: ['#0284C7'],
+          colors: ['#65c15c'],
           stroke: {
             width: 3,
             lineCap: 'butt',
@@ -1026,7 +1026,7 @@ export const projectDetails: ProjectDetails = {
               top: 8,
               left: 0,
               blur: 8,
-              color: '#18A6E4',
+              color: '#006666',
               opacity: 0.1,
             },
           },
@@ -1183,7 +1183,7 @@ export const projectDetails: ProjectDetails = {
               {
                 seriesIndex: 0,
                 dataPointIndex: 3,
-                fillColor: '#F59E0B',
+                fillColor: '#FFAE1A',
                 strokeColor: 'var(--white)',
                 size: 4,
               },
@@ -1193,7 +1193,7 @@ export const projectDetails: ProjectDetails = {
               sizeOffset: 0,
             },
           },
-          colors: ['#F59E0B'],
+          colors: ['#FFAE1A'],
           fill: {
             type: 'gradient',
             gradient: {
@@ -1351,7 +1351,7 @@ export const projectDetails: ProjectDetails = {
             strokeWidth: 0,
           },
         },
-        colors: ['#18A6E4', '#84D7EB', '#F59E0B', '#0284C7'],
+        colors: ['#006666', '#FE6A49', '#FFAE1A', '#00AC46'],
         labels: ['Design', 'Product', 'Development', 'Marketing'],
       },
     },
@@ -1756,7 +1756,7 @@ export const projectCostPerformance: ProjectCostPerformance = {
     dataLabels: {
       enabled: false,
     },
-    colors: [primaryColor, '#0284C7', '#ffffff'],
+    colors: [primaryColor, '#65c15c', '#ffffff'],
     responsive: [
       {
         breakpoint: 1870,

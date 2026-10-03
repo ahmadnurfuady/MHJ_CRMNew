@@ -4,7 +4,7 @@
     <li
       class="color-layout"
       data-attr="color-1"
-      @click="handleColorLayout('light', '#18A6E4', '#84D7EB')"
+      @click="handleColorLayout('light', '#006666', '#FF6150')"
     >
       <div></div>
     </li>
@@ -50,7 +50,7 @@
     <li
       class="color-layout"
       data-attr="color-1"
-      @click="handleColorLayout('dark-only', '#18A6E4', '#6b7024')"
+      @click="handleColorLayout('dark-only', '#006666', '#6b7024')"
     >
       <div></div>
     </li>

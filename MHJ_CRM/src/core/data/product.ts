@@ -1,0 +1,1102 @@
+import type { Tabs } from '@/types/common'
+import type {
+  Product,
+  ProductTab,
+  FilterOption,
+  OptionItem,
+  SocialShareOption,
+  Service,
+} from '@/types/product'
+
+export const addProductTabs: ProductTab[] = [
+  {
+    id: 1,
+    value: 'product',
+    icon: 'product-detail',
+    title: 'Add Product Details',
+    description: 'Add product name & details',
+  },
+  {
+    id: 2,
+    value: 'gallery',
+    icon: 'product-gallery',
+    title: 'Product Gallery',
+    description: 'Thumbnail & add product gallery',
+  },
+  {
+    id: 3,
+    value: 'category',
+    icon: 'product-category',
+    title: 'Product Categories',
+    description: 'Add product category, status and tags',
+  },
+  {
+    id: 4,
+    value: 'pricing',
+    icon: 'pricing',
+    title: 'Product Price & Discount',
+    description: 'Add product basic price & discount',
+  },
+  {
+    id: 5,
+    value: 'advance',
+    icon: 'advance',
+    title: 'Additional Options',
+    description: 'Add meta details & inventory details',
+  },
+]
+
+export const additionalTabs: FilterOption[] = [
+  {
+    id: 1,
+    title: 'Inventory',
+    value: 'inventory',
+  },
+  {
+    id: 2,
+    title: 'SEO Tag',
+    value: 'seo_tag',
+  },
+  {
+    id: 3,
+    title: 'Shipping',
+    value: 'shipping',
+  },
+  {
+    id: 4,
+    title: 'Variations',
+    value: 'variations',
+  },
+  {
+    id: 5,
+    title: 'Publish',
+    value: 'publish',
+  },
+]
+
+export const stockAvailability: OptionItem[] = [
+  {
+    value: 'In stock',
+    label: 'In stock',
+  },
+  {
+    value: 'Out of stock',
+    label: 'Out of stock',
+  },
+  {
+    value: 'Pre-order',
+    label: 'Pre-order',
+  },
+]
+
+export const stockLevel: OptionItem[] = [
+  {
+    value: 'Low Stock (5 or less)',
+    label: 'Low Stock (5 or less)',
+  },
+  {
+    value: 'Low Stock (10 or less)',
+    label: 'Low Stock (10 or less)',
+  },
+  {
+    value: 'Low Stock (20 or less)',
+    label: 'Low Stock (20 or less)',
+  },
+  {
+    value: 'Low Stock (25 or less)',
+    label: 'Low Stock (25 or less)',
+  },
+  {
+    value: 'Low Stock (30 or less)',
+    label: 'Low Stock (30 or less)',
+  },
+  {
+    value: 'sportswear',
+    label: 'Sportswear',
+  },
+]
+
+export const shippingClass: OptionItem[] = [
+  {
+    value: 'Basic Shipping',
+    label: 'Basic Shipping',
+  },
+  {
+    value: 'Expedited Shipping',
+    label: 'Expedited Shipping',
+  },
+  {
+    value: 'International Shipping',
+    label: 'International Shipping',
+  },
+  {
+    value: 'Free Shipping',
+    label: 'Free Shipping',
+  },
+  {
+    value: 'Same-Day or Next-Day Shipping',
+    label: 'Same-Day or Next-Day Shipping',
+  },
+  {
+    value: 'Flat Rate Shipping',
+    label: 'Flat Rate Shipping',
+  },
+  {
+    value: 'Local Pickup',
+    label: 'Local Pickup',
+  },
+]
+
+export const colorOptionName: OptionItem[] = [
+  {
+    value: 'Color',
+    label: 'Color',
+  },
+  {
+    value: 'Size',
+    label: 'Size',
+  },
+  {
+    value: 'Material',
+    label: 'Material',
+  },
+  {
+    value: 'Style',
+    label: 'Style',
+  },
+]
+
+export const colorOptionValue: OptionItem[] = [
+  {
+    value: 'Red',
+    label: 'Red',
+  },
+  {
+    value: 'White',
+    label: 'White',
+  },
+  {
+    value: 'Black',
+    label: 'Black',
+  },
+  {
+    value: 'Gray',
+    label: 'Gray',
+  },
+  {
+    value: 'Green',
+    label: 'Green',
+  },
+]
+
+export const publishStatus: OptionItem[] = [
+  {
+    value: 'Publish',
+    label: 'Publish',
+  },
+  {
+    value: 'Drafts',
+    label: 'Drafts',
+  },
+  {
+    value: 'Unpublish',
+    label: 'Unpublish',
+  },
+]
+
+export const priceDiscount: OptionItem[] = [
+  {
+    value: 'Fixed Price',
+    label: 'Fixed Price',
+  },
+  {
+    value: 'Percentage(%)',
+    label: 'Percentage(%)',
+  },
+]
+
+export const productCategory: OptionItem[] = [
+  {
+    value: 'toys',
+    label: 'Toys & games',
+  },
+  {
+    value: 'footwear',
+    label: 'Footwear',
+  },
+  {
+    value: 'furniture',
+    label: 'Furniture and Decor',
+  },
+  {
+    value: 'baby_care',
+    label: 'Baby Care Products',
+  },
+  {
+    value: 'accessories',
+    label: 'Accessories',
+  },
+  {
+    value: 'sportswear',
+    label: 'Sportswear',
+  },
+  {
+    value: 'electronics',
+    label: 'Electronics',
+  },
+  {
+    value: 'clothing',
+    label: 'Clothing & Apparel',
+  },
+  {
+    value: 'beauty',
+    label: 'Beauty & Personal Care',
+  },
+]
+
+export const productPriceTabs: Tabs[] = [
+  {
+    id: 1,
+    title: 'Fixed Price Discount',
+    value: 'fixed_price_discount',
+  },
+  {
+    id: 2,
+    title: 'BOGO (Buy One, Get One)',
+    value: 'bogo_product',
+  },
+  {
+    id: 3,
+    title: 'Percentage Based Discount(%)',
+    value: 'percentage_based_discount',
+  },
+  {
+    id: 4,
+    title: 'Volume or Bulk Discount',
+    value: 'bulk_product',
+  },
+]
+
+export const productOptions: OptionItem[] = [
+  {
+    value: 'women-pink-tshirt',
+    label: 'Women Pink T-shirt',
+  },
+  {
+    value: 'solid-hooded-sweatshirt',
+    label: 'Solid Hooded Sweatshirt',
+  },
+  {
+    value: 'women-flared-jeans',
+    label: 'Women Flared Jeans',
+  },
+  {
+    value: 'fresh-and-pure-oil',
+    label: 'Fresh And Pure Oil',
+  },
+  {
+    value: 'premium-dumbbells',
+    label: 'Premium Dumbbells',
+  },
+  {
+    value: 'Organic-long-grain-rice',
+    label: 'Organic Long Grain Rice',
+  },
+  {
+    value: 'delicious-cupcakes',
+    label: 'Delicious Cupcakes',
+  },
+]
+
+export const products: Product[] = [
+  {
+    id: 1,
+    name: "Women's Top",
+    images: [
+      'ecommerce/01.jpg',
+      'ecommerce/02.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Regular Flare Fit Women's white Top",
+    description: 'Rock Paper Scissors Women Tank Top High Neck Cotton Top Stylish Women Top.',
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 50,
+    price: 35,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['white', 'black', 'green'],
+    size: ['M', 'L', 'XL'],
+    brand: "Levi's",
+    tags: ['Woman Top', 'white', 'black', 'green', "Levi's"],
+    stock: 10,
+    stockStatus: 'in Stock',
+    quantity: 1,
+    star: 3,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 2,
+    name: "Men's Jacket",
+    images: [
+      'ecommerce/02.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Cotton Blend Men's Blue Jacket",
+    description:
+      "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Denim Jacket.",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 50,
+    price: 45,
+    sale: true,
+    category: ['Man T-shirt'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Lee',
+    tags: ['Man T-shirt', 'yellow', 'gray', 'green', 'Lee', 'red'],
+    quantity: 1,
+    stock: 10,
+    stockStatus: 'in Stock',
+    star: 4,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 3,
+    name: "Women's Coat",
+    images: [
+      'ecommerce/03.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Cotton Blend Women's Coat",
+    description:
+      "Women's Classic Stretchy All Time Trendy Pleated Skirt Western coat midi Skirt plited Lehenga. ",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 40,
+    price: 29,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'green'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Denizen',
+    tags: ['Woman Top', 'yellow', 'gray', 'green', 'Denizen'],
+    quantity: 1,
+    stock: 10,
+    stockStatus: 'in Stock',
+    star: 2,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 4,
+    name: "Men's Shirt",
+    images: [
+      'ecommerce/04.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Cotton Regular Fit Men's Shirt",
+    description: "Glamcci Men's Cotton Blend Printed One Piece Party Jacket",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 39,
+    price: 35,
+    sale: false,
+    off: true,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'white'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Spykar',
+    tags: ['Woman Top', 'yellow', 'gray', 'white', 'Spykar'],
+    quantity: 1,
+    stock: 10,
+    stockStatus: 'in Stock',
+    star: 5,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 5,
+    name: 'Track Suit',
+    images: [
+      'ecommerce/05.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Cotton Regular Fit Men's Track Suit",
+    description: "Glamcci Men's Cotton Blend Printed One Piece Track Suit.",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 25,
+    price: 20,
+    sale: false,
+    category: ['Woman Jeans'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Jeans', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 0,
+    stockStatus: 'sold out',
+    star: 4,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 6,
+    name: "Women's Jacket",
+    images: [
+      'ecommerce/06.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: 'Solid Denim Jacket',
+    description: 'Rock Paper Scissors Womens Tank Top High Neck Cotton Top Stylish Women Top..',
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 30,
+    price: 25,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Top', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 3,
+    icon: false,
+    ribbon: false,
+    hot: false,
+    gift: true,
+  },
+  {
+    id: 7,
+    name: 'Denim Jacket',
+    images: [
+      'ecommerce/03.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Denim Regular Men's Jacket",
+    description:
+      "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Men Denim Shirt.",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 60,
+    price: 53,
+    sale: false,
+    category: ['Man Shirt'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Man Shirt', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 4.5,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 8,
+    name: "Men's shirt",
+    images: [
+      'ecommerce/08.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Regular Men's Denim Shirt",
+    description: "Ravaiyaa - Attitude is everything Cotton Men's Formal One Top Shirt.",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 35,
+    price: 32,
+    sale: false,
+    category: ['Man Shirt'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Man Shirt', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 3,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 9,
+    name: "Woman's Gown",
+    images: [
+      'ecommerce/01.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Woman's Long Gown",
+    description: 'Women Tank Top High Neck Cotton Top Stylish Women Gown.',
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 45,
+    price: 50,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Top', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 0,
+    stockStatus: 'sold out',
+    star: 4,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 10,
+    name: "Men's Black Suit",
+    images: [
+      'ecommerce/08.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Men's Full Black Suit",
+    description: "Attitude is everything Cotton Men's Black Suit.",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 50,
+    price: 55,
+    sale: false,
+    category: ['Man Shirt', 'Man Jeans'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Man Shirt', 'Man Jeans', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 3,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 11,
+    name: "Woman's Dress",
+    images: [
+      'ecommerce/04.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/02.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Tops for Stylish Woman's Dress",
+    description: "Tops for Stylish Woman's Dress",
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 60,
+    price: 65,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Top', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 6,
+
+    stockStatus: 'in Stock',
+    star: 5,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 12,
+    name: 'Slim Fit Coat',
+    images: [
+      'ecommerce/01.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: 'Slim Fit Plastic Thunder Coat',
+    description: 'Premier Cropped Skinny Jean.',
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 70,
+    price: 65,
+    sale: false,
+    category: ['Man Shirt', 'Man Jeans'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Man Shirt', 'Man Jeans', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 3,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 13,
+    name: "Women's Hoodie",
+    images: [
+      'ecommerce/05.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: 'Slim Fit Plastic Thunder Coat',
+    description: 'Premier Cropped Skinny Jean.',
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 80,
+    price: 76,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Top', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 4.5,
+    icon: false,
+    ribbon: true,
+    hot: false,
+  },
+  {
+    id: 14,
+    name: "Men's T-shirt",
+    images: [
+      'ecommerce/06.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: "Men's Denim T-shirt",
+    description: 'Premier Cropped Skinny Jean.',
+    details:
+      "Lorate Solid Men's Fashion Full Sleeves Latest Jacket for Men With Button Closure Long Sleeve Casual Torn Lycra Denim Shirt.",
+    salePrice: 70,
+    price: 60,
+    sale: false,
+    category: ['Man T-shirt'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Man T-shirt', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 4.5,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 15,
+    name: 'Woman Party Wear',
+    images: [
+      'ecommerce/07.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: 'Party Wear for women',
+    description: 'Stylish Party Wear for women',
+    details: 'This is where some detailes on monkies would go. This monkey done seent some shit.',
+    salePrice: 35,
+    price: 30,
+    sale: false,
+    category: ['Woman Top'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Top', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 5,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+  {
+    id: 16,
+    name: 'Dream Beauty Fashion',
+    images: [
+      'ecommerce/02.jpg',
+      'ecommerce/03.jpg',
+      'ecommerce/04.jpg',
+      'ecommerce/05.jpg',
+      'ecommerce/01.jpg',
+      'ecommerce/06.jpg',
+      'ecommerce/07.jpg',
+      'ecommerce/08.jpg',
+    ],
+    shortDescription: 'Tops for Women Stylish',
+    description: 'Stylish Party Wear for women',
+    details:
+      'Sed ut perspiciatis, unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa, quae ab illo.',
+    salePrice: 60,
+    price: 57,
+    sale: false,
+    category: ['Woman Top', 'Woman Jeans'],
+    colors: ['yellow', 'gray', 'green', 'red'],
+    size: ['M', 'L', 'XL'],
+    brand: 'Hudson',
+    tags: ['Woman Top', 'Woman Jeans', 'yellow', 'gray', 'green', 'Hudson', 'red'],
+    quantity: 1,
+    stock: 5,
+
+    stockStatus: 'in Stock',
+    star: 5,
+    icon: false,
+    ribbon: false,
+    hot: false,
+  },
+]
+
+export const category: FilterOption[] = [
+  {
+    id: 1,
+    title: 'Man Shirt',
+    value: 'men_top',
+  },
+  {
+    id: 2,
+    title: 'Man Jeans',
+    value: 'men_jeans',
+  },
+  {
+    id: 3,
+    title: 'Women Top',
+    value: 'women_top',
+  },
+  {
+    id: 4,
+    title: 'Women Dress',
+    value: 'women_dress',
+  },
+  {
+    id: 5,
+    title: 'Man T-shirt',
+    value: 'man_t_shirt',
+  },
+]
+
+export const brands: FilterOption[] = [
+  {
+    id: 1,
+    title: "Levi's",
+    value: 'levis',
+  },
+  {
+    id: 2,
+    title: 'Diesel',
+    value: 'diesel',
+  },
+  {
+    id: 3,
+    title: 'Lee',
+    value: 'lee',
+  },
+  {
+    id: 4,
+    title: 'Hudson',
+    value: 'hudson',
+  },
+  {
+    id: 5,
+    title: 'Denizen',
+    value: 'denizen',
+  },
+  {
+    id: 6,
+    title: 'Spykar',
+    value: 'spykar',
+  },
+]
+
+export const colors: FilterOption[] = [
+  {
+    id: 1,
+    title: 'white',
+    value: 'white',
+  },
+  {
+    id: 2,
+    title: 'black',
+    value: 'black',
+  },
+  {
+    id: 3,
+    title: 'orange',
+    value: 'orange',
+  },
+  {
+    id: 4,
+    title: 'green',
+    value: 'green',
+  },
+  {
+    id: 5,
+    title: 'pink',
+    value: 'pink',
+  },
+  {
+    id: 6,
+    title: 'yellow',
+    value: 'yellow',
+  },
+  {
+    id: 7,
+    title: 'blue',
+    value: 'blue',
+  },
+  {
+    id: 8,
+    title: 'red',
+    value: 'red',
+  },
+]
+
+export const discount: FilterOption[] = [
+  {
+    id: 1,
+    title: 'upto 5%',
+    value: '<5',
+    badge: 6,
+  },
+  {
+    id: 2,
+    title: '5% - 10%',
+    value: '5-10',
+    badge: 12,
+  },
+  {
+    id: 3,
+    title: '10% - 15%',
+    value: '10-15',
+    badge: 20,
+  },
+  {
+    id: 4,
+    title: '15% - 25%',
+    value: '15-25',
+    badge: 22,
+  },
+  {
+    id: 5,
+    title: 'More than 25%',
+    value: '>25',
+    badge: 24,
+  },
+]
+
+export const socialShareOptions: SocialShareOption[] = [
+  {
+    id: 1,
+    name: 'Facebook',
+    link: 'https://www.facebook.com/',
+    icon: 'fa-brands fa-facebook-f',
+  },
+  {
+    id: 2,
+    name: 'Google+',
+    link: 'https://myaccount.google.com/',
+    icon: 'fa-brands fa-google-plus-g',
+  },
+  {
+    id: 3,
+    name: 'Twitter',
+    link: 'https://twitter.com/',
+    icon: 'fa-brands fa-x-twitter',
+  },
+  {
+    id: 4,
+    name: 'Instagram',
+    link: 'https://www.instagram.com/',
+    icon: 'fa-brands fa-instagram',
+  },
+  {
+    id: 5,
+    name: 'RSS',
+    link: 'https://rss.app/',
+    icon: 'fa-solid fa-share-nodes',
+  },
+]
+
+export const services: Service[] = [
+  {
+    id: 1,
+    title: 'Free Shipping',
+    description: 'Free shipping world wide',
+    icon: 'truck',
+  },
+  {
+    id: 2,
+    title: '24 X 7 Service',
+    description: 'Online service for new customer',
+    icon: 'clock',
+  },
+  {
+    id: 3,
+    title: 'Festival Offer',
+    description: 'New online special festival',
+    icon: 'gift',
+  },
+  {
+    id: 4,
+    title: 'Online Payment',
+    description: 'Country to popular belief.',
+    icon: 'credit-card',
+  },
+]
+
+export const productDetailsTab: Tabs[] = [
+  {
+    id: 1,
+    title: 'Description',
+    value: 'description',
+  },
+  {
+    id: 2,
+    title: 'Additional Info',
+    value: 'additional_info',
+  },
+  {
+    id: 3,
+    title: 'Write Review',
+    value: 'review',
+  },
+]
+
+export const productDetails = {
+  review: {
+    totalReview: 5,
+    review: 4.5,
+    reviewCount: [4, 3, 2, 1, 1],
+    reviews: [
+      {
+        name: 'Scarlet',
+        image: 'dashboard/user/1.jpg',
+        product: 'Smart Watch',
+        rating: 4,
+        date: '03 Feb, 2024',
+        reviewText:
+          "I adore this outfit! The print is stunning, and the fabric is incredibly smooth and flowing. It's ideal for a night out or summer weddings. Just be mindful that the straps are little adjustable, so you may need fashion tape for piece of mind if you're busty.",
+      },
+      {
+        name: 'Arya',
+        image: 'dashboard/user/2.jpg',
+        product: 'Arm Chair',
+        rating: 4,
+        date: '24 May, 2024',
+        reviewText:
+          'This tee is a fantastic basic. For warmer days, the lightweight, breathable linen is ideal. You might want to go down if you like a more tailored look because the fit is a little boxy. All in all, this is a versatile shirt that I will wear often.',
+      },
+      {
+        name: 'Kyro',
+        image: 'dashboard/user/3.jpg',
+        product: 'Study Lamp',
+        rating: 3,
+        date: '30 Jun, 2024',
+        reviewText:
+          'What a letdown this jacket is. In person, the wash is more rigid and dark than it appears in the photo, which is retro and stylish. I got a medium, but it seems more like a small. The size is also incorrect. Returning it in disappointment.',
+      },
+      {
+        name: 'Izabella',
+        image: 'dashboard/user/8.jpg',
+        product: 'Beauty Blender',
+        rating: 4,
+        date: '18 Dec, 2024',
+        reviewText:
+          "There is nothing but luxury about this jumper. It feels of excellent quality, and the cashmere is wonderfully warm and cuddly. It's a classic piece with a long lifespan. incredibly elegant and comfy, ideal for chilly days.",
+      },
+    ],
+  },
+}

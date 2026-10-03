@@ -272,7 +272,7 @@
       .dot-green {
         min-width: 14px;
         height: 14px;
-        border: 4px solid $color-brand-sky-strong;
+        border: 4px solid #54ba4a;
         background: $white;
         border-radius: 100%;
         display: inline-block;
@@ -497,8 +497,8 @@
   }
 
   .status-paid {
-    background-color: $color-brand-soft;
-    color: $color-brand-sky-strong;
+    background-color: rgba(84, 186, 74, 0.1);
+    color: #54ba4a;
   }
 
   .status-pending {
@@ -770,7 +770,7 @@
   }
 
   .btn-download {
-    background: rgba(24, 166, 228, 0.1);
+    background: rgba(0, 102, 102, 0.1);
     color: $primary-color;
   }
 
@@ -1014,7 +1014,7 @@
   }
 
   .bar-green {
-    background-color: $color-brand-sky-strong;
+    background-color: #54ba4a;
   }
 
   .bar-red {
@@ -1138,7 +1138,7 @@
   }
 
   .btn-download {
-    background: rgba(24, 166, 228, 0.1);
+    background: rgba(0, 102, 102, 0.1);
     color: $primary-color;
   }
 
@@ -1358,7 +1358,7 @@
   .divider-line {
     height: 3px;
     width: 100%;
-    background: linear-gradient(90deg, $primary-color 20.61%, $color-brand-sky-strong 103.6%);
+    background: linear-gradient(90deg, $primary-color 20.61%, #54ba4a 103.6%);
     display: block;
     padding: 0px;
   }
@@ -1486,7 +1486,7 @@
   }
 
   .btn-download {
-    background: rgba(24, 166, 228, 0.1);
+    background: rgba(0, 102, 102, 0.1);
     color: $primary-color;
     border-radius: 10px;
     padding: 18px 27px;
@@ -1539,7 +1539,7 @@
     list-style: none;
     display: flex;
     align-items: center;
-    background: linear-gradient(291deg, $color-brand-primary 21.2%, $color-brand-primary-hover 83.92%);
+    background: linear-gradient(291deg, #006666 21.2%, #006666 83.92%);
     padding: 31px 80px;
     border-bottom-left-radius: 100px;
     gap: 28px;
@@ -1867,7 +1867,7 @@
   }
 
   .btn-secondary {
-    background-color: rgba(24, 166, 228, 0.1) !important;
+    background-color: rgba(0, 102, 102, 0.1) !important;
     color: $primary-color !important;
     border-radius: 10px;
     padding: 18px 27px;

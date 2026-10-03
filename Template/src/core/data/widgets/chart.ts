@@ -206,7 +206,7 @@ export const commonLineCharts: CommonLineCharts[] = [
         '2018-09-19T09:30:00',
         '2018-09-19T10:30:00',
       ],
-      colors: '#0284C7',
+      colors: '#51bb25',
     }),
   },
 ]
@@ -270,7 +270,7 @@ export const widgetsChart4: ApexOptions = {
       },
     },
   },
-  colors: [secondary, '#0284C7', primary],
+  colors: [secondary, '#51bb25', primary],
   fill: {
     type: 'gradient',
     gradient: {
@@ -350,7 +350,7 @@ export const widgetsChart5: ApexOptions = {
       strokeWidth: 1,
     },
   },
-  colors: [secondary, '#0284C7', primary],
+  colors: [secondary, '#51bb25', primary],
   responsive: [
     {
       breakpoint: 767,
@@ -488,7 +488,7 @@ export const orderStatusChart: OrderStatusChart[] = [
       },
     ],
     chartDetails: commonOrderStatusProgress({
-      colors: '#F59E0B',
+      colors: '#FFAE1A',
       series: 60,
       categories: 'Out for delivery',
     }),
@@ -501,7 +501,7 @@ export const orderStatusChart: OrderStatusChart[] = [
       },
     ],
     chartDetails: commonOrderStatusProgress({
-      colors: '#0284C7',
+      colors: '#65c15c',
       series: 74,
       categories: 'Delivered',
     }),
@@ -788,14 +788,14 @@ export const widgetsChart14: ApexOptions = {
       {
         x: new Date('17 Nov 2017').getTime(),
         x2: new Date('18 Nov 2017').getTime(),
-        fillColor: '#84D7EB',
+        fillColor: '#8DD4B4',
         opacity: 0.1,
         label: {
-          borderColor: '#0284C7',
+          borderColor: '##51bb25',
           style: {
             fontSize: '10px',
             color: '#fff',
-            background: '#84D7EB',
+            background: '#8DD4B4',
           },
           offsetY: 20,
           text: 'X-axis range',
@@ -1180,7 +1180,7 @@ export const widgetsChart19: ApexOptions = {
       stops: [0, 100],
     },
   },
-  colors: [primary, secondary, '#84D7EB', '#544fff'],
+  colors: [primary, secondary, '#8DD4B4', '#544fff'],
   title: {
     text: 'Simple Bubble Chart',
   },

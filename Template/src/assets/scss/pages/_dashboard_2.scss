@@ -1888,15 +1888,15 @@
     }
 
     .calendar_default_event_inner {
-      background-color: rgba(24, 166, 228, 0.1) !important;
-      border-color: rgba(24, 166, 228, 0.3) !important;
+      background-color: rgba(0, 102, 102, 0.1) !important;
+      border-color: rgba(0, 102, 102, 0.3) !important;
     }
 
     .calendar_default_main {
       .calendar_default_corner {
         .calendar_default_corner_inner,
         .calendar_default_cornerright_inner {
-          background: rgba($color-brand-primary, 0.1);
+          background: #0066661a;
         }
       }
     }
@@ -1911,7 +1911,7 @@
           td {
             .calendar_default_rowheader {
               .calendar_default_rowheader_inner {
-                background-color: rgba(24, 166, 228, 0.1);
+                background-color: rgba(0, 102, 102, 0.1);
                 color: $primary-color;
               }
             }
@@ -1922,7 +1922,7 @@
   }
 
   .calendar_default_colheader_inner {
-    background: rgba(24, 166, 228, 0.1) !important;
+    background: rgba(0, 102, 102, 0.1) !important;
     color: $primary-color;
   }
 }
