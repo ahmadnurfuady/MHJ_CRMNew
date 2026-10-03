@@ -1,25 +1,9 @@
 <template>
   <div class="progress-project-box" v-if="props.project">
-    <div
-      :class="`list-box ${
-        props.project.status == 'pending'
-          ? 'title-line-primary'
-          : props.project.status == 'in_progress'
-            ? 'title-line-warning'
-            : 'title-line-success'
-      }`"
-    >
+    <div :class="`list-box title-line-${stageColor}`">
       <div class="header-top">
-        <span
-          :class="`badge badge-light-${
-            props.project.status == 'pending'
-              ? 'primary'
-              : props.project.status == 'in_progress'
-                ? 'warning'
-                : 'success'
-          }`"
-        >
-          {{ titleCase(props.project.status.replace('_', ' ')) }}
+        <span :class="`badge badge-light-${stageColor}`">
+          {{ stageTitle }}
         </span>
         <p class="mb-0 c-o-light">
           <SvgIcon :icon="'vector-calendar'" :class="'me-2'"></SvgIcon>
@@ -40,13 +24,7 @@
         </div>
         <div class="progress">
           <div
-            :class="`progress-bar bg-${
-              props.project.status == 'pending'
-                ? 'primary'
-                : props.project.status == 'in_progress'
-                  ? 'warning'
-                  : 'success'
-            }`"
+            :class="`progress-bar bg-${stageColor}`"
             :style="{ width: props.project.progress + '%' }"
           ></div>
         </div>
@@ -65,8 +43,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, computed } from 'vue'
 import { titleCase, getImages } from '@/utils/index'
+import { projectTab } from '@/core/data/project'
 
 import type { Projects } from '@/types/project'
 
@@ -82,4 +61,11 @@ const props = withDefaults(
     showMember: true,
   }
 )
+
+// Nama dan warna kartu mengikuti stage yang sama dengan tab di atas.
+const stage = computed(() => projectTab.find((tab) => tab.value == props.project.status))
+const stageTitle = computed(
+  () => stage.value?.title ?? titleCase(props.project.status.replace('_', ' '))
+)
+const stageColor = computed(() => stage.value?.color ?? 'primary')
 </script>

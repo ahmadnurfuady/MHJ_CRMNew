@@ -393,6 +393,16 @@ const router = createRouter({
                     },
                 },
                 {
+                    path: routes.App.RumahSakit,
+                    name: 'RumahSakit',
+                    component: () => import('@/pages/rumahSakit/RumahSakit.vue'),
+                    meta: {
+                        mainTitle: 'Rumah Sakit',
+                        title: 'Rumah Sakit | MHJ CRM',
+                        breadcrumb: [{ text: 'App', subText: 'Rumah Sakit' }],
+                    },
+                },
+                {
                     path: routes.App.Task,
                     name: 'Task',
                     component: () => import('@/pages/task/Task.vue'),

@@ -19,6 +19,7 @@ export const routes = {
     MailBox: '/app/mail_box',
     BookMarks: '/app/bookmark',
     Contacts: '/app/contacts',
+    RumahSakit: '/app/rumah_sakit',
     Task: '/app/task',
     Calender: '/app/calender',
     SocialApps: '/app/social_app',

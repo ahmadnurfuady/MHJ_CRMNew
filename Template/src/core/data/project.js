@@ -1799,6 +1799,7 @@ export const totalProjects = {
         { title: 'Completed', value: 78 },
     ],
 };
+// Tab stage mengikuti Kerangka Menu - 3. Menu Project (Pipeline Sales).
 export const projectTab = [
     {
         id: 1,
@@ -1808,21 +1809,52 @@ export const projectTab = [
     },
     {
         id: 2,
-        title: 'In Progress',
-        value: 'in_progress',
-        icon: 'bars-progress',
+        title: 'Qualified',
+        value: 'qualified',
+        icon: 'user-check',
+        color: 'primary',
     },
     {
         id: 3,
-        title: 'Pending',
-        value: 'pending',
-        icon: 'hourglass-half',
+        title: 'Demo',
+        value: 'presentation_demo',
+        icon: 'chalkboard-user',
+        color: 'info',
     },
     {
         id: 4,
-        title: 'Completed',
-        value: 'completed',
-        icon: 'circle-check',
+        title: 'Quotation',
+        value: 'quotation',
+        icon: 'file-invoice-dollar',
+        color: 'warning',
+    },
+    {
+        id: 5,
+        title: 'Negotiation',
+        value: 'negotiation',
+        icon: 'handshake',
+        color: 'secondary',
+    },
+    {
+        id: 6,
+        title: 'Won',
+        value: 'closed_won',
+        icon: 'trophy',
+        color: 'success',
+    },
+    {
+        id: 7,
+        title: 'Lost',
+        value: 'closed_lost',
+        icon: 'circle-xmark',
+        color: 'danger',
+    },
+    {
+        id: 8,
+        title: 'Cancel',
+        value: 'closed_cancel',
+        icon: 'ban',
+        color: 'secondary',
     },
 ];
 export const projects = [
@@ -1833,7 +1865,7 @@ export const projects = [
         projectBanner: 'project/list/1.png',
         date: '06 Nov, 2024',
         progress: 40,
-        status: 'pending',
+        status: 'qualified',
         budget: '$845,540.00',
         teamMember: [
             { name: 'Alexis Taylor', profile: 'dashboard/user/10.jpg' },
@@ -1849,7 +1881,7 @@ export const projects = [
         projectBanner: 'project/list/2.png',
         date: '10 Mar, 2024',
         progress: 100,
-        status: 'completed',
+        status: 'closed_won',
         budget: '$348,940.00',
         teamMember: [
             { name: 'Caleb Rivera', profile: 'dashboard/user/12.jpg' },
@@ -1864,7 +1896,7 @@ export const projects = [
         projectBanner: 'project/list/3.png',
         date: '12 July, 2023',
         progress: 60,
-        status: 'in_progress',
+        status: 'presentation_demo',
         budget: '$753,759.00',
         teamMember: [
             {
@@ -1889,7 +1921,7 @@ export const projects = [
         projectBanner: 'project/list/4.png',
         date: '10 Feb, 2023',
         progress: 20,
-        status: 'pending',
+        status: 'qualified',
         budget: '$159,948.00',
         teamMember: [
             { name: 'Thomas Jones', profile: 'dashboard/user/1.jpg' },
@@ -1907,7 +1939,7 @@ export const projects = [
         projectBanner: 'project/list/5.png',
         date: '09 Feb, 2024',
         progress: 50,
-        status: 'in_progress',
+        status: 'quotation',
         budget: '$987,720.00',
         teamMember: [
             {
@@ -1932,7 +1964,7 @@ export const projects = [
         projectBanner: 'project/list/6.png',
         date: '14 May, 2024',
         progress: 70,
-        status: 'pending',
+        status: 'presentation_demo',
         budget: '$821,961.00',
         teamMember: [
             {
@@ -1950,7 +1982,7 @@ export const projects = [
         projectBanner: 'project/list/7.png',
         date: '27 Oct, 2024',
         progress: 100,
-        status: 'completed',
+        status: 'closed_won',
         budget: '$951,675.00',
         teamMember: [
             { name: 'Calista Rivers', profile: 'dashboard/user/3.jpg' },
@@ -1969,7 +2001,7 @@ export const projects = [
         projectBanner: 'project/list/9.png',
         date: '02 Feb, 2024',
         progress: 75,
-        status: 'in_progress',
+        status: 'negotiation',
         budget: '$753,759.00',
         teamMember: [
             { name: 'Daxton Creed' },
@@ -1985,7 +2017,7 @@ export const projects = [
         projectBanner: 'project/list/10.png',
         date: '28 Jan, 2024',
         progress: 100,
-        status: 'completed',
+        status: 'closed_lost',
         budget: '$652,444.00',
         teamMember: [
             { name: 'Atlas Stone', profile: 'user/12.png' },
@@ -2000,7 +2032,7 @@ export const projects = [
         projectBanner: 'project/list/12.png',
         date: '28 Nov, 2024',
         progress: 87,
-        status: 'in_progress',
+        status: 'negotiation',
         budget: '$241,989.00',
         teamMember: [
             { name: 'Xander Wilde' },
@@ -2022,7 +2054,7 @@ export const projects = [
         projectBanner: 'project/list/11.png',
         date: '03 Sep, 2024',
         progress: 100,
-        status: 'completed',
+        status: 'closed_cancel',
         budget: '$652,444.00',
         teamMember: [
             { name: 'Kairos Frost' },
@@ -2037,7 +2069,7 @@ export const projects = [
         projectBanner: 'project/list/8.png',
         date: '08 Nov, 2024',
         progress: 80,
-        status: 'pending',
+        status: 'qualified',
         budget: '$400,548.00',
         teamMember: [
             { name: 'Joseph Garcia', profile: 'avtar/16.jpg' },

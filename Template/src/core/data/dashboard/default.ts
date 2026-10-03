@@ -467,7 +467,11 @@ export const visitsChartSeries: ApexOptions['series'] = [
   },
 ]
 export const visitsChart: ApexOptions = {
-  colors: ['var(--theme-default)', '#80B3B3', '#CCE0E0'],
+  colors: [
+    'var(--theme-default)',
+    'rgba(var(--app-primary-rgb), 0.6)',
+    'rgba(var(--app-primary-rgb), 0.3)',
+  ],
   chart: {
     type: 'bar',
     height: 325,
