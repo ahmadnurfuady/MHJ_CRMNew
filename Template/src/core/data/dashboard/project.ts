@@ -48,7 +48,7 @@ export const projectStatisticsSeries: ApexOptions['series'] = [
   },
 ]
 export const projectStatistics: ApexOptions = {
-  colors: ['var(--theme-default)', '#80B3B3', '#CCE0E0'],
+  colors: ['var(--theme-default)', '#84D7EB', '#DDF2FB'],
   chart: {
     type: 'bar',
     height: 412,

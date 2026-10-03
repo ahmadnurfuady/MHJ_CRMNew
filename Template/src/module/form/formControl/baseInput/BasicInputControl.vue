@@ -152,7 +152,7 @@
               <InputField
                 :inputId="'color'"
                 :inputType="'color'"
-                :placeholder="'#006666'"
+                :placeholder="'#18A6E4'"
                 v-model:modelValue="colorPicker"
                 :required="false"
                 :class="'form-control-color'"
@@ -204,5 +204,5 @@ const InputField = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputField.vue')
 )
 
-const colorPicker = ref({ data: '#006666', errorMessage: '' })
+const colorPicker = ref({ data: '#18A6E4', errorMessage: '' })
 </script>

@@ -1,6 +1,6 @@
 import { monthDataSeries1, chartDatas } from '@/core/data/chartData';
-const primary = localStorage.getItem('primary_color') || '#006666';
-const secondary = localStorage.getItem('secondary_color') || '#FE6A49';
+const primary = localStorage.getItem('primary_color') || '#18A6E4';
+const secondary = localStorage.getItem('secondary_color') || '#84D7EB';
 const trigoStrength = 3;
 const customFunction1 = ({ seriesIndex, dataPointIndex, w }) => {
     return w.globals.series[seriesIndex][dataPointIndex];
@@ -159,7 +159,7 @@ export const commonLineCharts = [
                 '2018-09-19T09:30:00',
                 '2018-09-19T10:30:00',
             ],
-            colors: '#51bb25',
+            colors: '#0284C7',
         }),
     },
 ];
@@ -221,7 +221,7 @@ export const widgetsChart4 = {
             },
         },
     },
-    colors: [secondary, '#51bb25', primary],
+    colors: [secondary, '#0284C7', primary],
     fill: {
         type: 'gradient',
         gradient: {
@@ -299,7 +299,7 @@ export const widgetsChart5 = {
             strokeWidth: 1,
         },
     },
-    colors: [secondary, '#51bb25', primary],
+    colors: [secondary, '#0284C7', primary],
     responsive: [
         {
             breakpoint: 767,
@@ -435,7 +435,7 @@ export const orderStatusChart = [
             },
         ],
         chartDetails: commonOrderStatusProgress({
-            colors: '#FFAE1A',
+            colors: '#F59E0B',
             series: 60,
             categories: 'Out for delivery',
         }),
@@ -448,7 +448,7 @@ export const orderStatusChart = [
             },
         ],
         chartDetails: commonOrderStatusProgress({
-            colors: '#65c15c',
+            colors: '#0284C7',
             series: 74,
             categories: 'Delivered',
         }),
@@ -730,14 +730,14 @@ export const widgetsChart14 = {
             {
                 x: new Date('17 Nov 2017').getTime(),
                 x2: new Date('18 Nov 2017').getTime(),
-                fillColor: '#8DD4B4',
+                fillColor: '#84D7EB',
                 opacity: 0.1,
                 label: {
-                    borderColor: '##51bb25',
+                    borderColor: '#0284C7',
                     style: {
                         fontSize: '10px',
                         color: '#fff',
-                        background: '#8DD4B4',
+                        background: '#84D7EB',
                     },
                     offsetY: 20,
                     text: 'X-axis range',
@@ -1108,7 +1108,7 @@ export const widgetsChart19 = {
             stops: [0, 100],
         },
     },
-    colors: [primary, secondary, '#8DD4B4', '#544fff'],
+    colors: [primary, secondary, '#84D7EB', '#544fff'],
     title: {
         text: 'Simple Bubble Chart',
     },

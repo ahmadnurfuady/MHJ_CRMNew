@@ -28,7 +28,7 @@ html:hover {
 
     .cursor-outer {
       transform: scale(1.4);
-      border-color: #006666;
+      border-color: $color-brand-primary;
       opacity: 1;
     }
   }
@@ -56,7 +56,7 @@ html:hover {
   display: block;
   width: 80%;
   height: 80%;
-  background: #006666;
+  background: $color-brand-primary;
   border-radius: 50%;
   transition:
     transform 0.4s $ease-out-quint,
@@ -67,10 +67,10 @@ html:hover {
   display: block;
   width: 70%;
   height: 70%;
-  border: 1px solid rgba(#006666, 1);
+  border: 1px solid rgba($color-brand-primary, 1);
   border-radius: 50%;
   box-sizing: border-box;
-  box-shadow: 0px 0px 4px 4px rgba(#006666, 0.22);
+  box-shadow: 0px 0px 4px 4px rgba($color-brand-primary, 0.22);
   transition:
     border 0.4s $ease-out-quart,
     transform 0.4s $ease-out-quint,
@@ -580,8 +580,8 @@ html:hover {
           border: none !important;
           background: linear-gradient(
             90deg,
-            rgba(13, 126, 126, 0.08) -18.33%,
-            rgba(0, 102, 102, 0.08) 62.78%
+            rgba(20, 147, 204, 0.08) -18.33%,
+            rgba(24, 166, 228, 0.08) 62.78%
           ) !important;
           padding: 8px 15px;
           font-weight: 600;
@@ -757,7 +757,7 @@ html:hover {
         text-transform: uppercase;
         color: $white;
         -webkit-background-clip: text;
-        background-image: linear-gradient(26deg, rgba(0, 102, 102, 1), rgba(13, 126, 126, 0.19));
+        background-image: linear-gradient(26deg, rgba(24, 166, 228, 1), rgba(20, 147, 204, 0.19));
         -webkit-text-stroke: 2px transparent;
       }
     }
@@ -1086,10 +1086,10 @@ html:hover {
       width: fit-content;
       position: relative;
       box-shadow:
-        0px 1.9217px 1.53736px 0px rgba(0, 102, 102, 0.03),
-        0px 4.6181px 3.69448px 0px rgba(0, 102, 102, 0.05),
-        0px 8.69547px 6.95638px 0px rgba(0, 102, 102, 0.06),
-        0px 10px 10px 0px rgba(0, 102, 102, 0.04);
+        0px 1.9217px 1.53736px 0px rgba(24, 166, 228, 0.03),
+        0px 4.6181px 3.69448px 0px rgba(24, 166, 228, 0.05),
+        0px 8.69547px 6.95638px 0px rgba(24, 166, 228, 0.06),
+        0px 10px 10px 0px rgba(24, 166, 228, 0.04);
       div {
         height: 70px;
         width: 70px;
@@ -1462,7 +1462,7 @@ html:hover {
               position: relative;
               &::before {
                 content: '';
-                background-image: linear-gradient(180deg, #24b5b5 0%, #228585 100%);
+                background-image: $gradient-landing-color;
                 position: absolute;
                 border-radius: 15px;
                 height: 10px;
@@ -1494,7 +1494,7 @@ html:hover {
             border-radius: 24px;
           }
           span {
-            background: linear-gradient(180deg, #24b5b5 0%, #228585 100%);
+            background: $gradient-landing-color;
             background-clip: text;
             -webkit-background-clip: text;
             font-size: 25px;
@@ -1798,7 +1798,7 @@ $landing-color: var(--theme-default);
 
   .buy-btn {
     font-size: 16px;
-    background: linear-gradient(90deg, #006666 -18.33%, #006666 62.78%);
+    background: linear-gradient(90deg, $color-brand-primary -18.33%, $color-brand-primary 62.78%);
     border-radius: 7px;
     padding: 11px 39px;
     margin-left: 10px;
@@ -2666,7 +2666,7 @@ footer {
     h5 {
       font-weight: 700;
       font-family: $font-Montserrat;
-      color: #006666;
+      color: $color-brand-primary;
     }
 
     h4 {

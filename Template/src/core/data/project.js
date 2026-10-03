@@ -124,7 +124,7 @@ export const projectDetails = {
                         },
                     },
                 },
-                colors: ['#006666', '#FE6A49', '#FFAE1A'],
+                colors: ['#18A6E4', '#84D7EB', '#F59E0B'],
                 labels: ['Pending', 'In Progress', 'Completed'],
                 legend: {
                     show: false,
@@ -286,7 +286,7 @@ export const projectDetails = {
                         top: 8,
                         left: 0,
                         blur: 6,
-                        // color: ["#7366FF", "#54BA4A"],
+                        // color: ["#7366FF", "#0284C7"],
                         opacity: 0.4,
                     },
                 },
@@ -360,7 +360,7 @@ export const projectDetails = {
                 legend: {
                     show: false,
                 },
-                colors: [primaryColor, '#65c15c'],
+                colors: [primaryColor, '#0284C7'],
                 fill: {
                     type: 'gradient',
                     gradient: {
@@ -385,7 +385,7 @@ export const projectDetails = {
                         {
                             seriesIndex: 1,
                             dataPointIndex: 3,
-                            fillColor: '#54BA4A',
+                            fillColor: '#0284C7',
                             strokeColor: 'var(--white)',
                             size: 5,
                         },
@@ -894,7 +894,7 @@ export const projectDetails = {
                             },
                         },
                     },
-                    colors: ['#65c15c'],
+                    colors: ['#0284C7'],
                     stroke: {
                         width: 3,
                         lineCap: 'butt',
@@ -1008,7 +1008,7 @@ export const projectDetails = {
                             top: 8,
                             left: 0,
                             blur: 8,
-                            color: '#006666',
+                            color: '#18A6E4',
                             opacity: 0.1,
                         },
                     },
@@ -1165,7 +1165,7 @@ export const projectDetails = {
                             {
                                 seriesIndex: 0,
                                 dataPointIndex: 3,
-                                fillColor: '#FFAE1A',
+                                fillColor: '#F59E0B',
                                 strokeColor: 'var(--white)',
                                 size: 4,
                             },
@@ -1175,7 +1175,7 @@ export const projectDetails = {
                             sizeOffset: 0,
                         },
                     },
-                    colors: ['#FFAE1A'],
+                    colors: ['#F59E0B'],
                     fill: {
                         type: 'gradient',
                         gradient: {
@@ -1333,7 +1333,7 @@ export const projectDetails = {
                         strokeWidth: 0,
                     },
                 },
-                colors: ['#006666', '#FE6A49', '#FFAE1A', '#00AC46'],
+                colors: ['#18A6E4', '#84D7EB', '#F59E0B', '#0284C7'],
                 labels: ['Design', 'Product', 'Development', 'Marketing'],
             },
         },
@@ -1733,7 +1733,7 @@ export const projectCostPerformance = {
         dataLabels: {
             enabled: false,
         },
-        colors: [primaryColor, '#65c15c', '#ffffff'],
+        colors: [primaryColor, '#0284C7', '#ffffff'],
         responsive: [
             {
                 breakpoint: 1870,

@@ -189,8 +189,8 @@ export const lineChartOptions = {
         data: [10, 20, 40, 30, 0, 20, 10, 30, 10],
         fill: true,
         backgroundColor: 'rgba(0, 172, 70, 0.2)',
-        borderColor: '#00AC46',
-        pointBackgroundColor: '#00AC46',
+        borderColor: '#0284C7',
+        pointBackgroundColor: '#0284C7',
         borderWidth: 2,
       },
       {
@@ -245,7 +245,7 @@ export const doughnutChart = {
       {
         label: 'My First Dataset',
         data: [300, 50, 100],
-        backgroundColor: [primaryColor, secondaryColor, '#00AC46'],
+        backgroundColor: [primaryColor, secondaryColor, '#0284C7'],
         borderWidth: 1, // optional: you can add this
       },
     ],
@@ -302,7 +302,7 @@ export const polarChartData: ChartData<'polarArea'> = {
     {
       label: 'Polar Data',
       data: [300, 50, 100, 40, 120],
-      backgroundColor: [primaryColor, '#f8d62b', '#00AC46', '#a927f9', secondaryColor],
+      backgroundColor: [primaryColor, '#f8d62b', '#0284C7', '#a927f9', secondaryColor],
       borderColor: '#fff',
       borderWidth: 2,
     },

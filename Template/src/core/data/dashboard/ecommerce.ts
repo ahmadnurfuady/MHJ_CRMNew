@@ -25,7 +25,7 @@ export const saleChartSeries: ApexOptions['series'] = [
 ]
 
 export const saleChartChart: ApexOptions = {
-  colors: [primaryColor, '#FFAE1A'],
+  colors: [primaryColor, '#F59E0B'],
   chart: {
     height: 280,
     type: 'area',
@@ -73,12 +73,12 @@ export const saleChartChart: ApexOptions = {
     yaxis: [
       {
         y: 5800,
-        // borderColor: '#00E396',
+        // borderColor: '#0284C7',
         label: {
-          borderColor: '#00E396',
+          borderColor: '#0284C7',
           style: {
             color: '#fff',
-            background: '#00E396',
+            background: '#0284C7',
           },
           // text: '-axis annotation on 8800'
         },
@@ -605,7 +605,7 @@ export const topRevenueProduct: ApexOptions = {
     width: 0,
   },
   labels: ['Women Jeans', 'Women T-shirts', 'Women Shoes', 'Kurtas & Kurti'],
-  colors: ['var(--theme-secondary)', '#80b3b3', 'var(--theme-default)', '#FFAE1A'],
+  colors: ['var(--theme-secondary)', '#84D7EB', 'var(--theme-default)', '#F59E0B'],
   dataLabels: {
     enabled: false,
   },

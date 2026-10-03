@@ -159,10 +159,10 @@ export const classLevelFilterOptions: CardToggleOption[] = [
   },
 ]
 
-export const primaryColor: string = localStorage.getItem('primary_color') || '#006666'
-export const secondaryColor: string = localStorage.getItem('secondary_color') || '#FE6A49'
-export const successColor: string = '#00AC46'
-export const warningColor: string = '#FFAE1A'
+export const primaryColor: string = localStorage.getItem('primary_color') || '#18A6E4'
+export const secondaryColor: string = localStorage.getItem('secondary_color') || '#84D7EB'
+export const successColor: string = '#0284C7'
+export const warningColor: string = '#F59E0B'
 
 export function initInputField() {
   return {

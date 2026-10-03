@@ -115,15 +115,57 @@
 @import './utils/variables';
 
 :root {
-  --theme-default: #006666;
-  --theme-secondary: #fe6a49;
-  --light-background: rgba(242, 243, 247, 0.7);
-  --body-font-color: #86909c;
-  --chart-border: #e6e9eb;
+  // MHJ Medika — brand
+  --color-primary: #18a6e4;
+  --color-primary-hover: #1493cc;
+  --color-primary-dark: #0e7490;
+  --color-primary-soft: #ddf2fb;
+  --color-primary-sky: #e0f2fe;
+  --color-primary-strong: #0284c7;
+  --color-primary-deep: #0369a1;
+  --color-primary-border: #bae6fd;
+  --color-primary-wash: #f0f9ff;
+  --color-secondary-cyan: #84d7eb;
+
+  // MHJ Medika — surfaces & backgrounds
+  --bg-sidebar: #18a6e4;
+  --bg-sidebar-box: rgba(255, 255, 255, 0.14);
+  --bg-dashboard: #f8fafc;
+  --bg-subtle: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-track: #e8eef3;
+
+  // MHJ Medika — typography
+  --font-family: 'Montserrat', sans-serif;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-disabled: #94a3b8;
+  --text-inverse: #ffffff;
+  --text-sidebar-dim: rgba(255, 255, 255, 0.85);
+
+  // MHJ Medika — borders & semantic
+  --border-subtle: #e2e8f0;
+  --border-card: rgba(226, 232, 240, 0.8);
+  --danger: #ef4444;
+  --danger-dot: #ff3b30;
+  --danger-soft-bg: #fee2e2;
+  --warning-amber: #f59e0b;
+
+  // MHJ Medika — elevation & radius
+  --radius-card: 20px;
+  --radius-button: 9999px;
+  --shadow-soft: 0 4px 20px -2px rgba(24, 166, 228, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
+
+  --theme-default: var(--color-primary);
+  --theme-secondary: var(--color-secondary-cyan);
+  --light-background: rgba(241, 245, 249, 0.7);
+  --body-font-color: #475569;
+  --chart-border: #e2e8f0;
   --recent-chart-bg: #fcfcfd;
-  --light-bg: #eef1f6;
+  --light-bg: #f1f5f9;
   --white: #fff;
-  --light2: #f5f6f9;
+  --light2: #f8fafc;
   --sidebar-border: rgba(0, 0, 0, 0.1);
   --chart-text-color: rgba(82, 82, 108, 0.8);
   --recent-dashed-border: rgba(82, 82, 108, 0.3);
@@ -135,13 +177,13 @@
   --course-bg: #f7f7f7;
   --balance-profie-bg: #e0dfef;
   --view-grid-bg: #ecf3fa80;
-  --view-border-marker: #0066661a;
-  --light-slate: #f5f6f9;
-  --text-gray: rgba(82, 82, 108, 0.8);
+  --view-border-marker: #18a6e41a;
+  --light-slate: #f8fafc;
+  --text-gray: #64748b;
   --product-shadow: 0px 1px 0px rgba(82, 82, 108, 0.15);
-  --bs-heading-color: #051a1a;
-  --bs-card-color: #051a1a;
-  --dark-light-color: #0d8888;
+  --bs-heading-color: #1e293b;
+  --bs-card-color: #1e293b;
+  --dark-light-color: #0e7490;
 
   --fc-button-bg-color: var(--theme-default);
   --fc-button-active-bg-color: var(--theme-default);
@@ -373,3 +415,6 @@ body.dark-only.box-layout {
 @import 'layout/sidebar';
 @import 'layout/rtl';
 @import 'layout/box-layout';
+
+// *** MHJ Medika theme (loaded last so it wins over template defaults) ***
+@import 'themes/mhj';

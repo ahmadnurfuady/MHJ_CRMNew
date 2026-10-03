@@ -1,33 +1,82 @@
+// =====================================================================
+// MHJ Medika CRM design tokens (Inverted Blue Sidebar & Monokrom Biru)
+// Green accents are shifted into the blue family; red is reserved for
+// critical / overdue / closed-lost / unread states only.
+// =====================================================================
+// A. Brand & accent
+$color-brand-primary: #18a6e4;
+$color-brand-primary-hover: #1493cc;
+$color-brand-primary-dark: #0e7490;
+$color-brand-soft: #ddf2fb;
+$color-brand-soft-light: #e0f2fe;
+$color-brand-secondary: #84d7eb;
+$color-brand-sky-strong: #0284c7;
+$color-brand-sky-deep: #0369a1;
+$color-brand-sky-border: #bae6fd;
+$color-brand-sky-wash: #f0f9ff;
+
+// B. Backgrounds & surfaces
+$color-bg-page: #f8fafc;
+$color-bg-subtle: #f1f5f9;
+$color-surface-white: #ffffff;
+$color-surface-sidebar: $color-brand-primary;
+$color-surface-sidebar-box: rgba(255, 255, 255, 0.12);
+
+// C. Typography
+$color-text-main: #1e293b;
+$color-text-body: #475569;
+$color-text-muted: #64748b;
+$color-text-disabled: #94a3b8;
+$color-text-inverse: #ffffff;
+$color-text-sidebar-dim: rgba(255, 255, 255, 0.85);
+
+// D. Borders, dividers & progress track
+$color-border-subtle: #e2e8f0;
+$color-border-card: rgba(226, 232, 240, 0.8);
+$color-progress-track: #e8eef3;
+$color-slate-soft: #cbd5e1;
+
+// E. Semantic support
+$color-danger: #ef4444;
+$color-danger-dot: #ff3b30;
+$color-danger-soft-bg: #fee2e2;
+$color-warning-amber: #f59e0b;
+
+// Elevation & radius
+$radius-card: 20px;
+$radius-button: 9999px;
+$shadow-soft: 0 4px 20px -2px rgba(24, 166, 228, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
+
 // General variables
-$theme-font-color: #242934;
-$theme-body-font-color: #051a1a;
+$theme-font-color: $color-text-main;
+$theme-body-font-color: $color-text-main;
 $theme-body-sub-title-color: #ffffff;
-$body-color: #f5f5f5;
-$main-body-color: #f5f5f5;
+$body-color: $color-bg-page;
+$main-body-color: $color-bg-page;
 
 // Theme colors variables
-$primary-color: #006666;
-$secondary-color: #fe6a49;
-$success-color: #00ac46;
-$info-color: #173878;
-$warning-color: #ffae1a;
-$danger-color: #e72929;
-$light-color: #e6e9eb;
-$badge-light-color: #52526c;
-$light-gray: #ecf3fa;
+$primary-color: $color-brand-primary;
+$secondary-color: $color-brand-secondary;
+$success-color: $color-brand-sky-strong; // monokrom biru: replaces green
+$info-color: $color-brand-primary-dark;
+$warning-color: $color-warning-amber;
+$danger-color: $color-danger;
+$light-color: $color-border-subtle;
+$badge-light-color: $color-text-body;
+$light-gray: $color-border-subtle;
 $light-widget-border: #efeeff;
-$light-semi-gray: #efefef;
-$font-gray-color: #6c757d;
+$light-semi-gray: $color-bg-subtle;
+$font-gray-color: $color-text-muted;
 $dark-light: $theme-font-color;
 $dark-gray: #898989;
-$dark-color: #2c323f;
+$dark-color: $color-text-main;
 $dark-color-light: #2c323fb8;
-$gray-60: #e6e9eb;
+$gray-60: $color-border-subtle;
 $card-body-color: #f9f9fa;
 $transparent-color: transparent;
 $auth-bg-color: #fafafa;
 $light: #fdfeff;
-$semi-dark: #59667a;
+$semi-dark: $color-text-muted;
 $light-text: #999999;
 $light-paragraph: #8f8f8f;
 $light-background: #d7e2e9;
@@ -50,27 +99,27 @@ $light-warning: rgba($warning-color, 0.3);
 $light-danger: rgba($danger-color, 0.3);
 $light-white: #f9f9fb;
 $light-dark: #eaebf2;
-$info-light: #44c6c6;
-$light-txt-color: #86909c;
+$info-light: $color-brand-secondary;
+$light-txt-color: $color-text-muted;
 $light-bg-gry-color: #f9f9f9;
 $folder-color: #efa000;
 // gradient colors
-$gradient-primary: linear-gradient(26deg, var(--theme-default) 0%, #006666 100%);
-$gradient-bg-primary: linear-gradient(103.75deg, #173878 -13.9%, var(--theme-default) 79.68%);
+$gradient-primary: linear-gradient(26deg, var(--theme-default) 0%, $color-brand-primary-hover 100%);
+$gradient-bg-primary: linear-gradient(103.75deg, $color-brand-sky-deep -13.9%, var(--theme-default) 79.68%);
 $gradient-card-bg-primary: radial-gradient(
   circle,
-  rgba(27, 174, 174, 1) 2%,
-  rgba(26, 148, 148, 1) 50%,
-  rgba(4, 143, 143, 1) 100%
+  rgba(56, 182, 236, 1) 2%,
+  rgba(24, 166, 228, 1) 50%,
+  rgba(20, 147, 204, 1) 100%
 );
-$gradient-landing-color: linear-gradient(180deg, #24b5b5 0%, #228585 100%);
+$gradient-landing-color: linear-gradient(180deg, $color-brand-primary 0%, $color-brand-primary-hover 100%);
 
 // light colors
-$primary-light-color: #006666;
-$secondary-light-color: #fe6a49;
-$warning-light-color: #ffae1a;
-$danger-light-color: #fe6a49;
-$light-light-color: #e6e9eb;
+$primary-light-color: $color-brand-primary;
+$secondary-light-color: $color-brand-secondary;
+$warning-light-color: $color-warning-amber;
+$danger-light-color: $color-danger;
+$light-light-color: $color-border-subtle;
 
 //social colors
 $fb: #50598e;
@@ -219,9 +268,9 @@ $btn-xs-padding: 0.05rem 0.4rem;
 $card-padding: 20px;
 $card-margin-bottom: 25px;
 $card-border-color: 1px solid $light-gray;
-$card-border-radious: 8px;
+$card-border-radious: $radius-card;
 $common-shadow-color: rgba($info-color, 0.08);
-$card-box-shadow: 0px 9px 20px rgba(46, 35, 94, 0.07);
+$card-box-shadow: $shadow-soft;
 $card-header-bg-color: $white;
 $card-header-font-transform: capitalize;
 $card-header-span-size: 12px;
@@ -301,7 +350,7 @@ $sidebar-open-icon: '\f107';
 $sidebar-close-icon: '\f105';
 $sidebar-icon-font-family: $font-awesome;
 $sidebar-height: calc(100vh - 115px);
-$sidebar-compact-width: 265px;
+$sidebar-compact-width: 260px;
 
 //Header settings
 $main-header-position: fixed;
