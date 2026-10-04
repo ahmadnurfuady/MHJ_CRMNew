@@ -27,12 +27,20 @@ interface AuthState {
   error: string | null
 }
 
+function safeParse<T>(key: string, fallback: T): T {
+  try {
+    return JSON.parse(localStorage.getItem(key) || '') ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
 // ── Store Pinia ───────────────────────────────────────────────────────────────
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    user: JSON.parse(localStorage.getItem('user') || 'null'),
+    user: safeParse<AuthUser | null>('user', null),
     token: localStorage.getItem('token') || null,
-    menuuser: JSON.parse(localStorage.getItem('menuuser') || '[]'),
+    menuuser: safeParse<MenuUserItem[]>('menuuser', []),
     loading: false,
     error: null
   }),
@@ -53,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
         const response = await api.post('/login', credentials)
         const data = response.data
 
-        if ((data.success || data.token) && data.token) {
+        if (data.token) {
           this.token = data.token
           this.user = data.user || null
           localStorage.setItem('token', data.token)

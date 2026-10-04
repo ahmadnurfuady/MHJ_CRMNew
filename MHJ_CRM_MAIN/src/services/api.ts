@@ -69,7 +69,7 @@ api.interceptors.response.use(
 
         // Hindari redirect loop jika sudah di halaman login
         if (!window.location.pathname.includes('/auth/login')) {
-          window.location.href = '/riho/auth/login'
+          window.location.href = '/auth/login'
         }
       }
     }

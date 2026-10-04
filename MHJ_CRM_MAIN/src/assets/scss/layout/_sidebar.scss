@@ -281,13 +281,13 @@
           }
         }
 
-        > ul {
+        >ul {
           display: flex;
           align-items: center;
           justify-content: flex-end;
           gap: 8px;
 
-          > li {
+          >li {
             padding: 6px 10px;
             display: inline-block;
             position: relative;
@@ -553,7 +553,7 @@
               font-family: $font-Montserrat;
             }
 
-            & + li {
+            &+li {
               margin-top: 15px;
             }
 
@@ -574,7 +574,7 @@
               }
 
               .media-body {
-                > span {
+                >span {
                   letter-spacing: 0.8px;
                   padding-right: 10px;
                   display: inline-block;
@@ -653,7 +653,7 @@
               }
             }
 
-            & + li {
+            &+li {
               margin-top: 0;
               border-top: 1px solid rgba($dropdown-border-color, 0.1);
             }
@@ -682,6 +682,7 @@
               display: flex;
               align-items: center;
               justify-content: center;
+
               svg {
                 width: 14px !important;
                 stroke: $white;
@@ -765,7 +766,7 @@
 
             &:nth-child(2) {
               &.product-remove {
-                ~ .total {
+                ~.total {
                   display: none;
                   // ~.cart-empty {
                   //   display: block;
@@ -808,6 +809,7 @@
           }
 
           li {
+
             // border-radius: 5px;
             &:last-child {
               text-align: center;
@@ -874,7 +876,7 @@
               }
             }
 
-            + li {
+            +li {
               margin-top: 0;
             }
 
@@ -918,7 +920,7 @@
       margin: 0px -27px 0px;
       // background-color: $white;
 
-      > .row {
+      >.row {
         margin: 0;
 
         .col-6 {
@@ -958,7 +960,7 @@
         }
 
         .breadcrumb-item {
-          & + .breadcrumb-item {
+          &+.breadcrumb-item {
             &:before {
               content: $breadcrumb-content;
             }
@@ -984,7 +986,7 @@
     div.sidebar-wrapper {
       .sidebar-main {
         .sidebar-links {
-          > li {
+          >li {
             a {
               svg {
                 &.stroke-icon {
@@ -1066,6 +1068,7 @@
       .badge {
         display: none;
       }
+
       .sidebar-submenu {
         li {
           a {
@@ -1075,6 +1078,7 @@
           }
         }
       }
+
       .sidebar-link {
         .custom-badge-label {
           padding: 4px 2px !important;
@@ -1213,7 +1217,7 @@
               }
             }
 
-            > li {
+            >li {
               position: relative;
               padding-top: 10px;
               padding-bottom: 10px;
@@ -1229,8 +1233,8 @@
               }
 
               &:hover {
-                > a {
-                  > span {
+                >a {
+                  >span {
                     color: var(--theme-default);
                     transition: all 0.3s ease;
                   }
@@ -1258,7 +1262,7 @@
                 display: none !important;
               }
 
-              > a {
+              >a {
                 display: block;
                 color: $theme-body-font-color;
                 line-height: 23px;
@@ -1423,7 +1427,7 @@
               }
 
               &:hover {
-                > a {
+                >a {
                   &:after {
                     left: 0;
                     right: 0;
@@ -1469,8 +1473,9 @@
           transition: all 0.3s ease;
         }
       }
+
       .sidebar-main {
-        .sidebar-links > li {
+        .sidebar-links>li {
           .sidebar-submenu {
             li {
               &:hover {
@@ -1631,7 +1636,7 @@
 
           .sidebar-main {
             .sidebar-links {
-              > li {
+              >li {
                 a {
                   svg {
                     fill: $white;
@@ -1665,7 +1670,7 @@
 
             .sidebar-main {
               .sidebar-links {
-                > li {
+                >li {
                   max-width: 86px;
                   margin: 0;
                   transition: all 0.3s ease;
@@ -1712,7 +1717,7 @@
 
               .sidebar-main {
                 .sidebar-links {
-                  > li {
+                  >li {
                     max-width: unset;
                     margin: initial;
                     transition: all 0.3s ease;
@@ -1731,7 +1736,7 @@
                       }
                     }
 
-                    > a {
+                    >a {
                       padding: 12px 15px;
                       transition: all 0.3s ease;
 
@@ -1762,13 +1767,13 @@
               transform: translate(183px);
             }
 
-            ~ .page-body,
-            ~ footer {
+            ~.page-body,
+            ~footer {
               margin-left: 90px;
               transition: 0.5s;
             }
 
-            ~ .footer-fix {
+            ~.footer-fix {
               width: calc(100% - 90px);
             }
 
@@ -1776,7 +1781,7 @@
               .sidebar-links {
                 height: calc(100vh - 118px);
 
-                > li {
+                >li {
                   .sidebar-link {
                     padding: 15px;
 
@@ -1796,7 +1801,7 @@
                 .sidebar-list {
                   .sidebar-title {
                     &.active {
-                      ~ .sidebar-submenu {
+                      ~.sidebar-submenu {
                         display: none;
                       }
                     }
@@ -1811,6 +1816,7 @@
           }
 
           .sidebar-main {
+
             .left-arrow,
             .right-arrow {
               display: none;
@@ -1915,7 +1921,7 @@
                 }
               }
 
-              > li {
+              >li {
                 display: block;
                 width: 100%;
                 position: relative;
@@ -1974,7 +1980,7 @@
                   }
 
                   &:hover {
-                    > a {
+                    >a {
                       &:hover {
                         background-color: rgba($white, 0.2);
                         // transition: all 0.3s ease;
@@ -2046,7 +2052,7 @@
                     @extend %sidebar-before;
                   }
 
-                  > li {
+                  >li {
                     a {
                       padding-left: 50px !important;
                       font-weight: 400;
@@ -2067,7 +2073,7 @@
                     position: relative;
 
                     &:hover {
-                      > a {
+                      >a {
                         color: $white;
                         transition: all 0.3s ease;
                       }
@@ -2263,7 +2269,7 @@
                 &.mega-menu {
                   .sidebar-title {
                     &.active {
-                      ~ .mega-menu-container {
+                      ~.mega-menu-container {
                         display: block !important;
 
                         &::before {
@@ -2289,7 +2295,7 @@
                       visibility: visible;
                     }
 
-                    ~ .sidebar-submenu {
+                    ~.sidebar-submenu {
                       &::before {
                         height: calc(100% - 8px);
                         transition: height 0.5s;
@@ -2396,7 +2402,7 @@
         div.sidebar-wrapper {
           .sidebar-main {
             .sidebar-links {
-              > li {
+              >li {
                 a {
                   svg {
                     &.stroke-icon {
@@ -2455,7 +2461,7 @@
               }
             }
 
-            > li {
+            >li {
               .mega-menu-container {
                 .mega-box {
                   .link-section {
@@ -2589,7 +2595,7 @@
       order: -1;
     }
 
-    ~ .bg-overlay1 {
+    ~.bg-overlay1 {
       transition: 0.8s;
 
       &.active {
@@ -2685,7 +2691,7 @@
         top: 0;
         z-index: 9;
 
-        > div {
+        >div {
           height: auto;
           line-height: inherit;
           background: $body-color;
@@ -2696,6 +2702,7 @@
         }
 
         .sidebar-main {
+
           .left-arrow,
           .right-arrow {
             display: none;
@@ -2728,8 +2735,8 @@
                     color: $primary-color;
                   }
 
-                  ~ .sidebar-submenu,
-                  ~ .mega-menu-container {
+                  ~.sidebar-submenu,
+                  ~.mega-menu-container {
                     animation: fadeInLeft 300ms ease-in-out;
                   }
                 }
@@ -2791,8 +2798,8 @@
                   }
                 }
 
-                > li {
-                  > a {
+                >li {
+                  >a {
                     &::after {
                       position: absolute;
                       content: '';
@@ -2856,7 +2863,7 @@
                   height: 24px;
                 }
 
-                > span {
+                >span {
                   display: block;
                   font-weight: 500;
                   letter-spacing: 1px;
@@ -2925,8 +2932,8 @@
         &.close_icon {
           transform: translateX(-150px);
 
-          ~ .page-body,
-          ~ .footer {
+          ~.page-body,
+          ~.footer {
             margin-left: 0px;
           }
         }
@@ -3014,7 +3021,7 @@
       }
 
       div.sidebar-wrapper {
-        > div {
+        >div {
           width: 90px;
         }
 
@@ -3062,7 +3069,7 @@
                   height: 20px;
                 }
 
-                > span {
+                >span {
                   display: none;
                 }
               }
@@ -3074,7 +3081,7 @@
               }
 
               a {
-                > span {
+                >span {
                   display: none;
                 }
               }
@@ -3085,8 +3092,8 @@
         &.close_icon {
           transform: translateX(-150px);
 
-          ~ .page-body,
-          ~ .footer {
+          ~.page-body,
+          ~.footer {
             margin-left: 0px;
           }
         }
@@ -3181,7 +3188,7 @@
           margin: 20px 0;
         }
 
-        > .row {
+        >.row {
           .col-6 {
             flex: 0 0 100%;
             max-width: 100%;
@@ -3311,11 +3318,11 @@
             display: none;
           }
 
-          ~ .page-body {
+          ~.page-body {
             margin-left: 0px;
           }
 
-          ~ footer {
+          ~footer {
             margin-left: 0px;
             margin-right: 0px;
           }
@@ -3471,7 +3478,7 @@
         border-top: 1px solid #efefef;
         border-bottom: 1px solid #efefef;
 
-        > div {
+        >div {
           overflow-x: hidden;
         }
       }
@@ -3524,7 +3531,7 @@
         .sidebar-wrapper {
           .sidebar-main {
             .sidebar-links {
-              > li {
+              >li {
                 .mega-menu-container {
                   right: -18%;
                   width: 91%;
@@ -3545,7 +3552,7 @@
         &.sidebar-wrapper {
           .sidebar-main {
             .sidebar-links {
-              > li {
+              >li {
                 .mega-menu-container {
                   right: -54%;
                   width: 75%;
@@ -3576,7 +3583,7 @@
         &.sidebar-wrapper {
           .sidebar-main {
             .sidebar-links {
-              > li {
+              >li {
                 .mega-menu-container {
                   right: -49%;
                   width: 70%;
@@ -3598,6 +3605,7 @@
               & {
                 &:nth-child(n + 2) {
                   &:not(:last-child &.profile-nav) {
+
                     // padding: 12px !important;
                     svg {
                       height: 22px;
@@ -3660,6 +3668,7 @@
 }
 
 @media screen and (max-width: 1199px) and (min-width: 991px) {
+
   // .page-wrapper {
   //   .page-body-wrapper {
   //     .sidebar-wrapper {
@@ -3692,7 +3701,7 @@
   .page-wrapper.compact-wrapper .page-body-wrapper {
     div.sidebar-wrapper .sidebar-main {
       .sidebar-links {
-        > li.sidebar-main-title.pin-title {
+        >li.sidebar-main-title.pin-title {
           display: none !important;
         }
       }
@@ -3705,8 +3714,8 @@
     .page-header {
       .header-wrapper {
         .nav-right {
-          > ul {
-            > li {
+          >ul {
+            >li {
               padding: 6px;
 
               &.onhover-dropdown {
@@ -3750,7 +3759,7 @@
         &.sidebar-wrapper {
           .sidebar-main {
             .sidebar-links {
-              > li {
+              >li {
                 .mega-menu-container {
                   right: -35%;
                   width: 56%;
@@ -3788,7 +3797,7 @@
               top: 0;
             }
 
-            > li {
+            >li {
               .sidebar-submenu {
                 width: 200px;
                 opacity: 0;
@@ -3854,7 +3863,7 @@
               }
 
               &:hover {
-                > .sidebar-submenu {
+                >.sidebar-submenu {
                   opacity: 1;
                   visibility: visible;
                   margin-top: 8px;
@@ -3875,9 +3884,9 @@
                     }
                   }
 
-                  > li {
+                  >li {
                     &:hover {
-                      > .sidebar-submenu {
+                      >.sidebar-submenu {
                         display: block !important;
                         opacity: 1;
                         visibility: visible;
@@ -3903,6 +3912,7 @@
 }
 
 @media only screen and (min-width: 768px) {
+
   // material icon css
   .page-wrapper {
     &.material-icon {
@@ -3921,7 +3931,7 @@
         color: rgba($white, 0.8);
 
         &:hover {
-          > svg {
+          >svg {
             color: $white !important;
             stroke: $white !important;
           }
@@ -3959,8 +3969,8 @@
               }
             }
 
-            > ul {
-              > li {
+            >ul {
+              >li {
                 color: $white;
 
                 .notification-box,
@@ -3970,13 +3980,13 @@
                   }
                 }
 
-                > a {
-                  > svg {
+                >a {
+                  >svg {
                     stroke: $white;
                   }
                 }
 
-                > svg {
+                >svg {
                   stroke: $white;
                 }
               }
@@ -4024,7 +4034,7 @@
 
         div.sidebar-wrapper {
           &.close_icon {
-            ~ .page-body {
+            ~.page-body {
               padding-left: 15px;
               margin: 0 auto !important;
             }
@@ -4049,7 +4059,7 @@
                 color: rgba($white, 0.6);
               }
 
-              + .breadcrumb-item {
+              +.breadcrumb-item {
                 &::before {
                   color: rgba($white, 0.8);
                 }
@@ -4063,6 +4073,7 @@
 }
 
 @media only screen and (min-width: 992px) {
+
   // material icon css
   .page-wrapper {
     &.material-icon {
