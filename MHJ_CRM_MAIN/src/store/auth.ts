@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { api } from '@/services/api'
+import { useMenu } from '@/store/menu'
 
 // ── Tipe data sesuai kontrak API backend ──────────────────────────────────────
 export interface AuthUser {
@@ -51,6 +52,26 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     /**
+     * Memuat ulang sidebar sesuai hak akses user aktif.
+     * Backend mencocokkan `username` ke kolom `name` pada tabel users,
+     * sehingga email hanya dipakai sebagai cadangan.
+     */
+    async syncSidebarMenu() {
+      try {
+        const username = this.user?.name || this.user?.email || undefined
+        await useMenu().loadUserMenu(username)
+      } catch (e) {
+        console.warn('Gagal menyinkronkan menu sidebar:', e)
+      }
+    },
+
+    /** Memulihkan sesi saat aplikasi dibuka ulang selama token masih tersimpan. */
+    async initSession() {
+      if (!this.token) return
+      await this.syncSidebarMenu()
+    },
+
+    /**
      * Login ke backend via POST /api/login.
      * Field `email` bisa berisi email ataupun username (backend otomatis mendeteksi).
      */
@@ -68,9 +89,15 @@ export const useAuthStore = defineStore('auth', {
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user))
           }
+          api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
 
-          // Ambil hak akses menu user dari backend
-          await this.validateAndFetchMenu()
+          // Ambil menu dinamis web dari backend secara non-blocking di background
+          const fallbackUsername = this.user?.name || this.user?.email || credentials.email
+          useMenu()
+            .loadUserMenu(fallbackUsername)
+            .catch((err) => {
+              console.warn('Gagal memuat menu dinamis di background:', err)
+            })
 
           return { success: true, message: data.message || data.msg || 'Login Berhasil' }
         }
@@ -100,28 +127,12 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /**
-     * Validasi sesi pengguna aktif & ambil daftar hak akses menu dinamis.
-     * Endpoint: POST /api/user/validate
+     * Memuat menu dinamis pengguna aktif.
+     * Catatan: Endpoint lama POST /api/user/validate mencari tabel dbflmenuapp (mobile/APK)
+     * yang tidak ada di database web. Untuk web, menu dimuat melalui GET /api/menuweb.
      */
     async validateAndFetchMenu() {
-      try {
-        const response = await api.post('/user/validate')
-        if (response.data?.menuuser) {
-          this.menuuser = response.data.menuuser
-          localStorage.setItem('menuuser', JSON.stringify(response.data.menuuser))
-        }
-        // Backend bisa mengirimkan token yang di-refresh
-        if (response.data?.token) {
-          this.token = response.data.token
-          localStorage.setItem('token', response.data.token)
-        }
-        if (response.data?.user) {
-          this.user = response.data.user
-          localStorage.setItem('user', JSON.stringify(response.data.user))
-        }
-      } catch (e) {
-        console.warn('Gagal memuat menu dinamis pengguna:', e)
-      }
+      await this.syncSidebarMenu()
     },
 
     /**
@@ -141,6 +152,12 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         localStorage.removeItem('menuuser')
+
+        try {
+          useMenu().resetMenu()
+        } catch (e) {
+          console.warn('Gagal mengembalikan menu sidebar:', e)
+        }
       }
     }
   }

@@ -20,6 +20,14 @@ const router = createRouter({
       redirect: routes.Dashboards.Default,
     },
     {
+      path: '/riho/:pathMatch(.*)*',
+      redirect: (to) => {
+        const remaining = to.params.pathMatch
+        const path = Array.isArray(remaining) ? remaining.join('/') : remaining || ''
+        return `/${path}`
+      },
+    },
+    {
       path: '',
       component: () => import('@/layout/Body.vue'),
       children: [
@@ -27,10 +35,44 @@ const router = createRouter({
           path: routes.Dashboards.Default,
           name: 'Default',
           component: () => import('@/pages/dashboard/Default.vue'),
+          alias: ['/dashboards/dashboard_default', '/dashboards/default'],
           meta: {
-            mainTitle: 'Default',
-            title: 'Default | Riho - Premium Vue Admin Template',
+            mainTitle: 'Dashboard',
+            title: 'Dashboard | MHJ CRM',
             breadcrumb: [{ text: 'Dashboard', subText: 'Default' }],
+          },
+        },
+        {
+          path: '/crmAdmin/Projects',
+          redirect: '/crmAdmin/Projects/list',
+        },
+        {
+          path: '/crmAdmin/projects',
+          redirect: '/crmAdmin/Projects/list',
+        },
+        {
+          path: '/crmAdmin/Report',
+          name: 'CrmReport',
+          component: () => import('@/pages/reports/SalesReport.vue'),
+          alias: ['/crmAdmin/report', '/reports/sales'],
+          meta: {
+            mainTitle: 'Report',
+            title: 'Report | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Report' }],
+          },
+        },
+        {
+          path: '/crmAdmin/users',
+          redirect: '/crmAdmin/users/list',
+        },
+        {
+          path: '/crmAdmin/settings',
+          name: 'CrmSettings',
+          component: () => import('@/pages/samplePage/SamplePage.vue'),
+          meta: {
+            mainTitle: 'Settings',
+            title: 'Settings | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Settings' }],
           },
         },
         {
@@ -87,9 +129,10 @@ const router = createRouter({
           path: routes.Project.ProjectDetails,
           name: 'Project Details',
           component: () => import('@/pages/project/ProjectDetails.vue'),
+          alias: ['/crmAdmin/projects/details', '/project/project_details'],
           meta: {
             mainTitle: 'Project Details',
-            title: 'Project Details | Riho - Premium Vue Admin Template',
+            title: 'Project Details | MHJ CRM',
             breadcrumb: [{ text: 'Project', subText: 'Project Details' }],
           },
         },
@@ -97,9 +140,10 @@ const router = createRouter({
           path: routes.Project.ProjectList,
           name: 'Project List',
           component: () => import('@/pages/project/ProjectList.vue'),
+          alias: ['/crmAdmin/projects/list', '/project/project_list'],
           meta: {
             mainTitle: 'ProjectList',
-            title: 'ProjectList | Riho - Premium Vue Admin Template',
+            title: 'ProjectList | MHJ CRM',
             breadcrumb: [{ text: 'Project', subText: 'Project List' }],
           },
         },
@@ -117,10 +161,11 @@ const router = createRouter({
           path: routes.App.KanbanBoard,
           name: 'KanbanBoard',
           component: () => import('@/pages/kanbanBoard/KanbanBoard.vue'),
+          alias: ['/app/kanban_board'],
           meta: {
-            mainTitle: 'KanbanBoard',
-            title: 'KanbanBoard | Riho - Premium Vue Admin Template',
-            breadcrumb: [{ text: 'Apps', subText: 'KanbanBoard' }],
+            mainTitle: 'Deals',
+            title: 'Deals | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Deals' }],
           },
         },
         {
@@ -307,9 +352,10 @@ const router = createRouter({
           path: routes.User.UserList,
           name: 'user-list',
           component: () => import('@/pages/user/UserList.vue'),
+          alias: ['/user/user-list'],
           meta: {
             mainTitle: 'User List',
-            title: 'User List | Riho - Premium Vue Admin Template',
+            title: 'User List | MHJ CRM',
             breadcrumb: [{ text: 'Users', subText: 'User List' }],
           },
         },
@@ -327,9 +373,10 @@ const router = createRouter({
           path: routes.User.Roles,
           name: 'roles-permission',
           component: () => import('@/pages/user/RolesPermission.vue'),
+          alias: ['/user/roles-permission'],
           meta: {
             mainTitle: 'Roles & Permission',
-            title: 'Roles & Permission | Riho - Premium Vue Admin Template',
+            title: 'Roles & Permission | MHJ CRM',
             breadcrumb: [{ text: 'Users', subText: 'Roles & Permission' }],
           },
         },
@@ -387,30 +434,33 @@ const router = createRouter({
           path: routes.App.Contacts,
           name: 'Contacts',
           component: () => import('@/pages/contacts/Contacts.vue'),
+          alias: ['/app/contacts'],
           meta: {
             mainTitle: 'Contacts',
-            title: 'Contacts | Riho - Premium Vue Admin Template',
-            breadcrumb: [{ text: 'App', subText: 'Contacts' }],
+            title: 'Contacts | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Contacts' }],
           },
         },
         {
           path: routes.App.RumahSakit,
           name: 'RumahSakit',
           component: () => import('@/pages/rumahSakit/RumahSakit.vue'),
+          alias: ['/app/rumah_sakit'],
           meta: {
-            mainTitle: 'Rumah Sakit',
-            title: 'Rumah Sakit | MHJ CRM',
-            breadcrumb: [{ text: 'App', subText: 'Rumah Sakit' }],
+            mainTitle: 'Companies',
+            title: 'Companies | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Companies' }],
           },
         },
         {
           path: routes.App.Task,
           name: 'Task',
           component: () => import('@/pages/task/Task.vue'),
+          alias: ['/app/task'],
           meta: {
             mainTitle: 'Task',
-            title: 'Task | Riho - Premium Vue Admin Template',
-            breadcrumb: [{ text: 'Apps', subText: 'Task' }],
+            title: 'Task | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Task' }],
           },
         },
         {

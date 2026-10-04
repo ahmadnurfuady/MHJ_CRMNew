@@ -6,9 +6,10 @@ import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/riho/",
+  base: "/",
   plugins: [vue(), vueDevTools()],
   resolve: {
+    extensions: ['.ts', '.vue', '.js', '.mjs', '.tsx', '.jsx', '.json'],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },

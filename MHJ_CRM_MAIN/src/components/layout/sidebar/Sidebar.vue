@@ -52,7 +52,9 @@ const store = useMenu()
 const storeLayout = useLayout()
 const { menuState, uiState } = storeToRefs(store)
 const { layoutState } = storeToRefs(storeLayout)
-const menu = menuState.value.menu
+// Harus computed: loadUserMenu mengganti array menu, bukan memutasinya,
+// sehingga referensi yang disalin sekali saat setup tidak akan ikut diperbarui.
+const menu = computed(() => menuState.value.menu)
 const sidebarRef = ref<HTMLDivElement | null>(null)
 let timeoutId: number | undefined
 

@@ -66,10 +66,12 @@ api.interceptors.response.use(
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         localStorage.removeItem('menuuser')
+        localStorage.removeItem('raw_user_menus')
 
-        // Hindari redirect loop jika sudah di halaman login
+        const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
+        const loginPath = `${baseUrl}/auth/login`
         if (!window.location.pathname.includes('/auth/login')) {
-          window.location.href = '/auth/login'
+          window.location.href = loginPath
         }
       }
     }

@@ -2,7 +2,10 @@ import { defineStore } from 'pinia'
 import { watch, reactive } from 'vue'
 import { menu } from '@/core/data/menu'
 import { useRoute } from 'vue-router'
-import { MenuItem } from '@/types/menu'
+import { MenuItem, FlMenuRawItem } from '@/types/menu'
+import { api } from '@/services/api'
+import { transformFlMenuToTree } from '@/utils/menuBuilder'
+import { RAW_MENU_STORAGE_KEY } from '@/utils/permission'
 
 export interface SearchItem {
   icon?: string
@@ -11,11 +14,27 @@ export interface SearchItem {
   iconForDisplay?: string
 }
 
+/**
+ * Menu dinamis hasil permintaan terakhir dibaca ulang dari localStorage saat store
+ * dibuat, supaya sidebar tidak sempat menampilkan menu statis saat halaman dimuat ulang.
+ */
+function restoreCachedMenu(): MenuItem[] | null {
+  try {
+    const cached = JSON.parse(localStorage.getItem(RAW_MENU_STORAGE_KEY) || '')
+    if (!Array.isArray(cached) || cached.length === 0) return null
+
+    const tree = transformFlMenuToTree(cached as FlMenuRawItem[])
+    return tree.length > 0 ? tree : null
+  } catch {
+    return null
+  }
+}
+
 export const useMenu = defineStore('menu', () => {
   const route = useRoute()
 
   const menuState = reactive({
-    menu: menu,
+    menu: restoreCachedMenu() ?? menu,
     searchData: [] as SearchItem[],
     pinedArray: [] as string[],
   })
@@ -47,13 +66,76 @@ export const useMenu = defineStore('menu', () => {
 
   function initMenu() {
     if (typeof window !== 'undefined') {
-      const pinnedItems = localStorage.getItem('pinnedItems')
-      if (pinnedItems) {
-        menuState.pinedArray = JSON.parse(pinnedItems)
+      try {
+        const pinnedItems = localStorage.getItem('pinnedItems')
+        if (pinnedItems) {
+          menuState.pinedArray = JSON.parse(pinnedItems)
+        }
+      } catch {
+        // localStorage rusak atau isi tidak valid — abaikan, mulai dari array kosong
+      }
+
+      if (localStorage.getItem('token')) {
+        loadUserMenu()
       }
     }
 
     updateActiveState(menuState.menu, route.path)
+  }
+
+  /* ---------- DYNAMIC MENU ---------- */
+
+  let isFetchingMenu = false
+
+  /**
+   * Memuat menu sidebar milik pengguna dari backend.
+   * Pertama mencoba GET /api/menuweb (layoutmenuweb@index via sp_webmenuusercrm),
+   * dengan fallback ke POST /api/berkas/getflmenu.
+   */
+  async function loadUserMenu(username?: string) {
+    if (isFetchingMenu) return
+    isFetchingMenu = true
+    try {
+      let rawData: FlMenuRawItem[] = []
+
+      // 1. Panggil endpoint utama web: GET /api/menuweb
+      //    layoutmenuweb@index otomatis membaca user dari Bearer token dan menjalankan sp_webmenuusercrm
+      try {
+        const response = await api.get('/menuweb', { timeout: 6000 })
+        rawData = response.data?.dbmenu2 || response.data?.data || []
+      } catch (err) {
+        console.warn('Gagal memanggil /menuweb, mencoba fallback...', err)
+      }
+
+      // 2. Fallback ke POST /api/berkas/getflmenu jika /menuweb belum mengembalikan data
+      if (rawData.length === 0 && username) {
+        try {
+          const response = await api.post('/berkas/getflmenu', { username }, { timeout: 6000 })
+          rawData = response.data?.data || []
+        } catch (err) {
+          console.warn('Gagal memanggil fallback /berkas/getflmenu:', err)
+        }
+      }
+
+      if (rawData.length === 0) return
+
+      const dynamicMenu = transformFlMenuToTree(rawData)
+      if (dynamicMenu.length === 0) return
+
+      localStorage.setItem(RAW_MENU_STORAGE_KEY, JSON.stringify(rawData))
+      menuState.menu = dynamicMenu
+      updateActiveState(menuState.menu, route.path)
+    } catch (error) {
+      console.error('Gagal memuat menu dinamis dari backend:', error)
+    } finally {
+      isFetchingMenu = false
+    }
+  }
+
+  /** Mengembalikan sidebar ke menu statis dan membuang cache permission (dipakai saat logout). */
+  function resetMenu() {
+    localStorage.removeItem(RAW_MENU_STORAGE_KEY)
+    menuState.menu = menu
   }
 
   /* ---------- MENU TOGGLE ---------- */
@@ -156,5 +238,7 @@ export const useMenu = defineStore('menu', () => {
     getPined,
     toggleSidebar,
     searchTerm,
+    loadUserMenu,
+    resetMenu,
   }
 })

@@ -1,0 +1,180 @@
+import type { FlMenuRawItem, MenuItem } from '@/types/menu'
+
+/**
+ * Nama ikon yang tersedia pada sprite public/svg/icon-sprite.svg untuk
+ * varian stroke- maupun fill-, karena layout dapat beralih di antara keduanya.
+ */
+const SPRITE_ICONS = new Set([
+  'animation', 'blog', 'board', 'bonus-kit', 'bookmark', 'builders', 'button',
+  'calendar', 'charts', 'chat', 'contact', 'ecommerce', 'editors', 'email',
+  'faq', 'file', 'form', 'gallery', 'home', 'icons', 'internationalization',
+  'job-search', 'knowledgebase', 'landing-page', 'layout', 'learning', 'maps',
+  'others', 'price', 'project', 'reports', 'sample-page', 'search', 'social',
+  'starter-kit', 'support-tickets', 'table', 'task', 'to-do', 'ui-kits',
+  'user', 'widget',
+])
+
+/** Nama ikon umum dari backend yang tidak ada di sprite, dipetakan ke padanan terdekat. */
+const ICON_ALIASES: Record<string, string> = {
+  users: 'user',
+  'user-plus': 'user',
+  layoutdashboard: 'home',
+  dashboard: 'home',
+  briefcase: 'project',
+  building: 'project',
+  building2: 'project',
+  package: 'widget',
+  checksquare: 'task',
+  barchart3: 'reports',
+  shield: 'user',
+  layers: 'board',
+  grid: 'widget',
+  'file-text': 'file',
+  filetext: 'file',
+  folder: 'file',
+  settings: 'others',
+  cog: 'others',
+  cart: 'ecommerce',
+  'shopping-cart': 'ecommerce',
+  dollar: 'price',
+  money: 'price',
+  phone: 'contact',
+  mail: 'email',
+  message: 'chat',
+  clipboard: 'task',
+  list: 'table',
+  'pie-chart': 'charts',
+  'bar-chart': 'charts',
+  'map-pin': 'maps',
+}
+
+const FALLBACK_ICON = 'file'
+
+function resolveIcon(raw?: string): string {
+  const name = (raw || '').trim().toLowerCase()
+  if (!name) return FALLBACK_ICON
+  if (SPRITE_ICONS.has(name)) return name
+  return ICON_ALIASES[name] || FALLBACK_ICON
+}
+
+function isRootRef(value?: string): boolean {
+  const v = (value || '').trim()
+  return v === '' || v === '0'
+}
+
+/** Mengembalikan id parent efektif, atau null jika item berada di level root. */
+function resolveParentId(raw: FlMenuRawItem): string | null {
+  if (!isRootRef(raw.parendId)) return (raw.parendId as string).trim()
+  if (!isRootRef(raw.Parent)) return (raw.Parent as string).trim()
+  return null
+}
+
+/**
+ * Memeriksa apakah item menu berhak ditampilkan.
+ * Mengizinkan jika HASACCESS == 1, atau jika user memiliki izin aksi (tambah/koreksi/hapus/export),
+ * atau menu krusial seperti User List (L1: '0801').
+ */
+function hasMenuAccess(item: FlMenuRawItem): boolean {
+  if (Number(item.HASACCESS ?? item.akses) === 1) return true
+
+  if (
+    Number(item.tambah) === 1 ||
+    Number(item.koreksi) === 1 ||
+    Number(item.hapus) === 1 ||
+    Number(item.export) === 1
+  ) {
+    return true
+  }
+
+  const id = String(item.id ?? item.L1 ?? '').trim()
+  const caption = (item.CAPTION || item.name || item.captionmenu || '').toLowerCase().trim()
+  // ID '0801' = User List — menu manajemen user selalu dapat diakses admin
+  const ALWAYS_VISIBLE_IDS = new Set(['0801'])
+  const ALWAYS_VISIBLE_CAPTIONS = new Set(['user list', 'user management'])
+  if (ALWAYS_VISIBLE_IDS.has(id) || ALWAYS_VISIBLE_CAPTIONS.has(caption)) {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Hanya item di level root yang boleh membawa ikon: NavMenu memakai keberadaan
+ * `icon` untuk memilih antara kelas `sidebar-title` dan `submenu-title`.
+ * Submenu yang punya ikon akan dirender dengan gaya menu utama.
+ */
+function applyDepthRules(items: MenuItem[], rawIconById: Map<string, string>, depth = 0): void {
+  items.forEach((item) => {
+    if (depth === 0) {
+      item.icon = resolveIcon(rawIconById.get(item.id as string))
+    } else {
+      delete item.icon
+    }
+
+    if (item.children?.length) {
+      item.type = 'sub'
+      applyDepthRules(item.children, rawIconById, depth + 1)
+    } else {
+      item.type = 'link'
+      // NavMenu memperlakukan array kosong sebagai "punya submenu" karena [] bernilai truthy,
+      // sehingga item tanpa anak harus benar-benar tidak memiliki properti children.
+      delete item.children
+    }
+  })
+}
+
+/**
+ * Mengubah data flat dbFlMenuWebcrm menjadi struktur pohon yang dirender komponen NavMenu.
+ * Item tanpa hak akses dibuang; anak yang parent-nya ikut terbuang
+ * dinaikkan ke level root agar menu yang masih diizinkan tetap dapat dijangkau.
+ */
+export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
+  if (!Array.isArray(rawItems)) return []
+
+  const accessibleItems = rawItems.filter(hasMenuAccess)
+
+  const itemMap = new Map<string, MenuItem>()
+  const rawIconById = new Map<string, string>()
+
+  accessibleItems.forEach((raw) => {
+    const id = String(raw.id ?? raw.L1 ?? '').trim()
+    if (!id) return
+
+    rawIconById.set(id, raw.icon || raw.ICON || '')
+    itemMap.set(id, {
+      id,
+      title: (raw.CAPTION || raw.name || '').trim() || id,
+      path: (raw.pathfile || '').trim(),
+      active: false,
+      isPinned: false,
+      children: [],
+      permissions: {
+        tambah: Boolean(Number(raw.tambah)),
+        koreksi: Boolean(Number(raw.koreksi)),
+        hapus: Boolean(Number(raw.hapus)),
+        export: Boolean(Number(raw.export)),
+      },
+    })
+  })
+
+  const tree: MenuItem[] = []
+
+  accessibleItems.forEach((raw) => {
+    const id = String(raw.id ?? raw.L1 ?? '').trim()
+    const current = itemMap.get(id)
+    if (!current) return
+
+    const parentId = resolveParentId(raw)
+    const parent = parentId ? itemMap.get(parentId) : undefined
+
+    if (parent && parent !== current) {
+      parent.children!.push(current)
+    } else {
+      tree.push(current)
+    }
+  })
+
+  applyDepthRules(tree, rawIconById)
+
+  return tree
+}

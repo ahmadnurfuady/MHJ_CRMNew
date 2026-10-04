@@ -16,7 +16,7 @@ onMounted(() => {
   timeoutId = setTimeout(() => {
     loaderHide.value = true
     timeoutId = null
-  }, 1000)
+  }, 300)
 })
 
 onBeforeUnmount(() => {
