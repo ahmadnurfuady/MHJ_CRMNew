@@ -1,7 +1,10 @@
 <template>
   <div class="md-sidebar">
-    <a class="btn btn-primary md-sidebar-toggle" href="#" @click.prevent="toggleFilter()"
-      >contact filter</a
+    <a
+      class="btn btn-primary md-sidebar-toggle"
+      href="#"
+      @click.prevent="toggleFilter()"
+      >Filter kontak</a
     >
     <div class="md-sidebar-aside job-left-aside" :class="{ open: sidebarOpen }">
       <div class="email-left-aside">
@@ -20,18 +23,26 @@
                 <p>{{ userDetails.userEmail }}</p>
               </div>
             </div>
-            <ul class="nav main-menu contact-options custom-scrollbar" role="tablist">
+            <ul
+              class="nav main-menu contact-options custom-scrollbar"
+              role="tablist"
+            >
               <li class="nav-item">
                 <button
                   class="button-primary btn-block btn-mail w-100"
                   type="button"
                   @click="openContactModal()"
                 >
-                  <vue-feather :type="'users'" :class="'me-2'" />New Contacts
+                  <vue-feather :type="'users'" :class="'me-2'" />Tambah Kontak
                 </button>
               </li>
-              <li class="nav-item"><span class="main-title"> Views</span></li>
-              <li v-for="item in contactState.tabList.slice(0, 1)" :key="item.value">
+              <li class="nav-item">
+                <span class="main-title"> Tampilan</span>
+              </li>
+              <li
+                v-for="item in contactState.tabList.slice(0, 1)"
+                :key="item.value"
+              >
                 <a
                   :class="{ active: item.value == contactState.activeTab }"
                   href="#"
@@ -41,11 +52,18 @@
                 </a>
               </li>
               <li class="nav-item">
-                <button class="btn btn-category" type="button" @click="categoryModal()">
-                  <span class="title"> + Add Category</span>
+                <button
+                  class="btn btn-category"
+                  type="button"
+                  @click="categoryModal()"
+                >
+                  <span class="title"> + Tambah Kategori</span>
                 </button>
                 <ul>
-                  <li v-for="item in contactState.tabList.slice(1)" :key="item.value">
+                  <li
+                    v-for="item in contactState.tabList.slice(1)"
+                    :key="item.value"
+                  >
                     <a
                       :class="{ active: item.value == contactState.activeTab }"
                       href="#"
@@ -68,30 +86,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
-import { storeToRefs } from 'pinia'
-import { user } from '@/core/data/user'
-import { useContact } from '@/store/contact'
-import { getImages } from '@/utils/index'
+import { ref, defineAsyncComponent } from "vue";
+import { storeToRefs } from "pinia";
+import { user } from "@/core/data/user";
+import { useContact } from "@/store/contact";
+import { getImages } from "@/utils/index";
 
-const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
-const AddContactModal = defineAsyncComponent(() => import('@/module/contacts/AddContactModal.vue'))
+const Card = defineAsyncComponent(
+  () => import("@/components/shared/card/Card.vue"),
+);
+const AddContactModal = defineAsyncComponent(
+  () => import("@/module/contacts/AddContactModal.vue"),
+);
 const ContactCategoryModal = defineAsyncComponent(
-  () => import('@/module/contacts/ContactCategoryModal.vue')
-)
+  () => import("@/module/contacts/ContactCategoryModal.vue"),
+);
 
-const contactStore = useContact()
-const { contactState } = storeToRefs(contactStore)
-const { handleActiveTab, openContactModal } = contactStore
+const contactStore = useContact();
+const { contactState } = storeToRefs(contactStore);
+const { handleActiveTab, openContactModal } = contactStore;
 
-const sidebarOpen = ref<boolean>(false)
-const userDetails = user
+const sidebarOpen = ref<boolean>(false);
+const userDetails = user;
 
 function toggleFilter() {
-  sidebarOpen.value = !sidebarOpen.value
+  sidebarOpen.value = !sidebarOpen.value;
 }
 
 function categoryModal() {
-  contactState.value.openCategoryModal = true
+  contactState.value.openCategoryModal = true;
 }
 </script>

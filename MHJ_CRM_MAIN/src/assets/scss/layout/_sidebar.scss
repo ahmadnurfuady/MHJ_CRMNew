@@ -1634,6 +1634,27 @@
           border-top-right-radius: 20px;
           border-bottom-right-radius: 20px;
 
+          // Isi area di luar lengkungan dengan warna page body, bukan putih halaman.
+          &::before,
+          &::after {
+            position: absolute;
+            right: 0;
+            width: 20px;
+            height: 20px;
+            content: '';
+            pointer-events: none;
+          }
+
+          &::before {
+            top: 0;
+            background: radial-gradient(circle at bottom left, transparent 19px, $main-body-color 20px);
+          }
+
+          &::after {
+            bottom: 0;
+            background: radial-gradient(circle at top left, transparent 19px, $main-body-color 20px);
+          }
+
           .sidebar-main {
             .sidebar-links {
               >li {
@@ -1652,6 +1673,11 @@
             box-shadow: -9px 0 20px rgba($semi-dark, 0.1);
             // background-color: var(--theme-default) ;
             border-top-right-radius: 15px;
+
+            img {
+              filter: brightness(0) invert(1);
+              opacity: 1;
+            }
           }
 
           .logo-icon-wrapper {

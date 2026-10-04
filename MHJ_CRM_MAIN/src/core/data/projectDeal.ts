@@ -62,6 +62,18 @@ export const divisiList: DealOption[] = [
 
 // Produk difilter menurut kode divisi. Harga diambil dari go500 (contoh: OCT).
 export const products: DealOption[] = [
+  { value: 'CT Scan', label: 'CT Scan', divisi: 'DI', price: 8500000000 },
+  { value: 'MRI System', label: 'MRI System', divisi: 'MRI', price: 15000000000 },
+  { value: 'C-Arm', label: 'C-Arm', divisi: 'SI2', price: 4500000000 },
+  { value: 'Gamma Camera', label: 'Gamma Camera', divisi: 'ONC1', price: 12000000000 },
+  { value: 'Boston Scientific Device', label: 'Boston Scientific Device', divisi: 'SI3', price: 780000000 },
+  { value: 'Medistim Flowmeter', label: 'Medistim Flowmeter', divisi: 'SI7', price: 1250000000 },
+  { value: 'Ambu Scope', label: 'Ambu Scope', divisi: 'AMB', price: 425000000 },
+  { value: 'Schiller ECG', label: 'Schiller ECG', divisi: 'SC', price: 185000000 },
+  { value: 'USG GI', label: 'USG GI', divisi: 'USGI', price: 950000000 },
+  { value: 'USG WHC', label: 'USG WHC', divisi: 'USWHC', price: 875000000 },
+  { value: 'USG POC', label: 'USG POC', divisi: 'USPOC', price: 625000000 },
+  { value: 'Vscan', label: 'Vscan', divisi: 'USVSC', price: 275000000 },
   { value: 'OCT', label: 'OCT', divisi: 'ND', price: 2500000000 },
 ]
 

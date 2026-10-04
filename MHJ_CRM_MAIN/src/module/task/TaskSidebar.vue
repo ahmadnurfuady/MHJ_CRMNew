@@ -17,8 +17,8 @@
                     <img class="me-3 rounded-circle" :src="getImages('user/user.png')" alt="user" />
                   </div>
                   <div class="flex-grow-1">
-                    <h6 class="f-w-600">MARK JENCO</h6>
-                    <p>Markjecno@gmail.com</p>
+                    <h6 class="f-w-600">{{ currentUser.name }}</h6>
+                    <p>{{ currentUser.email }}</p>
                   </div>
                 </div>
                 <ul class="nav main-menu" role="tablist">
@@ -29,7 +29,7 @@
                       data-bs-toggle="modal"
                       data-bs-target="#taskmodel"
                     >
-                      <vue-feather type="check-circle" class="stroke-primary"></vue-feather>New Task
+                      <vue-feather type="check-circle" class="stroke-primary"></vue-feather>Buat Task
                     </button>
                   </li>
                   <li class="nav-item">
@@ -89,12 +89,25 @@ import { ref, defineAsyncComponent } from 'vue'
 import { tasks } from '@/core/data/tasks'
 import { useTask } from '@/store/task'
 import { getImages } from '@/utils/index'
-import { Task } from '@/types/tasks'
+import type { Task } from '@/types/tasks'
 
 const task = ref(tasks)
 const filtered = ref(false)
 const store = useTask()
 const { setActive } = store
+const currentUser = (() => {
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || 'null') as
+      | { name?: string; email?: string }
+      | null
+    return {
+      name: user?.name || 'Mark Jenco',
+      email: user?.email || 'mark.jenco@mhj.co.id',
+    }
+  } catch {
+    return { name: 'Mark Jenco', email: 'mark.jenco@mhj.co.id' }
+  }
+})()
 
 const TaskList = defineAsyncComponent(() => import('@/module/task/TaskList.vue'))
 const NewTask = defineAsyncComponent(() => import('@/module/task/NewTask.vue'))

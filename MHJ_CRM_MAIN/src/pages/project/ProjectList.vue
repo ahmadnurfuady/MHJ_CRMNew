@@ -32,7 +32,7 @@
           <div class="tab-content" id="top-tabContent">
             <div class="tab-pane fade show active">
               <div class="row g-4">
-                <template v-for="(project, index) in projects" :key="index">
+                <template v-for="(project, index) in projectList" :key="index">
                   <template v-if="activeTab == 'all' || project.status == activeTab">
                     <div class="col-xxl-3 col-md-6 col-ed-4 box-col-6">
                       <ProjectDetails :project="project" />
@@ -49,7 +49,10 @@
 </template>
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from 'vue'
-import { projects } from '@/core/data/project'
+import { storeToRefs } from 'pinia'
+import { useTask } from '@/store/task'
+
+const { projectList } = storeToRefs(useTask())
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 const ProjectCostPerformance = defineAsyncComponent(

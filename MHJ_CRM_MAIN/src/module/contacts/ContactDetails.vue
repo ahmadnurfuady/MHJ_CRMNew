@@ -5,7 +5,7 @@
         {{ contactState.currentTab && contactState.currentTab.title }}
       </h5>
       <span class="f-14 pull-right mt-0 f-w-500"
-        >{{ filteredContact.length }} Contacts</span
+        >{{ filteredContact.length }} Kontak</span
       >
     </div>
     <div class="card-body">
@@ -13,7 +13,10 @@
         <template v-if="filteredContact.length">
           <div class="col-xl-4 xl-50 col-md-5">
             <div class="nav flex-column nav-pills">
-              <template v-for="(contact, index) in filteredContact" :key="index">
+              <template
+                v-for="(contact, index) in filteredContact"
+                :key="index"
+              >
                 <a
                   class="contact-tab-0 nav-link"
                   :class="{
@@ -29,10 +32,17 @@
                     />
                     <div class="flex-grow-1">
                       <h6>
-                        <span class="first_name_0">{{ contact.firstName }}</span>
+                        <span class="first_name_0">{{
+                          contact.firstName
+                        }}</span>
                         <span class="last_name_0">{{ contact.lastName }}</span>
                       </h6>
-                      <p class="email_add_0">{{ contact.email }}</p>
+                      <p class="email_add_0 mb-0">
+                        {{ contact.jobTitle || contact.email }}
+                      </p>
+                      <small v-if="contact.company" class="text-muted">{{
+                        contact.company
+                      }}</small>
                     </div>
                   </div>
                 </a>
@@ -46,7 +56,9 @@
                 display: contactState.isEditContact ? 'none' : 'block',
               }"
             >
-              <div class="tab-pane contact-tab-0 tab-content-child fade show active">
+              <div
+                class="tab-pane contact-tab-0 tab-content-child fade show active"
+              >
                 <template
                   v-if="
                     contactState.activeContact &&
@@ -70,7 +82,7 @@
             </div>
           </div>
         </template>
-        <div class="col" v-else>No Contact Found.</div>
+        <div class="col" v-else>Kontak tidak ditemukan.</div>
       </div>
     </div>
   </div>
@@ -82,10 +94,10 @@ import { storeToRefs } from "pinia";
 import { useContact } from "@/store/contact";
 import { getImages } from "@/utils/index";
 const EditContactForm = defineAsyncComponent(
-  () => import("@/module/contacts/EditContactForm.vue")
+  () => import("@/module/contacts/EditContactForm.vue"),
 );
 const GeneralDetails = defineAsyncComponent(
-  () => import("@/module/contacts/GeneralDetails.vue")
+  () => import("@/module/contacts/GeneralDetails.vue"),
 );
 const contactStore = useContact();
 const { contactState, filteredContact } = storeToRefs(contactStore);
