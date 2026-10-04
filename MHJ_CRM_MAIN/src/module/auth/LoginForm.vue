@@ -1,16 +1,16 @@
 <template>
   <form class="theme-form" @submit.prevent="submit()">
     <h4>Sign in to account</h4>
-    <p>Enter your email & password to login</p>
+    <p>Enter your email &amp; password to login</p>
     <div class="form-group">
-      <InputWrapper :title="'Email Address'" :required="true">
+      <InputWrapper :title="'Email / Username'" :required="true">
         <InputField
           :formSubmitted="formSubmitted"
-          :errorMessage="'Email is required.'"
+          :errorMessage="'Email atau Username wajib diisi.'"
           v-model:modelValue="form.email"
           :inputId="'email'"
-          :placeholder="'test@gmail.com'"
-          :inputType="'email'"
+          :placeholder="'email@domain.com atau username'"
+          :inputType="'text'"
           :browserValidation="props.browserValidation"
         />
       </InputWrapper>
@@ -20,7 +20,7 @@
         <div class="form-input position-relative">
           <InputField
             :formSubmitted="formSubmitted"
-            :errorMessage="'Password is required.'"
+            :errorMessage="'Password wajib diisi.'"
             v-model:modelValue="form.password"
             :inputId="'password'"
             :placeholder="'*********'"
@@ -41,7 +41,19 @@
       </div>
       <router-link class="link" :to="routes.Auth.ForgotPassword">Forgot password?</router-link>
       <div class="text-end">
-        <button class="btn btn-primary btn-block w-100 mt-3" type="submit">Sign in</button>
+        <button
+          class="btn btn-primary btn-block w-100 mt-3"
+          type="submit"
+          :disabled="authStore.loading"
+        >
+          <span
+            v-if="authStore.loading"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+            aria-hidden="true"
+          ></span>
+          {{ authStore.loading ? 'Signing in...' : 'Sign in' }}
+        </button>
       </div>
     </div>
     <h6 class="text-muted mt-4 or">Or Sign in with</h6>
@@ -84,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, defineAsyncComponent } from 'vue'
+import { ref, reactive, defineAsyncComponent } from 'vue'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { initInputField } from '@/core/data/common'
@@ -92,6 +104,7 @@ import { resetForm } from '@/utils/index'
 import { toast } from 'vue3-toastify'
 import { validateForm } from '@/utils/validators/formValidators'
 import { routes } from '@/router/routes'
+import { useAuthStore } from '@/store/auth'
 
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
@@ -110,11 +123,12 @@ const props = withDefaults(
   {
     browserValidation: false,
     sweetAlert: false,
-    storeDetails: false,
+    storeDetails: true,
   }
 )
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const formSubmitted = ref(false)
 const showPassword = ref(false)
@@ -124,13 +138,6 @@ let form = reactive({
   password: initInputField(),
 })
 
-onMounted(() => {
-  if (props.storeDetails) {
-    form.email.data = 'test@gmail.com'
-    form.password.data = '123456789'
-  }
-})
-
 function togglePassword() {
   showPassword.value = !showPassword.value
 }
@@ -138,18 +145,24 @@ function togglePassword() {
 async function submit() {
   formSubmitted.value = true
   const { isValid, formData } = validateForm(form)
+
   if (isValid) {
     if (props.sweetAlert) {
+      // Mode SweetAlert (halaman demo khusus sweetAlert di template Riho)
       Swal.fire('Success!', `Email: ${formData.email}\nPassword: ${formData.password}`, 'success')
-    } else if (props.storeDetails) {
-      if (formData.email === 'test@gmail.com' && formData.password === '123456789') {
-        localStorage.setItem('user', JSON.stringify(formData))
+    } else {
+      // ── Mode utama: Login ke backend API Laravel MHJ CRM ──
+      const result = await authStore.login({
+        email: formData.email as string,
+        password: formData.password as string,
+      })
+
+      if (result.success) {
+        toast.success(result.message || 'Login Berhasil!')
         router.replace(routes.Dashboards.Default)
       } else {
-        toast.error('Email/Password is wrong...')
+        toast.error(result.message || 'Login gagal, periksa email/username dan password Anda.')
       }
-    } else {
-      toast.success(`Email: ${formData.email}\nPassword: ${formData.password}`)
     }
 
     form = resetForm(form)
@@ -157,7 +170,8 @@ async function submit() {
   } else if (props.sweetAlert) {
     Swal.fire('Error!', 'Sorry, looks like some data are not filled, please try again !', 'error')
   } else {
-    toast.error('Please fill all required fields correctly.')
+    toast.error('Harap isi email/username dan password dengan benar.')
   }
 }
 </script>
+

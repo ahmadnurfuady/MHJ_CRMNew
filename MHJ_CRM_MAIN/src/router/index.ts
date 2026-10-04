@@ -1572,15 +1572,33 @@ const router = createRouter({
   ],
 })
 router.beforeEach((to, from, next) => {
+  // ── Judul halaman dinamis ──
   if (typeof to.meta.title === 'string') {
     document.title = to.meta.title.replace(/Riho - Premium Vue Admin Template/g, 'MHJ CRM')
   } else {
     document.title = 'MHJ CRM - PT. Mulya Husada Jaya'
   }
-  const path = ['/auth/login', '/auth/register']
-  if (path.includes(to.path) || localStorage.getItem('user')) {
+
+  const token = localStorage.getItem('token')
+  const isAuthPage = to.path.startsWith('/auth') || to.path.startsWith('/coming_soon')
+  const isLoginPage = to.path.includes('/login') || to.path.includes('/register')
+
+  // Jika halaman login/register dan pengguna sudah terautentikasi: redirect ke dashboard utama
+  if (isLoginPage && token) {
+    return next('/')
+  }
+
+  // Izinkan akses ke halaman otentikasi publik (login, register, forgot password, dsb.)
+  if (isAuthPage) {
     return next()
   }
-  next('/auth/login')
+
+  // Halaman internal yang diproteksi: wajib punya token aktif
+  if (!token) {
+    return next('/auth/login')
+  }
+
+  next()
 })
 export default router
+
