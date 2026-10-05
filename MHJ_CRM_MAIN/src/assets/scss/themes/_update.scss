@@ -2076,8 +2076,11 @@
     width: 100%;
     margin-top: 0px;
 
+    // Kolom pencarian harus terlihat agar bisa diketik dan mendapat fokus saat dropdown dibuka.
     input {
-      display: none;
+      display: block;
+      width: calc(100% - 16px);
+      margin: 8px;
     }
 
     ul {

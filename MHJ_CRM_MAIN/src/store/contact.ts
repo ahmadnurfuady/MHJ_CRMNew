@@ -81,7 +81,6 @@ function normalizeApiContact(raw: Dict): Contact {
   // address, province, city. Key berspasi dari response lama tetap dicoba sebagai cadangan.
   const phone1 = pickString(raw, "telephone_1", "Telephone", "contactNumber", "phone");
   const phone2 = pickString(raw, "telephone_2");
-
   return {
     id: CONTACT_ID_OFFSET + remoteId,
     origin: "api",
@@ -284,7 +283,10 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
-  /** POST /api/contact/input dengan choice "i". */
+  /**
+   * POST /api/contact/input dengan choice "i".
+   * Mengembalikan kontak yang baru dibuat, atau undefined jika backend tidak mengembalikan datanya.
+   */
   function createRemoteContact(payload: ContactPayload) {
     return runApiAction({
       flag: contactSubmitting,
@@ -293,13 +295,16 @@ export const useContact = defineStore("contact", () => {
       task: async () => {
         const response = await api.post(`${CONTACT_ENDPOINT}/input`, { choice: "i", ...payload });
         const raw = extractItem(response.data, ["contact"]);
+        let created: Contact | undefined;
 
         if (raw && pickNumber(raw, "id", "ID") > 0) {
-          contactApi.items = [normalizeApiContact(raw), ...contactApi.items];
+          created = normalizeApiContact(raw);
+          contactApi.items = [created, ...contactApi.items];
         } else {
           await fetchRemoteContacts();
         }
         syncRemoteContacts();
+        return created;
       },
     });
   }

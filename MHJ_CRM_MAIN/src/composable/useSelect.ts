@@ -51,6 +51,7 @@ export function useSmartSelect(
   })
 
   const toggleDropdown = (event?: Event) => {
+    if (props.disabled) return
     showDropdown.value = !showDropdown.value
     if (showDropdown.value) {
       event?.preventDefault()

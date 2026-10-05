@@ -8,6 +8,7 @@
             props.class,
             {
               'is-invalid': props.modelValue.errorMessage && required && props.formSubmitted,
+              'bg-light': props.disabled,
             },
           ]"
           :disabled="props.disabled"

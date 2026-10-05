@@ -24,7 +24,7 @@
                         display-key="label"
                         :placeholder="'Cari perusahaan'"
                         v-model="projectForm.company"
-                        :options="hospitals"
+                        :options="companyOptions"
                         :formSubmitted="formSubmitted"
                       />
                     </InputWrapper>
@@ -36,10 +36,13 @@
                         display-key="label"
                         :placeholder="'Cari kontak'"
                         v-model="projectForm.contact"
-                        :options="contacts"
+                        :options="contactOptions"
                         :formSubmitted="formSubmitted"
                       />
                     </InputWrapper>
+                    <button class="btn btn-link btn-sm p-0 mt-1" type="button" @click="openContactModal">
+                      <vue-feather type="plus" size="14" class="me-1"></vue-feather>Tambah kontak baru
+                    </button>
                   </div>
                   <div class="col-md-6">
                     <InputWrapper :title="'Stage'">
@@ -192,24 +195,94 @@
         </div>
       </div>
     </div>
+    <Modal
+      title="Tambah Kontak Person"
+      sizeClass="modal-lg"
+      :modalOpen="isContactModalOpen"
+      @closeModal="closeContactModal"
+    >
+      <form class="needs-validation" novalidate @submit.prevent="submitNewContact">
+        <div class="modal-body custom-input">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <InputWrapper :title="'Nama Depan'" required>
+                <InputField
+                  v-model:modelValue="newContact.firstName"
+                  inputId="new-contact-first-name"
+                  :placeholder="'Masukkan nama depan'"
+                />
+              </InputWrapper>
+            </div>
+            <div class="col-md-6">
+              <InputWrapper :title="'Nama Belakang'" required>
+                <InputField
+                  v-model:modelValue="newContact.lastName"
+                  inputId="new-contact-last-name"
+                  :placeholder="'Masukkan nama belakang'"
+                />
+              </InputWrapper>
+            </div>
+            <div class="col-md-6">
+              <InputWrapper :title="'Jabatan'">
+                <InputField
+                  v-model:modelValue="newContact.jobTitle"
+                  inputId="new-contact-job-title"
+                  :placeholder="'Contoh: Kepala Instalasi Radiologi'"
+                  :required="false"
+                />
+              </InputWrapper>
+            </div>
+            <div class="col-md-6">
+              <InputWrapper :title="'Nomor Telepon'" required>
+                <InputField
+                  v-model:modelValue="newContact.phone"
+                  inputId="new-contact-phone"
+                  :placeholder="'Contoh: 081234567890'"
+                />
+              </InputWrapper>
+            </div>
+            <div class="col-12">
+              <InputWrapper :title="'Email'" required>
+                <InputField
+                  v-model:modelValue="newContact.email"
+                  inputId="new-contact-email"
+                  :inputType="'email'"
+                  :placeholder="'Masukkan email'"
+                />
+              </InputWrapper>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div v-if="newContactError" class="text-danger me-auto">{{ newContactError }}</div>
+          <button class="btn btn-light" type="button" @click="closeContactModal">Batal</button>
+          <button class="btn btn-primary" type="submit" :disabled="contactStore.contactApi.submitting">
+            <span v-if="contactStore.contactApi.submitting" class="spinner-border spinner-border-sm me-2"></span>
+            Simpan Kontak
+          </button>
+        </div>
+      </form>
+    </Modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, defineAsyncComponent } from 'vue'
+import { ref, reactive, computed, watch, onMounted, defineAsyncComponent } from 'vue'
+import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
 import { projectTab } from '@/core/data/project'
 import {
   competitors,
-  contacts,
   divisiList,
   fundingSources,
-  hospitals,
   lostReasons,
   owners,
   products,
 } from '@/core/data/projectDeal'
 import type { DealOption } from '@/core/data/projectDeal'
+import type { Contact } from '@/types/contacts'
+import { useHospitalStore } from '@/store/hospital'
+import { useContact } from '@/store/contact'
 
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
@@ -218,6 +291,7 @@ const InputField = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputField.vue')
 )
 const Select = defineAsyncComponent(() => import('@/components/shared/formElements/Select.vue'))
+const Modal = defineAsyncComponent(() => import('@/components/shared/Modal.vue'))
 
 // Stage sama dengan tab di Project List (tanpa "All").
 const stageOptions = projectTab
@@ -245,6 +319,123 @@ const formSubmitted = ref<boolean>(false)
 function selectedOf(field: { selected: unknown }) {
   return field.selected as DealOption | null
 }
+
+const hospitalStore = useHospitalStore()
+const contactStore = useContact()
+
+// Perusahaan = Rumah Sakit dari backend (endpoint Company).
+const companyOptions = computed<DealOption[]>(() =>
+  hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name }))
+)
+
+// Contact = semua kontak personal dari backend. Tidak dihubungkan ke perusahaan.
+function toContactOption(contact: Contact): DealOption {
+  return {
+    value: contact.remoteId as number,
+    // Nama kosong membuat opsi tampak kosong, jadi pakai cadangan dari kolom lain.
+    label:
+      `${contact.firstName} ${contact.lastName}`.trim() ||
+      contact.contactNumber ||
+      contact.email ||
+      `Kontak #${contact.remoteId}`,
+  }
+}
+
+const contactOptions = computed<DealOption[]>(() =>
+  contactStore.contactApi.items
+    .filter((contact) => contact.origin === 'api' && contact.remoteId !== undefined)
+    .map(toContactOption)
+)
+
+// Modal tambah kontak cepat. Kontak yang baru disimpan langsung terpilih di form.
+const isContactModalOpen = ref(false)
+const newContactError = ref('')
+const newContact = reactive({
+  firstName: initInputField(),
+  lastName: initInputField(),
+  jobTitle: initInputField(),
+  email: initInputField(),
+  phone: initInputField(),
+})
+
+function resetNewContact() {
+  newContactError.value = ''
+  Object.assign(newContact, {
+    firstName: initInputField(),
+    lastName: initInputField(),
+    jobTitle: initInputField(),
+    email: initInputField(),
+    phone: initInputField(),
+  })
+}
+
+function openContactModal() {
+  resetNewContact()
+  isContactModalOpen.value = true
+}
+
+function closeContactModal() {
+  isContactModalOpen.value = false
+}
+
+function validateNewContact() {
+  const requiredFields = [newContact.firstName, newContact.lastName, newContact.phone, newContact.email]
+  requiredFields.forEach((field) => {
+    field.errorMessage = field.data.trim() ? '' : 'Wajib diisi.'
+  })
+  const email = newContact.email.data.trim()
+  if (email && !/^\S+@\S+\.\S+$/.test(email)) {
+    newContact.email.errorMessage = 'Format email tidak valid.'
+  }
+  return requiredFields.every((field) => !field.errorMessage)
+}
+
+async function submitNewContact() {
+  newContactError.value = ''
+  if (!validateNewContact()) return
+
+  try {
+    const created = await contactStore.createRemoteContact({
+      first_name: newContact.firstName.data.trim(),
+      last_name: newContact.lastName.data.trim(),
+      job_title: newContact.jobTitle.data.trim(),
+      email: newContact.email.data.trim(),
+      telephone_1: newContact.phone.data.trim(),
+      telephone_2: null,
+      address: '',
+      province: '',
+      city: '',
+    })
+    if (created) {
+      const option = toContactOption(created)
+      projectForm.value.contact = {
+        selected: option,
+        data: String(option.label),
+        selectedItems: [],
+        errorMessage: '',
+        type: 'dropdown',
+      }
+    }
+    closeContactModal()
+  } catch {
+    newContactError.value = contactStore.contactApi.error ?? 'Gagal menyimpan kontak.'
+  }
+}
+
+onMounted(async () => {
+  const results = await Promise.allSettled([
+    hospitalStore.fetchHospitals(),
+    contactStore.fetchRemoteContacts(),
+  ])
+  if (results.some((result) => result.status === 'rejected')) {
+    Swal.fire({
+      icon: 'error',
+      text:
+        hospitalStore.error ?? contactStore.contactApi.error ?? 'Gagal memuat perusahaan dan kontak.',
+      confirmButtonColor: 'var(--theme-default)',
+    })
+  }
+})
 
 // Produk hanya bisa dipilih setelah divisi dipilih, dan difilter menurut kode divisi.
 const productOptions = computed(() =>
