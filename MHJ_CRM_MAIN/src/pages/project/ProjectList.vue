@@ -48,11 +48,20 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, defineAsyncComponent } from 'vue'
+import { ref, defineAsyncComponent, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import Swal from 'sweetalert2'
 import { useTask } from '@/store/task'
+import { useProjectStore } from '@/store/project'
 
 const { projectList } = storeToRefs(useTask())
+const projectStore = useProjectStore()
+
+onMounted(() => {
+  projectStore.fetchProjects().catch(() => {
+    Swal.fire({ icon: 'error', text: projectStore.error ?? 'Gagal memuat data project.' })
+  })
+})
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 const ProjectCostPerformance = defineAsyncComponent(

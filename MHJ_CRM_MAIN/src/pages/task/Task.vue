@@ -8,6 +8,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, onMounted } from 'vue'
+import Swal from 'sweetalert2'
+import { useTask } from '@/store/task'
 const TaskSidebar = defineAsyncComponent(() => import('@/module/task/TaskSidebar.vue'))
+
+const taskStore = useTask()
+
+onMounted(() => {
+  taskStore.fetchTasks().catch(() => {
+    Swal.fire({ icon: 'error', text: taskStore.error ?? 'Gagal memuat data task.' })
+  })
+})
 </script>

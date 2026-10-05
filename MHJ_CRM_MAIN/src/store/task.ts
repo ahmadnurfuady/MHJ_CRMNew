@@ -1,13 +1,29 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { computed } from 'vue'
 import { tasks } from '@/core/data/tasks'
 import { projects } from '@/core/data/project'
 import Swal from 'sweetalert2'
+import { api } from '@/api'
+import {
+  extractItem,
+  extractList,
+  isRecord,
+  normalizeOptions,
+  pick,
+  pickNumber,
+  pickString,
+  type Dict,
+} from '@/api/response'
+import { runApiAction } from '@/store/apiAction'
+import { useProjectStore } from '@/store/project'
+import type { ListParams, Pagination } from '@/types/api'
+import type { Select } from '@/types/common'
 import type { SalesTaskPayload, Task, TaskData, TaskDetails } from '@/types/tasks'
 
 const salesTaskStorageKey = 'mhj-crm-sales-tasks'
 const projectStageStorageKey = 'mhj-crm-project-stages'
+const CREATED_BY_ME = 'CreatedByMe'
 
 function readStorage<T>(key: string, fallback: T): T {
   try {
@@ -18,16 +34,56 @@ function readStorage<T>(key: string, fallback: T): T {
   }
 }
 
+function toStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.map((item) => String(item)) : []
+}
+
+/**
+ * Mengubah satu baris tabel `tasks` menjadi TaskDetails.
+ * Kolom DB: task_name, description, project_id, due_date, created_at, created_by.
+ * Field form (title, scheduledAt, notes) tetap dibaca sebagai cadangan untuk data lokal.
+ */
+export function normalizeTask(raw: Dict): TaskDetails {
+  const projectId = pick(raw, 'project_id', 'projectId')
+  const projectName = pickString(raw, 'project_name', 'projectName')
+  const hospital = pickString(raw, 'hospital', 'rumahSakit', 'rumah_sakit')
+
+  return {
+    id: pickNumber(raw, 'id', 'ID') || Date.now(),
+    title: pickString(raw, 'task_name', 'title', 'judul'),
+    subtitle: pickString(raw, 'subtitle') || projectName || hospital,
+    description: pickString(raw, 'description', 'notes', 'keterangan'),
+    kind: 'sales',
+    category: pickString(raw, 'category', 'kategori'),
+    owner: pickString(raw, 'owner', 'created_by'),
+    projectId: projectId === undefined ? null : Number(projectId),
+    projectName,
+    hospital,
+    contact: pickString(raw, 'contact'),
+    scheduledAt: pickString(raw, 'due_date', 'scheduledAt', 'scheduled_at'),
+    divisions: toStringArray(raw.divisions),
+    products: toStringArray(raw.products),
+    unrelatedProduct: Boolean(pick(raw, 'unrelatedProduct', 'unrelated_product')),
+    stageFrom: pickString(raw, 'stageFrom', 'stage_from'),
+    stageTo: pickString(raw, 'stageTo', 'stage_to'),
+    photoName: pickString(raw, 'photoName', 'photo_name'),
+    latitude: pickNumber(raw, 'latitude'),
+    longitude: pickNumber(raw, 'longitude'),
+    locationAccuracy: pickNumber(raw, 'locationAccuracy', 'location_accuracy'),
+    createdAt: pickString(raw, 'createdAt', 'created_at'),
+  }
+}
+
 export const useTask = defineStore('task', () => {
-  const storedSalesTasks = readStorage<TaskDetails[]>(salesTaskStorageKey, [])
+  const projectStore = useProjectStore()
+
+  // Cache lokal sales task: dipakai sebagai nilai awal sebelum API dimuat.
+  const salesTasks = ref<TaskDetails[]>(readStorage<TaskDetails[]>(salesTaskStorageKey, []))
+
   const initialTasks = tasks.map((group) => ({
     ...group,
     data: group.data ? [...group.data] : undefined,
   }))
-  const createdByMe = initialTasks.find((group) => group.value === 'CreatedByMe')
-  if (createdByMe?.data) {
-    createdByMe.data = [...storedSalesTasks, ...createdByMe.data]
-  }
 
   const taskData = reactive<TaskData>({
     task: initialTasks,
@@ -42,6 +98,37 @@ export const useTask = defineStore('task', () => {
     readStorage<Record<number, string>>(projectStageStorageKey, {})
   )
 
+  // State async untuk integrasi API task.
+  const selectedItem = ref<TaskDetails | null>(null)
+  const loading = ref(false)
+  const submitting = ref(false)
+  const error = ref<string | null>(null)
+  const pagination = reactive<Pagination>({ page: 1, perPage: 10, total: 0, lastPage: 1 })
+  const lookups = reactive<{
+    status: Select[]
+    priority: Select[]
+    assignedTo: Select[]
+    project: Select[]
+  }>({ status: [], priority: [], assignedTo: [], project: [] })
+
+  function createdByMeGroup() {
+    return taskData.task.find((group) => group.value === CREATED_BY_ME)
+  }
+
+  /** Menyusun ulang grup CreatedByMe: sales task dari salesTasks, sisanya dipertahankan. */
+  function rebuildCreatedByMe() {
+    const group = createdByMeGroup()
+    if (!group) return
+    const otherTasks = (group.data ?? []).filter((task) => task.kind !== 'sales')
+    group.data = [...salesTasks.value, ...otherTasks]
+  }
+
+  function persistSalesTasks() {
+    localStorage.setItem(salesTaskStorageKey, JSON.stringify(salesTasks.value))
+  }
+
+  rebuildCreatedByMe()
+
   const setActive = (value: Task) => {
     taskData.activeTask = value
   }
@@ -50,60 +137,106 @@ export const useTask = defineStore('task', () => {
     taskData.task.find((Task) => Task.id === taskData.activeTask.id)
   )
 
+  // Daftar project mengikuti data API bila sudah dimuat, jika belum memakai data contoh.
   const projectList = computed(() =>
-    projects.map((project) => ({
+    (projectStore.loaded ? projectStore.items : projects).map((project) => ({
       ...project,
       status: projectStages[project.id] ?? project.status,
     }))
   )
 
-  function persistSalesTasks() {
-    const salesTasks =
-      taskData.task
-        .find((group) => group.value === 'CreatedByMe')
-        ?.data?.filter((task) => task.kind === 'sales') ?? []
-    localStorage.setItem(salesTaskStorageKey, JSON.stringify(salesTasks))
+  /** GET /api/tasks. Mengganti sales task dengan data dari backend. */
+  function fetchTasks(params: ListParams = {}) {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat data task.',
+      task: async () => {
+        const response = await api.getbydata('tasks', { ...params })
+        const { items: rawItems, meta } = extractList(response.data, ['tasks'])
+        salesTasks.value = rawItems.filter(isRecord).map(normalizeTask)
+        if (meta) Object.assign(pagination, meta)
+        rebuildCreatedByMe()
+        persistSalesTasks()
+        return salesTasks.value
+      },
+    })
   }
 
-  function createSalesTask(payload: SalesTaskPayload) {
-    const target = taskData.task.find((group) => group.value === 'CreatedByMe')
+  /** GET /api/tasks/fetchtaskbyid?id=<id>. */
+  function fetchTaskById(id: number) {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat detail task.',
+      task: async () => {
+        const response = await api.getbydata('tasks/fetchtaskbyid', { id })
+        const raw = extractItem(response.data, ['task'])
+        selectedItem.value = raw ? normalizeTask(raw) : null
+        return selectedItem.value
+      },
+    })
+  }
+
+  /** GET data pendukung: status, priority, assignedto, project. */
+  function fetchTaskLookups() {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat data pendukung task.',
+      task: async () => {
+        const [status, priority, assignedTo, project] = await Promise.all([
+          api.get('tasks/status'),
+          api.get('tasks/priority'),
+          api.get('tasks/assignedto'),
+          api.get('tasks/project'),
+        ])
+        lookups.status = normalizeOptions(status.data, ['status'])
+        lookups.priority = normalizeOptions(priority.data, ['priority'])
+        lookups.assignedTo = normalizeOptions(assignedTo.data, ['assignedto', 'users'])
+        lookups.project = normalizeOptions(project.data, ['projects'])
+      },
+    })
+  }
+
+  /**
+   * POST /api/tasks/input dengan choice "i".
+   * Mengembalikan null jika grup CreatedByMe tidak ada; error API dilempar kembali.
+   */
+  async function createSalesTask(payload: SalesTaskPayload): Promise<TaskDetails | null> {
+    const target = createdByMeGroup()
     if (!target?.data) return null
 
-    const newTask: TaskDetails = {
-      id: Date.now(),
-      title: payload.title,
-      subtitle: payload.projectName || payload.hospital,
-      description: payload.notes,
-      kind: 'sales',
-      category: payload.category,
-      owner: payload.owner,
-      projectId: payload.projectId,
-      projectName: payload.projectName,
-      hospital: payload.hospital,
-      contact: payload.contact,
-      scheduledAt: payload.scheduledAt,
-      divisions: payload.divisions,
-      products: payload.products,
-      unrelatedProduct: payload.unrelatedProduct,
-      stageFrom: payload.stageFrom,
-      stageTo: payload.stageTo,
-      photoName: payload.photoName,
-      latitude: payload.latitude,
-      longitude: payload.longitude,
-      locationAccuracy: payload.locationAccuracy,
-      createdAt: new Date().toISOString(),
-    }
+    return runApiAction({
+      flag: submitting,
+      error,
+      fallbackMessage: 'Gagal menyimpan task.',
+      task: async () => {
+        // Kolom tabel tasks. Field form lain (hospital, contact, produk, lokasi) belum punya kolomnya.
+        const response = await api.post('tasks/input', {
+          choice: 'i',
+          task_name: payload.title,
+          description: payload.notes,
+          project_id: payload.projectId,
+          due_date: payload.scheduledAt || null,
+        })
+        const raw = extractItem(response.data, ['task'])
+        // Bila backend tidak mengembalikan data baru, pakai data dari form.
+        const newTask = normalizeTask(raw ?? { ...payload, id: Date.now() })
 
-    target.data.unshift(newTask)
-    taskData.activeTask = target
-    persistSalesTasks()
+        salesTasks.value = [newTask, ...salesTasks.value]
+        rebuildCreatedByMe()
+        taskData.activeTask = target
+        persistSalesTasks()
 
-    if (payload.projectId && payload.stageTo) {
-      projectStages[payload.projectId] = payload.stageTo
-      localStorage.setItem(projectStageStorageKey, JSON.stringify(projectStages))
-    }
+        if (payload.projectId && payload.stageTo) {
+          projectStages[payload.projectId] = payload.stageTo
+          localStorage.setItem(projectStageStorageKey, JSON.stringify(projectStages))
+        }
 
-    return newTask
+        return newTask
+      },
+    })
   }
 
   const save = () => {
@@ -200,7 +333,10 @@ export const useTask = defineStore('task', () => {
     }).then((result: { isConfirmed: boolean }) => {
       if (result.isConfirmed) {
         if (currentTask.value?.data) {
-          currentTask.value.data.splice(index, 1)
+          const [removed] = currentTask.value.data.splice(index, 1)
+          if (removed?.kind === 'sales') {
+            salesTasks.value = salesTasks.value.filter((task) => task.id !== removed.id)
+          }
           persistSalesTasks()
         }
         Swal.fire({
@@ -222,9 +358,18 @@ export const useTask = defineStore('task', () => {
     currentTask,
     projectList,
     projectStages,
+    selectedItem,
+    loading,
+    submitting,
+    error,
+    pagination,
+    lookups,
     setActive,
     warningAlert,
     save,
+    fetchTasks,
+    fetchTaskById,
+    fetchTaskLookups,
     createSalesTask,
   }
 })

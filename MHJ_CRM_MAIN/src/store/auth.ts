@@ -90,7 +90,7 @@ export const useAuthStore = defineStore('auth', {
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user))
           }
-          api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+          // Header Authorization ditambahkan otomatis oleh wrapper API dari localStorage.
 
           // Ambil menu dinamis web dari backend secara non-blocking di background
           const fallbackUsername = this.user?.name || this.user?.email || credentials.email

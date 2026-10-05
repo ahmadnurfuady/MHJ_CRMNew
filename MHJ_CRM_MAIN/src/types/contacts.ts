@@ -8,6 +8,10 @@ export interface ContactSidebarList {
 
 export interface Contact {
   id: number;
+  /** Penanda asal data dari backend: "hospital" (endpoint Company) atau "api" (endpoint Contact). */
+  origin?: "hospital" | "api";
+  /** ID asli dari backend, dipakai untuk request update/delete. */
+  remoteId?: number;
   firstName: string;
   lastName: string;
   profile: string;

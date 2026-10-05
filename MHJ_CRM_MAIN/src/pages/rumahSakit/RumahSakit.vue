@@ -41,5 +41,6 @@ const PrintContactModal = defineAsyncComponent(
 )
 
 const contactStore = useContact()
+contactStore.setScope('hospital')
 const { contactState } = storeToRefs(contactStore)
 </script>

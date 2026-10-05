@@ -553,26 +553,32 @@ async function submitTask() {
 
   const project = selectedProject.value
   const stageTo = String(form.pipeline.selected?.value ?? '')
-  const result = taskStore.createSalesTask({
-    title: taskName.value,
-    category: selectedCategoryLabel.value,
-    owner: form.owner,
-    projectId: project?.id ?? null,
-    projectName: project?.label ?? '',
-    hospital: String((form.hospital.selected as DealOption).label),
-    contact: String((form.contact.selected as DealOption).label),
-    scheduledAt: form.scheduledAt,
-    divisions: selectedDivisions.value.map((item) => String(item.label)),
-    products: selectedProducts.value.map((item) => String(item.label)),
-    unrelatedProduct: form.unrelatedProduct,
-    stageFrom: project?.status ?? '',
-    stageTo,
-    notes: form.notes,
-    photoName: form.photo?.name ?? '',
-    latitude: form.latitude,
-    longitude: form.longitude,
-    locationAccuracy: form.locationAccuracy,
-  })
+  let result
+  try {
+    result = await taskStore.createSalesTask({
+      title: taskName.value,
+      category: selectedCategoryLabel.value,
+      owner: form.owner,
+      projectId: project?.id ?? null,
+      projectName: project?.label ?? '',
+      hospital: String((form.hospital.selected as DealOption).label),
+      contact: String((form.contact.selected as DealOption).label),
+      scheduledAt: form.scheduledAt,
+      divisions: selectedDivisions.value.map((item) => String(item.label)),
+      products: selectedProducts.value.map((item) => String(item.label)),
+      unrelatedProduct: form.unrelatedProduct,
+      stageFrom: project?.status ?? '',
+      stageTo,
+      notes: form.notes,
+      photoName: form.photo?.name ?? '',
+      latitude: form.latitude,
+      longitude: form.longitude,
+      locationAccuracy: form.locationAccuracy,
+    })
+  } catch {
+    validationMessage.value = taskStore.error ?? 'Task gagal disimpan. Silakan coba lagi.'
+    return
+  }
 
   if (!result) {
     validationMessage.value = 'Task gagal disimpan. Silakan coba lagi.'
