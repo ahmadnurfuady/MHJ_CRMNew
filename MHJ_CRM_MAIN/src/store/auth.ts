@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { api } from '@/services/api'
 import { useMenu } from '@/store/menu'
+import { stopPermissionWatcher } from '@/services/permissionWatcher'
 
 // ── Tipe data sesuai kontrak API backend ──────────────────────────────────────
 export interface AuthUser {
@@ -154,6 +155,7 @@ export const useAuthStore = defineStore('auth', {
         localStorage.removeItem('menuuser')
 
         try {
+          stopPermissionWatcher()
           useMenu().resetMenu()
         } catch (e) {
           console.warn('Gagal mengembalikan menu sidebar:', e)

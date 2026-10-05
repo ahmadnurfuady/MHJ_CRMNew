@@ -28,7 +28,7 @@ export interface FlMenuRawItem {
   ICON?: string
   pathfile?: string
   ACCESS?: string
-  FLAGKRM?: string
+  FLAGKRM?: string | null
   Status?: string
   ImageIndex?: number
   L1lama?: string

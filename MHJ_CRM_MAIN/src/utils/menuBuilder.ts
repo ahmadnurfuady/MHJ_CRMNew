@@ -71,31 +71,22 @@ function resolveParentId(raw: FlMenuRawItem): string | null {
 
 /**
  * Memeriksa apakah item menu berhak ditampilkan.
- * Mengizinkan jika HASACCESS == 1, atau jika user memiliki izin aksi (tambah/koreksi/hapus/export),
- * atau menu krusial seperti User List (L1: '0801').
+ * Menu HANYA ditampilkan jika pengguna memiliki hak akses (HASACCESS == 1 atau akses == 1).
+ * Jika HASACCESS == 0, menu tidak boleh ditampilkan di sidebar.
  */
 function hasMenuAccess(item: FlMenuRawItem): boolean {
-  if (Number(item.HASACCESS ?? item.akses) === 1) return true
+  const accessVal = item.HASACCESS ?? item.akses
+  if (accessVal !== undefined && accessVal !== null) {
+    return Number(accessVal) === 1
+  }
 
-  if (
+  // Fallback jika properti HASACCESS/akses tidak dikirim sama sekali oleh backend
+  return (
     Number(item.tambah) === 1 ||
     Number(item.koreksi) === 1 ||
     Number(item.hapus) === 1 ||
     Number(item.export) === 1
-  ) {
-    return true
-  }
-
-  const id = String(item.id ?? item.L1 ?? '').trim()
-  const caption = (item.CAPTION || item.name || item.captionmenu || '').toLowerCase().trim()
-  // ID '0801' = User List — menu manajemen user selalu dapat diakses admin
-  const ALWAYS_VISIBLE_IDS = new Set(['0801'])
-  const ALWAYS_VISIBLE_CAPTIONS = new Set(['user list', 'user management'])
-  if (ALWAYS_VISIBLE_IDS.has(id) || ALWAYS_VISIBLE_CAPTIONS.has(caption)) {
-    return true
-  }
-
-  return false
+  )
 }
 
 /**

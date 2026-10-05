@@ -26,7 +26,8 @@ import { useLayout } from '@/store/layout'
 import { useMenu } from '@/store/menu'
 import { storeToRefs } from 'pinia'
 import { useWindowSize } from '@vueuse/core'
-import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
+import { defineAsyncComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { startPermissionWatcher, stopPermissionWatcher } from '@/services/permissionWatcher'
 
 const Header = defineAsyncComponent(() => import('@/components/layout/header/Header.vue'))
 const Sidebar = defineAsyncComponent(() => import('@/components/layout/sidebar/Sidebar.vue'))
@@ -72,5 +73,10 @@ onMounted(() => {
   }
 
   layout.value = layoutState.value.layouts.settings.sidebarSetting
+  startPermissionWatcher()
+})
+
+onBeforeUnmount(() => {
+  stopPermissionWatcher()
 })
 </script>

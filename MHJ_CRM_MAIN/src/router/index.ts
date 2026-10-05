@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { routes } from './routes'
+import { canAccessRoute } from '@/utils/permission'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -1646,6 +1647,21 @@ router.beforeEach((to, from, next) => {
   // Halaman internal yang diproteksi: wajib punya token aktif
   if (!token) {
     return next('/auth/login')
+  }
+
+  // Periksa apakah pengguna memiliki hak akses (HASACCESS == 1) ke rute tujuan
+  if (!canAccessRoute(to.path)) {
+    import('sweetalert2').then((Swal) => {
+      Swal.default.fire({
+        icon: 'warning',
+        title: 'Akses Ditolak',
+        text: 'Anda tidak memiliki hak akses untuk membuka halaman tersebut.',
+        confirmButtonColor: 'var(--theme-default)',
+        timer: 3500,
+        timerProgressBar: true,
+      })
+    })
+    return next('/crmAdmin')
   }
 
   next()

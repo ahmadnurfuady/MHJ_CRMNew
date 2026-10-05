@@ -73,6 +73,10 @@ api.interceptors.response.use(
         if (!window.location.pathname.includes('/auth/login')) {
           window.location.href = loginPath
         }
+      } else if (status === 403) {
+        import('@/services/permissionWatcher').then((m) => {
+          m.syncPermissionsAndEvict()
+        })
       }
     }
     return Promise.reject(error)

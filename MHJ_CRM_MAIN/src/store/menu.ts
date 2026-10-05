@@ -3,7 +3,7 @@ import { watch, reactive } from 'vue'
 import { menu } from '@/core/data/menu'
 import { useRoute } from 'vue-router'
 import { MenuItem, FlMenuRawItem } from '@/types/menu'
-import { api } from '@/services/api'
+import { menuRoleService } from '@/services/menuRoleService'
 import { transformFlMenuToTree } from '@/utils/menuBuilder'
 import { RAW_MENU_STORAGE_KEY } from '@/utils/permission'
 
@@ -89,8 +89,8 @@ export const useMenu = defineStore('menu', () => {
 
   /**
    * Memuat menu sidebar milik pengguna dari backend.
-   * Pertama mencoba GET /api/menuweb (layoutmenuweb@index via sp_webmenuusercrm),
-   * dengan fallback ke POST /api/berkas/getflmenu.
+   * Pertama mencoba GET /api/menuweb (membaca user dari token), dengan fallback
+   * ke POST /api/berkas/getflmenu bila endpoint utama belum mengembalikan data.
    */
   async function loadUserMenu(username?: string) {
     if (isFetchingMenu) return
@@ -98,20 +98,15 @@ export const useMenu = defineStore('menu', () => {
     try {
       let rawData: FlMenuRawItem[] = []
 
-      // 1. Panggil endpoint utama web: GET /api/menuweb
-      //    layoutmenuweb@index otomatis membaca user dari Bearer token dan menjalankan sp_webmenuusercrm
       try {
-        const response = await api.get('/menuweb', { timeout: 6000 })
-        rawData = response.data?.dbmenu2 || response.data?.data || []
+        rawData = await menuRoleService.getWebMenu()
       } catch (err) {
         console.warn('Gagal memanggil /menuweb, mencoba fallback...', err)
       }
 
-      // 2. Fallback ke POST /api/berkas/getflmenu jika /menuweb belum mengembalikan data
       if (rawData.length === 0 && username) {
         try {
-          const response = await api.post('/berkas/getflmenu', { username }, { timeout: 6000 })
-          rawData = response.data?.data || []
+          rawData = await menuRoleService.getFlMenu(username)
         } catch (err) {
           console.warn('Gagal memanggil fallback /berkas/getflmenu:', err)
         }
