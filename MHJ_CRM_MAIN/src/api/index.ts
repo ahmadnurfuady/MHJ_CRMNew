@@ -97,28 +97,28 @@ client.interceptors.response.use(
  * isi tetap lewat response.data.
  */
 export const api = {
-  get(endpoint: string, config?: AxiosRequestConfig) {
-    return client.get(resolveEndpoint(endpoint), config)
+  get<T = any>(endpoint: string, config?: AxiosRequestConfig) {
+    return client.get<T>(resolveEndpoint(endpoint), config)
   },
 
   /** GET dengan query params, mis. getbydata('company/fetchcompanybyid', { id }). */
-  getbydata(endpoint: string, params?: object, config?: AxiosRequestConfig) {
-    return client.get(resolveEndpoint(endpoint), {
+  getbydata<T = any>(endpoint: string, params?: object, config?: AxiosRequestConfig) {
+    return client.get<T>(resolveEndpoint(endpoint), {
       ...config,
       params: { ...(config?.params as object | undefined), ...params },
     })
   },
 
-  post(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
-    return client.post(resolveEndpoint(endpoint), payload, config)
+  post<T = any>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
+    return client.post<T>(resolveEndpoint(endpoint), payload, config)
   },
 
-  patch(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
-    return client.patch(resolveEndpoint(endpoint), payload, config)
+  patch<T = any>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
+    return client.patch<T>(resolveEndpoint(endpoint), payload, config)
   },
 
-  delete(endpoint: string, config?: AxiosRequestConfig) {
-    return client.delete(resolveEndpoint(endpoint), config)
+  delete<T = any>(endpoint: string, config?: AxiosRequestConfig) {
+    return client.delete<T>(resolveEndpoint(endpoint), config)
   },
 }
 
