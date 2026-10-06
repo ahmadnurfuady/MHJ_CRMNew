@@ -86,6 +86,19 @@ export const menu: MenuItem[] = [
     ],
   },
   {
+    title: 'Master Data',
+    icon: 'board',
+    type: 'sub',
+    active: false,
+    isPinned: false,
+    children: [
+      { path: routes.Master.Jabatan, title: 'Jabatan', type: 'link' },
+      { path: routes.Master.Cabang, title: 'Cabang', type: 'link' },
+      { path: routes.Master.Devisi, title: 'Devisi', type: 'link' },
+      { path: routes.Master.TipeMarketing, title: 'Tipe Marketing', type: 'link' },
+    ],
+  },
+  {
     path: routes.App.Contacts,
     title: 'Contacts',
     icon: 'contact',

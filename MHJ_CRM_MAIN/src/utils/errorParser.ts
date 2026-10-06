@@ -59,6 +59,45 @@ export function parseBackendError(error: unknown, defaultTitle = 'Gagal Menyimpa
 
   const err = error as any
 
+  // 0. HTTP status-level errors (sebelum parsing body)
+  const httpStatus: number | undefined = err?.response?.status
+  if (httpStatus === 404) {
+    return {
+      title: 'Fitur Tidak Ditemukan',
+      message: 'Endpoint yang diminta tidak ditemukan di server. Hubungi administrator sistem.',
+      detail: err?.response?.config?.url,
+    }
+  }
+  if (httpStatus === 405) {
+    return {
+      title: 'Fitur Belum Tersedia',
+      message: 'Operasi ini belum didukung oleh server saat ini. Hubungi administrator untuk mengaktifkan fitur ini.',
+      detail: err?.response?.config?.url,
+    }
+  }
+  if (httpStatus === 401 || httpStatus === 403) {
+    return {
+      title: 'Akses Ditolak',
+      message: 'Anda tidak memiliki izin untuk melakukan operasi ini.',
+      detail: err?.response?.config?.url,
+    }
+  }
+  if (httpStatus !== undefined && httpStatus >= 500) {
+    const serverMsg: string = err?.response?.data?.message || err?.response?.data?.msg || ''
+    if (serverMsg) return parseErrorMessageString(serverMsg, defaultTitle)
+    return {
+      title: 'Kesalahan Server',
+      message: 'Server mengalami masalah internal. Coba beberapa saat lagi atau hubungi administrator.',
+    }
+  }
+  // Tidak ada koneksi ke server
+  if (err?.code === 'ERR_NETWORK' || err?.code === 'ECONNREFUSED') {
+    return {
+      title: 'Tidak Dapat Terhubung',
+      message: 'Tidak dapat menjangkau server. Periksa koneksi internet Anda dan coba lagi.',
+    }
+  }
+
   // 1. Cek respons Laravel Validation Errors (format: { errors: { field: [msg1, msg2] } })
   const errorsObj = err?.response?.data?.errors
   if (errorsObj && typeof errorsObj === 'object') {

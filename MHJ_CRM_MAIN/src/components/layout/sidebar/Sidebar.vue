@@ -22,10 +22,22 @@
             <span>Back</span><i class="fa-solid fa-angle-right ps-2" aria-hidden="true"></i>
           </div>
         </li>
-        <li class="pin-title sidebar-main-title" :class="menuState.pinedArray.length ? 'show' : ''">
-          <div>
-            <h6>Pinned</h6>
-          </div>
+        <li
+          class="pin-title"
+          :style="menuState.pinedArray.length ? 'display:block !important; list-style:none; padding:10px 20px 4px; order:-1;' : 'display:none !important;'"
+        >
+          <h6 style="font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; opacity:0.6; margin-bottom:0; color:white;">
+            Pinned
+          </h6>
+        </li>
+        <li
+          v-if="menuState.pinedArray.length"
+          style="list-style:none; margin: 6px 20px; border-top: 1px solid rgba(255,255,255,0.25);"
+        ></li>
+        <li style="display:block !important; list-style:none; padding: 10px 20px 4px;">
+          <h6 style="font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; opacity:0.6; margin-bottom:0; color:white;">
+            General
+          </h6>
         </li>
         <NavMenu v-for="(menuItem, index) in menu" :key="index" :menu-item="menuItem" />
       </ul>
@@ -121,3 +133,4 @@ onUnmounted(() => {
   if (timeoutId) clearTimeout(timeoutId)
 })
 </script>
+

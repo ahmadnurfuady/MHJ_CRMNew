@@ -63,7 +63,12 @@
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="9" class="text-center py-4">Memuat data pengguna...</td>
+              <td colspan="9" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <div class="mt-2 f-m-light">Memuat data pengguna...</div>
+              </td>
             </tr>
             <tr v-else-if="errorMessage">
               <td colspan="9" class="text-center text-danger py-4">{{ errorMessage }}</td>
@@ -81,29 +86,34 @@
               <td>{{ labelFor(masterOptions.devisi, user.KodeDevisi) }}</td>
               <td>{{ labelFor(masterOptions.tipeMarketing, user.KodeTipeMarketing) }}</td>
               <td class="text-end text-nowrap">
-                <button
-                  class="btn btn-sm btn-outline-secondary me-1"
-                  title="Roles & Permission"
-                  @click="openRoles(user)"
-                >
-                  <i class="fa-solid fa-user-shield"></i>
-                </button>
-                <button
-                  v-if="canUser('koreksi')"
-                  class="btn btn-sm btn-outline-warning me-1"
-                  title="Edit pengguna"
-                  @click="editUser(user.id)"
-                >
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button
-                  v-if="canUser('hapus')"
-                  class="btn btn-sm btn-outline-danger"
-                  title="Hapus pengguna"
-                  @click="deleteUser(user)"
-                >
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
+                <div class="product-action common-align gap-2 justify-content-end">
+                  <a
+                    class="square-white"
+                    title="Roles & Permission"
+                    href="#"
+                    @click.prevent="openRoles(user)"
+                  >
+                    <SvgIcon icon="profile-check" style="width: 25px; height: 25px;" />
+                  </a>
+                  <a
+                    v-if="canUser('koreksi')"
+                    class="square-white"
+                    title="Edit pengguna"
+                    href="#"
+                    @click.prevent="editUser(user.id)"
+                  >
+                    <SvgIcon icon="edit-content" style="width: 25px; height: 25px;" />
+                  </a>
+                  <a
+                    v-if="canUser('hapus')"
+                    class="square-white"
+                    title="Hapus pengguna"
+                    href="#"
+                    @click.prevent="deleteUser(user)"
+                  >
+                    <SvgIcon icon="trash1" style="width: 25px; height: 25px;" />
+                  </a>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -137,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import Swal from 'sweetalert2'
@@ -148,6 +158,8 @@ import { canUser } from '@/module/user/userPermission'
 import { parseBackendError } from '@/utils/errorParser'
 import SelectInput from '@/components/ui/SelectInput.vue'
 import type { MasterOption, UserCrmItem, UserMasterOptions } from '@/types/user'
+
+const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
 const PER_PAGE_OPTIONS: MasterOption[] = [
   { value: '10', label: '10 / halaman' },
@@ -282,3 +294,29 @@ onMounted(async () => {
   reload(1)
 })
 </script>
+
+<style scoped>
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 2px;
+  border: none;
+  background: var(--white);
+  box-shadow: 0px 0px 28px 6px rgba(235, 235, 235, 0.4);
+  cursor: pointer;
+  padding: 0;
+  color: #89939e;
+  line-height: 1;
+}
+.action-btn i {
+  font-size: 14px;
+  line-height: 1;
+}
+.action-btn:hover {
+  background: #f0f0f0;
+  color: #52526c;
+}
+</style>

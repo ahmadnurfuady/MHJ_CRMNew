@@ -382,6 +382,51 @@ const router = createRouter({
           },
         },
         {
+          path: routes.Master.Root,
+          redirect: routes.Master.Jabatan,
+        },
+        {
+          path: routes.Master.Jabatan,
+          name: 'master-jabatan',
+          component: () => import('@/pages/master/MasterJabatan.vue'),
+          meta: {
+            mainTitle: 'Master Jabatan',
+            title: 'Master Jabatan | MHJ CRM',
+            breadcrumb: [{ text: 'Master Data', subText: 'Jabatan' }],
+          },
+        },
+        {
+          path: routes.Master.Cabang,
+          name: 'master-cabang',
+          component: () => import('@/pages/master/MasterCabang.vue'),
+          meta: {
+            mainTitle: 'Master Cabang',
+            title: 'Master Cabang | MHJ CRM',
+            breadcrumb: [{ text: 'Master Data', subText: 'Cabang' }],
+          },
+        },
+        {
+          path: routes.Master.Devisi,
+          name: 'master-devisi',
+          component: () => import('@/pages/master/MasterDevisi.vue'),
+          meta: {
+            mainTitle: 'Master Devisi',
+            title: 'Master Devisi | MHJ CRM',
+            breadcrumb: [{ text: 'Master Data', subText: 'Devisi' }],
+          },
+        },
+        {
+          path: routes.Master.TipeMarketing,
+          name: 'master-tipe-marketing',
+          alias: ['/crmAdmin/master/tipemarketing', '/crmAdmin/master/tipe_marketing'],
+          component: () => import('@/pages/master/MasterTipeMarketing.vue'),
+          meta: {
+            mainTitle: 'Master Tipe Marketing',
+            title: 'Master Tipe Marketing | MHJ CRM',
+            breadcrumb: [{ text: 'Master Data', subText: 'Tipe Marketing' }],
+          },
+        },
+        {
           path: routes.Reports.Product,
           name: 'products',
           component: () => import('@/pages/reports/ProductReport.vue'),

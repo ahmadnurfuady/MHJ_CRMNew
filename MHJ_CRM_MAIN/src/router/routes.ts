@@ -19,6 +19,13 @@ export const routes = {
     Roles: '/crmAdmin/roles',
     Settings: '/crmAdmin/settings',
   },
+  Master: {
+    Root: '/crmAdmin/master',
+    Jabatan: '/crmAdmin/master/jabatan',
+    Cabang: '/crmAdmin/master/cabang',
+    Devisi: '/crmAdmin/master/devisi',
+    TipeMarketing: '/crmAdmin/master/tipe-marketing',
+  },
   Widgets: {
     General: '/widgets/general',
     Charts: '/widgets/Chart',

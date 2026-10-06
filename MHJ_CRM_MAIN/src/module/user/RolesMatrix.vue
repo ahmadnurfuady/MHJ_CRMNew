@@ -10,21 +10,14 @@
     <div class="card-body">
       <div class="row g-2 mb-3">
         <div class="col-md-6">
-          <label class="form-label" for="target-user">Pengguna</label>
-          <select
-            id="target-user"
+          <label class="form-label">Pengguna</label>
+          <SelectInput
             v-model="selectedUserId"
-            class="form-select"
+            :options="userOptions"
+            :placeholder="loadingUsers ? 'Memuat daftar pengguna...' : '-- pilih pengguna --'"
             :disabled="loadingUsers"
-            @change="loadPermissions"
-          >
-            <option value="">
-              {{ loadingUsers ? 'Memuat daftar pengguna...' : '-- pilih pengguna --' }}
-            </option>
-            <option v-for="user in users" :key="user.id" :value="String(user.id)">
-              {{ userFullName(user) }}{{ user.email ? ` (${user.email})` : '' }}
-            </option>
-          </select>
+            @update:model-value="loadPermissions"
+          />
         </div>
         <div class="col-md-6 d-flex align-items-end justify-content-md-end">
           <button
@@ -134,8 +127,9 @@ import Swal from 'sweetalert2'
 import { menuRoleService } from '@/services/menuRoleService'
 import { userFullName, userService } from '@/services/userService'
 import { useAuthStore } from '@/store/auth'
+import SelectInput from '@/components/ui/SelectInput.vue'
 import type { FlMenuRawItem } from '@/types/menu'
-import type { UserCrmItem } from '@/types/user'
+import type { MasterOption, UserCrmItem } from '@/types/user'
 
 import { DEFAULT_CRM_MENU_TEMPLATE } from '@/core/data/defaultMenuTemplate'
 
@@ -156,6 +150,13 @@ const loadingUsers = ref(false)
 const loadingRows = ref(false)
 const saving = ref(false)
 const feedback = ref<{ type: 'success' | 'danger' | 'info'; text: string } | null>(null)
+
+const userOptions = computed<MasterOption[]>(() =>
+  users.value.map((user) => ({
+    value: String(user.id),
+    label: `${userFullName(user)}${user.email ? ` (${user.email})` : ''}`,
+  })),
+)
 
 const selectedUser = computed(
   () => users.value.find((user) => String(user.id) === selectedUserId.value) ?? null
@@ -346,6 +347,7 @@ async function savePermissions() {
       import('@/services/permissionWatcher').then((m) => {
         m.syncPermissionsAndEvict()
       })
+      window.location.reload()
     }
 
     await Swal.fire({

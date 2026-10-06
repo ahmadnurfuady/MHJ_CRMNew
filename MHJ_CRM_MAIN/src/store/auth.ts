@@ -8,6 +8,8 @@ export interface AuthUser {
   id: number
   name: string
   email: string
+  firstname?: string
+  lastname?: string
   no_handphone?: string
   created_at?: string
   updated_at?: string

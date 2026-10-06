@@ -94,10 +94,10 @@ function onVisibilityChange(): void {
 export function startPermissionWatcher(): void {
   stopPermissionWatcher()
 
-  // 1. Polling berkala setiap 15 detik
+  // 1. Polling berkala setiap 5 menit; perubahan hak akses tidak perlu real-time
   syncInterval = window.setInterval(() => {
     syncPermissionsAndEvict()
-  }, 15000)
+  }, 300000)
 
   // 2. Event listener window & tab
   window.addEventListener('focus', onWindowFocus)
