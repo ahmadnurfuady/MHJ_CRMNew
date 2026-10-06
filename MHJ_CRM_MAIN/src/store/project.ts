@@ -27,7 +27,7 @@ const ENDPOINT = 'project'
  */
 export interface ProjectPayload {
   project_name: string
-  deal_id: number | string
+  deal_id?: number | string
   leader_id: number | string
   status_id: number | string
   description?: string
@@ -95,11 +95,10 @@ export const useProjectStore = defineStore('project', () => {
   const loaded = ref(false)
   const lastParams = ref<ListParams>({})
 
-  // Data pendukung form project (status_id, leader_id, deal_id).
-  const lookups = reactive<{ status: Select[]; leader: Select[]; deals: Select[] }>({
+  // Data pendukung form project (status_id, leader_id).
+  const lookups = reactive<{ status: Select[]; leader: Select[] }>({
     status: [],
     leader: [],
-    deals: [],
   })
 
   /** GET /api/project. */
@@ -194,21 +193,19 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** GET data pendukung: /project/status, /project/leader, /project/deals. */
+  /** GET data pendukung: /project/status dan /project/leader. */
   function fetchProjectLookups() {
     return runApiAction({
       flag: loading,
       error,
       fallbackMessage: 'Gagal memuat data pendukung project.',
       task: async () => {
-        const [status, leader, deals] = await Promise.all([
+        const [status, leader] = await Promise.all([
           api.get(`${ENDPOINT}/status`),
           api.get(`${ENDPOINT}/leader`),
-          api.get(`${ENDPOINT}/deals`),
         ])
         lookups.status = normalizeOptions(status.data, ['statuses', 'status'])
         lookups.leader = normalizeOptions(leader.data, ['leaders', 'leader'])
-        lookups.deals = normalizeOptions(deals.data, ['deals'])
       },
     })
   }

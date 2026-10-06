@@ -14,7 +14,7 @@ import {
   type Dict,
 } from "@/api/response";
 import { initInputField, initSelectField } from "@/core/data/common";
-import { contacts, contactSidebarList } from "@/core/data/contacts";
+import { contactSidebarList } from "@/core/data/contacts";
 import type {
   Contact,
   ContactSidebarList,
@@ -28,12 +28,37 @@ import { runApiAction } from "@/store/apiAction";
 import { useHospitalStore } from "@/store/hospital";
 import { validateForm } from "@/utils/validators/formValidators";
 
-// ID dari backend diberi offset agar tidak bentrok dengan data contoh yang dipakai UI.
+// ID dari backend diberi offset agar data Contact dan Rumah Sakit tidak saling bentrok.
 const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
 
 type ContactPayload = Record<string, unknown>;
+
+/** Menemukan satu row contact pada response detail yang mungkin dibungkus data/contact. */
+function findContactRecord(payload: unknown, depth = 0): Dict | null {
+  if (depth > 4) return null;
+
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const found = findContactRecord(item, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  if (!isRecord(payload)) return null;
+
+  const contactFields = ["id", "ID", "first_name", "First Name", "email"];
+  if (contactFields.some((field) => field in payload)) return payload;
+
+  for (const key of ["contact", "contacts", "data", "item"]) {
+    const found = findContactRecord(payload[key], depth + 1);
+    if (found) return found;
+  }
+
+  return null;
+}
 
 function textValue(value: unknown): string {
   return value === undefined || value === null ? "" : String(value);
@@ -68,8 +93,14 @@ function hospitalToContact(hospital: Hospital): Contact {
     category: "personal",
     contactType: "-",
     phoneNumbers: hospital.phone ? [hospital.phone] : [],
+    owner: hospital.owner,
     address: hospital.address,
+    country: hospital.country,
     province: hospital.province,
+    posCode: hospital.posCode,
+    kdKelurahan: hospital.kdKelurahan,
+    industry: hospital.industry,
+    aktif: hospital.aktif,
     keterangan: hospital.description,
   };
 }
@@ -99,13 +130,22 @@ function normalizeApiContact(raw: Dict): Contact {
     category: pickString(raw, "category") || "personal",
     contactType: pickString(raw, "contactType", "contact_type") || "-",
     jobTitle: pickString(raw, "job_title", "jobTitle"),
+    companyId: pickString(raw, "company_id", "Company ID"),
+    sourceId: pickString(raw, "source_id", "Source ID"),
+    status: pickString(raw, "status_name", "Status Name", "status", "Status"),
+    telephone1: phone1,
+    telephone2: phone2,
     owner: pickString(raw, "owner"),
     phoneNumbers: [phone1, phone2].filter(Boolean),
     mapAddress: pickString(raw, "mapAddress", "map_address"),
     address: pickString(raw, "address", "Address"),
+    country: pickString(raw, "country", "Country"),
     province: pickString(raw, "province", "Province"),
-    source: pickString(raw, "sourcename", "source"),
-    company: pickString(raw, "company_name", "company"),
+    posCode: pickString(raw, "pos_code", "Pos Code"),
+    kdKelurahan: pickString(raw, "kd_kelurahan", "Kd Kelurahan"),
+    aktif: pickNumber(raw, "aktif", "Aktif"),
+    source: pickString(raw, "sourcename", "source_name", "source"),
+    company: pickString(raw, "company_name", "Company Name", "company"),
     project: pickString(raw, "project"),
   };
 }
@@ -152,7 +192,8 @@ export const useContact = defineStore("contact", () => {
     activeTab: contactSidebarList[0]?.value || "",
     currentTab: contactSidebarList[0] as ContactSidebarList,
     activeContact: undefined as Contact | undefined,
-    contactList: contacts,
+    // Daftar kontak diisi dari endpoint, bukan dari data contoh template.
+    contactList: [],
     isEditContact: false,
     historyVisible: false,
     openPrintContactModal: false,
@@ -167,13 +208,16 @@ export const useContact = defineStore("contact", () => {
   // State API Contact (endpoint /api/contact).
   const contactApi = reactive({
     items: [] as Contact[],
+    selectedItem: undefined as Contact | undefined,
     companies: [] as Select[],
     loading: false,
+    detailLoading: false,
     submitting: false,
     error: null as string | null,
     pagination: { page: 1, perPage: 10, total: 0, lastPage: 1 } as Pagination,
   });
   const contactLoading = toRef(contactApi, "loading");
+  const contactDetailLoading = toRef(contactApi, "detailLoading");
   const contactSubmitting = toRef(contactApi, "submitting");
   const contactError = toRef(contactApi, "error");
 
@@ -251,6 +295,41 @@ export const useContact = defineStore("contact", () => {
     if (results.some((result) => result.status === "rejected")) {
       notifyError(hospitalStore.error ?? contactError.value ?? "Gagal memuat data.");
     }
+
+    if (scope.value === "hospital" && results[0]?.status === "fulfilled") {
+      const firstHospital = filteredContact.value[0];
+      if (firstHospital) await hydrateHospitalContact(firstHospital);
+    }
+
+    if (scope.value === "contact" && results[1]?.status === "fulfilled") {
+      const firstContact = filteredContact.value[0];
+      if (firstContact) await hydrateRemoteContact(firstContact);
+    }
+  }
+
+  /** Memuat halaman company tertentu lalu menyelaraskannya ke daftar Rumah Sakit. */
+  async function changeHospitalPage(page: number) {
+    const targetPage = Math.max(1, page);
+    if (
+      hospitalStore.pagination.total > 0 &&
+      targetPage > hospitalStore.pagination.lastPage
+    )
+      return;
+    if (targetPage === hospitalStore.pagination.page && hospitalStore.items.length) return;
+
+    try {
+      await hospitalStore.fetchHospitals({
+        page: targetPage,
+        per_page: hospitalStore.pagination.perPage,
+      });
+      contactState.activeContact = undefined;
+      syncRemoteContacts();
+
+      const firstHospital = filteredContact.value[0];
+      if (firstHospital) await hydrateHospitalContact(firstHospital);
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal memuat halaman Rumah Sakit.");
+    }
   }
 
   /** GET /api/contact. */
@@ -265,6 +344,44 @@ export const useContact = defineStore("contact", () => {
         contactApi.items = items.filter(isRecord).map(normalizeApiContact);
         if (meta) Object.assign(contactApi.pagination, meta);
         return contactApi.items;
+      },
+    });
+  }
+
+  /** GET /api/contact/fetchcontactbyid?id=<id>. */
+  function fetchRemoteContactById(remoteId: number) {
+    return runApiAction({
+      flag: contactDetailLoading,
+      error: contactError,
+      fallbackMessage: "Gagal memuat detail kontak.",
+      task: async () => {
+        const response = await api.getbydata(`${CONTACT_ENDPOINT}/fetchcontactbyid`, {
+          id: remoteId,
+        });
+        const raw = findContactRecord(response.data);
+        if (!raw) return undefined;
+
+        const detailedContact = normalizeApiContact(raw);
+
+        // Detail contact kadang hanya membawa company_id. Ambil nama company untuk UI.
+        const companyId = Number(detailedContact.companyId);
+        if (!detailedContact.company && Number.isFinite(companyId) && companyId > 0) {
+          try {
+            const company = await hospitalStore.fetchHospitalById(companyId);
+            if (company) detailedContact.company = company.name;
+          } catch {
+            // ID company tetap ditampilkan bila detail company tidak dapat dimuat.
+          }
+        }
+
+        contactApi.selectedItem = detailedContact;
+        contactApi.items = contactApi.items.map((item) =>
+          item.remoteId === remoteId ? detailedContact : item,
+        );
+        contactState.contactList = contactState.contactList.map((item) =>
+          item.id === detailedContact.id ? detailedContact : item,
+        );
+        return detailedContact;
       },
     });
   }
@@ -350,8 +467,44 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
+  async function hydrateHospitalContact(contact: Contact) {
+    if (contact.origin !== "hospital" || contact.remoteId === undefined) return;
+
+    try {
+      const hospital = await hospitalStore.fetchHospitalById(contact.remoteId);
+      if (!hospital) return;
+
+      const detailedContact = hospitalToContact(hospital);
+      contactState.contactList = contactState.contactList.map((item) =>
+        item.id === contact.id ? detailedContact : item,
+      );
+      contactState.activeContact = detailedContact;
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal memuat detail Rumah Sakit.");
+    }
+  }
+
+  async function hydrateRemoteContact(contact: Contact) {
+    if (contact.origin !== "api" || contact.remoteId === undefined) return;
+
+    try {
+      const detailedContact = await fetchRemoteContactById(contact.remoteId);
+      if (
+        detailedContact &&
+        contactState.activeContact?.remoteId === contact.remoteId &&
+        contactState.activeContact.origin === "api"
+      ) {
+        contactState.activeContact = detailedContact;
+      }
+    } catch {
+      notifyError(contactError.value ?? "Gagal memuat detail kontak.");
+    }
+  }
+
   function handleContact(contact: Contact) {
     contactState.activeContact = contact;
+    void hydrateHospitalContact(contact);
+    void hydrateRemoteContact(contact);
   }
 
   function editContact() {
@@ -573,6 +726,7 @@ export const useContact = defineStore("contact", () => {
     initStore,
     setScope,
     handleActiveTab,
+    changeHospitalPage,
     filteredContact,
     handleContact,
     editContact,
@@ -585,6 +739,7 @@ export const useContact = defineStore("contact", () => {
     closeRumahSakitModal,
 
     fetchRemoteContacts,
+    fetchRemoteContactById,
     fetchContactCompanies,
     createRemoteContact,
     updateRemoteContact,

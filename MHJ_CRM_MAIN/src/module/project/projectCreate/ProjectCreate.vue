@@ -63,7 +63,7 @@
                         display-key="label"
                         :placeholder="'Pilih owner'"
                         v-model="projectForm.owner"
-                        :options="owners"
+                        :options="leaderOptions"
                         :formSubmitted="formSubmitted"
                       />
                     </InputWrapper>
@@ -179,13 +179,16 @@
                         :placeholder="'Tulis catatan'"
                         :inputType="'textarea'"
                         :rows="3"
+                        :required="false"
                       />
                     </InputWrapper>
                   </div>
                   <div class="col-12">
                     <div class="common-flex justify-content-end">
                       <button class="btn btn-primary" type="submit">Add</button>
-                      <button class="btn btn-secondary">Cancel</button>
+                      <button class="btn btn-secondary" type="button" @click="router.push(routes.Project.ProjectList)">
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 </form>
@@ -268,21 +271,17 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onMounted, defineAsyncComponent } from 'vue'
+import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
 import { projectTab } from '@/core/data/project'
-import {
-  competitors,
-  divisiList,
-  fundingSources,
-  lostReasons,
-  owners,
-  products,
-} from '@/core/data/projectDeal'
+import { competitors, divisiList, fundingSources, lostReasons, products } from '@/core/data/projectDeal'
 import type { DealOption } from '@/core/data/projectDeal'
 import type { Contact } from '@/types/contacts'
+import { routes } from '@/router/routes'
 import { useHospitalStore } from '@/store/hospital'
 import { useContact } from '@/store/contact'
+import { useProjectStore, type ProjectPayload } from '@/store/project'
 
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
@@ -320,8 +319,13 @@ function selectedOf(field: { selected: unknown }) {
   return field.selected as DealOption | null
 }
 
+const router = useRouter()
 const hospitalStore = useHospitalStore()
 const contactStore = useContact()
+const projectStore = useProjectStore()
+
+// Owner = leader dari backend, sehingga pilihannya langsung membawa leader_id.
+const leaderOptions = computed<DealOption[]>(() => projectStore.lookups.leader)
 
 // Perusahaan = Rumah Sakit dari backend (endpoint Company).
 const companyOptions = computed<DealOption[]>(() =>
@@ -426,12 +430,16 @@ onMounted(async () => {
   const results = await Promise.allSettled([
     hospitalStore.fetchHospitals(),
     contactStore.fetchRemoteContacts(),
+    projectStore.fetchProjectLookups(),
   ])
   if (results.some((result) => result.status === 'rejected')) {
     Swal.fire({
       icon: 'error',
       text:
-        hospitalStore.error ?? contactStore.contactApi.error ?? 'Gagal memuat perusahaan dan kontak.',
+        hospitalStore.error ??
+        contactStore.contactApi.error ??
+        projectStore.error ??
+        'Gagal memuat perusahaan, kontak, dan data pendukung project.',
       confirmButtonColor: 'var(--theme-default)',
     })
   }
@@ -476,7 +484,81 @@ const valueField = computed(() => ({ data: format(value.value), errorMessage: ''
 const stageValue = computed(() => String(projectForm.value.stage.selected?.value ?? ''))
 const isLost = computed(() => ['closed_lost', 'closed_cancel'].includes(stageValue.value))
 
-function handleSubmit() {
+// Field tunggal berisi string, field multi-select berisi array.
+function isFilled(field: { data: unknown }) {
+  return Array.isArray(field.data) ? field.data.length > 0 : String(field.data ?? '').trim() !== ''
+}
+
+// Mencocokkan nama pilihan form dengan data pendukung backend (tanpa peduli huruf besar/kecil).
+function findIdByLabel(options: DealOption[], label: string) {
+  const target = label.trim().toLowerCase()
+  if (!target) return undefined
+  return options.find((option) => option.label.trim().toLowerCase() === target)?.value
+}
+
+async function handleSubmit() {
   formSubmitted.value = true
+
+  const form = projectForm.value
+  const requiredFields: [string, { data: unknown }][] = [
+    ['Perusahaan', form.company],
+    ['Contact', form.contact],
+    ['Stage', form.stage],
+    ['Owner', form.owner],
+    ['Divisi', form.divisi],
+    ['Produk', form.produk],
+    ['Qty', form.qty],
+    ['Estimasi PO', form.estimasiPo],
+    ['Kompetitor', form.kompetitor],
+    ['Sumber Pendanaan', form.sumberPendanaan],
+  ]
+  const emptyFields = requiredFields.filter(([, field]) => !isFilled(field)).map(([label]) => label)
+  if (emptyFields.length) {
+    Swal.fire({
+      icon: 'error',
+      text: `Field berikut belum diisi: ${emptyFields.join(', ')}.`,
+      confirmButtonColor: 'var(--theme-default)',
+    })
+    return
+  }
+
+  // Hanya field yang punya kolom di tabel project yang dikirim; sisanya belum didukung backend.
+  const stageLabel = selectedOf(form.stage)?.label ?? ''
+  const statusId = findIdByLabel(projectStore.lookups.status, stageLabel)
+  const leaderId = selectedOf(form.owner)?.value
+  if (!statusId || !leaderId) {
+    const missing = [!statusId && `Stage "${stageLabel}"`, !leaderId && 'Owner'].filter(Boolean)
+    // Membantu mencocokkan nama: lihat daftar status yang diterima dari backend.
+    console.warn('Status dari backend:', projectStore.lookups.status)
+    Swal.fire({
+      icon: 'error',
+      text: `${missing.join(', ')} tidak ditemukan di data backend.`,
+      confirmButtonColor: 'var(--theme-default)',
+    })
+    return
+  }
+
+  const payload: ProjectPayload = {
+    project_name: dealName.value,
+    leader_id: leaderId,
+    status_id: statusId,
+    description: form.notes.data.trim(),
+  }
+
+  try {
+    await projectStore.createProject(payload)
+    await Swal.fire({
+      icon: 'success',
+      title: 'Project berhasil ditambahkan',
+      confirmButtonColor: 'var(--theme-default)',
+    })
+    router.push(routes.Project.ProjectList)
+  } catch {
+    Swal.fire({
+      icon: 'error',
+      text: projectStore.error ?? 'Gagal menyimpan project.',
+      confirmButtonColor: 'var(--theme-default)',
+    })
+  }
 }
 </script>

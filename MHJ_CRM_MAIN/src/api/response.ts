@@ -7,19 +7,28 @@ export function isRecord(value: unknown): value is Dict {
 }
 
 function readMeta(source: Dict): Partial<Pagination> | undefined {
-  const page = source.current_page ?? source.page
-  const perPage = source.per_page ?? source.perPage
-  const total = source.total
-  const lastPage = source.last_page ?? source.lastPage
+  const page = source.current_page ?? source.currentPage ?? source.page
+  const perPage = source.per_page ?? source.perPage ?? source.page_size
+  const total = source.total ?? source.total_count
+  const lastPage = source.last_page ?? source.lastPage ?? source.total_pages
 
-  if ([page, perPage, total, lastPage].every((value) => value === undefined)) return undefined
-
-  return {
-    page: Number(page ?? 1),
-    perPage: Number(perPage ?? 10),
-    total: Number(total ?? 0),
-    lastPage: Number(lastPage ?? 1),
+  if ([page, perPage, total, lastPage].every((value) => value === undefined)) {
+    for (const key of ['meta', 'pagination']) {
+      const nested = source[key]
+      if (isRecord(nested)) {
+        const nestedMeta = readMeta(nested)
+        if (nestedMeta) return nestedMeta
+      }
+    }
+    return undefined
   }
+
+  const meta: Partial<Pagination> = {}
+  if (page !== undefined) meta.page = Number(page)
+  if (perPage !== undefined) meta.perPage = Number(perPage)
+  if (total !== undefined) meta.total = Number(total)
+  if (lastPage !== undefined) meta.lastPage = Number(lastPage)
+  return meta
 }
 
 /**

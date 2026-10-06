@@ -6,12 +6,16 @@ export interface Hospital {
   id: number
   /** company_name */
   name: string
+  /** company_owner */
+  owner: string
   /** telephone */
   phone: string
   /** email */
   email: string
   /** website */
   website: string
+  /** industry */
+  industry: string
   /** description */
   description: string
   /** address */

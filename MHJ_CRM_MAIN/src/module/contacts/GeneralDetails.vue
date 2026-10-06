@@ -7,101 +7,93 @@
         :alt="contactState.activeContact.firstName"
       />
       <div class="flex-grow-1">
-        <div class="d-flex flex-wrap justify-content-between gap-2">
-          <div>
-            <h5 class="mb-1">{{ fullName }}</h5>
-            <p class="mb-1 text-muted">
-              {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
-            </p>
-            <p class="mb-0">
-              <vue-feather type="briefcase" size="14" class="me-1" />
-              {{
-                contactState.activeContact.company || "Perusahaan belum dipilih"
-              }}
-            </p>
-          </div>
-          <div class="d-flex flex-wrap gap-2 align-items-start">
-            <button
-              class="btn btn-outline-primary btn-sm"
-              type="button"
-              @click="editContact"
-            >
-              <vue-feather type="edit-2" size="14" class="me-1" />Edit Kontak
-            </button>
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              type="button"
-              @click="showHistory"
-            >
-              History
-            </button>
-            <button
-              class="btn btn-outline-secondary btn-sm"
-              type="button"
-              @click="printContact"
-            >
-              Print
-            </button>
-            <button
-              class="btn btn-outline-danger btn-sm"
-              type="button"
-              @click="deleteContact"
-            >
-              Hapus
-            </button>
-          </div>
-        </div>
+        <h5 class="mb-1">{{ fullName }}</h5>
+        <p class="mb-1 text-muted">
+          {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
+        </p>
+        <p class="mb-0">
+          <vue-feather type="briefcase" size="14" class="me-1" />
+          {{ companyLabel }}
+        </p>
+        <ul class="main-contact-option mt-2">
+          <li><a href="#" @click.prevent="editContact">Edit</a></li>
+          <li><a href="#" @click.prevent="deleteContact">Hapus</a></li>
+          <li><a href="#" @click.prevent="showHistory">History</a></li>
+          <li><a href="#" @click.prevent="printContact">Print</a></li>
+        </ul>
       </div>
     </div>
 
     <div class="card border mt-4 mb-4">
-      <div class="card-header pb-2">
+      <div class="card-header d-flex align-items-center justify-content-between pb-2">
         <h6 class="mb-0">Informasi Kontak</h6>
+        <span v-if="contactApi.detailLoading" class="text-muted f-12">Memuat detail...</span>
       </div>
       <div class="card-body pt-3">
         <div class="row g-3 contact-info-grid">
           <div class="col-md-6">
-            <span>Email</span
-            ><strong>{{ contactState.activeContact.email || "-" }}</strong>
+            <span>Nama Depan</span>
+            <strong>{{ contactState.activeContact.firstName || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Owner</span
-            ><strong>{{ contactState.activeContact.owner || "-" }}</strong>
+            <span>Nama Belakang</span>
+            <strong>{{ contactState.activeContact.lastName || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Telepon</span>
-            <strong>{{ phoneNumbers.join(", ") || "-" }}</strong>
+            <span>Jabatan</span>
+            <strong>{{ contactState.activeContact.jobTitle || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Jenis Kelamin</span><strong>{{ genderLabel }}</strong>
+            <span>Status</span>
+            <strong>{{ contactState.activeContact.status || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Provinsi / Kota</span><strong>{{ locationLabel }}</strong>
+            <span>Email</span>
+            <strong>{{ contactState.activeContact.email || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Source</span
-            ><strong>{{ contactState.activeContact.source || "-" }}</strong>
+            <span>Company</span>
+            <strong>{{ companyLabel }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Telepon 1</span>
+            <strong>{{ contactState.activeContact.telephone1 || "-" }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Telepon 2</span>
+            <strong>{{ contactState.activeContact.telephone2 || "-" }}</strong>
           </div>
           <div class="col-12">
-            <span>Alamat</span
-            ><strong>{{ contactState.activeContact.address || "-" }}</strong>
+            <span>Alamat</span>
+            <strong>{{ contactState.activeContact.address || "-" }}</strong>
           </div>
-          <div class="col-12">
-            <span>Google Maps</span>
-            <a
-              v-if="contactState.activeContact.mapAddress"
-              :href="googleMapsUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {{ contactState.activeContact.mapAddress }}
-              <vue-feather type="external-link" size="13" />
-            </a>
-            <strong v-else>-</strong>
+          <div class="col-md-6">
+            <span>Negara</span>
+            <strong>{{ contactState.activeContact.country || "-" }}</strong>
           </div>
-          <div class="col-12">
-            <span>Project Terkait</span
-            ><strong>{{ contactState.activeContact.project || "-" }}</strong>
+          <div class="col-md-6">
+            <span>Provinsi</span>
+            <strong>{{ contactState.activeContact.province || "-" }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Kota</span>
+            <strong>{{ displayValue(contactState.activeContact.city) }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Kode Pos</span>
+            <strong>{{ contactState.activeContact.posCode || "-" }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Kode Kelurahan</span>
+            <strong>{{ contactState.activeContact.kdKelurahan || "-" }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Source</span>
+            <strong>{{ sourceLabel }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Status Aktif</span>
+            <strong>{{ contactState.activeContact.aktif === 1 ? "Aktif" : "Tidak aktif" }}</strong>
           </div>
         </div>
       </div>
@@ -190,24 +182,23 @@
           </div>
         </div>
 
-        <div class="row g-3 mb-4">
+        <div class="stage-summary-grid mb-4">
           <div
             v-for="summary in stageSummaries"
             :key="summary.stage"
-            class="col-sm-6 col-xl-3"
+            class="card border mb-0 stage-summary"
           >
-            <div class="card border mb-0 h-100 stage-summary">
-              <div class="card-body">
-                <span
-                  class="badge mb-2"
-                  :class="stageBadgeClass(summary.stage)"
-                  >{{ summary.stage }}</span
-                >
-                <h4 class="mb-1">{{ summary.quantity }} Project</h4>
-                <p class="mb-0 text-muted">
-                  {{ formatCurrency(summary.value) }}
-                </p>
-              </div>
+            <div class="card-body">
+              <span
+                class="badge stage-badge mb-2"
+                :class="stageBadgeClass(summary.stage)"
+                :title="summary.stage"
+                >{{ summary.stage }}</span
+              >
+              <h4 class="stage-count mb-1">{{ summary.quantity }} Project</h4>
+              <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
+                {{ formatCurrency(summary.value) }}
+              </p>
             </div>
           </div>
         </div>
@@ -317,36 +308,24 @@ import { getImages } from "@/utils/index";
 
 const contactStore = useContact();
 const authStore = useAuthStore();
-const { contactState } = storeToRefs(contactStore);
+const { contactState, contactApi } = storeToRefs(contactStore);
 const { editContact, deleteContact, showHistory, printContact } = contactStore;
 
 const fullName = computed(() =>
   `${contactState.value.activeContact?.firstName || ""} ${contactState.value.activeContact?.lastName || ""}`.trim(),
 );
-const phoneNumbers = computed(
-  () =>
-    contactState.value.activeContact?.phoneNumbers ||
-    [contactState.value.activeContact?.contactNumber || ""].filter(Boolean),
-);
-const genderLabel = computed(() => {
-  const gender = contactState.value.activeContact?.gender;
-  if (gender === "L" || gender === "Male") return "Laki-laki";
-  if (gender === "P" || gender === "Female") return "Perempuan";
-  return gender || "-";
+const companyLabel = computed(() => {
+  const contact = contactState.value.activeContact;
+  return contact?.company || (contact?.companyId ? `Company ID ${contact.companyId}` : "-");
 });
-const locationLabel = computed(
-  () =>
-    [
-      contactState.value.activeContact?.province,
-      contactState.value.activeContact?.city,
-    ]
-      .filter((value) => value && value !== "-")
-      .join(" / ") || "-",
-);
-const googleMapsUrl = computed(
-  () =>
-    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contactState.value.activeContact?.mapAddress || "")}`,
-);
+const sourceLabel = computed(() => {
+  const contact = contactState.value.activeContact;
+  return contact?.source || (contact?.sourceId ? `Source ID ${contact.sourceId}` : "-");
+});
+function displayValue(value: unknown) {
+  const normalized = String(value ?? "").trim();
+  return normalized && normalized !== "-" ? normalized : "-";
+}
 const companyDetail = computed(
   () => companyDetails[contactState.value.activeContact?.company || ""],
 );
@@ -446,8 +425,32 @@ function toggleCompanyEdit() {
   font-weight: 500;
   overflow-wrap: anywhere;
 }
+/* Kartu stage: lebar minimum tetap supaya judul, nominal, dan badge tidak terpotong. */
+.stage-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
 .stage-summary {
+  min-width: 0;
   border-left: 3px solid var(--theme-default) !important;
+}
+.stage-badge {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stage-count {
+  font-size: 1.25rem;
+  white-space: nowrap;
+}
+.stage-value {
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .project-stage:last-child {
   margin-bottom: 0 !important;
