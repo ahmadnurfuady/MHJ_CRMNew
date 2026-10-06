@@ -332,6 +332,34 @@ export const useContact = defineStore("contact", () => {
     }
   }
 
+  /** Memuat halaman contact tertentu dan memilih contact pertama pada halaman tersebut. */
+  async function changeContactPage(page: number) {
+    const targetPage = Math.max(1, page);
+    const currentPageIsFull =
+      contactApi.items.length >= contactApi.pagination.perPage;
+    if (
+      contactApi.pagination.total > 0 &&
+      targetPage > contactApi.pagination.lastPage &&
+      !currentPageIsFull
+    )
+      return;
+    if (targetPage === contactApi.pagination.page && contactApi.items.length) return;
+
+    try {
+      await fetchRemoteContacts({
+        page: targetPage,
+        per_page: contactApi.pagination.perPage,
+      });
+      contactState.activeContact = undefined;
+      syncRemoteContacts();
+
+      const firstContact = filteredContact.value[0];
+      if (firstContact) await hydrateRemoteContact(firstContact);
+    } catch {
+      notifyError(contactError.value ?? "Gagal memuat halaman kontak.");
+    }
+  }
+
   /** GET /api/contact. */
   function fetchRemoteContacts(params: ListParams = {}) {
     return runApiAction({
@@ -342,7 +370,21 @@ export const useContact = defineStore("contact", () => {
         const response = await api.getbydata(CONTACT_ENDPOINT, { ...params });
         const { items, meta } = extractList(response.data, ["contacts"]);
         contactApi.items = items.filter(isRecord).map(normalizeApiContact);
-        if (meta) Object.assign(contactApi.pagination, meta);
+        const page = meta?.page ?? params.page ?? 1;
+        const perPage = meta?.perPage ?? params.per_page ?? contactApi.pagination.perPage;
+        const knownTotal = meta?.total;
+        const visitedTotal = (page - 1) * perPage + contactApi.items.length;
+        const totalLastPage =
+          knownTotal !== undefined ? Math.max(1, Math.ceil(knownTotal / perPage)) : 0;
+        const inferredLastPage =
+          contactApi.items.length >= perPage ? page + 1 : page;
+
+        contactApi.pagination.page = page;
+        contactApi.pagination.perPage = perPage;
+        contactApi.pagination.total =
+          knownTotal ?? Math.max(contactApi.pagination.total, visitedTotal);
+        contactApi.pagination.lastPage =
+          Math.max(page, meta?.lastPage ?? 0, totalLastPage, inferredLastPage);
         return contactApi.items;
       },
     });
@@ -727,6 +769,7 @@ export const useContact = defineStore("contact", () => {
     setScope,
     handleActiveTab,
     changeHospitalPage,
+    changeContactPage,
     filteredContact,
     handleContact,
     editContact,

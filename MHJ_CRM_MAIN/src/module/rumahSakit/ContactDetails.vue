@@ -80,9 +80,9 @@
       <span class="text-muted f-14">
         Halaman {{ hospitalPagination.page }} dari {{ hospitalPagination.lastPage }}
       </span>
-      <div class="btn-group" role="group" aria-label="Pagination Rumah Sakit">
+      <div class="pagination-actions" role="group" aria-label="Pagination Rumah Sakit">
         <button
-          class="btn btn-outline-primary btn-sm"
+          class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
           :disabled="hospitalLoading || hospitalPagination.page <= 1"
           @click="changeHospitalPage(hospitalPagination.page - 1)"
@@ -90,7 +90,7 @@
           <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
         </button>
         <button
-          class="btn btn-outline-primary btn-sm"
+          class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
           :disabled="hospitalLoading || hospitalPagination.page >= hospitalPagination.lastPage"
           @click="changeHospitalPage(hospitalPagination.page + 1)"
@@ -124,3 +124,21 @@ onMounted(() => {
   contactStore.initStore();
 });
 </script>
+
+<style scoped>
+.pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pagination-button {
+  display: inline-flex;
+  width: auto;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem !important;
+  padding-inline: 0.875rem;
+}
+</style>

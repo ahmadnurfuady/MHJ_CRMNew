@@ -5,7 +5,7 @@
         {{ contactState.currentTab && contactState.currentTab.title }}
       </h5>
       <span class="f-14 pull-right mt-0 f-w-500"
-        >{{ filteredContact.length }} Kontak</span
+        >{{ contactApi.pagination.total || filteredContact.length }} Kontak</span
       >
     </div>
     <div class="card-body">
@@ -13,10 +13,7 @@
         <template v-if="filteredContact.length">
           <div class="col-xl-4 xl-50 col-md-5">
             <div class="nav flex-column nav-pills">
-              <template
-                v-for="(contact, index) in filteredContact"
-                :key="index"
-              >
+              <template v-for="contact in filteredContact" :key="contact.id">
                 <a
                   class="contact-tab-0 nav-link"
                   :class="{
@@ -85,6 +82,34 @@
         <div class="col" v-else>Kontak tidak ditemukan.</div>
       </div>
     </div>
+    <div
+      v-if="filteredContact.length || contactApi.pagination.page > 1"
+      class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
+    >
+      <span class="text-muted f-14">
+        Halaman {{ contactApi.pagination.page }} dari {{ contactApi.pagination.lastPage }}
+      </span>
+      <div class="pagination-actions" role="group" aria-label="Pagination Kontak">
+        <button
+          class="btn btn-outline-primary btn-sm pagination-button"
+          type="button"
+          :disabled="contactApi.loading || contactApi.pagination.page <= 1"
+          @click="changeContactPage(contactApi.pagination.page - 1)"
+        >
+          <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
+        </button>
+        <button
+          class="btn btn-outline-primary btn-sm pagination-button"
+          type="button"
+          :disabled="
+            contactApi.loading || contactApi.pagination.page >= contactApi.pagination.lastPage
+          "
+          @click="changeContactPage(contactApi.pagination.page + 1)"
+        >
+          Berikutnya<vue-feather type="chevron-right" size="15" class="ms-1" />
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -100,10 +125,28 @@ const GeneralDetails = defineAsyncComponent(
   () => import("@/module/contacts/GeneralDetails.vue"),
 );
 const contactStore = useContact();
-const { contactState, filteredContact } = storeToRefs(contactStore);
-const { handleContact } = contactStore;
+const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
+const { handleContact, changeContactPage } = contactStore;
 
 onMounted(() => {
   contactStore.initStore();
 });
 </script>
+
+<style scoped>
+.pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pagination-button {
+  display: inline-flex;
+  width: auto;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem !important;
+  padding-inline: 0.875rem;
+}
+</style>
