@@ -1,5 +1,5 @@
 <template>
-  <Card :headerTitle="'Deliveries'" :padding="true" :header="'sales-chart'" :cardBodyClass="'pt-0'">
+  <Card :headerTitle="t('dashboard.deliveries')" :padding="true" :header="'sales-chart'" :cardBodyClass="'pt-0'">
     <template #header5>
       <div class="icon-menu-header">
         <div class="dropdown">
@@ -12,9 +12,9 @@
             <SvgIcon icon="more-horizontal" svgClass="invoice-icon" />
           </div>
           <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButtonicon99">
-            <span class="dropdown-item">Last Month </span
-            ><span class="dropdown-item">Last Week </span
-            ><span class="dropdown-item">Last Day </span>
+            <span class="dropdown-item">{{ t('common.lastMonth') }}</span
+            ><span class="dropdown-item">{{ t('common.lastWeek') }}</span
+            ><span class="dropdown-item">{{ t('common.lastDay') }}</span>
           </div>
         </div>
       </div>
@@ -23,9 +23,11 @@
       <table class="percentage-data w-100">
         <thead>
           <tr>
-            <th class="f-light f-12 f-w-500">Particular</th>
-            <th class="f-light f-12 f-w-500">Percentage</th>
-            <th class="f-light f-12 f-w-500 text-end" v-if="amount">Total Amount</th>
+            <th class="f-light f-12 f-w-500">{{ t('dashboard.particular') }}</th>
+            <th class="f-light f-12 f-w-500">{{ t('dashboard.percentage') }}</th>
+            <th class="f-light f-12 f-w-500 text-end" v-if="amount">
+              {{ t('dashboard.totalAmount') }}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -61,11 +63,14 @@
 <script setup lang="ts">
 import { deliveryStats } from '@/core/data/dashboard/default'
 import { defineAsyncComponent, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t, locale } = useI18n()
 
 const items = ref(deliveryStats)
 
 function formatCurrency(val: number) {
-  return '$' + val.toLocaleString('en-US')
+  return '$' + val.toLocaleString(locale.value === 'Indonesia' ? 'id-ID' : 'en-US')
 }
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))

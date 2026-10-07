@@ -32,6 +32,7 @@ import { GChart } from 'vue-google-charts'
 import Lightbox from 'vue-easy-lightbox'
 
 import English from '@/core/locales/en.json'
+import Indonesia from '@/core/locales/id.json'
 import Russian from '@/core/locales/ru.json'
 import Arabic from '@/core/locales/ar.json'
 import German from '@/core/locales/ge.json'
@@ -43,10 +44,31 @@ import Deutsch from '@/core/locales/de.json'
 import Español from '@/core/locales/es.json'
 
 import { createI18n } from 'vue-i18n'
+
+const LOCALE_STORAGE_KEY = 'mhj-crm-locale'
+const supportedLocales = [
+  'Indonesia',
+  'English',
+  'German',
+  'Russian',
+  'Arabic',
+  'Español',
+  'Deutsch',
+  'Français',
+  'Português',
+  '简体中文',
+  'لعربية',
+]
+const savedLocale = localStorage.getItem(LOCALE_STORAGE_KEY)
+const initialLocale =
+  savedLocale && supportedLocales.includes(savedLocale) ? savedLocale : 'Indonesia'
+
 const i18n = createI18n({
   legacy: false,
-  locale: 'English',
+  locale: initialLocale,
+  fallbackLocale: 'English',
   messages: {
+    Indonesia: Indonesia,
     English: English,
     German: German,
     Russian: Russian,
@@ -59,6 +81,8 @@ const i18n = createI18n({
     لعربية: لعربية,
   },
 })
+
+document.documentElement.lang = initialLocale === 'Indonesia' ? 'id' : 'en'
 
 const app = createApp(App)
 const head = createHead()

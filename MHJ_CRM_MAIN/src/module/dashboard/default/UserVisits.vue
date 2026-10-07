@@ -1,6 +1,6 @@
 <template>
   <Card
-    :headerTitle="'User Visits by Day'"
+    :headerTitle="t('dashboard.userVisitsByDay')"
     :padding="false"
     :header="'total-revenue pb-0'"
     :cardBodyClass="'pt-0 pb-0'"
@@ -28,9 +28,9 @@
         <div class="common-space">
           <div>
             <router-link :to="routes.Dashboards.Default" class="f-w-600 f-14">
-              Most Visited Day</router-link
+              {{ t('dashboard.mostVisitedDay') }}</router-link
             >
-            <span class="f-light f-w-500 f-14 d-block">Total 59.6k visits on Sunday </span>
+            <span class="f-light f-w-500 f-14 d-block">{{ t('dashboard.sundayVisits') }}</span>
           </div>
           <div class="visited-dropdown">
             <SvgIcon icon="arrow-down" svgClass="'mb-0'" />
@@ -45,6 +45,9 @@
 import { visitsChartSeries, visitsChart } from '@/core/data/dashboard/default'
 import { routes } from '@/router/routes'
 import { defineAsyncComponent } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   chartDropdown?: boolean

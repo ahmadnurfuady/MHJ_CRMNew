@@ -13,7 +13,9 @@
       <div class="ProfileCard-details">
         <div class="ProfileCard-realName">
           <span>
-            <router-link :to="{ path: item.path }" class="realname">{{ item.title }}</router-link>
+            <router-link :to="{ path: item.path }" class="realname">{{
+              t(item.title || '')
+            }}</router-link>
           </span>
         </div>
       </div>
@@ -22,13 +24,16 @@
   <!-- No Results Message -->
   <div v-if="searchResultEmpty" class="Typeahead-menu is-open">
     <div class="tt-dataset tt-dataset-0">
-      <div class="EmptyMessage">Your search turned up 0 results.</div>
+      <div class="EmptyMessage">{{ t('header.noSearchResults') }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 defineProps<{
   menuItems: {
     title?: string

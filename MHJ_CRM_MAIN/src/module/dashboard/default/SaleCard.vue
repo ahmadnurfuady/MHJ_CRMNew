@@ -2,9 +2,9 @@
   <div class="card boost-up-card overflow-hidden">
     <div class="p-4">
       <div class="boostup-name row">
-        <h6 class="text-white f-28 f-w-700 mb-2 z-1">Boost up your sale</h6>
+        <h6 class="text-white f-28 f-w-700 mb-2 z-1">{{ t('dashboard.boostSales') }}</h6>
         <p class="text-white f-14 f-w-500 col-9 line-clamp">
-          by upgrading your account you can increase your sale by 30% more.
+          {{ t('dashboard.boostSalesDescription') }}
         </p>
       </div>
       <div class="img-boostup">
@@ -21,7 +21,7 @@
       <div class="btn-showcase text-start">
         <a>
           <button class="btn btn-pill btn-outline-light-2x b-r-8" type="button">
-            Upgrade Now
+            {{ t('dashboard.upgradeNow') }}
           </button></a
         >
       </div>
@@ -31,4 +31,7 @@
 
 <script setup lang="ts">
 import { getImages } from '@/utils/index'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 </script>

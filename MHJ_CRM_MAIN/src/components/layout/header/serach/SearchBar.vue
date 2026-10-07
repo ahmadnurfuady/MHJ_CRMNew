@@ -8,7 +8,7 @@
           type="text"
           @keyup="searchTerms"
           v-model="terms"
-          placeholder="Search anything here"
+          :placeholder="t('header.searchPlaceholder')"
       /></span>
     </div>
   </div>
@@ -28,6 +28,9 @@ import { ref, watch, defineAsyncComponent } from 'vue'
 import { useSearch } from '@/store/searchBar'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const SearchResult = defineAsyncComponent(
   () => import('@/components/layout/header/serach/SearchResult.vue')

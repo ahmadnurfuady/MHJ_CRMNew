@@ -3,11 +3,11 @@
     :cardClass="'height-equal'"
     :header="'total-revenue '"
     :padding="false"
-    :headerTitle="'New Users'"
+    :headerTitle="t('dashboard.newUsers')"
     :cardBodyClass="'pt-0'"
   >
     <template #header5>
-      <router-link :to="routes.Ecommerce.Products.ProductGrid">View All </router-link>
+      <router-link :to="routes.Ecommerce.Products.ProductGrid">{{ t('common.viewAll') }}</router-link>
     </template>
     <div class="new-user">
       <ul>
@@ -43,9 +43,9 @@
                     class="dropdown-menu dropdown-menu-end"
                     :aria-labelledby="'dropdownMenuButtonicon' + user.id"
                   >
-                    <span class="dropdown-item">Last Month</span>
-                    <span class="dropdown-item">Last Week</span>
-                    <span class="dropdown-item">Last Day</span>
+                    <span class="dropdown-item">{{ t('common.lastMonth') }}</span>
+                    <span class="dropdown-item">{{ t('common.lastWeek') }}</span>
+                    <span class="dropdown-item">{{ t('common.lastDay') }}</span>
                   </div>
                 </div>
               </div>
@@ -63,6 +63,9 @@ import { routes } from '@/router/routes'
 import { NewUserItem } from '@/types/dashboard/default'
 import { getImages } from '@/utils/index'
 import { defineAsyncComponent, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))

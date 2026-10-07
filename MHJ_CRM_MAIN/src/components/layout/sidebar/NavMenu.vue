@@ -9,7 +9,7 @@
     ]"
   >
     <div v-if="menuItem?.type == 'headtitle'">
-      <h6 class="lan-1">{{ menuItem?.headTitle }}</h6>
+      <h6 class="lan-1">{{ $t(menuItem?.headTitle || '') }}</h6>
     </div>
     <i
       v-if="menuItem?.type != 'headtitle' && menuItem?.icon"
@@ -20,7 +20,7 @@
       v-if="menuItem?.badgeType"
       class="badge badge-new"
       :class="'badge-light-' + menuItem.badgeType"
-      >{{ menuItem.badge }}</label
+      >{{ $t(menuItem.badge || '') }}</label
     >
     <router-link
       :to="menuItem?.children ? '' : menuItem?.path || ''"

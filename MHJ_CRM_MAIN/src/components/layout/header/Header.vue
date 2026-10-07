@@ -7,12 +7,12 @@
           <i class="iconly-Category icli"> </i
         ></a>
         <div class="d-flex align-items-center gap-2">
-          <h4 class="f-w-600">Welcome {{ displayName }}</h4>
+          <h4 class="f-w-600">{{ t('header.welcome', { name: displayName }) }}</h4>
           <img class="mt-0" :src="getImages('hand.gif')" alt="hand-gif" />
         </div>
       </div>
       <div class="welcome-content d-xl-block d-none">
-        <span class="text-truncate col-12">Here's what's happening with your store today. </span>
+        <span class="text-truncate col-12">{{ t('header.subtitle') }}</span>
       </div>
     </div>
     <div class="nav-right col-xxl-7 col-xl-6 col-md-7 col-8 pull-right right-header p-0 ms-auto">
@@ -50,8 +50,10 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { getImages } from '@/utils/index'
 import { useAuthStore } from '@/store/auth'
+import { useI18n } from 'vue-i18n'
 
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 const displayName = computed(() => {
   const u = authStore.user

@@ -1,6 +1,6 @@
 <template>
   <Modal
-    title="Tambah Kontak Person"
+    :title="t('contacts.addTitle')"
     :modalOpen="contactState.openAddContactModal"
     sizeClass="modal-xl"
     @closeModal="closeModal"
@@ -9,51 +9,51 @@
       <div class="modal-body custom-input contact-form-body">
         <div class="row g-3">
           <div class="col-md-6">
-            <InputWrapper title="Nama Depan" required>
+            <InputWrapper :title="t('contacts.firstName')" required>
               <InputField
                 v-model:modelValue="contactState.contactForm.firstName"
                 :formSubmitted="contactState.formSubmitted"
                 inputId="contact-first-name"
-                placeholder="Masukkan nama depan"
+                :placeholder="t('contacts.placeholders.firstName')"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Nama Belakang" required>
+            <InputWrapper :title="t('contacts.lastName')" required>
               <InputField
                 v-model:modelValue="contactState.contactForm.lastName"
                 :formSubmitted="contactState.formSubmitted"
                 inputId="contact-last-name"
-                placeholder="Masukkan nama belakang"
+                :placeholder="t('contacts.placeholders.lastName')"
               />
             </InputWrapper>
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Jabatan">
+            <InputWrapper :title="t('contacts.jobTitle')">
               <InputField
                 v-model:modelValue="contactState.contactForm.jobTitle"
                 inputId="contact-job-title"
-                placeholder="Contoh: Kepala Instalasi Radiologi"
+                :placeholder="t('contacts.placeholders.jobTitle')"
                 :required="false"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Owner">
+            <InputWrapper :title="t('contacts.owner')">
               <Select
                 v-model="contactState.contactForm.owner"
                 :options="ownerOptions"
                 display-key="label"
                 getValueKey="label"
-                placeholder="Cari nama user"
+                :placeholder="t('contacts.placeholders.owner')"
                 :required="false"
               />
             </InputWrapper>
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Email" required>
+            <InputWrapper :title="t('contacts.email')" required>
               <InputField
                 v-model:modelValue="contactState.contactForm.email"
                 :formSubmitted="contactState.formSubmitted"
@@ -65,7 +65,7 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Telepon" required>
+            <InputWrapper :title="t('contacts.phone')" required>
               <div
                 v-for="(phone, index) in contactState.contactForm.phoneNumbers"
                 :key="index"
@@ -81,8 +81,8 @@
                     inputType="tel"
                     :placeholder="
                       index === 0
-                        ? 'Masukkan nomor telepon'
-                        : 'Nomor telepon tambahan'
+                        ? t('contacts.placeholders.phone')
+                        : t('contacts.placeholders.additionalPhone')
                     "
                     :required="index === 0"
                   />
@@ -91,7 +91,7 @@
                   v-if="contactState.contactForm.phoneNumbers.length > 1"
                   class="btn btn-outline-danger px-3"
                   type="button"
-                  title="Hapus nomor"
+                  :title="t('contacts.deletePhone')"
                   @click="removePhone(index)"
                 >
                   <vue-feather type="trash-2" size="16" />
@@ -102,18 +102,20 @@
                 type="button"
                 @click="addPhone"
               >
-                <vue-feather type="plus" size="14" class="me-1" />Tambah nomor
+                <vue-feather type="plus" size="14" class="me-1" />{{
+                  t('contacts.addPhone')
+                }}
               </button>
             </InputWrapper>
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Alamat (Google Maps)">
+            <InputWrapper :title="t('contacts.mapAddress')">
               <div class="input-group">
                 <InputField
                   v-model:modelValue="contactState.contactForm.mapAddress"
                   inputId="contact-map-address"
-                  placeholder="Cari nama tempat atau alamat di Google Maps"
+                  :placeholder="t('contacts.placeholders.mapAddress')"
                   :required="false"
                 />
                 <button
@@ -122,19 +124,21 @@
                   :disabled="!contactState.contactForm.mapAddress.data.trim()"
                   @click="searchGoogleMaps"
                 >
-                  <vue-feather type="map-pin" size="16" class="me-1" />Cari Maps
+                  <vue-feather type="map-pin" size="16" class="me-1" />{{
+                    t('contacts.searchMaps')
+                  }}
                 </button>
               </div>
             </InputWrapper>
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Alamat">
+            <InputWrapper :title="t('contacts.address')">
               <InputField
                 v-model:modelValue="contactState.contactForm.address"
                 inputId="contact-address"
                 inputType="textarea"
-                placeholder="Ketik alamat lengkap"
+                :placeholder="t('contacts.placeholders.address')"
                 :required="false"
                 :rows="2"
               />
@@ -142,19 +146,19 @@
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Provinsi">
+            <InputWrapper :title="t('contacts.province')">
               <Select
                 v-model="contactState.contactForm.province"
                 :options="provinceOptions"
                 display-key="label"
                 getValueKey="label"
-                placeholder="Cari provinsi"
+                :placeholder="t('contacts.placeholders.province')"
                 :required="false"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Kota">
+            <InputWrapper :title="t('contacts.city')">
               <Select
                 v-model="contactState.contactForm.city"
                 :options="cityOptions"
@@ -162,8 +166,8 @@
                 getValueKey="label"
                 :placeholder="
                   contactState.contactForm.province.data
-                    ? 'Cari kota'
-                    : 'Pilih provinsi dahulu'
+                    ? t('contacts.placeholders.city')
+                    : t('contacts.placeholders.selectProvinceFirst')
                 "
                 :disabled="!contactState.contactForm.province.data"
                 :required="false"
@@ -172,50 +176,50 @@
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Source">
+            <InputWrapper :title="t('contacts.source')">
               <Select
                 v-model="contactState.contactForm.source"
                 :options="sourceOptions"
                 display-key="label"
                 getValueKey="label"
-                placeholder="Pilih sumber kontak"
+                :placeholder="t('contacts.placeholders.source')"
                 :required="false"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Jenis Kelamin">
+            <InputWrapper :title="t('contacts.gender')">
               <Select
                 v-model="contactState.contactForm.gender"
                 :options="genderOptions"
                 display-key="label"
                 getValueKey="value"
-                placeholder="Pilih L / P"
+                :placeholder="t('contacts.placeholders.gender')"
                 :required="false"
               />
             </InputWrapper>
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Perusahaan">
+            <InputWrapper :title="t('contacts.company')">
               <Select
                 v-model="contactState.contactForm.company"
                 :options="companyOptions"
                 display-key="label"
                 getValueKey="label"
-                placeholder="Cari perusahaan"
+                :placeholder="t('contacts.placeholders.company')"
                 :required="false"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Project">
+            <InputWrapper :title="t('contacts.project')">
               <Select
                 v-model="contactState.contactForm.project"
                 :options="projectOptions"
                 display-key="label"
                 getValueKey="label"
-                placeholder="Cari nama project"
+                :placeholder="t('contacts.placeholders.project')"
                 :required="false"
               />
             </InputWrapper>
@@ -225,10 +229,10 @@
 
       <div class="modal-footer">
         <button class="btn btn-light" type="button" @click="closeModal">
-          Batal
+          {{ t('common.cancel') }}
         </button>
         <button class="btn btn-primary" type="submit">
-          <vue-feather type="save" size="16" class="me-1" />Simpan Kontak
+          <vue-feather type="save" size="16" class="me-1" />{{ t('contacts.save') }}
         </button>
       </div>
     </form>
@@ -238,6 +242,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useI18n } from "vue-i18n";
 
 import { initInputField, initSelectField } from "@/core/data/common";
 import {
@@ -250,6 +255,8 @@ import {
   sourceOptions,
 } from "@/core/data/contactCrm";
 import { useContact } from "@/store/contact";
+
+const { t } = useI18n();
 
 const InputWrapper = defineAsyncComponent(
   () => import("@/components/shared/formElements/InputWrapper.vue"),

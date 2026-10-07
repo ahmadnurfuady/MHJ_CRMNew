@@ -3,11 +3,11 @@
     :cardClass="'height-equal'"
     :header="'total-revenue pb-0'"
     :padding="false"
-    :headerTitle="'Team Activities'"
+    :headerTitle="t('dashboard.teamActivities')"
     :cardBodyClass="'pt-0'"
   >
     <template #header5>
-      <router-link :to="routes.Ecommerce.Products.ProductGrid">View All </router-link>
+      <router-link :to="routes.Ecommerce.Products.ProductGrid">{{ t('common.viewAll') }}</router-link>
     </template>
     <div class="activity-table table-responsive custom-scrollbar">
       <table class="order-table overflow-hidden project-table w-100 activity-log">
@@ -50,6 +50,9 @@ import { routes } from '@/router/routes'
 import { ActivityItem } from '@/types/dashboard/default'
 import { getImages } from '@/utils/index'
 import { defineAsyncComponent, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 

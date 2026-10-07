@@ -5,7 +5,7 @@
         <SvgIcon icon="search-header" @click="collapseFilter()" />
         <div id="searchInput" :class="{ show: filtered }">
           <input
-            placeholder="Search anything here"
+            :placeholder="t('header.searchPlaceholder')"
             type="text"
             name="q"
             :class="{ open: filtered }"
@@ -28,7 +28,7 @@
           <div class="ProfileCard-realName">
             <span @click.prevent="removeFix()">
               <router-link :to="{ path: menuItem.path }" class="realname">
-                {{ menuItem.title }}</router-link
+                {{ t(menuItem.title || '') }}</router-link
               >
             </span>
           </div>
@@ -38,7 +38,7 @@
     <div :class="searchResultEmpty ? 'Typeahead-menu is-open' : 'Typeahead-menu'">
       <div class="tt-dataset tt-dataset-0">
         <div class="EmptyMessage">
-          Your search turned up 0 results. Opps There are no result found.
+          {{ t('header.noSearchResults') }}
         </div>
       </div>
     </div>
@@ -48,6 +48,9 @@
 import { defineAsyncComponent, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSearch } from '@/store/searchBar'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 const filtered = ref<boolean>(false)

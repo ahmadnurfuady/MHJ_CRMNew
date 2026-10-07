@@ -1,6 +1,6 @@
 <template>
   <Card
-    :headerTitle="'Best Selling Products'"
+    :headerTitle="t('dashboard.bestSellingProducts')"
     :padding="false"
     :header="'total-revenue'"
     :cardBodyClass="'pt-0'"
@@ -42,6 +42,9 @@ import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart } from 'echarts/charts'
 import { PolarComponent } from 'echarts/components'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 use([CanvasRenderer, BarChart, PolarComponent])
 

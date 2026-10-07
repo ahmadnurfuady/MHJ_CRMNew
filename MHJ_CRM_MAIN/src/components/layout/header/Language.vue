@@ -7,8 +7,8 @@
       <div class="more_lang" :class="{ active: active }">
         <div
           class="lang selected"
-          v-for="(language, index) in data"
-          :key="index"
+          v-for="language in data"
+          :key="language.language"
           @click.prevent="selectLanguage(language)"
         >
           <i class="flag-icon" :class="language.icon"></i>
@@ -19,30 +19,25 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
-import { language } from '@/core/data/language'
+import { language, type Language } from '@/core/data/language'
 import { useI18n } from 'vue-i18n'
-interface selected {
-  language: string
-  text?: string
-  icon: string
-}
 
 const i18n = useI18n()
 const data = language
 const active = ref<boolean>(false)
 const dropdownRef = ref<HTMLElement | null>(null)
-const selectedLanguage = ref<selected>({
-  language: 'English',
-  text: 'EN',
-  icon: 'flag-icon-us',
-})
+const selectedLanguage = computed<Language>(
+  () => data.find((item) => item.language === i18n.locale.value) ?? data[0]!
+)
 
-function selectLanguage(language: selected) {
+function selectLanguage(language: Language) {
   active.value = false
   i18n.locale.value = language.language
-  selectedLanguage.value = language
+  localStorage.setItem('mhj-crm-locale', language.language)
+  document.documentElement.lang = language.localeCode
+  document.documentElement.dir = language.localeCode === 'ar' ? 'rtl' : 'ltr'
 }
 
 function openDropDown() {
