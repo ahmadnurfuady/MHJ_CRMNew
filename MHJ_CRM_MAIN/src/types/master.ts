@@ -39,6 +39,7 @@ export interface MasterCabangItem {
 export interface MasterDevisiItem {
   KodeDevisi: string
   NamaDevisi: string
+  NamaAlias?: string | null
 }
 
 export interface MasterTipeMarketingItem {

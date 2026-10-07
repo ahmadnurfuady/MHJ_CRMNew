@@ -11,7 +11,7 @@
             v-model="searchTerm"
             type="search"
             class="form-control"
-            placeholder="Cari kode / nama devisi..."
+            placeholder="Cari kode / nama / alias devisi..."
           />
         </div>
       </div>
@@ -23,11 +23,12 @@
               <th scope="col" style="width: 60px">No</th>
               <th scope="col" style="width: 160px">Kode Devisi</th>
               <th scope="col">Nama Devisi</th>
+              <th scope="col">Nama Alias</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="3" class="text-center py-5">
+              <td colspan="4" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
@@ -35,15 +36,16 @@
               </td>
             </tr>
             <tr v-else-if="errorMessage">
-              <td colspan="3" class="text-center text-danger py-4">{{ errorMessage }}</td>
+              <td colspan="4" class="text-center text-danger py-4">{{ errorMessage }}</td>
             </tr>
             <tr v-else-if="filtered.length === 0">
-              <td colspan="3" class="text-center py-4">Tidak ada devisi yang cocok.</td>
+              <td colspan="4" class="text-center py-4">Tidak ada devisi yang cocok.</td>
             </tr>
             <tr v-for="(item, index) in filtered" :key="item.KodeDevisi">
               <td>{{ index + 1 }}</td>
               <td class="fw-semibold">{{ item.KodeDevisi }}</td>
               <td>{{ item.NamaDevisi }}</td>
+              <td>{{ item.NamaAlias || '-' }}</td>
             </tr>
           </tbody>
         </table>
@@ -69,7 +71,8 @@ const filtered = computed(() => {
   return items.value.filter(
     (item) =>
       item.KodeDevisi.toLowerCase().includes(term) ||
-      item.NamaDevisi.toLowerCase().includes(term),
+      item.NamaDevisi.toLowerCase().includes(term) ||
+      (item.NamaAlias ?? '').toLowerCase().includes(term)
   )
 })
 

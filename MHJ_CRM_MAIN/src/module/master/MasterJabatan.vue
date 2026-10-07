@@ -12,13 +12,20 @@
     </div>
 
     <div class="card-body pt-0">
+      <div v-if="jabatanList.length > 0" class="d-flex justify-content-end gap-2 mb-2">
+        <button type="button" class="btn btn-sm btn-light" @click="expandAll">
+          <i class="fa-solid fa-angles-down pe-1"></i>Buka Semua
+        </button>
+        <button type="button" class="btn btn-sm btn-light" @click="collapseAll">
+          <i class="fa-solid fa-angles-up pe-1"></i>Tutup Semua
+        </button>
+      </div>
       <div class="table-responsive custom-scrollbar">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
               <th scope="col" style="width: 60px">No</th>
               <th scope="col">Nama Jabatan</th>
-              <th scope="col">Parent</th>
               <th scope="col">Keterangan</th>
               <th scope="col" style="width: 160px">Tanggal Dibuat</th>
               <th scope="col" class="text-end" style="width: 110px">Aksi</th>
@@ -26,7 +33,7 @@
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="6" class="text-center py-5">
+              <td colspan="5" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
@@ -34,17 +41,40 @@
               </td>
             </tr>
             <tr v-else-if="errorMessage">
-              <td colspan="6" class="text-center text-danger py-4">{{ errorMessage }}</td>
+              <td colspan="5" class="text-center text-danger py-4">{{ errorMessage }}</td>
             </tr>
             <tr v-else-if="jabatanList.length === 0">
-              <td colspan="6" class="text-center py-4">Belum ada data jabatan.</td>
+              <td colspan="5" class="text-center py-4">Belum ada data jabatan.</td>
             </tr>
-            <tr v-for="(item, index) in jabatanList" :key="item.id">
+            <tr v-for="(row, index) in visibleRows" :key="row.item.id">
               <td>{{ index + 1 }}</td>
-              <td class="fw-semibold">{{ item.nama_jabatan }}</td>
-              <td>{{ parentName(item.parent_id) }}</td>
-              <td>{{ item.keterangan || '-' }}</td>
-              <td>{{ formatDate(item.created_at) }}</td>
+              <td>
+                <div class="tree-cell" :style="{ paddingLeft: `${row.depth * 24}px` }">
+                  <button
+                    v-if="row.hasChildren"
+                    type="button"
+                    class="tree-toggle"
+                    :title="isExpanded(row.item.id) ? 'Tutup' : 'Buka'"
+                    @click="toggleNode(row.item.id)"
+                  >
+                    <i
+                      class="fa-solid"
+                      :class="isExpanded(row.item.id) ? 'fa-chevron-down' : 'fa-chevron-right'"
+                    ></i>
+                  </button>
+                  <span v-else class="tree-toggle tree-leaf">
+                    <i class="fa-solid fa-circle"></i>
+                  </span>
+                  <span :class="row.depth === 0 ? 'fw-bold' : 'fw-semibold'">
+                    {{ row.item.nama_jabatan }}
+                  </span>
+                  <span v-if="row.hasChildren" class="badge badge-light-primary ms-2">
+                    {{ row.childCount }}
+                  </span>
+                </div>
+              </td>
+              <td>{{ row.item.keterangan || '-' }}</td>
+              <td>{{ formatDate(row.item.created_at) }}</td>
               <td class="text-end text-nowrap">
                 <div class="product-action common-align gap-2 justify-content-end">
                   <a
@@ -52,7 +82,7 @@
                     class="square-white"
                     title="Edit jabatan"
                     href="#"
-                    @click.prevent="openEdit(item)"
+                    @click.prevent="openEdit(row.item)"
                   >
                     <SvgIcon icon="edit-content" style="width: 25px; height: 25px;" />
                   </a>
@@ -61,7 +91,7 @@
                     class="square-white"
                     title="Hapus jabatan"
                     href="#"
-                    @click.prevent="confirmDelete(item)"
+                    @click.prevent="confirmDelete(row.item)"
                   >
                     <SvgIcon icon="trash1" style="width: 25px; height: 25px;" />
                   </a>
@@ -109,7 +139,7 @@
               <select id="parent_id" v-model="form.parent_id" class="form-select">
                 <option :value="null">- Tidak ada (level teratas) -</option>
                 <option v-for="opt in parentOptions" :key="opt.id" :value="opt.id">
-                  {{ opt.nama_jabatan }}
+                  {{ opt.label }}
                 </option>
               </select>
             </div>
@@ -179,17 +209,97 @@ function descendantIds(rootId: number): Set<number> {
   return ids
 }
 
-// Saat edit, jabatan itu sendiri & turunannya tidak boleh dipilih sebagai parent (cegah siklus).
-const parentOptions = computed(() => {
-  if (editingId.value === null) return jabatanList.value
-  const excluded = descendantIds(editingId.value)
-  return jabatanList.value.filter((item) => !excluded.has(item.id))
+interface TreeRow {
+  item: MasterJabatanItem
+  depth: number
+  hasChildren: boolean
+  childCount: number
+}
+
+const childrenMap = computed(() => {
+  const ids = new Set(jabatanList.value.map((item) => item.id))
+  const map = new Map<number | null, MasterJabatanItem[]>()
+  for (const item of jabatanList.value) {
+    // parent yang tidak ditemukan (terhapus / tidak valid) diperlakukan sebagai root.
+    const key = item.parent_id != null && ids.has(item.parent_id) && item.parent_id !== item.id
+      ? item.parent_id
+      : null
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(item)
+  }
+  for (const list of map.values()) {
+    list.sort((a, b) => a.nama_jabatan.localeCompare(b.nama_jabatan))
+  }
+  return map
 })
 
-function parentName(parentId?: number | null): string {
-  if (parentId == null) return '-'
-  return jabatanList.value.find((item) => item.id === parentId)?.nama_jabatan ?? '-'
+/** Seluruh node dalam urutan depth-first; data yang membentuk siklus tetap ditampilkan sebagai root. */
+const treeRows = computed<TreeRow[]>(() => {
+  const rows: TreeRow[] = []
+  const visited = new Set<number>()
+  const walk = (parentId: number | null, depth: number) => {
+    for (const item of childrenMap.value.get(parentId) ?? []) {
+      if (visited.has(item.id)) continue
+      visited.add(item.id)
+      const childCount = childrenMap.value.get(item.id)?.length ?? 0
+      rows.push({ item, depth, hasChildren: childCount > 0, childCount })
+      walk(item.id, depth + 1)
+    }
+  }
+  walk(null, 0)
+  for (const item of jabatanList.value) {
+    if (!visited.has(item.id)) {
+      visited.add(item.id)
+      rows.push({ item, depth: 0, hasChildren: false, childCount: 0 })
+    }
+  }
+  return rows
+})
+
+const collapsedIds = ref(new Set<number>())
+
+function isExpanded(id: number): boolean {
+  return !collapsedIds.value.has(id)
 }
+
+function toggleNode(id: number) {
+  const next = new Set(collapsedIds.value)
+  if (next.has(id)) next.delete(id)
+  else next.add(id)
+  collapsedIds.value = next
+}
+
+function expandAll() {
+  collapsedIds.value = new Set()
+}
+
+function collapseAll() {
+  collapsedIds.value = new Set(treeRows.value.filter((row) => row.hasChildren).map((row) => row.item.id))
+}
+
+// Sembunyikan baris yang salah satu leluhurnya sedang ditutup.
+const visibleRows = computed(() => {
+  const rows: TreeRow[] = []
+  let hiddenBelowDepth: number | null = null
+  for (const row of treeRows.value) {
+    if (hiddenBelowDepth !== null && row.depth > hiddenBelowDepth) continue
+    hiddenBelowDepth = null
+    rows.push(row)
+    if (row.hasChildren && !isExpanded(row.item.id)) hiddenBelowDepth = row.depth
+  }
+  return rows
+})
+
+// Saat edit, jabatan itu sendiri & turunannya tidak boleh dipilih sebagai parent (cegah siklus).
+const parentOptions = computed(() => {
+  const excluded = editingId.value === null ? new Set<number>() : descendantIds(editingId.value)
+  return treeRows.value
+    .filter((row) => !excluded.has(row.item.id))
+    .map((row) => ({
+      id: row.item.id,
+      label: `${'    '.repeat(row.depth)}${row.depth > 0 ? '└ ' : ''}${row.item.nama_jabatan}`,
+    }))
+})
 
 function formatDate(value?: string | null): string {
   if (!value) return '-'
@@ -306,6 +416,38 @@ onMounted(fetchList)
 </script>
 
 <style scoped>
+.tree-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  padding: 0;
+  color: #89939e;
+  cursor: pointer;
+}
+.tree-toggle i {
+  font-size: 11px;
+}
+button.tree-toggle:hover {
+  background: #f0f0f0;
+  color: var(--theme-default);
+}
+.tree-leaf {
+  cursor: default;
+}
+.tree-leaf i {
+  font-size: 5px;
+}
 .action-btn {
   display: inline-flex;
   align-items: center;
