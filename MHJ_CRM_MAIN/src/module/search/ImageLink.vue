@@ -56,7 +56,7 @@ function handleHide() {
 onMounted(() => {
   search.forEach((item) => {
     lightBoxImages.value.push({
-      src: "/riho/images/" + item.image,
+      src: "/images/" + item.image,
       title: item.description,
     });
   });

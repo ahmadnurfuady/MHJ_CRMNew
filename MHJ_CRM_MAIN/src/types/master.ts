@@ -8,6 +8,8 @@ export interface MasterJabatanItem {
   id: number
   nama_jabatan: string
   keterangan: string | null
+  /** id jabatan atasan (parent); null bila jabatan level teratas. */
+  parent_id?: number | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -24,6 +26,7 @@ export interface JabatanCrudPayload {
   id?: number | null
   nama_jabatan?: string
   keterangan?: string | null
+  parent_id?: number | null
 }
 
 export interface MasterCabangItem {

@@ -18,6 +18,7 @@
             <tr>
               <th scope="col" style="width: 60px">No</th>
               <th scope="col">Nama Jabatan</th>
+              <th scope="col">Parent</th>
               <th scope="col">Keterangan</th>
               <th scope="col" style="width: 160px">Tanggal Dibuat</th>
               <th scope="col" class="text-end" style="width: 110px">Aksi</th>
@@ -25,7 +26,7 @@
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="5" class="text-center py-5">
+              <td colspan="6" class="text-center py-5">
                 <div class="spinner-border text-primary" role="status">
                   <span class="visually-hidden">Loading...</span>
                 </div>
@@ -33,14 +34,15 @@
               </td>
             </tr>
             <tr v-else-if="errorMessage">
-              <td colspan="5" class="text-center text-danger py-4">{{ errorMessage }}</td>
+              <td colspan="6" class="text-center text-danger py-4">{{ errorMessage }}</td>
             </tr>
             <tr v-else-if="jabatanList.length === 0">
-              <td colspan="5" class="text-center py-4">Belum ada data jabatan.</td>
+              <td colspan="6" class="text-center py-4">Belum ada data jabatan.</td>
             </tr>
             <tr v-for="(item, index) in jabatanList" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td class="fw-semibold">{{ item.nama_jabatan }}</td>
+              <td>{{ parentName(item.parent_id) }}</td>
               <td>{{ item.keterangan || '-' }}</td>
               <td>{{ formatDate(item.created_at) }}</td>
               <td class="text-end text-nowrap">
@@ -102,6 +104,15 @@
                 placeholder="Contoh: Product Specialist"
               />
             </div>
+            <div class="mb-3">
+              <label class="form-label" for="parent_id">Parent Jabatan</label>
+              <select id="parent_id" v-model="form.parent_id" class="form-select">
+                <option :value="null">- Tidak ada (level teratas) -</option>
+                <option v-for="opt in parentOptions" :key="opt.id" :value="opt.id">
+                  {{ opt.nama_jabatan }}
+                </option>
+              </select>
+            </div>
             <div class="mb-1">
               <label class="form-label" for="keterangan">Keterangan</label>
               <textarea
@@ -144,9 +155,41 @@ const showModal = ref(false)
 const submitting = ref(false)
 const editingId = ref<number | null>(null)
 
-const form = reactive({ nama_jabatan: '', keterangan: '' })
+const form = reactive<{ nama_jabatan: string; keterangan: string; parent_id: number | null }>({
+  nama_jabatan: '',
+  keterangan: '',
+  parent_id: null,
+})
 
 const isEditMode = computed(() => editingId.value !== null)
+
+/** Kumpulan id jabatan yang sedang diedit beserta seluruh turunannya. */
+function descendantIds(rootId: number): Set<number> {
+  const ids = new Set<number>([rootId])
+  let added = true
+  while (added) {
+    added = false
+    for (const item of jabatanList.value) {
+      if (item.parent_id != null && ids.has(item.parent_id) && !ids.has(item.id)) {
+        ids.add(item.id)
+        added = true
+      }
+    }
+  }
+  return ids
+}
+
+// Saat edit, jabatan itu sendiri & turunannya tidak boleh dipilih sebagai parent (cegah siklus).
+const parentOptions = computed(() => {
+  if (editingId.value === null) return jabatanList.value
+  const excluded = descendantIds(editingId.value)
+  return jabatanList.value.filter((item) => !excluded.has(item.id))
+})
+
+function parentName(parentId?: number | null): string {
+  if (parentId == null) return '-'
+  return jabatanList.value.find((item) => item.id === parentId)?.nama_jabatan ?? '-'
+}
 
 function formatDate(value?: string | null): string {
   if (!value) return '-'
@@ -171,6 +214,7 @@ function openCreate() {
   editingId.value = null
   form.nama_jabatan = ''
   form.keterangan = ''
+  form.parent_id = null
   showModal.value = true
 }
 
@@ -178,6 +222,7 @@ function openEdit(item: MasterJabatanItem) {
   editingId.value = item.id
   form.nama_jabatan = item.nama_jabatan
   form.keterangan = item.keterangan ?? ''
+  form.parent_id = item.parent_id ?? null
   showModal.value = true
 }
 
@@ -199,9 +244,9 @@ async function submitForm() {
   try {
     const keterangan = form.keterangan || null
     if (editingId.value !== null) {
-      await masterDataService.updateJabatan(editingId.value, form.nama_jabatan, keterangan)
+      await masterDataService.updateJabatan(editingId.value, form.nama_jabatan, keterangan, form.parent_id)
     } else {
-      await masterDataService.createJabatan(form.nama_jabatan, keterangan)
+      await masterDataService.createJabatan(form.nama_jabatan, keterangan, form.parent_id)
     }
     showModal.value = false
     await Swal.fire({

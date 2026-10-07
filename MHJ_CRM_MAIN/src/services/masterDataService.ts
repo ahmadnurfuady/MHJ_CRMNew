@@ -49,17 +49,29 @@ export const masterDataService = {
       id: payload.id ?? null,
       nama_jabatan: payload.nama_jabatan,
       keterangan: payload.keterangan ?? null,
+      parent_id: payload.parent_id ?? null,
     }
     const res = await api.post<{ msg?: string }>('/master-data/jabatan', body)
     return res.data
   },
 
-  createJabatan(nama_jabatan: string, keterangan?: string | null) {
-    return this.crudJabatan({ action: 'i', nama_jabatan, keterangan: keterangan ?? null })
+  createJabatan(nama_jabatan: string, keterangan?: string | null, parent_id?: number | null) {
+    return this.crudJabatan({
+      action: 'i',
+      nama_jabatan,
+      keterangan: keterangan ?? null,
+      parent_id: parent_id ?? null,
+    })
   },
 
-  updateJabatan(id: number, nama_jabatan: string, keterangan?: string | null) {
-    return this.crudJabatan({ action: 'u', id, nama_jabatan, keterangan: keterangan ?? null })
+  updateJabatan(id: number, nama_jabatan: string, keterangan?: string | null, parent_id?: number | null) {
+    return this.crudJabatan({
+      action: 'u',
+      id,
+      nama_jabatan,
+      keterangan: keterangan ?? null,
+      parent_id: parent_id ?? null,
+    })
   },
 
   deleteJabatan(id: number) {
