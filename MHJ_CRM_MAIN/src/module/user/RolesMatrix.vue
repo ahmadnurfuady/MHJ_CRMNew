@@ -69,7 +69,7 @@
         {{ selectedUserId ? 'Pengguna ini belum memiliki data menu.' : 'Belum ada pengguna dipilih.' }}
       </div>
 
-      <div v-else class="table-responsive custom-scrollbar">
+      <div v-else class="table-responsive custom-scrollbar crm-table-scroll">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
@@ -383,3 +383,21 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+/* ─── Sticky table header ───────────────────────────────────────────────── */
+.crm-table-scroll {
+  /* Tabel scroll sendiri; header kolom tetap terlihat saat baris panjang di-scroll */
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.crm-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--white, #fff);
+  box-shadow: inset 0 -1px 0 #dee2e6;
+  /* Pisahkan header dari isi dengan bayangan tipis agar jelas batasnya */
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.06));
+}
+</style>

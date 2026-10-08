@@ -43,7 +43,7 @@
         </div>
       </div>
 
-      <div class="table-responsive custom-scrollbar">
+      <div class="table-responsive custom-scrollbar crm-table-scroll">
         <table class="table table-hover align-middle">
           <thead>
             <tr>
@@ -306,6 +306,20 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ─── Sticky table header ───────────────────────────────────────────────── */
+.crm-table-scroll {
+  max-height: 65vh;
+  overflow-y: auto;
+}
+.crm-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--white, #fff);
+  /* Garis bawah tetap terlihat saat baris tabel lewat di bawah header */
+  box-shadow: inset 0 -1px 0 #dee2e6;
+}
+
 .action-btn {
   display: inline-flex;
   align-items: center;
