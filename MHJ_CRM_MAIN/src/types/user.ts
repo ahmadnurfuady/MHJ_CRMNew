@@ -176,3 +176,19 @@ export interface UserMasterOptions {
   tipeMarketing: MasterOption[]
   jabatan: MasterOption[]
 }
+
+/* ── Hierarki User ──────────────────────────────────────────────────────── */
+
+export interface HierarchyUser {
+  id: number
+  name: string
+  nama_jabatan?: string | null
+  idjabatan?: number | null
+  parent_id?: number | null
+}
+
+export interface UserHierarchyResponse {
+  current_user: HierarchyUser
+  atasan: HierarchyUser[]
+  bawahan: HierarchyUser[]
+}

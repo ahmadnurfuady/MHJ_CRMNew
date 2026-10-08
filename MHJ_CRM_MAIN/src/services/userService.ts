@@ -5,6 +5,7 @@ import type {
   UserBrowseResponse,
   UserCrmItem,
   UserCrudPayload,
+  UserHierarchyResponse,
   UserMasterOptions,
 } from '@/types/user'
 
@@ -177,4 +178,10 @@ export function toCodeArray(value: unknown): string[] {
 export function userFullName(user: UserCrmItem): string {
   const composed = [user.firstname, user.lastname].filter(Boolean).join(' ').trim()
   return composed || user.name?.trim() || user.email?.trim() || `User #${user.id}`
+}
+
+/** GET /api/user-hierarchy/{id} — atasan, user saat ini, dan bawahan langsung. */
+export async function getUserHierarchy(id: number): Promise<UserHierarchyResponse> {
+  const response = await api.get<UserHierarchyResponse>(`/user-hierarchy/${id}`)
+  return response.data
 }

@@ -89,6 +89,14 @@
                 <div class="product-action common-align gap-2 justify-content-end">
                   <a
                     class="square-white"
+                    title="Lihat Hierarki"
+                    href="#"
+                    @click.prevent="openHierarchy(user)"
+                  >
+                    <vue-feather type="git-merge" size="18" />
+                  </a>
+                  <a
+                    class="square-white"
                     title="Roles & Permission"
                     href="#"
                     @click.prevent="openRoles(user)"
@@ -144,10 +152,17 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Hierarki -->
+  <UserHierarchyModal
+    :open="hierarchyModal.open"
+    :user-id="hierarchyModal.userId"
+    @close="hierarchyModal.open = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
+import { computed, onMounted, reactive, ref, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import Swal from 'sweetalert2'
@@ -157,6 +172,7 @@ import { toCodeArray, userFullName, userService } from '@/services/userService'
 import { canUser } from '@/module/user/userPermission'
 import { parseBackendError } from '@/utils/errorParser'
 import SelectInput from '@/components/ui/SelectInput.vue'
+import UserHierarchyModal from '@/module/user/UserHierarchyModal.vue'
 import type { MasterOption, UserCrmItem, UserMasterOptions } from '@/types/user'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
@@ -257,6 +273,14 @@ const debouncedReload = useDebounceFn(() => reload(1), 400)
 function toggleSort() {
   sortDesc.value = sortDesc.value === 1 ? 0 : 1
   reload(1)
+}
+
+// ── Modal Hierarki ──────────────────────────────────────────────────────
+const hierarchyModal = reactive({ open: false, userId: null as number | null })
+
+function openHierarchy(user: UserCrmItem) {
+  hierarchyModal.userId = user.id
+  hierarchyModal.open = true
 }
 
 function editUser(id: number) {
