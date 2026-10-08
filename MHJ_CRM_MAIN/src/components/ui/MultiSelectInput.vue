@@ -270,13 +270,6 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 
-/* Hover pada item yang sudah active — pertahankan solid, sedikit lebih gelap */
-.select-item.active:hover,
-.select-item.active:focus {
-  background-color: #127CAB;
-  color: #fff;
-}
-
 .multiselect-check {
   flex-shrink: 0;
   font-weight: 600;
