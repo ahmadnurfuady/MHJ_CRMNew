@@ -1,151 +1,673 @@
 <template>
   <div class="card mb-0">
-    <div class="card-header d-flex">
-      <h4 class="mb-0">{{ currentTask?.title }}</h4>
-      <a @click="printWindow()" class="txt-primary f-w-600">
-        <vue-feather type="printer" class="me-2"></vue-feather>Print
-      </a>
-    </div>
-    <div class="card-body p-0">
-      <div class="taskadd">
-        <div class="table-responsive custom-scrollbar theme-scrollbar">
-          <table class="table align-middle task-table">
-            <thead>
-              <tr>
-                <th>Task</th>
-                <th>Konteks</th>
-                <th>Jadwal</th>
-                <th>Pipeline</th>
-                <th>Catatan</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in currentTask?.data" :key="index">
-                <td>
-                  <h6 class="task_title_0 f-w-600">{{ item.title }}</h6>
-                  <div class="d-flex flex-wrap gap-1 mt-2">
-                    <span v-if="item.category" class="badge badge-light-primary">{{ item.category }}</span>
-                    <span v-if="item.owner" class="badge badge-light-secondary">{{ item.owner }}</span>
-                  </div>
-                </td>
-                <td>
-                  <strong>{{ item.projectName || item.subtitle }}</strong>
-                  <span v-if="item.hospital" class="d-block c-o-light">{{ item.hospital }}</span>
-                  <span v-if="item.contact" class="d-block c-o-light">{{ item.contact }}</span>
-                </td>
-                <td>
-                  <span v-if="item.scheduledAt">{{ formatDate(item.scheduledAt) }}</span>
-                  <span v-else class="c-o-light">Belum dijadwalkan</span>
-                </td>
-                <td>
-                  <template v-if="item.stageTo">
-                    <span class="badge badge-light-success">{{ stageLabel(item.stageTo) }}</span>
-                    <small v-if="item.stageFrom && item.stageFrom !== item.stageTo" class="d-block c-o-light mt-1">
-                      dari {{ stageLabel(item.stageFrom) }}
-                    </small>
-                  </template>
-                  <span v-else class="c-o-light">-</span>
-                </td>
-                <td>
-                  <p class="task_desc_0 mb-1">{{ item.description }}</p>
-                  <small v-if="item.products?.length" class="c-o-light">
-                    {{ item.products.join(', ') }}
-                  </small>
-                  <small v-else-if="item.unrelatedProduct" class="c-o-light">Tidak terkait produk</small>
-                </td>
-                <td>
-                  <button
-                    class="btn btn-link text-danger p-1"
-                    type="button"
-                    title="Hapus task"
-                    @click="store.warningAlert(index)"
-                  >
-                    <vue-feather type="trash-2"></vue-feather>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+    <div class="card-header task-list-header">
+      <div class="task-title-group">
+        <h5 class="mb-1">Tugas</h5>
+        <p class="task-total mb-0">
+          {{ formatTotal(pagination.total || taskRows.length) }} total tugas
+        </p>
+      </div>
+
+      <div class="task-header-actions">
+        <div class="task-search" role="search">
+          <label class="visually-hidden" for="task-search-input">Cari tugas</label>
+          <vue-feather type="search" size="17" />
+          <input
+            id="task-search-input"
+            v-model="searchQuery"
+            type="search"
+            placeholder="Cari tugas, rumah sakit, project, atau owner..."
+            autocomplete="off"
+          />
+          <span
+            v-if="loading"
+            class="spinner-border spinner-border-sm task-search__loading"
+            aria-hidden="true"
+          ></span>
+          <button
+            v-else-if="searchQuery"
+            class="task-search__clear"
+            type="button"
+            aria-label="Hapus pencarian"
+            @click="searchQuery = ''"
+          >
+            <vue-feather type="x" size="15" />
+          </button>
         </div>
+
+        <button
+          class="btn btn-primary add-task-header-button"
+          type="button"
+          data-bs-toggle="modal"
+          data-bs-target="#taskmodel"
+        >
+          <vue-feather type="plus" size="17" />
+          <span>Buat Task Baru</span>
+        </button>
       </div>
     </div>
-    <div class="card-body" v-if="!currentTask?.data?.length">
-      <div class="details-bookmark text-center">
-        <div class="row" id="favouriteData"></div>
-        <div class="no-favourite" v-if="currentTask?.value == 'todayTask'">
-          <span>
-            <h3>
-              <img
-                class="img-100 img-fluid m-r-20 rounded-circle update_img_0"
-                :src="getImages('/mood-sad.png')"
-                alt="sad"
-              />
-            </h3>
-            No task due today..
-          </span>
-        </div>
-        <div class="no-favourite" v-else>
-          <span>
-            <h3>
-              <img
-                class="img-100 img-fluid m-r-20 rounded-circle update_img_0"
-                :src="getImages('/mood-sad.png')"
-                alt="sad"
-              />
-            </h3>
-            No task found.
-          </span>
-        </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive task-table-wrap">
+        <table class="table task-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Nama Task</th>
+              <th>Rumah Sakit</th>
+              <th>Project</th>
+              <th>Jadwal</th>
+              <th>Owner</th>
+              <th>Pipeline</th>
+              <th>Catatan</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="loading && !filteredTasks.length">
+              <td colspan="8" class="task-table-state">
+                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                Memuat data tugas...
+              </td>
+            </tr>
+
+            <tr v-for="(item, index) in filteredTasks" :key="`${item.kind ?? 'task'}-${item.id}-${index}`">
+              <td data-label="Nama Task">
+                <div class="task-identity">
+                  <div class="task-icon">
+                    <vue-feather type="check-square" size="18" />
+                  </div>
+                  <div class="task-identity__text">
+                    <strong>{{ item.title || 'Tanpa nama tugas' }}</strong>
+                    <span>{{ item.category || 'Kategori belum tersedia' }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <td data-label="Rumah Sakit">
+                <div class="task-context">
+                  <span class="cell-primary">{{ item.hospital || item.subtitle || '-' }}</span>
+                  <small v-if="item.contact">Kontak: {{ item.contact }}</small>
+                </div>
+              </td>
+
+              <td data-label="Project">
+                <span v-if="item.projectName" class="project-badge">{{ item.projectName }}</span>
+                <span v-else class="empty-value">Tanpa project</span>
+              </td>
+
+              <td data-label="Jadwal">
+                <div v-if="item.scheduledAt" class="task-schedule">
+                  <span>{{ formatDate(item.scheduledAt) }}</span>
+                  <small>{{ formatTime(item.scheduledAt) }}</small>
+                </div>
+                <span v-else class="empty-value">Belum dijadwalkan</span>
+              </td>
+
+              <td data-label="Owner">
+                <div class="owner-label">
+                  <vue-feather type="user" size="14" />
+                  <span>{{ item.owner || 'Belum ditentukan' }}</span>
+                </div>
+              </td>
+
+              <td data-label="Pipeline">
+                <div v-if="item.stageTo" class="pipeline-change">
+                  <span class="pipeline-badge">{{ stageLabel(item.stageTo) }}</span>
+                  <small v-if="item.stageFrom && item.stageFrom !== item.stageTo">
+                    dari {{ stageLabel(item.stageFrom) }}
+                  </small>
+                </div>
+                <span v-else class="empty-value">Tidak berubah</span>
+              </td>
+
+              <td data-label="Catatan">
+                <p class="task-notes mb-1">{{ item.description || '-' }}</p>
+                <small v-if="item.products?.length" class="task-products">
+                  {{ item.products.join(', ') }}
+                </small>
+                <small v-else-if="item.unrelatedProduct" class="task-products">
+                  Tidak terkait produk
+                </small>
+              </td>
+
+              <td data-label="Aksi" class="text-center">
+                <button
+                  class="btn btn-outline-danger btn-sm task-delete-button"
+                  type="button"
+                  :aria-label="`Hapus ${item.title}`"
+                  @click="deleteTask(item)"
+                >
+                  <vue-feather type="trash-2" size="15" />
+                  <span>Hapus</span>
+                </button>
+              </td>
+            </tr>
+
+            <tr v-if="!loading && !filteredTasks.length">
+              <td colspan="8" class="task-table-state">
+                <div class="empty-state-icon">
+                  <vue-feather type="check-square" size="22" />
+                </div>
+                <strong>Tugas tidak ditemukan</strong>
+                <span>Coba gunakan kata pencarian lain atau buat tugas baru.</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div
+      v-if="taskRows.length || pagination.page > 1"
+      class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
+    >
+      <span class="text-muted f-14">
+        Halaman {{ pagination.page }} dari {{ pagination.lastPage }}
+      </span>
+      <div class="pagination-actions" role="group" aria-label="Pagination Tugas">
+        <button
+          class="btn btn-outline-primary btn-sm pagination-button"
+          type="button"
+          :disabled="loading || pagination.page <= 1"
+          @click="changePage(pagination.page - 1)"
+        >
+          <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
+        </button>
+        <button
+          class="btn btn-outline-primary btn-sm pagination-button"
+          type="button"
+          :disabled="loading || pagination.page >= pagination.lastPage"
+          @click="changePage(pagination.page + 1)"
+        >
+          Berikutnya<vue-feather type="chevron-right" size="15" class="ms-1" />
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { getImages } from '@/utils/index'
+import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTask } from '@/store/task'
 import { projectTab } from '@/core/data/project'
+import type { TaskDetails } from '@/types/tasks'
 
 const store = useTask()
-const { currentTask } = storeToRefs(useTask())
+const { currentTask, loading, pagination } = storeToRefs(store)
+const searchQuery = ref('')
 
-function printWindow() {
-  window.print()
+const taskRows = computed(() => currentTask.value?.data ?? [])
+
+const filteredTasks = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return taskRows.value
+
+  return taskRows.value.filter((item) =>
+    [
+      item.title,
+      item.category,
+      item.hospital,
+      item.subtitle,
+      item.contact,
+      item.projectName,
+      item.owner,
+      item.description,
+    ].some((value) => String(value ?? '').toLowerCase().includes(query))
+  )
+})
+
+function formatTotal(total: number) {
+  return new Intl.NumberFormat('id-ID').format(total)
+}
+
+function parseDate(value: string) {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+function formatDate(value: string) {
+  const date = parseDate(value)
+  if (!date) return value
+
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
+}
+
+function formatTime(value: string) {
+  const date = parseDate(value)
+  if (!date) return ''
+
+  return new Intl.DateTimeFormat('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 function stageLabel(value: string) {
   return projectTab.find((stage) => stage.value === value)?.title || value
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
+function deleteTask(item: TaskDetails) {
+  const index = currentTask.value?.data?.indexOf(item) ?? -1
+  if (index >= 0) store.warningAlert(index)
+}
+
+function changePage(page: number) {
+  if (page < 1 || page > pagination.value.lastPage || page === pagination.value.page) return
+  void store.fetchTasks({ page })
 }
 </script>
 
 <style scoped>
-.task-table th {
+.task-list-header {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(0, 700px);
+  align-items: center;
+  gap: 24px;
+  padding: 20px 24px;
+}
+
+.task-title-group {
+  display: flex;
+  align-items: flex-start;
+  justify-self: start;
+  flex-direction: column;
+  text-align: left;
+}
+
+.task-title-group h5 {
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.task-total {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.task-header-actions {
+  display: grid;
+  grid-template-columns: minmax(280px, 440px) max-content;
+  width: 100%;
+  align-items: center;
+  justify-content: end;
+  gap: 10px;
+}
+
+.task-search {
+  display: flex;
+  width: 100%;
+  height: 44px;
+  min-width: 0;
+  box-sizing: border-box;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 11px;
+  background: #ffffff;
+  color: #64748b;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.task-search:focus-within {
+  border-color: #18a6e4;
+  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+}
+
+.task-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+.task-search input::placeholder {
+  color: #94a3b8;
+}
+
+.task-search__loading {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  color: #18a6e4;
+}
+
+.task-search__clear {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.add-task-header-button {
+  display: inline-flex;
+  width: auto;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-color: #18a6e4 !important;
+  border-radius: 8px;
+  margin: 0 !important;
+  padding: 0 18px;
+  background-color: #18a6e4 !important;
+  color: #ffffff !important;
+  font-weight: 700;
   white-space: nowrap;
-  color: #6f7680;
-  font-size: 12px;
-  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+}
+
+.add-task-header-button span,
+.add-task-header-button svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.add-task-header-button:hover,
+.add-task-header-button:focus {
+  border-color: #1493cc !important;
+  background-color: #1493cc !important;
+}
+
+.task-table-wrap {
+  min-height: 240px;
+}
+
+.task-table {
+  min-width: 1300px;
+}
+
+.task-table thead th {
+  border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+  padding: 14px 16px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.55px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.task-table td {
-  min-width: 150px;
+.task-table tbody td {
+  border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+  padding: 14px 16px;
+  color: #334155;
+  font-size: 13px;
+  vertical-align: middle;
 }
 
-.task-table td:first-child {
-  min-width: 230px;
+.task-table tbody tr {
+  transition: background-color 0.2s ease;
 }
 
-.task_desc_0 {
-  max-width: 280px;
+.task-table tbody tr:hover {
+  background: rgba(24, 166, 228, 0.035);
+}
+
+.task-identity {
+  display: flex;
+  min-width: 220px;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-icon {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(24, 166, 228, 0.1);
+  color: #18a6e4;
+}
+
+.task-identity__text,
+.task-context,
+.task-schedule,
+.pipeline-change {
+  min-width: 0;
+}
+
+.task-identity__text strong,
+.task-identity__text span,
+.task-context span,
+.task-context small,
+.task-schedule span,
+.task-schedule small,
+.pipeline-change small {
+  display: block;
+}
+
+.task-identity__text strong,
+.cell-primary {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.task-identity__text span,
+.task-context small,
+.task-schedule small,
+.pipeline-change small,
+.task-products {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.project-badge,
+.pipeline-badge {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  border-radius: 6px;
+  padding: 5px 8px;
+  background: rgba(24, 166, 228, 0.1);
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pipeline-badge {
+  background: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
+.owner-label {
+  display: inline-flex;
+  max-width: 170px;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
+}
+
+.owner-label span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-notes {
+  display: -webkit-box;
+  max-width: 260px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   white-space: normal;
+}
+
+.empty-value {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.task-delete-button {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 7px;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+
+.task-table-state {
+  height: 210px;
+  color: #64748b !important;
+  text-align: center;
+}
+
+.task-table-state strong,
+.task-table-state span {
+  display: block;
+}
+
+.empty-state-icon {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  background: rgba(24, 166, 228, 0.1);
+  color: #18a6e4;
+}
+
+.pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pagination-button {
+  display: inline-flex;
+  width: auto;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem !important;
+  padding-inline: 0.875rem;
+}
+
+@media (max-width: 991.98px) {
+  .task-list-header {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .task-header-actions {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    justify-content: stretch;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .task-header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .add-task-header-button {
+    width: 100%;
+  }
+
+  .task-table-wrap {
+    padding: 12px;
+    overflow: visible;
+  }
+
+  .task-table {
+    min-width: 0;
+  }
+
+  .task-table thead {
+    display: none;
+  }
+
+  .task-table tbody,
+  .task-table tr,
+  .task-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .task-table tbody tr {
+    overflow: hidden;
+    border: 1px solid var(--border-subtle, #e2e8f0);
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  .task-table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 11px 13px;
+    text-align: right;
+  }
+
+  .task-table tbody td::before {
+    content: attr(data-label);
+    flex: 0 0 34%;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .task-table tbody td:first-child {
+    background: #f8fafc;
+  }
+
+  .task-table tbody td:last-child {
+    border-bottom: 0;
+  }
+
+  .task-identity {
+    min-width: 0;
+    justify-content: flex-end;
+    text-align: right;
+  }
+
+  .task-table-state {
+    display: table-cell !important;
+    height: 180px;
+  }
+
+  .task-table-state::before {
+    display: none;
+  }
 }
 </style>

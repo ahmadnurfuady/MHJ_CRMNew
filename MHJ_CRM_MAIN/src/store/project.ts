@@ -60,6 +60,18 @@ export function normalizeProject(raw: Dict): Projects {
   const statusId = pickNumber(raw, 'status_id')
   const dealId = pick(raw, 'deal_id')
   const leaderId = pick(raw, 'leader_id')
+  const directValue = pickNumber(
+    raw,
+    'project_value',
+    'deal_value',
+    'total_value',
+    'value',
+    'amount',
+    'budget',
+    'nilai'
+  )
+  const price = pickNumber(raw, 'harga', 'price')
+  const quantity = pickNumber(raw, 'qty', 'quantity')
 
   return {
     id: pickNumber(raw, 'id', 'ID'),
@@ -67,10 +79,11 @@ export function normalizeProject(raw: Dict): Projects {
     projectDescription: pickString(raw, 'description'),
     projectBanner: DEFAULT_BANNER,
     date: formatDate(pickString(raw, 'created_at')),
-    // Kolom progress dan budget belum ada di tabel project.
+    // Progress belum tersedia; value dibaca bila backend mengirim kolom project/deal terkait.
     progress: 0,
     status: toSlug(statusName) || String(statusId || ''),
-    budget: '',
+    budget: pickString(raw, 'budget'),
+    projectValue: directValue || price * quantity,
     teamMember: leaderName ? [{ name: leaderName } as Profile] : [],
     dealId: dealId === undefined ? undefined : Number(dealId),
     leaderId: leaderId === undefined ? undefined : Number(leaderId),

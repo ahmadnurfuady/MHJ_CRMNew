@@ -15,8 +15,17 @@
           style="min-height: 38px; cursor: pointer"
         >
           <template v-if="multiSelect && Array.isArray(displaySelected) && displaySelected.length">
-            <span v-for="(item, index) in displaySelected" :key="index" class="badge badge-primary">
+            <span v-for="(item, index) in displaySelected" :key="index" class="badge badge-primary selected-tag">
               {{ item[props.displayKey] }}
+              <button
+                v-if="props.removableTags && !props.disabled"
+                class="selected-tag__remove"
+                type="button"
+                :aria-label="`Hapus ${String(item[props.displayKey])}`"
+                @click.stop="removeSelected(index)"
+              >
+                <vue-feather type="x" size="13" />
+              </button>
             </span>
           </template>
           <template v-else>
@@ -113,6 +122,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   isPlaceholder: true,
   disabled: false,
   showOptions: false,
+  removableTags: false,
 })
 
 const emits = defineEmits(['update:modelValue'])
@@ -129,5 +139,25 @@ const {
   handleKeydown,
   setOptionRef,
   clear,
+  removeSelected,
 } = useSmartSelect(props, emits)
 </script>
+
+<style scoped>
+.selected-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.selected-tag__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: currentColor;
+  background: transparent;
+  border: 0;
+  line-height: 1;
+}
+</style>

@@ -21,15 +21,6 @@
               </div>
             </div>
             <ul class="nav main-menu contact-options custom-scrollbar" role="tablist">
-              <li class="nav-item">
-                <button
-                  class="button-primary btn-block btn-mail w-100"
-                  type="button"
-                  @click="openContactModal()"
-                >
-                  <vue-feather :type="'users'" :class="'me-2'" />Rumah Sakit Baru
-                </button>
-              </li>
               <li class="nav-item"><span class="main-title"> Views</span></li>
               <li v-for="item in contactState.tabList.slice(0, 1)" :key="item.value">
                 <a
@@ -63,7 +54,6 @@
     </div>
   </div>
 
-  <AddContactModal v-if="contactState.openAddContactModal" />
   <ContactCategoryModal v-if="contactState.openCategoryModal" />
 </template>
 
@@ -75,14 +65,13 @@ import { useContact } from '@/store/contact'
 import { getImages } from '@/utils/index'
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
-const AddContactModal = defineAsyncComponent(() => import('@/module/rumahSakit/AddContactModal.vue'))
 const ContactCategoryModal = defineAsyncComponent(
   () => import('@/module/rumahSakit/ContactCategoryModal.vue')
 )
 
 const contactStore = useContact()
 const { contactState } = storeToRefs(contactStore)
-const { handleActiveTab, openContactModal } = contactStore
+const { handleActiveTab } = contactStore
 
 const sidebarOpen = ref<boolean>(false)
 const userDetails = user

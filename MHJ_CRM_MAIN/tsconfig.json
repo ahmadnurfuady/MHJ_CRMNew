@@ -9,6 +9,7 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"]
     }

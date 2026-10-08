@@ -29,6 +29,7 @@ export interface TaskDetails {
   latitude?: number
   longitude?: number
   locationAccuracy?: number
+  locationAddress?: string
   createdAt?: string
 }
 
@@ -51,6 +52,7 @@ export interface SalesTaskPayload {
   latitude: number
   longitude: number
   locationAccuracy: number
+  locationAddress: string
 }
 
 export interface TaskData {

@@ -46,7 +46,14 @@ function toStringArray(value: unknown): string[] {
 export function normalizeTask(raw: Dict): TaskDetails {
   const projectId = pick(raw, 'project_id', 'projectId')
   const projectName = pickString(raw, 'project_name', 'projectName')
-  const hospital = pickString(raw, 'hospital', 'rumahSakit', 'rumah_sakit')
+  const hospital = pickString(
+    raw,
+    'hospital_name',
+    'company_name',
+    'hospital',
+    'rumahSakit',
+    'rumah_sakit'
+  )
 
   return {
     id: pickNumber(raw, 'id', 'ID') || Date.now(),
@@ -55,11 +62,11 @@ export function normalizeTask(raw: Dict): TaskDetails {
     description: pickString(raw, 'description', 'notes', 'keterangan'),
     kind: 'sales',
     category: pickString(raw, 'category', 'kategori'),
-    owner: pickString(raw, 'owner', 'created_by'),
+    owner: pickString(raw, 'owner_name', 'created_by_name', 'leader_name', 'owner', 'created_by'),
     projectId: projectId === undefined ? null : Number(projectId),
     projectName,
     hospital,
-    contact: pickString(raw, 'contact'),
+    contact: pickString(raw, 'contact_name', 'contact'),
     scheduledAt: pickString(raw, 'due_date', 'scheduledAt', 'scheduled_at'),
     divisions: toStringArray(raw.divisions),
     products: toStringArray(raw.products),
@@ -70,6 +77,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
     latitude: pickNumber(raw, 'latitude'),
     longitude: pickNumber(raw, 'longitude'),
     locationAccuracy: pickNumber(raw, 'locationAccuracy', 'location_accuracy'),
+    locationAddress: pickString(raw, 'locationAddress', 'location_address', 'address_location'),
     createdAt: pickString(raw, 'createdAt', 'created_at'),
   }
 }
@@ -222,7 +230,7 @@ export const useTask = defineStore('task', () => {
         })
         const raw = extractItem(response.data, ['task'])
         // Bila backend tidak mengembalikan data baru, pakai data dari form.
-        const newTask = normalizeTask(raw ?? { ...payload, id: Date.now() })
+        const newTask = normalizeTask(raw ? { ...payload, ...raw } : { ...payload, id: Date.now() })
 
         salesTasks.value = [newTask, ...salesTasks.value]
         rebuildCreatedByMe()

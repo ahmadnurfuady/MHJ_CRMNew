@@ -176,6 +176,22 @@ export function useSmartSelect(
     search.value = ''
   }
 
+  function removeSelected(index: number) {
+    if (!props.multiSelect || !Array.isArray(props.modelValue.selectedItems)) return
+
+    const key = props.getValueKey as keyof Select
+    const selectedItems = props.modelValue.selectedItems.filter((_, itemIndex) => itemIndex !== index)
+    emits('update:modelValue', {
+      selectedItems,
+      data: selectedItems.map((item) => item[key]),
+      errorMessage:
+        !selectedItems.length && props.required
+          ? props.errorMessage || 'Please select a value'
+          : '',
+      type: 'dropdown',
+    })
+  }
+
   watch(
     () => props.modelValue,
     () => (highlightedIndex.value = 0)
@@ -200,5 +216,6 @@ export function useSmartSelect(
     handleKeydown,
     setOptionRef,
     clear,
+    removeSelected,
   }
 }

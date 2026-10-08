@@ -1,22 +1,31 @@
 <template>
   <template v-if="contactState.activeContact">
-    <div class="d-flex">
+    <div class="hospital-profile-summary">
       <img
-        class="img-100 img-fluid m-r-20 rounded-circle update_img_0"
+        class="img-100 img-fluid rounded-circle update_img_0"
         :src="getImages(contactState.activeContact.profile)"
         :alt="contactState.activeContact.firstName"
       />
-      <div class="flex-grow-1 mt-0">
-        <h5>{{ displayValue(contactState.activeContact.firstName) }}</h5>
-        <p class="email_add_0 mb-2">
+      <div class="hospital-identity">
+        <h5 class="mb-0">{{ displayValue(contactState.activeContact.firstName) }}</h5>
+        <p class="email_add_0 mb-0">
           {{ displayValue(contactState.activeContact.email) }}
         </p>
-        <ul class="main-contact-option">
-          <li><a href="#" @click.prevent="editContact()">Edit</a></li>
-          <li><a href="#" @click.prevent="deleteContact()">Hapus</a></li>
-          <li><a href="#" @click.prevent="showHistory()">History</a></li>
-          <li><a href="#" @click.prevent="printContact()">Print</a></li>
-        </ul>
+        <p class="hospital-location mb-0">
+          <vue-feather type="map-pin" size="14" />
+          {{ locationLabel }}
+        </p>
+      </div>
+      <div class="hospital-primary-actions">
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="editContact">
+          <vue-feather type="edit-2" size="14" />Edit
+        </button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="showHistory">
+          <vue-feather type="clock" size="14" />History
+        </button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="printContact">
+          <vue-feather type="printer" size="14" />Print
+        </button>
       </div>
     </div>
 
@@ -96,10 +105,21 @@
         </div>
       </div>
     </div>
+
+    <div class="hospital-danger-zone mt-4">
+      <div>
+        <strong>Hapus rumah sakit</strong>
+        <p class="mb-0">Data rumah sakit yang dihapus tidak dapat dikembalikan.</p>
+      </div>
+      <button class="btn btn-outline-danger btn-sm" type="button" @click="deleteContact">
+        <vue-feather type="trash-2" size="14" />Hapus Rumah Sakit
+      </button>
+    </div>
   </template>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { storeToRefs } from "pinia";
 
 import { useContact } from "@/store/contact";
@@ -113,6 +133,14 @@ const { detailLoading: hospitalLoading } = storeToRefs(hospitalStore);
 
 const { editContact, deleteContact, showHistory, printContact } = contactStore;
 
+const locationLabel = computed(() => {
+  const contact = contactState.value.activeContact;
+  return [contact?.city, contact?.province]
+    .map((value) => String(value ?? "").trim())
+    .filter((value) => value && value !== "-")
+    .join(", ") || "Lokasi belum tersedia";
+});
+
 function displayValue(value: unknown) {
   const normalized = String(value ?? "").trim();
   return normalized || "-";
@@ -124,6 +152,78 @@ function websiteHref(value: string) {
 </script>
 
 <style scoped>
+.hospital-profile-summary {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 20px;
+}
+
+.hospital-identity {
+  display: flex;
+  min-width: 0;
+  align-self: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hospital-identity h5,
+.hospital-identity p {
+  overflow-wrap: anywhere;
+}
+
+.hospital-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748b;
+}
+
+.hospital-primary-actions {
+  display: grid;
+  grid-template-rows: repeat(3, auto);
+  justify-items: end;
+  gap: 6px;
+}
+
+.hospital-primary-actions .btn,
+.hospital-danger-zone .btn {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 7px;
+  padding: 7px 11px;
+}
+
+.hospital-primary-actions .btn {
+  width: 104px;
+  height: 32px;
+}
+
+.hospital-danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid rgba(231, 41, 41, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+  background: rgba(231, 41, 41, 0.035);
+}
+
+.hospital-danger-zone strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #991b1b;
+}
+
+.hospital-danger-zone p {
+  color: #64748b;
+  font-size: 12px;
+}
+
 .company-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -160,6 +260,40 @@ function websiteHref(value: string) {
 
   .company-detail-wide {
     grid-column: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .hospital-profile-summary {
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 14px;
+  }
+
+  .hospital-profile-summary > img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+  }
+
+  .hospital-primary-actions {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .hospital-primary-actions .btn {
+    width: 100%;
+  }
+
+  .hospital-danger-zone {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hospital-danger-zone .btn {
+    width: 100%;
   }
 }
 </style>

@@ -4,6 +4,7 @@ import { api } from '@/api'
 import {
   extractList,
   isRecord,
+  pick,
   pickNumber,
   pickString,
   type Dict,
@@ -14,6 +15,14 @@ import { runApiAction } from '@/store/apiAction'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
 const ENDPOINT = 'company'
+
+function pickOptionalNumber(raw: Dict, ...keys: string[]): number | undefined {
+  const value = pick(raw, ...keys)
+  if (value === undefined || value === '') return undefined
+
+  const normalized = Number(value)
+  return Number.isFinite(normalized) ? normalized : undefined
+}
 
 /** Menemukan satu row company pada response detail yang mungkin dibungkus data/company. */
 function findCompanyRecord(payload: unknown, depth = 0): Dict | null {
@@ -62,6 +71,64 @@ export function normalizeHospital(raw: Dict): Hospital {
     posCode: pickString(raw, 'Pos Code', 'pos_code'),
     kdKelurahan: pickString(raw, 'Kd Kelurahan', 'kd_kelurahan'),
     aktif: pickNumber(raw, 'Aktif', 'aktif'),
+    hospitalClass: pickString(
+      raw,
+      'Hospital Class',
+      'hospital_class',
+      'hospitalClass',
+      'Kelas',
+      'kelas',
+      'kelas_rs',
+      'rs_class',
+      'class_name',
+    ),
+    hospitalType: pickString(
+      raw,
+      'Hospital Type',
+      'hospital_type',
+      'hospitalType',
+      'Jenis',
+      'jenis',
+      'jenis_rs',
+      'rs_type',
+      'type_name',
+      'Type',
+      'type',
+    ),
+    totalContacts: pickOptionalNumber(
+      raw,
+      'Total Contacts',
+      'total_contacts',
+      'totalContacts',
+      'contact_count',
+      'contacts_count',
+    ),
+    totalProjects: pickOptionalNumber(
+      raw,
+      'Total Projects',
+      'total_projects',
+      'totalProjects',
+      'project_count',
+      'projects_count',
+    ),
+    totalInstalledEquipment: pickOptionalNumber(
+      raw,
+      'Total Installed Equipment',
+      'total_installed_equipment',
+      'totalInstalledEquipment',
+      'installed_equipment_count',
+      'installed_products_count',
+      'equipment_count',
+    ),
+    lastVisitAt: pickString(
+      raw,
+      'Last Visit At',
+      'last_visit_at',
+      'lastVisitAt',
+      'last_visit',
+      'last_visited_at',
+      'latest_visit_at',
+    ),
   }
 }
 

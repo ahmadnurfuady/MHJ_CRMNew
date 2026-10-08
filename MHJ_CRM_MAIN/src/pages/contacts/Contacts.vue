@@ -2,10 +2,7 @@
   <div class="container-fluid">
     <div class="email-wrap bookmark-wrap">
       <div class="row main-bookmark">
-        <div class="col-xxl-3 box-col-6">
-          <ContactSidebar />
-        </div>
-        <div class="col-xxl-9 col-md-12 box-col-12">
+        <div class="col-12">
           <div class="email-right-aside bookmark-tabcontent contacts-tabs">
             <div class="card email-body radius-left dark-contact">
               <div class="ps-0">
@@ -33,7 +30,6 @@ import { defineAsyncComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useContact } from '@/store/contact'
 
-const ContactSidebar = defineAsyncComponent(() => import('@/module/contacts/ContactSidebar.vue'))
 const ContactDetails = defineAsyncComponent(() => import('@/module/contacts/ContactDetails.vue'))
 const ContactHistory = defineAsyncComponent(() => import('@/module/contacts/ContactHistory.vue'))
 const PrintContactModal = defineAsyncComponent(

@@ -1,26 +1,31 @@
 <template>
   <template v-if="contactState.activeContact">
-    <div class="contact-header d-flex flex-wrap gap-3 align-items-start">
+    <div class="contact-header contact-profile-summary">
       <img
         class="img-100 img-fluid rounded-circle"
         :src="getImages(contactState.activeContact.profile)"
         :alt="contactState.activeContact.firstName"
       />
-      <div class="flex-grow-1">
-        <h5 class="mb-1">{{ fullName }}</h5>
-        <p class="mb-1 text-muted">
+      <div class="contact-identity">
+        <h5 class="contact-identity__row mb-0">{{ fullName }}</h5>
+        <p class="contact-identity__row mb-0 text-muted">
           {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
         </p>
-        <p class="mb-0">
+        <p class="contact-identity__row mb-0">
           <vue-feather type="briefcase" size="14" class="me-1" />
           {{ companyLabel }}
         </p>
-        <ul class="main-contact-option mt-2">
-          <li><a href="#" @click.prevent="editContact">Edit</a></li>
-          <li><a href="#" @click.prevent="deleteContact">Hapus</a></li>
-          <li><a href="#" @click.prevent="showHistory">History</a></li>
-          <li><a href="#" @click.prevent="printContact">Print</a></li>
-        </ul>
+      </div>
+      <div class="contact-primary-actions">
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="editContact">
+          <vue-feather type="edit-2" size="14" />Edit
+        </button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="showHistory">
+          <vue-feather type="clock" size="14" />History
+        </button>
+        <button class="btn btn-outline-primary btn-sm" type="button" @click="printContact">
+          <vue-feather type="printer" size="14" />Print
+        </button>
       </div>
     </div>
 
@@ -294,6 +299,16 @@
         perusahaan.
       </div>
     </section>
+
+    <div class="contact-danger-zone mt-4">
+      <div>
+        <strong>Hapus kontak</strong>
+        <p class="mb-0">Data kontak yang dihapus tidak dapat dikembalikan.</p>
+      </div>
+      <button class="btn btn-outline-danger btn-sm" type="button" @click="deleteContact">
+        <vue-feather type="trash-2" size="14" />Hapus Kontak
+      </button>
+    </div>
   </template>
 </template>
 
@@ -410,6 +425,76 @@ function toggleCompanyEdit() {
 </script>
 
 <style scoped>
+.contact-profile-summary {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 20px;
+}
+
+.contact-identity {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  align-self: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact-identity__row {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.contact-primary-actions {
+  display: grid;
+  grid-template-rows: repeat(3, auto);
+  justify-items: end;
+  gap: 6px;
+}
+
+.contact-primary-actions .btn,
+.contact-danger-zone .btn {
+  display: inline-flex;
+  width: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 7px;
+  padding: 7px 11px;
+}
+
+.contact-primary-actions .btn {
+  min-width: 104px;
+  height: 32px;
+  align-self: center;
+}
+
+.contact-danger-zone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid rgba(231, 41, 41, 0.22);
+  border-radius: 10px;
+  padding: 16px;
+  background: rgba(231, 41, 41, 0.035);
+}
+
+.contact-danger-zone strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #991b1b;
+}
+
+.contact-danger-zone p {
+  color: #64748b;
+  font-size: 12px;
+}
+
 .contact-info-grid > div {
   display: flex;
   flex-direction: column;
@@ -454,5 +539,40 @@ function toggleCompanyEdit() {
 }
 .project-stage:last-child {
   margin-bottom: 0 !important;
+}
+
+@media (max-width: 575.98px) {
+  .contact-profile-summary {
+    grid-template-columns: 72px minmax(0, 1fr);
+    column-gap: 14px;
+  }
+
+  .contact-profile-summary > img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+  }
+
+  .contact-primary-actions {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .contact-primary-actions .btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .contact-danger-zone {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .contact-danger-zone .btn {
+    width: 100%;
+  }
 }
 </style>
