@@ -88,7 +88,9 @@
           </div>
           <div class="col-md-6">
             <label class="form-label" for="password">
-              Sandi <span class="txt-danger">*</span>
+              Sandi
+              <span v-if="!isEditMode" class="txt-danger">*</span>
+              <small v-else class="f-m-light">(biarkan kosong bila tidak diubah)</small>
             </label>
             <input
               id="password"
@@ -226,8 +228,11 @@ function validate(): string {
   if (!form.email) return 'Email wajib diisi.'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return 'Format email tidak valid.'
   if (!form.no_handphone) return 'No. Handphone wajib diisi.'
-  if (form.password.length < 6) {
+  if (!isEditMode.value && form.password.length < 6) {
     return 'Sandi wajib diisi minimal 6 karakter.'
+  }
+  if (isEditMode.value && form.password !== '' && form.password.length < 6) {
+    return 'Sandi baru minimal 6 karakter.'
   }
   return ''
 }
@@ -260,7 +265,10 @@ function buildPayload(): UserCrudPayload {
     idjabatan: form.idjabatan === '' ? null : Number(form.idjabatan),
   }
 
-  payload.password = form.password
+  // Sandi hanya dikirim bila diisi — backend mempertahankan sandi lama bila tidak ada.
+  if (form.password !== '') {
+    payload.password = form.password
+  }
   return payload
 }
 
@@ -310,7 +318,7 @@ async function prefill(id: number) {
     form.lastname = user.lastname ?? ''
     form.email = user.email ?? ''
     form.nik = user.nik ?? ''
-    form.no_handphone = user.Telephone ?? ''
+    form.no_handphone = user.no_handphone ?? user.Telephone ?? ''
     form.KodeCabang = toCodeArray(user.KodeCabang)
     form.KodeDevisi = toCodeArray(user.KodeDevisi)
     form.KodeTipeMarketing = toCodeArray(user.KodeTipeMarketing)

@@ -90,6 +90,8 @@ export interface UserCrmItem {
   firstname?: string | null
   lastname?: string | null
   email?: string | null
+  /** Backend browse mengembalikan `Telephone`, fetchusersbyid mengembalikan `no_handphone`. */
+  no_handphone?: string | null
   Telephone?: string | null
   nik?: string | null
   primaryteam?: string | null

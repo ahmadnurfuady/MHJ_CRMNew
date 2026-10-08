@@ -80,7 +80,7 @@
               <td>{{ rowNumber(index) }}</td>
               <td class="fw-semibold">{{ userFullName(user) }}</td>
               <td>{{ user.email || '-' }}</td>
-              <td>{{ user.Telephone || '-' }}</td>
+              <td>{{ user.no_handphone || user.Telephone || '-' }}</td>
               <td>{{ labelFor(masterOptions.jabatan, String(user.idjabatan ?? '')) }}</td>
               <td>{{ labelsFor(masterOptions.cabang, user.KodeCabang) }}</td>
               <td>{{ labelsFor(masterOptions.devisi, user.KodeDevisi) }}</td>
