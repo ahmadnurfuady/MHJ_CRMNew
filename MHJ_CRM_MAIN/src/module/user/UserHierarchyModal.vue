@@ -79,26 +79,37 @@
           <div class="hierarchy-connector__line"></div>
         </div>
 
-        <!-- Bawahan -->
+        <!-- Bawahan (dikelompokkan per jabatan) -->
         <div class="hierarchy-section">
           <div class="hierarchy-label">
             <vue-feather type="chevrons-down" size="14" class="me-1" />
-            Bawahan Langsung
+            Semua Bawahan
           </div>
+
           <div v-if="data.bawahan.length === 0" class="hierarchy-empty">
-            Tidak ada bawahan langsung
+            Tidak ada bawahan
           </div>
+
+          <!-- Satu grup per jabatan -->
           <div
-            v-for="person in data.bawahan"
-            :key="person.id"
-            class="hierarchy-card hierarchy-card--bawahan"
+            v-for="group in bawahanByJabatan"
+            :key="group.jabatan"
+            class="bawahan-group"
           >
-            <div class="hierarchy-avatar bg-light">
-              <vue-feather type="user" size="16" class="text-secondary" />
+            <div class="bawahan-group__title">
+              <vue-feather type="briefcase" size="12" class="me-1" />
+              {{ group.jabatan }}
+              <span class="bawahan-group__count">{{ group.members.length }}</span>
             </div>
-            <div>
+            <div
+              v-for="person in group.members"
+              :key="person.id"
+              class="hierarchy-card hierarchy-card--bawahan"
+            >
+              <div class="hierarchy-avatar bg-light">
+                <vue-feather type="user" size="16" class="text-secondary" />
+              </div>
               <div class="fw-semibold f-14">{{ person.name }}</div>
-              <div class="f-12 text-muted">{{ person.nama_jabatan || '—' }}</div>
             </div>
           </div>
         </div>
@@ -109,10 +120,10 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from 'vue'
+import { watch, ref, computed } from 'vue'
 import Modal from '@/components/shared/Modal.vue'
 import { getUserHierarchy } from '@/services/userService'
-import type { UserHierarchyResponse } from '@/types/user'
+import type { HierarchyUser, UserHierarchyResponse } from '@/types/user'
 
 const props = defineProps<{
   open: boolean
@@ -124,6 +135,25 @@ defineEmits<{ close: [] }>()
 const loading = ref(false)
 const error = ref<string | null>(null)
 const data = ref<UserHierarchyResponse | null>(null)
+
+/**
+ * Kelompokkan semua turunan bawahan berdasarkan nama_jabatan.
+ * Urutan grup mengikuti kemunculan pertama jabatan di array (= urutan hierarki
+ * yang dikembalikan backend), sehingga jabatan lebih tinggi muncul lebih dulu.
+ */
+const bawahanByJabatan = computed<Array<{ jabatan: string; members: HierarchyUser[] }>>(() => {
+  if (!data.value?.bawahan.length) return []
+
+  const map = new Map<string, HierarchyUser[]>()
+  for (const person of data.value.bawahan) {
+    const key = person.nama_jabatan?.trim() || 'Tanpa Jabatan'
+    const bucket = map.get(key) ?? []
+    bucket.push(person)
+    map.set(key, bucket)
+  }
+
+  return Array.from(map.entries()).map(([jabatan, members]) => ({ jabatan, members }))
+})
 
 watch(
   () => props.open,
@@ -209,6 +239,43 @@ watch(
 .hierarchy-card--bawahan {
   border-color: #e9ecef;
   background: #f8f9fa;
+}
+
+/* ─── Grup jabatan bawahan ─────────────────────────────────────────────── */
+.bawahan-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.bawahan-group + .bawahan-group {
+  margin-top: 0.75rem;
+}
+
+.bawahan-group__title {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #032A4E;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.2rem 0.5rem;
+  background: rgba(3, 42, 78, 0.06);
+  border-radius: 0.25rem;
+  border-left: 3px solid #18A6E4;
+}
+
+.bawahan-group__count {
+  margin-left: auto;
+  background: #18A6E4;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  line-height: 1.4;
 }
 
 /* ─── Avatar circle ──────────────────────────────────────────────────────── */
