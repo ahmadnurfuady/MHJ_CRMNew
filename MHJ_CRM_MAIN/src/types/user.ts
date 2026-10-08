@@ -96,9 +96,15 @@ export interface UserCrmItem {
   secondaryteam?: string | null
   stafflevel?: string | null
   role?: string | null
-  KodeCabang?: string | null
-  KodeDevisi?: string | null
-  KodeTipeMarketing?: string | null
+  /**
+   * Relasi many-to-many (tabel perantara users_cabang / users_devisi /
+   * users_tipemarketing). `fetchusersbyid` mengirim array murni, sedangkan
+   * endpoint browse bisa mengirim string tunggal atau JSON hasil agregasi,
+   * jadi bentuk longgar ini dinormalkan lewat `toCodeArray()`.
+   */
+  KodeCabang?: string[] | string | null
+  KodeDevisi?: string[] | string | null
+  KodeTipeMarketing?: string[] | string | null
   idjabatan?: number | string | null
 }
 
@@ -123,12 +129,13 @@ export interface UserCrudPayload {
   secondaryteam?: string | null
   stafflevel?: string | null
   role?: string | null
-  KodeCabang?: string | null
-  kodecabang?: string | null
-  KodeDevisi?: string | null
-  kodedevisi?: string | null
-  KodeTipeMarketing?: string | null
-  kodetipemarketing?: string | null
+  /** Array kode — backend meng-encode menjadi JSON string untuk sp_users_crud. */
+  KodeCabang?: string[]
+  kodecabang?: string[]
+  KodeDevisi?: string[]
+  kodedevisi?: string[]
+  KodeTipeMarketing?: string[]
+  kodetipemarketing?: string[]
   idjabatan?: number | string | null
 }
 

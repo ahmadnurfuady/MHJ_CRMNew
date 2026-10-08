@@ -133,6 +133,46 @@ export const userService = {
   },
 }
 
+/**
+ * Menormalkan nilai relasi many-to-many (Cabang / Devisi / Tipe Marketing)
+ * menjadi array kode bersih.
+ *
+ * `fetchusersbyid` sudah mengirim array murni, tetapi nilai yang sama bisa
+ * datang sebagai string tunggal (data lama single-choice), string JSON
+ * `["001","002"]`, atau daftar dipisah koma dari agregasi SQL. Semua bentuk itu
+ * diratakan ke `string[]` agar form dan tabel tidak perlu menebak-nebak.
+ */
+export function toCodeArray(value: unknown): string[] {
+  if (value === null || value === undefined) return []
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item ?? '').trim())
+      .filter((item) => item !== '')
+  }
+
+  if (typeof value === 'object') {
+    // Baris relasi mentah, mis. [{ KodeCabang: '001' }] yang sudah ter-unwrap satu level.
+    return toCodeArray(Object.values(value as Record<string, unknown>))
+  }
+
+  const raw = String(value).trim()
+  if (raw === '') return []
+
+  if (raw.startsWith('[')) {
+    try {
+      return toCodeArray(JSON.parse(raw))
+    } catch {
+      // Bukan JSON valid — jatuh ke pemisahan koma di bawah.
+    }
+  }
+
+  return raw
+    .split(',')
+    .map((item) => item.replace(/^["'\s]+|["'\s]+$/g, ''))
+    .filter((item) => item !== '')
+}
+
 /** Nama tampilan pengguna dari gabungan firstname + lastname, dengan cadangan name/email. */
 export function userFullName(user: UserCrmItem): string {
   const composed = [user.firstname, user.lastname].filter(Boolean).join(' ').trim()

@@ -118,28 +118,34 @@
         <h6 class="mb-3">Penempatan</h6>
         <div class="row g-3 mb-4">
           <div class="col-md-6">
-            <label class="form-label">Cabang</label>
-            <SelectInput
+            <label class="form-label" for="kode-cabang">Cabang</label>
+            <MultiSelectInput
+              id="kode-cabang"
               v-model="form.KodeCabang"
               :options="masterOptions.cabang"
               :placeholder="placeholderFor(masterOptions.cabang)"
             />
+            <small class="f-m-light">Bisa dipilih lebih dari satu.</small>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Devisi</label>
-            <SelectInput
+            <label class="form-label" for="kode-devisi">Devisi</label>
+            <MultiSelectInput
+              id="kode-devisi"
               v-model="form.KodeDevisi"
               :options="masterOptions.devisi"
               :placeholder="placeholderFor(masterOptions.devisi)"
             />
+            <small class="f-m-light">Bisa dipilih lebih dari satu.</small>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Tipe Marketing</label>
-            <SelectInput
+            <label class="form-label" for="kode-tipe-marketing">Tipe Marketing</label>
+            <MultiSelectInput
+              id="kode-tipe-marketing"
               v-model="form.KodeTipeMarketing"
               :options="masterOptions.tipeMarketing"
               :placeholder="placeholderFor(masterOptions.tipeMarketing)"
             />
+            <small class="f-m-light">Bisa dipilih lebih dari satu.</small>
           </div>
           <div class="col-md-6">
             <label class="form-label">Jabatan</label>
@@ -168,10 +174,11 @@ import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 
 import { routes } from '@/router/routes'
-import { userService } from '@/services/userService'
+import { toCodeArray, userService } from '@/services/userService'
 import { canUser } from '@/module/user/userPermission'
 import { parseBackendError, type ParsedError } from '@/utils/errorParser'
 import SelectInput from '@/components/ui/SelectInput.vue'
+import MultiSelectInput from '@/components/ui/MultiSelectInput.vue'
 import type { MasterOption, UserCrudPayload, UserMasterOptions } from '@/types/user'
 
 const route = useRoute()
@@ -204,9 +211,10 @@ const form = reactive({
   password: '',
   nik: '',
   no_handphone: '',
-  KodeCabang: '',
-  KodeDevisi: '',
-  KodeTipeMarketing: '',
+  // Relasi many-to-many: selalu array kode, kosong berarti belum ada penempatan.
+  KodeCabang: [] as string[],
+  KodeDevisi: [] as string[],
+  KodeTipeMarketing: [] as string[],
   idjabatan: '',
 })
 
@@ -247,12 +255,13 @@ function buildPayload(): UserCrudPayload {
     secondaryteam: null,
     stafflevel: null,
     role: 'karyawan',
-    KodeCabang: form.KodeCabang || null,
-    kodecabang: form.KodeCabang || null,
-    KodeDevisi: form.KodeDevisi || null,
-    kodedevisi: form.KodeDevisi || null,
-    KodeTipeMarketing: form.KodeTipeMarketing || null,
-    kodetipemarketing: form.KodeTipeMarketing || null,
+    // Dikirim sebagai array; backend meng-encode ke JSON string untuk sp_users_crud.
+    KodeCabang: [...form.KodeCabang],
+    kodecabang: [...form.KodeCabang],
+    KodeDevisi: [...form.KodeDevisi],
+    kodedevisi: [...form.KodeDevisi],
+    KodeTipeMarketing: [...form.KodeTipeMarketing],
+    kodetipemarketing: [...form.KodeTipeMarketing],
     idjabatan: form.idjabatan === '' ? null : Number(form.idjabatan),
   }
 
@@ -310,9 +319,9 @@ async function prefill(id: number) {
     form.email = user.email ?? ''
     form.nik = user.nik ?? ''
     form.no_handphone = user.Telephone ?? ''
-    form.KodeCabang = user.KodeCabang ?? ''
-    form.KodeDevisi = user.KodeDevisi ?? ''
-    form.KodeTipeMarketing = user.KodeTipeMarketing ?? ''
+    form.KodeCabang = toCodeArray(user.KodeCabang)
+    form.KodeDevisi = toCodeArray(user.KodeDevisi)
+    form.KodeTipeMarketing = toCodeArray(user.KodeTipeMarketing)
     form.idjabatan = user.idjabatan === null || user.idjabatan === undefined ? '' : String(user.idjabatan)
   } catch (error) {
     console.error('Gagal memuat detail pengguna:', error)

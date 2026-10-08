@@ -82,9 +82,9 @@
               <td>{{ user.email || '-' }}</td>
               <td>{{ user.Telephone || '-' }}</td>
               <td>{{ labelFor(masterOptions.jabatan, String(user.idjabatan ?? '')) }}</td>
-              <td>{{ labelFor(masterOptions.cabang, user.KodeCabang) }}</td>
-              <td>{{ labelFor(masterOptions.devisi, user.KodeDevisi) }}</td>
-              <td>{{ labelFor(masterOptions.tipeMarketing, user.KodeTipeMarketing) }}</td>
+              <td>{{ labelsFor(masterOptions.cabang, user.KodeCabang) }}</td>
+              <td>{{ labelsFor(masterOptions.devisi, user.KodeDevisi) }}</td>
+              <td>{{ labelsFor(masterOptions.tipeMarketing, user.KodeTipeMarketing) }}</td>
               <td class="text-end text-nowrap">
                 <div class="product-action common-align gap-2 justify-content-end">
                   <a
@@ -153,7 +153,7 @@ import { useDebounceFn } from '@vueuse/core'
 import Swal from 'sweetalert2'
 
 import { routes } from '@/router/routes'
-import { userFullName, userService } from '@/services/userService'
+import { toCodeArray, userFullName, userService } from '@/services/userService'
 import { canUser } from '@/module/user/userPermission'
 import { parseBackendError } from '@/utils/errorParser'
 import SelectInput from '@/components/ui/SelectInput.vue'
@@ -200,7 +200,7 @@ const pagination = ref({
  */
 const visibleUsers = computed(() => {
   if (!cabangFilter.value) return users.value
-  return users.value.filter((user) => user.KodeCabang === cabangFilter.value)
+  return users.value.filter((user) => toCodeArray(user.KodeCabang).includes(cabangFilter.value))
 })
 
 function rowNumber(index: number): number {
@@ -210,6 +210,16 @@ function rowNumber(index: number): number {
 function labelFor(options: MasterOption[], code?: string | null): string {
   if (!code) return '-'
   return options.find((option) => option.value === code)?.label || code
+}
+
+/**
+ * Cabang / Devisi / Tipe Marketing sekarang relasi many-to-many, jadi satu baris
+ * bisa membawa beberapa kode. Semua kode dipetakan ke label lalu digabung.
+ */
+function labelsFor(options: MasterOption[], value?: string[] | string | null): string {
+  const codes = toCodeArray(value)
+  if (codes.length === 0) return '-'
+  return codes.map((code) => labelFor(options, code)).join(', ')
 }
 
 async function reload(page = 1) {
