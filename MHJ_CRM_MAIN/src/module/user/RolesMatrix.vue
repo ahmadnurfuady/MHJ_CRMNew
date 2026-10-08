@@ -257,6 +257,61 @@ function toPermissionRow(raw: FlMenuRawItem): PermissionRow {
 }
 
 /**
+ * Menyusun ulang baris menjadi urutan pohon (DFS): setiap parent muncul
+ * lebih dulu, langsung diikuti anak-anaknya, lalu cucu-cucunya — persis
+ * seperti urutan sidebar. Root-level dan anak-anak masing-masing diurutkan
+ * berdasarkan `id` secara numerik sehingga konsisten dengan hierarki menu.
+ *
+ * Item yang parentnya tidak ditemukan di data (orphan) diletakkan di akhir.
+ */
+function buildTreeOrder(items: PermissionRow[]): PermissionRow[] {
+  const idOf = (row: PermissionRow): string => String(row.id ?? row.L1 ?? '').trim()
+
+  // Kumpulkan semua id yang ada untuk mendeteksi orphan
+  const knownIds = new Set(items.map(idOf))
+
+  const childrenMap = new Map<string, PermissionRow[]>()
+  const roots: PermissionRow[] = []
+
+  for (const item of items) {
+    const parentId = parentIdOf(item)
+    const isRoot = !parentId || parentId === '0' || !knownIds.has(parentId)
+    if (isRoot) {
+      roots.push(item)
+    } else {
+      const bucket = childrenMap.get(parentId) ?? []
+      bucket.push(item)
+      childrenMap.set(parentId, bucket)
+    }
+  }
+
+  const numericId = (row: PermissionRow) => idOf(row)
+  const sortById = (a: PermissionRow, b: PermissionRow) =>
+    numericId(a).localeCompare(numericId(b), undefined, { numeric: true })
+
+  roots.sort(sortById)
+
+  const result: PermissionRow[] = []
+  const visited = new Set<string>()
+
+  function visit(item: PermissionRow) {
+    const id = idOf(item)
+    if (visited.has(id)) return // guard siklik
+    visited.add(id)
+    result.push(item)
+    const children = (childrenMap.get(id) ?? []).slice().sort(sortById)
+    children.forEach(visit)
+  }
+
+  roots.forEach(visit)
+
+  // Orphan yang belum masuk (data tidak konsisten dari backend)
+  items.filter((i) => !visited.has(idOf(i))).forEach((i) => result.push(i))
+
+  return result
+}
+
+/**
  * Nilai `username` untuk getflmenu/saveedit. Backend mencocokkannya ke kolom
  * `name` pada tabel users; `name` di userscrm bisa null sehingga perlu cadangan.
  */
@@ -278,7 +333,7 @@ async function loadPermissions() {
     }
 
     if (raw.length === 0) {
-      rows.value = DEFAULT_CRM_MENU_TEMPLATE.map(toPermissionRow)
+      rows.value = buildTreeOrder(DEFAULT_CRM_MENU_TEMPLATE.map(toPermissionRow))
       feedback.value = {
         type: 'info',
         text: 'Pengguna baru belum memiliki baris data hak akses di tabel database. Template menu sistem telah dimuat, silakan atur hak akses lalu klik "Simpan Hak Akses".',
@@ -286,7 +341,7 @@ async function loadPermissions() {
       return
     }
 
-    rows.value = raw.map(toPermissionRow)
+    rows.value = buildTreeOrder(raw.map(toPermissionRow))
   } catch (error) {
     console.error('Gagal memuat hak akses:', error)
     feedback.value = { type: 'danger', text: 'Gagal memuat hak akses pengguna.' }
