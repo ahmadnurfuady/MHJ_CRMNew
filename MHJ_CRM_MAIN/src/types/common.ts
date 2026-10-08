@@ -339,6 +339,7 @@ export interface SelectProps {
   isPlaceholder?: boolean
   disabled?: boolean
   showOptions?: boolean
+  removableTags?: boolean
 }
 
 export interface CheckboxField {

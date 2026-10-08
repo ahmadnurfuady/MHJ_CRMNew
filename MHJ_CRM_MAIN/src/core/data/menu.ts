@@ -45,15 +45,15 @@ export const menu: MenuItem[] = [
     active: false,
     children: [
       {
+        path: routes.Project.ProjectList,
+        title: 'Project List',
+        type: 'link',
+      },
+      {
         path: routes.Project.ProjectDetails,
         title: 'Project Details',
         badgeType: 'warning',
         badge: 'New',
-        type: 'link',
-      },
-      {
-        path: routes.Project.ProjectList,
-        title: 'Project List',
         type: 'link',
       },
       {

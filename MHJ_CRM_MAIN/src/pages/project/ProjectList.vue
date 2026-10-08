@@ -25,7 +25,7 @@
         </Card>
       </div>
       <div class="col-12">
-        <ProjectStatusTab @activeTabValue="handleActiveTab($event)" />
+        <ProjectStatusTab :projects="projectList" @activeTabValue="handleActiveTab($event)" />
       </div>
       <div class="col-sm-12">
         <Card :cardBodyClass="'projects-wrapper'">

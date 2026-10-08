@@ -29,11 +29,15 @@
             >
               <li class="nav-item">
                 <button
-                  class="button-primary btn-block btn-mail w-100"
+                  class="btn btn-primary btn-block btn-mail add-contact-button w-100"
                   type="button"
+                  aria-label="Tambah kontak baru"
                   @click="openContactModal()"
                 >
-                  <vue-feather :type="'users'" :class="'me-2'" />Tambah Kontak
+                  <span class="add-contact-button__icon">
+                    <vue-feather type="user-plus" size="19" />
+                  </span>
+                  <span>Tambah Kontak Baru</span>
                 </button>
               </li>
               <li class="nav-item">
@@ -117,3 +121,56 @@ function categoryModal() {
   contactState.value.openCategoryModal = true;
 }
 </script>
+
+<style scoped>
+.add-contact-button {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #18a6e4 !important;
+  border-radius: 8px;
+  margin: 20px 0;
+  padding: 10px 16px;
+  background-color: #18a6e4 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  line-height: 1.25 !important;
+  text-align: center;
+  box-shadow: 0 6px 14px rgba(24, 166, 228, 0.28);
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.add-contact-button:hover {
+  border-color: #1493cc !important;
+  background-color: #1493cc !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(24, 166, 228, 0.36);
+}
+
+.add-contact-button:focus-visible {
+  outline: 3px solid rgba(24, 166, 228, 0.3);
+  outline-offset: 2px;
+}
+
+.add-contact-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-contact-button span {
+  color: #ffffff !important;
+}
+
+.add-contact-button svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+</style>

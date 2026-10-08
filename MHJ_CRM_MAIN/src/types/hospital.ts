@@ -32,6 +32,16 @@ export interface Hospital {
   kdKelurahan: string
   /** aktif (1 = aktif) */
   aktif: number
+  /** kelas Rumah Sakit, bila disediakan endpoint company */
+  hospitalClass: string
+  /** jenis Rumah Sakit, bila disediakan endpoint company */
+  hospitalType: string
+  /** metrik ringkas per Rumah Sakit */
+  totalContacts?: number
+  totalProjects?: number
+  totalInstalledEquipment?: number
+  /** tanggal aktivitas kunjungan terbaru */
+  lastVisitAt: string
 }
 
 /**

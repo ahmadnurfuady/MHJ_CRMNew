@@ -102,6 +102,12 @@ function hospitalToContact(hospital: Hospital): Contact {
     industry: hospital.industry,
     aktif: hospital.aktif,
     keterangan: hospital.description,
+    hospitalClass: hospital.hospitalClass,
+    hospitalType: hospital.hospitalType,
+    totalContacts: hospital.totalContacts,
+    totalProjects: hospital.totalProjects,
+    totalInstalledEquipment: hospital.totalInstalledEquipment,
+    lastVisitAt: hospital.lastVisitAt,
   };
 }
 
@@ -146,7 +152,24 @@ function normalizeApiContact(raw: Dict): Contact {
     aktif: pickNumber(raw, "aktif", "Aktif"),
     source: pickString(raw, "sourcename", "source_name", "source"),
     company: pickString(raw, "company_name", "Company Name", "company"),
-    project: pickString(raw, "project"),
+    project: pickString(raw, "project_name", "Project Name", "project"),
+    lastActivity: pickString(
+      raw,
+      "last_activity",
+      "last_activity_name",
+      "latest_activity",
+      "activity_name",
+      "activity",
+    ),
+    lastContactedAt: pickString(
+      raw,
+      "last_contacted_at",
+      "last_contact_at",
+      "last_activity_at",
+      "last_visit_at",
+      "contacted_at",
+      "updated_at",
+    ),
   };
 }
 
@@ -214,12 +237,14 @@ export const useContact = defineStore("contact", () => {
     detailLoading: false,
     submitting: false,
     error: null as string | null,
+    search: "",
     pagination: { page: 1, perPage: 10, total: 0, lastPage: 1 } as Pagination,
   });
   const contactLoading = toRef(contactApi, "loading");
   const contactDetailLoading = toRef(contactApi, "detailLoading");
   const contactSubmitting = toRef(contactApi, "submitting");
   const contactError = toRef(contactApi, "error");
+  const hospitalSearch = ref("");
 
   function initStore() {
     handleActiveTab(contactState.tabList[0] as ContactSidebarList);
@@ -255,6 +280,9 @@ export const useContact = defineStore("contact", () => {
         ? contact.origin === "hospital"
         : contact.origin !== "hospital",
     );
+
+    // Halaman Kontak tidak lagi memakai sidebar kategori, sehingga semua kontak ditampilkan.
+    if (scope.value === "contact") return contacts;
 
     if (contactState.currentTab.value && contactState.currentTab.value) {
       const value = contactState.currentTab.value;
@@ -321,6 +349,7 @@ export const useContact = defineStore("contact", () => {
       await hospitalStore.fetchHospitals({
         page: targetPage,
         per_page: hospitalStore.pagination.perPage,
+        search: hospitalSearch.value || undefined,
       });
       contactState.activeContact = undefined;
       syncRemoteContacts();
@@ -349,6 +378,7 @@ export const useContact = defineStore("contact", () => {
       await fetchRemoteContacts({
         page: targetPage,
         per_page: contactApi.pagination.perPage,
+        search: contactApi.search || undefined,
       });
       contactState.activeContact = undefined;
       syncRemoteContacts();
@@ -357,6 +387,40 @@ export const useContact = defineStore("contact", () => {
       if (firstContact) await hydrateRemoteContact(firstContact);
     } catch {
       notifyError(contactError.value ?? "Gagal memuat halaman kontak.");
+    }
+  }
+
+  /** Mencari Rumah Sakit melalui endpoint company dan kembali ke halaman pertama. */
+  async function searchHospitals(query: string) {
+    hospitalSearch.value = query.trim();
+
+    try {
+      await hospitalStore.fetchHospitals({
+        page: 1,
+        per_page: hospitalStore.pagination.perPage,
+        search: hospitalSearch.value || undefined,
+      });
+      contactState.activeContact = undefined;
+      syncRemoteContacts();
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal mencari Rumah Sakit.");
+    }
+  }
+
+  /** Mencari kontak melalui endpoint list dan kembali ke halaman pertama. */
+  async function searchContacts(query: string) {
+    contactApi.search = query.trim();
+
+    try {
+      await fetchRemoteContacts({
+        page: 1,
+        per_page: contactApi.pagination.perPage,
+        search: contactApi.search || undefined,
+      });
+      contactState.activeContact = undefined;
+      syncRemoteContacts();
+    } catch {
+      notifyError(contactError.value ?? "Gagal mencari kontak.");
     }
   }
 
@@ -770,6 +834,8 @@ export const useContact = defineStore("contact", () => {
     handleActiveTab,
     changeHospitalPage,
     changeContactPage,
+    searchHospitals,
+    searchContacts,
     filteredContact,
     handleContact,
     editContact,

@@ -279,6 +279,8 @@ export interface Projects {
   /** Slug dari status_name, dipakai untuk tab status di UI */
   status: string
   budget: string
+  /** Nilai project/deal dalam angka, bila dikirim oleh backend. */
+  projectValue?: number
   /** Berisi leader_name bila tersedia */
   teamMember: Profile[]
   /** deal_id */

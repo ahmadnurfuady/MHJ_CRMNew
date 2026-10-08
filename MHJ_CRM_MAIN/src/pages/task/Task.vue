@@ -1,17 +1,21 @@
 <template>
   <div class="container-fluid">
-    <div class="email-wrap bookmark-wrap">
-      <div class="row">
-        <TaskSidebar />
+    <div class="row">
+      <div class="col-12">
+        <TaskList />
       </div>
     </div>
   </div>
+
+  <NewTask />
 </template>
 <script lang="ts" setup>
 import { defineAsyncComponent, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import { useTask } from '@/store/task'
-const TaskSidebar = defineAsyncComponent(() => import('@/module/task/TaskSidebar.vue'))
+
+const TaskList = defineAsyncComponent(() => import('@/module/task/TaskList.vue'))
+const NewTask = defineAsyncComponent(() => import('@/module/task/NewTask.vue'))
 
 const taskStore = useTask()
 

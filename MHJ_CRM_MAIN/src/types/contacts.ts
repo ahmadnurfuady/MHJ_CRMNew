@@ -44,6 +44,14 @@ export interface Contact {
   source?: string;
   company?: string;
   project?: string;
+  lastActivity?: string;
+  lastContactedAt?: string;
+  hospitalClass?: string;
+  hospitalType?: string;
+  totalContacts?: number;
+  totalProjects?: number;
+  totalInstalledEquipment?: number;
+  lastVisitAt?: string;
   jenis?: string;
   tipe?: string;
   penyelenggara?: string;

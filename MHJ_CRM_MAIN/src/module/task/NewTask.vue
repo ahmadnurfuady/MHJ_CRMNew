@@ -40,7 +40,7 @@
                   <label class="form-label" for="task-name">Nama Task</label>
                   <input
                     id="task-name"
-                    class="form-control bg-light"
+                    class="form-control auto-filled-input"
                     type="text"
                     :value="taskName"
                     placeholder="Otomatis: Kategori_Produk_Perusahaan"
@@ -71,7 +71,7 @@
 
                 <div class="col-md-6">
                   <label class="form-label" for="task-owner">Owner <span class="txt-danger">*</span></label>
-                  <input id="task-owner" v-model="form.owner" class="form-control bg-light" type="text" readonly />
+                  <input id="task-owner" v-model="form.owner" class="form-control auto-filled-input" type="text" readonly />
                   <small class="text-muted">Mengikuti user yang sedang login.</small>
                 </div>
 
@@ -103,13 +103,13 @@
                 <div class="col-12">
                   <label class="form-label d-block">Project <span class="txt-danger">*</span></label>
                   <div class="d-flex flex-wrap gap-3">
-                    <label class="project-choice" :class="{ active: form.hasProject }">
-                      <input v-model="form.hasProject" type="radio" :value="true" />
-                      <span>Ada project</span>
-                    </label>
                     <label class="project-choice" :class="{ active: !form.hasProject }">
                       <input v-model="form.hasProject" type="radio" :value="false" />
-                      <span>Tidak ada project</span>
+                      <span>Tidak ada</span>
+                    </label>
+                    <label class="project-choice" :class="{ active: form.hasProject }">
+                      <input v-model="form.hasProject" type="radio" :value="true" />
+                      <span>Ada</span>
                     </label>
                   </div>
                 </div>
@@ -126,15 +126,17 @@
                   />
                 </div>
 
+                <template v-if="showContextFields">
                 <div class="col-md-6">
                   <label class="form-label">Rumah Sakit/Perusahaan <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.hospital"
-                    :options="hospitals"
+                    :options="hospitalOptions"
                     placeholder="Cari rumah sakit/perusahaan"
                     display-key="label"
                     get-value-key="value"
                     :form-submitted="formSubmitted"
+                    :disabled="form.hasProject"
                     :disable-clear-button="form.hasProject"
                   />
                   <small v-if="form.hasProject" class="text-muted">Terisi otomatis dari project.</small>
@@ -144,14 +146,16 @@
                   <label class="form-label">Kontak Person <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.contact"
-                    :options="contacts"
+                    :options="availableContacts"
                     placeholder="Cari kontak person"
                     display-key="label"
                     get-value-key="value"
+                    :multi-select="form.hasProject"
                     :form-submitted="formSubmitted"
-                    :disable-clear-button="form.hasProject"
+                    :removable-tags="form.hasProject"
                   />
-                  <small v-if="form.hasProject" class="text-muted">Terisi otomatis dari project.</small>
+                  <small v-if="form.hasProject" class="text-muted">Semua kontak terkait terisi otomatis dari project.</small>
+                  <small v-else class="text-muted">Kontak person hanya dapat dipilih satu.</small>
                 </div>
 
                 <div class="col-md-6">
@@ -162,24 +166,31 @@
                     placeholder="Pilih satu atau lebih divisi"
                     display-key="label"
                     get-value-key="value"
-                    :multi-select="true"
+                    :multi-select="!form.hasProject"
                     :form-submitted="formSubmitted"
+                    :disabled="form.hasProject"
+                    :disable-clear-button="form.hasProject"
+                    :removable-tags="!form.hasProject"
                   />
+                  <small v-if="form.hasProject" class="text-muted">Divisi mengikuti project dan tidak dapat diubah dari task.</small>
                 </div>
 
                 <div class="col-md-6">
                   <label class="form-label">Product <span v-if="!form.unrelatedProduct" class="txt-danger">*</span></label>
                   <Select
+                    v-if="!form.unrelatedProduct"
                     v-model="form.products"
                     :options="availableProducts"
                     :placeholder="availableProducts.length ? 'Pilih satu atau lebih product' : 'Tidak ada product untuk divisi ini'"
                     display-key="label"
                     get-value-key="value"
                     :multi-select="true"
-                    :required="!form.unrelatedProduct"
+                    :disabled="!selectedDivisions.length"
+                    :required="true"
                     :form-submitted="formSubmitted"
+                    :removable-tags="true"
                   />
-                  <div class="form-check mt-2">
+                  <div class="form-check" :class="{ 'mt-2': !form.unrelatedProduct }">
                     <input
                       id="unrelated-product"
                       v-model="form.unrelatedProduct"
@@ -213,6 +224,7 @@
                     Menyimpan task akan memperbarui stage pada Project List.
                   </small>
                 </div>
+                </template>
               </div>
             </section>
 
@@ -239,37 +251,80 @@
                 </div>
 
                 <div class="col-lg-6">
-                  <label class="form-label" for="live-photo">Live Photo <span class="txt-danger">*</span></label>
+                  <label class="form-label">Live Photo <span class="txt-danger">*</span></label>
                   <div class="evidence-box" :class="{ 'evidence-error': formSubmitted && !form.photo }">
-                    <input
-                      id="live-photo"
-                      class="form-control"
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      @change="handlePhoto"
-                    />
-                    <img v-if="photoPreview" :src="photoPreview" class="photo-preview" alt="Preview foto kunjungan" />
-                    <p v-else class="mb-0 text-muted">Gunakan kamera perangkat atau pilih foto.</p>
+                    <template v-if="cameraOpen">
+                      <video ref="videoRef" class="camera-preview" autoplay muted playsinline></video>
+                      <div class="evidence-actions evidence-actions--split">
+                        <button class="btn btn-primary evidence-main-button" type="button" @click="capturePhoto">
+                          <vue-feather type="camera" class="me-2"></vue-feather>
+                          Ambil Foto
+                        </button>
+                        <button class="btn btn-outline-secondary evidence-main-button" type="button" @click="stopCamera">Tutup Kamera</button>
+                      </div>
+                    </template>
+                    <template v-else-if="photoPreview">
+                      <img :src="photoPreview" class="photo-preview" alt="Preview foto kunjungan" />
+                      <div class="evidence-actions evidence-actions--primary">
+                        <button class="btn btn-outline-primary evidence-main-button" type="button" @click="openCamera">
+                          <vue-feather type="refresh-cw" class="me-2"></vue-feather>
+                          Foto Ulang
+                        </button>
+                        <button class="btn btn-outline-danger icon-button" type="button" aria-label="Hapus foto" @click="removePhoto">
+                          <vue-feather type="x" size="17"></vue-feather>
+                        </button>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <button class="btn btn-outline-primary evidence-main-button w-100" type="button" :disabled="cameraStarting" @click="openCamera">
+                        <span v-if="cameraStarting" class="spinner-border spinner-border-sm me-2"></span>
+                        <vue-feather v-else type="camera" class="me-2"></vue-feather>
+                        {{ cameraStarting ? 'Membuka kamera...' : 'Buka Kamera' }}
+                      </button>
+                      <p class="mb-0 text-muted">Foto hanya dapat diambil langsung melalui kamera perangkat.</p>
+                    </template>
+                    <small v-if="cameraError" class="text-danger">{{ cameraError }}</small>
                   </div>
                 </div>
 
                 <div class="col-lg-6">
                   <label class="form-label">GPS Location <span class="txt-danger">*</span></label>
                   <div class="evidence-box" :class="{ 'evidence-error': formSubmitted && !hasLocation }">
-                    <button
-                      class="btn btn-outline-primary"
-                      type="button"
-                      :disabled="locating"
-                      @click="captureLocation"
-                    >
-                      <span v-if="locating" class="spinner-border spinner-border-sm me-2"></span>
-                      <vue-feather v-else type="map-pin" class="me-2"></vue-feather>
-                      {{ locating ? 'Mengambil lokasi...' : hasLocation ? 'Perbarui lokasi' : 'Ambil lokasi saat ini' }}
-                    </button>
+                    <div class="evidence-actions evidence-actions--primary">
+                      <button
+                        class="btn btn-outline-primary evidence-main-button"
+                        type="button"
+                        :disabled="locating"
+                        @click="captureLocation"
+                      >
+                        <span v-if="locating" class="spinner-border spinner-border-sm me-2"></span>
+                        <vue-feather v-else type="map-pin" class="me-2"></vue-feather>
+                        {{ locating ? 'Mengambil lokasi...' : hasLocation ? 'Cari ulang lokasi' : 'Cari lokasi saat ini' }}
+                      </button>
+                      <button
+                        v-if="hasLocation"
+                        class="btn btn-outline-danger icon-button"
+                        type="button"
+                        aria-label="Hapus lokasi"
+                        @click="clearLocation"
+                      >
+                        <vue-feather type="x" size="17"></vue-feather>
+                      </button>
+                    </div>
                     <div v-if="hasLocation" class="location-result">
-                      <strong>{{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}</strong>
-                      <span>Akurasi ±{{ Math.round(form.locationAccuracy) }} meter</span>
+                      <label class="form-label mb-1" for="location-address">Alamat lokasi</label>
+                      <div v-if="resolvingAddress" class="address-loading">
+                        <span class="spinner-border spinner-border-sm"></span>
+                        <span>Mencari alamat...</span>
+                      </div>
+                      <textarea
+                        v-else
+                        id="location-address"
+                        v-model.trim="form.locationAddress"
+                        class="form-control location-address-input"
+                        rows="3"
+                        placeholder="Alamat tidak ditemukan. Tulis atau revisi alamat lokasi di sini."
+                      ></textarea>
                     </div>
                     <p v-else class="mb-0 text-muted">Izin lokasi browser diperlukan.</p>
                     <small v-if="locationError" class="text-danger">{{ locationError }}</small>
@@ -293,27 +348,39 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, ref, watch, onBeforeUnmount, defineAsyncComponent } from 'vue'
+import { computed, reactive, ref, watch, onBeforeUnmount, onMounted, nextTick, defineAsyncComponent } from 'vue'
 import { Modal } from 'bootstrap'
 import Swal from 'sweetalert2'
 import { initSelectField } from '@/core/data/common'
-import { contacts, divisiList, hospitals, products } from '@/core/data/projectDeal'
+import {
+  contacts as fallbackContacts,
+  divisiList,
+  hospitals as fallbackHospitals,
+  products,
+} from '@/core/data/projectDeal'
 import type { DealOption } from '@/core/data/projectDeal'
 import { projectTab } from '@/core/data/project'
 import { useTask } from '@/store/task'
+import { useContact } from '@/store/contact'
+import { useHospitalStore } from '@/store/hospital'
+import { useProjectStore } from '@/store/project'
 import { storeToRefs } from 'pinia'
 import type { SelectField } from '@/types/common'
+import type { Contact } from '@/types/contacts'
 
 interface ProjectOption extends DealOption {
   id: number
   status: string
   hospital: DealOption
-  contact: DealOption
+  contacts: DealOption[]
   division: DealOption
 }
 
 const Select = defineAsyncComponent(() => import('@/components/shared/formElements/Select.vue'))
 const taskStore = useTask()
+const contactStore = useContact()
+const hospitalStore = useHospitalStore()
+const projectStore = useProjectStore()
 const { projectList } = storeToRefs(taskStore)
 
 const fallbackCategoryOptions: DealOption[] = [
@@ -354,7 +421,7 @@ function initialForm() {
     category: initSelectField(),
     customCategory: '',
     owner: loggedInOwner(),
-    hasProject: true,
+    hasProject: false,
     project: initSelectField(),
     hospital: initSelectField(),
     contact: initSelectField(),
@@ -368,6 +435,7 @@ function initialForm() {
     latitude: 0,
     longitude: 0,
     locationAccuracy: 0,
+    locationAddress: '',
   }
 }
 
@@ -376,7 +444,99 @@ const formSubmitted = ref(false)
 const validationMessage = ref('')
 const locating = ref(false)
 const locationError = ref('')
+const resolvingAddress = ref(false)
 const photoPreview = ref('')
+const videoRef = ref<HTMLVideoElement | null>(null)
+const cameraOpen = ref(false)
+const cameraStarting = ref(false)
+const cameraError = ref('')
+let cameraStream: MediaStream | null = null
+let addressRequestId = 0
+
+interface ReverseGeocodeResult {
+  locality?: string
+  city?: string
+  principalSubdivision?: string
+  postcode?: string
+  countryName?: string
+}
+
+function normalizeRelation(value: string) {
+  return value.trim().toLocaleLowerCase('id-ID')
+}
+
+function toContactOption(contact: Contact): DealOption {
+  return {
+    value: contact.remoteId ?? contact.id,
+    label:
+      `${contact.firstName} ${contact.lastName}`.trim() ||
+      contact.contactNumber ||
+      contact.email ||
+      `Kontak #${contact.remoteId ?? contact.id}`,
+  }
+}
+
+const apiContactOptions = computed<DealOption[]>(() =>
+  contactStore.contactApi.items
+    .filter((contact) => contact.origin === 'api')
+    .map(toContactOption)
+)
+const contactOptions = computed<DealOption[]>(() =>
+  apiContactOptions.value.length ? apiContactOptions.value : fallbackContacts
+)
+const hospitalOptions = computed<DealOption[]>(() =>
+  hospitalStore.items.length
+    ? hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name }))
+    : fallbackHospitals
+)
+
+function contactsForProject(projectName: string) {
+  const normalizedProject = normalizeRelation(projectName)
+  const related = contactStore.contactApi.items.filter((contact) => {
+    if (contact.origin !== 'api' || !contact.project) return false
+    const contactProjects = contact.project
+      .split(/[,;|]/)
+      .map(normalizeRelation)
+      .filter(Boolean)
+    return contactProjects.some(
+      (project) => project === normalizedProject || project.includes(normalizedProject)
+    )
+  })
+
+  if (related.length) return related.map(toContactOption)
+  const hasProjectRelations = contactStore.contactApi.items.some(
+    (contact) => contact.origin === 'api' && Boolean(contact.project)
+  )
+  return hasProjectRelations ? [] : contactOptions.value
+}
+
+function hospitalForProject(projectName: string, fallbackIndex: number) {
+  const normalizedProject = normalizeRelation(projectName)
+  const relatedContact = contactStore.contactApi.items.find(
+    (contact) =>
+      contact.origin === 'api' &&
+      contact.project &&
+      normalizeRelation(contact.project).includes(normalizedProject) &&
+      contact.company
+  )
+  const relatedHospital = relatedContact?.company
+    ? hospitalOptions.value.find(
+        (hospital) => normalizeRelation(hospital.label) === normalizeRelation(relatedContact.company || '')
+      )
+    : undefined
+  return relatedHospital ?? hospitalOptions.value[fallbackIndex % hospitalOptions.value.length]
+}
+
+function divisionForProject(projectName: string, fallbackIndex: number) {
+  const normalizedProject = normalizeRelation(projectName)
+  const relatedProduct = products.find((product) =>
+    normalizedProject.includes(normalizeRelation(product.label))
+  )
+  return (
+    divisiList.find((division) => division.code === relatedProduct?.divisi) ??
+    divisiList[fallbackIndex % divisiList.length]
+  )
+}
 
 const projectOptions = computed<ProjectOption[]>(() =>
   projectList.value.map((project, index) => ({
@@ -384,14 +544,29 @@ const projectOptions = computed<ProjectOption[]>(() =>
     value: project.id,
     label: project.projectName,
     status: project.status,
-    hospital: hospitals[index % hospitals.length] as DealOption,
-    contact: contacts[index % contacts.length] as DealOption,
-    division: divisiList[index % divisiList.length] as DealOption,
+    hospital: hospitalForProject(project.projectName, index) as DealOption,
+    contacts: contactsForProject(project.projectName),
+    division: divisionForProject(project.projectName, index) as DealOption,
   }))
 )
 
 const selectedProject = computed(() => form.project.selected as ProjectOption | null)
-const selectedDivisions = computed(() => form.divisions.selectedItems as DealOption[])
+const showContextFields = computed(() => !form.hasProject || Boolean(selectedProject.value))
+const availableContacts = computed(() =>
+  form.hasProject ? selectedProject.value?.contacts ?? [] : contactOptions.value
+)
+const selectedDivisions = computed<DealOption[]>(() => {
+  if (form.hasProject) {
+    const division = form.divisions.selected as DealOption | null
+    return division ? [division] : []
+  }
+  return form.divisions.selectedItems as DealOption[]
+})
+const selectedContacts = computed<DealOption[]>(() => {
+  if (form.hasProject) return form.contact.selectedItems as DealOption[]
+  const contact = form.contact.selected as DealOption | null
+  return contact ? [contact] : []
+})
 const selectedProducts = computed(() => form.products.selectedItems as DealOption[])
 const availableProducts = computed(() => {
   const divisionCodes = selectedDivisions.value.map((division) => division.code)
@@ -449,8 +624,8 @@ watch(
     const project = selectedProject.value
     if (!project) return
     form.hospital = selectField(project.hospital)
-    form.contact = selectField(project.contact)
-    form.divisions = multiSelectField([project.division])
+    form.contact = multiSelectField(project.contacts)
+    form.divisions = selectField(project.division)
     const relatedProducts = products.filter((product) => product.divisi === project.division.code)
     form.products = multiSelectField(relatedProducts)
     form.unrelatedProduct = relatedProducts.length === 0
@@ -474,7 +649,7 @@ watch(
 )
 
 watch(
-  () => form.divisions.selectedItems,
+  () => [form.divisions.selected, form.divisions.selectedItems],
   () => {
     const validValues = new Set(availableProducts.value.map((product) => product.value))
     const validSelection = selectedProducts.value.filter((product) => validValues.has(product.value))
@@ -491,12 +666,124 @@ watch(
   }
 )
 
-function handlePhoto(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0] ?? null
-  form.photo = file
+function stopCamera() {
+  cameraStream?.getTracks().forEach((track) => track.stop())
+  cameraStream = null
+  if (videoRef.value) videoRef.value.srcObject = null
+  cameraOpen.value = false
+  cameraStarting.value = false
+}
+
+async function openCamera() {
+  cameraError.value = ''
+  stopCamera()
+  if (!navigator.mediaDevices?.getUserMedia) {
+    cameraError.value = 'Browser ini tidak mendukung akses kamera langsung.'
+    return
+  }
+
+  cameraStarting.value = true
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false,
+    })
+    cameraOpen.value = true
+    await nextTick()
+    if (videoRef.value) {
+      videoRef.value.srcObject = cameraStream
+      await videoRef.value.play()
+    }
+  } catch {
+    stopCamera()
+    cameraError.value = 'Kamera tidak dapat dibuka. Pastikan izin kamera sudah diberikan.'
+  } finally {
+    cameraStarting.value = false
+  }
+}
+
+async function capturePhoto() {
+  const video = videoRef.value
+  if (!video?.videoWidth || !video.videoHeight) {
+    cameraError.value = 'Kamera belum siap. Silakan coba beberapa saat lagi.'
+    return
+  }
+
+  const canvas = document.createElement('canvas')
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+  const context = canvas.getContext('2d')
+  if (!context) {
+    cameraError.value = 'Foto gagal diproses. Silakan coba lagi.'
+    return
+  }
+  context.drawImage(video, 0, 0, canvas.width, canvas.height)
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
+  if (!blob) {
+    cameraError.value = 'Foto gagal diproses. Silakan coba lagi.'
+    return
+  }
+
+  form.photo = new File([blob], `live-photo-${Date.now()}.jpg`, { type: 'image/jpeg' })
   if (photoPreview.value) URL.revokeObjectURL(photoPreview.value)
-  photoPreview.value = file ? URL.createObjectURL(file) : ''
+  photoPreview.value = URL.createObjectURL(form.photo)
+  cameraError.value = ''
+  stopCamera()
+}
+
+function removePhoto() {
+  if (photoPreview.value) URL.revokeObjectURL(photoPreview.value)
+  form.photo = null
+  photoPreview.value = ''
+  cameraError.value = ''
+}
+
+function formatLocationAddress(result: ReverseGeocodeResult) {
+  const seen = new Set<string>()
+  return [
+    result.locality,
+    result.city,
+    result.principalSubdivision,
+    result.postcode,
+    result.countryName,
+  ]
+    .map((part) => part?.trim())
+    .filter((part): part is string => {
+      if (!part) return false
+      const key = part.toLocaleLowerCase('id-ID')
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .join(', ')
+}
+
+async function resolveLocationAddress(latitude: number, longitude: number) {
+  const requestId = ++addressRequestId
+  resolvingAddress.value = true
+  form.locationAddress = ''
+  try {
+    const params = new URLSearchParams({
+      latitude: String(latitude),
+      longitude: String(longitude),
+      localityLanguage: 'id',
+    })
+    const response = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?${params.toString()}`
+    )
+    if (!response.ok) throw new Error('Reverse geocoding failed')
+    const result = (await response.json()) as ReverseGeocodeResult
+    if (requestId !== addressRequestId) return
+    form.locationAddress = formatLocationAddress(result)
+    if (!form.locationAddress) {
+      locationError.value = 'Alamat tidak ditemukan. Silakan isi alamat lokasi secara manual.'
+    }
+  } catch {
+    if (requestId !== addressRequestId) return
+    locationError.value = 'Lokasi ditemukan, tetapi alamat gagal dimuat. Silakan isi secara manual.'
+  } finally {
+    if (requestId === addressRequestId) resolvingAddress.value = false
+  }
 }
 
 function captureLocation() {
@@ -508,10 +795,11 @@ function captureLocation() {
 
   locating.value = true
   navigator.geolocation.getCurrentPosition(
-    (position) => {
+    async (position) => {
       form.latitude = position.coords.latitude
       form.longitude = position.coords.longitude
       form.locationAccuracy = position.coords.accuracy
+      await resolveLocationAddress(position.coords.latitude, position.coords.longitude)
       locating.value = false
     },
     (error) => {
@@ -527,13 +815,23 @@ function captureLocation() {
   )
 }
 
+function clearLocation() {
+  addressRequestId += 1
+  resolvingAddress.value = false
+  form.latitude = 0
+  form.longitude = 0
+  form.locationAccuracy = 0
+  form.locationAddress = ''
+  locationError.value = ''
+}
+
 function validateForm() {
   if (!form.category.selected) return 'Kategori wajib dipilih.'
   if (isCustomCategory.value && !form.customCategory) return 'Kategori lainnya wajib diisi.'
   if (!form.owner) return 'Owner tidak tersedia.'
   if (form.hasProject && !selectedProject.value) return 'Project wajib dipilih.'
   if (!form.hospital.selected) return 'Rumah sakit/perusahaan wajib dipilih.'
-  if (!form.contact.selected) return 'Kontak person wajib dipilih.'
+  if (!selectedContacts.value.length) return 'Kontak person wajib dipilih.'
   if (!form.scheduledAt) return 'Tanggal dan waktu wajib diisi.'
   if (!selectedDivisions.value.length) return 'Minimal satu divisi wajib dipilih.'
   if (!form.unrelatedProduct && !selectedProducts.value.length) {
@@ -541,7 +839,7 @@ function validateForm() {
   }
   if (form.hasProject && !form.pipeline.selected) return 'Pipeline project wajib dipilih.'
   if (!form.notes) return 'Notes wajib diisi.'
-  if (!form.photo) return 'Live photo wajib diambil atau dipilih.'
+  if (!form.photo) return 'Live photo wajib diambil langsung dari kamera.'
   if (!hasLocation.value) return 'GPS location wajib diambil.'
   return ''
 }
@@ -562,7 +860,7 @@ async function submitTask() {
       projectId: project?.id ?? null,
       projectName: project?.label ?? '',
       hospital: String((form.hospital.selected as DealOption).label),
-      contact: String((form.contact.selected as DealOption).label),
+      contact: selectedContacts.value.map((item) => String(item.label)).join(', '),
       scheduledAt: form.scheduledAt,
       divisions: selectedDivisions.value.map((item) => String(item.label)),
       products: selectedProducts.value.map((item) => String(item.label)),
@@ -574,6 +872,7 @@ async function submitTask() {
       latitude: form.latitude,
       longitude: form.longitude,
       locationAccuracy: form.locationAccuracy,
+      locationAddress: form.locationAddress,
     })
   } catch {
     validationMessage.value = taskStore.error ?? 'Task gagal disimpan. Silakan coba lagi.'
@@ -602,16 +901,35 @@ async function submitTask() {
 }
 
 function resetForm() {
+  stopCamera()
   if (photoPreview.value) URL.revokeObjectURL(photoPreview.value)
   Object.assign(form, initialForm())
   photoPreview.value = ''
   validationMessage.value = ''
   locationError.value = ''
+  cameraError.value = ''
   formSubmitted.value = false
 }
 
+function handleModalHidden() {
+  stopCamera()
+}
+
+onMounted(() => {
+  const requests: Promise<unknown>[] = []
+  if (!projectStore.loaded) requests.push(projectStore.fetchProjects({ per_page: 100 }))
+  if (!contactStore.contactApi.items.length) {
+    requests.push(contactStore.fetchRemoteContacts({ per_page: 100 }))
+  }
+  if (!hospitalStore.items.length) requests.push(hospitalStore.fetchHospitals({ per_page: 100 }))
+  void Promise.allSettled(requests)
+  document.getElementById('taskmodel')?.addEventListener('hidden.bs.modal', handleModalHidden)
+})
+
 onBeforeUnmount(() => {
+  stopCamera()
   if (photoPreview.value) URL.revokeObjectURL(photoPreview.value)
+  document.getElementById('taskmodel')?.removeEventListener('hidden.bs.modal', handleModalHidden)
 })
 </script>
 
@@ -660,6 +978,14 @@ onBeforeUnmount(() => {
 .section-heading h5,
 .section-heading p {
   margin: 0;
+}
+
+.auto-filled-input,
+.auto-filled-input:focus {
+  color: #000 !important;
+  font-weight: 400;
+  background: #eef2f5 !important;
+  opacity: 1;
 }
 
 .section-heading p {
@@ -744,6 +1070,52 @@ onBeforeUnmount(() => {
   border-color: var(--bs-danger);
 }
 
+.evidence-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.evidence-actions--primary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.evidence-actions--split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.evidence-main-button {
+  display: inline-flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 9px;
+  white-space: nowrap;
+}
+
+.icon-button {
+  display: inline-flex;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 9px;
+}
+
+.camera-preview {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 9px;
+  background: #111827;
+}
+
 .photo-preview {
   width: 100%;
   max-height: 220px;
@@ -754,12 +1126,24 @@ onBeforeUnmount(() => {
 .location-result {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 6px;
 }
 
-.location-result span {
+.address-loading {
+  display: flex;
+  min-height: 86px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
   color: #767b84;
-  font-size: 12px;
+  border: 1px solid #d9dee5;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.location-address-input {
+  min-height: 86px;
+  resize: vertical;
 }
 
 @media (max-width: 767px) {
@@ -782,6 +1166,10 @@ onBeforeUnmount(() => {
 
   .pipeline-arrow {
     transform: rotate(90deg);
+  }
+
+  .evidence-actions--split {
+    grid-template-columns: 1fr;
   }
 }
 </style>

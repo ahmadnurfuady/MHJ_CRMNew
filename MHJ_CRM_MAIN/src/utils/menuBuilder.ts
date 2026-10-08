@@ -115,6 +115,33 @@ function applyDepthRules(items: MenuItem[], rawIconById: Map<string, string>, de
 }
 
 /**
+ * Override khusus submenu Project: Project List harus tampil sebelum Project Details.
+ * Item lain tetap memakai urutan yang dikirim oleh backend.
+ */
+function placeProjectListBeforeDetails(items: MenuItem[]): void {
+  items.forEach((item) => {
+    const children = item.children
+    if (!children?.length) return
+
+    const listIndex = children.findIndex(
+      (child) => child.path?.trim().toLowerCase() === '/crmadmin/projects/list'
+    )
+    const detailsIndex = children.findIndex(
+      (child) => child.path?.trim().toLowerCase() === '/crmadmin/projects/details'
+    )
+
+    if (listIndex !== -1 && detailsIndex !== -1 && listIndex > detailsIndex) {
+      ;[children[listIndex], children[detailsIndex]] = [
+        children[detailsIndex],
+        children[listIndex],
+      ]
+    }
+
+    placeProjectListBeforeDetails(children)
+  })
+}
+
+/**
  * Mengubah data flat dbFlMenuWebcrm menjadi struktur pohon yang dirender komponen NavMenu.
  * Item tanpa hak akses dibuang; anak yang parent-nya ikut terbuang
  * dinaikkan ke level root agar menu yang masih diizinkan tetap dapat dijangkau.
@@ -166,6 +193,7 @@ export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
   })
 
   applyDepthRules(tree, rawIconById)
+  placeProjectListBeforeDetails(tree)
 
   return tree
 }
