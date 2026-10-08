@@ -165,7 +165,7 @@ onBeforeUnmount(() => {
 }
 
 .multiselect-control:focus-visible {
-  outline: 2px solid var(--theme-default, #7366ff);
+  outline: 2px solid #18A6E4;
   outline-offset: 1px;
 }
 
@@ -176,8 +176,8 @@ onBeforeUnmount(() => {
   max-width: 100%;
   padding: 0.1rem 0.25rem 0.1rem 0.5rem;
   border-radius: 0.25rem;
-  background-color: var(--primary-light, rgba(115, 102, 255, 0.12));
-  color: var(--primary-text, var(--theme-default, #7366ff));
+  background-color: rgba(24, 166, 228, 0.12);
+  color: #127CAB;
   font-size: 0.75rem;
   line-height: 1.6;
 }
@@ -256,15 +256,24 @@ onBeforeUnmount(() => {
   gap: 0.5rem;
 }
 
+/* Hover: latar biru pucat, teks tetap gelap (belum dipilih) */
 .select-item:hover,
 .select-item:focus {
-  background-color: var(--theme-default, #7366ff);
-  color: #fff;
+  background-color: rgba(24, 166, 228, 0.12);
+  color: inherit;
   outline: none;
 }
 
+/* Selected: latar biru solid primary, teks putih */
 .select-item.active {
-  background-color: var(--theme-default, #7366ff);
+  background-color: #18A6E4;
+  color: #fff;
+}
+
+/* Hover pada item yang sudah active — pertahankan solid, sedikit lebih gelap */
+.select-item.active:hover,
+.select-item.active:focus {
+  background-color: #127CAB;
   color: #fff;
 }
 
