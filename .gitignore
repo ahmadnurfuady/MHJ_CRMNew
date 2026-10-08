@@ -33,6 +33,23 @@ lerna-debug.log*
 # TypeScript cache
 *.tsbuildinfo
 
+# TypeScript / vue-tsc build artifacts (*.vue → *.vue.js, *.ts → *.js)
+# File-file ini di-generate otomatis oleh vue-tsc --build dan BUKAN source code.
+**/*.vue.js
+MHJ_CRM_MAIN/src/api/*.js
+MHJ_CRM_MAIN/src/composable/*.js
+MHJ_CRM_MAIN/src/composables/*.js
+MHJ_CRM_MAIN/src/config/*.js
+MHJ_CRM_MAIN/src/core/**/*.js
+MHJ_CRM_MAIN/src/module/**/*.js
+MHJ_CRM_MAIN/src/pages/**/*.js
+MHJ_CRM_MAIN/src/services/*.js
+MHJ_CRM_MAIN/src/store/*.js
+MHJ_CRM_MAIN/src/types/**/*.js
+MHJ_CRM_MAIN/src/utils/**/*.js
+MHJ_CRM_MAIN/src/router/*.js
+MHJ_CRM_MAIN/src/main.js
+
 
 .agents
 .claude
@@ -49,3 +66,7 @@ DOKUMENTASI_INTEGRASI_LOGIN.md
 DOKUMENTASI_INTEGRASI_MENU_ROLES.md
 DOKUMENTASI_INTEGRASI_USER.md
 DOKUMENTASI_INTEGRASI_MASTER.md
+
+**/buildpush.bat
+**/Dockerfile
+**/nginx.conf

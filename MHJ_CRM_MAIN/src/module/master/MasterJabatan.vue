@@ -34,10 +34,7 @@
           <tbody>
             <tr v-if="loading">
               <td colspan="5" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <div class="mt-2 f-m-light">Memuat data jabatan...</div>
+                <LoadingSpinner text="Memuat data jabatan..." />
               </td>
             </tr>
             <tr v-else-if="errorMessage">
@@ -171,6 +168,7 @@ import { computed, onMounted, reactive, ref, defineAsyncComponent } from 'vue'
 import Swal from 'sweetalert2'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 import { masterDataService } from '@/services/masterDataService'
 import { canMasterJabatan } from '@/module/master/masterPermission'

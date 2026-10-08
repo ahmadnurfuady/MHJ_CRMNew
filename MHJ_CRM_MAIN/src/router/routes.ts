@@ -87,6 +87,7 @@ export const routes = {
     UserList: '/crmAdmin/users/list',
     UserCards: '/user/user-cards',
     Roles: '/crmAdmin/roles',
+    UserHierarchy: '/crmAdmin/users/hierarchy',
   },
   Reports: {
     Product: '/reports/products',

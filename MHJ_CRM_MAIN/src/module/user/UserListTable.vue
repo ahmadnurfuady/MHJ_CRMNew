@@ -64,10 +64,7 @@
           <tbody>
             <tr v-if="loading">
               <td colspan="9" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <div class="mt-2 f-m-light">Memuat data pengguna...</div>
+                <LoadingSpinner text="Memuat data pengguna..." />
               </td>
             </tr>
             <tr v-else-if="errorMessage">
@@ -93,7 +90,7 @@
                     href="#"
                     @click.prevent="openHierarchy(user)"
                   >
-                    <vue-feather type="git-merge" size="18" />
+                    <vue-feather type="git-merge" size="22" />
                   </a>
                   <a
                     class="square-white"
@@ -101,7 +98,7 @@
                     href="#"
                     @click.prevent="openRoles(user)"
                   >
-                    <SvgIcon icon="profile-check" style="width: 25px; height: 25px;" />
+                    <SvgIcon icon="profile-check" style="width: 30px; height: 30px;" />
                   </a>
                   <a
                     v-if="canUser('koreksi')"
@@ -110,7 +107,7 @@
                     href="#"
                     @click.prevent="editUser(user.id)"
                   >
-                    <SvgIcon icon="edit-content" style="width: 25px; height: 25px;" />
+                    <SvgIcon icon="edit-content" style="width: 30px; height: 30px;" />
                   </a>
                   <a
                     v-if="canUser('hapus')"
@@ -119,7 +116,7 @@
                     href="#"
                     @click.prevent="deleteUser(user)"
                   >
-                    <SvgIcon icon="trash1" style="width: 25px; height: 25px;" />
+                    <SvgIcon icon="trash1" style="width: 30px; height: 30px;" />
                   </a>
                 </div>
               </td>
@@ -153,16 +150,10 @@
     </div>
   </div>
 
-  <!-- Modal Hierarki -->
-  <UserHierarchyModal
-    :open="hierarchyModal.open"
-    :user-id="hierarchyModal.userId"
-    @close="hierarchyModal.open = false"
-  />
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, defineAsyncComponent } from 'vue'
+import { computed, onMounted, ref, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDebounceFn } from '@vueuse/core'
 import Swal from 'sweetalert2'
@@ -172,7 +163,7 @@ import { toCodeArray, userFullName, userService } from '@/services/userService'
 import { canUser } from '@/module/user/userPermission'
 import { parseBackendError } from '@/utils/errorParser'
 import SelectInput from '@/components/ui/SelectInput.vue'
-import UserHierarchyModal from '@/module/user/UserHierarchyModal.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import type { MasterOption, UserCrmItem, UserMasterOptions } from '@/types/user'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
@@ -275,12 +266,8 @@ function toggleSort() {
   reload(1)
 }
 
-// ── Modal Hierarki ──────────────────────────────────────────────────────
-const hierarchyModal = reactive({ open: false, userId: null as number | null })
-
 function openHierarchy(user: UserCrmItem) {
-  hierarchyModal.userId = user.id
-  hierarchyModal.open = true
+  router.push({ path: routes.User.UserHierarchy, query: { id: String(user.id) } })
 }
 
 function editUser(id: number) {

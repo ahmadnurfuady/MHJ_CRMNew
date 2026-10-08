@@ -63,7 +63,9 @@
         </button>
       </div>
 
-      <div v-if="loadingRows" class="text-center py-4">Memuat hak akses pengguna...</div>
+      <div v-if="loadingRows" class="text-center py-5">
+        <LoadingSpinner text="Memuat hak akses pengguna..." />
+      </div>
 
       <div v-else-if="rows.length === 0" class="text-center py-4 f-m-light">
         {{ selectedUserId ? 'Pengguna ini belum memiliki data menu.' : 'Belum ada pengguna dipilih.' }}
@@ -128,6 +130,7 @@ import { menuRoleService } from '@/services/menuRoleService'
 import { userFullName, userService } from '@/services/userService'
 import { useAuthStore } from '@/store/auth'
 import SelectInput from '@/components/ui/SelectInput.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import type { FlMenuRawItem } from '@/types/menu'
 import type { MasterOption, UserCrmItem } from '@/types/user'
 

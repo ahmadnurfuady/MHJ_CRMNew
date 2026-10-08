@@ -13,7 +13,9 @@
         {{ isEditMode ? 'mengubah' : 'menambah' }} pengguna.
       </div>
 
-      <div v-else-if="loadingUser" class="text-center py-4">Memuat data pengguna...</div>
+      <div v-else-if="loadingUser" class="text-center py-5">
+        <LoadingSpinner text="Memuat data pengguna..." />
+      </div>
 
       <form v-else novalidate @submit.prevent="submit">
         <!-- Alert Error Cantik & Terstruktur -->
@@ -117,6 +119,58 @@
 
         <h6 class="mb-3">Penempatan</h6>
         <div class="row g-3 mb-4">
+
+          <!-- Role / Tipe Akun -->
+          <div class="col-12">
+            <label class="form-label">
+              Tipe Akun <span class="txt-danger">*</span>
+            </label>
+            <div class="role-picker">
+              <label
+                class="role-option"
+                :class="{ 'role-option--active': form.role === 'STF' }"
+              >
+                <input
+                  v-model="form.role"
+                  type="radio"
+                  name="role"
+                  value="STF"
+                  class="visually-hidden"
+                />
+                <div class="role-option__icon">
+                  <vue-feather type="user" size="18" />
+                </div>
+                <div>
+                  <div class="fw-semibold f-14">Karyawan</div>
+                  <div class="role-option__code f-12">STF</div>
+                </div>
+              </label>
+
+              <label
+                class="role-option"
+                :class="{ 'role-option--active': form.role === 'MGR' }"
+              >
+                <input
+                  v-model="form.role"
+                  type="radio"
+                  name="role"
+                  value="MGR"
+                  class="visually-hidden"
+                />
+                <div class="role-option__icon">
+                  <vue-feather type="briefcase" size="18" />
+                </div>
+                <div>
+                  <div class="fw-semibold f-14">Manager</div>
+                  <div class="role-option__code f-12">MGR</div>
+                </div>
+              </label>
+            </div>
+            <small class="f-m-light d-block mt-1">
+              Menentukan template hak akses menu awal yang akan diberikan ke pengguna.
+            </small>
+          </div>
+
           <div class="col-md-6">
             <label class="form-label" for="kode-cabang">Cabang</label>
             <MultiSelectInput
@@ -178,6 +232,7 @@ import { toCodeArray, userService } from '@/services/userService'
 import { canUser } from '@/module/user/userPermission'
 import { parseBackendError, type ParsedError } from '@/utils/errorParser'
 import SelectInput from '@/components/ui/SelectInput.vue'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import MultiSelectInput from '@/components/ui/MultiSelectInput.vue'
 import type { MasterOption, UserCrudPayload, UserMasterOptions } from '@/types/user'
 
@@ -211,6 +266,7 @@ const form = reactive({
   password: '',
   nik: '',
   no_handphone: '',
+  role: 'STF' as 'STF' | 'MGR',
   // Relasi many-to-many: selalu array kode, kosong berarti belum ada penempatan.
   KodeCabang: [] as string[],
   KodeDevisi: [] as string[],
@@ -254,7 +310,7 @@ function buildPayload(): UserCrudPayload {
     primaryteam: null,
     secondaryteam: null,
     stafflevel: null,
-    role: 'karyawan',
+    role: form.role,
     // Dikirim sebagai array; backend meng-encode ke JSON string untuk sp_users_crud.
     KodeCabang: [...form.KodeCabang],
     kodecabang: [...form.KodeCabang],
@@ -323,6 +379,7 @@ async function prefill(id: number) {
     form.KodeDevisi = toCodeArray(user.KodeDevisi)
     form.KodeTipeMarketing = toCodeArray(user.KodeTipeMarketing)
     form.idjabatan = user.idjabatan === null || user.idjabatan === undefined ? '' : String(user.idjabatan)
+    form.role = user.role === 'MGR' ? 'MGR' : 'STF'
   } catch (error) {
     console.error('Gagal memuat detail pengguna:', error)
     parsedError.value = parseBackendError(error, 'Gagal Memuat Detail Pengguna')
@@ -338,3 +395,64 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+/* ─── Role / Tipe Akun picker ──────────────────────────────────────────── */
+.role-picker {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 1rem;
+  border: 1.5px solid #dee2e6;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  min-width: 130px;
+  user-select: none;
+}
+
+.role-option:hover {
+  border-color: #18A6E4;
+  background: rgba(24, 166, 228, 0.04);
+}
+
+.role-option--active {
+  border-color: #18A6E4;
+  background: rgba(24, 166, 228, 0.08);
+  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.15);
+}
+
+.role-option__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(24, 166, 228, 0.1);
+  color: #18A6E4;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.role-option--active .role-option__icon {
+  background: #18A6E4;
+  color: #fff;
+}
+
+.role-option__code {
+  color: #6c757d;
+  font-family: monospace;
+}
+
+.role-option--active .role-option__code {
+  color: #127CAB;
+}
+</style>

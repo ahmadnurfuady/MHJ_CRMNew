@@ -382,6 +382,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.User.UserHierarchy,
+          name: 'user-hierarchy',
+          component: () => import('@/pages/user/UserHierarchyPage.vue'),
+          meta: {
+            mainTitle: 'Hierarki Pengguna',
+            title: 'Hierarki Pengguna | MHJ CRM',
+            breadcrumb: [{ text: 'Users', subText: 'Hierarki' }],
+          },
+        },
+        {
           path: routes.Master.Root,
           redirect: routes.Master.Jabatan,
         },

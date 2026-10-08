@@ -19,10 +19,7 @@
           <tbody>
             <tr v-if="loading">
               <td colspan="5" class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </div>
-                <div class="mt-2 f-m-light">Memuat data tipe marketing...</div>
+                <LoadingSpinner text="Memuat data tipe marketing..." />
               </td>
             </tr>
             <tr v-else-if="errorMessage">
@@ -52,6 +49,7 @@
 import { onMounted, ref } from 'vue'
 
 import { masterDataService } from '@/services/masterDataService'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import type { MasterTipeMarketingItem } from '@/types/master'
 
 const items = ref<MasterTipeMarketingItem[]>([])

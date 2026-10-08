@@ -10,10 +10,7 @@
 
       <!-- Loading -->
       <div v-if="loading" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Memuat...</span>
-        </div>
-        <div class="mt-2 f-m-light">Memuat data hierarki...</div>
+        <LoadingSpinner text="Memuat data hierarki..." />
       </div>
 
       <!-- Error -->
@@ -123,6 +120,7 @@
 import { watch, ref, computed } from 'vue'
 import Modal from '@/components/shared/Modal.vue'
 import { getUserHierarchy } from '@/services/userService'
+import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import type { HierarchyUser, UserHierarchyResponse } from '@/types/user'
 
 const props = defineProps<{
