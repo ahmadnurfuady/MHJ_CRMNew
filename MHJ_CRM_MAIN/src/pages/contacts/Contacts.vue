@@ -1,6 +1,7 @@
 <template>
   <div class="container-fluid">
-    <div class="email-wrap bookmark-wrap">
+    <ContactDetailPage v-if="detailId" :contact-id="detailId" />
+    <div v-else class="email-wrap bookmark-wrap">
       <div class="row main-bookmark">
         <div class="col-12">
           <div class="email-right-aside bookmark-tabcontent contacts-tabs">
@@ -9,9 +10,6 @@
                 <div class="tab-content">
                   <div class="tab-pane fade active show">
                     <ContactDetails />
-                  </div>
-                  <div id="right-history" :class="{ show: contactState.historyVisible }">
-                    <ContactHistory />
                   </div>
                 </div>
               </div>
@@ -26,17 +24,23 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
-import { storeToRefs } from 'pinia'
+import { computed, defineAsyncComponent } from 'vue'
+import { useRoute } from 'vue-router'
 import { useContact } from '@/store/contact'
 
 const ContactDetails = defineAsyncComponent(() => import('@/module/contacts/ContactDetails.vue'))
-const ContactHistory = defineAsyncComponent(() => import('@/module/contacts/ContactHistory.vue'))
+const ContactDetailPage = defineAsyncComponent(
+  () => import('@/pages/contacts/ContactDetailPage.vue')
+)
 const PrintContactModal = defineAsyncComponent(
   () => import('@/module/contacts/PrintContactModal.vue')
 )
 
 const contactStore = useContact()
 contactStore.setScope('contact')
-const { contactState } = storeToRefs(contactStore)
+const route = useRoute()
+const detailId = computed(() => {
+  const id = Number(route.query.detail)
+  return Number.isFinite(id) && id > 0 ? id : 0
+})
 </script>

@@ -7,7 +7,6 @@ import {
   isRecord,
   normalizeOptions,
   pick,
-  pickNumber,
   pickString,
   type Dict
 } from '@/api/response'
@@ -16,28 +15,52 @@ import type { ListParams, Pagination } from '@/types/api'
 import type { Profile, Projects } from '@/types/project'
 import type { Select } from '@/types/common'
 
-// Gambar placeholder karena tabel project belum memiliki kolom banner.
+// Gambar placeholder karena tabel projects belum memiliki kolom banner.
 const DEFAULT_BANNER = 'project/list/1.png'
 
-const ENDPOINT = 'project'
+// Pipeline Project memakai controller Deals karena endpoint inilah yang menulis dbo.m_projects.
+// Istilah Deals hanya dipertahankan pada URL API; seluruh wording UI tetap Project.
+const ENDPOINT = 'deals'
 
-/** Payload create/update mengikuti kolom tabel `m_projects`. */
+/** Payload form Project; sebelum dikirim dipetakan ke kontrak legacy DealsController. */
 export interface ProjectPayload {
   projects_name: string
-  company_id?: number | string
-  contact_id?: number | string
-  owner_id?: number | string
-  stage_id?: number | string
-  currency?: string
-  amount_value?: number
-  expected_close_date?: string
-  priority?: number
-  competitor_id?: number | string
-  sumberdana_id?: number | string
-  probability?: number
-  aktif?: number
-  idold?: number | string
-  created_by?: number | string
+  company_id: number | null
+  contact_id: number | null
+  owner_id: number | null
+  stage_id: number | null
+  currency: string | null
+  amount_value: number | null
+  expected_close_date: string | null
+  priority: number | null
+  competitor_id: number | null
+  sumberdana_id: number | null
+  probability: number | null
+  aktif: number
+  idold: number | null
+  created_by: number | null
+  division_code: string | null
+  product_names: string[]
+  quantity: number
+  unit_price: number
+  lost_reasons: string[]
+  notes: string | null
+  timeline: ProjectTimelinePayload[]
+}
+
+export interface ProjectTimelinePayload {
+  date: string
+  activity: string
+}
+
+const PIPELINE_STAGES: Record<number, string> = {
+  1: 'Qualified',
+  2: 'Presentation/Demo',
+  3: 'Quotation',
+  4: 'Negotiation',
+  5: 'Closed Won',
+  6: 'Closed Lost',
+  7: 'Closed Cancel'
 }
 
 /** Mengubah nama status menjadi slug, mis. "Closed Won" menjadi "closed_won". */
@@ -47,6 +70,13 @@ function toSlug(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '')
+}
+
+function optionalNumber(raw: Dict, ...keys: string[]): number | undefined {
+  const value = pick(raw, ...keys)
+  if (value === undefined || value === '') return undefined
+  const number = Number(value)
+  return Number.isFinite(number) ? number : undefined
 }
 
 /** Mengubah created_at menjadi tanggal yang mudah dibaca, mis. "29 Apr 2026". */
@@ -61,72 +91,68 @@ function formatDate(value: string): string {
   })
 }
 
-function optionalNumber(raw: Dict, ...keys: string[]): number | undefined {
-  const value = pick(raw, ...keys)
-  if (value === undefined || value === '') return undefined
-  const number = Number(value)
-  return Number.isFinite(number) ? number : undefined
-}
-
-/** Mengubah satu baris tabel `m_projects` menjadi model tampilan Projects. */
+/** Mengubah satu baris dbo.m_projects / view project menjadi model tampilan. */
 export function normalizeProject(raw: Dict): Projects {
   const ownerName = pickString(raw, 'owner_name', 'leader_name')
-  const stageName = pickString(raw, 'stage_name', 'status_name', 'stage', 'status')
-  const stageId = optionalNumber(raw, 'stage_id', 'status_id')
+  const stageId = optionalNumber(raw, 'stage_id', 'pipeline_id', 'status_id')
+  const stageName =
+    pickString(raw, 'stage_name', 'pipeline_name', 'status_name', 'stage', 'status') ||
+    PIPELINE_STAGES[stageId ?? 0] ||
+    ''
   const ownerId = optionalNumber(raw, 'owner_id', 'leader_id')
-  const amountValue = optionalNumber(
-    raw,
-    'amount_value',
-    // Alias lama tetap dibaca selama masa transisi API.
-    'project_value',
-    'deal_value',
-    'total_value',
-    'value',
-    'amount',
-    'budget',
-    'nilai'
-  )
+  const amountValue = optionalNumber(raw, 'amount_value', 'project_value', 'total_value', 'value')
   const currency = pickString(raw, 'currency') || 'IDR'
   const expectedCloseDate = pickString(raw, 'expected_close_date')
   const probability = optionalNumber(raw, 'probability')
+  const companyName = pickString(raw, 'company_name')
 
   return {
-    id: pickNumber(raw, 'id', 'ID'),
-    projectName: pickString(raw, 'projects_name', 'project_name', 'deal_name'),
-    projectDescription: pickString(raw, 'company_name', 'description'),
+    id: optionalNumber(raw, 'id', 'ID') ?? 0,
+    // API /deals masih memakai nama legacy `deal_name` untuk dbo.m_projects.
+    projectName: pickString(raw, 'projects_name', 'deal_name', 'project_name'),
+    projectDescription: companyName,
     projectBanner: DEFAULT_BANNER,
     date: formatDate(expectedCloseDate || pickString(raw, 'created_at')),
     progress: probability ?? 0,
     status: toSlug(stageName) || String(stageId ?? ''),
     budget: amountValue !== undefined ? `${currency} ${amountValue.toLocaleString('id-ID')}` : '',
     projectValue: amountValue ?? 0,
-    teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
     companyId: optionalNumber(raw, 'company_id'),
+    companyName,
     contactId: optionalNumber(raw, 'contact_id'),
+    contactName: pickString(raw, 'contact_name'),
     ownerId,
+    ownerName,
     stageId,
+    stageName,
     currency,
     amountValue,
     expectedCloseDate,
     priority: optionalNumber(raw, 'priority'),
     competitorId: optionalNumber(raw, 'competitor_id'),
+    competitorName: pickString(raw, 'competitor_name'),
     sumberdanaId: optionalNumber(raw, 'sumberdana_id'),
+    sumberdanaName: pickString(raw, 'sumberdana_name'),
     probability,
     aktif: optionalNumber(raw, 'aktif'),
     idold: optionalNumber(raw, 'idold'),
-    companyName: pickString(raw, 'company_name'),
-    contactName: pickString(raw, 'contact_name'),
-    ownerName,
-    stageName,
-    competitorName: pickString(raw, 'competitor_name'),
-    sumberdanaName: pickString(raw, 'sumberdana_name'),
-    createdBy: pickString(raw, 'created_by')
+    divisionCode: pickString(raw, 'division_code'),
+    productNames: pickString(raw, 'product_names'),
+    lostReasons: pickString(raw, 'lost_reasons'),
+    teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
+    createdBy: pickString(raw, 'created_by'),
+    createdAt: pickString(raw, 'created_at'),
+    quantity: optionalNumber(raw, 'quantity', 'qty'),
+    unitPrice: optionalNumber(raw, 'unit_price', 'price', 'harga'),
+    notes: pickString(raw, 'notes', 'note', 'description'),
+    contactPhone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile')
   }
 }
 
 export const useProjectStore = defineStore('project', () => {
   const items = ref<Projects[]>([])
   const selectedItem = ref<Projects | null>(null)
+  const selectedDetails = ref<Dict[]>([])
   const loading = ref(false)
   const submitting = ref(false)
   const error = ref<string | null>(null)
@@ -140,20 +166,14 @@ export const useProjectStore = defineStore('project', () => {
   const loaded = ref(false)
   const lastParams = ref<ListParams>({})
 
-  // Data pendukung foreign key tabel m_projects.
+  // Data pendukung yang dipakai form project.
   const lookups = reactive<{
-    stage: Select[]
     owner: Select[]
-    competitor: Select[]
-    sumberdana: Select[]
   }>({
-    stage: [],
-    owner: [],
-    competitor: [],
-    sumberdana: []
+    owner: []
   })
 
-  /** GET /api/project. */
+  /** GET /api/deals; endpoint legacy ini membaca dbo.m_projects. */
   function fetchProjects(params: ListParams = {}) {
     return runApiAction({
       flag: loading,
@@ -161,8 +181,11 @@ export const useProjectStore = defineStore('project', () => {
       fallbackMessage: 'Gagal memuat data project.',
       task: async () => {
         const response = await api.getbydata(ENDPOINT, { ...params })
-        // "companies" dipertahankan sebagai fallback response API lama.
-        const { items: rawItems, meta } = extractList(response.data, ['projects', 'companies'])
+        const { items: rawItems, meta } = extractList(response.data, [
+          'deals',
+          'projects',
+          'companies'
+        ])
         items.value = rawItems.filter(isRecord).map(normalizeProject)
         if (meta) Object.assign(pagination, meta)
         lastParams.value = params
@@ -172,24 +195,34 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** GET /api/project/fetchprojectbyid?id=<id>. */
+  /** GET header m_projects dan detail m_projectsdet melalui API legacy Deals. */
   function fetchProjectById(id: number) {
     return runApiAction({
       flag: loading,
       error,
       fallbackMessage: 'Gagal memuat detail project.',
       task: async () => {
-        const response = await api.getbydata(`${ENDPOINT}/fetchprojectbyid`, {
+        const response = await api.getbydata(`${ENDPOINT}/fetchdealsbyid`, {
           id
         })
-        const raw = extractItem(response.data, ['project', 'projects'])
+        const raw = extractItem(response.data, ['deal', 'deals', 'project', 'projects'])
+        const detailResult = extractList(response.data, [
+          'projectdetails',
+          'project_details',
+          'm_projectsdet',
+          'dealdetails',
+          'deal_details',
+          'details',
+          'taskassoc'
+        ])
+        selectedDetails.value = detailResult.items.filter(isRecord)
         selectedItem.value = raw ? normalizeProject(raw) : null
         return selectedItem.value
       }
     })
   }
 
-  /** POST /api/project/input dengan choice "i". */
+  /** POST /api/deals/input dengan choice "i", lalu ambil ulang baris lengkapnya. */
   function createProject(payload: ProjectPayload) {
     return runApiAction({
       flag: submitting,
@@ -198,12 +231,25 @@ export const useProjectStore = defineStore('project', () => {
       task: async () => {
         const response = await api.post(`${ENDPOINT}/input`, {
           choice: 'i',
+          // Mapping nama form Project ke kontrak legacy DealsController/m_projects.
+          deal_name: payload.projects_name,
+          pipeline_id: payload.stage_id,
+          source_id: null,
           ...payload
         })
-        const raw = extractItem(response.data, ['project', 'projects'])
-        const created = raw ? normalizeProject(raw) : null
+        const raw = extractItem(response.data, ['deal', 'deals', 'project', 'projects', 'result'])
+        const newId = raw ? optionalNumber(raw, 'id') : undefined
 
-        if (created && created.id) {
+        let created: Projects | null = null
+        if (newId) {
+          try {
+            created = await fetchProjectById(newId)
+          } catch {
+            created = null
+          }
+        }
+
+        if (created) {
           items.value = [created, ...items.value]
         } else {
           await fetchProjects(lastParams.value)
@@ -213,23 +259,31 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** POST /api/project/input dengan choice "u". */
+  /** POST /api/deals/input dengan choice "u", lalu ambil ulang baris lengkapnya. */
   function updateProject(id: number, payload: Partial<ProjectPayload>) {
     return runApiAction({
       flag: submitting,
       error,
       fallbackMessage: 'Gagal memperbarui project.',
       task: async () => {
-        const response = await api.post(`${ENDPOINT}/input`, {
+        await api.post(`${ENDPOINT}/input`, {
           choice: 'u',
           id,
+          deal_name: payload.projects_name,
+          pipeline_id: payload.stage_id,
+          source_id: null,
           ...payload
         })
-        const raw = extractItem(response.data, ['project', 'projects'])
 
-        if (raw) {
-          const updated = normalizeProject(raw)
-          items.value = items.value.map((item) => (item.id === id ? updated : item))
+        let updated: Projects | null = null
+        try {
+          updated = await fetchProjectById(id)
+        } catch {
+          updated = null
+        }
+
+        if (updated) {
+          items.value = items.value.map((item) => (item.id === id ? (updated as Projects) : item))
           if (selectedItem.value?.id === id) selectedItem.value = updated
           return updated
         }
@@ -240,7 +294,7 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** POST /api/project/input dengan choice "d". */
+  /** POST /api/deals/input dengan choice "d". */
   function deleteProject(id: number) {
     return runApiAction({
       flag: submitting,
@@ -254,35 +308,15 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** GET lookup yang memang tersedia: status untuk stage dan leader untuk user/owner. */
+  /** GET /api/deals/users untuk pilihan owner. */
   function fetchProjectLookups() {
     return runApiAction({
       flag: loading,
       error,
       fallbackMessage: 'Gagal memuat data pendukung project.',
       task: async () => {
-        const [stageResponse, ownerResponse] = await Promise.all([
-          api.get(`${ENDPOINT}/status`),
-          api.get(`${ENDPOINT}/leader`)
-        ])
-        lookups.stage = normalizeOptions(stageResponse.data, [
-          'stages',
-          'stage',
-          'statuses',
-          'status'
-        ])
-        lookups.owner = normalizeOptions(ownerResponse.data, [
-          'owners',
-          'owner',
-          'leaders',
-          'leader',
-          'users'
-        ])
-
-        // Backend belum menyediakan route lookup khusus untuk kedua master ini.
-        // Form project tetap memakai opsi lokal tanpa menembakkan request 404.
-        lookups.competitor = []
-        lookups.sumberdana = []
+        const ownerResponse = await api.get(`${ENDPOINT}/users`)
+        lookups.owner = normalizeOptions(ownerResponse.data, ['leaders', 'leader', 'users'])
       }
     })
   }
@@ -290,6 +324,7 @@ export const useProjectStore = defineStore('project', () => {
   return {
     items,
     selectedItem,
+    selectedDetails,
     loading,
     submitting,
     error,

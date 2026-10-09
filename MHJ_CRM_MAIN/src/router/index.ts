@@ -138,6 +138,17 @@ const router = createRouter({
           },
         },
         {
+          path: routes.Project.ProjectDetailsV2,
+          name: 'Project Details V2',
+          component: () => import('@/pages/project/ProjectDetailsV2.vue'),
+          alias: ['/crmAdmin/projects/details-v2'],
+          meta: {
+            mainTitle: 'Project Detail Ver2',
+            title: 'Project Detail Ver2 | MHJ CRM',
+            breadcrumb: [{ text: 'Project', subText: 'Project Detail Ver2' }],
+          },
+        },
+        {
           path: routes.Project.ProjectList,
           name: 'Project List',
           component: () => import('@/pages/project/ProjectList.vue'),
@@ -162,11 +173,11 @@ const router = createRouter({
           path: routes.App.KanbanBoard,
           name: 'KanbanBoard',
           component: () => import('@/pages/kanbanBoard/KanbanBoard.vue'),
-          alias: ['/app/kanban_board'],
+          alias: ['/crmAdmin/deals', '/app/kanban_board'],
           meta: {
-            mainTitle: 'Deals',
-            title: 'Deals | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Deals' }],
+            mainTitle: 'Projects',
+            title: 'Projects | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Projects' }],
           },
         },
         {

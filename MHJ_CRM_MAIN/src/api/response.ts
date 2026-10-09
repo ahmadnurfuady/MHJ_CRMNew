@@ -62,12 +62,18 @@ export function extractList(
   return { items: [] }
 }
 
-/** Mengambil satu objek dari response, mis. { company: {...} } atau { data: {...} }. */
+/**
+ * Mengambil satu objek dari response, mis. { company: {...} } atau { data: {...} }.
+ * Beberapa controller (mis. ProjectController@fetchprojectbyid) memakai DB::select mentah,
+ * jadi key-nya berisi array baris walau cuma 1 row -> ambil elemen pertamanya.
+ */
 export function extractItem(payload: unknown, keys: string[] = []): Dict | null {
   if (!isRecord(payload)) return null
 
   for (const key of keys) {
-    if (isRecord(payload[key])) return payload[key] as Dict
+    const value = payload[key]
+    if (isRecord(value)) return value as Dict
+    if (Array.isArray(value) && isRecord(value[0])) return value[0] as Dict
   }
   if (isRecord(payload.data)) return payload.data
   if ('id' in payload) return payload
@@ -94,7 +100,7 @@ export function pickNumber(raw: Dict, ...keys: string[]): number {
   return Number.isFinite(value) ? value : 0
 }
 
-/** Mengubah data pendukung (status, leader, deals, ...) menjadi pilihan { value, label }. */
+/** Mengubah data pendukung menjadi pilihan { value, label }. */
 export function normalizeOptions(
   payload: unknown,
   keys: string[] = []

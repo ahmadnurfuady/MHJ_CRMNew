@@ -265,44 +265,50 @@ export interface ActivityTemplate {
   dueDate: string
 }
 
-/** Project dari tabel m_projects di backend. */
+/** Project dari dbo.m_projects. */
 export interface Projects {
   id: number
-  /** projects_name */
+  /** deal_name pada API legacy /deals, ditampilkan sebagai Project Name. */
   projectName: string
   projectDescription: string
   projectBanner: string
   /** created_at, sudah diformat untuk ditampilkan */
   date: string
   progress: number
-  /** Slug dari stage_name, dipakai untuk tab stage di UI */
+  /** Slug dari stage_name, dipakai untuk tab stage di UI. */
   status: string
   budget: string
-  /** amount_value */
   projectValue?: number
-  /** Berisi owner_name bila tersedia */
+  /** Berisi owner_name bila tersedia. */
   teamMember: Profile[]
   companyId?: number
+  companyName?: string
   contactId?: number
+  contactName?: string
   ownerId?: number
+  ownerName?: string
   stageId?: number
+  stageName?: string
   currency?: string
   amountValue?: number
   expectedCloseDate?: string
   priority?: number
   competitorId?: number
+  competitorName?: string
   sumberdanaId?: number
+  sumberdanaName?: string
   probability?: number
   aktif?: number
   idold?: number
-  companyName?: string
-  contactName?: string
-  ownerName?: string
-  stageName?: string
-  competitorName?: string
-  sumberdanaName?: string
-  /** created_by */
+  divisionCode?: string
+  productNames?: string
+  lostReasons?: string
   createdBy?: string
+  createdAt?: string
+  quantity?: number
+  unitPrice?: number
+  notes?: string
+  contactPhone?: string
 }
 
 export interface ProjectCostPerformance {

@@ -17,7 +17,7 @@
               <span class="project-tab-summary">
                 <span>Qty <strong>{{ summaryFor(tab.value).quantity }}</strong></span>
                 <span>
-                  Value <strong>{{ formatCompactValue(summaryFor(tab.value).totalValue) }}</strong>
+                  Value <strong>{{ formatTabValue(summaryFor(tab.value).totalValue) }}</strong>
                 </span>
               </span>
             </a>
@@ -111,19 +111,16 @@ function summaryFor(stage: string): StageSummary {
   return stageSummaries.value[stage] ?? { quantity: 0, totalValue: 0 }
 }
 
-function formatCompactValue(value: number): string {
-  const units = [
-    { limit: 1_000_000_000_000, label: 'triliun' },
-    { limit: 1_000_000_000, label: 'miliar' },
-    { limit: 1_000_000, label: 'juta' },
-    { limit: 1_000, label: 'ribu' },
-  ]
-  const unit = units.find((item) => Math.abs(value) >= item.limit)
-  if (!unit) return value.toLocaleString('id-ID')
+/**
+ * Ringkasan tab memakai satuan juta agar nominal besar tetap ringkas.
+ * Contoh: 9.000.000.000 ditampilkan sebagai 9.000.
+ */
+function formatTabValue(value: number): string {
+  if (!Number.isFinite(value) || value === 0) return '0'
 
-  return `${new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 }).format(
-    value / unit.limit
-  )} ${unit.label}`
+  return new Intl.NumberFormat('id-ID', {
+    maximumFractionDigits: 0,
+  }).format(value / 1_000_000)
 }
 
 onMounted(() => {

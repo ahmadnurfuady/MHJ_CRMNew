@@ -10,7 +10,7 @@ export interface DealOption extends Select {
   price?: number
 }
 
-// Type RS menentukan prefiks Deal Name: EKAT = Government, PRVT = Private.
+// Type RS menentukan prefiks Project Name: EKAT = Government, PRVT = Private.
 export const hospitals: DealOption[] = [
   { value: 'rs-mata-surabaya', label: 'RS Mata Surabaya', type: 'Government' },
   { value: 'rsud-dr-soetomo', label: 'RSUD Dr. Soetomo', type: 'Government' },

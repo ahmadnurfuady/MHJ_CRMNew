@@ -150,54 +150,25 @@
     </div>
   </div>
 
-  <Modal
-    title="Detail Rumah Sakit"
-    :modalOpen="detailModalOpen"
-    sizeClass="modal-xl"
-    dialogClass="hospital-detail-dialog"
-    @closeModal="closeHospitalDetail"
-  >
-    <div class="modal-body hospital-detail-body">
-      <ContactHistory v-if="contactState.historyVisible" />
-      <div v-else-if="contactState.isEditContact" class="contact-editform p-0">
-        <EditContactForm />
-      </div>
-      <div v-else-if="contactState.activeContact" class="profile-mail hospital-detail-content">
-        <GeneralDetails />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-light" type="button" @click="closeHospitalDetail">Tutup</button>
-    </div>
-  </Modal>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 import { companyDetails } from "@/core/data/contactCrm";
+import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Contact } from "@/types/contacts";
 import { getImages } from "@/utils/index";
 
-const Modal = defineAsyncComponent(() => import("@/components/shared/Modal.vue"));
-const EditContactForm = defineAsyncComponent(
-  () => import("@/module/rumahSakit/EditContactForm.vue"),
-);
-const ContactHistory = defineAsyncComponent(
-  () => import("@/module/rumahSakit/ContactHistory.vue"),
-);
-const GeneralDetails = defineAsyncComponent(
-  () => import("@/module/rumahSakit/GeneralDetails.vue"),
-);
-
+const router = useRouter();
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
-const { contactState, filteredContact } = storeToRefs(contactStore);
+const { filteredContact } = storeToRefs(contactStore);
 const { pagination: hospitalPagination, loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { handleContact, changeHospitalPage, searchHospitals } = contactStore;
-const detailModalOpen = ref(false);
+const { changeHospitalPage, searchHospitals } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -266,16 +237,8 @@ function relativeVisitDate(value: string) {
 }
 
 function openHospitalDetail(hospital: Contact) {
-  contactState.value.isEditContact = false;
-  contactState.value.historyVisible = false;
-  handleContact(hospital);
-  detailModalOpen.value = true;
-}
-
-function closeHospitalDetail() {
-  detailModalOpen.value = false;
-  contactState.value.isEditContact = false;
-  contactState.value.historyVisible = false;
+  const id = hospital.remoteId ?? hospital.id;
+  void router.push({ path: routes.App.RumahSakit, query: { detail: String(id) } });
 }
 
 onMounted(() => {
@@ -505,16 +468,6 @@ onBeforeUnmount(() => {
   margin-bottom: 10px;
   background: rgba(24, 166, 228, 0.1);
   color: #18a6e4;
-}
-
-.hospital-detail-body {
-  max-height: calc(100vh - 190px);
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.hospital-detail-content {
-  padding: 0;
 }
 
 .pagination-actions {
