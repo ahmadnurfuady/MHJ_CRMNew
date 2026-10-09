@@ -5,7 +5,6 @@ import Swal from "sweetalert2";
 
 import { api } from "@/api";
 import {
-  extractItem,
   extractList,
   isRecord,
   normalizeOptions,
@@ -32,8 +31,62 @@ import { validateForm } from "@/utils/validators/formValidators";
 const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
+const DEFAULT_CONTACT_STATUS = "1";
 
-type ContactPayload = Record<string, unknown>;
+export interface ContactCrudPayload {
+  company_id: number | null;
+  first_name: string;
+  last_name: string;
+  job_title: string | null;
+  email: string | null;
+  /** API memvalidasi string; SQL Server mengonversinya ke parameter INT pada SP. */
+  status: string | null;
+  telephone_1: string;
+  telephone_2: string | null;
+  address: string | null;
+  /** Nama key mengikuti ContactController, lalu diteruskan ke @kd_kelurahan pada SP. */
+  kelurahan: string | null;
+  /** Nama key mengikuti ContactController, lalu diteruskan ke @source_id pada SP. */
+  source: number | null;
+  created_by: number | null;
+}
+
+function nullableText(value: unknown): string | null {
+  const text = textValue(value).trim();
+  return text || null;
+}
+
+function nullableId(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id >= 0 ? id : null;
+}
+
+function findStoredProcedureError(payload: unknown, depth = 0): string | null {
+  if (depth > 5) return null;
+  if (Array.isArray(payload)) {
+    for (const item of payload) {
+      const message = findStoredProcedureError(item, depth + 1);
+      if (message) return message;
+    }
+    return null;
+  }
+  if (!isRecord(payload)) return null;
+
+  const message = pickString(payload, "ErrorMessage", "errorMessage");
+  if (message) return message;
+
+  for (const value of Object.values(payload)) {
+    const nestedMessage = findStoredProcedureError(value, depth + 1);
+    if (nestedMessage) return nestedMessage;
+  }
+  return null;
+}
+
+function assertStoredProcedureSucceeded(payload: unknown) {
+  const message = findStoredProcedureError(payload);
+  if (message) throw new Error(message);
+}
 
 /** Menemukan satu row contact pada response detail yang mungkin dibungkus data/contact. */
 function findContactRecord(payload: unknown, depth = 0): Dict | null {
@@ -139,6 +192,8 @@ function normalizeApiContact(raw: Dict): Contact {
     companyId: pickString(raw, "company_id", "Company ID"),
     sourceId: pickString(raw, "source_id", "Source ID"),
     status: pickString(raw, "status_name", "Status Name", "status", "Status"),
+    statusId: nullableId(raw.status) ?? undefined,
+    createdById: nullableId(raw.created_by) ?? undefined,
     telephone1: phone1,
     telephone2: phone2,
     owner: pickString(raw, "owner"),
@@ -152,7 +207,7 @@ function normalizeApiContact(raw: Dict): Contact {
     aktif: pickNumber(raw, "aktif", "Aktif"),
     source: pickString(raw, "sourcename", "source_name", "source"),
     company: pickString(raw, "company_name", "Company Name", "company"),
-    project: pickString(raw, "project_name", "Project Name", "project"),
+    project: pickString(raw, "projects_name", "project_name", "Project Name", "project"),
     lastActivity: pickString(
       raw,
       "last_activity",
@@ -181,12 +236,14 @@ export const useContact = defineStore("contact", () => {
     lastName: initInputField(),
     jobTitle: initInputField(),
     owner: initSelectField(),
+    status: initSelectField(),
     email: initInputField(),
     contactNumber: initInputField(),
     contactType: initSelectField(),
     phoneNumbers: [initInputField()],
     mapAddress: initInputField(),
     address: initInputField(),
+    kdKelurahan: initInputField(),
     province: initSelectField(),
     city: initSelectField(),
     source: initSelectField(),
@@ -233,6 +290,8 @@ export const useContact = defineStore("contact", () => {
     items: [] as Contact[],
     selectedItem: undefined as Contact | undefined,
     companies: [] as Select[],
+    statuses: [] as Select[],
+    sources: [] as Select[],
     loading: false,
     detailLoading: false,
     submitting: false,
@@ -481,12 +540,15 @@ export const useContact = defineStore("contact", () => {
         }
 
         contactApi.selectedItem = detailedContact;
-        contactApi.items = contactApi.items.map((item) =>
-          item.remoteId === remoteId ? detailedContact : item,
-        );
-        contactState.contactList = contactState.contactList.map((item) =>
-          item.id === detailedContact.id ? detailedContact : item,
-        );
+        const existingIndex = contactApi.items.findIndex((item) => item.remoteId === remoteId);
+        if (existingIndex >= 0) {
+          contactApi.items = contactApi.items.map((item) =>
+            item.remoteId === remoteId ? detailedContact : item,
+          );
+        } else {
+          contactApi.items = [detailedContact, ...contactApi.items];
+        }
+        syncRemoteContacts();
         return detailedContact;
       },
     });
@@ -506,34 +568,67 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
+  /** GET /api/contact/status, lookup status khusus Contact (table_code CT). */
+  function fetchContactStatuses() {
+    return runApiAction({
+      flag: contactLoading,
+      error: contactError,
+      fallbackMessage: "Gagal memuat status kontak.",
+      task: async () => {
+        const response = await api.get(`${CONTACT_ENDPOINT}/status`);
+        contactApi.statuses = normalizeOptions(response.data, ["statuses", "status"]);
+        return contactApi.statuses;
+      },
+    });
+  }
+
+  /** GET /api/contact/sources, lookup source khusus Contact (table_code CT). */
+  function fetchContactSources() {
+    return runApiAction({
+      flag: contactLoading,
+      error: contactError,
+      fallbackMessage: "Gagal memuat sumber kontak.",
+      task: async () => {
+        const response = await api.get(`${CONTACT_ENDPOINT}/sources`);
+        contactApi.sources = normalizeOptions(response.data, ["sources", "source"]);
+        return contactApi.sources;
+      },
+    });
+  }
+
   /**
    * POST /api/contact/input dengan choice "i".
    * Mengembalikan kontak yang baru dibuat, atau undefined jika backend tidak mengembalikan datanya.
    */
-  function createRemoteContact(payload: ContactPayload) {
+  function createRemoteContact(payload: ContactCrudPayload) {
     return runApiAction({
       flag: contactSubmitting,
       error: contactError,
       fallbackMessage: "Gagal menyimpan kontak.",
       task: async () => {
         const response = await api.post(`${CONTACT_ENDPOINT}/input`, { choice: "i", ...payload });
-        const raw = extractItem(response.data, ["contact"]);
-        let created: Contact | undefined;
+        assertStoredProcedureSucceeded(response.data);
+        const raw = findContactRecord(response.data);
+        const createdId = raw ? pickNumber(raw, "id", "ID") : 0;
 
-        if (raw && pickNumber(raw, "id", "ID") > 0) {
-          created = normalizeApiContact(raw);
-          contactApi.items = [created, ...contactApi.items];
-        } else {
-          await fetchRemoteContacts();
+        if (createdId > 0) {
+          try {
+            return await fetchRemoteContactById(createdId);
+          } catch {
+            await fetchRemoteContacts();
+            return contactApi.items.find((item) => item.remoteId === createdId);
+          }
         }
+
+        await fetchRemoteContacts();
         syncRemoteContacts();
-        return created;
+        return undefined;
       },
     });
   }
 
   /** POST /api/contact/input dengan choice "u". */
-  function updateRemoteContact(remoteId: number, payload: ContactPayload) {
+  function updateRemoteContact(remoteId: number, payload: ContactCrudPayload) {
     return runApiAction({
       flag: contactSubmitting,
       error: contactError,
@@ -544,14 +639,11 @@ export const useContact = defineStore("contact", () => {
           id: remoteId,
           ...payload,
         });
-        const raw = extractItem(response.data, ["contact"]);
+        assertStoredProcedureSucceeded(response.data);
 
-        if (raw) {
-          const updated = normalizeApiContact(raw);
-          contactApi.items = contactApi.items.map((item) =>
-            item.remoteId === remoteId ? updated : item,
-          );
-        } else {
+        try {
+          await fetchRemoteContactById(remoteId);
+        } catch {
           await fetchRemoteContacts();
         }
         syncRemoteContacts();
@@ -559,14 +651,39 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
-  /** POST /api/contact/input dengan choice "d". */
-  function removeRemoteContact(remoteId: number) {
+  /**
+   * POST /api/contact/input dengan choice "d".
+   * Controller backend membaca seluruh key form sebelum memanggil SP, sehingga payload delete
+   * tetap harus membawa semua parameter walaupun cabang delete pada SP hanya memakai id.
+   */
+  function removeRemoteContact(remoteId: number, source?: Contact) {
     return runApiAction({
       flag: contactSubmitting,
       error: contactError,
       fallbackMessage: "Gagal menghapus kontak.",
       task: async () => {
-        await api.post(`${CONTACT_ENDPOINT}/input`, { choice: "d", id: remoteId });
+        const contact =
+          source ?? contactApi.items.find((item) => item.remoteId === remoteId);
+        const payload: ContactCrudPayload = {
+          company_id: nullableId(contact?.companyId),
+          first_name: contact?.firstName || "",
+          last_name: contact?.lastName || "",
+          job_title: nullableText(contact?.jobTitle),
+          email: nullableText(contact?.email),
+          status: String(contact?.statusId ?? DEFAULT_CONTACT_STATUS),
+          telephone_1: contact?.telephone1 || contact?.contactNumber || "",
+          telephone_2: nullableText(contact?.telephone2),
+          address: nullableText(contact?.address),
+          kelurahan: nullableText(contact?.kdKelurahan),
+          source: nullableId(contact?.sourceId),
+          created_by: contact?.createdById ?? null,
+        };
+        const response = await api.post(`${CONTACT_ENDPOINT}/input`, {
+          choice: "d",
+          id: remoteId,
+          ...payload,
+        });
+        assertStoredProcedureSucceeded(response.data);
         contactApi.items = contactApi.items.filter((item) => item.remoteId !== remoteId);
         syncRemoteContacts();
       },
@@ -637,7 +754,7 @@ export const useContact = defineStore("contact", () => {
           if (target.origin === "hospital") {
             await hospitalStore.deleteHospital(target.remoteId);
           } else {
-            await removeRemoteContact(target.remoteId);
+            await removeRemoteContact(target.remoteId, target);
           }
           syncRemoteContacts();
         } catch {
@@ -716,6 +833,7 @@ export const useContact = defineStore("contact", () => {
       "contactType",
       "mapAddress",
       "address",
+      "kdKelurahan",
       "province",
       "city",
       "source",
@@ -738,25 +856,31 @@ export const useContact = defineStore("contact", () => {
 
     const formData = validation.formData;
     try {
-      // Kolom tabel contacts. Field owner, gender, mapAddress, project, source, dan company
-      // belum dikirim: belum ada kolomnya yang terkonfirmasi, atau berupa ID lookup (source_id, company_id).
-      await createRemoteContact({
+      // Payload mengikuti parameter dbo.sp_contacts_crud secara eksplisit.
+      const payload: ContactCrudPayload = {
+        company_id: nullableId(formData.company),
         first_name: textValue(formData.firstName),
         last_name: textValue(formData.lastName),
-        job_title: textValue(formData.jobTitle),
-        email: textValue(formData.email),
+        job_title: nullableText(formData.jobTitle),
+        email: nullableText(formData.email),
+        // Endpoint Contact mengharuskan status berupa integer; kontak baru aktif secara default.
+        status: textValue(formData.status) || DEFAULT_CONTACT_STATUS,
         telephone_1: normalizedPhoneNumbers[0] ?? "",
         telephone_2: normalizedPhoneNumbers[1] ?? null,
-        address: textValue(formData.address),
-        province: textValue(formData.province),
-        city: textValue(formData.city),
-      });
+        address: nullableText(formData.address),
+        kelurahan: nullableText(formData.kdKelurahan),
+        source: nullableId(formData.source),
+        created_by: nullableId(formData.owner),
+      };
+      const created = await createRemoteContact(payload);
 
       contactState.openAddContactModal = false;
       contactState.contactForm = createContactForm();
       contactState.formSubmitted = false;
+      return created;
     } catch {
       notifyError(contactError.value ?? "Gagal menyimpan kontak.");
+      return undefined;
     }
   }
 
@@ -850,6 +974,8 @@ export const useContact = defineStore("contact", () => {
     fetchRemoteContacts,
     fetchRemoteContactById,
     fetchContactCompanies,
+    fetchContactStatuses,
+    fetchContactSources,
     createRemoteContact,
     updateRemoteContact,
     removeRemoteContact,

@@ -48,29 +48,58 @@
                   <vue-feather type="trash-2" size="16" />
                 </button>
               </div>
-              <button class="btn btn-outline-primary btn-sm" type="button" @click="addPhone">
-                <vue-feather type="plus" size="14" class="me-1" />Tambah nomor
+              <button
+                class="btn btn-outline-primary add-phone-button"
+                type="button"
+                @click="addPhone"
+              >
+                <vue-feather type="plus" size="17" />
+                <span>Tambah nomor</span>
               </button>
             </InputWrapper>
           </div>
 
           <div class="col-12">
             <InputWrapper title="Alamat (Google Maps)">
-              <div class="input-group">
-                <InputField
-                  v-model:modelValue="contactState.rumahSakitForm.mapAddress"
-                  inputId="rs-map-address"
-                  placeholder="Cari nama tempat atau alamat di Google Maps"
-                  :required="false"
-                />
-                <button
-                  class="btn btn-outline-primary"
-                  type="button"
-                  :disabled="!contactState.rumahSakitForm.mapAddress.data.trim()"
-                  @click="searchGoogleMaps"
-                >
-                  <vue-feather type="map-pin" size="16" class="me-1" />Cari Maps
-                </button>
+              <div class="location-field">
+                <div class="location-input-group">
+                  <div class="location-address-box">
+                    <InputField
+                      v-model:modelValue="contactState.rumahSakitForm.mapAddress"
+                      inputId="rs-map-address"
+                      placeholder="Alamat lengkap akan muncul dari lokasi saat ini"
+                      :required="false"
+                    />
+                    <button
+                      v-if="contactState.rumahSakitForm.mapAddress.data"
+                      class="location-clear-button"
+                      type="button"
+                      title="Hapus alamat dan cari ulang"
+                      aria-label="Hapus alamat dan cari ulang"
+                      @click="clearCurrentAddress"
+                    >
+                      <vue-feather type="x" size="16" />
+                    </button>
+                  </div>
+                  <button
+                    class="btn btn-outline-primary location-button"
+                    type="button"
+                    :disabled="locatingAddress"
+                    @click="captureCurrentAddress"
+                  >
+                    <span
+                      v-if="locatingAddress"
+                      class="spinner-border spinner-border-sm"
+                      aria-hidden="true"
+                    ></span>
+                    <vue-feather v-else type="map-pin" size="17" />
+                    <span>{{ locatingAddress ? 'Mencari...' : 'Cari lokasi' }}</span>
+                  </button>
+                </div>
+                <small class="text-muted">
+                  Alamat lengkap akan diisi dari GPS dan tetap dapat diperbaiki secara manual.
+                </small>
+                <small v-if="locationError" class="text-danger">{{ locationError }}</small>
               </div>
             </InputWrapper>
           </div>
@@ -197,11 +226,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, watch } from "vue";
+import { computed, defineAsyncComponent, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 
 import { initInputField, initSelectField } from "@/core/data/common";
 import { cityOptionsByProvince, provinceOptions } from "@/core/data/contactCrm";
+import {
+  geolocationErrorMessage,
+  getCurrentPosition,
+  reverseGeocodeAddress,
+} from "@/services/geocoding";
 import { useContact } from "@/store/contact";
 
 const InputWrapper = defineAsyncComponent(
@@ -220,6 +254,8 @@ const Modal = defineAsyncComponent(
 const contactStore = useContact();
 const { contactState } = storeToRefs(contactStore);
 const { saveRumahSakit, closeRumahSakitModal } = contactStore;
+const locatingAddress = ref(false);
+const locationError = ref("");
 
 const cityOptions = computed(
   () =>
@@ -242,14 +278,29 @@ function removePhone(index: number) {
   contactState.value.rumahSakitForm.phoneNumbers.splice(index, 1);
 }
 
-function searchGoogleMaps() {
-  const query = contactState.value.rumahSakitForm.mapAddress.data.trim();
-  if (query)
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
-      "_blank",
-      "noopener,noreferrer",
+async function captureCurrentAddress() {
+  locationError.value = "";
+  locatingAddress.value = true;
+
+  try {
+    const position = await getCurrentPosition();
+    const address = await reverseGeocodeAddress(
+      position.coords.latitude,
+      position.coords.longitude,
     );
+    contactState.value.rumahSakitForm.mapAddress.data = address;
+    contactState.value.rumahSakitForm.address.data = address;
+  } catch (error) {
+    locationError.value = geolocationErrorMessage(error);
+  } finally {
+    locatingAddress.value = false;
+  }
+}
+
+function clearCurrentAddress() {
+  contactState.value.rumahSakitForm.mapAddress.data = "";
+  contactState.value.rumahSakitForm.address.data = "";
+  locationError.value = "";
 }
 </script>
 
@@ -257,5 +308,88 @@ function searchGoogleMaps() {
 .rumah-sakit-form-body {
   max-height: 70vh;
   overflow-y: auto;
+}
+
+.add-phone-button {
+  display: inline-flex;
+  min-width: 184px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.location-field {
+  display: grid;
+  gap: 7px;
+}
+
+.location-input-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.location-address-box {
+  position: relative;
+  min-width: 0;
+}
+
+.location-address-box :deep(.form-control) {
+  height: 46px;
+  padding-right: 42px;
+}
+
+.location-clear-button {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #eef2f6;
+  color: #667085;
+}
+
+.location-clear-button:hover {
+  background: #e2e8f0;
+  color: #344054;
+}
+
+.location-button {
+  display: inline-flex;
+  min-width: 156px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .add-phone-button {
+    width: 100%;
+  }
+
+  .location-input-group {
+    grid-template-columns: minmax(0, 1fr) 132px;
+  }
+
+  .location-button {
+    min-width: 132px;
+    padding-inline: 10px;
+  }
 }
 </style>

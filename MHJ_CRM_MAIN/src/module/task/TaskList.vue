@@ -72,7 +72,12 @@
 
             <tr v-for="(item, index) in filteredTasks" :key="`${item.kind ?? 'task'}-${item.id}-${index}`">
               <td data-label="Nama Task">
-                <div class="task-identity">
+                <button
+                  class="task-identity task-identity-button"
+                  type="button"
+                  :aria-label="`Lihat detail ${item.title}`"
+                  @click="openTaskDetail(item)"
+                >
                   <div class="task-icon">
                     <vue-feather type="check-square" size="18" />
                   </div>
@@ -80,7 +85,8 @@
                     <strong>{{ item.title || 'Tanpa nama tugas' }}</strong>
                     <span>{{ item.category || 'Kategori belum tersedia' }}</span>
                   </div>
-                </div>
+                  <vue-feather class="task-detail-indicator" type="chevron-right" size="16" />
+                </button>
               </td>
 
               <td data-label="Rumah Sakit">
@@ -131,15 +137,26 @@
               </td>
 
               <td data-label="Aksi" class="text-center">
-                <button
-                  class="btn btn-outline-danger btn-sm task-delete-button"
-                  type="button"
-                  :aria-label="`Hapus ${item.title}`"
-                  @click="deleteTask(item)"
-                >
-                  <vue-feather type="trash-2" size="15" />
-                  <span>Hapus</span>
-                </button>
+                <div class="task-row-actions">
+                  <button
+                    class="btn btn-outline-primary btn-sm task-detail-button"
+                    type="button"
+                    :aria-label="`Lihat detail ${item.title}`"
+                    @click="openTaskDetail(item)"
+                  >
+                    <vue-feather type="eye" size="15" />
+                    <span>Detail</span>
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm task-delete-button"
+                    type="button"
+                    :aria-label="`Hapus ${item.title}`"
+                    @click="deleteTask(item)"
+                  >
+                    <vue-feather type="trash-2" size="15" />
+                    <span class="visually-hidden">Hapus</span>
+                  </button>
+                </div>
               </td>
             </tr>
 
@@ -184,18 +201,50 @@
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="detailModalOpen && selectedTask"
+      class="modal fade show d-block task-detail-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Detail tugas"
+      @click.self="closeTaskDetail"
+    >
+      <div class="modal-dialog modal-xl task-detail-dialog">
+        <div class="modal-content task-detail-modal">
+          <TaskDetail
+            :key="selectedTask.id"
+            :task="selectedTask"
+            :loading="detailLoading"
+            @close="closeTaskDetail"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="detailModalOpen && selectedTask"
+      class="modal-backdrop fade show task-detail-backdrop"
+      aria-hidden="true"
+    ></div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTask } from '@/store/task'
 import { projectTab } from '@/core/data/project'
 import type { TaskDetails } from '@/types/tasks'
 
+const TaskDetail = defineAsyncComponent(() => import('@/module/task/TaskDetail.vue'))
+
 const store = useTask()
 const { currentTask, loading, pagination } = storeToRefs(store)
 const searchQuery = ref('')
+const selectedTask = ref<TaskDetails | null>(null)
+const detailModalOpen = ref(false)
+const detailLoading = ref(false)
 
 const taskRows = computed(() => currentTask.value?.data ?? [])
 
@@ -254,6 +303,40 @@ function stageLabel(value: string) {
 function deleteTask(item: TaskDetails) {
   const index = currentTask.value?.data?.indexOf(item) ?? -1
   if (index >= 0) store.warningAlert(index)
+}
+
+function mergeTaskDetail(base: TaskDetails, detail: TaskDetails) {
+  const merged = { ...base }
+  for (const [key, value] of Object.entries(detail) as [keyof TaskDetails, unknown][]) {
+    const hasValue =
+      value !== undefined &&
+      value !== null &&
+      value !== '' &&
+      (!Array.isArray(value) || value.length > 0)
+    if (hasValue) Object.assign(merged, { [key]: value })
+  }
+  return merged
+}
+
+async function openTaskDetail(item: TaskDetails) {
+  selectedTask.value = item
+  detailModalOpen.value = true
+  detailLoading.value = true
+  try {
+    const detail = await store.fetchTaskById(item.id)
+    if (detail && selectedTask.value?.id === item.id) {
+      selectedTask.value = mergeTaskDetail(item, detail)
+    }
+  } catch {
+    // Data dari baris tabel tetap ditampilkan bila endpoint detail belum lengkap/gagal.
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+function closeTaskDetail() {
+  detailModalOpen.value = false
+  detailLoading.value = false
 }
 
 function changePage(page: number) {
@@ -434,6 +517,30 @@ function changePage(page: number) {
   gap: 10px;
 }
 
+.task-identity-button {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.task-identity-button:hover .task-identity__text strong,
+.task-identity-button:focus-visible .task-identity__text strong {
+  color: #0284c7;
+}
+
+.task-identity-button:focus-visible {
+  border-radius: 8px;
+  outline: 3px solid rgba(24, 166, 228, 0.18);
+}
+
+.task-detail-indicator {
+  flex: 0 0 16px;
+  margin-left: auto;
+  color: #94a3b8;
+}
+
 .task-icon {
   display: inline-flex;
   width: 38px;
@@ -527,6 +634,14 @@ function changePage(page: number) {
   font-size: 12px;
 }
 
+.task-row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.task-detail-button,
 .task-delete-button {
   display: inline-flex;
   width: auto;
@@ -536,6 +651,37 @@ function changePage(page: number) {
   border-radius: 7px;
   padding: 7px 10px;
   white-space: nowrap;
+}
+
+.task-detail-button {
+  min-width: 76px;
+}
+
+.task-delete-button {
+  width: 34px;
+  height: 32px;
+  padding: 0;
+}
+
+.task-detail-overlay {
+  z-index: 1060;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.task-detail-backdrop {
+  z-index: 1055;
+}
+
+.task-detail-dialog {
+  max-width: 920px;
+}
+
+.task-detail-modal {
+  overflow: hidden;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2);
 }
 
 .task-table-state {
@@ -591,6 +737,19 @@ function changePage(page: number) {
 }
 
 @media (max-width: 575.98px) {
+  .task-detail-dialog {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    margin: 0;
+  }
+
+  .task-detail-modal {
+    min-height: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
   .task-header-actions {
     grid-template-columns: 1fr;
   }
@@ -659,6 +818,11 @@ function changePage(page: number) {
     min-width: 0;
     justify-content: flex-end;
     text-align: right;
+  }
+
+  .task-row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .task-table-state {

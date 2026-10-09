@@ -95,22 +95,45 @@ export function pickNumber(raw: Dict, ...keys: string[]): number {
 }
 
 /** Mengubah data pendukung (status, leader, deals, ...) menjadi pilihan { value, label }. */
-export function normalizeOptions(payload: unknown, keys: string[] = []): { value: string; label: string }[] {
+export function normalizeOptions(
+  payload: unknown,
+  keys: string[] = []
+): { value: string; label: string }[] {
   const { items } = extractList(payload, keys)
   return items.filter(isRecord).map((raw) => ({
-    value: pickString(raw, 'value', 'code', 'kode', 'id_status', 'id_deals', 'id'),
+    value: pickString(
+      raw,
+      'value',
+      'stage_id',
+      'owner_id',
+      'competitor_id',
+      'sumberdana_id',
+      'code',
+      'kode',
+      'id_status',
+      'id_deals',
+      'id'
+    ),
     label: pickString(
       raw,
       'label',
       'name',
       'nama',
       'title',
+      'stage_name',
+      'owner_name',
+      'competitor_name',
+      'sumberdana_name',
+      'company_name',
+      'source_name',
+      'sourcename',
+      'projects_name',
       'status_name',
       'leader_name',
       'deal_name',
       'status',
       'description'
-    ),
+    )
   }))
 }
 

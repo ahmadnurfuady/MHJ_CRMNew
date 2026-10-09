@@ -29,6 +29,8 @@ export interface Contact {
   companyId?: string;
   sourceId?: string;
   status?: string;
+  statusId?: number;
+  createdById?: number;
   telephone1?: string;
   telephone2?: string;
   owner?: string;
@@ -80,6 +82,7 @@ export interface ContactForm {
   lastName: InputField;
   jobTitle: InputField;
   owner: SelectField;
+  status: SelectField;
   email: InputField;
   /** Legacy fields kept for the Rumah Sakit contact view that shares this store. */
   contactNumber: InputField;
@@ -87,6 +90,7 @@ export interface ContactForm {
   phoneNumbers: InputField[];
   mapAddress: InputField;
   address: InputField;
+  kdKelurahan: InputField;
   province: SelectField;
   city: SelectField;
   source: SelectField;

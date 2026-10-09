@@ -33,7 +33,7 @@
             <GroupItem :items="props.project.teamMember" :class="'common-f-start'" />
           </template>
           <p class="mb-0">
-            Budget
+            Value
             <span>{{ props.project.budget }}</span>
           </p>
         </div>
@@ -58,7 +58,7 @@ const props = withDefaults(
     showMember?: boolean
   }>(),
   {
-    showMember: true,
+    showMember: true
   }
 )
 

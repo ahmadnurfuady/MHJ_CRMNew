@@ -364,6 +364,11 @@ import { useTask } from '@/store/task'
 import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore } from '@/store/project'
+import {
+  geolocationErrorMessage,
+  getCurrentPosition,
+  reverseGeocodeAddress,
+} from '@/services/geocoding'
 import { storeToRefs } from 'pinia'
 import type { SelectField } from '@/types/common'
 import type { Contact } from '@/types/contacts'
@@ -452,14 +457,6 @@ const cameraStarting = ref(false)
 const cameraError = ref('')
 let cameraStream: MediaStream | null = null
 let addressRequestId = 0
-
-interface ReverseGeocodeResult {
-  locality?: string
-  city?: string
-  principalSubdivision?: string
-  postcode?: string
-  countryName?: string
-}
 
 function normalizeRelation(value: string) {
   return value.trim().toLocaleLowerCase('id-ID')
@@ -738,43 +735,14 @@ function removePhoto() {
   cameraError.value = ''
 }
 
-function formatLocationAddress(result: ReverseGeocodeResult) {
-  const seen = new Set<string>()
-  return [
-    result.locality,
-    result.city,
-    result.principalSubdivision,
-    result.postcode,
-    result.countryName,
-  ]
-    .map((part) => part?.trim())
-    .filter((part): part is string => {
-      if (!part) return false
-      const key = part.toLocaleLowerCase('id-ID')
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-    .join(', ')
-}
-
 async function resolveLocationAddress(latitude: number, longitude: number) {
   const requestId = ++addressRequestId
   resolvingAddress.value = true
   form.locationAddress = ''
   try {
-    const params = new URLSearchParams({
-      latitude: String(latitude),
-      longitude: String(longitude),
-      localityLanguage: 'id',
-    })
-    const response = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?${params.toString()}`
-    )
-    if (!response.ok) throw new Error('Reverse geocoding failed')
-    const result = (await response.json()) as ReverseGeocodeResult
+    const address = await reverseGeocodeAddress(latitude, longitude)
     if (requestId !== addressRequestId) return
-    form.locationAddress = formatLocationAddress(result)
+    form.locationAddress = address
     if (!form.locationAddress) {
       locationError.value = 'Alamat tidak ditemukan. Silakan isi alamat lokasi secara manual.'
     }
@@ -786,33 +754,20 @@ async function resolveLocationAddress(latitude: number, longitude: number) {
   }
 }
 
-function captureLocation() {
+async function captureLocation() {
   locationError.value = ''
-  if (!navigator.geolocation) {
-    locationError.value = 'Browser ini tidak mendukung GPS.'
-    return
-  }
-
   locating.value = true
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      form.latitude = position.coords.latitude
-      form.longitude = position.coords.longitude
-      form.locationAccuracy = position.coords.accuracy
-      await resolveLocationAddress(position.coords.latitude, position.coords.longitude)
-      locating.value = false
-    },
-    (error) => {
-      const messages: Record<number, string> = {
-        1: 'Izin lokasi ditolak. Aktifkan izin lokasi pada browser.',
-        2: 'Lokasi tidak tersedia. Periksa GPS atau koneksi perangkat.',
-        3: 'Pengambilan lokasi terlalu lama. Silakan coba lagi.',
-      }
-      locationError.value = messages[error.code] || 'Lokasi gagal diambil.'
-      locating.value = false
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-  )
+  try {
+    const position = await getCurrentPosition()
+    form.latitude = position.coords.latitude
+    form.longitude = position.coords.longitude
+    form.locationAccuracy = position.coords.accuracy
+    await resolveLocationAddress(position.coords.latitude, position.coords.longitude)
+  } catch (error) {
+    locationError.value = geolocationErrorMessage(error)
+  } finally {
+    locating.value = false
+  }
 }
 
 function clearLocation() {

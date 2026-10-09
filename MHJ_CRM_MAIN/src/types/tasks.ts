@@ -26,10 +26,12 @@ export interface TaskDetails {
   stageFrom?: string
   stageTo?: string
   photoName?: string
+  photoUrl?: string
   latitude?: number
   longitude?: number
   locationAccuracy?: number
   locationAddress?: string
+  contactPhone?: string
   createdAt?: string
 }
 

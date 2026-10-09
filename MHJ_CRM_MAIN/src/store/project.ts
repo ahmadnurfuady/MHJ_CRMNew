@@ -9,7 +9,7 @@ import {
   pick,
   pickNumber,
   pickString,
-  type Dict,
+  type Dict
 } from '@/api/response'
 import { runApiAction } from '@/store/apiAction'
 import type { ListParams, Pagination } from '@/types/api'
@@ -21,18 +21,22 @@ const DEFAULT_BANNER = 'project/list/1.png'
 
 const ENDPOINT = 'project'
 
-/**
- * Payload create/update project memakai nama kolom tabel `project`.
- * Field yang tidak diisi akan dikirim kosong oleh pemanggil.
- */
+/** Payload create/update mengikuti kolom tabel `m_projects`. */
 export interface ProjectPayload {
-  project_name: string
-  deal_id?: number | string
-  leader_id: number | string
-  status_id: number | string
-  description?: string
-  address?: string
-  kd_kelurahan?: string
+  projects_name: string
+  company_id?: number | string
+  contact_id?: number | string
+  owner_id?: number | string
+  stage_id?: number | string
+  currency?: string
+  amount_value?: number
+  expected_close_date?: string
+  priority?: number
+  competitor_id?: number | string
+  sumberdana_id?: number | string
+  probability?: number
+  aktif?: number
+  idold?: number | string
   created_by?: number | string
 }
 
@@ -50,18 +54,30 @@ function formatDate(value: string): string {
   if (!value) return ''
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  })
 }
 
-/** Mengubah satu baris tabel `project` menjadi Projects. */
+function optionalNumber(raw: Dict, ...keys: string[]): number | undefined {
+  const value = pick(raw, ...keys)
+  if (value === undefined || value === '') return undefined
+  const number = Number(value)
+  return Number.isFinite(number) ? number : undefined
+}
+
+/** Mengubah satu baris tabel `m_projects` menjadi model tampilan Projects. */
 export function normalizeProject(raw: Dict): Projects {
-  const leaderName = pickString(raw, 'leader_name')
-  const statusName = pickString(raw, 'status_name')
-  const statusId = pickNumber(raw, 'status_id')
-  const dealId = pick(raw, 'deal_id')
-  const leaderId = pick(raw, 'leader_id')
-  const directValue = pickNumber(
+  const ownerName = pickString(raw, 'owner_name', 'leader_name')
+  const stageName = pickString(raw, 'stage_name', 'status_name', 'stage', 'status')
+  const stageId = optionalNumber(raw, 'stage_id', 'status_id')
+  const ownerId = optionalNumber(raw, 'owner_id', 'leader_id')
+  const amountValue = optionalNumber(
     raw,
+    'amount_value',
+    // Alias lama tetap dibaca selama masa transisi API.
     'project_value',
     'deal_value',
     'total_value',
@@ -70,30 +86,41 @@ export function normalizeProject(raw: Dict): Projects {
     'budget',
     'nilai'
   )
-  const price = pickNumber(raw, 'harga', 'price')
-  const quantity = pickNumber(raw, 'qty', 'quantity')
+  const currency = pickString(raw, 'currency') || 'IDR'
+  const expectedCloseDate = pickString(raw, 'expected_close_date')
+  const probability = optionalNumber(raw, 'probability')
 
   return {
     id: pickNumber(raw, 'id', 'ID'),
-    projectName: pickString(raw, 'project_name'),
-    projectDescription: pickString(raw, 'description'),
+    projectName: pickString(raw, 'projects_name', 'project_name', 'deal_name'),
+    projectDescription: pickString(raw, 'company_name', 'description'),
     projectBanner: DEFAULT_BANNER,
-    date: formatDate(pickString(raw, 'created_at')),
-    // Progress belum tersedia; value dibaca bila backend mengirim kolom project/deal terkait.
-    progress: 0,
-    status: toSlug(statusName) || String(statusId || ''),
-    budget: pickString(raw, 'budget'),
-    projectValue: directValue || price * quantity,
-    teamMember: leaderName ? [{ name: leaderName } as Profile] : [],
-    dealId: dealId === undefined ? undefined : Number(dealId),
-    leaderId: leaderId === undefined ? undefined : Number(leaderId),
-    statusId,
-    address: pickString(raw, 'address'),
-    kdKelurahan: pickString(raw, 'kd_kelurahan'),
-    dealName: pickString(raw, 'deal_name'),
-    leaderName,
-    statusName,
-    createdBy: pickString(raw, 'created_by'),
+    date: formatDate(expectedCloseDate || pickString(raw, 'created_at')),
+    progress: probability ?? 0,
+    status: toSlug(stageName) || String(stageId ?? ''),
+    budget: amountValue !== undefined ? `${currency} ${amountValue.toLocaleString('id-ID')}` : '',
+    projectValue: amountValue ?? 0,
+    teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
+    companyId: optionalNumber(raw, 'company_id'),
+    contactId: optionalNumber(raw, 'contact_id'),
+    ownerId,
+    stageId,
+    currency,
+    amountValue,
+    expectedCloseDate,
+    priority: optionalNumber(raw, 'priority'),
+    competitorId: optionalNumber(raw, 'competitor_id'),
+    sumberdanaId: optionalNumber(raw, 'sumberdana_id'),
+    probability,
+    aktif: optionalNumber(raw, 'aktif'),
+    idold: optionalNumber(raw, 'idold'),
+    companyName: pickString(raw, 'company_name'),
+    contactName: pickString(raw, 'contact_name'),
+    ownerName,
+    stageName,
+    competitorName: pickString(raw, 'competitor_name'),
+    sumberdanaName: pickString(raw, 'sumberdana_name'),
+    createdBy: pickString(raw, 'created_by')
   }
 }
 
@@ -103,15 +130,27 @@ export const useProjectStore = defineStore('project', () => {
   const loading = ref(false)
   const submitting = ref(false)
   const error = ref<string | null>(null)
-  const pagination = reactive<Pagination>({ page: 1, perPage: 10, total: 0, lastPage: 1 })
+  const pagination = reactive<Pagination>({
+    page: 1,
+    perPage: 10,
+    total: 0,
+    lastPage: 1
+  })
   // Menandai bahwa daftar sudah pernah berhasil dimuat dari API.
   const loaded = ref(false)
   const lastParams = ref<ListParams>({})
 
-  // Data pendukung form project (status_id, leader_id).
-  const lookups = reactive<{ status: Select[]; leader: Select[] }>({
-    status: [],
-    leader: [],
+  // Data pendukung foreign key tabel m_projects.
+  const lookups = reactive<{
+    stage: Select[]
+    owner: Select[]
+    competitor: Select[]
+    sumberdana: Select[]
+  }>({
+    stage: [],
+    owner: [],
+    competitor: [],
+    sumberdana: []
   })
 
   /** GET /api/project. */
@@ -122,14 +161,14 @@ export const useProjectStore = defineStore('project', () => {
       fallbackMessage: 'Gagal memuat data project.',
       task: async () => {
         const response = await api.getbydata(ENDPOINT, { ...params })
-        // Response project dibungkus di key "companies" (paginator), sama seperti form lama.
+        // "companies" dipertahankan sebagai fallback response API lama.
         const { items: rawItems, meta } = extractList(response.data, ['projects', 'companies'])
         items.value = rawItems.filter(isRecord).map(normalizeProject)
         if (meta) Object.assign(pagination, meta)
         lastParams.value = params
         loaded.value = true
         return items.value
-      },
+      }
     })
   }
 
@@ -140,11 +179,13 @@ export const useProjectStore = defineStore('project', () => {
       error,
       fallbackMessage: 'Gagal memuat detail project.',
       task: async () => {
-        const response = await api.getbydata(`${ENDPOINT}/fetchprojectbyid`, { id })
-        const raw = extractItem(response.data, ['project'])
+        const response = await api.getbydata(`${ENDPOINT}/fetchprojectbyid`, {
+          id
+        })
+        const raw = extractItem(response.data, ['project', 'projects'])
         selectedItem.value = raw ? normalizeProject(raw) : null
         return selectedItem.value
-      },
+      }
     })
   }
 
@@ -155,8 +196,11 @@ export const useProjectStore = defineStore('project', () => {
       error,
       fallbackMessage: 'Gagal menyimpan project.',
       task: async () => {
-        const response = await api.post(`${ENDPOINT}/input`, { choice: 'i', ...payload })
-        const raw = extractItem(response.data, ['project'])
+        const response = await api.post(`${ENDPOINT}/input`, {
+          choice: 'i',
+          ...payload
+        })
+        const raw = extractItem(response.data, ['project', 'projects'])
         const created = raw ? normalizeProject(raw) : null
 
         if (created && created.id) {
@@ -165,7 +209,7 @@ export const useProjectStore = defineStore('project', () => {
           await fetchProjects(lastParams.value)
         }
         return created
-      },
+      }
     })
   }
 
@@ -176,8 +220,12 @@ export const useProjectStore = defineStore('project', () => {
       error,
       fallbackMessage: 'Gagal memperbarui project.',
       task: async () => {
-        const response = await api.post(`${ENDPOINT}/input`, { choice: 'u', id, ...payload })
-        const raw = extractItem(response.data, ['project'])
+        const response = await api.post(`${ENDPOINT}/input`, {
+          choice: 'u',
+          id,
+          ...payload
+        })
+        const raw = extractItem(response.data, ['project', 'projects'])
 
         if (raw) {
           const updated = normalizeProject(raw)
@@ -188,7 +236,7 @@ export const useProjectStore = defineStore('project', () => {
 
         await fetchProjects(lastParams.value)
         return null
-      },
+      }
     })
   }
 
@@ -202,24 +250,40 @@ export const useProjectStore = defineStore('project', () => {
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
         items.value = items.value.filter((item) => item.id !== id)
         if (selectedItem.value?.id === id) selectedItem.value = null
-      },
+      }
     })
   }
 
-  /** GET data pendukung: /project/status dan /project/leader. */
+  /** GET lookup yang memang tersedia: status untuk stage dan leader untuk user/owner. */
   function fetchProjectLookups() {
     return runApiAction({
       flag: loading,
       error,
       fallbackMessage: 'Gagal memuat data pendukung project.',
       task: async () => {
-        const [status, leader] = await Promise.all([
+        const [stageResponse, ownerResponse] = await Promise.all([
           api.get(`${ENDPOINT}/status`),
-          api.get(`${ENDPOINT}/leader`),
+          api.get(`${ENDPOINT}/leader`)
         ])
-        lookups.status = normalizeOptions(status.data, ['statuses', 'status'])
-        lookups.leader = normalizeOptions(leader.data, ['leaders', 'leader'])
-      },
+        lookups.stage = normalizeOptions(stageResponse.data, [
+          'stages',
+          'stage',
+          'statuses',
+          'status'
+        ])
+        lookups.owner = normalizeOptions(ownerResponse.data, [
+          'owners',
+          'owner',
+          'leaders',
+          'leader',
+          'users'
+        ])
+
+        // Backend belum menyediakan route lookup khusus untuk kedua master ini.
+        // Form project tetap memakai opsi lokal tanpa menembakkan request 404.
+        lookups.competitor = []
+        lookups.sumberdana = []
+      }
     })
   }
 
@@ -237,6 +301,6 @@ export const useProjectStore = defineStore('project', () => {
     createProject,
     updateProject,
     deleteProject,
-    fetchProjectLookups,
+    fetchProjectLookups
   }
 })

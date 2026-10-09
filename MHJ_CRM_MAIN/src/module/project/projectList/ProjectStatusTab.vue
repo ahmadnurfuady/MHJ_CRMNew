@@ -140,6 +140,10 @@ function handleTab(value: string) {
 
 <style scoped>
 /* 8 stage dalam grid 4 kolom (2 baris), lebar sama, rata kiri. */
+.project-tabs {
+  align-items: center !important;
+}
+
 .project-tab-grid {
   flex: 1;
   display: grid;
@@ -150,13 +154,13 @@ function handleTab(value: string) {
 }
 
 .project-tab-grid .nav-link {
-  position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
   width: 100%;
   min-height: 58px;
-  padding: 9px 88px 9px 14px;
+  padding: 9px 14px;
   border: 1px solid var(--bs-border-color, #dcdcdc);
   border-radius: 8px;
   color: var(--bs-body-color, #000);
@@ -165,22 +169,21 @@ function handleTab(value: string) {
 }
 
 .project-tab-main {
-  position: absolute;
-  top: 50%;
-  left: 14px;
-  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
+  min-width: 0;
   text-align: left;
 }
 
+.project-tab-main > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .project-tab-summary {
-  position: absolute;
-  top: 50%;
-  right: 14px;
-  transform: translateY(-50%);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -208,9 +211,37 @@ function handleTab(value: string) {
   color: inherit;
 }
 
+@media (max-width: 1199.98px) {
+  .project-tab-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 991.98px) {
+  .project-tabs {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .project-tab-grid,
+  .project-tabs > .btn {
+    width: 100%;
+  }
+}
+
 @media (max-width: 767.98px) {
   .project-tab-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .project-tab-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-tab-grid .nav-link {
+    min-height: 54px;
   }
 }
 </style>

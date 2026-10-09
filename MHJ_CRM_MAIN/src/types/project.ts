@@ -265,40 +265,42 @@ export interface ActivityTemplate {
   dueDate: string
 }
 
-/** Project dari tabel project di backend. Komentar menunjukkan nama kolom database. */
+/** Project dari tabel m_projects di backend. */
 export interface Projects {
   id: number
-  /** project_name */
+  /** projects_name */
   projectName: string
-  /** description */
   projectDescription: string
   projectBanner: string
   /** created_at, sudah diformat untuk ditampilkan */
   date: string
   progress: number
-  /** Slug dari status_name, dipakai untuk tab status di UI */
+  /** Slug dari stage_name, dipakai untuk tab stage di UI */
   status: string
   budget: string
-  /** Nilai project/deal dalam angka, bila dikirim oleh backend. */
+  /** amount_value */
   projectValue?: number
-  /** Berisi leader_name bila tersedia */
+  /** Berisi owner_name bila tersedia */
   teamMember: Profile[]
-  /** deal_id */
-  dealId?: number
-  /** leader_id */
-  leaderId?: number
-  /** status_id */
-  statusId?: number
-  /** address */
-  address?: string
-  /** kd_kelurahan */
-  kdKelurahan?: string
-  /** deal_name */
-  dealName?: string
-  /** leader_name */
-  leaderName?: string
-  /** status_name */
-  statusName?: string
+  companyId?: number
+  contactId?: number
+  ownerId?: number
+  stageId?: number
+  currency?: string
+  amountValue?: number
+  expectedCloseDate?: string
+  priority?: number
+  competitorId?: number
+  sumberdanaId?: number
+  probability?: number
+  aktif?: number
+  idold?: number
+  companyName?: string
+  contactName?: string
+  ownerName?: string
+  stageName?: string
+  competitorName?: string
+  sumberdanaName?: string
   /** created_by */
   createdBy?: string
 }

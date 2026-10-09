@@ -45,7 +45,7 @@ function toStringArray(value: unknown): string[] {
  */
 export function normalizeTask(raw: Dict): TaskDetails {
   const projectId = pick(raw, 'project_id', 'projectId')
-  const projectName = pickString(raw, 'project_name', 'projectName')
+  const projectName = pickString(raw, 'projects_name', 'project_name', 'projectName')
   const hospital = pickString(
     raw,
     'hospital_name',
@@ -74,10 +74,12 @@ export function normalizeTask(raw: Dict): TaskDetails {
     stageFrom: pickString(raw, 'stageFrom', 'stage_from'),
     stageTo: pickString(raw, 'stageTo', 'stage_to'),
     photoName: pickString(raw, 'photoName', 'photo_name'),
+    photoUrl: pickString(raw, 'photoUrl', 'photo_url', 'live_photo_url', 'live_photo'),
     latitude: pickNumber(raw, 'latitude'),
     longitude: pickNumber(raw, 'longitude'),
     locationAccuracy: pickNumber(raw, 'locationAccuracy', 'location_accuracy'),
     locationAddress: pickString(raw, 'locationAddress', 'location_address', 'address_location'),
+    contactPhone: pickString(raw, 'contactPhone', 'contact_phone', 'telephone_1', 'phone'),
     createdAt: pickString(raw, 'createdAt', 'created_at'),
   }
 }

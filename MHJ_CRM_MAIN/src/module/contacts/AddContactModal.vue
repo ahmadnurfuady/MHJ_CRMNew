@@ -5,7 +5,7 @@
     sizeClass="modal-xl"
     @closeModal="closeModal"
   >
-    <form class="form-bookmark needs-validation" @submit.prevent="saveContact">
+    <form class="form-bookmark needs-validation" @submit.prevent="handleSave">
       <div class="modal-body custom-input contact-form-body">
         <div class="row g-3">
           <div class="col-md-6">
@@ -40,13 +40,13 @@
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper :title="t('contacts.owner')">
+            <InputWrapper title="Penanggung Jawab">
               <Select
                 v-model="contactState.contactForm.owner"
                 :options="ownerOptions"
                 display-key="label"
-                getValueKey="label"
-                :placeholder="t('contacts.placeholders.owner')"
+                getValueKey="value"
+                :placeholder="loggedInOwnerName"
                 :required="false"
               />
             </InputWrapper>
@@ -98,36 +98,57 @@
                 </button>
               </div>
               <button
-                class="btn btn-outline-primary btn-sm"
+                class="btn btn-outline-primary add-phone-button"
                 type="button"
                 @click="addPhone"
               >
-                <vue-feather type="plus" size="14" class="me-1" />{{
-                  t('contacts.addPhone')
-                }}
+                <vue-feather type="plus" size="17" />
+                <span>{{ t('contacts.addPhone') }}</span>
               </button>
             </InputWrapper>
           </div>
 
           <div class="col-12">
             <InputWrapper :title="t('contacts.mapAddress')">
-              <div class="input-group">
-                <InputField
-                  v-model:modelValue="contactState.contactForm.mapAddress"
-                  inputId="contact-map-address"
-                  :placeholder="t('contacts.placeholders.mapAddress')"
-                  :required="false"
-                />
-                <button
-                  class="btn btn-outline-primary"
-                  type="button"
-                  :disabled="!contactState.contactForm.mapAddress.data.trim()"
-                  @click="searchGoogleMaps"
-                >
-                  <vue-feather type="map-pin" size="16" class="me-1" />{{
-                    t('contacts.searchMaps')
-                  }}
-                </button>
+              <div class="location-field">
+                <div class="location-input-group">
+                  <div class="location-address-box">
+                    <InputField
+                      v-model:modelValue="contactState.contactForm.mapAddress"
+                      inputId="contact-map-address"
+                      placeholder="Alamat lengkap akan muncul dari lokasi saat ini"
+                      :required="false"
+                    />
+                    <button
+                      v-if="contactState.contactForm.mapAddress.data"
+                      class="location-clear-button"
+                      type="button"
+                      title="Hapus alamat dan cari ulang"
+                      aria-label="Hapus alamat dan cari ulang"
+                      @click="clearCurrentAddress"
+                    >
+                      <vue-feather type="x" size="16" />
+                    </button>
+                  </div>
+                  <button
+                    class="btn btn-outline-primary location-button"
+                    type="button"
+                    :disabled="locatingAddress"
+                    @click="captureCurrentAddress"
+                  >
+                    <span
+                      v-if="locatingAddress"
+                      class="spinner-border spinner-border-sm"
+                      aria-hidden="true"
+                    ></span>
+                    <vue-feather v-else type="map-pin" size="17" />
+                    <span>{{ locatingAddress ? 'Mencari...' : 'Cari lokasi' }}</span>
+                  </button>
+                </div>
+                <small class="text-muted">
+                  Alamat lengkap akan diisi dari GPS dan tetap dapat diperbaiki secara manual.
+                </small>
+                <small v-if="locationError" class="text-danger">{{ locationError }}</small>
               </div>
             </InputWrapper>
           </div>
@@ -181,21 +202,21 @@
                 v-model="contactState.contactForm.source"
                 :options="sourceOptions"
                 display-key="label"
-                getValueKey="label"
+                getValueKey="value"
                 :placeholder="t('contacts.placeholders.source')"
                 :required="false"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper :title="t('contacts.gender')">
+            <InputWrapper title="Status" required>
               <Select
-                v-model="contactState.contactForm.gender"
-                :options="genderOptions"
+                v-model="contactState.contactForm.status"
+                :options="statusOptions"
                 display-key="label"
                 getValueKey="value"
-                :placeholder="t('contacts.placeholders.gender')"
-                :required="false"
+                placeholder="Pilih status kontak"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
@@ -206,7 +227,7 @@
                 v-model="contactState.contactForm.company"
                 :options="companyOptions"
                 display-key="label"
-                getValueKey="label"
+                getValueKey="value"
                 :placeholder="t('contacts.placeholders.company')"
                 :required="false"
               />
@@ -240,21 +261,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 
 import { initInputField, initSelectField } from "@/core/data/common";
 import {
   cityOptionsByProvince,
-  companyOptions,
-  genderOptions,
-  ownerOptions,
   projectOptions,
   provinceOptions,
-  sourceOptions,
 } from "@/core/data/contactCrm";
 import { useContact } from "@/store/contact";
+import { useAuthStore } from "@/store/auth";
+import { useProjectStore } from "@/store/project";
+import {
+  geolocationErrorMessage,
+  getCurrentPosition,
+  reverseGeocodeAddress,
+} from "@/services/geocoding";
+import type { Contact } from "@/types/contacts";
+
+const emit = defineEmits<{
+  saved: [contact: Contact];
+}>();
 
 const { t } = useI18n();
 
@@ -272,8 +301,78 @@ const Modal = defineAsyncComponent(
 );
 
 const contactStore = useContact();
-const { contactState } = storeToRefs(contactStore);
-const { saveContact } = contactStore;
+const authStore = useAuthStore();
+const projectStore = useProjectStore();
+const { contactState, contactApi } = storeToRefs(contactStore);
+const {
+  fetchContactCompanies,
+  fetchContactSources,
+  fetchContactStatuses,
+  saveContact,
+} = contactStore;
+
+const ownerOptions = computed(() => projectStore.lookups.owner);
+const companyOptions = computed(() => contactApi.value.companies);
+const sourceOptions = computed(() => contactApi.value.sources);
+const statusOptions = computed(() => contactApi.value.statuses);
+const locatingAddress = ref(false);
+const locationError = ref("");
+const loggedInOwnerName = computed(
+  () => authStore.user?.name || authStore.user?.email || "Penanggung Jawab",
+);
+
+function selectLoggedInOwner() {
+  const user = authStore.user;
+  if (!user) return;
+
+  const normalizedName = user.name.trim().toLowerCase();
+  const option =
+    ownerOptions.value.find(
+      (item) =>
+        String(item.value) === String(user.id) ||
+        item.label.trim().toLowerCase() === normalizedName,
+    ) ?? { value: user.id, label: loggedInOwnerName.value };
+
+  contactState.value.contactForm.owner = {
+    selected: option,
+    data: String(option.value),
+    selectedItems: [],
+    errorMessage: "",
+    type: "dropdown",
+  };
+}
+
+function selectDefaultStatus() {
+  if (contactState.value.contactForm.status.selected) return;
+  const option =
+    statusOptions.value.find((item) => String(item.value) === "1") ??
+    statusOptions.value[0];
+  if (!option) return;
+
+  contactState.value.contactForm.status = {
+    selected: option,
+    data: String(option.value),
+    selectedItems: [],
+    errorMessage: "",
+    type: "dropdown",
+  };
+}
+
+onMounted(async () => {
+  const requests: Promise<unknown>[] = [];
+  if (!projectStore.lookups.owner.length) requests.push(projectStore.fetchProjectLookups());
+  if (!contactApi.value.companies.length) requests.push(fetchContactCompanies());
+  if (!contactApi.value.sources.length) requests.push(fetchContactSources());
+  if (!contactApi.value.statuses.length) requests.push(fetchContactStatuses());
+  await Promise.allSettled(requests);
+  selectLoggedInOwner();
+  selectDefaultStatus();
+});
+
+async function handleSave() {
+  const created = await saveContact();
+  if (created) emit("saved", created);
+}
 
 const cityOptions = computed(
   () =>
@@ -296,17 +395,33 @@ function removePhone(index: number) {
   contactState.value.contactForm.phoneNumbers.splice(index, 1);
 }
 
-function searchGoogleMaps() {
-  const query = contactState.value.contactForm.mapAddress.data.trim();
-  if (query)
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
-      "_blank",
-      "noopener,noreferrer",
+async function captureCurrentAddress() {
+  locationError.value = "";
+  locatingAddress.value = true;
+
+  try {
+    const position = await getCurrentPosition();
+    const address = await reverseGeocodeAddress(
+      position.coords.latitude,
+      position.coords.longitude,
     );
+    contactState.value.contactForm.mapAddress.data = address;
+    contactState.value.contactForm.address.data = address;
+  } catch (error) {
+    locationError.value = geolocationErrorMessage(error);
+  } finally {
+    locatingAddress.value = false;
+  }
+}
+
+function clearCurrentAddress() {
+  contactState.value.contactForm.mapAddress.data = "";
+  contactState.value.contactForm.address.data = "";
+  locationError.value = "";
 }
 
 function closeModal() {
+  locationError.value = "";
   contactState.value.openAddContactModal = false;
   contactState.value.formSubmitted = false;
 }
@@ -316,5 +431,88 @@ function closeModal() {
 .contact-form-body {
   max-height: 70vh;
   overflow-y: auto;
+}
+
+.add-phone-button {
+  display: inline-flex;
+  min-width: 184px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.location-field {
+  display: grid;
+  gap: 7px;
+}
+
+.location-input-group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.location-address-box {
+  position: relative;
+  min-width: 0;
+}
+
+.location-address-box :deep(.form-control) {
+  height: 46px;
+  padding-right: 42px;
+}
+
+.location-clear-button {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: #eef2f6;
+  color: #667085;
+}
+
+.location-clear-button:hover {
+  background: #e2e8f0;
+  color: #344054;
+}
+
+.location-button {
+  display: inline-flex;
+  min-width: 156px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+  .add-phone-button {
+    width: 100%;
+  }
+
+  .location-input-group {
+    grid-template-columns: minmax(0, 1fr) 132px;
+  }
+
+  .location-button {
+    min-width: 132px;
+    padding-inline: 10px;
+  }
 }
 </style>
