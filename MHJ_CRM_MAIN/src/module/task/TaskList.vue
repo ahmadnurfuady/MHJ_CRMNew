@@ -16,7 +16,7 @@
             id="task-search-input"
             v-model="searchQuery"
             type="search"
-            placeholder="Cari tugas, rumah sakit, project, atau owner..."
+            placeholder="Cari tugas, rumah sakit, proyek, atau owner..."
             autocomplete="off"
           />
           <span
@@ -54,7 +54,7 @@
             <tr>
               <th>Nama Task</th>
               <th>Rumah Sakit</th>
-              <th>Project</th>
+              <th>Proyek</th>
               <th>Jadwal</th>
               <th>Owner</th>
               <th>Pipeline</th>
@@ -96,9 +96,9 @@
                 </div>
               </td>
 
-              <td data-label="Project">
+              <td data-label="Proyek">
                 <span v-if="item.projectName" class="project-badge">{{ item.projectName }}</span>
-                <span v-else class="empty-value">Tanpa project</span>
+                <span v-else class="empty-value">Tanpa proyek</span>
               </td>
 
               <td data-label="Jadwal">

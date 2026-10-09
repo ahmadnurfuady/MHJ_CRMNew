@@ -51,7 +51,7 @@
               <th>Nama</th>
               <th>Rumah Sakit</th>
               <th>Jabatan</th>
-              <th>Project</th>
+              <th>Proyek</th>
               <th>Aktivitas</th>
               <th>Terakhir Dihubungi</th>
               <th class="text-center">Detail</th>
@@ -84,9 +84,9 @@
               <td data-label="Jabatan">
                 {{ contact.jobTitle || "-" }}
               </td>
-              <td data-label="Project">
+              <td data-label="Proyek">
                 <span v-if="contact.project" class="project-badge">{{ contact.project }}</span>
-                <span v-else class="empty-value">Belum ada project</span>
+                <span v-else class="empty-value">Belum ada proyek</span>
               </td>
               <td data-label="Aktivitas">
                 <span v-if="contact.lastActivity" class="activity-label">

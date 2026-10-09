@@ -1,8 +1,8 @@
 <template>
   <Card
-    :sortDescription="'Total 28 projects pending'"
+    :sortDescription="'Total 28 proyek pending'"
     :cardType="'classic'"
-    :headerTitle="'Projects Pending'"
+    :headerTitle="'Proyek Pending'"
     :cardBodyClass="'px-0 pt-0'"
     :buttonText="'View All'"
     :path="routes.Project.ProjectList"
@@ -27,8 +27,8 @@ const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vu
 
 const tableConfig = ref<TableConfigs>({
   columns: [
-    { title: 'Project Name', fieldValue: 'projectName', sort: true },
-    { title: 'Project Head', fieldValue: 'projectHeadName', sort: true },
+    { title: 'Proyek Name', fieldValue: 'projectName', sort: true },
+    { title: 'Proyek Head', fieldValue: 'projectHeadName', sort: true },
     { title: 'Priority', fieldValue: 'priority', sort: true },
     { title: 'Due Date', fieldValue: 'dueDate', sort: true },
     { title: 'Status', fieldValue: 'status', sort: true },

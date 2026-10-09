@@ -1,6 +1,6 @@
 <template>
   <Card
-    :headerTitle="'Project Statistics'"
+    :headerTitle="'Proyek Statistics'"
     :padding="true"
     :header="'sales-chart'"
     :cardBodyClass="'p-2 pt-0'"

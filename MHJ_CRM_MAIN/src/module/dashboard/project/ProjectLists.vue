@@ -1,6 +1,6 @@
 <template>
   <Card
-    :headerTitle="'Important Project Lists'"
+    :headerTitle="'Important Proyek Lists'"
     :padding="true"
     :header="'total-revenue'"
     :cardBodyClass="'pt-0 row important-project'"

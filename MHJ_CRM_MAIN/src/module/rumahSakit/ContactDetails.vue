@@ -45,7 +45,7 @@
               <th>Kelas</th>
               <th>Jenis Rumah Sakit</th>
               <th class="text-center">Total Kontak</th>
-              <th class="text-center">Total Project</th>
+              <th class="text-center">Total Proyek</th>
               <th class="text-center">Alat Terpasang</th>
               <th>Kunjungan Terakhir</th>
               <th class="text-center">Detail</th>
@@ -81,7 +81,7 @@
               <td data-label="Total Kontak" class="text-center">
                 <span class="metric-badge">{{ formatMetric(hospital.totalContacts) }}</span>
               </td>
-              <td data-label="Total Project" class="text-center">
+              <td data-label="Total Proyek" class="text-center">
                 <span class="metric-badge">{{ formatMetric(projectTotal(hospital)) }}</span>
               </td>
               <td data-label="Alat Terpasang" class="text-center">

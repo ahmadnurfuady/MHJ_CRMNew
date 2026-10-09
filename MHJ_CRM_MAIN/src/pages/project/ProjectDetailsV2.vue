@@ -5,7 +5,7 @@
         <i class="fa-solid fa-arrow-left"></i>
       </router-link>
       <div>
-        <p class="toolbar-eyebrow">Project</p>
+        <p class="toolbar-eyebrow">Proyek</p>
         <h3>Detail Proyek</h3>
       </div>
       <button class="edit-button" type="button" aria-label="Edit proyek" disabled>
@@ -22,7 +22,7 @@
       <i class="fa-solid fa-circle-exclamation text-danger"></i>
       <span>{{ loadError || 'Data proyek tidak ditemukan.' }}</span>
       <router-link class="btn btn-primary btn-sm" :to="routes.Project.ProjectList">
-        Kembali ke Project List
+        Kembali ke Proyek List
       </router-link>
     </div>
 
@@ -278,9 +278,9 @@ const activities = computed<ActivityInfo[]>(() => {
 
   if (fromApi.length) return fromApi
   return [{
-    title: 'Project dibuat',
+    title: 'Proyek dibuat',
     date: formatDate(project.value?.createdAt),
-    description: `Project ${project.value?.projectName || ''} berhasil ditambahkan ke pipeline.`,
+    description: `Proyek ${project.value?.projectName || ''} berhasil ditambahkan ke pipeline.`,
   }]
 })
 
@@ -328,11 +328,11 @@ async function loadProject() {
       if (!items.value.length) await store.fetchProjects({ per_page: 100 })
       id = items.value[0]?.id ?? 0
     }
-    if (!id) throw new Error('Belum ada project yang dapat ditampilkan.')
+    if (!id) throw new Error('Belum ada proyek yang dapat ditampilkan.')
     await store.fetchProjectById(id)
-    if (!selectedItem.value) throw new Error('Data project tidak ditemukan.')
+    if (!selectedItem.value) throw new Error('Data proyek tidak ditemukan.')
   } catch (error) {
-    loadError.value = error instanceof Error ? error.message : (store.error ?? 'Gagal memuat detail project.')
+    loadError.value = error instanceof Error ? error.message : (store.error ?? 'Gagal memuat detail proyek.')
   }
 }
 

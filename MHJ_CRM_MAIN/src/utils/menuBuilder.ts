@@ -60,7 +60,7 @@ function resolveIcon(raw?: string): string {
 /** Backend lama masih dapat mengirim caption Deal/Deals; UI CRM memakai istilah Project. */
 function resolveMenuTitle(rawTitle: string, fallback: string): string {
   const title = rawTitle.trim() || fallback
-  return title.replace(/\bdeals?\b/gi, 'Projects')
+  return title.replace(/\bdeals?\b/gi, 'Proyek')
 }
 
 function isRootRef(value?: string): boolean {
@@ -172,7 +172,7 @@ function appendProjectDetailsV2(items: MenuItem[]): void {
       const insertAt = oldDetailsIndex === -1 ? children.length : oldDetailsIndex + 1
       children.splice(insertAt, 0, {
         id: `${item.id ?? 'project'}-details-v2`,
-        title: 'Project Detail Ver2',
+        title: 'Proyek Detail Ver2',
         path: '/crmAdmin/Projects/details-v2',
         type: 'link',
         active: false,

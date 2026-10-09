@@ -61,7 +61,7 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon violet"><i class="fa-solid fa-chart-line"></i></div>
-            <div><span>Nilai project</span><strong>{{ formatCompactCurrency(totalProjectValue) }}</strong></div>
+            <div><span>Nilai proyek</span><strong>{{ formatCompactCurrency(totalProjectValue) }}</strong></div>
           </div>
           <div class="overview-metric">
             <div class="metric-icon green"><i class="fa-regular fa-address-book"></i></div>
@@ -92,7 +92,7 @@
         <div class="panel-heading">
           <div>
             <p>Pipeline sales</p>
-            <h5>Project Rumah Sakit</h5>
+            <h5>Proyek Rumah Sakit</h5>
           </div>
           <div class="project-total">
             <span>Total nilai</span>
@@ -105,7 +105,7 @@
             v-for="stage in populatedStages"
             :key="stage.value"
             :style="{ background: stage.color, flexGrow: Math.max(stage.projects.length, 1) }"
-            :title="`${stage.label}: ${stage.projects.length} project`"
+            :title="`${stage.label}: ${stage.projects.length} proyek`"
           ></span>
         </div>
 
@@ -122,7 +122,7 @@
               </span>
               <span class="stage-meta">
                 <b :style="{ color: stage.color, background: `${stage.color}16` }">
-                  {{ stage.projects.length }} project
+                  {{ stage.projects.length }} proyek
                 </b>
                 <small>{{ formatCompactCurrency(stage.totalValue) }}</small>
                 <i
@@ -142,15 +142,15 @@
                 <span><strong>{{ project.projectName }}</strong><small>{{ project.ownerName || "Owner belum tersedia" }}</small></span>
                 <span><strong>{{ formatCurrency(project.amountValue || 0) }}</strong><i class="fa-solid fa-arrow-right"></i></span>
               </button>
-              <div v-if="!stage.projects.length" class="stage-empty">Belum ada project pada stage ini.</div>
+              <div v-if="!stage.projects.length" class="stage-empty">Belum ada proyek pada stage ini.</div>
             </div>
           </article>
         </div>
         <HospitalEmptyState
           v-else
           icon="fa-solid fa-folder-open"
-          title="Belum ada project"
-          description="Project yang terhubung dengan rumah sakit ini akan tampil di sini."
+          title="Belum ada proyek"
+          description="Proyek yang terhubung dengan rumah sakit ini akan tampil di sini."
         />
       </section>
 
@@ -240,7 +240,7 @@
             v-else
             icon="fa-regular fa-calendar-xmark"
             title="Belum ada aktivitas"
-            description="Aktivitas kontak dan project terbaru akan dirangkum di sini."
+            description="Aktivitas kontak dan proyek terbaru akan dirangkum di sini."
           />
         </article>
 
@@ -405,8 +405,8 @@ const activities = computed<ActivityItem[]>(() => {
   const projectActivities = hospitalProjects.value
     .filter((project) => project.createdAt)
     .map((project) => ({
-      title: `Project ${project.projectName} dibuat`,
-      description: `Project masuk ke stage ${project.stageName || titleCase(project.status)}.`,
+      title: `Proyek ${project.projectName} dibuat`,
+      description: `Proyek masuk ke stage ${project.stageName || titleCase(project.status)}.`,
       date: project.createdAt || "",
     }));
 

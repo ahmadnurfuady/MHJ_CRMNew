@@ -6,7 +6,7 @@
           <div class="card-body">
             <form class="row g-3 needs-validation" @submit.prevent="handleSubmit">
               <div class="col-12">
-                <InputWrapper :title="'Project Name'">
+                <InputWrapper :title="'Proyek Name'">
                   <InputField
                     :modelValue="projectNameField"
                     :inputId="'project-name'"
@@ -208,7 +208,7 @@
                     <div>
                       <h6 class="mb-1">Timeline</h6>
                       <p class="mb-0 text-muted small">
-                        Catat meeting, demo, follow up, dan aktivitas project.
+                        Catat meeting, demo, follow up, dan aktivitas proyek.
                       </p>
                     </div>
                     <button
@@ -279,7 +279,7 @@
                       class="spinner-border spinner-border-sm me-2"
                       aria-hidden="true"
                     />
-                    Tambah Project
+                    Tambah Proyek
                   </button>
                 </div>
               </div>
@@ -579,7 +579,7 @@ onMounted(async () => {
         hospitalStore.error ??
         contactStore.contactApi.error ??
         projectStore.error ??
-        'Sebagian data pendukung project gagal dimuat.',
+        'Sebagian data pendukung proyek gagal dimuat.',
       confirmButtonColor: 'var(--theme-default)',
     })
   }
@@ -649,7 +649,7 @@ async function handleSubmit() {
   if (!projectName.value || projectName.value.length > 500) {
     await Swal.fire({
       icon: 'error',
-      text: 'Project Name wajib diisi dan maksimal 500 karakter.',
+      text: 'Proyek Name wajib diisi dan maksimal 500 karakter.',
       confirmButtonColor: 'var(--theme-default)',
     })
     return
@@ -691,14 +691,14 @@ async function handleSubmit() {
     await projectStore.createProject(payload)
     await Swal.fire({
       icon: 'success',
-      title: 'Project berhasil ditambahkan',
+      title: 'Proyek berhasil ditambahkan',
       confirmButtonColor: 'var(--theme-default)',
     })
     router.push(routes.Project.ProjectList)
   } catch {
     Swal.fire({
       icon: 'error',
-      text: projectStore.error ?? 'Gagal menyimpan project.',
+      text: projectStore.error ?? 'Gagal menyimpan proyek.',
       confirmButtonColor: 'var(--theme-default)',
     })
   }

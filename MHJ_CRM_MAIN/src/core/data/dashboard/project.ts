@@ -4,7 +4,7 @@ import { ApexOptions } from 'apexcharts'
 
 export const topProjectWidgets: Widgets[] = [
   {
-    title: 'Total Project',
+    title: 'Total Proyek',
     number: 1523,
     class1: ' total-project border-b-primary border-2',
     class2: 'primary',

@@ -178,7 +178,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data project.',
+      fallbackMessage: 'Gagal memuat data proyek.',
       task: async () => {
         const response = await api.getbydata(ENDPOINT, { ...params })
         const { items: rawItems, meta } = extractList(response.data, [
@@ -200,7 +200,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat detail project.',
+      fallbackMessage: 'Gagal memuat detail proyek.',
       task: async () => {
         const response = await api.getbydata(`${ENDPOINT}/fetchdealsbyid`, {
           id
@@ -227,7 +227,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menyimpan project.',
+      fallbackMessage: 'Gagal menyimpan proyek.',
       task: async () => {
         const response = await api.post(`${ENDPOINT}/input`, {
           choice: 'i',
@@ -264,7 +264,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal memperbarui project.',
+      fallbackMessage: 'Gagal memperbarui proyek.',
       task: async () => {
         await api.post(`${ENDPOINT}/input`, {
           choice: 'u',
@@ -299,7 +299,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menghapus project.',
+      fallbackMessage: 'Gagal menghapus proyek.',
       task: async () => {
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
         items.value = items.value.filter((item) => item.id !== id)
@@ -313,7 +313,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data pendukung project.',
+      fallbackMessage: 'Gagal memuat data pendukung proyek.',
       task: async () => {
         const ownerResponse = await api.get(`${ENDPOINT}/users`)
         lookups.owner = normalizeOptions(ownerResponse.data, ['leaders', 'leader', 'users'])

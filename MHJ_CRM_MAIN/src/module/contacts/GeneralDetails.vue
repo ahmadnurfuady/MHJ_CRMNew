@@ -111,7 +111,7 @@
         <div>
           <h5 class="mb-1">Detail Perusahaan</h5>
           <p class="text-muted mb-0">
-            Ringkasan perusahaan dan aktivitas project
+            Ringkasan perusahaan dan aktivitas proyek
           </p>
         </div>
         <button
@@ -201,7 +201,7 @@
                 :title="summary.stage"
                 >{{ summary.stage }}</span
               >
-              <h4 class="stage-count mb-1">{{ summary.quantity }} Project</h4>
+              <h4 class="stage-count mb-1">{{ summary.quantity }} Proyek</h4>
               <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
                 {{ formatCurrency(summary.value) }}
               </p>
@@ -211,7 +211,7 @@
 
         <div class="card border mb-4">
           <div class="card-header pb-2">
-            <h6 class="mb-0">Project Berjalan per Stage</h6>
+            <h6 class="mb-0">Proyek Berjalan per Stage</h6>
           </div>
           <div class="card-body pt-3">
             <template v-if="groupedProjects.length">
@@ -227,7 +227,7 @@
                     group.stage
                   }}</span>
                   <small class="text-muted"
-                    >{{ group.projects.length }} project</small
+                    >{{ group.projects.length }} proyek</small
                   >
                 </div>
                 <div class="list-group">
@@ -255,7 +255,7 @@
             </template>
             <div v-else class="empty-company-section">
               <vue-feather type="folder" size="20" />
-              <span>Belum ada project berjalan untuk perusahaan ini.</span>
+              <span>Belum ada proyek berjalan untuk perusahaan ini.</span>
             </div>
           </div>
         </div>
