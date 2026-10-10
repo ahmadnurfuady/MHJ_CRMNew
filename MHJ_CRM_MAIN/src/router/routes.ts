@@ -1,8 +1,10 @@
 export const routes = {
   Dashboards: {
     Default: '/crmAdmin',
+    Manager: '/crmManager',
     ECommerce: '/dashboards/dashboard_ecommerce',
     Project: '/dashboards/dashboard_project',
+    NoAccess: '/no-access',
   },
   CrmAdmin: {
     Dashboard: '/crmAdmin',
@@ -84,6 +86,7 @@ export const routes = {
   },
   User: {
     UserProfile: '/user/user-profile',
+    AkunSaya: '/akun-saya',
     AddUser: '/user/add-user',
     UserList: '/crmAdmin/users/list',
     UserCards: '/user/user-cards',

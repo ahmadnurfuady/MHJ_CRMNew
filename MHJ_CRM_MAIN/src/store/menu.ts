@@ -97,9 +97,15 @@ export const useMenu = defineStore('menu', () => {
     isFetchingMenu = true
     try {
       let rawData: FlMenuRawItem[] = []
+      // Lacak apakah minimal satu endpoint berhasil merespons (bukan network error).
+      // Jika semua endpoint gagal (network error), biarkan menu lama tetap tampil.
+      // Jika API berhasil merespons tapi hasilnya kosong/tidak ada hak akses,
+      // sidebar dikosongkan agar tidak memperlihatkan menu default template.
+      let apiResponded = false
 
       try {
         rawData = await menuRoleService.getWebMenu()
+        apiResponded = true
       } catch (err) {
         console.warn('Gagal memanggil /menuweb, mencoba fallback...', err)
       }
@@ -107,19 +113,30 @@ export const useMenu = defineStore('menu', () => {
       if (rawData.length === 0 && username) {
         try {
           rawData = await menuRoleService.getFlMenu(username)
+          apiResponded = true
         } catch (err) {
           console.warn('Gagal memanggil fallback /berkas/getflmenu:', err)
         }
       }
 
-      if (rawData.length === 0) return
+      // Jika tidak satu pun endpoint berhasil dijangkau, jangan ubah menu.
+      if (!apiResponded) return
 
+      // API berhasil merespons — gunakan hasilnya, termasuk jika kosong (= tidak ada hak akses).
       const dynamicMenu = transformFlMenuToTree(rawData)
-      if (dynamicMenu.length === 0) return
-
       localStorage.setItem(RAW_MENU_STORAGE_KEY, JSON.stringify(rawData))
       menuState.menu = dynamicMenu
       updateActiveState(menuState.menu, route.path)
+
+      // Jika user belum mendapat hak akses apapun, arahkan ke halaman informasi.
+      // Dynamic import menghindari circular dependency antara store dan router.
+      if (dynamicMenu.length === 0) {
+        import('@/router').then(({ default: router }) => {
+          if (router.currentRoute.value.path !== '/no-access') {
+            router.push('/no-access')
+          }
+        })
+      }
     } catch (error) {
       console.error('Gagal memuat menu dinamis dari backend:', error)
     } finally {

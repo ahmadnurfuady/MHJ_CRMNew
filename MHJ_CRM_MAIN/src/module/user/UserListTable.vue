@@ -90,7 +90,20 @@
                     href="#"
                     @click.prevent="openHierarchy(user)"
                   >
-                    <vue-feather type="git-merge" size="22" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#18A6E4"
+                      stroke-width="2.3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="width: 26px; height: 26px;"
+                    >
+                      <circle cx="18" cy="18" r="3" fill="#18A6E4"></circle>
+                      <circle cx="6" cy="6" r="3" fill="#18A6E4"></circle>
+                      <path d="M6 21V9a9 9 0 0 0 9 9"></path>
+                    </svg>
                   </a>
                   <a
                     class="square-white"
