@@ -57,6 +57,12 @@ function resolveIcon(raw?: string): string {
   return ICON_ALIASES[name] || FALLBACK_ICON
 }
 
+/** Backend lama masih dapat mengirim caption Deal/Deals; UI CRM memakai istilah Project. */
+function resolveMenuTitle(rawTitle: string, fallback: string): string {
+  const title = rawTitle.trim() || fallback
+  return title.replace(/\bdeals?\b/gi, 'Proyek')
+}
+
 function isRootRef(value?: string): boolean {
   const v = (value || '').trim()
   return v === '' || v === '0'
@@ -142,6 +148,44 @@ function placeProjectListBeforeDetails(items: MenuItem[]): void {
 }
 
 /**
+ * Detail v2 adalah halaman UI lokal yang belum ada pada tabel menu backend.
+ * Sisipkan sebagai anak Project agar tetap muncul pada sidebar dinamis dan
+ * mewarisi visibilitas menu Project milik pengguna.
+ */
+function appendProjectDetailsV2(items: MenuItem[]): void {
+  items.forEach((item) => {
+    const children = item.children
+    if (!children?.length) return
+
+    const hasProjectChildren = children.some((child) => {
+      const path = child.path?.trim().toLowerCase()
+      return path === '/crmadmin/projects/list' || path === '/crmadmin/projects/details'
+    })
+    const alreadyExists = children.some(
+      (child) => child.path?.trim().toLowerCase() === '/crmadmin/projects/details-v2'
+    )
+
+    if (hasProjectChildren && !alreadyExists) {
+      const oldDetailsIndex = children.findIndex(
+        (child) => child.path?.trim().toLowerCase() === '/crmadmin/projects/details'
+      )
+      const insertAt = oldDetailsIndex === -1 ? children.length : oldDetailsIndex + 1
+      children.splice(insertAt, 0, {
+        id: `${item.id ?? 'project'}-details-v2`,
+        title: 'Proyek Detail Ver2',
+        path: '/crmAdmin/Projects/details-v2',
+        type: 'link',
+        active: false,
+        isPinned: false,
+        permissions: item.permissions,
+      })
+    }
+
+    appendProjectDetailsV2(children)
+  })
+}
+
+/**
  * Mengubah data flat dbFlMenuWebcrm menjadi struktur pohon yang dirender komponen NavMenu.
  * Item tanpa hak akses dibuang; anak yang parent-nya ikut terbuang
  * dinaikkan ke level root agar menu yang masih diizinkan tetap dapat dijangkau.
@@ -161,7 +205,7 @@ export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
     rawIconById.set(id, raw.icon || raw.ICON || '')
     itemMap.set(id, {
       id,
-      title: (raw.CAPTION || raw.name || '').trim() || id,
+      title: resolveMenuTitle(raw.CAPTION || raw.name || '', id),
       path: (raw.pathfile || '').trim(),
       active: false,
       isPinned: false,
@@ -194,6 +238,7 @@ export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
 
   applyDepthRules(tree, rawIconById)
   placeProjectListBeforeDetails(tree)
+  appendProjectDetailsV2(tree)
 
   return tree
 }

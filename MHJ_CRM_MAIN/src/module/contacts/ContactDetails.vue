@@ -51,7 +51,7 @@
               <th>Nama</th>
               <th>Rumah Sakit</th>
               <th>Jabatan</th>
-              <th>Project</th>
+              <th>Proyek</th>
               <th>Aktivitas</th>
               <th>Terakhir Dihubungi</th>
               <th class="text-center">Detail</th>
@@ -84,9 +84,9 @@
               <td data-label="Jabatan">
                 {{ contact.jobTitle || "-" }}
               </td>
-              <td data-label="Project">
+              <td data-label="Proyek">
                 <span v-if="contact.project" class="project-badge">{{ contact.project }}</span>
-                <span v-else class="empty-value">Belum ada project</span>
+                <span v-else class="empty-value">Belum ada proyek</span>
               </td>
               <td data-label="Aktivitas">
                 <span v-if="contact.lastActivity" class="activity-label">
@@ -156,53 +156,24 @@
     </div>
   </div>
 
-  <Modal
-    title="Detail Kontak"
-    :modalOpen="detailModalOpen"
-    sizeClass="modal-xl"
-    dialogClass="contact-detail-dialog"
-    @closeModal="closeContactDetail"
-  >
-    <div class="modal-body contact-detail-body">
-      <ContactHistory v-if="contactState.historyVisible" />
-      <div v-else-if="contactState.isEditContact" class="contact-editform p-0">
-        <EditContactForm />
-      </div>
-      <div v-else-if="contactState.activeContact" class="profile-mail contact-detail-content">
-        <GeneralDetails />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-light" type="button" @click="closeContactDetail">Tutup</button>
-    </div>
-  </Modal>
-
   <AddContactModal v-if="contactState.openAddContactModal" />
 </template>
 
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import type { Contact } from "@/types/contacts";
 import { getImages } from "@/utils/index";
-const Modal = defineAsyncComponent(() => import("@/components/shared/Modal.vue"));
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );
-const EditContactForm = defineAsyncComponent(
-  () => import("@/module/contacts/EditContactForm.vue"),
-);
-const ContactHistory = defineAsyncComponent(
-  () => import("@/module/contacts/ContactHistory.vue"),
-);
-const GeneralDetails = defineAsyncComponent(
-  () => import("@/module/contacts/GeneralDetails.vue"),
-);
+const router = useRouter();
 const contactStore = useContact();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
-const { handleContact, changeContactPage, openContactModal, searchContacts } = contactStore;
-const detailModalOpen = ref(false);
+const { changeContactPage, openContactModal, searchContacts } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -256,15 +227,8 @@ function relativeContactDate(value: string) {
 }
 
 function openContactDetail(contact: Contact) {
-  contactState.value.isEditContact = false;
-  handleContact(contact);
-  detailModalOpen.value = true;
-}
-
-function closeContactDetail() {
-  detailModalOpen.value = false;
-  contactState.value.isEditContact = false;
-  contactState.value.historyVisible = false;
+  const id = contact.remoteId ?? contact.id;
+  void router.push({ path: routes.App.Contacts, query: { detail: String(id) } });
 }
 
 onMounted(() => {
@@ -567,16 +531,6 @@ onBeforeUnmount(() => {
   margin-bottom: 10px;
   background: rgba(24, 166, 228, 0.1);
   color: #18a6e4;
-}
-
-.contact-detail-body {
-  max-height: calc(100vh - 190px);
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.contact-detail-content {
-  padding: 0;
 }
 
 .pagination-actions {

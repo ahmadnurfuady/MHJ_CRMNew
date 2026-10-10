@@ -3,7 +3,7 @@
     <div class="row project-cards">
       <div class="col-md-12 project-list">
         <Card
-          :headerTitle="'Projects Overview'"
+          :headerTitle="'Proyek Overview'"
           :headerClass="'m-0'"
           :border="true"
           :padding="false"
@@ -59,7 +59,7 @@ const projectStore = useProjectStore()
 
 onMounted(() => {
   projectStore.fetchProjects().catch(() => {
-    Swal.fire({ icon: 'error', text: projectStore.error ?? 'Gagal memuat data project.' })
+    Swal.fire({ icon: 'error', text: projectStore.error ?? 'Gagal memuat data proyek.' })
   })
 })
 

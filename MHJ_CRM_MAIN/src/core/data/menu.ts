@@ -27,7 +27,7 @@ export const menu: MenuItem[] = [
       },
       {
         path: routes.Dashboards.Project,
-        title: 'Project ',
+        title: 'Proyek ',
         type: 'link',
       },
     ],
@@ -37,7 +37,7 @@ export const menu: MenuItem[] = [
     type: 'headtitle',
   },
   {
-    title: 'project',
+    title: 'proyek',
     icon: 'project',
     type: 'sub',
     isPinned: false,
@@ -46,14 +46,19 @@ export const menu: MenuItem[] = [
     children: [
       {
         path: routes.Project.ProjectList,
-        title: 'Project List',
+        title: 'Proyek List',
         type: 'link',
       },
       {
         path: routes.Project.ProjectDetails,
-        title: 'Project Details',
+        title: 'Proyek Details',
         badgeType: 'warning',
         badge: 'New',
+        type: 'link',
+      },
+      {
+        path: routes.Project.ProjectDetailsV2,
+        title: 'Proyek Detail Ver2',
         type: 'link',
       },
       {

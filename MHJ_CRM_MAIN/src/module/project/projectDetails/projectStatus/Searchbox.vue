@@ -7,7 +7,7 @@
             <span class="input-group-text">
               <vue-feather :type="'search'" :class="'search-icon text-gray'" />
             </span>
-            <input class="form-control" type="text" placeholder="Search Project..." />
+            <input class="form-control" type="text" placeholder="Search Proyek..." />
           </div>
         </div>
       </div>

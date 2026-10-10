@@ -230,7 +230,7 @@ import { computed, defineAsyncComponent, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 
 import { initInputField, initSelectField } from "@/core/data/common";
-import { cityOptionsByProvince, provinceOptions } from "@/core/data/contactCrm";
+import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import {
   geolocationErrorMessage,
   getCurrentPosition,
@@ -257,9 +257,12 @@ const { saveRumahSakit, closeRumahSakitModal } = contactStore;
 const locatingAddress = ref(false);
 const locationError = ref("");
 
+const { provinceOptions, cityOptionsByProvince } = useCompanyRegions();
+
 const cityOptions = computed(
   () =>
-    cityOptionsByProvince[contactState.value.rumahSakitForm.province.data] || [],
+    cityOptionsByProvince.value[contactState.value.rumahSakitForm.province.data] ||
+    [],
 );
 
 watch(

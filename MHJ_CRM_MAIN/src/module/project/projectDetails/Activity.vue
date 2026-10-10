@@ -68,7 +68,7 @@
                   <table class="table project-task-note">
                     <thead class="project-header">
                       <tr>
-                        <th scope="col">Project</th>
+                        <th scope="col">Proyek</th>
                         <th scope="col">Task</th>
                         <th scope="col">Assigned To</th>
                         <th scope="col">Status</th>

@@ -111,13 +111,13 @@
         <div>
           <h5 class="mb-1">Detail Perusahaan</h5>
           <p class="text-muted mb-0">
-            Ringkasan perusahaan dan aktivitas project
+            Ringkasan perusahaan dan aktivitas proyek
           </p>
         </div>
         <button
           class="btn btn-primary btn-sm"
           type="button"
-          :disabled="!canEditCompanyProfile"
+          :disabled="!canEditCompanyProfile || hospitalStore.submitting"
           :title="companyEditTitle"
           @click="toggleCompanyEdit"
         >
@@ -125,7 +125,7 @@
             :type="isEditingCompany ? 'save' : 'edit'"
             size="14"
             class="me-1"
-          />{{ isEditingCompany ? "Simpan Profil" : "Edit Profil Perusahaan" }}
+          />{{ hospitalStore.submitting ? "Menyimpan..." : isEditingCompany ? "Simpan Profil" : "Edit Profil Perusahaan" }}
         </button>
       </div>
 
@@ -166,12 +166,13 @@
                   class="form-control form-control-sm"
                 />
                 <a
-                  v-else
+                  v-else-if="companyDetail.website"
                   :href="companyDetail.website"
                   target="_blank"
                   rel="noopener noreferrer"
                   >{{ companyDetail.website }}</a
                 >
+                <strong v-else>-</strong>
               </div>
               <div class="col-12">
                 <span>Alamat</span>
@@ -200,7 +201,7 @@
                 :title="summary.stage"
                 >{{ summary.stage }}</span
               >
-              <h4 class="stage-count mb-1">{{ summary.quantity }} Project</h4>
+              <h4 class="stage-count mb-1">{{ summary.quantity }} Proyek</h4>
               <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
                 {{ formatCurrency(summary.value) }}
               </p>
@@ -210,45 +211,51 @@
 
         <div class="card border mb-4">
           <div class="card-header pb-2">
-            <h6 class="mb-0">Project Berjalan per Stage</h6>
+            <h6 class="mb-0">Proyek Berjalan per Stage</h6>
           </div>
           <div class="card-body pt-3">
-            <div
-              v-for="group in groupedProjects"
-              :key="group.stage"
-              class="project-stage mb-3"
-            >
+            <template v-if="groupedProjects.length">
               <div
-                class="d-flex justify-content-between align-items-center mb-2"
+                v-for="group in groupedProjects"
+                :key="group.stage"
+                class="project-stage mb-3"
               >
-                <span class="badge" :class="stageBadgeClass(group.stage)">{{
-                  group.stage
-                }}</span>
-                <small class="text-muted"
-                  >{{ group.projects.length }} project</small
+                <div
+                  class="d-flex justify-content-between align-items-center mb-2"
                 >
-              </div>
-              <div class="list-group">
-                <a
-                  v-for="project in group.projects"
-                  :key="project.id"
-                  :href="projectUrl(project.id)"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
-                >
-                  <span
-                    ><strong>{{ project.name }}</strong
-                    ><small class="d-block text-muted">{{
-                      project.id
-                    }}</small></span
+                  <span class="badge" :class="stageBadgeClass(group.stage)">{{
+                    group.stage
+                  }}</span>
+                  <small class="text-muted"
+                    >{{ group.projects.length }} proyek</small
                   >
-                  <span class="text-nowrap"
-                    >{{ formatCurrency(project.value) }}
-                    <vue-feather type="external-link" size="13"
-                  /></span>
-                </a>
+                </div>
+                <div class="list-group">
+                  <a
+                    v-for="project in group.projects"
+                    :key="project.id"
+                    :href="projectUrl(project.id)"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
+                  >
+                    <span
+                      ><strong>{{ project.name }}</strong
+                      ><small class="d-block text-muted">{{
+                        project.id
+                      }}</small></span
+                    >
+                    <span class="text-nowrap"
+                      >{{ formatCurrency(project.value) }}
+                      <vue-feather type="external-link" size="13"
+                    /></span>
+                  </a>
+                </div>
               </div>
+            </template>
+            <div v-else class="empty-company-section">
+              <vue-feather type="folder" size="20" />
+              <span>Belum ada proyek berjalan untuk perusahaan ini.</span>
             </div>
           </div>
         </div>
@@ -315,23 +322,45 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import { companyDetails } from "@/core/data/contactCrm";
+import { companyDetails, type CompanyDetail } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
+import { useHospitalStore } from "@/store/hospital";
+import { useProjectStore } from "@/store/project";
 import { getImages } from "@/utils/index";
 
 const contactStore = useContact();
 const authStore = useAuthStore();
+const hospitalStore = useHospitalStore();
+const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const { editContact, deleteContact, showHistory, printContact } = contactStore;
 
 const fullName = computed(() =>
   `${contactState.value.activeContact?.firstName || ""} ${contactState.value.activeContact?.lastName || ""}`.trim(),
 );
+const liveCompany = computed(() => {
+  const contact = contactState.value.activeContact;
+  if (!contact) return undefined;
+  const companyId = Number(contact.companyId);
+  const normalizedName = (contact.company || "").trim().toLowerCase();
+
+  return [hospitalStore.selectedItem, ...hospitalStore.items].find((company) => {
+    if (!company) return false;
+    return (
+      (Number.isFinite(companyId) && companyId > 0 && company.id === companyId) ||
+      (normalizedName && company.name.trim().toLowerCase() === normalizedName)
+    );
+  });
+});
 const companyLabel = computed(() => {
   const contact = contactState.value.activeContact;
-  return contact?.company || (contact?.companyId ? `Company ID ${contact.companyId}` : "-");
+  return (
+    liveCompany.value?.name ||
+    contact?.company ||
+    (contact?.companyId ? `Company ID ${contact.companyId}` : "-")
+  );
 });
 const sourceLabel = computed(() => {
   const contact = contactState.value.activeContact;
@@ -341,16 +370,52 @@ function displayValue(value: unknown) {
   const normalized = String(value ?? "").trim();
   return normalized && normalized !== "-" ? normalized : "-";
 }
-const companyDetail = computed(
-  () => companyDetails[contactState.value.activeContact?.company || ""],
-);
-const userRole = computed(() =>
-  (
-    (authStore.user as typeof authStore.user & { role?: string })?.role || ""
-  ).toLowerCase(),
-);
+const companyDetail = computed<CompanyDetail | undefined>(() => {
+  const contact = contactState.value.activeContact;
+  if (!contact) return undefined;
+
+  const sample = companyDetails[contact.company || ""];
+  const company = liveCompany.value;
+  if (!company) return sample;
+
+  const projects = projectStore.items
+    .filter(
+      (project) =>
+        project.companyId === company.id ||
+        project.companyName?.trim().toLowerCase() === company.name.trim().toLowerCase(),
+    )
+    .map((project) => ({
+      id: String(project.id),
+      name: project.projectName,
+      stage: project.stageName || titleCase(project.status),
+      value: project.amountValue ?? project.projectValue ?? 0,
+    }));
+
+  return {
+    name: company.name,
+    type: company.hospitalType || company.hospitalClass || company.industry || "Rumah Sakit",
+    address: company.address || "-",
+    phone: company.phone || "-",
+    website: company.website || "",
+    projects: projects.length ? projects : sample?.projects ?? [],
+    installedProducts: sample?.installedProducts ?? [],
+  };
+});
+const userRole = computed(() => {
+  const user = authStore.user as typeof authStore.user & {
+    role?: string;
+    role_code?: string;
+    type_account?: string;
+    tipeakun?: string;
+  };
+  return String(user?.role || user?.role_code || user?.type_account || user?.tipeakun || "")
+    .trim()
+    .toLowerCase();
+});
 const canEditCompanyProfile = computed(() =>
-  ["admin", "administrator", "super admin"].includes(userRole.value),
+  ["admin", "administrator", "super admin", "superadmin", "mgr", "manager"].includes(
+    userRole.value,
+  ),
 );
 const companyEditTitle = computed(() =>
   canEditCompanyProfile.value
@@ -371,26 +436,71 @@ watch(
   { immediate: true },
 );
 
-const groupedProjects = computed(() => {
-  const groups = new Map<
-    string,
-    NonNullable<typeof companyDetail.value>["projects"]
-  >();
+const PIPELINE_HIERARCHY = [
+  "Qualified",
+  "Presentation/Demo",
+  "Quotation",
+  "Negotiation",
+  "Closed Won",
+  "Closed Lost",
+  "Closed Cancel",
+] as const;
+
+function normalizeStage(stage: string): string {
+  const value = stage.trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+  if (["qualified", "qualification"].includes(value)) return "Qualified";
+  if (["presentation/demo", "presentation demo", "demo"].includes(value)) {
+    return "Presentation/Demo";
+  }
+  if (["quotation", "proposal"].includes(value)) return "Quotation";
+  if (value === "negotiation") return "Negotiation";
+  if (["closed won", "won", "win"].includes(value)) return "Closed Won";
+  if (["closed lost", "lost"].includes(value)) return "Closed Lost";
+  if (["closed cancel", "closed cancelled", "cancel", "cancelled"].includes(value)) {
+    return "Closed Cancel";
+  }
+  return titleCase(value);
+}
+
+const projectsByStage = computed(() => {
+  const groups = new Map<string, NonNullable<typeof companyDetail.value>["projects"]>();
   companyDetail.value?.projects.forEach((project) => {
-    const current = groups.get(project.stage) || [];
+    const stage = normalizeStage(project.stage);
+    const current = groups.get(stage) || [];
     current.push(project);
-    groups.set(project.stage, current);
+    groups.set(stage, current);
   });
-  return Array.from(groups, ([stage, projects]) => ({ stage, projects }));
+  return groups;
 });
 
-const stageSummaries = computed(() =>
-  groupedProjects.value.map((group) => ({
+const groupedProjects = computed(() => {
+  const ordered = PIPELINE_HIERARCHY.map((stage) => ({
+    stage,
+    projects: projectsByStage.value.get(stage) || [],
+  })).filter((group) => group.projects.length);
+  const knownStages = new Set<string>(PIPELINE_HIERARCHY);
+  const otherStages = Array.from(projectsByStage.value, ([stage, projects]) => ({ stage, projects }))
+    .filter((group) => !knownStages.has(group.stage))
+    .sort((a, b) => a.stage.localeCompare(b.stage));
+  return [...ordered, ...otherStages];
+});
+
+const stageSummaries = computed(() => {
+  const officialStages = PIPELINE_HIERARCHY.map((stage) => ({
+    stage,
+    projects: projectsByStage.value.get(stage) || [],
+  }));
+  const knownStages = new Set<string>(PIPELINE_HIERARCHY);
+  const otherStages = Array.from(projectsByStage.value, ([stage, projects]) => ({ stage, projects }))
+    .filter((group) => !knownStages.has(group.stage))
+    .sort((a, b) => a.stage.localeCompare(b.stage));
+
+  return [...officialStages, ...otherStages].map((group) => ({
     stage: group.stage,
     quantity: group.projects.length,
     value: group.projects.reduce((total, project) => total + project.value, 0),
-  })),
-);
+  }));
+});
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("id-ID", {
@@ -401,23 +511,50 @@ function formatCurrency(value: number) {
 }
 
 function projectUrl(projectId: string) {
-  return `${routes.Project.ProjectDetails}?project=${encodeURIComponent(projectId)}`;
+  return `${routes.Project.ProjectDetailsV2}?id=${encodeURIComponent(projectId)}`;
+}
+
+function titleCase(value: string) {
+  return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function stageBadgeClass(stage: string) {
   if (stage === "Closed Won") return "badge-light-success";
+  if (stage === "Closed Lost") return "badge-light-danger";
+  if (stage === "Closed Cancel") return "badge-light-secondary";
   if (stage === "Negotiation") return "badge-light-warning";
-  if (stage === "Proposal") return "badge-light-primary";
+  if (stage === "Quotation") return "badge-light-primary";
   return "badge-light-info";
 }
 
-function toggleCompanyEdit() {
+async function toggleCompanyEdit() {
   if (!canEditCompanyProfile.value || !companyDetail.value) return;
 
   if (isEditingCompany.value) {
-    companyDetail.value.phone = companyDraft.phone.trim();
-    companyDetail.value.website = companyDraft.website.trim();
-    companyDetail.value.address = companyDraft.address.trim();
+    const company = liveCompany.value;
+    if (company) {
+      try {
+        await hospitalStore.updateHospital(company.id, {
+          company_name: company.name,
+          telephone: companyDraft.phone.trim(),
+          email: company.email || undefined,
+          website: companyDraft.website.trim(),
+          description: company.description || undefined,
+          address: companyDraft.address.trim(),
+          country: company.country || undefined,
+          province: company.province || undefined,
+          city: company.city || undefined,
+          pos_code: company.posCode || undefined,
+        });
+        await hospitalStore.fetchHospitalById(company.id);
+      } catch {
+        return;
+      }
+    } else {
+      companyDetail.value.phone = companyDraft.phone.trim();
+      companyDetail.value.website = companyDraft.website.trim();
+      companyDetail.value.address = companyDraft.address.trim();
+    }
   }
 
   isEditingCompany.value = !isEditingCompany.value;
@@ -539,6 +676,23 @@ function toggleCompanyEdit() {
 }
 .project-stage:last-child {
   margin-bottom: 0 !important;
+}
+.empty-company-section {
+  display: flex;
+  min-height: 110px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px dashed #d9e1e6;
+  border-radius: 10px;
+  color: #7a8792;
+  background: #fbfcfd;
+  font-size: 12px;
+  text-align: center;
+}
+.empty-company-section svg {
+  color: var(--theme-default);
 }
 
 @media (max-width: 575.98px) {

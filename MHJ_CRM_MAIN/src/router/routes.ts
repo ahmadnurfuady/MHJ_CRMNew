@@ -10,7 +10,7 @@ export const routes = {
     Dashboard: '/crmAdmin',
     Companies: '/crmAdmin/companies',
     Contacts: '/crmAdmin/contacts',
-    Deals: '/crmAdmin/deals',
+    ProjectsPipeline: '/crmAdmin/projects-pipeline',
     Projects: '/crmAdmin/Projects',
     ProjectDetails: '/crmAdmin/Projects/details',
     ProjectList: '/crmAdmin/Projects/list',
@@ -34,12 +34,13 @@ export const routes = {
   },
   Project: {
     ProjectDetails: '/crmAdmin/Projects/details',
+    ProjectDetailsV2: '/crmAdmin/Projects/details-v2',
     ProjectList: '/crmAdmin/Projects/list',
     ProjectCreate: '/project/project_create',
   },
   App: {
     FileManager: '/app/file_manager',
-    KanbanBoard: '/crmAdmin/deals',
+    KanbanBoard: '/crmAdmin/projects-pipeline',
     MailBox: '/app/mail_box',
     BookMarks: '/app/bookmark',
     Contacts: '/crmAdmin/contacts',

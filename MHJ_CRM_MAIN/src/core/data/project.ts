@@ -69,16 +69,16 @@ export const projectDetailsHeader = {
 export const projectDetails: ProjectDetails = {
   projectSummary: {
     summary: {
-      title: 'Project Summary',
+      title: 'Proyek Summary',
       description:
-        "The proposal's project summary is among its most crucial sections. It is probably the first thing a reviewer will look at, so here is your best chance to catch their attention.",
-      sortDescription: 'Due date exceeded for 24 projects',
+        "The proposal's proyek summary is among its most crucial sections. It is probably the first thing a reviewer will look at, so here is your best chance to catch their attention.",
+      sortDescription: 'Due date exceeded for 24 proyek',
       creationDate: '14 March, 2024',
       dueDate: '30 April, 2024',
       priority: 'High',
       status: 'In progress',
       resource: {
-        title: 'Projects Webflow',
+        title: 'Proyek Webflow',
         fileSize: '678 KB',
         fileType: 'PDF',
         file: '../files/text_file.pdf',
@@ -161,13 +161,13 @@ export const projectDetails: ProjectDetails = {
     todoList: [
       {
         id: 1,
-        title: 'Establish a project plan',
-        description: 'Divide the project manageable phases',
+        title: 'Establish a proyek plan',
+        description: 'Divide the proyek manageable phases',
       },
       {
         id: 2,
         title: 'Gathering Info',
-        description: 'Establish a budget for project costs',
+        description: 'Establish a budget for proyek costs',
       },
       {
         id: 3,
@@ -176,7 +176,7 @@ export const projectDetails: ProjectDetails = {
       },
       {
         id: 4,
-        title: 'Project Termination',
+        title: 'Proyek Termination',
         description: 'Records and files for upcoming use',
       },
     ],
@@ -830,7 +830,7 @@ export const projectDetails: ProjectDetails = {
     },
     {
       id: 8,
-      projectTitle: 'Project Deadline',
+      projectTitle: 'Proyek Deadline',
       projectDescription: 'Take aggressive measures to overcome obstacles.',
       tag: 'DBdline',
       tagColor: 'success',
@@ -1687,7 +1687,7 @@ export const projectStatus = [
 export const projectStatusOptions = [
   {
     id: 1,
-    title: 'View Project',
+    title: 'View Proyek',
   },
   {
     id: 2,
@@ -1700,7 +1700,7 @@ export const projectStatusOptions = [
 ]
 
 export const projectCostPerformance: ProjectCostPerformance = {
-  title: 'Project Cost Performance',
+  title: 'Proyek Cost Performance',
   totalBudget: 45.764,
   actualCost: 85.49,
   labels: ['Budget', 'Cost', ''],
@@ -1815,7 +1815,7 @@ export const projectTeam = {
 }
 
 export const totalProjects = {
-  title: 'Total Projects',
+  title: 'Total Proyek',
   totalProject: 153,
   icon: 'file-pen',
   cardColor: 'warning',
@@ -1987,7 +1987,7 @@ export const projects: Projects[] = [
   },
   {
     id: 6,
-    projectName: 'Sales Project',
+    projectName: 'Sales Proyek',
     projectDescription: 'Create a chat application for business messaging needs.',
     projectBanner: 'project/list/6.png',
     date: '14 May, 2024',

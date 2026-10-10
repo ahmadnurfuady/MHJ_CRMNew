@@ -34,7 +34,7 @@
               </div>
               <div>
                 <h6>{{ team.projects }}</h6>
-                <p class="mb-0">Project</p>
+                <p class="mb-0">Proyek</p>
               </div>
               <div>
                 <h6>{{ team.features }}</h6>

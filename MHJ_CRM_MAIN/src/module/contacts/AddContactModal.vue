@@ -261,16 +261,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 
 import { initInputField, initSelectField } from "@/core/data/common";
-import {
-  cityOptionsByProvince,
-  projectOptions,
-  provinceOptions,
-} from "@/core/data/contactCrm";
+import { projectOptions } from "@/core/data/contactCrm";
+import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { useContact } from "@/store/contact";
 import { useAuthStore } from "@/store/auth";
 import { useProjectStore } from "@/store/project";
@@ -310,6 +307,9 @@ const {
   fetchContactStatuses,
   saveContact,
 } = contactStore;
+
+const { provinceOptions, cityOptionsByProvince, getCompanyAddress } =
+  useCompanyRegions();
 
 const ownerOptions = computed(() => projectStore.lookups.owner);
 const companyOptions = computed(() => contactApi.value.companies);
@@ -376,7 +376,8 @@ async function handleSave() {
 
 const cityOptions = computed(
   () =>
-    cityOptionsByProvince[contactState.value.contactForm.province.data] || [],
+    cityOptionsByProvince.value[contactState.value.contactForm.province.data] ||
+    [],
 );
 
 watch(
@@ -384,6 +385,39 @@ watch(
   (province, previousProvince) => {
     if (previousProvince && province !== previousProvince)
       contactState.value.contactForm.city = initSelectField();
+  },
+);
+
+/** Auto-isi Provinsi & Kota dari alamat company terpilih (data company/rumah sakit sudah real di DB). */
+watch(
+  () => contactState.value.contactForm.company.data,
+  async (companyId) => {
+    const address = await getCompanyAddress(companyId);
+    if (!address) return;
+
+    if (address.province) {
+      contactState.value.contactForm.province = {
+        selected: { value: address.province, label: address.province },
+        data: address.province,
+        selectedItems: [],
+        errorMessage: "",
+        type: "dropdown",
+      };
+    }
+
+    // Tunggu watcher provinsi (yang mereset city) jalan dulu sebelum isi city,
+    // supaya auto-fill city tidak ketimpa reset otomatis itu.
+    await nextTick();
+
+    if (address.city) {
+      contactState.value.contactForm.city = {
+        selected: { value: address.city, label: address.city },
+        data: address.city,
+        selectedItems: [],
+        errorMessage: "",
+        type: "dropdown",
+      };
+    }
   },
 );
 

@@ -4,215 +4,291 @@
       <div class="col-12">
         <div class="card create-project-form custom-input">
           <div class="card-body">
-            <div class="row">
+            <form class="row g-3 needs-validation" @submit.prevent="handleSubmit">
               <div class="col-12">
-                <form class="row g-3 needs-validation" @submit.prevent="handleSubmit">
-                  <div class="col-12">
-                    <InputWrapper :title="'Project Name'">
-                      <InputField
-                        :modelValue="projectNameField"
-                        :inputId="'project-name'"
-                        :placeholder="'Otomatis: EKAT/PRVT_Perusahaan_Produk'"
-                        :disabled="true"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Perusahaan'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Cari perusahaan'"
-                        v-model="projectForm.company"
-                        :options="companyOptions"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Contact'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Cari kontak'"
-                        v-model="projectForm.contact"
-                        :options="contactOptions"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
+                <InputWrapper :title="'Proyek Name'">
+                  <InputField
+                    :modelValue="projectNameField"
+                    :inputId="'project-name'"
+                    :placeholder="'Otomatis: EKAT/PRVT_Perusahaan_Produk'"
+                    :disabled="true"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Perusahaan'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Cari perusahaan'"
+                    v-model="projectForm.company"
+                    :options="companyOptions"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Contact'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Cari contact'"
+                    v-model="projectForm.contact"
+                    :options="contactOptions"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+                <button
+                  class="btn btn-link btn-sm p-0 mt-1"
+                  type="button"
+                  @click="openContactModal"
+                >
+                  <vue-feather type="plus" size="14" class="me-1" />Tambah contact baru
+                </button>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Stage'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih stage'"
+                    v-model="projectForm.stage"
+                    :options="stageOptions"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Owner'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih owner'"
+                    v-model="projectForm.owner"
+                    :options="ownerOptions"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Divisi'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih satu divisi'"
+                    v-model="projectForm.division"
+                    :options="divisiList"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Produk'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="productPlaceholder"
+                    v-model="projectForm.products"
+                    :options="productOptions"
+                    :multiSelect="true"
+                    :removableTags="true"
+                    :disabled="!projectForm.division.selected"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-4">
+                <InputWrapper :title="'Qty'">
+                  <InputField
+                    v-model:modelValue="projectForm.quantity"
+                    :inputId="'project-quantity'"
+                    :placeholder="'Qty'"
+                    :inputType="'number'"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-4">
+                <InputWrapper :title="'Harga'">
+                  <InputField
+                    :modelValue="priceField"
+                    :inputId="'project-price'"
+                    :placeholder="'Otomatis dari produk'"
+                    :disabled="true"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-4">
+                <InputWrapper :title="'Value'">
+                  <InputField
+                    :modelValue="valueField"
+                    :inputId="'project-value'"
+                    :placeholder="'Harga x Qty'"
+                    :disabled="true"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-4">
+                <InputWrapper :title="'Estimasi PO'">
+                  <InputField
+                    v-model:modelValue="projectForm.estimatedPo"
+                    :inputId="'estimated-po'"
+                    :placeholder="'Pilih tanggal'"
+                    :inputType="'date'"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-4">
+                <InputWrapper :title="'Kompetitor'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih kompetitor'"
+                    v-model="projectForm.competitor"
+                    :options="competitors"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-4">
+                <InputWrapper :title="'Sumber Pendanaan'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih sumber pendanaan'"
+                    v-model="projectForm.fundingSource"
+                    :options="fundingSources"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div v-if="isLostOrCancelled" class="col-12">
+                <InputWrapper :title="'Alasan Kalah/Batal'">
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih satu atau beberapa alasan'"
+                    v-model="projectForm.lostReasons"
+                    :options="lostReasons"
+                    :multiSelect="true"
+                    :removableTags="true"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-12">
+                <InputWrapper :title="'Notes/Comment'">
+                  <InputField
+                    v-model:modelValue="projectForm.notes"
+                    :inputId="'project-notes'"
+                    :placeholder="'Contoh: Client serius, tinggal nego harga'"
+                    :inputType="'textarea'"
+                    :rows="3"
+                    :required="false"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+                    <div>
+                      <h6 class="mb-1">Timeline</h6>
+                      <p class="mb-0 text-muted small">
+                        Catat meeting, demo, follow up, dan aktivitas proyek.
+                      </p>
+                    </div>
                     <button
-                      class="btn btn-link btn-sm p-0 mt-1"
+                      class="btn btn-outline-primary btn-sm"
                       type="button"
-                      @click="openContactModal"
+                      @click="addTimelineEntry"
                     >
-                      <vue-feather type="plus" size="14" class="me-1"></vue-feather>Tambah kontak
-                      baru
+                      <vue-feather type="plus" size="14" class="me-1" />Tambah aktivitas
                     </button>
                   </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Stage'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Pilih stage'"
-                        v-model="projectForm.stage"
-                        :options="stageOptions"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
+
+                  <div v-if="!timelineEntries.length" class="text-muted small">
+                    Belum ada aktivitas timeline.
                   </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Owner'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Pilih owner'"
-                        v-model="projectForm.owner"
-                        :options="ownerOptions"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Divisi'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Pilih divisi'"
-                        v-model="projectForm.divisi"
-                        :options="divisiList"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Produk'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Pilih produk'"
-                        v-model="projectForm.produk"
-                        :options="productOptions"
-                        :multiSelect="true"
-                        :disabled="!projectForm.divisi.selected"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-4">
-                    <InputWrapper :title="'Qty'">
-                      <InputField
-                        v-model:modelValue="projectForm.qty"
-                        :inputId="'qty'"
-                        :placeholder="'Qty'"
-                        :inputType="'number'"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-4">
-                    <InputWrapper :title="'Harga'">
-                      <InputField
-                        :modelValue="hargaField"
-                        :inputId="'harga'"
-                        :placeholder="'Otomatis dari produk'"
-                        :disabled="true"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-4">
-                    <InputWrapper :title="'Value'">
-                      <InputField
-                        :modelValue="valueField"
-                        :inputId="'value'"
-                        :placeholder="'Harga x Qty'"
-                        :disabled="true"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-4">
-                    <InputWrapper :title="'Currency'">
-                      <InputField
-                        v-model:modelValue="projectForm.currency"
-                        :inputId="'currency'"
-                        :placeholder="'Contoh: IDR'"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-4">
-                    <InputWrapper :title="'Priority'">
-                      <InputField
-                        v-model:modelValue="projectForm.priority"
-                        :inputId="'priority'"
-                        :placeholder="'Nilai priority'"
-                        :inputType="'number'"
-                        :required="false"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-4">
-                    <InputWrapper :title="'Probability (%)'">
-                      <InputField
-                        v-model:modelValue="projectForm.probability"
-                        :inputId="'probability'"
-                        :placeholder="'0 - 100'"
-                        :inputType="'number'"
-                        :required="false"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Estimasi PO'">
-                      <InputField
-                        v-model:modelValue="projectForm.estimasiPo"
-                        :inputId="'estimasi-po'"
-                        :placeholder="'Pilih tanggal'"
-                        :inputType="'date'"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Kompetitor'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Pilih kompetitor'"
-                        v-model="projectForm.kompetitor"
-                        :options="competitorOptions"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-md-6">
-                    <InputWrapper :title="'Sumber Pendanaan'">
-                      <Select
-                        getValueKey="label"
-                        display-key="label"
-                        :placeholder="'Pilih sumber pendanaan'"
-                        v-model="projectForm.sumberPendanaan"
-                        :options="sumberdanaOptions"
-                        :formSubmitted="formSubmitted"
-                      />
-                    </InputWrapper>
-                  </div>
-                  <div class="col-12">
-                    <div class="common-flex justify-content-end">
+
+                  <div
+                    v-for="(entry, index) in timelineEntries"
+                    :key="entry.id"
+                    class="row g-2 align-items-end"
+                    :class="{ 'mt-1': index > 0 }"
+                  >
+                    <div class="col-md-4">
+                      <InputWrapper :title="'Tanggal'">
+                        <InputField
+                          v-model:modelValue="entry.date"
+                          :inputId="`timeline-date-${entry.id}`"
+                          :inputType="'date'"
+                          :required="false"
+                        />
+                      </InputWrapper>
+                    </div>
+                    <div class="col-md-7">
+                      <InputWrapper :title="'Aktivitas'">
+                        <InputField
+                          v-model:modelValue="entry.activity"
+                          :inputId="`timeline-activity-${entry.id}`"
+                          :placeholder="'Contoh: Meeting dengan user'"
+                          :required="false"
+                        />
+                      </InputWrapper>
+                    </div>
+                    <div class="col-md-1 d-grid">
                       <button
                         class="btn btn-outline-danger"
                         type="button"
-                        @click="router.push(routes.Project.ProjectList)"
+                        title="Hapus aktivitas"
+                        @click="removeTimelineEntry(index)"
                       >
-                        Batal
+                        <vue-feather type="trash-2" size="16" />
                       </button>
-                      <button class="btn btn-primary" type="submit">Tambah</button>
                     </div>
                   </div>
-                </form>
+                </div>
               </div>
-            </div>
+
+              <div class="col-12">
+                <div class="common-flex justify-content-end">
+                  <button
+                    class="btn btn-outline-danger"
+                    type="button"
+                    @click="router.push(routes.Project.ProjectList)"
+                  >
+                    Batal
+                  </button>
+                  <button class="btn btn-primary" type="submit" :disabled="projectStore.submitting">
+                    <span
+                      v-if="projectStore.submitting"
+                      class="spinner-border spinner-border-sm me-2"
+                      aria-hidden="true"
+                    />
+                    Tambah Proyek
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       </div>
     </div>
+
     <AddContactModal
       v-if="contactStore.contactState.openAddContactModal"
       @saved="selectCreatedContact"
@@ -221,18 +297,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, defineAsyncComponent } from 'vue'
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
-import { projectTab } from '@/core/data/project'
-import { competitors, divisiList, fundingSources, products } from '@/core/data/projectDeal'
-import type { DealOption } from '@/core/data/projectDeal'
-import type { Contact } from '@/types/contacts'
+import {
+  competitors,
+  divisiList,
+  fundingSources,
+  lostReasons,
+  products,
+  type DealOption,
+} from '@/core/data/projectDeal'
 import { routes } from '@/router/routes'
-import { useHospitalStore } from '@/store/hospital'
+import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
+import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore, type ProjectPayload } from '@/store/project'
+import type { Contact } from '@/types/contacts'
+import type { InputField as InputFieldState } from '@/types/common'
+
+interface PipelineStageOption extends DealOption {
+  code: string
+  probability: number
+}
+
+interface CompanyOption extends DealOption {
+  address: string
+  kdKelurahan: string
+}
+
+interface TimelineEntry {
+  id: number
+  date: InputFieldState
+  activity: InputFieldState
+}
 
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
@@ -241,172 +340,192 @@ const InputField = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputField.vue')
 )
 const Select = defineAsyncComponent(() => import('@/components/shared/formElements/Select.vue'))
-const AddContactModal = defineAsyncComponent(
-  () => import('@/module/contacts/AddContactModal.vue')
-)
+const AddContactModal = defineAsyncComponent(() => import('@/module/contacts/AddContactModal.vue'))
 
-// Stage lokal hanya dipakai bila lookup backend belum selesai dimuat.
-const fallbackStageOptions = projectTab
-  .filter((tab) => tab.value !== 'all')
-  .map((tab) => ({ value: tab.value, label: tab.title }))
+const stageOptions: PipelineStageOption[] = [
+  { value: 1, code: 'qualified', label: 'Qualified', probability: 10 },
+  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo', probability: 30 },
+  { value: 3, code: 'quotation', label: 'Quotation', probability: 60 },
+  { value: 4, code: 'negotiation', label: 'Negotiation', probability: 80 },
+  { value: 5, code: 'closed_won', label: 'Closed Won', probability: 100 },
+  { value: 6, code: 'closed_lost', label: 'Closed Lost', probability: 0 },
+  { value: 7, code: 'closed_cancel', label: 'Closed Cancel', probability: 0 },
+]
+
+const defaultStage = stageOptions.find(
+  (stage) => stage.code === 'negotiation'
+) as PipelineStageOption
+
+function selectedField(option?: DealOption) {
+  const field = initSelectField()
+  if (!option) return field
+  return {
+    ...field,
+    selected: option,
+    data: String(option.label),
+  }
+}
 
 const projectForm = ref({
   company: initSelectField(),
   contact: initSelectField(),
-  stage: initSelectField(),
+  stage: selectedField(defaultStage),
   owner: initSelectField(),
-  divisi: initSelectField(),
-  produk: initSelectField(),
-  qty: { data: '1', errorMessage: '' },
-  currency: { data: 'IDR', errorMessage: '' },
-  priority: initInputField(),
-  probability: initInputField(),
-  estimasiPo: initInputField(),
-  kompetitor: initSelectField(),
-  sumberPendanaan: initSelectField()
+  division: initSelectField(),
+  products: initSelectField(),
+  quantity: { data: '1', errorMessage: '' },
+  estimatedPo: initInputField(),
+  competitor: initSelectField(),
+  fundingSource: initSelectField(),
+  lostReasons: initSelectField(),
+  notes: initInputField(),
 })
 
-const formSubmitted = ref<boolean>(false)
-
-// Pilihan single select ada di `selected` (objek opsi), bukan di `data`.
-function selectedOf(field: { selected: unknown }) {
-  return field.selected as DealOption | null
-}
-
+const formSubmitted = ref(false)
+const timelineSequence = ref(1)
+const timelineEntries = ref<TimelineEntry[]>([])
 const router = useRouter()
+const authStore = useAuthStore()
 const hospitalStore = useHospitalStore()
 const contactStore = useContact()
 const projectStore = useProjectStore()
 
-// Pilihan foreign key m_projects diambil dari backend. Data lokal dipakai sebagai
-// tampilan cadangan untuk competitor/sumber dana selama lookup belum tersedia.
-const stageOptions = computed<DealOption[]>(() =>
-  projectStore.lookups.stage.length ? projectStore.lookups.stage : fallbackStageOptions
-)
-const ownerOptions = computed<DealOption[]>(() => projectStore.lookups.owner)
-const competitorOptions = computed<DealOption[]>(() =>
-  projectStore.lookups.competitor.length ? projectStore.lookups.competitor : competitors
-)
-const sumberdanaOptions = computed<DealOption[]>(() =>
-  projectStore.lookups.sumberdana.length ? projectStore.lookups.sumberdana : fundingSources
-)
+function selectedOf(field: { selected: unknown }) {
+  return field.selected as DealOption | null
+}
 
-// Perusahaan = Rumah Sakit dari backend (endpoint Company).
-const companyOptions = computed<DealOption[]>(() =>
+function isGovernmentCompany(hospitalType: string, industry: string, name: string) {
+  const classification = `${hospitalType} ${industry} ${name}`.toLocaleLowerCase('id-ID')
+  return /government|pemerintah|negeri|publik|rsud|rsup|tni|polri/.test(classification)
+}
+
+const companyOptions = computed<CompanyOption[]>(() =>
   hospitalStore.items.map((hospital) => ({
     value: hospital.id,
-    label: hospital.name
+    label: hospital.name,
+    type: isGovernmentCompany(hospital.hospitalType, hospital.industry, hospital.name)
+      ? 'Government'
+      : 'Private',
+    address: hospital.address,
+    kdKelurahan: hospital.kdKelurahan,
   }))
 )
 
-// Contact = semua kontak personal dari backend. Tidak dihubungkan ke perusahaan.
 function toContactOption(contact: Contact): DealOption {
   return {
-    value: contact.remoteId as number,
-    // Nama kosong membuat opsi tampak kosong, jadi pakai cadangan dari kolom lain.
+    value: contact.remoteId ?? contact.id,
     label:
       `${contact.firstName} ${contact.lastName}`.trim() ||
       contact.contactNumber ||
       contact.email ||
-      `Kontak #${contact.remoteId}`
+      `Contact #${contact.remoteId ?? contact.id}`,
   }
 }
 
-const contactOptions = computed<DealOption[]>(() =>
-  contactStore.contactApi.items
-    .filter((contact) => contact.origin === 'api' && contact.remoteId !== undefined)
-    .map(toContactOption)
+const contactOptions = computed<DealOption[]>(() => {
+  const contacts = contactStore.contactApi.items.filter(
+    (contact) =>
+      contact.origin === 'api' && (contact.remoteId !== undefined || contact.id !== undefined)
+  )
+  const companyId = selectedOf(projectForm.value.company)?.value
+  if (companyId === undefined) return contacts.map(toContactOption)
+
+  const relatedContacts = contacts.filter(
+    (contact) => contact.companyId && String(contact.companyId) === String(companyId)
+  )
+  const hasCompanyRelations = contacts.some((contact) => Boolean(contact.companyId))
+  return (hasCompanyRelations ? relatedContacts : contacts).map(toContactOption)
+})
+
+const ownerOptions = computed<DealOption[]>(() => projectStore.lookups.owner)
+const selectedProducts = computed(() => projectForm.value.products.selectedItems as DealOption[])
+const productOptions = computed(() =>
+  products.filter((product) => product.divisi === selectedOf(projectForm.value.division)?.code)
 )
+const productPlaceholder = computed(() => {
+  if (!projectForm.value.division.selected) return 'Pilih divisi terlebih dahulu'
+  return productOptions.value.length
+    ? 'Pilih satu atau beberapa produk'
+    : 'Produk divisi belum tersedia'
+})
+
+const selectedCompany = computed(
+  () => selectedOf(projectForm.value.company) as CompanyOption | null
+)
+const projectName = computed(() => {
+  const company = selectedCompany.value
+  if (!company) return ''
+  const prefix = company.type === 'Government' ? 'EKAT' : 'PRVT'
+  const productNames = selectedProducts.value.map((product) => product.label).join(', ')
+  return [prefix, company.label, productNames].filter(Boolean).join('_')
+})
+
+const price = computed(() =>
+  selectedProducts.value.reduce((total, product) => total + (product.price ?? 0), 0)
+)
+const quantity = computed(() => Number(projectForm.value.quantity.data) || 0)
+const projectValue = computed(() => price.value * quantity.value)
+const rupiah = (amount: number) => `Rp ${amount.toLocaleString('id-ID')}`
+const projectNameField = computed(() => ({
+  data: projectName.value,
+  errorMessage: '',
+}))
+const priceField = computed(() => ({
+  data: rupiah(price.value),
+  errorMessage: '',
+}))
+const valueField = computed(() => ({
+  data: rupiah(projectValue.value),
+  errorMessage: '',
+}))
+
+const selectedStage = computed(
+  () => selectedOf(projectForm.value.stage) as PipelineStageOption | null
+)
+const isLostOrCancelled = computed(() =>
+  ['closed_lost', 'closed_cancel'].includes(selectedStage.value?.code ?? '')
+)
+
+watch(
+  () => projectForm.value.company.selected,
+  () => {
+    projectForm.value.contact = initSelectField()
+  }
+)
+
+watch(
+  () => projectForm.value.division.selected,
+  () => {
+    projectForm.value.products = initSelectField()
+  }
+)
+
+watch(isLostOrCancelled, (visible) => {
+  if (!visible) projectForm.value.lostReasons = initSelectField()
+})
 
 function openContactModal() {
   contactStore.openContactModal()
 }
 
 function selectCreatedContact(created: Contact) {
-  const option = toContactOption(created)
-  projectForm.value.contact = {
-    selected: option,
-    data: String(option.label),
-    selectedItems: [],
-    errorMessage: '',
-    type: 'dropdown'
-  }
+  projectForm.value.contact = selectedField(toContactOption(created))
 }
 
-onMounted(async () => {
-  const results = await Promise.allSettled([
-    hospitalStore.fetchHospitals(),
-    contactStore.fetchRemoteContacts(),
-    projectStore.fetchProjectLookups()
-  ])
-  if (results.some((result) => result.status === 'rejected')) {
-    Swal.fire({
-      icon: 'error',
-      text:
-        hospitalStore.error ??
-        contactStore.contactApi.error ??
-        projectStore.error ??
-        'Gagal memuat perusahaan, kontak, dan data pendukung project.',
-      confirmButtonColor: 'var(--theme-default)'
-    })
-  }
-})
+function addTimelineEntry() {
+  timelineEntries.value.push({
+    id: timelineSequence.value++,
+    date: initInputField(),
+    activity: initInputField(),
+  })
+}
 
-// Produk hanya bisa dipilih setelah divisi dipilih, dan difilter menurut kode divisi.
-const productOptions = computed(() =>
-  products.filter((item) => item.divisi == selectedOf(projectForm.value.divisi)?.code)
-)
+function removeTimelineEntry(index: number) {
+  timelineEntries.value.splice(index, 1)
+}
 
-watch(
-  () => projectForm.value.divisi.selected,
-  () => {
-    projectForm.value.produk = initSelectField()
-  }
-)
-
-const selectedProducts = computed(() => projectForm.value.produk.selectedItems as DealOption[])
-
-// Project Name = EKAT/PRVT_Perusahaan_Produk (EKAT = Government, PRVT = Private).
-const projectName = computed(() => {
-  const company = selectedOf(projectForm.value.company)
-  if (!company) return ''
-  const prefix = company.type == 'Government' ? 'EKAT' : 'PRVT'
-  const productNames = selectedProducts.value.map((item) => item.label).join(', ')
-  return [prefix, company.label, productNames].filter(Boolean).join('_')
-})
-
-// Harga dari produk terpilih; Value = Harga x Qty.
-const harga = computed(() =>
-  selectedProducts.value.reduce((sum, item) => sum + (item.price ?? 0), 0)
-)
-const qty = computed(() => Number(projectForm.value.qty.data) || 0)
-const value = computed(() => harga.value * qty.value)
-
-const format = (amount: number) => amount.toLocaleString('id-ID')
-const projectNameField = computed(() => ({
-  data: projectName.value,
-  errorMessage: ''
-}))
-const hargaField = computed(() => ({
-  data: format(harga.value),
-  errorMessage: ''
-}))
-const valueField = computed(() => ({
-  data: format(value.value),
-  errorMessage: ''
-}))
-
-// Field tunggal berisi string, field multi-select berisi array.
 function isFilled(field: { data: unknown }) {
   return Array.isArray(field.data) ? field.data.length > 0 : String(field.data ?? '').trim() !== ''
-}
-
-// Mengambil foreign key numerik langsung, atau mencocokkan label pilihan cadangan
-// dengan lookup backend.
-function findIdByLabel(options: DealOption[], label: string) {
-  const target = label.trim().toLowerCase()
-  if (!target) return undefined
-  return options.find((option) => option.label.trim().toLowerCase() === target)?.value
 }
 
 function numericId(value: unknown): number | undefined {
@@ -415,96 +534,123 @@ function numericId(value: unknown): number | undefined {
   return Number.isInteger(id) ? id : undefined
 }
 
-function resolveForeignKey(selected: DealOption | null, lookup: DealOption[]) {
-  if (!selected) return undefined
-  return numericId(selected.value) ?? numericId(findIdByLabel(lookup, selected.label))
+function normalizeLabel(value: string) {
+  return value.toLocaleLowerCase('id-ID').replace(/[^a-z0-9]+/g, '')
 }
+
+function findLookupId(options: DealOption[], selected: DealOption | null) {
+  if (!selected) return undefined
+  const directId = numericId(selected.value)
+  if (directId !== undefined) return directId
+
+  const candidates = [selected.label, String(selected.value)]
+  const normalizedCandidates = candidates.map(normalizeLabel)
+  return numericId(
+    options.find((option) => normalizedCandidates.includes(normalizeLabel(option.label)))?.value
+  )
+}
+
+onMounted(async () => {
+  const results = await Promise.allSettled([
+    hospitalStore.fetchHospitals(),
+    contactStore.fetchRemoteContacts(),
+    projectStore.fetchProjectLookups(),
+  ])
+
+  const loggedInName = (() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || 'null') as {
+        name?: string
+      } | null
+      return user?.name?.trim().toLocaleLowerCase('id-ID') ?? ''
+    } catch {
+      return ''
+    }
+  })()
+  const loggedInOwner = ownerOptions.value.find(
+    (owner) => owner.label.trim().toLocaleLowerCase('id-ID') === loggedInName
+  )
+  if (loggedInOwner) projectForm.value.owner = selectedField(loggedInOwner)
+
+  if (results.some((result) => result.status === 'rejected')) {
+    Swal.fire({
+      icon: 'warning',
+      text:
+        hospitalStore.error ??
+        contactStore.contactApi.error ??
+        projectStore.error ??
+        'Sebagian data pendukung proyek gagal dimuat.',
+      confirmButtonColor: 'var(--theme-default)',
+    })
+  }
+})
 
 async function handleSubmit() {
   formSubmitted.value = true
-
   const form = projectForm.value
   const requiredFields: [string, { data: unknown }][] = [
     ['Perusahaan', form.company],
     ['Contact', form.contact],
     ['Stage', form.stage],
     ['Owner', form.owner],
-    ['Divisi', form.divisi],
-    ['Produk', form.produk],
-    ['Qty', form.qty],
-    ['Currency', form.currency],
-    ['Estimasi PO', form.estimasiPo],
-    ['Kompetitor', form.kompetitor],
-    ['Sumber Pendanaan', form.sumberPendanaan]
+    ['Divisi', form.division],
+    ['Produk', form.products],
+    ['Qty', form.quantity],
+    ['Estimasi PO', form.estimatedPo],
+    ['Kompetitor', form.competitor],
+    ['Sumber Pendanaan', form.fundingSource],
   ]
+  if (isLostOrCancelled.value) requiredFields.push(['Alasan Kalah/Batal', form.lostReasons])
+
   const emptyFields = requiredFields.filter(([, field]) => !isFilled(field)).map(([label]) => label)
   if (emptyFields.length) {
-    Swal.fire({
+    await Swal.fire({
       icon: 'error',
       text: `Field berikut belum diisi: ${emptyFields.join(', ')}.`,
-      confirmButtonColor: 'var(--theme-default)'
+      confirmButtonColor: 'var(--theme-default)',
     })
     return
   }
 
-  const currency = form.currency.data.trim().toUpperCase()
-  const priority = numericId(form.priority.data)
-  const probability = numericId(form.probability.data)
-  if (currency.length > 10) {
-    Swal.fire({
+  if (!Number.isInteger(quantity.value) || quantity.value < 1) {
+    await Swal.fire({
       icon: 'error',
-      text: 'Currency maksimal 10 karakter.',
-      confirmButtonColor: 'var(--theme-default)'
-    })
-    return
-  }
-  if (probability !== undefined && (probability < 0 || probability > 100)) {
-    Swal.fire({
-      icon: 'error',
-      text: 'Probability harus berada di antara 0 sampai 100.',
-      confirmButtonColor: 'var(--theme-default)'
+      text: 'Qty harus berupa bilangan bulat minimal 1.',
+      confirmButtonColor: 'var(--theme-default)',
     })
     return
   }
 
-  const selectedStage = selectedOf(form.stage)
-  const selectedOwner = selectedOf(form.owner)
-  const companyId = numericId(selectedOf(form.company)?.value)
-  const contactId = numericId(selectedOf(form.contact)?.value)
-  const stageId = resolveForeignKey(selectedStage, projectStore.lookups.stage)
-  const ownerId = resolveForeignKey(selectedOwner, projectStore.lookups.owner)
-  if (!companyId || !contactId || !stageId || !ownerId) {
+  const company = selectedCompany.value as CompanyOption
+  const contact = selectedOf(form.contact) as DealOption
+  const owner = selectedOf(form.owner) as DealOption
+  const competitor = selectedOf(form.competitor) as DealOption
+  const fundingSource = selectedOf(form.fundingSource) as DealOption
+  const companyId = numericId(company.value)
+  const contactId = numericId(contact.value)
+  const ownerId = findLookupId(projectStore.lookups.owner, owner)
+  const stageId = numericId(selectedStage.value?.value)
+
+  if (!companyId || !contactId || !ownerId || !stageId) {
     const missing = [
       !companyId && 'Perusahaan',
       !contactId && 'Contact',
-      !stageId && `Stage "${selectedStage?.label ?? ''}"`,
-      !ownerId && 'Owner'
+      !ownerId && 'Owner',
+      !stageId && `Stage "${selectedStage.value?.label ?? ''}"`,
     ].filter(Boolean)
-    console.warn('Lookup project dari backend:', projectStore.lookups)
-    Swal.fire({
+    await Swal.fire({
       icon: 'error',
-      text: `${missing.join(', ')} tidak ditemukan di data backend.`,
-      confirmButtonColor: 'var(--theme-default)'
+      text: `${missing.join(', ')} belum memiliki ID numerik dari database.`,
+      confirmButtonColor: 'var(--theme-default)',
     })
     return
   }
 
-  const competitorId = resolveForeignKey(
-    selectedOf(form.kompetitor),
-    projectStore.lookups.competitor
-  )
-  const sumberdanaId = resolveForeignKey(
-    selectedOf(form.sumberPendanaan),
-    projectStore.lookups.sumberdana
-  )
-  if (!competitorId || !sumberdanaId) {
-    const missing = [!competitorId && 'Kompetitor', !sumberdanaId && 'Sumber Pendanaan'].filter(
-      Boolean
-    )
-    Swal.fire({
+  if (!projectName.value || projectName.value.length > 500) {
+    await Swal.fire({
       icon: 'error',
-      text: `${missing.join(' dan ')} belum memiliki ID dari backend.`,
-      confirmButtonColor: 'var(--theme-default)'
+      text: 'Proyek Name wajib diisi dan maksimal 500 karakter.',
+      confirmButtonColor: 'var(--theme-default)',
     })
     return
   }
@@ -515,29 +661,45 @@ async function handleSubmit() {
     contact_id: contactId,
     owner_id: ownerId,
     stage_id: stageId,
-    currency,
-    amount_value: value.value,
-    expected_close_date: form.estimasiPo.data,
-    priority,
-    competitor_id: competitorId,
-    sumberdana_id: sumberdanaId,
-    probability,
-    aktif: 1
+    currency: 'IDR',
+    amount_value: projectValue.value,
+    expected_close_date: form.estimatedPo.data,
+    priority: null,
+    competitor_id: numericId(competitor.value) ?? null,
+    sumberdana_id: numericId(fundingSource.value) ?? null,
+    probability: selectedStage.value?.probability ?? 0,
+    aktif: 1,
+    idold: null,
+    created_by: numericId(authStore.user?.id) ?? null,
+    division_code: selectedOf(form.division)?.code ?? null,
+    product_names: selectedProducts.value.map((product) => product.label),
+    quantity: quantity.value,
+    unit_price: price.value,
+    lost_reasons: (form.lostReasons.selectedItems as DealOption[]).map(
+      (reason) => reason.label
+    ),
+    notes: form.notes.data.trim() || null,
+    timeline: timelineEntries.value
+      .map((entry) => ({
+        date: entry.date.data.trim(),
+        activity: entry.activity.data.trim(),
+      }))
+      .filter((entry) => entry.date || entry.activity),
   }
 
   try {
     await projectStore.createProject(payload)
     await Swal.fire({
       icon: 'success',
-      title: 'Project berhasil ditambahkan',
-      confirmButtonColor: 'var(--theme-default)'
+      title: 'Proyek berhasil ditambahkan',
+      confirmButtonColor: 'var(--theme-default)',
     })
     router.push(routes.Project.ProjectList)
   } catch {
     Swal.fire({
       icon: 'error',
-      text: projectStore.error ?? 'Gagal menyimpan project.',
-      confirmButtonColor: 'var(--theme-default)'
+      text: projectStore.error ?? 'Gagal menyimpan proyek.',
+      confirmButtonColor: 'var(--theme-default)',
     })
   }
 }

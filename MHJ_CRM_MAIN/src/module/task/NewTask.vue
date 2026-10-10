@@ -13,7 +13,7 @@
             <span class="badge badge-light-primary mb-2">Sales Activity</span>
             <h4 id="task-form-title" class="modal-title">Buat Task Sales</h4>
             <p class="mb-0 text-muted">
-              Catat aktivitas dan perbarui stage project dalam satu form.
+              Catat aktivitas dan perbarui stage proyek dalam satu form.
             </p>
           </div>
           <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Tutup"></button>
@@ -94,14 +94,14 @@
               <div class="section-heading">
                 <span class="section-icon"><vue-feather type="briefcase"></vue-feather></span>
                 <div>
-                  <h5>Konteks Project</h5>
-                  <p>Hubungkan task ke project untuk mengisi data otomatis dan memperbarui pipeline.</p>
+                  <h5>Konteks Proyek</h5>
+                  <p>Hubungkan task ke proyek untuk mengisi data otomatis dan memperbarui pipeline.</p>
                 </div>
               </div>
 
               <div class="row g-3">
                 <div class="col-12">
-                  <label class="form-label d-block">Project <span class="txt-danger">*</span></label>
+                  <label class="form-label d-block">Proyek <span class="txt-danger">*</span></label>
                   <div class="d-flex flex-wrap gap-3">
                     <label class="project-choice" :class="{ active: !form.hasProject }">
                       <input v-model="form.hasProject" type="radio" :value="false" />
@@ -115,11 +115,11 @@
                 </div>
 
                 <div v-if="form.hasProject" class="col-12">
-                  <label class="form-label">Cari Project <span class="txt-danger">*</span></label>
+                  <label class="form-label">Cari Proyek <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.project"
                     :options="projectOptions"
-                    placeholder="Ketik untuk mencari nama project"
+                    placeholder="Ketik untuk mencari nama proyek"
                     display-key="label"
                     get-value-key="value"
                     :form-submitted="formSubmitted"
@@ -139,7 +139,7 @@
                     :disabled="form.hasProject"
                     :disable-clear-button="form.hasProject"
                   />
-                  <small v-if="form.hasProject" class="text-muted">Terisi otomatis dari project.</small>
+                  <small v-if="form.hasProject" class="text-muted">Terisi otomatis dari proyek.</small>
                 </div>
 
                 <div class="col-md-6">
@@ -154,7 +154,7 @@
                     :form-submitted="formSubmitted"
                     :removable-tags="form.hasProject"
                   />
-                  <small v-if="form.hasProject" class="text-muted">Semua kontak terkait terisi otomatis dari project.</small>
+                  <small v-if="form.hasProject" class="text-muted">Semua kontak terkait terisi otomatis dari proyek.</small>
                   <small v-else class="text-muted">Kontak person hanya dapat dipilih satu.</small>
                 </div>
 
@@ -172,7 +172,7 @@
                     :disable-clear-button="form.hasProject"
                     :removable-tags="!form.hasProject"
                   />
-                  <small v-if="form.hasProject" class="text-muted">Divisi mengikuti project dan tidak dapat diubah dari task.</small>
+                  <small v-if="form.hasProject" class="text-muted">Divisi mengikuti proyek dan tidak dapat diubah dari task.</small>
                 </div>
 
                 <div class="col-md-6">
@@ -209,7 +209,7 @@
                     </div>
                     <vue-feather type="arrow-right" class="pipeline-arrow"></vue-feather>
                     <div class="new-stage">
-                      <label class="form-label">Pipeline Project <span class="txt-danger">*</span></label>
+                      <label class="form-label">Pipeline Proyek <span class="txt-danger">*</span></label>
                       <Select
                         v-model="form.pipeline"
                         :options="stageOptions"
@@ -221,7 +221,7 @@
                     </div>
                   </div>
                   <small class="text-muted">
-                    Menyimpan task akan memperbarui stage pada Project List.
+                    Menyimpan task akan memperbarui stage pada Proyek List.
                   </small>
                 </div>
                 </template>
@@ -784,7 +784,7 @@ function validateForm() {
   if (!form.category.selected) return 'Kategori wajib dipilih.'
   if (isCustomCategory.value && !form.customCategory) return 'Kategori lainnya wajib diisi.'
   if (!form.owner) return 'Owner tidak tersedia.'
-  if (form.hasProject && !selectedProject.value) return 'Project wajib dipilih.'
+  if (form.hasProject && !selectedProject.value) return 'Proyek wajib dipilih.'
   if (!form.hospital.selected) return 'Rumah sakit/perusahaan wajib dipilih.'
   if (!selectedContacts.value.length) return 'Kontak person wajib dipilih.'
   if (!form.scheduledAt) return 'Tanggal dan waktu wajib diisi.'
@@ -792,7 +792,7 @@ function validateForm() {
   if (!form.unrelatedProduct && !selectedProducts.value.length) {
     return 'Pilih minimal satu product atau centang Tidak terkait produk.'
   }
-  if (form.hasProject && !form.pipeline.selected) return 'Pipeline project wajib dipilih.'
+  if (form.hasProject && !form.pipeline.selected) return 'Pipeline proyek wajib dipilih.'
   if (!form.notes) return 'Notes wajib diisi.'
   if (!form.photo) return 'Live photo wajib diambil langsung dari kamera.'
   if (!hasLocation.value) return 'GPS location wajib diambil.'
