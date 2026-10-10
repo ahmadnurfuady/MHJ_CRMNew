@@ -44,6 +44,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.Dashboards.Manager,
+          name: 'ManagerDashboard',
+          component: () => import('@/pages/dashboard/ManagerDashboard.vue'),
+          meta: {
+            mainTitle: 'Dashboard Manager',
+            title: 'Dashboard Manager | MHJ CRM',
+            breadcrumb: [{ text: 'Dashboard', subText: 'Manager' }],
+          },
+        },
+        {
           path: '/crmAdmin/Projects',
           redirect: '/crmAdmin/Projects/list',
         },
@@ -337,6 +347,16 @@ const router = createRouter({
             mainTitle: 'User Profile',
             title: 'User Profile | Riho - Premium Vue Admin Template',
             breadcrumb: [{ text: 'Users', subText: 'User Profile' }],
+          },
+        },
+        {
+          path: routes.User.AkunSaya,
+          name: 'akun-saya',
+          component: () => import('@/pages/user/AkunSaya.vue'),
+          meta: {
+            mainTitle: 'Akun Saya',
+            title: 'Akun Saya | MHJ CRM',
+            breadcrumb: [{ text: 'Profil', subText: 'Akun Saya' }],
           },
         },
         {
@@ -1489,6 +1509,28 @@ const router = createRouter({
             breadcrumb: [{ text: 'Pages', subText: 'SupportTicket' }],
           },
         },
+        {
+          path: routes.Dashboards.NoAccess,
+          name: 'NoAccess',
+          component: () => import('@/pages/NoAccess.vue'),
+          meta: {
+            mainTitle: 'Belum Ada Akses',
+            title: 'Belum Ada Akses | MHJ CRM',
+            breadcrumb: [{ text: 'Akses', subText: 'Belum Ada Akses Menu' }],
+          },
+        },
+        {
+          // Catch-all di dalam layout utama: menampilkan halaman "Sedang Dikembangkan"
+          // untuk path yang terdaftar di menu DB tapi belum punya route Vue.
+          path: ':pathMatch(.*)*',
+          name: 'InDevelopment',
+          component: () => import('@/pages/InDevelopment.vue'),
+          meta: {
+            mainTitle: 'Sedang Dikembangkan',
+            title: 'Coming Soon | MHJ CRM',
+            breadcrumb: [{ text: 'Halaman', subText: 'Sedang Dikembangkan' }],
+          },
+        },
       ],
     },
     {
@@ -1703,6 +1745,15 @@ router.beforeEach((to, from, next) => {
   if (!token) {
     return next('/auth/login')
   }
+
+  // Halaman sistem yang selalu boleh diakses oleh user terautentikasi (tanpa cek permission).
+  const isSystemPage =
+    to.path === routes.Dashboards.NoAccess ||
+    to.path === routes.User.AkunSaya ||
+    to.name === 'InDevelopment' ||
+    to.name === 'NoAccess' ||
+    to.name === 'akun-saya'
+  if (isSystemPage) return next()
 
   // Periksa apakah pengguna memiliki hak akses (HASACCESS == 1) ke rute tujuan
   if (!canAccessRoute(to.path)) {

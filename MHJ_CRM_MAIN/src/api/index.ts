@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig } from 'axios'
+import { triggerSessionExpired } from '@/store/sessionSignal'
 
 /**
  * Normalisasi URL dasar API dari environment variable (.env).
@@ -76,10 +77,10 @@ client.interceptors.response.use(
         localStorage.removeItem('menuuser')
         localStorage.removeItem('raw_user_menus')
 
-        const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
-        const loginPath = `${baseUrl}/auth/login`
+        // Tampilkan popup penjelasan sebelum redirect ke login.
+        // Hanya aktifkan jika pengguna sedang di halaman terproteksi (bukan halaman login).
         if (!window.location.pathname.includes('/auth/login')) {
-          window.location.href = loginPath
+          triggerSessionExpired()
         }
       } else if (status === 403) {
         import('@/services/permissionWatcher').then((m) => {
