@@ -28,6 +28,7 @@ import { useHospitalStore } from "@/store/hospital";
 import {
   indonesianMobilePhoneError,
   normalizeIndonesianMobilePhone,
+  splitPhoneNumbers,
 } from "@/utils/indonesianPhone";
 import { validateForm } from "@/utils/validators/formValidators";
 
@@ -214,7 +215,7 @@ function normalizeApiContact(raw: Dict): Contact {
     telephone1: phone1,
     telephone2: phone2,
     owner: pickString(raw, "owner"),
-    phoneNumbers: [phone1, phone2].filter(Boolean),
+    phoneNumbers: splitPhoneNumbers(phone1, phone2),
     mapAddress: pickString(raw, "mapAddress", "map_address"),
     address: pickString(raw, "address", "Address"),
     country: pickString(raw, "country", "Country"),
@@ -457,8 +458,7 @@ export const useContact = defineStore("contact", () => {
     }
 
     if (scope.value === "hospital" && results[0]?.status === "fulfilled") {
-      const firstHospital = filteredContact.value[0];
-      if (firstHospital) await hydrateHospitalContact(firstHospital);
+      await hydrateHospitalPage();
     }
 
     if (scope.value === "contact" && results[1]?.status === "fulfilled") {
@@ -486,8 +486,7 @@ export const useContact = defineStore("contact", () => {
       contactState.activeContact = undefined;
       syncRemoteContacts();
 
-      const firstHospital = filteredContact.value[0];
-      if (firstHospital) await hydrateHospitalContact(firstHospital);
+      await hydrateHospitalPage();
     } catch {
       notifyError(hospitalStore.error ?? "Gagal memuat halaman Rumah Sakit.");
     }
@@ -534,6 +533,7 @@ export const useContact = defineStore("contact", () => {
       });
       contactState.activeContact = undefined;
       syncRemoteContacts();
+      await hydrateHospitalPage();
     } catch {
       notifyError(hospitalStore.error ?? "Gagal mencari Rumah Sakit.");
     }
@@ -775,8 +775,13 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
-  async function hydrateHospitalContact(contact: Contact) {
+  async function hydrateHospitalContact(
+    contact: Contact,
+    options: { activate?: boolean; notifyOnError?: boolean } = {},
+  ) {
     if (contact.origin !== "hospital" || contact.remoteId === undefined) return;
+
+    const { activate = true, notifyOnError = true } = options;
 
     try {
       const hospital = await hospitalStore.fetchHospitalById(contact.remoteId);
@@ -786,10 +791,30 @@ export const useContact = defineStore("contact", () => {
       contactState.contactList = contactState.contactList.map((item) =>
         item.id === contact.id ? detailedContact : item,
       );
-      contactState.activeContact = detailedContact;
+      if (activate) contactState.activeContact = detailedContact;
+      return detailedContact;
     } catch {
-      notifyError(hospitalStore.error ?? "Gagal memuat detail Rumah Sakit.");
+      if (notifyOnError) {
+        notifyError(hospitalStore.error ?? "Gagal memuat detail Rumah Sakit.");
+      }
     }
+  }
+
+  /** Lengkapi seluruh baris Rumah Sakit pada halaman aktif, bukan hanya baris pertama. */
+  async function hydrateHospitalPage() {
+    const hospitals = [...filteredContact.value];
+    if (!hospitals.length) return;
+
+    await Promise.allSettled(
+      hospitals.map((hospital) =>
+        hydrateHospitalContact(hospital, { activate: false, notifyOnError: false }),
+      ),
+    );
+
+    const activeId = contactState.activeContact?.id;
+    contactState.activeContact =
+      contactState.contactList.find((contact) => contact.id === activeId) ??
+      filteredContact.value[0];
   }
 
   async function hydrateRemoteContact(contact: Contact) {
@@ -927,9 +952,9 @@ export const useContact = defineStore("contact", () => {
       "project",
     ];
     const validation = validateForm(formFields, optionalFields);
-    const normalizedPhoneNumbers = phoneNumbers.map((phone) =>
-      normalizeIndonesianMobilePhone(phone.data),
-    );
+    const normalizedPhoneNumbers = phoneNumbers
+      .map((phone) => normalizeIndonesianMobilePhone(phone.data))
+      .filter(Boolean);
     let phoneNumbersValid = true;
 
     phoneNumbers.forEach((phone, index) => {
@@ -951,7 +976,7 @@ export const useContact = defineStore("contact", () => {
         // Endpoint Contact mengharuskan status berupa integer; kontak baru aktif secara default.
         status: textValue(formData.status) || DEFAULT_CONTACT_STATUS,
         telephone_1: normalizedPhoneNumbers[0] ?? "",
-        telephone_2: normalizedPhoneNumbers[1] ?? null,
+        telephone_2: normalizedPhoneNumbers.slice(1).join(", ") || null,
         address: nullableText(formData.address),
         province: nullableText(formData.province),
         city: nullableText(formData.city),

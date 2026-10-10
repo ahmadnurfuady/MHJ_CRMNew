@@ -101,8 +101,12 @@
                     <vue-feather type="check-square" size="18" />
                   </div>
                   <div class="task-identity__text">
-                    <strong>{{ item.title || 'Tanpa nama tugas' }}</strong>
-                    <span>{{ item.category || 'Kategori belum tersedia' }}</span>
+                    <strong :title="item.title || 'Tanpa nama tugas'">
+                      {{ item.title || 'Tanpa nama tugas' }}
+                    </strong>
+                    <span :title="item.category || 'Kategori belum tersedia'">
+                      {{ item.category || 'Kategori belum tersedia' }}
+                    </span>
                   </div>
                   <vue-feather class="task-detail-indicator" type="chevron-right" size="16" />
                 </button>
@@ -110,13 +114,19 @@
 
               <td data-label="Rumah Sakit">
                 <div class="task-context">
-                  <span class="cell-primary">{{ item.hospital || item.subtitle || '-' }}</span>
-                  <small v-if="item.contact">Kontak: {{ item.contact }}</small>
+                  <span class="cell-primary" :title="item.hospital || item.subtitle || '-'">
+                    {{ item.hospital || item.subtitle || '-' }}
+                  </span>
+                  <small v-if="item.contact" :title="`Kontak: ${item.contact}`">
+                    Kontak: {{ item.contact }}
+                  </small>
                 </div>
               </td>
 
               <td data-label="Proyek">
-                <span v-if="item.projectName" class="project-badge">{{ item.projectName }}</span>
+                <span v-if="item.projectName" class="project-badge" :title="item.projectName">
+                  {{ item.projectName }}
+                </span>
                 <span v-else class="empty-value">Tanpa proyek</span>
               </td>
 
@@ -146,7 +156,9 @@
               </td>
 
               <td data-label="Catatan">
-                <p class="task-notes mb-1">{{ item.description || '-' }}</p>
+                <p class="task-notes mb-1" :title="item.description || '-'">
+                  {{ item.description || '-' }}
+                </p>
                 <small v-if="item.products?.length" class="task-products">
                   {{ item.products.join(', ') }}
                 </small>
@@ -240,49 +252,21 @@
     </div>
   </div>
 
-  <Teleport to="body">
-    <div
-      v-if="detailModalOpen && selectedTask"
-      class="modal fade show d-block task-detail-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Detail tugas"
-      @click.self="closeTaskDetail"
-    >
-      <div class="modal-dialog modal-xl task-detail-dialog">
-        <div class="modal-content task-detail-modal">
-          <TaskDetail
-            :key="selectedTask.id"
-            :task="selectedTask"
-            :loading="detailLoading"
-            @close="closeTaskDetail"
-          />
-        </div>
-      </div>
-    </div>
-    <div
-      v-if="detailModalOpen && selectedTask"
-      class="modal-backdrop fade show task-detail-backdrop"
-      aria-hidden="true"
-    ></div>
-  </Teleport>
 </template>
 
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 import { useTask } from '@/store/task'
 import { projectTab } from '@/core/data/project'
+import { routes } from '@/router/routes'
 import type { TaskDetails } from '@/types/tasks'
 
-const TaskDetail = defineAsyncComponent(() => import('@/module/task/TaskDetail.vue'))
-
 const store = useTask()
+const router = useRouter()
 const { currentTask, loading, pagination } = storeToRefs(store)
 const searchQuery = ref('')
-const selectedTask = ref<TaskDetails | null>(null)
-const detailModalOpen = ref(false)
-const detailLoading = ref(false)
 const taskTableColumns = [
   { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Rumah Sakit', defaultWidth: 220, minWidth: 140, center: false },
@@ -437,38 +421,8 @@ function deleteTask(item: TaskDetails) {
   if (index >= 0) store.warningAlert(index)
 }
 
-function mergeTaskDetail(base: TaskDetails, detail: TaskDetails) {
-  const merged = { ...base }
-  for (const [key, value] of Object.entries(detail) as [keyof TaskDetails, unknown][]) {
-    const hasValue =
-      value !== undefined &&
-      value !== null &&
-      value !== '' &&
-      (!Array.isArray(value) || value.length > 0)
-    if (hasValue) Object.assign(merged, { [key]: value })
-  }
-  return merged
-}
-
-async function openTaskDetail(item: TaskDetails) {
-  selectedTask.value = item
-  detailModalOpen.value = true
-  detailLoading.value = true
-  try {
-    const detail = await store.fetchTaskById(item.id)
-    if (detail && selectedTask.value?.id === item.id) {
-      selectedTask.value = mergeTaskDetail(item, detail)
-    }
-  } catch {
-    // Data dari baris tabel tetap ditampilkan bila endpoint detail belum lengkap/gagal.
-  } finally {
-    detailLoading.value = false
-  }
-}
-
-function closeTaskDetail() {
-  detailModalOpen.value = false
-  detailLoading.value = false
+function openTaskDetail(item: TaskDetails) {
+  void router.push({ path: routes.App.Task, query: { detail: String(item.id) } })
 }
 
 function changePage(page: number) {
@@ -731,6 +685,7 @@ onBeforeUnmount(() => {
 .task-context,
 .task-schedule,
 .pipeline-change {
+  width: 100%;
   min-width: 0;
 }
 
@@ -748,6 +703,16 @@ onBeforeUnmount(() => {
 .cell-primary {
   color: #0f172a;
   font-weight: 600;
+}
+
+.task-identity__text strong,
+.task-identity__text span,
+.cell-primary,
+.task-context small,
+.task-products {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .task-identity__text span,
@@ -795,12 +760,11 @@ onBeforeUnmount(() => {
 }
 
 .task-notes {
-  display: -webkit-box;
+  display: block;
   max-width: 260px;
   overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  white-space: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .empty-value {
@@ -835,27 +799,6 @@ onBeforeUnmount(() => {
   width: 34px;
   height: 32px;
   padding: 0;
-}
-
-.task-detail-overlay {
-  z-index: 1060;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.task-detail-backdrop {
-  z-index: 1055;
-}
-
-.task-detail-dialog {
-  max-width: 920px;
-}
-
-.task-detail-modal {
-  overflow: hidden;
-  border: 0;
-  border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.2);
 }
 
 .task-table-state {
@@ -951,19 +894,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 575.98px) {
-  .task-detail-dialog {
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    margin: 0;
-  }
-
-  .task-detail-modal {
-    min-height: 100%;
-    height: 100%;
-    border-radius: 0;
-  }
-
   .task-header-actions {
     grid-template-columns: 1fr;
   }

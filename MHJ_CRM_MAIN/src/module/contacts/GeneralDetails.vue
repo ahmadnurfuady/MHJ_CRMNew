@@ -60,13 +60,36 @@
             <span>Company</span>
             <strong>{{ companyLabel }}</strong>
           </div>
-          <div class="col-md-6">
-            <span>Telepon 1</span>
-            <strong>{{ contactState.activeContact.telephone1 || "-" }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Telepon 2</span>
-            <strong>{{ contactState.activeContact.telephone2 || "-" }}</strong>
+          <div class="col-12 col-md-6 contact-phone-field">
+            <span>Nomor Telepon</span>
+            <div v-if="contactPhoneNumbers.length" class="contact-phone-list">
+              <div
+                v-for="phone in contactPhoneNumbers"
+                :key="phone"
+                class="contact-phone-item"
+              >
+                <strong>{{ phone }}</strong>
+                <div class="contact-phone-actions">
+                  <a
+                    :href="indonesianPhoneCallUrl(phone)"
+                    :aria-label="`Telepon ${phone}`"
+                    :title="`Telepon ${phone}`"
+                  >
+                    <vue-feather type="phone" size="16" />
+                  </a>
+                  <a
+                    :href="indonesianWhatsAppUrl(phone)"
+                    :aria-label="`WhatsApp ${phone}`"
+                    :title="`WhatsApp ${phone}`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <strong v-else>-</strong>
           </div>
           <div class="col-12">
             <span>Alamat</span>
@@ -114,19 +137,7 @@
             Ringkasan perusahaan dan aktivitas proyek
           </p>
         </div>
-        <button
-          class="btn btn-primary btn-sm"
-          type="button"
-          :disabled="!canEditCompanyProfile || hospitalStore.submitting"
-          :title="companyEditTitle"
-          @click="toggleCompanyEdit"
-        >
-          <vue-feather
-            :type="isEditingCompany ? 'save' : 'edit'"
-            size="14"
-            class="me-1"
-          />{{ hospitalStore.submitting ? "Menyimpan..." : isEditingCompany ? "Simpan Profil" : "Edit Profil Perusahaan" }}
-        </button>
+
       </div>
 
       <template v-if="companyDetail">
@@ -260,7 +271,8 @@
           </div>
         </div>
 
-        <div class="card border mb-0">
+
+         <div class="card border mb-0">
           <div class="card-header pb-2">
             <h6 class="mb-0">Histori Produk Terinstal</h6>
           </div>
@@ -329,6 +341,11 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
 import { getImages } from "@/utils/index";
+import {
+  indonesianPhoneCallUrl,
+  indonesianWhatsAppUrl,
+  splitPhoneNumbers,
+} from "@/utils/indonesianPhone";
 
 const contactStore = useContact();
 const authStore = useAuthStore();
@@ -340,6 +357,16 @@ const { editContact, deleteContact, showHistory, printContact } = contactStore;
 const fullName = computed(() =>
   `${contactState.value.activeContact?.firstName || ""} ${contactState.value.activeContact?.lastName || ""}`.trim(),
 );
+const contactPhoneNumbers = computed(() => {
+  const contact = contactState.value.activeContact;
+  if (!contact) return [];
+
+  return splitPhoneNumbers(
+    contact.telephone1 || contact.contactNumber,
+    contact.telephone2,
+    ...(contact.phoneNumbers || []),
+  );
+});
 const liveCompany = computed(() => {
   const contact = contactState.value.activeContact;
   if (!contact) return undefined;
@@ -646,6 +673,62 @@ async function toggleCompanyEdit() {
 .contact-info-grid a {
   font-weight: 500;
   overflow-wrap: anywhere;
+}
+
+.contact-phone-field {
+  max-width: 100%;
+}
+
+.contact-phone-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.contact-phone-item {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #e7edf2;
+  border-radius: 10px;
+  padding: 7px 9px 7px 14px;
+  background: #f7f9fc;
+}
+
+.contact-phone-item strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-phone-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+}
+
+.contact-phone-actions a {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #17212b;
+  background: #ffffff;
+  text-decoration: none;
+}
+
+.contact-phone-actions a:last-child {
+  color: #16a34a;
+}
+
+.contact-phone-actions a:hover {
+  background: #e9f5fb;
 }
 /* Kartu stage: lebar minimum tetap supaya judul, nominal, dan badge tidak terpotong. */
 .stage-summary-grid {

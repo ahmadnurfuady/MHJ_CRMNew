@@ -17,6 +17,7 @@ import { runApiAction } from '@/store/apiAction'
 import { useProjectStore } from '@/store/project'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Select } from '@/types/common'
+import type { Projects } from '@/types/project'
 import type { SalesTaskPayload, Task, TaskData, TaskDetails } from '@/types/tasks'
 
 const projectStageStorageKey = 'mhj-crm-project-stages'
@@ -144,6 +145,67 @@ export const useTask = defineStore('task', () => {
     group.data = [...salesTasks.value]
   }
 
+  function applyProjectRelation(task: TaskDetails, project?: Projects): TaskDetails {
+    if (!project) return task
+
+    return {
+      ...task,
+      projectName: task.projectName || project.projectName,
+      subtitle: task.subtitle || project.projectName,
+      hospital: task.hospital || project.companyName,
+      contact: task.contact || project.contactName,
+      contactPhone: task.contactPhone || project.contactPhone,
+    }
+  }
+
+  /**
+   * Endpoint task hanya mengembalikan `project_id` pada sebagian response.
+   * Ambil relasi Master Proyek lalu isi nama proyek untuk kebutuhan tabel/detail.
+   */
+  async function resolveTaskProjects(tasks: TaskDetails[]): Promise<TaskDetails[]> {
+    const projectIds = [
+      ...new Set(
+        tasks
+          .map((task) => task.projectId)
+          .filter((id): id is number => Number.isFinite(id) && Number(id) > 0),
+      ),
+    ]
+    if (!projectIds.length) return tasks
+
+    const projectMap = new Map<number, Projects>(
+      projectStore.items.map((project) => [project.id, project]),
+    )
+    let missingIds = projectIds.filter((id) => !projectMap.has(id))
+
+    if (missingIds.length) {
+      try {
+        const projects = await projectStore.fetchProjects({ per_page: 100 })
+        projects.forEach((project) => projectMap.set(project.id, project))
+      } catch {
+        // Daftar task tetap dapat ditampilkan meskipun endpoint proyek gagal.
+      }
+      missingIds = projectIds.filter((id) => !projectMap.has(id))
+    }
+
+    if (missingIds.length) {
+      const projectResults = await Promise.allSettled(
+        missingIds.map((id) => projectStore.fetchProjectById(id)),
+      )
+      projectResults.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value) {
+          projectMap.set(result.value.id, result.value)
+        }
+      })
+    }
+
+    return tasks.map((task) =>
+      applyProjectRelation(
+        task,
+        task.projectId ? projectMap.get(task.projectId) : undefined,
+      ),
+    )
+  }
+
   rebuildCreatedByMe()
 
   const setActive = (value: Task) => {
@@ -171,7 +233,8 @@ export const useTask = defineStore('task', () => {
       task: async () => {
         const response = await api.getbydata('tasks', { ...params })
         const { items: rawItems, meta } = extractList(response.data, ['tasks'])
-        salesTasks.value = rawItems.filter(isRecord).map(normalizeTask)
+        const normalizedTasks = rawItems.filter(isRecord).map(normalizeTask)
+        salesTasks.value = await resolveTaskProjects(normalizedTasks)
         if (meta) Object.assign(pagination, meta)
         rebuildCreatedByMe()
         return salesTasks.value
@@ -188,7 +251,10 @@ export const useTask = defineStore('task', () => {
       task: async () => {
         const response = await api.getbydata('tasks/fetchtaskbyid', { id })
         const raw = extractItem(response.data, ['task'])
-        selectedItem.value = raw ? normalizeTask(raw) : null
+        const normalizedTask = raw ? normalizeTask(raw) : null
+        selectedItem.value = normalizedTask
+          ? (await resolveTaskProjects([normalizedTask]))[0] ?? normalizedTask
+          : null
         return selectedItem.value
       },
     })

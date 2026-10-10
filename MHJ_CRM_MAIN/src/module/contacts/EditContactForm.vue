@@ -86,20 +86,20 @@
             </div>
             <button
               v-if="form.phoneNumbers.length > 1"
-              class="btn btn-outline-danger px-3"
+              class="btn btn-outline-danger remove-phone-button"
               type="button"
               title="Hapus nomor"
               @click="removePhone(index)"
             >
-              <vue-feather type="trash-2" size="16" />
+              <vue-feather type="minus" size="17" />
             </button>
           </div>
           <small class="d-block text-muted mb-3">
             Gunakan nomor HP Indonesia dengan awalan 08, 628, atau +628.
           </small>
-          <button class="btn btn-outline-primary add-phone-button" type="button" @click="addPhone">
-            <vue-feather type="plus" size="17" />
-            <span>Tambah nomor</span>
+          <button class="btn btn-primary add-phone-button" type="button" @click="addPhone">
+            <vue-feather type="plus-circle" size="17" />
+            <span>Tambah nomor telepon</span>
           </button>
         </InputWrapper>
       </div>
@@ -270,6 +270,7 @@ import {
   indonesianMobilePhoneError,
   normalizeIndonesianMobilePhone,
   sanitizeIndonesianPhoneInput,
+  splitPhoneNumbers,
 } from "@/utils/indonesianPhone";
 import {
   geolocationErrorMessage,
@@ -360,6 +361,16 @@ function removePhone(index: number) {
   form.value.phoneNumbers.splice(index, 1);
 }
 
+function expandCombinedPhoneRows() {
+  const values = form.value.phoneNumbers.map((phone) => phone.data);
+  if (!values.some((value) => /[,;|\n]/.test(value))) return;
+
+  const phones = splitPhoneNumbers(...values);
+  form.value.phoneNumbers = phones.length
+    ? phones.map((phone) => ({ data: phone, errorMessage: "" }))
+    : [initInputField()];
+}
+
 async function captureCurrentAddress() {
   locationError.value = "";
   locatingAddress.value = true;
@@ -401,8 +412,11 @@ function fillForm() {
   form.value.mapAddress.data = contact.mapAddress || "";
   form.value.address.data = contact.address || "";
 
-  const phones = [contact.telephone1 || contact.contactNumber, contact.telephone2]
-    .filter((phone): phone is string => Boolean(phone));
+  const phones = splitPhoneNumbers(
+    contact.telephone1 || contact.contactNumber,
+    contact.telephone2,
+    ...(contact.phoneNumbers || []),
+  );
   form.value.phoneNumbers = phones.length
     ? phones.map((phone) => ({ data: phone, errorMessage: "" }))
     : [initInputField()];
@@ -550,9 +564,9 @@ async function save() {
     return;
   }
 
-  const normalizedPhoneNumbers = form.value.phoneNumbers.map((phone) =>
-    normalizeIndonesianMobilePhone(phone.data),
-  );
+  const normalizedPhoneNumbers = form.value.phoneNumbers
+    .map((phone) => normalizeIndonesianMobilePhone(phone.data))
+    .filter(Boolean);
 
   const payload: ContactCrudPayload = {
     company_id: nullableId(form.value.company.data || contact.companyId),
@@ -562,7 +576,7 @@ async function save() {
     email: nullableText(form.value.email.data),
     status: String(form.value.status.data || contact.statusId || 1),
     telephone_1: normalizedPhoneNumbers[0] ?? "",
-    telephone_2: nullableText(normalizedPhoneNumbers[1] ?? ""),
+    telephone_2: nullableText(normalizedPhoneNumbers.slice(1).join(", ")),
     address: nullableText(form.value.address.data),
     province: nullableText(form.value.province.data),
     city: nullableText(form.value.city.data),
@@ -611,6 +625,14 @@ watch(
   },
 );
 
+// Data lama dapat menyimpan beberapa nomor sekaligus di telephone_2.
+// Jika nilai gabungan masuk kembali ke form, pecah langsung menjadi baris individual.
+watch(
+  () => form.value.phoneNumbers.map((phone) => phone.data),
+  expandCombinedPhoneRows,
+  { flush: "sync" },
+);
+
 onMounted(async () => {
   const requests: Promise<unknown>[] = [];
   if (!hospitalStore.items.length) requests.push(hospitalStore.fetchHospitals());
@@ -638,7 +660,7 @@ onMounted(async () => {
 
 .add-phone-button {
   display: inline-flex;
-  min-width: 184px;
+  width: 100%;
   min-height: 42px;
   align-items: center;
   justify-content: center;
@@ -648,6 +670,17 @@ onMounted(async () => {
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
+}
+
+.remove-phone-button {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0;
 }
 
 .location-field {
@@ -705,10 +738,6 @@ onMounted(async () => {
 }
 
 @media (max-width: 575.98px) {
-  .add-phone-button {
-    width: 100%;
-  }
-
   .location-input-group {
     grid-template-columns: minmax(0, 1fr) 132px;
   }

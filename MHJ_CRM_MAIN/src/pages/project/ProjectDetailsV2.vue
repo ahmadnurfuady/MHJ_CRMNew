@@ -8,7 +8,15 @@
         <p class="toolbar-eyebrow">Proyek</p>
         <h3>Detail Proyek</h3>
       </div>
-      <button class="edit-button" type="button" aria-label="Edit proyek" disabled>
+      <router-link
+        v-if="project"
+        class="edit-button"
+        :to="{ path: routes.Project.ProjectCreate, query: { id: String(project.id) } }"
+        aria-label="Edit proyek"
+      >
+        <i class="fa-solid fa-pen"></i>
+      </router-link>
+      <button v-else class="edit-button" type="button" aria-label="Edit proyek" disabled>
         <i class="fa-solid fa-pen"></i>
       </button>
     </div>

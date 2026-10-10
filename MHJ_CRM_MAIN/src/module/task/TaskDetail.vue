@@ -1,17 +1,5 @@
 <template>
   <div class="task-detail-shell">
-    <header class="task-detail-header">
-      <button class="task-detail-back" type="button" aria-label="Kembali ke daftar tugas" @click="emit('close')">
-        <vue-feather type="arrow-left" size="22" />
-      </button>
-      <h4>Detail Tugas</h4>
-    </header>
-
-    <div v-if="loading" class="task-detail-loading">
-      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      Memuat detail tugas...
-    </div>
-
     <div v-if="task" class="task-detail-scroll">
       <section class="task-name-card">
         <h5>{{ task.title || 'Tanpa nama tugas' }}</h5>
@@ -163,10 +151,6 @@ interface CommentItem {
 
 const props = defineProps<{
   task: TaskDetails | null
-  loading?: boolean
-}>()
-const emit = defineEmits<{
-  close: []
 }>()
 
 const commentText = ref('')
@@ -254,73 +238,21 @@ function preventUnavailableContact(event: MouseEvent) {
 <style scoped>
 .task-detail-shell {
   display: flex;
-  max-height: calc(100vh - 40px);
   flex-direction: column;
-  overflow: hidden;
-  background: #f8fafc;
-}
-
-.task-detail-header {
-  display: flex;
-  min-height: 64px;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 18px;
-  padding: 14px 22px;
-  background: #18a6e4;
-  color: #fff;
-}
-
-.task-detail-header h4 {
-  margin: 0;
-  color: #fff;
-  font-size: 19px;
-  font-weight: 600;
-}
-
-.task-detail-back {
-  display: inline-flex;
-  width: 36px;
-  height: 36px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  padding: 0;
-  background: transparent;
-  color: #fff;
-}
-
-.task-detail-back:hover {
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.task-detail-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  padding: 10px 20px;
-  background: #e0f2fe;
-  color: #0369a1;
-  font-size: 13px;
 }
 
 .task-detail-scroll {
   display: flex;
-  min-height: 0;
-  flex: 1 1 auto;
   flex-direction: column;
   gap: 16px;
-  overflow-y: auto;
-  padding: 20px;
 }
 
 .task-name-card,
 .detail-card {
-  border: 1px solid #dbe2ea;
-  border-radius: 14px;
+  border: 1px solid #e5eaee;
+  border-radius: 16px;
   background: #fff;
+  box-shadow: 0 7px 24px rgba(31, 52, 73, 0.05);
 }
 
 .task-name-card {
@@ -572,10 +504,11 @@ function preventUnavailableContact(event: MouseEvent) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  flex: 0 0 auto;
-  border-top: 1px solid #e2e8f0;
+  border: 1px solid #e5eaee;
+  border-radius: 16px;
   padding: 16px 20px;
   background: #fff;
+  box-shadow: 0 7px 24px rgba(31, 52, 73, 0.05);
 }
 
 .download-button,
@@ -589,26 +522,8 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 @media (max-width: 575.98px) {
-  .task-detail-shell {
-    height: 100dvh;
-    max-height: 100dvh;
-  }
-
-  .task-detail-header {
-    min-height: 60px;
-    justify-content: flex-start;
-    padding: 12px 16px;
-  }
-
-  .task-detail-header h4 {
-    flex: 1;
-    padding-right: 36px;
-    text-align: center;
-  }
-
   .task-detail-scroll {
     gap: 14px;
-    padding: 16px 12px;
   }
 
   .task-name-card,
@@ -664,7 +579,6 @@ function preventUnavailableContact(event: MouseEvent) {
     width: 100%;
   }
 
-  .task-detail-header,
   .comment-card,
   .task-detail-footer {
     display: none !important;

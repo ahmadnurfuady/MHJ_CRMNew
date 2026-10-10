@@ -15,6 +15,45 @@ export function normalizeIndonesianMobilePhone(value: string): string {
   return digits;
 }
 
+/** Pecah isi telephone_1/telephone_2 menjadi daftar nomor individual tanpa duplikat. */
+export function splitPhoneNumbers(
+  ...values: Array<string | null | undefined>
+): string[] {
+  const seen = new Set<string>();
+  const phones: string[] = [];
+
+  values.forEach((value) => {
+    String(value ?? "")
+      .split(/[,;|\n]+/)
+      .map((phone) => phone.trim())
+      .filter(Boolean)
+      .forEach((phone) => {
+        const key = phone.replace(/\D/g, "");
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        phones.push(phone);
+      });
+  });
+
+  return phones;
+}
+
+/** Format internasional tanpa tanda + untuk tautan WhatsApp. */
+export function toIndonesianWhatsAppNumber(value: string): string {
+  const localPhone = normalizeIndonesianMobilePhone(value);
+  return localPhone.startsWith("0") ? `62${localPhone.slice(1)}` : localPhone;
+}
+
+export function indonesianPhoneCallUrl(value: string): string {
+  const whatsappNumber = toIndonesianWhatsAppNumber(value);
+  return whatsappNumber ? `tel:+${whatsappNumber}` : "";
+}
+
+export function indonesianWhatsAppUrl(value: string): string {
+  const whatsappNumber = toIndonesianWhatsAppNumber(value);
+  return whatsappNumber ? `https://wa.me/${whatsappNumber}` : "";
+}
+
 export function indonesianMobilePhoneError(
   value: string,
   required = false,

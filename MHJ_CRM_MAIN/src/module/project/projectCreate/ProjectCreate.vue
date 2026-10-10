@@ -4,7 +4,11 @@
       <div class="col-12">
         <div class="card create-project-form custom-input">
           <div class="card-body">
-            <form class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
+            <h5 class="mb-3">{{ isEditMode ? 'Edit Proyek' : 'Tambah Proyek Baru' }}</h5>
+            <div v-if="loadingProject" class="text-center py-5">
+              <span class="spinner-border text-primary" role="status"></span>
+            </div>
+            <form v-else class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
               <div class="col-12">
                 <InputWrapper :title="'Proyek Name'">
                   <InputField
@@ -269,7 +273,7 @@
                   <button
                     class="btn btn-outline-danger"
                     type="button"
-                    @click="router.push(routes.Project.ProjectList)"
+                    @click="cancel"
                   >
                     Batal
                   </button>
@@ -279,7 +283,7 @@
                       class="spinner-border spinner-border-sm me-2"
                       aria-hidden="true"
                     />
-                    Tambah Proyek
+                    {{ isEditMode ? 'Simpan Perubahan' : 'Tambah Proyek' }}
                   </button>
                 </div>
               </div>
@@ -297,8 +301,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
 import { lostReasons, type DealOption } from '@/core/data/projectDeal'
@@ -306,9 +310,11 @@ import { routes } from '@/router/routes'
 import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
-import { useProjectStore, type ProjectPayload } from '@/store/project'
+import { useProjectStore, type BarangOption, type ProjectPayload } from '@/store/project'
 import type { Contact } from '@/types/contacts'
 import type { InputField as InputFieldState } from '@/types/common'
+import type { Projects } from '@/types/project'
+import { shortProjectTitle } from '@/utils/index'
 
 interface PipelineStageOption extends DealOption {
   code: string
@@ -359,6 +365,16 @@ function selectedField(option?: DealOption) {
   }
 }
 
+function multiSelectedField(options: DealOption[]) {
+  const field = initSelectField()
+  if (!options.length) return field
+  return {
+    ...field,
+    selectedItems: options,
+    data: options.map((option) => option.label).join(', '),
+  }
+}
+
 const projectForm = ref({
   company: initSelectField(),
   contact: initSelectField(),
@@ -378,10 +394,21 @@ const formSubmitted = ref(false)
 const timelineSequence = ref(1)
 const timelineEntries = ref<TimelineEntry[]>([])
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const hospitalStore = useHospitalStore()
 const contactStore = useContact()
 const projectStore = useProjectStore()
+
+const editingId = computed<number | null>(() => {
+  const raw = route.query.id
+  const value = Number(Array.isArray(raw) ? raw[0] : raw)
+  return Number.isFinite(value) && value > 0 ? value : null
+})
+const isEditMode = computed(() => editingId.value !== null)
+const loadingProject = ref(false)
+// Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
+const prefilling = ref(false)
 
 function selectedOf(field: { selected: unknown }) {
   return field.selected as DealOption | null
@@ -484,6 +511,7 @@ const isLostOrCancelled = computed(() =>
 watch(
   () => projectForm.value.company.selected,
   () => {
+    if (prefilling.value) return
     projectForm.value.contact = initSelectField()
   }
 )
@@ -491,6 +519,7 @@ watch(
 watch(
   () => projectForm.value.division.selected,
   () => {
+    if (prefilling.value) return
     projectForm.value.products = initSelectField()
   }
 )
@@ -501,6 +530,14 @@ watch(isLostOrCancelled, (visible) => {
 
 function openContactModal() {
   contactStore.openContactModal()
+}
+
+function cancel() {
+  if (isEditMode.value && editingId.value) {
+    router.push({ path: routes.Project.ProjectDetailsV2, query: { id: String(editingId.value) } })
+  } else {
+    router.push(routes.Project.ProjectList)
+  }
 }
 
 function selectCreatedContact(created: Contact) {
@@ -545,28 +582,147 @@ function findLookupId(options: DealOption[], selected: DealOption | null) {
   )
 }
 
+function findOptionById<T extends DealOption>(options: T[], id?: number): T | undefined {
+  if (id === undefined) return undefined
+  return options.find((option) => numericId(option.value) === id)
+}
+
+function findOptionByLabel<T extends DealOption>(options: T[], label?: string): T | undefined {
+  if (!label) return undefined
+  const normalized = normalizeLabel(label)
+  return options.find((option) => normalizeLabel(option.label) === normalized)
+}
+
+/** lost_reasons disimpan sebagai JSON array atau string dipisah koma. */
+function parseNameList(raw?: string): string[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed.map((item) => String(item).trim()).filter(Boolean)
+  } catch {
+    // Bukan JSON, anggap daftar dipisah koma.
+  }
+  return raw.split(',').map((item) => item.trim()).filter(Boolean)
+}
+
+/**
+ * product_names bisa berupa JSON array, atau jatuh balik ke deal_name
+ * berformat "PREFIX_Perusahaan_Produk" (lihat computed projectName) bila kolom kosong.
+ */
+function parseProductNames(raw?: string): string[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return parsed.map((item) => String(item).trim()).filter(Boolean)
+  } catch {
+    // Bukan JSON, lanjut ke fallback deal_name di bawah.
+  }
+  return shortProjectTitle(raw)
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+/** Isi ulang form dari data proyek existing saat edit, memetakan id/nama ke opsi dropdown. */
+async function prefillForm(project: Projects) {
+  prefilling.value = true
+
+  const company = findOptionById(companyOptions.value, project.companyId)
+  if (company) projectForm.value.company = selectedField(company)
+
+  const contact =
+    findOptionById(contactOptions.value, project.contactId) ??
+    findOptionByLabel(contactOptions.value, project.contactName)
+  if (contact) projectForm.value.contact = selectedField(contact)
+
+  const stage = stageOptions.find((option) => option.value === project.stageId)
+  if (stage) projectForm.value.stage = selectedField(stage)
+
+  const owner =
+    findOptionById(ownerOptions.value, project.ownerId) ??
+    findOptionByLabel(ownerOptions.value, project.ownerName)
+  if (owner) projectForm.value.owner = selectedField(owner)
+
+  const division = projectStore.lookups.divisi.find((option) => option.code === project.divisionCode)
+  if (division) projectForm.value.division = selectedField(division)
+
+  const products = parseProductNames(project.productNames)
+    .map((label) => findOptionByLabel(productOptions.value, label))
+    .filter((option): option is BarangOption => Boolean(option))
+  if (products.length) projectForm.value.products = multiSelectedField(products)
+
+  projectForm.value.quantity = { data: String(project.quantity ?? 1), errorMessage: '' }
+  projectForm.value.estimatedPo = {
+    data: (project.expectedCloseDate ?? '').slice(0, 10),
+    errorMessage: '',
+  }
+
+  const competitor =
+    findOptionById(projectStore.lookups.competitor, project.competitorId) ??
+    findOptionByLabel(projectStore.lookups.competitor, project.competitorName)
+  if (competitor) projectForm.value.competitor = selectedField(competitor)
+
+  const fundingSource =
+    findOptionById(projectStore.lookups.sumberdana, project.sumberdanaId) ??
+    findOptionByLabel(projectStore.lookups.sumberdana, project.sumberdanaName)
+  if (fundingSource) projectForm.value.fundingSource = selectedField(fundingSource)
+
+  const lostReasonItems = parseNameList(project.lostReasons)
+    .map((label) => findOptionByLabel(lostReasons, label))
+    .filter((option): option is DealOption => Boolean(option))
+  if (lostReasonItems.length) projectForm.value.lostReasons = multiSelectedField(lostReasonItems)
+
+  projectForm.value.notes = {
+    data: project.notes && project.notes !== '-' ? project.notes : '',
+    errorMessage: '',
+  }
+
+  // Tunggu flush watcher company/division yang tertunda sebelum guard prefilling dilepas.
+  await nextTick()
+  prefilling.value = false
+}
+
 onMounted(async () => {
-  const results = await Promise.allSettled([
+  const tasks: Promise<unknown>[] = [
     hospitalStore.fetchHospitals(),
     contactStore.fetchRemoteContacts(),
     projectStore.fetchProjectLookups(),
     projectStore.fetchProjectCatalog(),
-  ])
+  ]
+  if (editingId.value !== null) {
+    loadingProject.value = true
+    tasks.push(projectStore.fetchProjectById(editingId.value))
+  }
 
-  const loggedInName = (() => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || 'null') as {
-        name?: string
-      } | null
-      return user?.name?.trim().toLocaleLowerCase('id-ID') ?? ''
-    } catch {
-      return ''
+  const results = await Promise.allSettled(tasks)
+
+  if (editingId.value !== null) {
+    loadingProject.value = false
+    if (projectStore.selectedItem) {
+      await prefillForm(projectStore.selectedItem)
+    } else {
+      Swal.fire({
+        icon: 'error',
+        text: projectStore.error ?? 'Data proyek tidak ditemukan.',
+        confirmButtonColor: 'var(--theme-default)',
+      })
     }
-  })()
-  const loggedInOwner = ownerOptions.value.find(
-    (owner) => owner.label.trim().toLocaleLowerCase('id-ID') === loggedInName
-  )
-  if (loggedInOwner) projectForm.value.owner = selectedField(loggedInOwner)
+  } else {
+    const loggedInName = (() => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || 'null') as {
+          name?: string
+        } | null
+        return user?.name?.trim().toLocaleLowerCase('id-ID') ?? ''
+      } catch {
+        return ''
+      }
+    })()
+    const loggedInOwner = ownerOptions.value.find(
+      (owner) => owner.label.trim().toLocaleLowerCase('id-ID') === loggedInName
+    )
+    if (loggedInOwner) projectForm.value.owner = selectedField(loggedInOwner)
+  }
 
   if (results.some((result) => result.status === 'rejected')) {
     Swal.fire({
@@ -686,17 +842,30 @@ async function handleSubmit() {
   }
 
   try {
-    await projectStore.createProject(payload)
-    await Swal.fire({
-      icon: 'success',
-      title: 'Proyek berhasil ditambahkan',
-      confirmButtonColor: 'var(--theme-default)',
-    })
-    router.push(routes.Project.ProjectList)
+    if (isEditMode.value && editingId.value) {
+      await projectStore.updateProject(editingId.value, payload)
+      await Swal.fire({
+        icon: 'success',
+        title: 'Proyek berhasil diperbarui',
+        confirmButtonColor: 'var(--theme-default)',
+      })
+      router.push({
+        path: routes.Project.ProjectDetailsV2,
+        query: { id: String(editingId.value) },
+      })
+    } else {
+      await projectStore.createProject(payload)
+      await Swal.fire({
+        icon: 'success',
+        title: 'Proyek berhasil ditambahkan',
+        confirmButtonColor: 'var(--theme-default)',
+      })
+      router.push(routes.Project.ProjectList)
+    }
   } catch {
     Swal.fire({
       icon: 'error',
-      text: projectStore.error ?? 'Gagal menyimpan proyek.',
+      text: projectStore.error ?? (isEditMode.value ? 'Gagal memperbarui proyek.' : 'Gagal menyimpan proyek.'),
       confirmButtonColor: 'var(--theme-default)',
     })
   }
