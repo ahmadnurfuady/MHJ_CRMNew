@@ -113,14 +113,15 @@ function summaryFor(stage: string): StageSummary {
 
 /**
  * Ringkasan tab memakai satuan juta agar nominal besar tetap ringkas.
- * Contoh: 9.000.000.000 ditampilkan sebagai 9.000.
+ * Contoh: 9.000.000.000 ditampilkan sebagai 9.000jt.
  */
 function formatTabValue(value: number): string {
   if (!Number.isFinite(value) || value === 0) return '0'
 
-  return new Intl.NumberFormat('id-ID', {
+  const millions = new Intl.NumberFormat('id-ID', {
     maximumFractionDigits: 0,
   }).format(value / 1_000_000)
+  return `${millions}jt`
 }
 
 onMounted(() => {

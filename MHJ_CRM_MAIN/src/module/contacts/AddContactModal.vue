@@ -5,7 +5,7 @@
     sizeClass="modal-xl"
     @closeModal="closeModal"
   >
-    <form class="form-bookmark needs-validation" @submit.prevent="handleSave">
+    <form class="form-bookmark needs-validation mhj-form" @submit.prevent="handleSave">
       <div class="modal-body custom-input contact-form-body">
         <div class="row g-3">
           <div class="col-md-6">
@@ -79,10 +79,14 @@
                     :formSubmitted="contactState.formSubmitted"
                     :inputId="`contact-phone-${index}`"
                     inputType="tel"
+                    :maxLength="15"
+                    :formatValue="true"
+                    :formatFunction="sanitizeIndonesianPhoneInput"
+                    :validator="index === 0 ? requiredPhoneValidator : optionalPhoneValidator"
                     :placeholder="
                       index === 0
-                        ? t('contacts.placeholders.phone')
-                        : t('contacts.placeholders.additionalPhone')
+                        ? 'Contoh: 081234567890 atau +6281234567890'
+                        : 'Contoh nomor tambahan: 081234567890'
                     "
                     :required="index === 0"
                   />
@@ -97,6 +101,9 @@
                   <vue-feather type="trash-2" size="16" />
                 </button>
               </div>
+              <small class="d-block text-muted mb-3">
+                Gunakan nomor HP Indonesia dengan awalan 08, 628, atau +628.
+              </small>
               <button
                 class="btn btn-outline-primary add-phone-button"
                 type="button"
@@ -209,14 +216,14 @@
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Status" required>
+            <InputWrapper title="Jenis Kelamin">
               <Select
-                v-model="contactState.contactForm.status"
-                :options="statusOptions"
+                v-model="contactState.contactForm.gender"
+                :options="genderOptions"
                 display-key="label"
                 getValueKey="value"
-                placeholder="Pilih status kontak"
-                :formSubmitted="contactState.formSubmitted"
+                placeholder="Pilih jenis kelamin"
+                :required="false"
               />
             </InputWrapper>
           </div>
@@ -261,16 +268,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 
 import { initInputField, initSelectField } from "@/core/data/common";
-import { projectOptions } from "@/core/data/contactCrm";
+import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { useContact } from "@/store/contact";
 import { useAuthStore } from "@/store/auth";
+import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
+import {
+  indonesianMobilePhoneError,
+  sanitizeIndonesianPhoneInput,
+} from "@/utils/indonesianPhone";
 import {
   geolocationErrorMessage,
   getCurrentPosition,
@@ -300,23 +312,33 @@ const Modal = defineAsyncComponent(
 const contactStore = useContact();
 const authStore = useAuthStore();
 const projectStore = useProjectStore();
+const hospitalStore = useHospitalStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const {
-  fetchContactCompanies,
   fetchContactSources,
   fetchContactStatuses,
   saveContact,
 } = contactStore;
 
-const { provinceOptions, cityOptionsByProvince, getCompanyAddress } =
-  useCompanyRegions();
+const { provinceOptions, cityOptionsByProvince, loadRegions } = useCompanyRegions();
 
 const ownerOptions = computed(() => projectStore.lookups.owner);
-const companyOptions = computed(() => contactApi.value.companies);
+// GET /api/company (sama dengan sumber data Rumah Sakit/Perusahaan di form Project & Task).
+const companyOptions = computed(() =>
+  hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name })),
+);
+// GET /api/project (sama dengan daftar di halaman Proyek List).
+const projectOptions = computed(() =>
+  projectStore.items.map((project) => ({ value: project.id, label: project.projectName })),
+);
 const sourceOptions = computed(() => contactApi.value.sources);
 const statusOptions = computed(() => contactApi.value.statuses);
 const locatingAddress = ref(false);
 const locationError = ref("");
+const requiredPhoneValidator = (value: string) =>
+  indonesianMobilePhoneError(value, true);
+const optionalPhoneValidator = (value: string) =>
+  indonesianMobilePhoneError(value);
 const loggedInOwnerName = computed(
   () => authStore.user?.name || authStore.user?.email || "Penanggung Jawab",
 );
@@ -361,9 +383,11 @@ function selectDefaultStatus() {
 onMounted(async () => {
   const requests: Promise<unknown>[] = [];
   if (!projectStore.lookups.owner.length) requests.push(projectStore.fetchProjectLookups());
-  if (!contactApi.value.companies.length) requests.push(fetchContactCompanies());
+  if (!hospitalStore.items.length) requests.push(hospitalStore.fetchHospitals());
+  if (!projectStore.loaded) requests.push(projectStore.fetchProjects());
   if (!contactApi.value.sources.length) requests.push(fetchContactSources());
   if (!contactApi.value.statuses.length) requests.push(fetchContactStatuses());
+  requests.push(loadRegions());
   await Promise.allSettled(requests);
   selectLoggedInOwner();
   selectDefaultStatus();
@@ -385,39 +409,6 @@ watch(
   (province, previousProvince) => {
     if (previousProvince && province !== previousProvince)
       contactState.value.contactForm.city = initSelectField();
-  },
-);
-
-/** Auto-isi Provinsi & Kota dari alamat company terpilih (data company/rumah sakit sudah real di DB). */
-watch(
-  () => contactState.value.contactForm.company.data,
-  async (companyId) => {
-    const address = await getCompanyAddress(companyId);
-    if (!address) return;
-
-    if (address.province) {
-      contactState.value.contactForm.province = {
-        selected: { value: address.province, label: address.province },
-        data: address.province,
-        selectedItems: [],
-        errorMessage: "",
-        type: "dropdown",
-      };
-    }
-
-    // Tunggu watcher provinsi (yang mereset city) jalan dulu sebelum isi city,
-    // supaya auto-fill city tidak ketimpa reset otomatis itu.
-    await nextTick();
-
-    if (address.city) {
-      contactState.value.contactForm.city = {
-        selected: { value: address.city, label: address.city },
-        data: address.city,
-        selectedItems: [],
-        errorMessage: "",
-        type: "dropdown",
-      };
-    }
   },
 );
 

@@ -1,5 +1,5 @@
 <template>
-  <form class="custom-input">
+  <form class="custom-input mhj-form">
     <div class="row g-3">
       <div class="mt-0 mb-3 col-md-12">
         <InputWrapper :title="'Name'">

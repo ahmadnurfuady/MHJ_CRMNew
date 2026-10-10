@@ -92,6 +92,61 @@ tbody {
   }
 }
 
+// Pola tabel utama CRM: dipakai lintas halaman agar hierarki tipografi konsisten.
+.mhj-data-table {
+  thead {
+    th {
+      padding: 0.75rem;
+      background: #ffffff;
+      color: #051a1a;
+      font-size: 14px; //ukuran font header tabel utama CRM
+      font-weight: 700;
+      letter-spacing: normal;
+      text-transform: none;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    td {
+      padding: 14px 16px;
+      color: #334155;
+      font-size: 13px; //ukuran font isi tabel utama CRM
+      font-weight: 400;
+      vertical-align: middle;
+
+      strong,
+      .fw-bold {
+        color: #0f172a;
+        font-weight: 700 !important;
+      }
+
+      .fw-semibold {
+        color: #0f172a;
+        font-weight: 600 !important;
+      }
+
+      small,
+      .text-secondary {
+        color: #64748b;
+        font-size: 11px; //ukuran font teks kecil di tabel utama CRM
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+// Batasi teks panjang tanpa membuat lebar kolom tabel ikut melebar.
+.mhj-cell-ellipsis {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .table-components {
   .badge-primary {
     span {
@@ -123,9 +178,6 @@ tbody {
     border-color: $white;
   }
 
-  td {
-    // color: $white;
-  }
 }
 
 .table-hover {

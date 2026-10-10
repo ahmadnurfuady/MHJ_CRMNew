@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 import { api } from "@/api";
-import { isRecord, pickString } from "@/api/response";
+import { extractList, isRecord, pickString, type Dict } from "@/api/response";
 import {
   cityOptionsByProvince as baseCityOptionsByProvince,
   provinceOptions as baseProvinceOptions,
@@ -109,8 +109,119 @@ async function fetchCompanyAddress(companyId: string): Promise<CompanyAddress | 
   return request;
 }
 
+// Nama kolom dikonfirmasi dari response nyata:
+// GET /api/master-data/provinsi -> kd_provinsi, nm_provinsi, nm_Province.
+// GET /api/master-data/kotakabupaten -> kd_kota_kabupaten, nm_kota_kabupaten, kd_provinsi, nm_city.
+function pickId(raw: Dict): string {
+  // Kota dicek lebih dulu: baris kotakabupaten ikut membawa kd_provinsi juga (FK ke induk),
+  // jadi kode miliknya sendiri (kd_kota_kabupaten dkk.) harus menang supaya tidak tertukar.
+  return pickString(
+    raw,
+    "kd_kota_kabupaten",
+    "kd_kotakabupaten",
+    "kd_kota",
+    "kd_kabupaten",
+    "kd_provinsi",
+    "id",
+    "id_provinsi",
+    "id_kota",
+    "id_kabupaten",
+    "kode",
+    "kode_provinsi",
+    "kode_kota",
+    "value",
+  );
+}
+
+function pickName(raw: Dict): string {
+  // Sama seperti pickId: kota dicek lebih dulu, karena baris kotakabupaten kemungkinan
+  // ikut membawa nm_provinsi/nm_Province (nama induk) selain nama kotanya sendiri.
+  return pickString(
+    raw,
+    "nm_kota_kabupaten",
+    "nm_kotakabupaten",
+    "nm_city",
+    "nm_kota",
+    "nm_kabupaten",
+    "nm_provinsi",
+    "nm_Province",
+    "nama",
+    "nama_provinsi",
+    "nama_kota",
+    "nama_kabupaten",
+    "name",
+    "label",
+  );
+}
+
+function pickProvinceRefId(raw: Dict): string {
+  return pickString(raw, "kd_provinsi", "id_provinsi", "provinsi_id", "kode_provinsi");
+}
+
+function pickProvinceRefName(raw: Dict): string {
+  return pickString(raw, "nm_provinsi", "nm_Province", "nama_provinsi", "provinsi", "province");
+}
+
+let regionsLoaded = false;
+let regionsPromise: Promise<void> | null = null;
+
 /**
- * Dropdown Provinsi/Kota (statis + temuan real dari data company),
+ * GET /api/master-data/provinsi & /api/master-data/kotakabupaten.
+ * Menggantikan dropdown statis dengan data resmi begitu endpoint berhasil dimuat;
+ * jika gagal, dropdown statis (core/data/contactCrm) tetap dipakai sebagai cadangan.
+ */
+function loadRegionsFromApi(): Promise<void> {
+  if (regionsLoaded) return Promise.resolve();
+  if (regionsPromise) return regionsPromise;
+
+  regionsPromise = (async () => {
+    try {
+      const [provinsiRes, kotaRes] = await Promise.all([
+        api.get("master-data/provinsi"),
+        api.get("master-data/kotakabupaten"),
+      ]);
+      const provinsiItems = extractList(provinsiRes.data).items.filter(isRecord);
+      const kotaItems = extractList(kotaRes.data).items.filter(isRecord);
+      if (!provinsiItems.length) return;
+
+      const provinceIdToName = new Map<string, string>();
+      const nextProvinceOptions: Select[] = provinsiItems
+        .map((raw) => {
+          const id = pickId(raw);
+          const nama = pickName(raw);
+          if (nama) provinceIdToName.set(id, nama);
+          return { value: id || nama, label: nama };
+        })
+        .filter((option) => option.label);
+      if (!nextProvinceOptions.length) return;
+
+      const nextCityMap: Record<string, Select[]> = {};
+      kotaItems.forEach((raw) => {
+        const cityName = pickName(raw);
+        if (!cityName) return;
+        const provinceName =
+          pickProvinceRefName(raw) || provinceIdToName.get(pickProvinceRefId(raw)) || "";
+        if (!provinceName) return;
+        const bucket = nextCityMap[provinceName] ?? [];
+        bucket.push({ value: pickId(raw) || cityName, label: cityName });
+        nextCityMap[provinceName] = bucket;
+      });
+
+      provinceOptions.value = nextProvinceOptions;
+      if (Object.keys(nextCityMap).length) cityOptionsByProvince.value = nextCityMap;
+      regionsLoaded = true;
+    } catch (error) {
+      console.warn("Gagal memuat provinsi/kotakabupaten dari master data, memakai data lokal.", error);
+    } finally {
+      regionsPromise = null;
+    }
+  })();
+
+  return regionsPromise;
+}
+
+/**
+ * Dropdown Provinsi/Kota (dari master data, dengan statis sebagai cadangan),
  * plus lookup alamat satu company (untuk auto-fill saat company dipilih).
  */
 export function useCompanyRegions() {
@@ -121,5 +232,10 @@ export function useCompanyRegions() {
     return address;
   }
 
-  return { provinceOptions, cityOptionsByProvince, getCompanyAddress };
+  return {
+    provinceOptions,
+    cityOptionsByProvince,
+    getCompanyAddress,
+    loadRegions: loadRegionsFromApi,
+  };
 }

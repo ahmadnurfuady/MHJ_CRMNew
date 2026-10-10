@@ -18,7 +18,7 @@
                   :alt="userDetails.name"
                 />
               </div>
-              <div class="flex-grow-1">
+              <div class="grow">
                 <h6>{{ userDetails.name }}</h6>
                 <p>{{ userDetails.userEmail }}</p>
               </div>

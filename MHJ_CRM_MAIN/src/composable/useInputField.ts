@@ -45,13 +45,21 @@ export function useInputField(
   function onInput(event: Event) {
     const target = event.target as HTMLInputElement | null
     if (!target) return
-    updated(target.value)
+    const inputValue =
+      props.formatValue && props.formatFunction
+        ? props.formatFunction(target.value)
+        : target.value
+    if (target.value !== inputValue) target.value = inputValue
+    updated(inputValue)
   }
 
   function updated(inputValue?: string | number | File | null) {
     changed.value = true
 
-    if (props.required) {
+    if (props.validator) {
+      const errorMessage = props.validator(String(inputValue ?? ''))
+      validStatus.value = { valid: !errorMessage, errorMessage }
+    } else if (props.required) {
       if (props.inputType === 'email') {
         validStatus.value = validateEmail(String(inputValue))
       } else if (props.inputType === 'file') {

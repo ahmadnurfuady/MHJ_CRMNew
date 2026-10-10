@@ -45,8 +45,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { tasks } from '@/core/data/tasks'
+import { ref } from 'vue'
 import { Task } from '@/types/tasks'
 const tagsData = ref<Task[]>([])
 const tag = ref('')
@@ -64,11 +63,4 @@ const addTags = () => {
   tag.value = ''
 }
 
-onMounted(() => {
-  try {
-    tagsData.value = tasks
-  } catch (error) {
-    console.error('Error fetching user data:', error)
-  }
-})
 </script>

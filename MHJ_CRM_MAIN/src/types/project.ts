@@ -309,6 +309,8 @@ export interface Projects {
   unitPrice?: number
   notes?: string
   contactPhone?: string
+  address?: string
+  kdKelurahan?: string
 }
 
 export interface ProjectCostPerformance {

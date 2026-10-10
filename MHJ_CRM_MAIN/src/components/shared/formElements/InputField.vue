@@ -17,6 +17,8 @@
     v-if="inputType !== 'textarea' && inputType !== 'file'"
     :required="props?.required && props.browserValidation"
     :disabled="props.disabled"
+    :inputmode="inputType === 'tel' ? 'tel' : undefined"
+    :pattern="inputType === 'tel' ? '[+]?[0-9]*' : undefined"
     :list="props.datalist?.length ? `datalistOptions-${inputId}` : undefined"
     :maxlength="props.maxLength"
   />
@@ -62,7 +64,7 @@
     v-else-if="inputType === 'file'"
   />
 
-  <template v-if="modelValue?.errorMessage && required && !props.browserValidation">
+  <template v-if="modelValue?.errorMessage && !props.browserValidation">
     <div class="invalid-tooltip" v-if="props.tooltipValidation">
       {{ modelValue?.errorMessage }}
     </div>
@@ -93,6 +95,7 @@ const props = withDefaults(defineProps<InputProps>(), {
   showLengthBadge: false,
   formatValue: false,
   formatFunction: null,
+  validator: null,
 })
 const emit = defineEmits(['update:modelValue', 'badgeVisible'])
 const { onInput, onFileChange, showBadge, hideBadge, animationClass } = useInputField(props, emit)

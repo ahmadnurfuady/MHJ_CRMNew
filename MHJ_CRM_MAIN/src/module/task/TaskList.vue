@@ -49,17 +49,36 @@
 
     <div class="card-body p-0">
       <div class="table-responsive task-table-wrap">
-        <table class="table task-table align-middle mb-0">
+        <table
+          class="table mhj-data-table task-table align-middle mb-0"
+          :style="{ width: `${taskTableWidth}px` }"
+        >
+          <colgroup>
+            <col
+              v-for="(width, index) in taskColumnWidths"
+              :key="taskTableColumns[index]?.label"
+              :style="{ width: `${width}px` }"
+            />
+          </colgroup>
           <thead>
             <tr>
-              <th>Nama Task</th>
-              <th>Rumah Sakit</th>
-              <th>Proyek</th>
-              <th>Jadwal</th>
-              <th>Owner</th>
-              <th>Pipeline</th>
-              <th>Catatan</th>
-              <th class="text-center">Aksi</th>
+              <th
+                v-for="(column, index) in taskTableColumns"
+                :key="column.label"
+                class="task-table__resizable-header"
+                :class="{ 'text-center': column.center }"
+              >
+                {{ column.label }}
+                <button
+                  v-if="index < taskTableColumns.length - 1"
+                  class="task-table__resize-handle"
+                  type="button"
+                  :aria-label="`Ubah lebar kolom ${column.label}`"
+                  :title="`Tarik untuk mengubah lebar kolom ${column.label}`"
+                  @pointerdown="startTaskColumnResize(index, $event)"
+                  @dblclick.stop="resetTaskColumnWidth(index)"
+                ></button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -190,6 +209,25 @@
         >
           <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
         </button>
+        <div class="pagination-pages" aria-label="Pilih halaman">
+          <template v-for="item in visibleTaskPages" :key="String(item)">
+            <span v-if="typeof item === 'string'" class="pagination-ellipsis" aria-hidden="true">
+              …
+            </span>
+            <button
+              v-else
+              class="btn btn-sm pagination-page-button"
+              :class="{ 'pagination-page-button--active': item === pagination.page }"
+              type="button"
+              :disabled="loading || item === pagination.page"
+              :aria-current="item === pagination.page ? 'page' : undefined"
+              :aria-label="`Ke halaman ${item}`"
+              @click="changePage(item)"
+            >
+              {{ item }}
+            </button>
+          </template>
+        </div>
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
@@ -231,7 +269,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, defineAsyncComponent, onBeforeUnmount, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTask } from '@/store/task'
 import { projectTab } from '@/core/data/project'
@@ -245,8 +283,102 @@ const searchQuery = ref('')
 const selectedTask = ref<TaskDetails | null>(null)
 const detailModalOpen = ref(false)
 const detailLoading = ref(false)
+const taskTableColumns = [
+  { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
+  { label: 'Rumah Sakit', defaultWidth: 220, minWidth: 140, center: false },
+  { label: 'Proyek', defaultWidth: 180, minWidth: 120, center: false },
+  { label: 'Jadwal', defaultWidth: 170, minWidth: 140, center: false },
+  { label: 'Owner', defaultWidth: 170, minWidth: 130, center: false },
+  { label: 'Pipeline', defaultWidth: 180, minWidth: 140, center: false },
+  { label: 'Catatan', defaultWidth: 240, minWidth: 150, center: false },
+  { label: 'Aksi', defaultWidth: 150, minWidth: 130, center: true },
+] as const
+const taskColumnWidths = ref<number[]>(taskTableColumns.map((column) => column.defaultWidth))
+const taskTableWidth = computed(() =>
+  taskColumnWidths.value.reduce((total, width) => total + width, 0),
+)
 
 const taskRows = computed(() => currentTask.value?.data ?? [])
+
+const visibleTaskPages = computed<Array<number | string>>(() => {
+  const totalPages = Math.max(1, pagination.value.lastPage)
+  const currentPage = Math.min(Math.max(1, pagination.value.page), totalPages)
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  const pageSet = new Set([
+    1,
+    totalPages,
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+  ])
+  if (currentPage <= 3) {
+    pageSet.add(2)
+    pageSet.add(3)
+  }
+  if (currentPage >= totalPages - 2) {
+    pageSet.add(totalPages - 2)
+    pageSet.add(totalPages - 1)
+  }
+
+  const pages = [...pageSet]
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((left, right) => left - right)
+  const items: Array<number | string> = []
+  pages.forEach((page, index) => {
+    const previousPage = pages[index - 1]
+    if (previousPage !== undefined && page - previousPage > 1) {
+      items.push(`ellipsis-${previousPage}-${page}`)
+    }
+    items.push(page)
+  })
+  return items
+})
+let activeTaskColumnResize:
+  | { index: number; startX: number; startWidth: number }
+  | undefined
+
+function startTaskColumnResize(index: number, event: PointerEvent) {
+  event.preventDefault()
+  activeTaskColumnResize = {
+    index,
+    startX: event.clientX,
+    startWidth: taskColumnWidths.value[index] ?? taskTableColumns[index].defaultWidth,
+  }
+  document.body.style.cursor = 'ew-resize'
+  document.body.style.userSelect = 'none'
+  window.addEventListener('pointermove', resizeTaskColumn)
+  window.addEventListener('pointerup', stopTaskColumnResize)
+  window.addEventListener('pointercancel', stopTaskColumnResize)
+}
+
+function resizeTaskColumn(event: PointerEvent) {
+  if (!activeTaskColumnResize) return
+
+  const { index, startX, startWidth } = activeTaskColumnResize
+  const minWidth = taskTableColumns[index]?.minWidth ?? 90
+  const nextWidths = [...taskColumnWidths.value]
+  nextWidths[index] = Math.max(minWidth, startWidth + event.clientX - startX)
+  taskColumnWidths.value = nextWidths
+}
+
+function stopTaskColumnResize() {
+  activeTaskColumnResize = undefined
+  document.body.style.cursor = ''
+  document.body.style.userSelect = ''
+  window.removeEventListener('pointermove', resizeTaskColumn)
+  window.removeEventListener('pointerup', stopTaskColumnResize)
+  window.removeEventListener('pointercancel', stopTaskColumnResize)
+}
+
+function resetTaskColumnWidth(index: number) {
+  const nextWidths = [...taskColumnWidths.value]
+  nextWidths[index] = taskTableColumns[index]?.defaultWidth ?? nextWidths[index]
+  taskColumnWidths.value = nextWidths
+}
 
 const filteredTasks = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
@@ -343,6 +475,10 @@ function changePage(page: number) {
   if (page < 1 || page > pagination.value.lastPage || page === pagination.value.page) return
   void store.fetchTasks({ page })
 }
+
+onBeforeUnmount(() => {
+  stopTaskColumnResize()
+})
 </script>
 
 <style scoped>
@@ -476,22 +612,60 @@ function changePage(page: number) {
 
 .task-table-wrap {
   min-height: 240px;
+  overflow-x: auto;
 }
 
 .task-table {
+  table-layout: fixed;
   min-width: 1300px;
 }
 
 .task-table thead th {
   border-bottom: 1px solid var(--border-subtle, #e2e8f0);
-  padding: 14px 16px;
-  background: #f8fafc;
-  color: #475569;
-  font-size: 11px;
+  padding: 0.75rem;
+  background: #ffffff;
+  color: #051a1a;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.55px;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
   white-space: nowrap;
+}
+
+.task-table__resizable-header {
+  position: relative;
+  padding-right: 18px !important;
+}
+
+.task-table__resize-handle {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: -4px;
+  width: 9px;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.task-table__resize-handle::after {
+  position: absolute;
+  top: 20%;
+  right: 3px;
+  width: 1px;
+  height: 60%;
+  border-radius: 999px;
+  background: #cbd5e1;
+  content: '';
+  transition: background-color 0.15s ease;
+}
+
+.task-table__resize-handle:hover::after,
+.task-table__resize-handle:focus-visible::after {
+  background: #18a6e4;
 }
 
 .task-table tbody td {
@@ -710,6 +884,7 @@ function changePage(page: number) {
 .pagination-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -721,6 +896,45 @@ function changePage(page: number) {
   justify-content: center;
   border-radius: 0.375rem !important;
   padding-inline: 0.875rem;
+}
+
+.pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-page-button {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem !important;
+  padding: 0;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 600;
+}
+
+.pagination-page-button:hover:not(:disabled) {
+  border-color: #18a6e4;
+  color: #18a6e4;
+}
+
+.pagination-page-button--active,
+.pagination-page-button--active:disabled {
+  border-color: #18a6e4;
+  background: #18a6e4;
+  color: #ffffff;
+  opacity: 1;
+}
+
+.pagination-ellipsis {
+  min-width: 20px;
+  color: #64748b;
+  text-align: center;
 }
 
 @media (max-width: 991.98px) {
@@ -764,7 +978,14 @@ function changePage(page: number) {
   }
 
   .task-table {
+    width: 100% !important;
     min-width: 0;
+    table-layout: auto;
+  }
+
+  .task-table colgroup,
+  .task-table__resize-handle {
+    display: none;
   }
 
   .task-table thead {

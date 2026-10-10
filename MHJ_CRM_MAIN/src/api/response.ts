@@ -114,6 +114,8 @@ export function normalizeOptions(
       'owner_id',
       'competitor_id',
       'sumberdana_id',
+      'company_id',
+      'id_source',
       'code',
       'kode',
       'id_status',

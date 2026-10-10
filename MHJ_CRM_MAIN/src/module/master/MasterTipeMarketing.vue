@@ -6,7 +6,7 @@
 
     <div class="card-body pt-0">
       <div class="table-responsive custom-scrollbar">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover mhj-data-table align-middle">
           <thead>
             <tr>
               <th scope="col" style="width: 60px">No</th>
@@ -30,8 +30,8 @@
             </tr>
             <tr v-for="(item, index) in items" :key="item.KodeTipeMarketing">
               <td>{{ index + 1 }}</td>
-              <td class="fw-semibold">{{ item.KodeTipeMarketing }}</td>
-              <td>{{ item.namaTipeMarketing }}</td>
+              <td>{{ item.KodeTipeMarketing }}</td>
+              <td class="fw-semibold">{{ item.namaTipeMarketing }}</td>
               <td>{{ item.Keterangan || '-' }}</td>
               <td class="text-center">
                 <span v-if="isActive(item)" class="badge badge-light-success">Aktif</span>

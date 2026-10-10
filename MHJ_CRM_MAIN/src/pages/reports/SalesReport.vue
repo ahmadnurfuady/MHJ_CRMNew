@@ -8,6 +8,7 @@
               <Table
                 :hasCheckbox="true"
                 :tableConfig="tableConfig"
+                :tableClass="'mhj-data-table'"
                 :pageSize="12"
                 :paginateDetails="true"
                 :selectedRows="true"
@@ -33,7 +34,7 @@ const Table = defineAsyncComponent(() => import('@/components/shared/Table.vue')
 
 const tableConfig = ref<TableConfigs>({
   columns: [
-    { title: 'Order Month', fieldValue: 'orderMonth', sort: true },
+    { title: 'Order Month', fieldValue: 'orderMonth', sort: true, class: 'fw-semibold' },
     { title: 'Total Sales', fieldValue: 'totalSales', sort: true },
     { title: 'Average Order Value', fieldValue: 'averageOrderValue', sort: true },
     { title: 'Total Orders', fieldValue: 'totalOrders', sort: true },

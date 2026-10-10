@@ -4,7 +4,7 @@
       <div class="col-12">
         <div class="card create-project-form custom-input">
           <div class="card-body">
-            <form class="row g-3 needs-validation" @submit.prevent="handleSubmit">
+            <form class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
               <div class="col-12">
                 <InputWrapper :title="'Proyek Name'">
                   <InputField
@@ -82,7 +82,7 @@
                     display-key="label"
                     :placeholder="'Pilih satu divisi'"
                     v-model="projectForm.division"
-                    :options="divisiList"
+                    :options="projectStore.lookups.divisi"
                     :formSubmitted="formSubmitted"
                   />
                 </InputWrapper>
@@ -155,7 +155,7 @@
                     display-key="label"
                     :placeholder="'Pilih kompetitor'"
                     v-model="projectForm.competitor"
-                    :options="competitors"
+                    :options="projectStore.lookups.competitor"
                     :formSubmitted="formSubmitted"
                   />
                 </InputWrapper>
@@ -168,7 +168,7 @@
                     display-key="label"
                     :placeholder="'Pilih sumber pendanaan'"
                     v-model="projectForm.fundingSource"
-                    :options="fundingSources"
+                    :options="projectStore.lookups.sumberdana"
                     :formSubmitted="formSubmitted"
                   />
                 </InputWrapper>
@@ -301,14 +301,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
-import {
-  competitors,
-  divisiList,
-  fundingSources,
-  lostReasons,
-  products,
-  type DealOption,
-} from '@/core/data/projectDeal'
+import { lostReasons, type DealOption } from '@/core/data/projectDeal'
 import { routes } from '@/router/routes'
 import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
@@ -440,7 +433,9 @@ const contactOptions = computed<DealOption[]>(() => {
 const ownerOptions = computed<DealOption[]>(() => projectStore.lookups.owner)
 const selectedProducts = computed(() => projectForm.value.products.selectedItems as DealOption[])
 const productOptions = computed(() =>
-  products.filter((product) => product.divisi === selectedOf(projectForm.value.division)?.code)
+  projectStore.lookups.barang.filter(
+    (product) => product.divisiCode === selectedOf(projectForm.value.division)?.code
+  )
 )
 const productPlaceholder = computed(() => {
   if (!projectForm.value.division.selected) return 'Pilih divisi terlebih dahulu'
@@ -555,6 +550,7 @@ onMounted(async () => {
     hospitalStore.fetchHospitals(),
     contactStore.fetchRemoteContacts(),
     projectStore.fetchProjectLookups(),
+    projectStore.fetchProjectCatalog(),
   ])
 
   const loggedInName = (() => {
@@ -679,6 +675,8 @@ async function handleSubmit() {
       (reason) => reason.label
     ),
     notes: form.notes.data.trim() || null,
+    address: company.address || null,
+    kd_kelurahan: company.kdKelurahan || null,
     timeline: timelineEntries.value
       .map((entry) => ({
         date: entry.date.data.trim(),

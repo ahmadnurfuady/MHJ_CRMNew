@@ -5,6 +5,31 @@
   margin-bottom: 4px;
 }
 
+// Form utama CRM: placeholder ringan, sedangkan nilai yang sudah diisi tetap normal.
+.mhj-form {
+  .form-control,
+  .form-select {
+    font-weight: 400;
+  }
+
+  .form-control::placeholder,
+  textarea::placeholder {
+    color: #c2cbd8;
+    font-weight: 300;
+    opacity: 1;
+  }
+
+  .form-control:not(:disabled):not([readonly]):not([type='file']) {
+    cursor: text;
+  }
+
+  .form-select:not(:disabled),
+  select:not(:disabled),
+  .select-box:not(.is-disabled) {
+    cursor: pointer;
+  }
+}
+
 .col-form-label {
   padding-bottom: 4px;
 }

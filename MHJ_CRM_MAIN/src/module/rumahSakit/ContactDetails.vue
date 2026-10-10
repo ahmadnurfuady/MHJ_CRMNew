@@ -36,19 +36,36 @@
 
     <div class="card-body p-0">
       <div class="table-responsive hospital-table-wrap">
-        <table class="table hospital-table align-middle mb-0">
+        <table
+          class="table mhj-data-table hospital-table align-middle mb-0"
+          :style="{ width: `${hospitalTableWidth}px` }"
+        >
+          <colgroup>
+            <col
+              v-for="(width, index) in hospitalColumnWidths"
+              :key="hospitalTableColumns[index]?.label"
+              :style="{ width: `${width}px` }"
+            />
+          </colgroup>
           <thead>
             <tr>
-              <th>Nama Rumah Sakit</th>
-              <th>Provinsi</th>
-              <th>Kota</th>
-              <th>Kelas</th>
-              <th>Jenis Rumah Sakit</th>
-              <th class="text-center">Total Kontak</th>
-              <th class="text-center">Total Proyek</th>
-              <th class="text-center">Alat Terpasang</th>
-              <th>Kunjungan Terakhir</th>
-              <th class="text-center">Detail</th>
+              <th
+                v-for="(column, index) in hospitalTableColumns"
+                :key="column.label"
+                class="hospital-table__resizable-header"
+                :class="{ 'text-center': column.center }"
+              >
+                {{ column.label }}
+                <button
+                  v-if="index < hospitalTableColumns.length - 1"
+                  class="hospital-table__resize-handle"
+                  type="button"
+                  :aria-label="`Ubah lebar kolom ${column.label}`"
+                  :title="`Tarik untuk mengubah lebar kolom ${column.label}`"
+                  @pointerdown="startHospitalColumnResize(index, $event)"
+                  @dblclick.stop="resetHospitalColumnWidth(index)"
+                ></button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -138,6 +155,27 @@
         >
           <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
         </button>
+        <div class="pagination-pages" aria-label="Pilih halaman">
+          <template v-for="item in visibleHospitalPages" :key="String(item)">
+            <span v-if="typeof item === 'string'" class="pagination-ellipsis" aria-hidden="true">
+              …
+            </span>
+            <button
+              v-else
+              class="btn btn-sm pagination-page-button"
+              :class="{
+                'pagination-page-button--active': item === hospitalPagination.page,
+              }"
+              type="button"
+              :disabled="hospitalLoading || item === hospitalPagination.page"
+              :aria-current="item === hospitalPagination.page ? 'page' : undefined"
+              :aria-label="`Ke halaman ${item}`"
+              @click="changeHospitalPage(item)"
+            >
+              {{ item }}
+            </button>
+          </template>
+        </div>
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
@@ -153,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { companyDetails } from "@/core/data/contactCrm";
@@ -171,6 +209,104 @@ const { pagination: hospitalPagination, loading: hospitalLoading } = storeToRefs
 const { changeHospitalPage, searchHospitals } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
+const hospitalTableColumns = [
+  { label: "Nama Rumah Sakit", defaultWidth: 280, minWidth: 220, center: false },
+  { label: "Provinsi", defaultWidth: 150, minWidth: 110, center: false },
+  { label: "Kota", defaultWidth: 150, minWidth: 110, center: false },
+  { label: "Kelas", defaultWidth: 110, minWidth: 90, center: false },
+  { label: "Jenis Rumah Sakit", defaultWidth: 180, minWidth: 130, center: false },
+  { label: "Total Kontak", defaultWidth: 120, minWidth: 110, center: true },
+  { label: "Total Proyek", defaultWidth: 120, minWidth: 110, center: true },
+  { label: "Alat Terpasang", defaultWidth: 130, minWidth: 110, center: true },
+  { label: "Kunjungan Terakhir", defaultWidth: 180, minWidth: 150, center: false },
+  { label: "Detail", defaultWidth: 140, minWidth: 120, center: true },
+] as const;
+const hospitalColumnWidths = ref<number[]>(
+  hospitalTableColumns.map((column) => column.defaultWidth),
+);
+const hospitalTableWidth = computed(() =>
+  hospitalColumnWidths.value.reduce((total, width) => total + width, 0),
+);
+const visibleHospitalPages = computed<Array<number | string>>(() => {
+  const totalPages = Math.max(1, hospitalPagination.value.lastPage);
+  const currentPage = Math.min(Math.max(1, hospitalPagination.value.page), totalPages);
+
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pageSet = new Set([
+    1,
+    totalPages,
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+  ]);
+  if (currentPage <= 3) {
+    pageSet.add(2);
+    pageSet.add(3);
+  }
+  if (currentPage >= totalPages - 2) {
+    pageSet.add(totalPages - 2);
+    pageSet.add(totalPages - 1);
+  }
+
+  const pages = [...pageSet]
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((left, right) => left - right);
+  const items: Array<number | string> = [];
+  pages.forEach((page, index) => {
+    const previousPage = pages[index - 1];
+    if (previousPage !== undefined && page - previousPage > 1) {
+      items.push(`ellipsis-${previousPage}-${page}`);
+    }
+    items.push(page);
+  });
+  return items;
+});
+let activeHospitalColumnResize:
+  | { index: number; startX: number; startWidth: number }
+  | undefined;
+
+function startHospitalColumnResize(index: number, event: PointerEvent) {
+  event.preventDefault();
+  activeHospitalColumnResize = {
+    index,
+    startX: event.clientX,
+    startWidth:
+      hospitalColumnWidths.value[index] ?? hospitalTableColumns[index].defaultWidth,
+  };
+  document.body.style.cursor = "ew-resize";
+  document.body.style.userSelect = "none";
+  window.addEventListener("pointermove", resizeHospitalColumn);
+  window.addEventListener("pointerup", stopHospitalColumnResize);
+  window.addEventListener("pointercancel", stopHospitalColumnResize);
+}
+
+function resizeHospitalColumn(event: PointerEvent) {
+  if (!activeHospitalColumnResize) return;
+
+  const { index, startX, startWidth } = activeHospitalColumnResize;
+  const minWidth = hospitalTableColumns[index]?.minWidth ?? 90;
+  const nextWidths = [...hospitalColumnWidths.value];
+  nextWidths[index] = Math.max(minWidth, startWidth + event.clientX - startX);
+  hospitalColumnWidths.value = nextWidths;
+}
+
+function stopHospitalColumnResize() {
+  activeHospitalColumnResize = undefined;
+  document.body.style.cursor = "";
+  document.body.style.userSelect = "";
+  window.removeEventListener("pointermove", resizeHospitalColumn);
+  window.removeEventListener("pointerup", stopHospitalColumnResize);
+  window.removeEventListener("pointercancel", stopHospitalColumnResize);
+}
+
+function resetHospitalColumnWidth(index: number) {
+  const nextWidths = [...hospitalColumnWidths.value];
+  nextWidths[index] = hospitalTableColumns[index]?.defaultWidth ?? nextWidths[index];
+  hospitalColumnWidths.value = nextWidths;
+}
 
 watch(searchQuery, (query) => {
   if (searchTimer) clearTimeout(searchTimer);
@@ -247,6 +383,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
+  stopHospitalColumnResize();
 });
 </script>
 
@@ -336,22 +473,60 @@ onBeforeUnmount(() => {
 
 .hospital-table-wrap {
   min-height: 240px;
+  overflow-x: auto;
 }
 
 .hospital-table {
+  table-layout: fixed;
   min-width: 1420px;
 }
 
 .hospital-table thead th {
   border-bottom: 1px solid var(--border-subtle, #e2e8f0);
-  padding: 14px 16px;
-  background: #f8fafc;
-  color: #475569;
-  font-size: 11px;
+  padding: 0.75rem;
+  background: #ffffff;
+  color: #051a1a;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.55px;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
   white-space: nowrap;
+}
+
+.hospital-table__resizable-header {
+  position: relative;
+  padding-right: 18px !important;
+}
+
+.hospital-table__resize-handle {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: -4px;
+  width: 9px;
+  height: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.hospital-table__resize-handle::after {
+  position: absolute;
+  top: 20%;
+  right: 3px;
+  width: 1px;
+  height: 60%;
+  border-radius: 999px;
+  background: #cbd5e1;
+  content: "";
+  transition: background-color 0.15s ease;
+}
+
+.hospital-table__resize-handle:hover::after,
+.hospital-table__resize-handle:focus-visible::after {
+  background: #18a6e4;
 }
 
 .hospital-table tbody td {
@@ -473,6 +648,7 @@ onBeforeUnmount(() => {
 .pagination-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
 }
 
@@ -484,6 +660,45 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 0.375rem !important;
   padding-inline: 0.875rem;
+}
+
+.pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-page-button {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem !important;
+  padding: 0;
+  background: #ffffff;
+  color: #475569;
+  font-weight: 600;
+}
+
+.pagination-page-button:hover:not(:disabled) {
+  border-color: #18a6e4;
+  color: #18a6e4;
+}
+
+.pagination-page-button--active,
+.pagination-page-button--active:disabled {
+  border-color: #18a6e4;
+  background: #18a6e4;
+  color: #ffffff;
+  opacity: 1;
+}
+
+.pagination-ellipsis {
+  min-width: 20px;
+  color: #64748b;
+  text-align: center;
 }
 
 @media (max-width: 767.98px) {
@@ -501,7 +716,14 @@ onBeforeUnmount(() => {
   }
 
   .hospital-table {
+    width: 100% !important;
     min-width: 0;
+    table-layout: auto;
+  }
+
+  .hospital-table colgroup,
+  .hospital-table__resize-handle {
+    display: none;
   }
 
   .hospital-table thead {

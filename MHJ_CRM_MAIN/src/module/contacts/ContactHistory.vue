@@ -16,7 +16,7 @@
     </div>
     <div class="d-flex">
       <i class="icofont icofont-star"></i>
-      <div class="flex-grow-1 mt-0">
+      <div class="grow mt-0">
         <h6 class="mt-0">Contact Created</h6>
         <p class="mb-0">Contact is created via mail</p>
         <span class="f-12 c-light">Jan 12, 2025 4:00</span>
@@ -26,14 +26,14 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia";
 
-import { useContact } from '@/store/contact'
+import { useContact } from "@/store/contact";
 
-const contactStore = useContact()
-const { contactState } = storeToRefs(contactStore)
+const contactStore = useContact();
+const { contactState } = storeToRefs(contactStore);
 
 function closeHistory() {
-  contactState.value.historyVisible = false
+  contactState.value.historyVisible = false;
 }
 </script>

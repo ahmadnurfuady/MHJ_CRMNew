@@ -17,7 +17,7 @@
       </div>
 
       <div class="table-responsive custom-scrollbar">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover mhj-data-table align-middle">
           <thead>
             <tr>
               <th scope="col" style="width: 60px">No</th>
@@ -40,8 +40,8 @@
             </tr>
             <tr v-for="(item, index) in filtered" :key="item.KodeDevisi">
               <td>{{ index + 1 }}</td>
-              <td class="fw-semibold">{{ item.KodeDevisi }}</td>
-              <td>{{ item.NamaDevisi }}</td>
+              <td>{{ item.KodeDevisi }}</td>
+              <td class="fw-semibold">{{ item.NamaDevisi }}</td>
               <td>{{ item.NamaAlias || '-' }}</td>
             </tr>
           </tbody>

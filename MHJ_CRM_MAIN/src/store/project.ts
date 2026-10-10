@@ -11,16 +11,32 @@ import {
   type Dict
 } from '@/api/response'
 import { runApiAction } from '@/store/apiAction'
+import { masterDataService } from '@/services/masterDataService'
+import {
+  competitors as competitorFallback,
+  divisiList as divisiFallback,
+  fundingSources as sumberdanaFallback,
+  products as barangFallback
+} from '@/core/data/projectDeal'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Profile, Projects } from '@/types/project'
 import type { Select } from '@/types/common'
 
+export interface DivisiOption extends Select {
+  code: string
+}
+
+export interface BarangOption extends Select {
+  code: string
+  divisiCode: string
+  price: number
+}
+
 // Gambar placeholder karena tabel projects belum memiliki kolom banner.
 const DEFAULT_BANNER = 'project/list/1.png'
 
-// Pipeline Project memakai controller Deals karena endpoint inilah yang menulis dbo.m_projects.
-// Istilah Deals hanya dipertahankan pada URL API; seluruh wording UI tetap Project.
-const ENDPOINT = 'deals'
+// Pipeline Project memakai ProjectController berdedikasi (prefix /project).
+const ENDPOINT = 'project'
 
 /** Payload form Project; sebelum dikirim dipetakan ke kontrak legacy DealsController. */
 export interface ProjectPayload {
@@ -45,6 +61,8 @@ export interface ProjectPayload {
   unit_price: number
   lost_reasons: string[]
   notes: string | null
+  address?: string | null
+  kd_kelurahan?: string | null
   timeline: ProjectTimelinePayload[]
 }
 
@@ -99,8 +117,18 @@ export function normalizeProject(raw: Dict): Projects {
     pickString(raw, 'stage_name', 'pipeline_name', 'status_name', 'stage', 'status') ||
     PIPELINE_STAGES[stageId ?? 0] ||
     ''
-  const ownerId = optionalNumber(raw, 'owner_id', 'leader_id')
-  const amountValue = optionalNumber(raw, 'amount_value', 'project_value', 'total_value', 'value')
+  const ownerId = optionalNumber(raw, 'leader_id', 'owner_id')
+  const amountValue = optionalNumber(
+    raw,
+    'amount_value',
+    'project_value',
+    'deal_value',
+    'total_value',
+    'value',
+    'amount',
+    'budget',
+    'nilai'
+  )
   const currency = pickString(raw, 'currency') || 'IDR'
   const expectedCloseDate = pickString(raw, 'expected_close_date')
   const probability = optionalNumber(raw, 'probability')
@@ -137,7 +165,7 @@ export function normalizeProject(raw: Dict): Projects {
     aktif: optionalNumber(raw, 'aktif'),
     idold: optionalNumber(raw, 'idold'),
     divisionCode: pickString(raw, 'division_code'),
-    productNames: pickString(raw, 'product_names'),
+    productNames: pickString(raw, 'product_names', 'deal_name'),
     lostReasons: pickString(raw, 'lost_reasons'),
     teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
     createdBy: pickString(raw, 'created_by'),
@@ -145,7 +173,9 @@ export function normalizeProject(raw: Dict): Projects {
     quantity: optionalNumber(raw, 'quantity', 'qty'),
     unitPrice: optionalNumber(raw, 'unit_price', 'price', 'harga'),
     notes: pickString(raw, 'notes', 'note', 'description'),
-    contactPhone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile')
+    contactPhone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile'),
+    address: pickString(raw, 'address'),
+    kdKelurahan: pickString(raw, 'kd_kelurahan')
   }
 }
 
@@ -169,11 +199,19 @@ export const useProjectStore = defineStore('project', () => {
   // Data pendukung yang dipakai form project.
   const lookups = reactive<{
     owner: Select[]
+    competitor: Select[]
+    sumberdana: Select[]
+    divisi: DivisiOption[]
+    barang: BarangOption[]
   }>({
-    owner: []
+    owner: [],
+    competitor: [],
+    sumberdana: [],
+    divisi: [],
+    barang: []
   })
 
-  /** GET /api/deals; endpoint legacy ini membaca dbo.m_projects. */
+  /** GET /api/project. */
   function fetchProjects(params: ListParams = {}) {
     return runApiAction({
       flag: loading,
@@ -195,14 +233,14 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** GET header m_projects dan detail m_projectsdet melalui API legacy Deals. */
+  /** GET /api/project/fetchprojectbyid. */
   function fetchProjectById(id: number) {
     return runApiAction({
       flag: loading,
       error,
       fallbackMessage: 'Gagal memuat detail proyek.',
       task: async () => {
-        const response = await api.getbydata(`${ENDPOINT}/fetchdealsbyid`, {
+        const response = await api.getbydata(`${ENDPOINT}/fetchprojectbyid`, {
           id
         })
         const raw = extractItem(response.data, ['deal', 'deals', 'project', 'projects'])
@@ -215,14 +253,19 @@ export const useProjectStore = defineStore('project', () => {
           'details',
           'taskassoc'
         ])
-        selectedDetails.value = detailResult.items.filter(isRecord)
+        selectedDetails.value = detailResult.items.filter(isRecord).map((task) => ({
+          ...task,
+          activity: pickString(task, 'activity', 'task_name', 'title'),
+          activity_date: pickString(task, 'activity_date', 'due_date', 'created_at'),
+          activity_description: pickString(task, 'activity_description', 'description', 'notes')
+        }))
         selectedItem.value = raw ? normalizeProject(raw) : null
         return selectedItem.value
       }
     })
   }
 
-  /** POST /api/deals/input dengan choice "i", lalu ambil ulang baris lengkapnya. */
+  /** POST /api/project/input dengan choice "i", lalu ambil ulang baris lengkapnya. */
   function createProject(payload: ProjectPayload) {
     return runApiAction({
       flag: submitting,
@@ -231,7 +274,7 @@ export const useProjectStore = defineStore('project', () => {
       task: async () => {
         const response = await api.post(`${ENDPOINT}/input`, {
           choice: 'i',
-          // Mapping nama form Project ke kontrak legacy DealsController/m_projects.
+          // Alias nama legacy ikut dikirim berdampingan dengan payload asli untuk jaga-jaga.
           deal_name: payload.projects_name,
           pipeline_id: payload.stage_id,
           source_id: null,
@@ -259,7 +302,7 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** POST /api/deals/input dengan choice "u", lalu ambil ulang baris lengkapnya. */
+  /** POST /api/project/input dengan choice "u", lalu ambil ulang baris lengkapnya. */
   function updateProject(id: number, payload: Partial<ProjectPayload>) {
     return runApiAction({
       flag: submitting,
@@ -294,7 +337,7 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** POST /api/deals/input dengan choice "d". */
+  /** POST /api/project/input dengan choice "d". */
   function deleteProject(id: number) {
     return runApiAction({
       flag: submitting,
@@ -308,15 +351,132 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** GET /api/deals/users untuk pilihan owner. */
+  /** GET /api/project/leader, /api/master-data/competitor, /api/master-data/sumberdana. */
   function fetchProjectLookups() {
     return runApiAction({
       flag: loading,
       error,
       fallbackMessage: 'Gagal memuat data pendukung proyek.',
       task: async () => {
-        const ownerResponse = await api.get(`${ENDPOINT}/users`)
+        const ownerResponse = await api.get(`${ENDPOINT}/leader`)
         lookups.owner = normalizeOptions(ownerResponse.data, ['leaders', 'leader', 'users'])
+
+        try {
+          const competitorResponse = await api.get('master-data/competitor')
+          const competitorOptions = normalizeOptions(competitorResponse.data, [
+            'competitors',
+            'competitor'
+          ]).filter((option) => option.value && option.label)
+          lookups.competitor = competitorOptions.length ? competitorOptions : [...competitorFallback]
+        } catch (lookupError) {
+          console.warn('Endpoint kompetitor tidak tersedia, memakai lookup lokal.', lookupError)
+          lookups.competitor = [...competitorFallback]
+        }
+
+        try {
+          const sumberdanaResponse = await api.get('master-data/sumberdana')
+          const sumberdanaOptions = normalizeOptions(sumberdanaResponse.data, [
+            'sumberdana'
+          ]).filter((option) => option.value && option.label)
+          lookups.sumberdana = sumberdanaOptions.length ? sumberdanaOptions : [...sumberdanaFallback]
+        } catch (lookupError) {
+          console.warn('Endpoint sumber pendanaan tidak tersedia, memakai lookup lokal.', lookupError)
+          lookups.sumberdana = [...sumberdanaFallback]
+        }
+      }
+    })
+  }
+
+  /** GET /api/master-data/devisi & /api/master-data/barang, dipakai lintas form (Project, Task). */
+  function fetchProjectCatalog() {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat data divisi/produk.',
+      task: async () => {
+        try {
+          const devisiItems = await masterDataService.getDevisi()
+          const divisiOptions: DivisiOption[] = devisiItems
+            .map((item) => {
+              const code = String(item.KodeDevisi ?? '').trim()
+              const label = (item.NamaAlias?.trim() || item.NamaDevisi || code).trim()
+              return { value: code, label, code }
+            })
+            .filter((option) => option.value && option.label)
+          lookups.divisi = divisiOptions.length
+            ? divisiOptions
+            : divisiFallback.map((item) => ({
+                value: item.value,
+                label: item.label,
+                code: item.code ?? String(item.value)
+              }))
+        } catch (lookupError) {
+          console.warn('Endpoint devisi tidak tersedia, memakai lookup lokal.', lookupError)
+          lookups.divisi = divisiFallback.map((item) => ({
+            value: item.value,
+            label: item.label,
+            code: item.code ?? String(item.value)
+          }))
+        }
+
+        try {
+          const barangResponse = await api.get('master-data/barang')
+          const barangItems = extractList(barangResponse.data, ['barang']).items.filter(isRecord)
+          const barangOptions: BarangOption[] = barangItems
+            // dbo.barang nonaktif tidak perlu muncul di dropdown produk aktif.
+            .filter((raw) => pickString(raw, 'NonAktif', 'nonaktif') !== '1')
+            .map((raw) => {
+              const code = pickString(raw, 'KodeBrg', 'KodeBarang', 'kode_barang', 'Kode', 'kode', 'id', 'ID')
+              const label = pickString(raw, 'NamaBrg', 'NamaBarang', 'nama_barang', 'Nama', 'nama', 'name', 'label')
+              const divisiCode = pickString(
+                raw,
+                'KodeDevisi',
+                'kode_devisi',
+                'kd_devisi',
+                'divisi',
+                'DivisiCode',
+                'division_code'
+              )
+              const priceValue = pick(
+                raw,
+                'HrgJual_1',
+                'HrgJual1',
+                'Harga',
+                'harga',
+                'HargaSatuan',
+                'harga_satuan',
+                'price',
+                'unit_price'
+              )
+              const price = Number(priceValue)
+              return {
+                value: code || label,
+                label,
+                code,
+                divisiCode,
+                price: Number.isFinite(price) ? price : 0
+              }
+            })
+            .filter((option) => option.label)
+          lookups.barang = barangOptions.length
+            ? barangOptions
+            : barangFallback.map((item) => ({
+                value: item.value,
+                label: item.label,
+                code: String(item.value),
+                divisiCode: item.divisi ?? '',
+                price: item.price ?? 0
+              }))
+        } catch (lookupError) {
+          console.warn('Endpoint barang tidak tersedia, memakai lookup lokal.', lookupError)
+          lookups.barang = barangFallback.map((item) => ({
+            value: item.value,
+            label: item.label,
+            code: String(item.value),
+            divisiCode: item.divisi ?? '',
+            price: item.price ?? 0
+          }))
+        }
       }
     })
   }
@@ -336,6 +496,7 @@ export const useProjectStore = defineStore('project', () => {
     createProject,
     updateProject,
     deleteProject,
-    fetchProjectLookups
+    fetchProjectLookups,
+    fetchProjectCatalog
   }
 })

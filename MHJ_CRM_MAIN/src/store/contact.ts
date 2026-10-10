@@ -25,6 +25,10 @@ import type { Select } from "@/types/common";
 import type { Hospital, HospitalPayload } from "@/types/hospital";
 import { runApiAction } from "@/store/apiAction";
 import { useHospitalStore } from "@/store/hospital";
+import {
+  indonesianMobilePhoneError,
+  normalizeIndonesianMobilePhone,
+} from "@/utils/indonesianPhone";
 import { validateForm } from "@/utils/validators/formValidators";
 
 // ID dari backend diberi offset agar data Contact dan Rumah Sakit tidak saling bentrok.
@@ -32,6 +36,17 @@ const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
 const DEFAULT_CONTACT_STATUS = "1";
+const CONTACT_SOURCE_FALLBACK: Select[] = [
+  { value: "1", label: "Website" },
+  { value: "2", label: "Referral" },
+  { value: "3", label: "Social Media" },
+  { value: "4", label: "Email Campaign" },
+  { value: "5", label: "Cold Call" },
+  { value: "6", label: "Trade Show" },
+  { value: "7", label: "Partner" },
+  { value: "8", label: "Advertisement" },
+  { value: "9", label: "Other" },
+];
 
 export interface ContactCrudPayload {
   company_id: number | null;
@@ -44,6 +59,8 @@ export interface ContactCrudPayload {
   telephone_1: string;
   telephone_2: string | null;
   address: string | null;
+  province: string | null;
+  city: string | null;
   /** Nama key mengikuti ContactController, lalu diteruskan ke @kd_kelurahan pada SP. */
   kelurahan: string | null;
   /** Nama key mengikuti ContactController, lalu diteruskan ke @source_id pada SP. */
@@ -304,6 +321,7 @@ export const useContact = defineStore("contact", () => {
   const contactSubmitting = toRef(contactApi, "submitting");
   const contactError = toRef(contactApi, "error");
   const hospitalSearch = ref("");
+  const companyNameCache = new Map<string, string>();
 
   function initStore() {
     handleActiveTab(contactState.tabList[0] as ContactSidebarList);
@@ -372,11 +390,66 @@ export const useContact = defineStore("contact", () => {
     }
   }
 
+  /** Lengkapi nama company pada response contact yang hanya membawa company_id. */
+  function resolveContactCompanyNames() {
+    if (!contactApi.items.length) return;
+
+    contactApi.companies.forEach((company) => {
+      if (company.label) companyNameCache.set(String(company.value), company.label);
+    });
+    hospitalStore.items.forEach((hospital) => {
+      if (hospital.name) companyNameCache.set(String(hospital.id), hospital.name);
+    });
+    if (!companyNameCache.size) return;
+
+    contactApi.items = contactApi.items.map((contact) => ({
+      ...contact,
+      company:
+        contact.company || companyNameCache.get(String(contact.companyId ?? "")) || "",
+    }));
+  }
+
+  /**
+   * Endpoint daftar contact kadang hanya mengirim company_id, sementara endpoint
+   * daftar company tidak selalu memuat seluruh ID. Resolve semua ID unik pada
+   * halaman aktif agar setiap baris memperoleh nama Rumah Sakit.
+   */
+  async function hydrateContactCompanyNames() {
+    resolveContactCompanyNames();
+
+    const unresolvedCompanyIds = Array.from(
+      new Set(
+        contactApi.items
+          .filter((contact) => !contact.company)
+          .map((contact) => Number(contact.companyId))
+          .filter((id) => Number.isSafeInteger(id) && id > 0),
+      ),
+    ).filter((id) => !companyNameCache.has(String(id)));
+
+    await Promise.allSettled(
+      unresolvedCompanyIds.map(async (id) => {
+        const company = await hospitalStore.fetchHospitalById(id);
+        if (company?.name) companyNameCache.set(String(id), company.name);
+      }),
+    );
+
+    resolveContactCompanyNames();
+  }
+
   async function loadRemoteContacts() {
-    const results = await Promise.allSettled([
+    // Muat lookup company lebih dahulu. Jika dijalankan bersamaan dengan daftar
+    // contact, response contact bisa dipetakan sebelum nama company tersedia.
+    const lookupResults = await Promise.allSettled([
       hospitalStore.fetchHospitals(),
-      fetchRemoteContacts(),
+      fetchContactCompanies(),
     ]);
+
+    const [contactResult] = await Promise.allSettled([fetchRemoteContacts()]);
+    const results = [lookupResults[0], contactResult, lookupResults[1]];
+
+    // Pastikan semua baris memakai lookup yang sudah selesai dimuat, termasuk
+    // beberapa contact yang menunjuk ke company_id yang sama.
+    resolveContactCompanyNames();
     syncRemoteContacts();
 
     if (results.some((result) => result.status === "rejected")) {
@@ -493,6 +566,7 @@ export const useContact = defineStore("contact", () => {
         const response = await api.getbydata(CONTACT_ENDPOINT, { ...params });
         const { items, meta } = extractList(response.data, ["contacts"]);
         contactApi.items = items.filter(isRecord).map(normalizeApiContact);
+        await hydrateContactCompanyNames();
         const page = meta?.page ?? params.page ?? 1;
         const perPage = meta?.perPage ?? params.per_page ?? contactApi.pagination.perPage;
         const knownTotal = meta?.total;
@@ -563,6 +637,8 @@ export const useContact = defineStore("contact", () => {
       task: async () => {
         const response = await api.get(`${CONTACT_ENDPOINT}/company`);
         contactApi.companies = normalizeOptions(response.data, ["companies"]);
+        resolveContactCompanyNames();
+        syncRemoteContacts();
         return contactApi.companies;
       },
     });
@@ -582,15 +658,22 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
-  /** GET /api/contact/sources, lookup source khusus Contact (table_code CT). */
+  /** GET /api/master-data/sources, master sumber kontak (dipakai lintas modul). */
   function fetchContactSources() {
     return runApiAction({
       flag: contactLoading,
       error: contactError,
       fallbackMessage: "Gagal memuat sumber kontak.",
       task: async () => {
-        const response = await api.get(`${CONTACT_ENDPOINT}/sources`);
-        contactApi.sources = normalizeOptions(response.data, ["sources", "source"]);
+        try {
+          const response = await api.get("master-data/sources");
+          const sources = normalizeOptions(response.data, ["sources", "source"])
+            .filter((option) => option.value && option.label);
+          contactApi.sources = sources.length ? sources : [...CONTACT_SOURCE_FALLBACK];
+        } catch (error) {
+          console.warn("Endpoint sumber kontak tidak tersedia, memakai lookup lokal.", error);
+          contactApi.sources = [...CONTACT_SOURCE_FALLBACK];
+        }
         return contactApi.sources;
       },
     });
@@ -674,6 +757,8 @@ export const useContact = defineStore("contact", () => {
           telephone_1: contact?.telephone1 || contact?.contactNumber || "",
           telephone_2: nullableText(contact?.telephone2),
           address: nullableText(contact?.address),
+          province: nullableText(contact?.province),
+          city: nullableText(contact?.city),
           kelurahan: nullableText(contact?.kdKelurahan),
           source: nullableId(contact?.sourceId),
           created_by: contact?.createdById ?? null,
@@ -842,17 +927,17 @@ export const useContact = defineStore("contact", () => {
       "project",
     ];
     const validation = validateForm(formFields, optionalFields);
-    const normalizedPhoneNumbers = phoneNumbers
-      .map((phone) => phone.data.trim())
-      .filter(Boolean);
-    const hasPhoneNumber = normalizedPhoneNumbers.length > 0;
+    const normalizedPhoneNumbers = phoneNumbers.map((phone) =>
+      normalizeIndonesianMobilePhone(phone.data),
+    );
+    let phoneNumbersValid = true;
 
     phoneNumbers.forEach((phone, index) => {
-      phone.errorMessage =
-        !hasPhoneNumber && index === 0 ? "Nomor telepon wajib diisi." : "";
+      phone.errorMessage = indonesianMobilePhoneError(phone.data, index === 0);
+      if (phone.errorMessage) phoneNumbersValid = false;
     });
 
-    if (!validation.isValid || !hasPhoneNumber) return;
+    if (!validation.isValid || !phoneNumbersValid) return;
 
     const formData = validation.formData;
     try {
@@ -868,6 +953,8 @@ export const useContact = defineStore("contact", () => {
         telephone_1: normalizedPhoneNumbers[0] ?? "",
         telephone_2: normalizedPhoneNumbers[1] ?? null,
         address: nullableText(formData.address),
+        province: nullableText(formData.province),
+        city: nullableText(formData.city),
         kelurahan: nullableText(formData.kdKelurahan),
         source: nullableId(formData.source),
         created_by: nullableId(formData.owner),

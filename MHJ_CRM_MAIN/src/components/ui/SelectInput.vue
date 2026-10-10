@@ -95,6 +95,10 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
+.form-select:not(:disabled) {
+  cursor: pointer;
+}
+
 .select-menu {
   position: absolute;
   top: calc(100% + 2px);

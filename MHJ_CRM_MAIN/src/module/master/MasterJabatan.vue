@@ -21,7 +21,7 @@
         </button>
       </div>
       <div class="table-responsive custom-scrollbar">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover mhj-data-table align-middle">
           <thead>
             <tr>
               <th scope="col" style="width: 60px">No</th>

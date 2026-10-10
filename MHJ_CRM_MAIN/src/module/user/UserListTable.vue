@@ -44,7 +44,7 @@
       </div>
 
       <div class="table-responsive custom-scrollbar crm-table-scroll">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover mhj-data-table align-middle">
           <thead>
             <tr>
               <th scope="col">No</th>

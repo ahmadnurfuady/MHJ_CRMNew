@@ -5,7 +5,7 @@
     sizeClass="modal-xl"
     @closeModal="closeRumahSakitModal"
   >
-    <form class="form-bookmark needs-validation" @submit.prevent="saveRumahSakit">
+    <form class="form-bookmark needs-validation mhj-form" @submit.prevent="saveRumahSakit">
       <div class="modal-body custom-input rumah-sakit-form-body">
         <div class="row g-3">
           <div class="col-12">

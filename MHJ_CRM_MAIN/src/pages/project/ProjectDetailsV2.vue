@@ -200,6 +200,7 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { routes } from '@/router/routes'
 import { useProjectStore } from '@/store/project'
+import { shortProjectTitle } from '@/utils/index'
 import type { Projects } from '@/types/project'
 
 type UnknownRecord = Record<string, unknown>
@@ -241,7 +242,10 @@ function firstProductName(value?: string): string {
   } catch {
     // Nilai dari API lama dapat berupa string dipisahkan koma.
   }
-  return value.split(',')[0]?.trim() || value
+  // Saat product_names tidak tersedia, store jatuh balik ke deal_name
+  // berformat "PREFIX_Perusahaan_Produk" — ambil segmen produknya saja.
+  const withoutPrefix = shortProjectTitle(value)
+  return withoutPrefix.split(',')[0]?.trim() || withoutPrefix
 }
 
 const productTitle = computed(() => firstProductName(project.value?.productNames))

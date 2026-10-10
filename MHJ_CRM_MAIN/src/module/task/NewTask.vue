@@ -19,7 +19,7 @@
           <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Tutup"></button>
         </div>
 
-        <form class="needs-validation" novalidate @submit.prevent="submitTask">
+        <form class="needs-validation mhj-form" novalidate @submit.prevent="submitTask">
           <div class="modal-body pt-4">
             <div v-if="validationMessage" class="alert alert-danger d-flex align-items-center" role="alert">
               <vue-feather type="alert-circle" class="me-2"></vue-feather>
@@ -162,7 +162,7 @@
                   <label class="form-label">Divisi <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.divisions"
-                    :options="divisiList"
+                    :options="projectStore.lookups.divisi"
                     placeholder="Pilih satu atau lebih divisi"
                     display-key="label"
                     get-value-key="value"
@@ -354,9 +354,7 @@ import Swal from 'sweetalert2'
 import { initSelectField } from '@/core/data/common'
 import {
   contacts as fallbackContacts,
-  divisiList,
   hospitals as fallbackHospitals,
-  products,
 } from '@/core/data/projectDeal'
 import type { DealOption } from '@/core/data/projectDeal'
 import { projectTab } from '@/core/data/project'
@@ -526,12 +524,14 @@ function hospitalForProject(projectName: string, fallbackIndex: number) {
 
 function divisionForProject(projectName: string, fallbackIndex: number) {
   const normalizedProject = normalizeRelation(projectName)
-  const relatedProduct = products.find((product) =>
+  const barang = projectStore.lookups.barang
+  const divisi = projectStore.lookups.divisi
+  const relatedProduct = barang.find((product) =>
     normalizedProject.includes(normalizeRelation(product.label))
   )
   return (
-    divisiList.find((division) => division.code === relatedProduct?.divisi) ??
-    divisiList[fallbackIndex % divisiList.length]
+    divisi.find((division) => division.code === relatedProduct?.divisiCode) ??
+    divisi[fallbackIndex % (divisi.length || 1)]
   )
 }
 
@@ -567,7 +567,9 @@ const selectedContacts = computed<DealOption[]>(() => {
 const selectedProducts = computed(() => form.products.selectedItems as DealOption[])
 const availableProducts = computed(() => {
   const divisionCodes = selectedDivisions.value.map((division) => division.code)
-  return products.filter((product) => !product.divisi || divisionCodes.includes(product.divisi))
+  return projectStore.lookups.barang.filter(
+    (product) => !product.divisiCode || divisionCodes.includes(product.divisiCode)
+  )
 })
 const hasLocation = computed(() => Boolean(form.latitude && form.longitude))
 const isCustomCategory = computed(() => form.category.selected?.value === 'lainnya')
@@ -623,7 +625,9 @@ watch(
     form.hospital = selectField(project.hospital)
     form.contact = multiSelectField(project.contacts)
     form.divisions = selectField(project.division)
-    const relatedProducts = products.filter((product) => product.divisi === project.division.code)
+    const relatedProducts = projectStore.lookups.barang.filter(
+      (product) => product.divisiCode === project.division.code
+    )
     form.products = multiSelectField(relatedProducts)
     form.unrelatedProduct = relatedProducts.length === 0
     const currentStage = stageOptions.find((stage) => stage.value === project.status) ?? null
@@ -877,6 +881,7 @@ onMounted(() => {
     requests.push(contactStore.fetchRemoteContacts({ per_page: 100 }))
   }
   if (!hospitalStore.items.length) requests.push(hospitalStore.fetchHospitals({ per_page: 100 }))
+  if (!projectStore.lookups.divisi.length) requests.push(projectStore.fetchProjectCatalog())
   void Promise.allSettled(requests)
   document.getElementById('taskmodel')?.addEventListener('hidden.bs.modal', handleModalHidden)
 })

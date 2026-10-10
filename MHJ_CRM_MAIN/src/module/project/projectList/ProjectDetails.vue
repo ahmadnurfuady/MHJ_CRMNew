@@ -23,7 +23,7 @@
         <div class="common-f-start gap-3">
           <img class="img-fluid" :src="getImages(props.project.projectBanner)" alt="banner" />
           <div>
-            <h5>{{ props.project.projectName }}</h5>
+            <h5>{{ shortProjectTitle(props.project.projectName) }}</h5>
             <span>{{ props.project.projectDescription }}</span>
           </div>
         </div>
@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { titleCase, getImages } from '@/utils/index'
+import { titleCase, getImages, shortProjectTitle } from '@/utils/index'
 import { projectTab } from '@/core/data/project'
 
 import type { Projects } from '@/types/project'

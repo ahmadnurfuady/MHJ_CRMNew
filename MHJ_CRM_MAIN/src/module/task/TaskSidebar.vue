@@ -85,15 +85,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref, defineAsyncComponent } from 'vue'
-import { tasks } from '@/core/data/tasks'
+import { computed, ref, defineAsyncComponent } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useTask } from '@/store/task'
 import { getImages } from '@/utils/index'
 import type { Task } from '@/types/tasks'
 
-const task = ref(tasks)
 const filtered = ref(false)
 const store = useTask()
+const { taskData } = storeToRefs(store)
+const task = computed(() => taskData.value.task)
 const { setActive } = store
 const currentUser = (() => {
   try {
