@@ -177,7 +177,7 @@ export const files: Files[] = [
   },
   {
     id: 13,
-    name: 'Project.zip',
+    name: 'Opportunity.zip',
     type: 'file',
     text: 'ZIP',
   },

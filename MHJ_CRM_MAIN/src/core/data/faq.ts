@@ -39,7 +39,7 @@ export const faqQuestionAnswer: FaqQuestionAnswer[] = [
         id: 5,
         title: 'How to ticket work as web designer?',
         description:
-          'Create an account on the chosen ticketing platform and set up your workspace. Customize it according to your projects and team, if applicable. Set permissions and access levels for team members and clients, if necessary.',
+          'Create an account on the chosen ticketing platform and set up your workspace. Customize it according to your opportunities and team, if applicable. Set permissions and access levels for team members and clients, if necessary.',
       },
       {
         id: 6,

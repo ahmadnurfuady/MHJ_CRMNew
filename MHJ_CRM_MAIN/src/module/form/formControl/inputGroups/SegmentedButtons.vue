@@ -61,7 +61,7 @@
         <ul class="dropdown-menu dropdown-menu-end dropdown-block">
           <li><a class="dropdown-item" href="#">Search Result</a></li>
           <li><a class="dropdown-item" href="#">Tasks</a></li>
-          <li><a class="dropdown-item" href="#">Projects</a></li>
+          <li><a class="dropdown-item" href="#">Opportunities</a></li>
           <li>
             <hr class="dropdown-divider" />
           </li>

@@ -62,7 +62,7 @@
       </button>
       <ul class="dropdown-menu dropdown-block">
         <li><a class="dropdown-item" href="#">Widgets</a></li>
-        <li><a class="dropdown-item" href="#">Project</a></li>
+        <li><a class="dropdown-item" href="#">Opportunity</a></li>
         <li><a class="dropdown-item" href="#">Contacts</a></li>
         <li>
           <hr class="dropdown-divider" />

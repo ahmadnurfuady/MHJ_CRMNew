@@ -29,10 +29,10 @@
               ><a class="nav-link ms-3 my-1" href="#item-1-2">Cyber Security</a>
             </nav>
             <a class="nav-link f-16 txt-dark" href="#item-2">Get in Touch</a
-            ><a class="nav-link f-16 txt-dark" href="#item-3">Projects</a>
+            ><a class="nav-link f-16 txt-dark" href="#item-3">Opportunities</a>
             <nav class="nav nav-pills flex-column">
-              <a class="nav-link ms-3 my-1" href="#item-3-1">Group Projects</a
-              ><a class="nav-link ms-3 my-1" href="#item-3-2">Individual Projects</a>
+              <a class="nav-link ms-3 my-1" href="#item-3-1">Group Opportunities</a
+              ><a class="nav-link ms-3 my-1" href="#item-3-2">Individual Opportunities</a>
             </nav>
           </nav>
         </nav>
@@ -133,7 +133,7 @@
             </div>
           </div>
           <div id="item-3">
-            <h6 class="f-18">Projects</h6>
+            <h6 class="f-18">Opportunities</h6>
             <div class="common-align gap-lg-3 gap-1">
               <div class="flex-shrink-0">
                 <SvgIcon :icon="'project-info'" type="default" />
@@ -151,7 +151,7 @@
             </div>
           </div>
           <div id="item-3-1">
-            <h6>Projects / Group Projects</h6>
+            <h6>Opportunities / Group Opportunities</h6>
             <p>
               This is some placeholder content for the scrollspy page. Note that as you scroll down
               the page, the appropriate navigation link is highlighted. It's repeated throughout the
@@ -171,7 +171,7 @@
             </p>
           </div>
           <div id="item-3-2">
-            <h6>Projects / Individual Projects</h6>
+            <h6>Opportunities / Individual Opportunities</h6>
             <p>
               This is some placeholder content for the scrollspy page. Note that as you scroll down
               the page, the appropriate navigation link is highlighted. It's repeated throughout the

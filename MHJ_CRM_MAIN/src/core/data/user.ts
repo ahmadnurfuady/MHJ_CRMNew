@@ -195,7 +195,7 @@ export const users: Users[] = [
 export const userRecentActivity = [
   {
     id: 1,
-    title: 'Freelance Project Discussion',
+    title: 'Freelance Opportunity Discussion',
     description: `<span class="c-o-light">worked hard with the client to make sure the design reflects their objectives and brand identity.</span><span class="c-o-light">Optimised the website for quicker loads by implementing a responsive layout.</span>`,
     date: '12th Feb, 2024',
     time: 'Today',
@@ -217,7 +217,7 @@ export const userRecentActivity = [
   },
   {
     id: 3,
-    title: 'Review of Project and Milestones',
+    title: 'Review of Opportunity and Milestones',
     description: `<span class="c-o-light">Having the objective of developing an aesthetically attractive and intuitive e-commerce platform for "Multikart and Fastkart."</span><span class="c-o-light">This entails being aware of the target market, the brand's goal, and the particular features that the website must have.</span>`,
     date: '08th Feb, 2024',
     time: '5 days ago',
@@ -472,7 +472,7 @@ export const permissions: Module[] = [
   },
   {
     id: 6,
-    name: 'Projects',
+    name: 'Opportunities',
     isChecked: false,
     modulePermission: [
       { id: 16, permissionId: 16, name: 'Reader', isChecked: false },

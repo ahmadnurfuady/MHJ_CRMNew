@@ -121,7 +121,7 @@ function showComingSoon(label: string) {
 .cs-label {
   font-size: 0.7rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.6px;
   color: #adb5bd;
   margin-bottom: 0.2rem;

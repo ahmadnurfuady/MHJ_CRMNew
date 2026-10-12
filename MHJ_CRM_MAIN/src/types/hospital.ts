@@ -44,6 +44,20 @@ export interface Hospital {
   lastVisitAt: string
 }
 
+/** Data kontak yang ikut dikembalikan endpoint fetchcompanybyid. */
+export interface HospitalContactAssociation {
+  id: number
+  country: string
+  province: string
+  city: string
+  createdById?: number
+  gender: string
+  projectName: string
+  projectId?: number
+  latitude?: number
+  longitude?: number
+}
+
 /**
  * Payload create/update Rumah Sakit memakai nama kolom database `companies`.
  * Hanya field yang sudah terkonfirmasi kolomnya yang dikirim.

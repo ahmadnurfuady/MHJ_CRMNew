@@ -245,7 +245,7 @@ function websiteHref(value: string) {
   color: #6c757d;
   font-size: 0.8rem;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .detail-value {

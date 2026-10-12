@@ -1,5 +1,8 @@
 <template>
-  <form class="custom-input contact-edit-form mhj-form" @submit.prevent="save">
+  <form
+    class="form-bookmark needs-validation custom-input contact-edit-form mhj-form"
+    @submit.prevent="save"
+  >
     <div v-if="saveError" class="alert alert-danger" role="alert">{{ saveError }}</div>
 
     <div class="row g-3">
@@ -48,13 +51,13 @@
       </div>
 
       <div class="col-12">
-        <InputWrapper title="Email">
+        <InputWrapper title="Email" required>
           <InputField
             v-model:modelValue="form.email"
+            :formSubmitted="formSubmitted"
             inputId="edit-contact-email"
             inputType="email"
             placeholder="nama@perusahaan.com"
-            :required="false"
           />
         </InputWrapper>
       </div>
@@ -86,20 +89,24 @@
             </div>
             <button
               v-if="form.phoneNumbers.length > 1"
-              class="btn btn-outline-danger remove-phone-button"
+              class="btn btn-outline-danger px-3"
               type="button"
               title="Hapus nomor"
               @click="removePhone(index)"
             >
-              <vue-feather type="minus" size="17" />
+              <vue-feather type="trash-2" size="16" />
             </button>
           </div>
           <small class="d-block text-muted mb-3">
             Gunakan nomor HP Indonesia dengan awalan 08, 628, atau +628.
           </small>
-          <button class="btn btn-primary add-phone-button" type="button" @click="addPhone">
-            <vue-feather type="plus-circle" size="17" />
-            <span>Tambah nomor telepon</span>
+          <button
+            class="btn btn-outline-primary add-phone-button"
+            type="button"
+            @click="addPhone"
+          >
+            <vue-feather type="plus" size="17" />
+            <span>Tambah nomor</span>
           </button>
         </InputWrapper>
       </div>
@@ -157,7 +164,7 @@
             inputType="textarea"
             placeholder="Masukkan alamat lengkap"
             :required="false"
-            :rows="3"
+            :rows="2"
           />
         </InputWrapper>
       </div>
@@ -187,7 +194,6 @@
           />
         </InputWrapper>
       </div>
-
       <div class="col-md-6">
         <InputWrapper title="Sumber">
           <Select
@@ -226,20 +232,20 @@
         </InputWrapper>
       </div>
       <div class="col-md-6">
-        <InputWrapper title="Proyek">
+        <InputWrapper title="Peluang">
           <Select
             v-model="form.project"
             :options="projectOptions"
             display-key="label"
             getValueKey="label"
-            placeholder="Cari nama proyek"
+            placeholder="Cari nama peluang"
             :required="false"
           />
         </InputWrapper>
       </div>
     </div>
 
-    <div class="edit-actions">
+    <div class="modal-footer edit-actions">
       <button class="btn btn-light" type="button" :disabled="contactApi.submitting" @click="cancel">
         Batal
       </button>
@@ -275,7 +281,7 @@ import {
 import {
   geolocationErrorMessage,
   getCurrentPosition,
-  reverseGeocodeAddress,
+  reverseGeocodeLocation,
 } from "@/services/geocoding";
 
 const InputWrapper = defineAsyncComponent(
@@ -313,7 +319,7 @@ const optionalPhoneValidator = (value: string) =>
 const companyOptions = computed(() =>
   hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name })),
 );
-// GET /api/project (sama dengan daftar di halaman Proyek List).
+// GET /api/project (sama dengan daftar di halaman Peluang List).
 const projectOptions = computed(() =>
   projectStore.items.map((project) => ({ value: project.id, label: project.projectName })),
 );
@@ -335,8 +341,13 @@ function createForm() {
     source: initSelectField(),
     mapAddress: initInputField(),
     address: initInputField(),
+    country: initInputField(),
+    posCode: initInputField(),
+    kdKelurahan: initInputField(),
     province: initSelectField(),
     city: initSelectField(),
+    latitude: initInputField(),
+    longitude: initInputField(),
     company: initSelectField(),
     project: initSelectField(),
   };
@@ -351,6 +362,12 @@ function nullableId(value: unknown): number | null {
   if (value === undefined || value === null || value === "") return null;
   const id = Number(value);
   return Number.isSafeInteger(id) && id >= 0 ? id : null;
+}
+
+function nullableNumber(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }
 
 function addPhone() {
@@ -371,18 +388,62 @@ function expandCombinedPhoneRows() {
     : [initInputField()];
 }
 
+function normalizeRegionName(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase("id-ID")
+    .replace(/^(kota|kabupaten)\s+/, "");
+}
+
+function setLocationRegions(provinceName: string, cityName: string) {
+  const province = provinceOptions.value.find(
+    (option) => normalizeRegionName(option.label) === normalizeRegionName(provinceName),
+  ) ?? (provinceName ? { value: provinceName, label: provinceName } : undefined);
+
+  form.value.province = province
+    ? {
+        selected: province,
+        data: province.label,
+        selectedItems: [],
+        errorMessage: "",
+        type: "dropdown",
+      }
+    : initSelectField();
+
+  const cityPool = province ? cityOptionsByProvince.value[province.label] || [] : [];
+  const city = cityPool.find(
+    (option) => normalizeRegionName(option.label) === normalizeRegionName(cityName),
+  ) ?? (cityName ? { value: cityName, label: cityName } : undefined);
+
+  form.value.city = city
+    ? {
+        selected: city,
+        data: city.label,
+        selectedItems: [],
+        errorMessage: "",
+        type: "dropdown",
+      }
+    : initSelectField();
+}
+
 async function captureCurrentAddress() {
   locationError.value = "";
   locatingAddress.value = true;
 
   try {
     const position = await getCurrentPosition();
-    const address = await reverseGeocodeAddress(
+    const location = await reverseGeocodeLocation(
       position.coords.latitude,
       position.coords.longitude,
     );
-    form.value.mapAddress.data = address;
-    form.value.address.data = address;
+    form.value.mapAddress.data = location.address;
+    form.value.address.data = location.address;
+    form.value.latitude.data = String(position.coords.latitude);
+    form.value.longitude.data = String(position.coords.longitude);
+    form.value.country.data = location.country;
+    form.value.posCode.data = location.posCode;
+    form.value.kdKelurahan.data = "";
+    setLocationRegions(location.province, location.city);
   } catch (error) {
     locationError.value = geolocationErrorMessage(error);
   } finally {
@@ -393,6 +454,11 @@ async function captureCurrentAddress() {
 function clearCurrentAddress() {
   form.value.mapAddress.data = "";
   form.value.address.data = "";
+  form.value.latitude.data = "";
+  form.value.longitude.data = "";
+  form.value.country.data = "";
+  form.value.posCode.data = "";
+  form.value.kdKelurahan.data = "";
   locationError.value = "";
 }
 
@@ -411,6 +477,14 @@ function fillForm() {
   form.value.email.data = contact.email || "";
   form.value.mapAddress.data = contact.mapAddress || "";
   form.value.address.data = contact.address || "";
+  const companyLocation = [hospitalStore.selectedItem, ...hospitalStore.items].find(
+    (company) => company && String(company.id) === String(contact.companyId),
+  );
+  form.value.country.data = contact.country || companyLocation?.country || "";
+  form.value.posCode.data = contact.posCode || companyLocation?.posCode || "";
+  form.value.kdKelurahan.data = contact.kdKelurahan || companyLocation?.kdKelurahan || "";
+  form.value.latitude.data = contact.latitude == null ? "" : String(contact.latitude);
+  form.value.longitude.data = contact.longitude == null ? "" : String(contact.longitude);
 
   const phones = splitPhoneNumbers(
     contact.telephone1 || contact.contactNumber,
@@ -488,10 +562,12 @@ function fillForm() {
   }
 
   const projectName = String(contact.project || "").trim().toLowerCase();
-  const project = projectName
+  const project = projectOptions.value.find(
+    (option) => String(option.value) === String(contact.projectId),
+  ) ?? (projectName
     ? projectOptions.value.find((option) => option.label.trim().toLowerCase() === projectName) ??
       projectOptions.value.find((option) => projectName.includes(option.label.trim().toLowerCase()))
-    : undefined;
+    : undefined);
   form.value.project = project
     ? {
         selected: project,
@@ -502,10 +578,10 @@ function fillForm() {
       }
     : initSelectField();
 
-  const provinceLabel = String(contact.province || "").trim();
+  const provinceLabel = String(contact.province || companyLocation?.province || "").trim();
   const provinceOption = provinceLabel
     ? provinceOptions.value.find(
-        (option) => option.label.trim().toLowerCase() === provinceLabel.toLowerCase(),
+        (option) => normalizeRegionName(option.label) === normalizeRegionName(provinceLabel),
       )
     : undefined;
   form.value.province = provinceOption
@@ -518,10 +594,12 @@ function fillForm() {
       }
     : initSelectField();
 
-  const cityLabel = String(contact.city || "").trim();
+  const cityLabel = String(contact.city || companyLocation?.city || "").trim();
   const cityPool = provinceOption ? cityOptionsByProvince.value[provinceOption.label] || [] : [];
   const cityOption = cityLabel
-    ? cityPool.find((option) => option.label.trim().toLowerCase() === cityLabel.toLowerCase())
+    ? cityPool.find(
+        (option) => normalizeRegionName(option.label) === normalizeRegionName(cityLabel),
+      )
     : undefined;
   form.value.city = cityOption
     ? {
@@ -547,6 +625,9 @@ async function save() {
   form.value.lastName.errorMessage = form.value.lastName.data.trim()
     ? ""
     : "Nama belakang wajib diisi.";
+  form.value.email.errorMessage = form.value.email.data.trim()
+    ? ""
+    : "Email wajib diisi.";
 
   let phoneNumbersValid = true;
   form.value.phoneNumbers.forEach((phone, index) => {
@@ -558,6 +639,7 @@ async function save() {
   if (
     form.value.firstName.errorMessage ||
     form.value.lastName.errorMessage ||
+    form.value.email.errorMessage ||
     !phoneNumbersValid ||
     form.value.status.errorMessage
   ) {
@@ -567,6 +649,8 @@ async function save() {
   const normalizedPhoneNumbers = form.value.phoneNumbers
     .map((phone) => normalizeIndonesianMobilePhone(phone.data))
     .filter(Boolean);
+  const selectedGender = form.value.gender.selected;
+  const selectedProject = form.value.project.selected;
 
   const payload: ContactCrudPayload = {
     company_id: nullableId(form.value.company.data || contact.companyId),
@@ -578,10 +662,16 @@ async function save() {
     telephone_1: normalizedPhoneNumbers[0] ?? "",
     telephone_2: nullableText(normalizedPhoneNumbers.slice(1).join(", ")),
     address: nullableText(form.value.address.data),
+    country: nullableText(form.value.country.data),
     province: nullableText(form.value.province.data),
     city: nullableText(form.value.city.data),
-    // Form edit belum punya field Kode Kelurahan (sama seperti form tambah kontak), nilai lama dipertahankan.
-    kelurahan: nullableText(contact.kdKelurahan || ""),
+    pos_code: nullableText(form.value.posCode.data),
+    kelurahan: nullableText(form.value.kdKelurahan.data),
+    gender: nullableText(selectedGender?.label || form.value.gender.data),
+    project_name: nullableText(selectedProject?.label || form.value.project.data),
+    project_id: nullableId(selectedProject?.value || contact.projectId),
+    latitude: nullableNumber(form.value.latitude.data),
+    longitude: nullableNumber(form.value.longitude.data),
     source: nullableId(form.value.source.data || contact.sourceId),
     created_by: nullableId(form.value.owner.data) ?? contact.createdById ?? null,
   };
@@ -612,6 +702,8 @@ watch(
     projectOptions.value,
     provinceOptions.value,
     cityOptionsByProvince.value,
+    hospitalStore.selectedItem,
+    hospitalStore.items,
   ],
   fillForm,
   { immediate: true },
@@ -652,15 +744,12 @@ onMounted(async () => {
 }
 
 .edit-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
   margin-top: 24px;
 }
 
 .add-phone-button {
   display: inline-flex;
-  width: 100%;
+  min-width: 184px;
   min-height: 42px;
   align-items: center;
   justify-content: center;
@@ -670,17 +759,6 @@ onMounted(async () => {
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
-}
-
-.remove-phone-button {
-  display: inline-flex;
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  padding: 0;
 }
 
 .location-field {
@@ -738,6 +816,10 @@ onMounted(async () => {
 }
 
 @media (max-width: 575.98px) {
+  .add-phone-button {
+    width: 100%;
+  }
+
   .location-input-group {
     grid-template-columns: minmax(0, 1fr) 132px;
   }

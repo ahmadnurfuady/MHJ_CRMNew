@@ -26,11 +26,11 @@
             </InputWrapper>
           </div>
           <div class="col-12">
-            <InputWrapper :title="'Select Project'">
+            <InputWrapper :title="'Select Opportunity'">
               <Select
                 getValueKey="label"
                 display-key="label"
-                :placeholder="'Select your projects'"
+                :placeholder="'Select your opportunities'"
                 v-model="form.project"
                 :options="projects"
                 :required="false"
@@ -38,11 +38,11 @@
             </InputWrapper>
           </div>
           <div class="col-12">
-            <InputWrapper :title="'Project Counts'">
+            <InputWrapper :title="'Opportunity Counts'">
               <Select
                 getValueKey="label"
                 display-key="label"
-                :placeholder="'How many projects do you make?'"
+                :placeholder="'How many opportunities do you manage?'"
                 v-model="form.projectCount"
                 :options="projectCount"
                 :required="false"

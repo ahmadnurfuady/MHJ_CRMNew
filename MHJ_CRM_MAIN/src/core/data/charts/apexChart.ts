@@ -6,7 +6,7 @@ import { chartDate, monthDataSeries } from '@/core/data/chartData'
 
 export const basicAreaSeries: ApexOptions['series'] = [
   {
-    name: 'STOCK ABC',
+    name: 'Stock Abc',
     data: monthDataSeries[0].prices,
   },
 ]

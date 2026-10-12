@@ -3,7 +3,7 @@
     <tbody>
       <tr class="header-content">
         <td>
-          <h4 class="invoice-heading">INVOICE</h4>
+          <h4 class="invoice-heading">Invoice</h4>
           <ul class="invoice-to-list">
             <li>
               <span class="label-text">Invoice to :</span>

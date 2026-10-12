@@ -47,13 +47,13 @@
         font-size: 14px;
         font-weight: 400;
         color: $theme-body-font-color;
-        text-transform: uppercase;
+        text-transform: capitalize;
         letter-spacing: 1px;
       }
 
       ul li {
         display: inline-block;
-        text-transform: uppercase;
+        text-transform: capitalize;
         margin: 0 20px;
 
         span {

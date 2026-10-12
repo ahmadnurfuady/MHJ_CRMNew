@@ -3,7 +3,7 @@
     <div class="row project-cards">
       <div class="col-md-12 project-list">
         <Card
-          :headerTitle="'Proyek Overview'"
+          :headerTitle="'Ringkasan Peluang'"
           :headerClass="'m-0'"
           :border="true"
           :padding="false"
@@ -31,13 +31,13 @@
         <Card :cardBodyClass="'projects-wrapper'">
           <div class="project-list-toolbar">
             <div class="project-search" role="search">
-              <label class="visually-hidden" for="project-search-input">Cari proyek</label>
+              <label class="visually-hidden" for="project-search-input">Cari peluang</label>
               <vue-feather type="search" size="17" />
               <input
                 id="project-search-input"
                 v-model="searchQuery"
                 type="search"
-                placeholder="Cari nama proyek..."
+                placeholder="Cari nama peluang..."
                 autocomplete="off"
               />
               <span
@@ -56,7 +56,7 @@
               </button>
             </div>
             <span class="project-result-count">
-              {{ formatTotal(projectPagination.total || filteredProjects.length) }} proyek
+              {{ formatTotal(projectPagination.total || filteredProjects.length) }} peluang
             </span>
           </div>
           <div class="tab-content" id="top-tabContent">
@@ -74,8 +74,8 @@
                   class="col-12 project-empty-state"
                 >
                   <vue-feather type="folder" size="24" />
-                  <strong>Proyek tidak ditemukan</strong>
-                  <span>Coba gunakan nama proyek atau stage yang berbeda.</span>
+                  <strong>Peluang tidak ditemukan</strong>
+                  <span>Coba gunakan nama peluang atau stage yang berbeda.</span>
                 </div>
               </div>
             </div>
@@ -91,7 +91,7 @@
             <span class="project-page-summary">
               Halaman {{ projectPagination.page }} dari {{ projectPagination.lastPage }}
             </span>
-            <div class="pagination-actions" role="group" aria-label="Pagination Proyek">
+            <div class="pagination-actions" role="group" aria-label="Pagination Peluang">
               <button
                 class="btn btn-outline-primary btn-sm pagination-button"
                 type="button"
@@ -100,7 +100,7 @@
               >
                 <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
               </button>
-              <div class="pagination-pages" aria-label="Pilih halaman proyek">
+              <div class="pagination-pages" aria-label="Pilih halaman peluang">
                 <template v-for="item in visibleProjectPages" :key="String(item)">
                   <span
                     v-if="typeof item === 'string'"
@@ -247,7 +247,7 @@ function loadProjects(page: number) {
       search: searchQuery.value.trim() || undefined,
     })
     .catch(() => {
-      Swal.fire({ icon: 'error', text: projectStore.error ?? 'Gagal memuat data proyek.' })
+      Swal.fire({ icon: 'error', text: projectStore.error ?? 'Gagal memuat data peluang.' })
     })
 }
 

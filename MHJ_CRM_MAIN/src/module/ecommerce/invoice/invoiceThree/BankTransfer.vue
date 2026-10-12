@@ -3,13 +3,13 @@
     <tbody>
       <tr class="footer-details-row">
         <td>
-          <span class="footer-label">BANK TRANSFER</span>
+          <span class="footer-label">Bank Transfer</span>
           <h4 class="bank-name">Leslie Alexander</h4>
           <span class="bank-account">Bank Account : 0981234098765</span>
           <span class="bank-code">Code : LEF098756</span>
         </td>
         <td>
-          <span class="footer-label">TOTAL AMOUNT</span>
+          <span class="footer-label">Total Amount</span>
           <h4 class="total-amount">$240.00</h4>
           <span class="tax-info">All Taxes included</span>
         </td>

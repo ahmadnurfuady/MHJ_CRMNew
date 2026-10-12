@@ -48,9 +48,9 @@
               <button class="btn btn-border-bottom button-light-primary txt-dark">Icons</button>
               <button
                 class="button button--winona button--border-thin button--round-s"
-                data-text="Open Project"
+                data-text="Open Opportunity"
               >
-                <span>Open Project</span>
+                <span>Open Opportunity</span>
               </button>
             </div>
           </div>

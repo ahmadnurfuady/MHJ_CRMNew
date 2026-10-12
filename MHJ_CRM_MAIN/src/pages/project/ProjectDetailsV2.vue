@@ -1,36 +1,36 @@
 <template>
   <div class="container-fluid project-detail-v2">
     <div class="detail-toolbar">
-      <router-link :to="routes.Project.ProjectList" class="back-link" aria-label="Kembali ke daftar proyek">
+      <router-link :to="routes.Project.ProjectList" class="back-link" aria-label="Kembali ke daftar peluang">
         <i class="fa-solid fa-arrow-left"></i>
       </router-link>
       <div>
-        <p class="toolbar-eyebrow">Proyek</p>
-        <h3>Detail Proyek</h3>
+        <p class="toolbar-eyebrow">Peluang</p>
+        <h3>Detail Peluang</h3>
       </div>
       <router-link
         v-if="project"
         class="edit-button"
         :to="{ path: routes.Project.ProjectCreate, query: { id: String(project.id) } }"
-        aria-label="Edit proyek"
+        aria-label="Edit peluang"
       >
         <i class="fa-solid fa-pen"></i>
       </router-link>
-      <button v-else class="edit-button" type="button" aria-label="Edit proyek" disabled>
+      <button v-else class="edit-button" type="button" aria-label="Edit peluang" disabled>
         <i class="fa-solid fa-pen"></i>
       </button>
     </div>
 
     <div v-if="loading && !project" class="detail-state card">
       <div class="spinner-border text-primary" role="status"></div>
-      <span>Memuat detail proyek...</span>
+      <span>Memuat detail peluang...</span>
     </div>
 
     <div v-else-if="loadError || !project" class="detail-state card">
       <i class="fa-solid fa-circle-exclamation text-danger"></i>
-      <span>{{ loadError || 'Data proyek tidak ditemukan.' }}</span>
+      <span>{{ loadError || 'Data peluang tidak ditemukan.' }}</span>
       <router-link class="btn btn-primary btn-sm" :to="routes.Project.ProjectList">
-        Kembali ke Proyek List
+        Kembali ke Daftar Peluang
       </router-link>
     </div>
 
@@ -50,7 +50,7 @@
         </div>
       </section>
 
-      <div class="detail-tabs" role="tablist" aria-label="Detail proyek">
+      <div class="detail-tabs" role="tablist" aria-label="Detail peluang">
         <button
           type="button"
           role="tab"
@@ -74,10 +74,10 @@
       <section v-if="activeTab === 'info'" class="info-panel">
         <div class="info-grid">
           <article class="detail-card">
-            <h5>Informasi Proyek</h5>
+            <h5>Informasi Peluang</h5>
             <div class="field-grid">
               <div class="field field-wide">
-                <span>Nama Proyek</span>
+                <span>Nama Peluang</span>
                 <strong>{{ project.projectName || '-' }}</strong>
               </div>
               <div class="field field-wide">
@@ -158,7 +158,7 @@
         <article class="detail-card timeline-card">
           <div class="section-heading">
             <div>
-              <span class="section-kicker">Timeline proyek</span>
+              <span class="section-kicker">Timeline peluang</span>
               <h5>Riwayat Aktivitas</h5>
             </div>
             <span class="activity-count">{{ activities.length }} aktivitas</span>
@@ -284,15 +284,15 @@ const activities = computed<ActivityInfo[]>(() => {
     .map((row) => ({
       title: String(row.activity ?? row.activity_name ?? row.timeline_activity ?? row.event ?? ''),
       date: formatDate(String(row.activity_date ?? row.timeline_date ?? row.date ?? row.created_at ?? '')),
-      description: String(row.activity_description ?? row.description ?? 'Pembaruan aktivitas pada proyek ini.'),
+      description: String(row.activity_description ?? row.description ?? 'Pembaruan aktivitas pada peluang ini.'),
     }))
     .filter((item) => item.title)
 
   if (fromApi.length) return fromApi
   return [{
-    title: 'Proyek dibuat',
+    title: 'Peluang dibuat',
     date: formatDate(project.value?.createdAt),
-    description: `Proyek ${project.value?.projectName || ''} berhasil ditambahkan ke pipeline.`,
+    description: `Peluang ${project.value?.projectName || ''} berhasil ditambahkan ke pipeline.`,
   }]
 })
 
@@ -340,11 +340,11 @@ async function loadProject() {
       if (!items.value.length) await store.fetchProjects({ per_page: 100 })
       id = items.value[0]?.id ?? 0
     }
-    if (!id) throw new Error('Belum ada proyek yang dapat ditampilkan.')
+    if (!id) throw new Error('Belum ada peluang yang dapat ditampilkan.')
     await store.fetchProjectById(id)
-    if (!selectedItem.value) throw new Error('Data proyek tidak ditemukan.')
+    if (!selectedItem.value) throw new Error('Data peluang tidak ditemukan.')
   } catch (error) {
-    loadError.value = error instanceof Error ? error.message : (store.error ?? 'Gagal memuat detail proyek.')
+    loadError.value = error instanceof Error ? error.message : (store.error ?? 'Gagal memuat detail peluang.')
   }
 }
 
@@ -355,7 +355,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .project-detail-v2 { --detail-blue: var(--theme-default, #25a9e0); max-width: 1180px; padding-bottom: 28px; }
 .detail-toolbar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 14px; margin-bottom: 18px; }
 .detail-toolbar h3 { margin: 0; font-size: 24px; }
-.toolbar-eyebrow { margin: 0 0 2px; color: #8c939c; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.toolbar-eyebrow { margin: 0 0 2px; color: #8c939c; font-size: 12px; text-transform: capitalize; letter-spacing: .08em; }
 .back-link, .edit-button { display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 12px; color: var(--detail-blue); background: #fff; box-shadow: 0 4px 16px rgba(28, 45, 69, .08); }
 .edit-button:disabled { opacity: .65; }
 .project-hero { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 18px; padding: 22px 26px; border-radius: 18px; color: #fff; background: linear-gradient(120deg, #239feb, #85c4ff); box-shadow: 0 14px 30px rgba(40, 158, 228, .2); }
@@ -389,7 +389,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .notes-field { min-height: 88px; }
 .section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
 .section-heading h5 { margin: 2px 0 0; font-size: 18px; }
-.section-kicker { color: var(--detail-blue); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.section-kicker { color: var(--detail-blue); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: capitalize; }
 .activity-count { flex: 0 0 auto; padding: 6px 10px; border-radius: 999px; color: #617080; background: #f0f4f7; font-size: 11px; font-weight: 600; }
 .timeline { position: relative; display: grid; gap: 16px; }
 .timeline::before { content: ''; position: absolute; top: 22px; bottom: 22px; left: 21px; width: 2px; background: linear-gradient(to bottom, var(--detail-blue), #dce8ee); }

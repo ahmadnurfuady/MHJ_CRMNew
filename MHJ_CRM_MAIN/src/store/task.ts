@@ -160,7 +160,7 @@ export const useTask = defineStore('task', () => {
 
   /**
    * Endpoint task hanya mengembalikan `project_id` pada sebagian response.
-   * Ambil relasi Master Proyek lalu isi nama proyek untuk kebutuhan tabel/detail.
+   * Ambil relasi Master Peluang lalu isi nama peluang untuk kebutuhan tabel/detail.
    */
   async function resolveTaskProjects(tasks: TaskDetails[]): Promise<TaskDetails[]> {
     const projectIds = [
@@ -182,7 +182,7 @@ export const useTask = defineStore('task', () => {
         const projects = await projectStore.fetchProjects({ per_page: 100 })
         projects.forEach((project) => projectMap.set(project.id, project))
       } catch {
-        // Daftar task tetap dapat ditampilkan meskipun endpoint proyek gagal.
+        // Daftar task tetap dapat ditampilkan meskipun endpoint peluang gagal.
       }
       missingIds = projectIds.filter((id) => !projectMap.has(id))
     }

@@ -216,7 +216,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data proyek.',
+      fallbackMessage: 'Gagal memuat data peluang.',
       task: async () => {
         const response = await api.getbydata(ENDPOINT, { ...params })
         const { items: rawItems, meta } = extractList(response.data, [
@@ -238,7 +238,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat detail proyek.',
+      fallbackMessage: 'Gagal memuat detail peluang.',
       task: async () => {
         const response = await api.getbydata(`${ENDPOINT}/fetchprojectbyid`, {
           id
@@ -270,7 +270,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menyimpan proyek.',
+      fallbackMessage: 'Gagal menyimpan peluang.',
       task: async () => {
         const response = await api.post(`${ENDPOINT}/input`, {
           choice: 'i',
@@ -307,7 +307,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal memperbarui proyek.',
+      fallbackMessage: 'Gagal memperbarui peluang.',
       task: async () => {
         await api.post(`${ENDPOINT}/input`, {
           choice: 'u',
@@ -342,7 +342,7 @@ export const useProjectStore = defineStore('project', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menghapus proyek.',
+      fallbackMessage: 'Gagal menghapus peluang.',
       task: async () => {
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
         items.value = items.value.filter((item) => item.id !== id)
@@ -351,15 +351,23 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
+  /** GET /api/project/leader. Dipakai sebagai master Penanggung Jawab. */
+  async function fetchProjectLeaders() {
+    const response = await api.get(`${ENDPOINT}/leader`)
+    lookups.owner = normalizeOptions(response.data, ['leaders', 'leader', 'users']).filter(
+      (option) => option.value && option.label
+    )
+    return lookups.owner
+  }
+
   /** GET /api/project/leader, /api/master-data/competitor, /api/master-data/sumberdana. */
   function fetchProjectLookups() {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data pendukung proyek.',
+      fallbackMessage: 'Gagal memuat data pendukung peluang.',
       task: async () => {
-        const ownerResponse = await api.get(`${ENDPOINT}/leader`)
-        lookups.owner = normalizeOptions(ownerResponse.data, ['leaders', 'leader', 'users'])
+        await fetchProjectLeaders()
 
         try {
           const competitorResponse = await api.get('master-data/competitor')
@@ -492,6 +500,7 @@ export const useProjectStore = defineStore('project', () => {
     loaded,
     lookups,
     fetchProjects,
+    fetchProjectLeaders,
     fetchProjectById,
     createProject,
     updateProject,

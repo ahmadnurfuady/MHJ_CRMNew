@@ -83,7 +83,7 @@
         a {
           color: $theme-font-color;
           font-size: 20px;
-          text-transform: uppercase;
+          text-transform: capitalize;
           font-weight: 500;
         }
       }
@@ -94,7 +94,7 @@
         line-height: 20px;
         color: $semi-dark;
         text-overflow: ellipsis;
-        text-transform: uppercase;
+        text-transform: capitalize;
       }
     }
   }

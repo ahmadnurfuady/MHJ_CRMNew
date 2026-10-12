@@ -10,7 +10,11 @@ import {
   type Dict,
 } from '@/api/response'
 import type { ListParams, Pagination } from '@/types/api'
-import type { Hospital, HospitalPayload } from '@/types/hospital'
+import type {
+  Hospital,
+  HospitalContactAssociation,
+  HospitalPayload,
+} from '@/types/hospital'
 import { runApiAction } from '@/store/apiAction'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
@@ -132,9 +136,25 @@ export function normalizeHospital(raw: Dict): Hospital {
   }
 }
 
+function normalizeContactAssociation(raw: Dict): HospitalContactAssociation {
+  return {
+    id: pickNumber(raw, 'id', 'ID'),
+    country: pickString(raw, 'country', 'Country'),
+    province: pickString(raw, 'province', 'Province'),
+    city: pickString(raw, 'city', 'City'),
+    createdById: pickOptionalNumber(raw, 'created_by', 'created_by_id'),
+    gender: pickString(raw, 'gender', 'Gender'),
+    projectName: pickString(raw, 'project_name', 'projects_name'),
+    projectId: pickOptionalNumber(raw, 'project_id'),
+    latitude: pickOptionalNumber(raw, 'latitude'),
+    longitude: pickOptionalNumber(raw, 'longitude'),
+  }
+}
+
 export const useHospitalStore = defineStore('hospital', () => {
   const items = ref<Hospital[]>([])
   const selectedItem = ref<Hospital | null>(null)
+  const contactAssociations = ref<HospitalContactAssociation[]>([])
   const loading = ref(false)
   const detailLoading = ref(false)
   const submitting = ref(false)
@@ -186,6 +206,10 @@ export const useHospitalStore = defineStore('hospital', () => {
       task: async () => {
         const response = await api.getbydata(`${ENDPOINT}/fetchcompanybyid`, { id })
         const raw = findCompanyRecord(response.data)
+        const { items: rawContacts } = extractList(response.data, ['contactassoc'])
+        contactAssociations.value = rawContacts
+          .filter(isRecord)
+          .map(normalizeContactAssociation)
         selectedItem.value = raw ? normalizeHospital(raw) : null
         if (selectedItem.value) {
           items.value = items.value.map((item) =>
@@ -259,6 +283,7 @@ export const useHospitalStore = defineStore('hospital', () => {
   return {
     items,
     selectedItem,
+    contactAssociations,
     loading,
     detailLoading,
     submitting,

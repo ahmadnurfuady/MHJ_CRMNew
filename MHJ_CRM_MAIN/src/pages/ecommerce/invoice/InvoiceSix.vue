@@ -30,7 +30,7 @@
                   </div>
                   <div class="col-md-8">
                     <div class="text-md-end" id="project">
-                      <h6>Project Description</h6>
+                      <h6>Opportunity Description</h6>
                       <p>
                         You're Only As Good As Your Last Collection, Which Is An Enormous Pressure.
                         Jeans Represent Democracy In Fashion.Fashion Is About Dressing According To

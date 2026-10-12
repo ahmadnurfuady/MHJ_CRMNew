@@ -205,7 +205,7 @@ export const AkunField = defineComponent({
 :deep(.akun-field__label) {
   font-size: 0.72rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.4px;
   color: #adb5bd;
   margin-bottom: 0.2rem;

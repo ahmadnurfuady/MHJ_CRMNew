@@ -10,7 +10,7 @@
           The server couldn't finish processing your request due to an error.
         </p>
       </div>
-      <router-link class="btn btn-primary-gradien btn-lg" to="/">BACK TO HOME PAGE</router-link>
+      <router-link class="btn btn-primary-gradien btn-lg" to="/">Back To Home Page</router-link>
     </div>
   </div>
 </template>

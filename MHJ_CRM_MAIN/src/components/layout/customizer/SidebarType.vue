@@ -1,5 +1,5 @@
 <template>
-  <h5>SIDEBAR TYPE</h5>
+  <h5>Sidebar Type</h5>
   <ul class="sidebar-type layout-grid">
     <li
       data-attr="normal-sidebar"

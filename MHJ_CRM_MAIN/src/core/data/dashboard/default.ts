@@ -419,7 +419,7 @@ export const activityLogs: ActivityItem[] = [
     id: 2,
     name: 'Ralph Edwards',
     time: '6 min ago',
-    message: 'Ralph has solved Mr.williams proyek.',
+    message: 'Ralph has solved Mr.williams peluang.',
     image: 'user/51.png',
   },
   {

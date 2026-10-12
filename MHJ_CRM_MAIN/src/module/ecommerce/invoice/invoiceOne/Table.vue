@@ -54,7 +54,7 @@
 
 <script setup lang="ts">
 const items = [
-  { name: 'Project', rate: 4000, qty: 1, color: 'dot-primary' },
+  { name: 'Opportunity', rate: 4000, qty: 1, color: 'dot-primary' },
   { name: 'Creative Design', rate: 8000, qty: 2, color: 'dot-red' },
   { name: 'Web Development', rate: 2000, qty: 2, color: 'dot-orange' },
   { name: 'Graphics Design', rate: 2000, qty: 1, color: 'dot-green' },

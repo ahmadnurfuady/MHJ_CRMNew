@@ -1,6 +1,6 @@
 <template>
   <Card
-    :headerTitle="'Proyek Budget'"
+    :headerTitle="'Anggaran Peluang'"
     :border="true"
     :padding="false"
     :headerClass="'m-0'"

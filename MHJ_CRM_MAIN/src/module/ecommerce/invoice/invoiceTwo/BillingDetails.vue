@@ -3,7 +3,7 @@
     <tbody>
       <tr class="address-row">
         <td class="billing-section">
-          <span class="address-label">BILLING ADDRESS</span>
+          <span class="address-label">Billing Address</span>
           <h4 class="customer-name">Brooklyn Simmons</h4>
           <span class="customer-address">
             2118 Thornridge Cir. Syracuse, Connecticut 35624, United State
@@ -11,7 +11,7 @@
           <span class="customer-phone">Phone : (239) 555-0108</span>
         </td>
         <td class="shipping-section">
-          <span class="address-label">SHIPPING ADDRESS</span>
+          <span class="address-label">Shipping Address</span>
           <h4 class="customer-name">Cameron Williamson</h4>
           <span class="customer-address-shipping">
             2972 Westheimer Rd. Santa Ana, Illinois 85486

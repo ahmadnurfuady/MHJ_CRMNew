@@ -121,15 +121,15 @@
                   {{ contact.jobTitle || "-" }}
                 </span>
               </td>
-              <td data-label="Proyek">
+              <td data-label="Peluang">
                 <span
-                  v-if="contact.project"
+                  v-if="contactPeluang(contact).length"
                   class="project-badge mhj-cell-ellipsis"
-                  :title="contact.project"
+                  :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
                 >
-                  {{ contact.project }}
+                  {{ contactPeluang(contact).length }} Peluang
                 </span>
-                <span v-else class="empty-value">Belum ada proyek</span>
+                <span v-else class="empty-value">Belum ada peluang</span>
               </td>
               <td data-label="Aktivitas">
                 <span
@@ -234,13 +234,16 @@ import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
+import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
+import type { Projects } from "@/types/project";
 import { getImages } from "@/utils/index";
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );
 const router = useRouter();
 const contactStore = useContact();
+const projectStore = useProjectStore();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
 const { changeContactPage, openContactModal, searchContacts } = contactStore;
 const searchQuery = ref("");
@@ -249,7 +252,7 @@ const contactTableColumns = [
   { label: "Nama", defaultWidth: 300, minWidth: 220 },
   { label: "Rumah Sakit", defaultWidth: 220, minWidth: 140 },
   { label: "Jabatan", defaultWidth: 320, minWidth: 140 },
-  { label: "Proyek", defaultWidth: 110, minWidth: 90 },
+  { label: "Peluang", defaultWidth: 110, minWidth: 90 },
   { label: "Aktivitas", defaultWidth: 120, minWidth: 100 },
   { label: "Terakhir Dihubungi", defaultWidth: 210, minWidth: 160 },
   { label: "Detail", defaultWidth: 140, minWidth: 120 },
@@ -365,6 +368,36 @@ function hospitalLabel(contact: Contact) {
   return contact.company || "-";
 }
 
+/** Peluang terkait rumah sakit kontak, sama seperti ringkasan di halaman detail kontak. */
+const projectsByCompany = computed(() => {
+  const map = new Map<string, Projects[]>();
+  projectStore.items.forEach((project) => {
+    const keys = [
+      project.companyId ? `id:${project.companyId}` : undefined,
+      project.companyName ? `name:${project.companyName.trim().toLowerCase()}` : undefined,
+    ].filter((key): key is string => Boolean(key));
+
+    keys.forEach((key) => {
+      const list = map.get(key) ?? [];
+      list.push(project);
+      map.set(key, list);
+    });
+  });
+  return map;
+});
+
+function contactPeluang(contact: Contact): Projects[] {
+  const companyId = Number(contact.companyId);
+  if (Number.isFinite(companyId) && companyId > 0) {
+    const byId = projectsByCompany.value.get(`id:${companyId}`);
+    if (byId?.length) return byId;
+  }
+
+  const companyName = (contact.company || "").trim().toLowerCase();
+  if (!companyName) return [];
+  return projectsByCompany.value.get(`name:${companyName}`) ?? [];
+}
+
 function parseContactDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -402,6 +435,7 @@ function openContactDetail(contact: Contact) {
 
 onMounted(() => {
   contactStore.initStore();
+  if (!projectStore.loaded) void projectStore.fetchProjects({ per_page: 100 });
 });
 
 onBeforeUnmount(() => {
@@ -891,7 +925,7 @@ onBeforeUnmount(() => {
     font-weight: 700;
     letter-spacing: 0.4px;
     text-align: left;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .contact-table tbody td:first-child {

@@ -99,7 +99,7 @@ export function titleCase(value: string) {
 }
 
 /**
- * Nama proyek disimpan sebagai "PREFIX_Perusahaan_Produk" (lihat ProjectCreate.vue).
+ * Nama peluang disimpan sebagai "PREFIX_Perusahaan_Produk" (lihat ProjectCreate.vue).
  * Ambil segmen terakhir (nama produk) untuk tampilan singkat di card/list.
  */
 export function shortProjectTitle(value?: string): string {

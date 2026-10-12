@@ -2,7 +2,7 @@ export const basicDropdown = [
   {
     color: 'primary',
     title: 'Dashboard',
-    dropdownItem: [{ title: 'Project' }, { title: 'Ecommerce' }, { title: 'Crypto' }],
+    dropdownItem: [{ title: 'Opportunity' }, { title: 'Ecommerce' }, { title: 'Crypto' }],
   },
   {
     color: 'secondary',

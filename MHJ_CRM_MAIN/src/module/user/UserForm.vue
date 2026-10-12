@@ -33,7 +33,7 @@
                 <span>{{ parsedError.title }}</span>
                 <span
                   v-if="parsedError.field"
-                  class="badge badge-light-danger text-uppercase font-monospace"
+                  class="badge badge-light-danger text-capitalize font-monospace"
                   style="font-size: 11px;"
                 >
                   Kolom: {{ parsedError.field }}

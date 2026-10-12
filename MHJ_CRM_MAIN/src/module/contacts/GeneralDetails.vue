@@ -49,8 +49,8 @@
             <strong>{{ contactState.activeContact.jobTitle || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Status</span>
-            <strong>{{ contactState.activeContact.status || "-" }}</strong>
+            <span>Penanggung Jawab</span>
+            <strong>{{ ownerLabel }}</strong>
           </div>
           <div class="col-md-6">
             <span>Email</span>
@@ -60,32 +60,38 @@
             <span>Company</span>
             <strong>{{ companyLabel }}</strong>
           </div>
-          <div class="col-12 col-md-6 contact-phone-field">
+          <div class="col-md-6">
+            <span>Gender</span>
+            <strong>{{ displayValue(contactState.activeContact.gender) }}</strong>
+          </div>
+          <div class="col-12 contact-phone-field">
             <span>Nomor Telepon</span>
-            <div v-if="contactPhoneNumbers.length" class="contact-phone-list">
+            <div v-if="contactPhoneNumbers.length" class="row g-3 contact-phone-list">
               <div
                 v-for="phone in contactPhoneNumbers"
                 :key="phone"
-                class="contact-phone-item"
+                class="col-12 col-md-6"
               >
-                <strong>{{ phone }}</strong>
-                <div class="contact-phone-actions">
-                  <a
-                    :href="indonesianPhoneCallUrl(phone)"
-                    :aria-label="`Telepon ${phone}`"
-                    :title="`Telepon ${phone}`"
-                  >
-                    <vue-feather type="phone" size="16" />
-                  </a>
-                  <a
-                    :href="indonesianWhatsAppUrl(phone)"
-                    :aria-label="`WhatsApp ${phone}`"
-                    :title="`WhatsApp ${phone}`"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <i class="fa-brands fa-whatsapp"></i>
-                  </a>
+                <div class="contact-phone-item">
+                  <strong>{{ phone }}</strong>
+                  <div class="contact-phone-actions">
+                    <a
+                      :href="indonesianPhoneCallUrl(phone)"
+                      :aria-label="`Telepon ${phone}`"
+                      :title="`Telepon ${phone}`"
+                    >
+                      <vue-feather type="phone" size="16" />
+                    </a>
+                    <a
+                      :href="indonesianWhatsAppUrl(phone)"
+                      :aria-label="`WhatsApp ${phone}`"
+                      :title="`WhatsApp ${phone}`"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -97,31 +103,19 @@
           </div>
           <div class="col-md-6">
             <span>Negara</span>
-            <strong>{{ contactState.activeContact.country || "-" }}</strong>
+            <strong>{{ contactLocation.country }}</strong>
           </div>
           <div class="col-md-6">
             <span>Provinsi</span>
-            <strong>{{ contactState.activeContact.province || "-" }}</strong>
+            <strong>{{ contactLocation.province }}</strong>
           </div>
           <div class="col-md-6">
             <span>Kota</span>
-            <strong>{{ displayValue(contactState.activeContact.city) }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Kode Pos</span>
-            <strong>{{ contactState.activeContact.posCode || "-" }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Kode Kelurahan</span>
-            <strong>{{ contactState.activeContact.kdKelurahan || "-" }}</strong>
+            <strong>{{ contactLocation.city }}</strong>
           </div>
           <div class="col-md-6">
             <span>Source</span>
             <strong>{{ sourceLabel }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Status Aktif</span>
-            <strong>{{ contactState.activeContact.aktif === 1 ? "Aktif" : "Tidak aktif" }}</strong>
           </div>
         </div>
       </div>
@@ -134,7 +128,7 @@
         <div>
           <h5 class="mb-1">Detail Perusahaan</h5>
           <p class="text-muted mb-0">
-            Ringkasan perusahaan dan aktivitas proyek
+            Ringkasan perusahaan dan aktivitas peluang
           </p>
         </div>
 
@@ -212,7 +206,7 @@
                 :title="summary.stage"
                 >{{ summary.stage }}</span
               >
-              <h4 class="stage-count mb-1">{{ summary.quantity }} Proyek</h4>
+              <h4 class="stage-count mb-1">{{ summary.quantity }} Peluang</h4>
               <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
                 {{ formatCurrency(summary.value) }}
               </p>
@@ -222,7 +216,7 @@
 
         <div class="card border mb-4">
           <div class="card-header pb-2">
-            <h6 class="mb-0">Proyek Berjalan per Stage</h6>
+            <h6 class="mb-0">Peluang Berjalan per Stage</h6>
           </div>
           <div class="card-body pt-3">
             <template v-if="groupedProjects.length">
@@ -238,7 +232,7 @@
                     group.stage
                   }}</span>
                   <small class="text-muted"
-                    >{{ group.projects.length }} proyek</small
+                    >{{ group.projects.length }} peluang</small
                   >
                 </div>
                 <div class="list-group">
@@ -266,7 +260,7 @@
             </template>
             <div v-else class="empty-company-section">
               <vue-feather type="folder" size="20" />
-              <span>Belum ada proyek berjalan untuk perusahaan ini.</span>
+              <span>Belum ada peluang berjalan untuk perusahaan ini.</span>
             </div>
           </div>
         </div>
@@ -334,6 +328,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 import { companyDetails, type CompanyDetail } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
@@ -348,11 +343,17 @@ import {
 } from "@/utils/indonesianPhone";
 
 const contactStore = useContact();
+const router = useRouter();
 const authStore = useAuthStore();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
-const { editContact, deleteContact, showHistory, printContact } = contactStore;
+const { editContact, showHistory, printContact } = contactStore;
+
+async function deleteContact() {
+  const deleted = await contactStore.deleteContact();
+  if (deleted) await router.push(routes.App.Contacts);
+}
 
 const fullName = computed(() =>
   `${contactState.value.activeContact?.firstName || ""} ${contactState.value.activeContact?.lastName || ""}`.trim(),
@@ -389,6 +390,19 @@ const companyLabel = computed(() => {
     (contact?.companyId ? `Company ID ${contact.companyId}` : "-")
   );
 });
+const ownerLabel = computed(() => {
+  const contact = contactState.value.activeContact;
+  const directOwner = String(contact?.owner || "").trim();
+  if (directOwner && directOwner !== "-") return directOwner;
+
+  const createdById = Number(contact?.createdById);
+  if (!Number.isFinite(createdById) || createdById <= 0) return "-";
+
+  const owner = projectStore.lookups.owner.find(
+    (option) => Number(option.value) === createdById,
+  );
+  return owner?.label || "-";
+});
 const sourceLabel = computed(() => {
   const contact = contactState.value.activeContact;
   return contact?.source || (contact?.sourceId ? `Source ID ${contact.sourceId}` : "-");
@@ -397,6 +411,23 @@ function displayValue(value: unknown) {
   const normalized = String(value ?? "").trim();
   return normalized && normalized !== "-" ? normalized : "-";
 }
+function firstDisplayValue(...values: unknown[]) {
+  const value = values.find((item) => {
+    const normalized = String(item ?? "").trim();
+    return normalized && normalized !== "-";
+  });
+  return displayValue(value);
+}
+const contactLocation = computed(() => {
+  const contact = contactState.value.activeContact;
+  const company = liveCompany.value;
+
+  return {
+    country: firstDisplayValue(contact?.country, company?.country),
+    province: firstDisplayValue(contact?.province, company?.province),
+    city: firstDisplayValue(contact?.city, company?.city),
+  };
+});
 const companyDetail = computed<CompanyDetail | undefined>(() => {
   const contact = contactState.value.activeContact;
   if (!contact) return undefined;
@@ -667,7 +698,7 @@ async function toggleCompanyEdit() {
 .contact-info-grid span {
   color: var(--bs-secondary-color);
   font-size: 12px;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 .contact-info-grid strong,
 .contact-info-grid a {
@@ -680,21 +711,14 @@ async function toggleCompanyEdit() {
 }
 
 .contact-phone-list {
-  display: grid;
-  gap: 8px;
-  margin-top: 2px;
+  margin-top: -12px;
 }
 
 .contact-phone-item {
   display: flex;
-  min-height: 42px;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border: 1px solid #e7edf2;
-  border-radius: 10px;
-  padding: 7px 9px 7px 14px;
-  background: #f7f9fc;
+  justify-content: flex-start;
+  gap: 8px;
 }
 
 .contact-phone-item strong {
@@ -708,18 +732,18 @@ async function toggleCompanyEdit() {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 5px;
+  gap: 2px;
 }
 
 .contact-phone-actions a {
   display: inline-flex;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 6px;
   color: #17212b;
-  background: #ffffff;
+  background: transparent;
   text-decoration: none;
 }
 
@@ -811,5 +835,6 @@ async function toggleCompanyEdit() {
   .contact-danger-zone .btn {
     width: 100%;
   }
+
 }
 </style>

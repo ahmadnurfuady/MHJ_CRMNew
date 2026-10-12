@@ -195,7 +195,7 @@ watch(
   align-items: center;
   font-size: 0.75rem;
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.5px;
   color: #6c757d;
   margin-bottom: 0.25rem;
@@ -257,7 +257,7 @@ watch(
   font-size: 0.75rem;
   font-weight: 700;
   color: #032A4E;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.4px;
   padding: 0.2rem 0.5rem;
   background: rgba(3, 42, 78, 0.06);

@@ -60,10 +60,17 @@ export interface ContactCrudPayload {
   telephone_1: string;
   telephone_2: string | null;
   address: string | null;
+  country: string | null;
   province: string | null;
   city: string | null;
+  pos_code: string | null;
   /** Nama key mengikuti ContactController, lalu diteruskan ke @kd_kelurahan pada SP. */
   kelurahan: string | null;
+  gender: string | null;
+  project_name: string | null;
+  project_id: number | null;
+  latitude: number | null;
+  longitude: number | null;
   /** Nama key mengikuti ContactController, lalu diteruskan ke @source_id pada SP. */
   source: number | null;
   created_by: number | null;
@@ -78,6 +85,12 @@ function nullableId(value: unknown): number | null {
   if (value === undefined || value === null || value === "") return null;
   const id = Number(value);
   return Number.isSafeInteger(id) && id >= 0 ? id : null;
+}
+
+function nullableNumber(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 }
 
 function findStoredProcedureError(payload: unknown, depth = 0): string | null {
@@ -104,6 +117,19 @@ function findStoredProcedureError(payload: unknown, depth = 0): string | null {
 function assertStoredProcedureSucceeded(payload: unknown) {
   const message = findStoredProcedureError(payload);
   if (message) throw new Error(message);
+}
+
+/** Pertahankan field terbaru ketika endpoint detail belum mengembalikan kolom tambahan. */
+function applySavedContactPayload(contact: Contact, payload: ContactCrudPayload) {
+  contact.createdById = payload.created_by ?? contact.createdById;
+  if (payload.gender) contact.gender = payload.gender;
+  if (payload.country) contact.country = payload.country;
+  if (payload.province) contact.province = payload.province;
+  if (payload.city) contact.city = payload.city;
+  if (payload.project_name) contact.project = payload.project_name;
+  if (payload.project_id !== null) contact.projectId = String(payload.project_id);
+  if (payload.latitude !== null) contact.latitude = payload.latitude;
+  if (payload.longitude !== null) contact.longitude = payload.longitude;
 }
 
 /** Menemukan satu row contact pada response detail yang mungkin dibungkus data/contact. */
@@ -209,23 +235,50 @@ function normalizeApiContact(raw: Dict): Contact {
     jobTitle: pickString(raw, "job_title", "jobTitle"),
     companyId: pickString(raw, "company_id", "Company ID"),
     sourceId: pickString(raw, "source_id", "Source ID"),
-    status: pickString(raw, "status_name", "Status Name", "status", "Status"),
+    status: pickString(raw, "statusname", "status_name", "Status Name", "status", "Status"),
     statusId: nullableId(raw.status) ?? undefined,
-    createdById: nullableId(raw.created_by) ?? undefined,
+    createdById:
+      nullableId(
+        pickString(
+          raw,
+          "created_by",
+          "created_by_id",
+          "createdby",
+          "leader_id",
+          "owner_id",
+          "penanggung_jawab_id",
+          "input_by",
+          "user_id",
+        ),
+      ) ?? undefined,
     telephone1: phone1,
     telephone2: phone2,
-    owner: pickString(raw, "owner"),
+    owner: pickString(
+      raw,
+      "owner_name",
+      "created_by_name",
+      "createdby_name",
+      "input_by_name",
+      "penanggung_jawab",
+      "leader_name",
+      "username",
+      "owner",
+    ),
     phoneNumbers: splitPhoneNumbers(phone1, phone2),
     mapAddress: pickString(raw, "mapAddress", "map_address"),
     address: pickString(raw, "address", "Address"),
     country: pickString(raw, "country", "Country"),
     province: pickString(raw, "province", "Province"),
     posCode: pickString(raw, "pos_code", "Pos Code"),
-    kdKelurahan: pickString(raw, "kd_kelurahan", "Kd Kelurahan"),
+    kdKelurahan: pickString(raw, "kd_kelurahan", "kelurahan", "Kd Kelurahan"),
     aktif: pickNumber(raw, "aktif", "Aktif"),
     source: pickString(raw, "sourcename", "source_name", "source"),
     company: pickString(raw, "company_name", "Company Name", "company"),
     project: pickString(raw, "projects_name", "project_name", "Project Name", "project"),
+    projectId: pickString(raw, "project_id", "Project ID", "projectId"),
+    latitude: nullableNumber(pickString(raw, "latitude", "Latitude")) ?? undefined,
+    longitude: nullableNumber(pickString(raw, "longitude", "Longitude")) ?? undefined,
+    createdAt: pickString(raw, "created_at", "Created At", "createdAt"),
     lastActivity: pickString(
       raw,
       "last_activity",
@@ -261,9 +314,13 @@ export const useContact = defineStore("contact", () => {
     phoneNumbers: [initInputField()],
     mapAddress: initInputField(),
     address: initInputField(),
+    country: initInputField(),
+    posCode: initInputField(),
     kdKelurahan: initInputField(),
     province: initSelectField(),
     city: initSelectField(),
+    latitude: initInputField(),
+    longitude: initInputField(),
     source: initSelectField(),
     gender: initSelectField(),
     company: initSelectField(),
@@ -601,6 +658,11 @@ export const useContact = defineStore("contact", () => {
         if (!raw) return undefined;
 
         const detailedContact = normalizeApiContact(raw);
+        const existingContact = contactApi.items.find((item) => item.remoteId === remoteId);
+        detailedContact.createdById ??= existingContact?.createdById;
+        if (!detailedContact.owner || detailedContact.owner === "-") {
+          detailedContact.owner = existingContact?.owner;
+        }
 
         // Detail contact kadang hanya membawa company_id. Ambil nama company untuk UI.
         const companyId = Number(detailedContact.companyId);
@@ -696,10 +758,15 @@ export const useContact = defineStore("contact", () => {
 
         if (createdId > 0) {
           try {
-            return await fetchRemoteContactById(createdId);
+            const createdContact = await fetchRemoteContactById(createdId);
+            if (createdContact) applySavedContactPayload(createdContact, payload);
+            return createdContact;
           } catch {
             await fetchRemoteContacts();
-            return contactApi.items.find((item) => item.remoteId === createdId);
+            const createdContact = contactApi.items.find((item) => item.remoteId === createdId);
+            if (createdContact) applySavedContactPayload(createdContact, payload);
+            syncRemoteContacts();
+            return createdContact;
           }
         }
 
@@ -725,9 +792,12 @@ export const useContact = defineStore("contact", () => {
         assertStoredProcedureSucceeded(response.data);
 
         try {
-          await fetchRemoteContactById(remoteId);
+          const updatedContact = await fetchRemoteContactById(remoteId);
+          if (updatedContact) applySavedContactPayload(updatedContact, payload);
         } catch {
           await fetchRemoteContacts();
+          const updatedContact = contactApi.items.find((item) => item.remoteId === remoteId);
+          if (updatedContact) applySavedContactPayload(updatedContact, payload);
         }
         syncRemoteContacts();
       },
@@ -757,9 +827,16 @@ export const useContact = defineStore("contact", () => {
           telephone_1: contact?.telephone1 || contact?.contactNumber || "",
           telephone_2: nullableText(contact?.telephone2),
           address: nullableText(contact?.address),
+          country: nullableText(contact?.country),
           province: nullableText(contact?.province),
           city: nullableText(contact?.city),
+          pos_code: nullableText(contact?.posCode),
           kelurahan: nullableText(contact?.kdKelurahan),
+          gender: nullableText(contact?.gender),
+          project_name: nullableText(contact?.project),
+          project_id: nullableId(contact?.projectId),
+          latitude: nullableNumber(contact?.latitude),
+          longitude: nullableNumber(contact?.longitude),
           source: nullableId(contact?.sourceId),
           created_by: contact?.createdById ?? null,
         };
@@ -845,79 +922,79 @@ export const useContact = defineStore("contact", () => {
   }
 
   /** Menghapus kontak aktif. Data dari backend dihapus lewat API, data lokal dihapus dari daftar. */
-  function deleteContact() {
+  async function deleteContact(): Promise<boolean> {
     const target = contactState.activeContact;
 
     if (target?.origin && target.remoteId !== undefined) {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "This data will be deleted from the database.",
+      const result = await Swal.fire({
+        title: "Hapus kontak?",
+        text: "Data kontak ini akan dihapus dari database.",
         icon: "warning",
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: "Ya, hapus",
         showCancelButton: true,
-        cancelButtonText: "No, keep it",
+        cancelButtonText: "Batal",
         cancelButtonColor: "#898989",
-      }).then(async (result) => {
-        if (!result.isConfirmed || target.remoteId === undefined) return;
-
-        try {
-          if (target.origin === "hospital") {
-            await hospitalStore.deleteHospital(target.remoteId);
-          } else {
-            await removeRemoteContact(target.remoteId, target);
-          }
-          syncRemoteContacts();
-        } catch {
-          notifyError(
-            (target.origin === "hospital" ? hospitalStore.error : contactError.value) ??
-              "Gagal menghapus data.",
-          );
-        }
       });
-      return;
+      if (!result.isConfirmed || target.remoteId === undefined) return false;
+
+      try {
+        if (target.origin === "hospital") {
+          await hospitalStore.deleteHospital(target.remoteId);
+        } else {
+          await removeRemoteContact(target.remoteId, target);
+        }
+        syncRemoteContacts();
+        return true;
+      } catch {
+        notifyError(
+          (target.origin === "hospital" ? hospitalStore.error : contactError.value) ??
+            "Gagal menghapus data.",
+        );
+        return false;
+      }
     }
 
-    deleteLocalContact();
+    return deleteLocalContact();
   }
 
-  function deleteLocalContact() {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "This contact will be deleted from your personal contacts and from the chat list too.",
+  async function deleteLocalContact(): Promise<boolean> {
+    const result = await Swal.fire({
+      title: "Hapus kontak?",
+      text: "Kontak ini akan dihapus dari daftar kontak pribadi dan daftar percakapan.",
       icon: "warning",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Ya, hapus",
       showCancelButton: true,
-      cancelButtonText: "No, keep it",
+      cancelButtonText: "Batal",
       cancelButtonColor: "#898989",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const deletedIndex = filteredContact.value?.findIndex(
-          (contact) =>
-            contact.id ===
-            (contactState.activeContact ? contactState.activeContact.id : 1),
-        );
+    });
+    if (!result.isConfirmed) return false;
 
-        contactState.contactList = contactState.contactList.filter(
-          (contact) =>
-            contact.id !==
-            (contactState.activeContact ? contactState.activeContact.id : 1),
-        );
+    const deletedIndex = filteredContact.value?.findIndex(
+      (contact) =>
+        contact.id ===
+        (contactState.activeContact ? contactState.activeContact.id : 1),
+    );
 
-        const updatedContacts = filteredContact.value;
+    contactState.contactList = contactState.contactList.filter(
+      (contact) =>
+        contact.id !==
+        (contactState.activeContact ? contactState.activeContact.id : 1),
+    );
 
-        if (updatedContacts && updatedContacts.length > 0) {
-          if (deletedIndex && deletedIndex >= updatedContacts.length) {
-            contactState.activeContact = updatedContacts[0];
-          } else {
-            if (deletedIndex) {
-              contactState.activeContact = updatedContacts[deletedIndex];
-            } else {
-              contactState.activeContact = updatedContacts[0];
-            }
-          }
+    const updatedContacts = filteredContact.value;
+
+    if (updatedContacts && updatedContacts.length > 0) {
+      if (deletedIndex && deletedIndex >= updatedContacts.length) {
+        contactState.activeContact = updatedContacts[0];
+      } else {
+        if (deletedIndex) {
+          contactState.activeContact = updatedContacts[deletedIndex];
+        } else {
+          contactState.activeContact = updatedContacts[0];
         }
       }
-    });
+    }
+    return true;
   }
 
   function showHistory() {
@@ -943,9 +1020,13 @@ export const useContact = defineStore("contact", () => {
       "contactType",
       "mapAddress",
       "address",
+      "country",
+      "posCode",
       "kdKelurahan",
       "province",
       "city",
+      "latitude",
+      "longitude",
       "source",
       "gender",
       "company",
@@ -965,6 +1046,8 @@ export const useContact = defineStore("contact", () => {
     if (!validation.isValid || !phoneNumbersValid) return;
 
     const formData = validation.formData;
+    const selectedGender = contactState.contactForm.gender.selected;
+    const selectedProject = contactState.contactForm.project.selected;
     try {
       // Payload mengikuti parameter dbo.sp_contacts_crud secara eksplisit.
       const payload: ContactCrudPayload = {
@@ -978,9 +1061,16 @@ export const useContact = defineStore("contact", () => {
         telephone_1: normalizedPhoneNumbers[0] ?? "",
         telephone_2: normalizedPhoneNumbers.slice(1).join(", ") || null,
         address: nullableText(formData.address),
+        country: nullableText(formData.country),
         province: nullableText(formData.province),
         city: nullableText(formData.city),
+        pos_code: nullableText(formData.posCode),
         kelurahan: nullableText(formData.kdKelurahan),
+        gender: nullableText(selectedGender?.label || formData.gender),
+        project_name: nullableText(selectedProject?.label || formData.project),
+        project_id: nullableId(selectedProject?.value),
+        latitude: nullableNumber(formData.latitude),
+        longitude: nullableNumber(formData.longitude),
         source: nullableId(formData.source),
         created_by: nullableId(formData.owner),
       };

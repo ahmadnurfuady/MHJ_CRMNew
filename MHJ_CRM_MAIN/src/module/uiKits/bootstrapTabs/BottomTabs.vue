@@ -37,7 +37,7 @@
               <p>
                 To improve the development of your website, find a carefully chosen list of premier
                 suppliers. Use our dependable network to locate the ideal partners for the
-                accomplishment of your project.
+                accomplishment of your opportunity.
               </p>
             </div>
             <div class="tab-paragraph">

@@ -53,7 +53,7 @@ export const defaultEvents = [
   },
   {
     id: 9,
-    title: 'Group Projects',
+    title: 'Group Opportunities',
     icon: 'fa-users',
   },
 ]

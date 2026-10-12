@@ -98,7 +98,7 @@
               <td data-label="Total Kontak" class="text-center">
                 <span class="metric-badge">{{ formatMetric(hospital.totalContacts) }}</span>
               </td>
-              <td data-label="Total Proyek" class="text-center">
+              <td data-label="Total Peluang" class="text-center">
                 <span class="metric-badge">{{ formatMetric(projectTotal(hospital)) }}</span>
               </td>
               <td data-label="Alat Terpasang" class="text-center">
@@ -216,7 +216,7 @@ const hospitalTableColumns = [
   { label: "Kelas", defaultWidth: 110, minWidth: 90, center: false },
   { label: "Jenis Rumah Sakit", defaultWidth: 180, minWidth: 130, center: false },
   { label: "Total Kontak", defaultWidth: 120, minWidth: 110, center: true },
-  { label: "Total Proyek", defaultWidth: 120, minWidth: 110, center: true },
+  { label: "Total Peluang", defaultWidth: 120, minWidth: 110, center: true },
   { label: "Alat Terpasang", defaultWidth: 130, minWidth: 110, center: true },
   { label: "Kunjungan Terakhir", defaultWidth: 180, minWidth: 150, center: false },
   { label: "Detail", defaultWidth: 140, minWidth: 120, center: true },
@@ -762,7 +762,7 @@ onBeforeUnmount(() => {
     font-weight: 700;
     letter-spacing: 0.4px;
     text-align: left;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .hospital-table tbody td:first-child {

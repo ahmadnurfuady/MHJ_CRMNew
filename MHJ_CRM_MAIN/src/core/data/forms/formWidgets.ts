@@ -846,7 +846,7 @@ export const flagSelection = [
   { value: 'Reunion', code: 'RE' },
   { value: 'Romania', code: 'RO' },
   { value: 'Russian Federation', code: 'RU' },
-  { value: 'RWANDA', code: 'RW' },
+  { value: 'Rwanda', code: 'RW' },
   { value: 'Saint Helena', code: 'SH' },
   { value: 'Saint Kitts and Nevis', code: 'KN' },
   { value: 'Saint Lucia', code: 'LC' },

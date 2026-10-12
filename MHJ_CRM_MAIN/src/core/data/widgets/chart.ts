@@ -155,7 +155,7 @@ export const commonLineCharts: CommonLineCharts[] = [
   },
   {
     id: 2,
-    title: 'Total Project',
+    title: 'Total Opportunity',
     value: '12569',
     description: 'Compare to last week',
     increaseValue: '+65%',
@@ -738,7 +738,7 @@ export const widgetsChart13: ApexOptions = {
 
 export const widgetsChartSeries14: ApexOptions['series'] = [
   {
-    name: 'STOCK ABC',
+    name: 'Stock Abc',
     data: monthDataSeries1[0].prices,
   },
 ]

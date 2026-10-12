@@ -16,7 +16,7 @@
             id="task-search-input"
             v-model="searchQuery"
             type="search"
-            placeholder="Cari tugas, rumah sakit, proyek, atau owner..."
+            placeholder="Cari tugas, rumah sakit, peluang, atau owner..."
             autocomplete="off"
           />
           <span
@@ -123,11 +123,11 @@
                 </div>
               </td>
 
-              <td data-label="Proyek">
+              <td data-label="Peluang">
                 <span v-if="item.projectName" class="project-badge" :title="item.projectName">
                   {{ item.projectName }}
                 </span>
-                <span v-else class="empty-value">Tanpa proyek</span>
+                <span v-else class="empty-value">Tanpa peluang</span>
               </td>
 
               <td data-label="Jadwal">
@@ -270,7 +270,7 @@ const searchQuery = ref('')
 const taskTableColumns = [
   { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Rumah Sakit', defaultWidth: 220, minWidth: 140, center: false },
-  { label: 'Proyek', defaultWidth: 180, minWidth: 120, center: false },
+  { label: 'Peluang', defaultWidth: 180, minWidth: 120, center: false },
   { label: 'Jadwal', defaultWidth: 170, minWidth: 140, center: false },
   { label: 'Owner', defaultWidth: 170, minWidth: 130, center: false },
   { label: 'Pipeline', defaultWidth: 180, minWidth: 140, center: false },
@@ -954,7 +954,7 @@ onBeforeUnmount(() => {
     font-weight: 700;
     letter-spacing: 0.4px;
     text-align: left;
-    text-transform: uppercase;
+    text-transform: capitalize;
   }
 
   .task-table tbody td:first-child {

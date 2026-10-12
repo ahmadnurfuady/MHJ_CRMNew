@@ -5,7 +5,7 @@
     ><span>Email : yourmail&#64;themesforest.com</span><span>Website: www.websites.com</span>
   </td>
   <td>
-    <h4>INVOICE</h4>
+    <h4>Invoice</h4>
     <span>Bank Transfer</span><span>Leslie Alexander</span><span>Bank Account : 0981234098765</span
     ><span>Code : LEF098756</span>
   </td>

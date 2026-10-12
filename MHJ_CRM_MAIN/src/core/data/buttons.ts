@@ -158,7 +158,7 @@ export const commonButtons: ButtonGroup[] = [
       },
       {
         class: 'btn-pill button-light-danger',
-        text: 'Project',
+        text: 'Opportunity',
       },
       {
         class: 'btn-pill button-light-light',
@@ -195,7 +195,7 @@ export const commonButtons: ButtonGroup[] = [
       },
       {
         class: 'btn-pill btn-outline-danger',
-        text: 'Project',
+        text: 'Opportunity',
       },
       {
         class: 'btn-pill btn-outline-light',

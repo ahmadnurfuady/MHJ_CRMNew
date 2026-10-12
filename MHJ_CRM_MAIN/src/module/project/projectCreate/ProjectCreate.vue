@@ -4,13 +4,13 @@
       <div class="col-12">
         <div class="card create-project-form custom-input">
           <div class="card-body">
-            <h5 class="mb-3">{{ isEditMode ? 'Edit Proyek' : 'Tambah Proyek Baru' }}</h5>
+            <h5 class="mb-3">{{ isEditMode ? 'Edit Peluang' : 'Tambah Peluang Baru' }}</h5>
             <div v-if="loadingProject" class="text-center py-5">
               <span class="spinner-border text-primary" role="status"></span>
             </div>
             <form v-else class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
               <div class="col-12">
-                <InputWrapper :title="'Proyek Name'">
+                <InputWrapper :title="'Nama Peluang'">
                   <InputField
                     :modelValue="projectNameField"
                     :inputId="'project-name'"
@@ -212,7 +212,7 @@
                     <div>
                       <h6 class="mb-1">Timeline</h6>
                       <p class="mb-0 text-muted small">
-                        Catat meeting, demo, follow up, dan aktivitas proyek.
+                        Catat meeting, demo, follow up, dan aktivitas peluang.
                       </p>
                     </div>
                     <button
@@ -283,7 +283,7 @@
                       class="spinner-border spinner-border-sm me-2"
                       aria-hidden="true"
                     />
-                    {{ isEditMode ? 'Simpan Perubahan' : 'Tambah Proyek' }}
+                    {{ isEditMode ? 'Simpan Perubahan' : 'Tambah Peluang' }}
                   </button>
                 </div>
               </div>
@@ -623,7 +623,7 @@ function parseProductNames(raw?: string): string[] {
     .filter(Boolean)
 }
 
-/** Isi ulang form dari data proyek existing saat edit, memetakan id/nama ke opsi dropdown. */
+/** Isi ulang form dari data peluang existing saat edit, memetakan id/nama ke opsi dropdown. */
 async function prefillForm(project: Projects) {
   prefilling.value = true
 
@@ -703,7 +703,7 @@ onMounted(async () => {
     } else {
       Swal.fire({
         icon: 'error',
-        text: projectStore.error ?? 'Data proyek tidak ditemukan.',
+        text: projectStore.error ?? 'Data peluang tidak ditemukan.',
         confirmButtonColor: 'var(--theme-default)',
       })
     }
@@ -731,7 +731,7 @@ onMounted(async () => {
         hospitalStore.error ??
         contactStore.contactApi.error ??
         projectStore.error ??
-        'Sebagian data pendukung proyek gagal dimuat.',
+        'Sebagian data pendukung peluang gagal dimuat.',
       confirmButtonColor: 'var(--theme-default)',
     })
   }
@@ -801,7 +801,7 @@ async function handleSubmit() {
   if (!projectName.value || projectName.value.length > 500) {
     await Swal.fire({
       icon: 'error',
-      text: 'Proyek Name wajib diisi dan maksimal 500 karakter.',
+      text: 'Nama Peluang wajib diisi dan maksimal 500 karakter.',
       confirmButtonColor: 'var(--theme-default)',
     })
     return
@@ -846,7 +846,7 @@ async function handleSubmit() {
       await projectStore.updateProject(editingId.value, payload)
       await Swal.fire({
         icon: 'success',
-        title: 'Proyek berhasil diperbarui',
+        title: 'Peluang berhasil diperbarui',
         confirmButtonColor: 'var(--theme-default)',
       })
       router.push({
@@ -857,7 +857,7 @@ async function handleSubmit() {
       await projectStore.createProject(payload)
       await Swal.fire({
         icon: 'success',
-        title: 'Proyek berhasil ditambahkan',
+        title: 'Peluang berhasil ditambahkan',
         confirmButtonColor: 'var(--theme-default)',
       })
       router.push(routes.Project.ProjectList)
@@ -865,7 +865,7 @@ async function handleSubmit() {
   } catch {
     Swal.fire({
       icon: 'error',
-      text: projectStore.error ?? (isEditMode.value ? 'Gagal memperbarui proyek.' : 'Gagal menyimpan proyek.'),
+      text: projectStore.error ?? (isEditMode.value ? 'Gagal memperbarui peluang.' : 'Gagal menyimpan peluang.'),
       confirmButtonColor: 'var(--theme-default)',
     })
   }

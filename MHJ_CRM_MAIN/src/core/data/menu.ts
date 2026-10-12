@@ -27,7 +27,7 @@ export const menu: MenuItem[] = [
       },
       {
         path: routes.Dashboards.Project,
-        title: 'Proyek ',
+        title: 'Peluang',
         type: 'link',
       },
     ],
@@ -37,7 +37,7 @@ export const menu: MenuItem[] = [
     type: 'headtitle',
   },
   {
-    title: 'proyek',
+    title: 'Peluang',
     icon: 'project',
     type: 'sub',
     isPinned: false,
@@ -46,19 +46,19 @@ export const menu: MenuItem[] = [
     children: [
       {
         path: routes.Project.ProjectList,
-        title: 'Proyek List',
+        title: 'Daftar Peluang',
         type: 'link',
       },
       {
         path: routes.Project.ProjectDetails,
-        title: 'Proyek Details',
+        title: 'Detail Peluang',
         badgeType: 'warning',
         badge: 'New',
         type: 'link',
       },
       {
         path: routes.Project.ProjectDetailsV2,
-        title: 'Proyek Detail Ver2',
+        title: 'Detail Peluang V2',
         type: 'link',
       },
       {

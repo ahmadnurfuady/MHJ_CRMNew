@@ -12,13 +12,13 @@
               aria-expanded="true"
               aria-controls="collapseOne-a"
             >
-              NET BANKING
+              Net Banking
               <vue-feather :type="'chevron-down'" :class="'svg-color'" />
             </button>
           </h2>
           <div class="accordion-collapse collapse show" id="collapseOne-a">
             <div class="accordion-body weight-title card-wrapper">
-              <h6 class="sub-title f-14">SELECT YOUR BANK</h6>
+              <h6 class="sub-title f-14">Select Your Bank</h6>
               <div class="row choose-bank">
                 <div class="col-sm-6" v-for="(banks, index) in netBanking" :key="index">
                   <div

@@ -1077,7 +1077,7 @@ export const withoutBorderStyle: WithoutBorderStyle[] = [
     price: '$50',
     speed: 'Hired',
     badgeClass: 'info',
-    description: 'Plans for 2 years projects offered to new clients.',
+    description: 'Plans for 2 years of opportunities offered to new clients.',
     checkboxClass: 'checkbox-info',
   },
 ]

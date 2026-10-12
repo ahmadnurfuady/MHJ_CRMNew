@@ -202,7 +202,6 @@
               />
             </InputWrapper>
           </div>
-
           <div class="col-md-6">
             <InputWrapper :title="t('contacts.source')">
               <Select
@@ -286,7 +285,7 @@ import {
 import {
   geolocationErrorMessage,
   getCurrentPosition,
-  reverseGeocodeAddress,
+  reverseGeocodeLocation,
 } from "@/services/geocoding";
 import type { Contact } from "@/types/contacts";
 
@@ -327,7 +326,7 @@ const ownerOptions = computed(() => projectStore.lookups.owner);
 const companyOptions = computed(() =>
   hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name })),
 );
-// GET /api/project (sama dengan daftar di halaman Proyek List).
+// GET /api/project (sama dengan daftar di halaman Peluang List).
 const projectOptions = computed(() =>
   projectStore.items.map((project) => ({ value: project.id, label: project.projectName })),
 );
@@ -420,18 +419,62 @@ function removePhone(index: number) {
   contactState.value.contactForm.phoneNumbers.splice(index, 1);
 }
 
+function normalizeRegionName(value: string) {
+  return value
+    .trim()
+    .toLocaleLowerCase("id-ID")
+    .replace(/^(kota|kabupaten)\s+/, "");
+}
+
+function setLocationRegions(provinceName: string, cityName: string) {
+  const province = provinceOptions.value.find(
+    (option) => normalizeRegionName(option.label) === normalizeRegionName(provinceName),
+  ) ?? (provinceName ? { value: provinceName, label: provinceName } : undefined);
+
+  contactState.value.contactForm.province = province
+    ? {
+        selected: province,
+        data: province.label,
+        selectedItems: [],
+        errorMessage: "",
+        type: "dropdown",
+      }
+    : initSelectField();
+
+  const cityPool = province ? cityOptionsByProvince.value[province.label] || [] : [];
+  const city = cityPool.find(
+    (option) => normalizeRegionName(option.label) === normalizeRegionName(cityName),
+  ) ?? (cityName ? { value: cityName, label: cityName } : undefined);
+
+  contactState.value.contactForm.city = city
+    ? {
+        selected: city,
+        data: city.label,
+        selectedItems: [],
+        errorMessage: "",
+        type: "dropdown",
+      }
+    : initSelectField();
+}
+
 async function captureCurrentAddress() {
   locationError.value = "";
   locatingAddress.value = true;
 
   try {
     const position = await getCurrentPosition();
-    const address = await reverseGeocodeAddress(
+    const location = await reverseGeocodeLocation(
       position.coords.latitude,
       position.coords.longitude,
     );
-    contactState.value.contactForm.mapAddress.data = address;
-    contactState.value.contactForm.address.data = address;
+    contactState.value.contactForm.mapAddress.data = location.address;
+    contactState.value.contactForm.address.data = location.address;
+    contactState.value.contactForm.latitude.data = String(position.coords.latitude);
+    contactState.value.contactForm.longitude.data = String(position.coords.longitude);
+    contactState.value.contactForm.country.data = location.country;
+    contactState.value.contactForm.posCode.data = location.posCode;
+    contactState.value.contactForm.kdKelurahan.data = "";
+    setLocationRegions(location.province, location.city);
   } catch (error) {
     locationError.value = geolocationErrorMessage(error);
   } finally {
@@ -442,6 +485,11 @@ async function captureCurrentAddress() {
 function clearCurrentAddress() {
   contactState.value.contactForm.mapAddress.data = "";
   contactState.value.contactForm.address.data = "";
+  contactState.value.contactForm.latitude.data = "";
+  contactState.value.contactForm.longitude.data = "";
+  contactState.value.contactForm.country.data = "";
+  contactState.value.contactForm.posCode.data = "";
+  contactState.value.contactForm.kdKelurahan.data = "";
   locationError.value = "";
 }
 

@@ -11,7 +11,7 @@
           login information.
         </p>
       </div>
-      <router-link class="btn btn-warning-gradien btn-lg" to="/">BACK TO HOME PAGE</router-link>
+      <router-link class="btn btn-warning-gradien btn-lg" to="/">Back To Home Page</router-link>
     </div>
   </div>
 </template>

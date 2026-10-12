@@ -6,7 +6,7 @@ export const animatedTimeline: AnimatedTimeline[] = [
     events: [
       {
         id: 1,
-        title: 'Project malabo',
+        title: 'Opportunity malabo',
         description:
           'The goal of this January initiative was to enhance the online theme experience for customers.',
       },
@@ -29,12 +29,12 @@ export const animatedTimeline: AnimatedTimeline[] = [
         id: 4,
         title: 'Mofi Goal',
         description:
-          'Project Mofi was introduced in May with the goal of improving tools for internal communication.',
+          'Opportunity Mofi was introduced in May with the goal of improving tools for internal communication.',
       },
       {
         id: 5,
         title: 'Planning',
-        description: 'Creating a team and planning the project.',
+        description: 'Creating a team and planning the opportunity.',
       },
       {
         id: 6,
@@ -50,12 +50,12 @@ export const animatedTimeline: AnimatedTimeline[] = [
         id: 7,
         title: 'Goal',
         description:
-          'The goal of Project Tivo, which was introduced in January, is to improve consumer interaction through a mobile app.',
+          'The goal of Opportunity Tivo, which was introduced in January, is to improve consumer interaction through a mobile app.',
       },
       {
         id: 8,
-        title: 'Project Launch',
-        description: 'Market study and project launch in January.',
+        title: 'Opportunity Launch',
+        description: 'Market study and opportunity launch in January.',
       },
       {
         id: 9,
@@ -69,7 +69,7 @@ export const animatedTimeline: AnimatedTimeline[] = [
     events: [
       {
         id: 10,
-        title: 'Project Zeta',
+        title: 'Opportunity Zeta',
         description: 'Dedicated to improving cybersecurity, it was launched in August.',
       },
       {
@@ -102,7 +102,7 @@ export const basicTimeline = [
     date: '22 March 2025',
     time: '3:45 PM',
     title: 'Discussion with marketing Team',
-    description: 'discussion with the marketing staff on the success of the most recent project',
+    description: 'discussion with the marketing staff on the success of the most recent opportunity',
   },
   {
     id: 3,
@@ -119,7 +119,7 @@ export const basicTimeline = [
     date: '23 Nov 2025',
     time: '6:56 AM',
     title: 'Discussion with designer team',
-    description: 'discussion with the designer employee on the success of the most recent project.',
+    description: 'discussion with the designer employee on the success of the most recent opportunity.',
   },
   {
     id: 5,

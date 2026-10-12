@@ -30,7 +30,7 @@
           <span class="customer-info">Website: www.websites.com</span>
         </td>
         <td>
-          <h4 class="invoice-title">INVOICE</h4>
+          <h4 class="invoice-title">Invoice</h4>
           <span class="bank-transfer-label">Bank Transfer</span>
           <span class="bank-name">Leslie Alexander</span>
           <span class="bank-details">Bank Account : 0981234098765</span>

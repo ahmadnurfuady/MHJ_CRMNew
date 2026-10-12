@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-12">
         <Card
-          :headerTitle="'IMAGE GALLERY'"
+          :headerTitle="'Image Gallery'"
           :cardBodyClass="'gallery my-gallery row'"
           :border="true"
           :padding="false"

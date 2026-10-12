@@ -196,7 +196,7 @@ onMounted(async () => {
   align-items: center;
   font-size: 0.7rem;
   font-weight: 700;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.5px;
   color: #6c757d;
   margin-bottom: 0.15rem;
@@ -294,7 +294,7 @@ onMounted(async () => {
   border-left: 3px solid #18A6E4;
   font-size: 0.8rem;
   color: #032A4E;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.4px;
 }
 

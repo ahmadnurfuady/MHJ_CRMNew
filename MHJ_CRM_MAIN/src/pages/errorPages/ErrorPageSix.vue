@@ -11,7 +11,7 @@
           fulfil your request.Would you please try again later?
         </p>
       </div>
-      <router-link class="btn btn-secondary-gradien btn-lg" to="/">BACK TO HOME PAGE</router-link>
+      <router-link class="btn btn-secondary-gradien btn-lg" to="/">Back To Home Page</router-link>
     </div>
   </div>
 </template>

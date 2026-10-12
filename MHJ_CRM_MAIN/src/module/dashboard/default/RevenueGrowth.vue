@@ -57,7 +57,7 @@
       <div class="col-xxl-4 col-xl-4 d-xxl-block d-none">
         <div class="revenuegrowth-details">
           <div class="growth-details">
-            <span class="f-light f-12 text-uppercase">{{ t('dashboard.totalSales') }}</span>
+            <span class="f-light f-12 text-capitalize">{{ t('dashboard.totalSales') }}</span>
             <h4 class="f-w-500 mb-2 counter" data-target="5626508">$56.265.08</h4>
             <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
               <p class="mb-0 f-w-500 f-12">{{ t('dashboard.comparedTo') }}</p>
@@ -66,7 +66,7 @@
             </div>
           </div>
           <div class="growth-details">
-            <span class="f-light f-12 text-uppercase">{{ t('dashboard.totalPurchases') }}</span>
+            <span class="f-light f-12 text-capitalize">{{ t('dashboard.totalPurchases') }}</span>
             <h4 class="f-w-500 mb-2">$42,256.26</h4>
             <div class="d-flex justify-content-center align-items-center gap-2 mb-4">
               <p class="mb-0 f-w-500 f-12">{{ t('dashboard.comparedTo') }}</p>
@@ -75,7 +75,7 @@
             </div>
           </div>
           <div class="growth-details">
-            <span class="f-light f-12 text-uppercase">{{ t('dashboard.totalReturns') }}</span>
+            <span class="f-light f-12 text-capitalize">{{ t('dashboard.totalReturns') }}</span>
             <h4 class="f-w-500 mb-2">$5,215.62</h4>
             <div class="d-flex justify-content-center align-items-center gap-2">
               <p class="mb-0 f-w-500 f-12">{{ t('dashboard.comparedTo') }}</p>

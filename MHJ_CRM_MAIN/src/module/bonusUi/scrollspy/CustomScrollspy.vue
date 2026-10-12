@@ -29,7 +29,7 @@
               <div class="custom-arrow"></div>
             </a>
             <a class="nav-link" href="#project1">
-              Projects
+              Opportunities
               <div class="custom-arrow"></div>
             </a>
             <a class="nav-link" href="#experience1"
@@ -89,7 +89,7 @@
             </div>
           </div>
           <div class="common-p-space" id="project1">
-            <h6>Projects</h6>
+            <h6>Opportunities</h6>
             <div class="row g-3 main-project">
               <div class="col-xl-12">
                 <div class="light-card attendance-card">
@@ -103,7 +103,7 @@
                       <h6>Websites for E-Commerce</h6>
                       <span class="text-muted text-ellipsis"
                         >Created a comprehensive e-commerce platform with the goal of improving the
-                        online purchasing experience. The project's goals were to offer a smooth
+                        online purchasing experience. The opportunity's goals were to offer a smooth
                         navigation system, a user-friendly interface, and strong functionality to
                         accommodate a wide variety of products.</span
                       >

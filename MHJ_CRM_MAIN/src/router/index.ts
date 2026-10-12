@@ -105,9 +105,9 @@ const router = createRouter({
           name: 'Project',
           component: () => import('@/pages/dashboard/Project.vue'),
           meta: {
-            mainTitle: 'Proyek',
-            title: 'Proyek | Riho - Premium Vue Admin Template',
-            breadcrumb: [{ text: 'Dashboard', subText: 'Proyek' }],
+            mainTitle: 'Peluang',
+            title: 'Peluang | Riho - Premium Vue Admin Template',
+            breadcrumb: [{ text: 'Dashboard', subText: 'Peluang' }],
           },
         },
         {
@@ -135,9 +135,9 @@ const router = createRouter({
           name: 'ProjectCreate',
           component: () => import('@/pages/project/ProjectCreate.vue'),
           meta: {
-            mainTitle: 'Proyek Create',
-            title: 'ProyekCreate | Riho - Premium Vue Admin Template',
-            breadcrumb: [{ text: 'Proyek', subText: 'Proyek Create' }],
+            mainTitle: 'Buat Peluang',
+            title: 'Buat Peluang | Riho - Premium Vue Admin Template',
+            breadcrumb: [{ text: 'Peluang', subText: 'Buat Peluang' }],
           },
         },
         {
@@ -146,9 +146,9 @@ const router = createRouter({
           component: () => import('@/pages/project/ProjectDetails.vue'),
           alias: ['/crmAdmin/projects/details', '/project/project_details'],
           meta: {
-            mainTitle: 'Proyek Details',
-            title: 'Proyek Details | MHJ CRM',
-            breadcrumb: [{ text: 'Proyek', subText: 'Proyek Details' }],
+            mainTitle: 'Detail Peluang',
+            title: 'Detail Peluang | MHJ CRM',
+            breadcrumb: [{ text: 'Peluang', subText: 'Detail Peluang' }],
           },
         },
         {
@@ -157,9 +157,9 @@ const router = createRouter({
           component: () => import('@/pages/project/ProjectDetailsV2.vue'),
           alias: ['/crmAdmin/projects/details-v2'],
           meta: {
-            mainTitle: 'Proyek Detail Ver2',
-            title: 'Proyek Detail Ver2 | MHJ CRM',
-            breadcrumb: [{ text: 'Proyek', subText: 'Proyek Detail Ver2' }],
+            mainTitle: 'Detail Peluang V2',
+            title: 'Detail Peluang V2 | MHJ CRM',
+            breadcrumb: [{ text: 'Peluang', subText: 'Detail Peluang V2' }],
           },
         },
         {
@@ -168,9 +168,9 @@ const router = createRouter({
           component: () => import('@/pages/project/ProjectList.vue'),
           alias: ['/crmAdmin/projects/list', '/project/project_list'],
           meta: {
-            mainTitle: 'ProyekList',
-            title: 'ProyekList | MHJ CRM',
-            breadcrumb: [{ text: 'Proyek', subText: 'Proyek List' }],
+            mainTitle: 'Daftar Peluang',
+            title: 'Daftar Peluang | MHJ CRM',
+            breadcrumb: [{ text: 'Peluang', subText: 'Daftar Peluang' }],
           },
         },
         {
@@ -189,9 +189,9 @@ const router = createRouter({
           component: () => import('@/pages/kanbanBoard/KanbanBoard.vue'),
           alias: ['/crmAdmin/deals', '/app/kanban_board'],
           meta: {
-            mainTitle: 'Proyek',
-            title: 'Proyek | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Proyek' }],
+            mainTitle: 'Peluang',
+            title: 'Peluang | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Peluang' }],
           },
         },
         {

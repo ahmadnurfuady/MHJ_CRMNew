@@ -110,7 +110,7 @@ const pageTitle = computed(() => {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
+  text-transform: capitalize;
   margin-bottom: 0.85rem;
 }
 

@@ -4,7 +4,7 @@
       <div class="comingsoon-inner text-center">
         <img class="for-light" :src="getImages('other-images/logo-login.png')" alt="logo" />
         <img class="for-dark" :src="getImages('other-images/logo-light.png')" alt="logo" />
-        <h5>WE ARE COMING SOON</h5>
+        <h5>We Are Coming Soon</h5>
         <div class="countdown">
           <Timer />
         </div>

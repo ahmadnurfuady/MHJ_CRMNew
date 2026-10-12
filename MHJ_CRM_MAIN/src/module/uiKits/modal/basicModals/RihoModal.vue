@@ -4,7 +4,7 @@
       <div class="modal-dialog" role="document">
         <OnClickOutside @trigger="close()" class="modal-content">
           <div class="modal-toggle-wrapper social-profile text-start dark-sign-up">
-            <h3 class="modal-header justify-content-center border-0">Riho SIGN-UP</h3>
+            <h3 class="modal-header justify-content-center border-0">Riho Sign-Up</h3>
             <div class="modal-body">
               <form class="row g-3 needs-validation" novalidate @submit.prevent="submitForm()">
                 <div class="col-md-6">

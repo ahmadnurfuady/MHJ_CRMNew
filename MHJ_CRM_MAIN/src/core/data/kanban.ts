@@ -302,7 +302,7 @@ export const apiBoardsCards: DefaultDemo[] = [
       },
       {
         id: 4,
-        title: 'Project Planning',
+        title: 'Opportunity Planning',
         userName: 'Jeffery Hurley',
         userProfile: 'dashboard/user/7.jpg',
         date: '14/04/24',

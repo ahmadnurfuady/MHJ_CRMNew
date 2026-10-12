@@ -1,9 +1,9 @@
 <template>
   <div class="contact-detail-page">
     <div class="detail-toolbar">
-      <router-link :to="routes.App.Contacts" class="back-button" aria-label="Kembali ke daftar kontak">
+      <button type="button" class="back-button" :aria-label="backButtonLabel" @click="handleBack">
         <i class="fa-solid fa-arrow-left"></i>
-      </router-link>
+      </button>
       <div>
         <p>Contacts</p>
         <h3>Detail Kontak</h3>
@@ -31,9 +31,6 @@
       <section v-else-if="contactState.isEditContact" class="content-card edit-view">
         <div class="section-heading">
           <div><p>Perbarui data</p><h5>Edit Kontak</h5></div>
-          <button type="button" class="close-view" @click="contactState.isEditContact = false">
-            <i class="fa-solid fa-xmark"></i>Kembali ke detail
-          </button>
         </div>
         <EditContactForm />
       </section>
@@ -45,6 +42,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
@@ -61,6 +59,7 @@ const ContactHistory = defineAsyncComponent(
 );
 
 const props = defineProps<{ contactId: number }>();
+const router = useRouter();
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
@@ -71,6 +70,28 @@ const activeContact = computed(() => contactState.value.activeContact);
 const loading = computed(
   () => contactApi.value.detailLoading || hospitalStore.detailLoading || projectStore.loading,
 );
+const backButtonLabel = computed(() =>
+  contactState.value.historyVisible || contactState.value.isEditContact
+    ? "Kembali ke detail kontak"
+    : "Kembali ke halaman sebelumnya",
+);
+
+function handleBack() {
+  if (contactState.value.historyVisible) {
+    contactState.value.historyVisible = false;
+    return;
+  }
+  if (contactState.value.isEditContact) {
+    contactState.value.isEditContact = false;
+    return;
+  }
+
+  if (window.history.state?.back) {
+    router.back();
+    return;
+  }
+  void router.push(routes.App.Contacts);
+}
 
 async function loadContact() {
   loadError.value = "";
@@ -84,11 +105,36 @@ async function loadContact() {
     contactState.value.activeContact = contact;
 
     const companyId = Number(contact.companyId);
-    const requests: Promise<unknown>[] = [projectStore.fetchProjects({ per_page: 100 })];
+    const requests: Promise<unknown>[] = [
+      projectStore.fetchProjects({ per_page: 100 }),
+      projectStore.fetchProjectLeaders(),
+    ];
     if (Number.isFinite(companyId) && companyId > 0) {
       requests.push(hospitalStore.fetchHospitalById(companyId));
     }
     await Promise.allSettled(requests);
+
+    const associatedContact = hospitalStore.contactAssociations.find(
+      (item) => String(item.id) === String(contact.remoteId),
+    );
+    if (associatedContact) {
+      contact.country = associatedContact.country || contact.country;
+      contact.province = associatedContact.province || contact.province;
+      contact.city = associatedContact.city || contact.city;
+      contact.gender = associatedContact.gender || contact.gender;
+      contact.createdById = associatedContact.createdById ?? contact.createdById;
+      contact.project = associatedContact.projectName || contact.project;
+      contact.projectId = associatedContact.projectId
+        ? String(associatedContact.projectId)
+        : contact.projectId;
+      contact.latitude = associatedContact.latitude ?? contact.latitude;
+      contact.longitude = associatedContact.longitude ?? contact.longitude;
+    }
+
+    const contactLeader = projectStore.lookups.owner.find(
+      (leader) => String(leader.value) === String(contact.createdById),
+    );
+    if (contactLeader?.label) contact.owner = contactLeader.label;
   } catch (error) {
     loadError.value =
       error instanceof Error ? error.message : contactApi.value.error || "Gagal memuat detail kontak.";
@@ -117,7 +163,7 @@ watch(() => props.contactId, loadContact, { immediate: true });
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .detail-toolbar h3 {
@@ -136,6 +182,7 @@ watch(() => props.contactId, loadContact, { immediate: true });
   color: var(--contact-primary);
   background: #fff;
   box-shadow: 0 4px 14px rgba(26, 47, 67, 0.06);
+  padding: 0;
 }
 
 .detail-content {
@@ -148,6 +195,10 @@ watch(() => props.contactId, loadContact, { immediate: true });
 
 .content-card {
   min-height: 420px;
+}
+
+.history-view {
+  min-height: 0;
 }
 
 .section-heading {
@@ -166,23 +217,11 @@ watch(() => props.contactId, loadContact, { immediate: true });
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .section-heading h5 {
   margin: 0;
-}
-
-.close-view {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid #dce3e7;
-  border-radius: 9px;
-  padding: 8px 11px;
-  color: #5e6a74;
-  background: #fff;
-  font-size: 11px;
 }
 
 .detail-state {
@@ -218,6 +257,5 @@ watch(() => props.contactId, loadContact, { immediate: true });
   .detail-toolbar h3 { font-size: 19px; }
   .detail-content { border-radius: 12px; padding: 16px; }
   .section-heading { align-items: flex-start; }
-  .close-view { padding: 7px 9px; }
 }
 </style>

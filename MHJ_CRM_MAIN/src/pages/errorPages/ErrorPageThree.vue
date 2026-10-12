@@ -13,7 +13,7 @@
         </p>
       </div>
       <router-link class="btn btn-success-gradien btn-lg" to="/"
-        >BACK TO HOME PAGE</router-link
+        >Back To Home Page</router-link
       >
     </div>
   </div>

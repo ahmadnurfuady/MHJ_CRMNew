@@ -307,7 +307,7 @@
       color: var(--body-font-color);
       padding-left: 20px;
       margin-bottom: 0;
-      text-transform: uppercase;
+      text-transform: capitalize;
 
       &:first-child {
         border-right: 1px solid $light-semi-gray;

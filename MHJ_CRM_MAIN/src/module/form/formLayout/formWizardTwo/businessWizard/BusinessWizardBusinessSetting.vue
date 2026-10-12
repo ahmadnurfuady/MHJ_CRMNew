@@ -24,14 +24,14 @@
       </InputWrapper>
     </div>
     <div class="col-12">
-      <InputWrapper :title="'Select a project and write a description for it'">
+      <InputWrapper :title="'Select an opportunity and write a description for it'">
         <InputField
           :formSubmitted="props.formSubmitted"
           :errorMessage="'Description is required.'"
           v-model:modelValue="props.form.projectDescription"
           :inputId="'description'"
           :inputType="'textarea'"
-          :placeholder="'Enter project description'"
+          :placeholder="'Enter opportunity description'"
         />
       </InputWrapper>
     </div>
@@ -40,7 +40,7 @@
         <div>
           <i class="fa-solid fa-rocket"></i>
           <h5 class="mb-2 mt-sm-3 mt-2">
-            Select team size with <span class="txt-primary">projects</span>
+            Select team size with <span class="txt-primary">opportunities</span>
           </h5>
           <p class="text-muted mb-2">
             Agile teams are cross-functional and made up of 5-11 on a regular basis team member.
@@ -63,7 +63,7 @@
             </div>
           </div>
           <template v-if="!props.form.project.length && props.formSubmitted">
-            <div class="invalid-feedback d-block">Please select at least one project.</div>
+            <div class="invalid-feedback d-block">Please select at least one opportunity.</div>
           </template>
         </div>
       </section>

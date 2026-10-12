@@ -1,6 +1,6 @@
 <template>
   <Card
-    :headerTitle="'All Proyek Table'"
+    :headerTitle="'Tabel Semua Peluang'"
     :headerClass="'m-0'"
     :padding="false"
     :header="'total-revenue'"
@@ -13,7 +13,7 @@
       <table class="order-table project-table w-100" id="project-table">
         <thead>
           <tr>
-            <th>Proyek Name</th>
+            <th>Nama Peluang</th>
             <th>Client Name</th>
             <th>End Date</th>
             <th>Assigned to</th>

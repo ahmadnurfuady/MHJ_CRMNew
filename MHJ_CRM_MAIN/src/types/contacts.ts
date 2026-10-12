@@ -46,6 +46,10 @@ export interface Contact {
   source?: string;
   company?: string;
   project?: string;
+  projectId?: string;
+  latitude?: number;
+  longitude?: number;
+  createdAt?: string;
   lastActivity?: string;
   lastContactedAt?: string;
   hospitalClass?: string;
@@ -90,9 +94,13 @@ export interface ContactForm {
   phoneNumbers: InputField[];
   mapAddress: InputField;
   address: InputField;
+  country: InputField;
+  posCode: InputField;
   kdKelurahan: InputField;
   province: SelectField;
   city: SelectField;
+  latitude: InputField;
+  longitude: InputField;
   source: SelectField;
   gender: SelectField;
   company: SelectField;

@@ -61,7 +61,7 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon violet"><i class="fa-solid fa-chart-line"></i></div>
-            <div><span>Nilai proyek</span><strong>{{ formatCompactCurrency(totalProjectValue) }}</strong></div>
+            <div><span>Nilai peluang</span><strong>{{ formatCompactCurrency(totalProjectValue) }}</strong></div>
           </div>
           <div class="overview-metric">
             <div class="metric-icon green"><i class="fa-regular fa-address-book"></i></div>
@@ -92,7 +92,7 @@
         <div class="panel-heading">
           <div>
             <p>Pipeline sales</p>
-            <h5>Proyek Rumah Sakit</h5>
+            <h5>Peluang Rumah Sakit</h5>
           </div>
           <div class="project-total">
             <span>Total nilai</span>
@@ -105,7 +105,7 @@
             v-for="stage in populatedStages"
             :key="stage.value"
             :style="{ background: stage.color, flexGrow: Math.max(stage.projects.length, 1) }"
-            :title="`${stage.label}: ${stage.projects.length} proyek`"
+            :title="`${stage.label}: ${stage.projects.length} peluang`"
           ></span>
         </div>
 
@@ -122,7 +122,7 @@
               </span>
               <span class="stage-meta">
                 <b :style="{ color: stage.color, background: `${stage.color}16` }">
-                  {{ stage.projects.length }} proyek
+                  {{ stage.projects.length }} peluang
                 </b>
                 <small>{{ formatCompactCurrency(stage.totalValue) }}</small>
                 <i
@@ -142,15 +142,15 @@
                 <span><strong>{{ project.projectName }}</strong><small>{{ project.ownerName || "Owner belum tersedia" }}</small></span>
                 <span><strong>{{ formatCurrency(project.amountValue || 0) }}</strong><i class="fa-solid fa-arrow-right"></i></span>
               </button>
-              <div v-if="!stage.projects.length" class="stage-empty">Belum ada proyek pada stage ini.</div>
+              <div v-if="!stage.projects.length" class="stage-empty">Belum ada peluang pada stage ini.</div>
             </div>
           </article>
         </div>
         <HospitalEmptyState
           v-else
           icon="fa-solid fa-folder-open"
-          title="Belum ada proyek"
-          description="Proyek yang terhubung dengan rumah sakit ini akan tampil di sini."
+          title="Belum ada peluang"
+          description="Peluang yang terhubung dengan rumah sakit ini akan tampil di sini."
         />
       </section>
 
@@ -240,7 +240,7 @@
             v-else
             icon="fa-regular fa-calendar-xmark"
             title="Belum ada aktivitas"
-            description="Aktivitas kontak dan proyek terbaru akan dirangkum di sini."
+            description="Aktivitas kontak dan peluang terbaru akan dirangkum di sini."
           />
         </article>
 
@@ -405,8 +405,8 @@ const activities = computed<ActivityItem[]>(() => {
   const projectActivities = hospitalProjects.value
     .filter((project) => project.createdAt)
     .map((project) => ({
-      title: `Proyek ${project.projectName} dibuat`,
-      description: `Proyek masuk ke stage ${project.stageName || titleCase(project.status)}.`,
+      title: `Peluang ${project.projectName} dibuat`,
+      description: `Peluang masuk ke stage ${project.stageName || titleCase(project.status)}.`,
       date: project.createdAt || "",
     }));
 
@@ -416,7 +416,7 @@ const activities = computed<ActivityItem[]>(() => {
 });
 
 const tabs = computed(() => [
-  { value: "projects" as const, label: "Proyek", count: hospital.value?.totalProjects ?? hospitalProjects.value.length, icon: "fa-solid fa-briefcase" },
+  { value: "projects" as const, label: "Peluang", count: hospital.value?.totalProjects ?? hospitalProjects.value.length, icon: "fa-solid fa-briefcase" },
   { value: "contacts" as const, label: "Kontak", count: contactCount.value, icon: "fa-regular fa-address-book" },
   { value: "installed" as const, label: "Terpasang", count: installedCount.value, icon: "fa-solid fa-kit-medical" },
   { value: "activities" as const, label: "Aktivitas", count: activities.value.length, icon: "fa-regular fa-calendar-check" },
@@ -526,7 +526,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 <style scoped>
 .hospital-detail-page { --primary: var(--theme-default, #18a6e4); --ink: #17212b; --muted: #73808d; padding-bottom: 28px; }
 .page-toolbar { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-.page-toolbar p { margin: 0 0 2px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.page-toolbar p { margin: 0 0 2px; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: capitalize; }
 .page-toolbar h3 { margin: 0; color: var(--ink); font-size: 23px; }
 .back-button { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #e2e8ed; border-radius: 12px; color: var(--primary); background: #fff; box-shadow: 0 4px 14px rgba(26, 47, 67, .06); }
 .card { border: 1px solid #e5eaee; box-shadow: 0 7px 24px rgba(31, 52, 73, .05); }
@@ -554,7 +554,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .metric-icon.green { color: #168b4c; background: #e1f5e9; }
 .metric-icon.amber { color: #b1760b; background: #fff1d5; }
 .overview-metric span, .overview-metric strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.overview-metric span { margin-bottom: 2px; color: var(--muted); font-size: 10px; text-transform: uppercase; }
+.overview-metric span { margin-bottom: 2px; color: var(--muted); font-size: 10px; text-transform: capitalize; }
 .overview-metric strong { color: var(--ink); font-size: 14px; }
 .detail-tabs { display: flex; overflow-x: auto; margin-bottom: 18px; border: 1px solid #e4e9ed; border-radius: 13px; padding: 5px; background: #fff; scrollbar-width: none; }
 .detail-tabs::-webkit-scrollbar { display: none; }
@@ -565,11 +565,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .detail-tabs button.active em { color: var(--primary); background: #fff; }
 .tab-panel { border: 1px solid #e5eaee; border-radius: 15px; padding: 22px; background: #fff; box-shadow: 0 7px 22px rgba(31, 52, 73, .04); }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-.panel-heading p { margin: 0 0 3px; color: var(--primary); font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.panel-heading p { margin: 0 0 3px; color: var(--primary); font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: capitalize; }
 .panel-heading h5 { margin: 0; color: var(--ink); font-size: 18px; }
 .project-total { text-align: right; }
 .project-total span, .project-total strong { display: block; }
-.project-total span { color: var(--muted); font-size: 10px; text-transform: uppercase; }
+.project-total span { color: var(--muted); font-size: 10px; text-transform: capitalize; }
 .project-total strong { color: var(--ink); font-size: 18px; }
 .panel-count { padding: 6px 10px; border-radius: 999px; color: #5f6d78; background: #f0f3f5; font-size: 11px; font-weight: 700; }
 .pipeline-summary { display: flex; gap: 3px; height: 8px; margin-bottom: 18px; border-radius: 999px; background: #edf1f3; }
@@ -645,7 +645,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .profile-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .profile-field { min-width: 0; border: 1px solid #e3e8eb; border-radius: 11px; padding: 12px 14px; background: #fbfcfd; }
 .profile-field span, .profile-field strong, .profile-field a { display: block; overflow-wrap: anywhere; }
-.profile-field span { margin-bottom: 5px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.profile-field span { margin-bottom: 5px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .05em; text-transform: capitalize; }
 .profile-field strong, .profile-field a { color: var(--ink); font-size: 11px; font-weight: 600; }
 .profile-field a { color: var(--primary); }
 .profile-wide { grid-column: span 2; }

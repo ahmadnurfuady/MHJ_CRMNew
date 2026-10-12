@@ -288,7 +288,7 @@ $sidebar-fill-icon-color: #757589;
 //sidebar profile settings
 $sidebar-profile-edit-icon-size: 14px;
 $sidebar-profile-name-txt-color: var(--theme-default);
-$sidebar-profile-name-txt-transfer: uppercase;
+$sidebar-profile-name-txt-transfer: capitalize;
 $sidebar-profile-name-txt-weight: 600;
 $sidebar-profile-name-letter-specing: 1.5px;
 $sidebar-profile-name-marging: 3px;

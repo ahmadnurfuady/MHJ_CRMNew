@@ -36,7 +36,7 @@
         :to="routes.Project.ProjectCreate"
       >
         <i class="fa-solid fa-plus"></i>
-        Add Proyek
+        Add Peluang
       </router-link>
     </div>
   </div>

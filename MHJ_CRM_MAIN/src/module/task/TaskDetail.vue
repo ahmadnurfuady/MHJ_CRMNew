@@ -21,11 +21,11 @@
             <strong>{{ task.owner || '-' }}</strong>
           </div>
           <div class="detail-field">
-            <span>Status Proyek</span>
-            <strong>{{ task.projectId || task.projectName ? 'ADA' : 'TIDAK ADA' }}</strong>
+            <span>Status Peluang</span>
+            <strong>{{ task.projectId || task.projectName ? 'Ada' : 'Tidak Ada' }}</strong>
           </div>
           <div class="detail-field">
-            <span>Nama Proyek</span>
+            <span>Nama Peluang</span>
             <strong>{{ task.projectName || '-' }}</strong>
           </div>
           <div class="detail-field">
@@ -41,7 +41,7 @@
             <strong>{{ formattedSchedule }}</strong>
           </div>
           <div class="detail-field">
-            <span>Pipeline Proyek</span>
+            <span>Pipeline Peluang</span>
             <strong class="pipeline-text">{{ pipelineLabel }}</strong>
           </div>
           <div class="detail-field detail-field--wide">

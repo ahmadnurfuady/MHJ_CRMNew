@@ -99,7 +99,7 @@ watch(() => props.taskId, loadTask, { immediate: true })
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .detail-toolbar h3 {

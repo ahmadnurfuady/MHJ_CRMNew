@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-12 box-col-12">
         <Card
-          :headerTitle="'MASONRY GALLERY'"
+          :headerTitle="'Masonry Gallery'"
           :border="true"
           :padding="false"
           :cardBodyClass="'photoswipe-pb-responsive'"

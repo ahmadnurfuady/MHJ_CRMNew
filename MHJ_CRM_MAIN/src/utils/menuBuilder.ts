@@ -57,10 +57,17 @@ function resolveIcon(raw?: string): string {
   return ICON_ALIASES[name] || FALLBACK_ICON
 }
 
-/** Backend lama masih dapat mengirim caption Deal/Deals; UI CRM memakai istilah Project. */
+/**
+ * Backend lama masih dapat mengirim nama menu Project/Proyek/Projek/Deal(s).
+ * Semua variasi istilah tersebut dinormalisasi menjadi Peluang untuk ditampilkan.
+ */
 function resolveMenuTitle(rawTitle: string, fallback: string): string {
   const title = rawTitle.trim() || fallback
-  return title.replace(/\bdeals?\b/gi, 'Proyek')
+  return title
+    .replace(/\b(?:projects?|pro(?:y|j)ek|peluang|deals?)\b/gi, 'Peluang')
+    .replace(/^Peluang\s+Details?$/i, 'Detail Peluang')
+    .replace(/^Peluang\s+List$/i, 'Daftar Peluang')
+    .replace(/^Peluang\s+Detail\s+Ver2$/i, 'Detail Peluang V2')
 }
 
 function isRootRef(value?: string): boolean {
@@ -172,7 +179,7 @@ function appendProjectDetailsV2(items: MenuItem[]): void {
       const insertAt = oldDetailsIndex === -1 ? children.length : oldDetailsIndex + 1
       children.splice(insertAt, 0, {
         id: `${item.id ?? 'project'}-details-v2`,
-        title: 'Proyek Detail Ver2',
+        title: 'Detail Peluang V2',
         path: '/crmAdmin/Projects/details-v2',
         type: 'link',
         active: false,

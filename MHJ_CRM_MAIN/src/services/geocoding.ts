@@ -1,5 +1,15 @@
 interface NominatimReverseResult {
   display_name?: string
+  address?: {
+    country?: string
+    state?: string
+    city?: string
+    town?: string
+    municipality?: string
+    county?: string
+    village?: string
+    postcode?: string
+  }
 }
 
 interface BigDataCloudReverseResult {
@@ -8,6 +18,14 @@ interface BigDataCloudReverseResult {
   principalSubdivision?: string
   postcode?: string
   countryName?: string
+}
+
+export interface ReverseGeocodeLocation {
+  address: string
+  country: string
+  province: string
+  city: string
+  posCode: string
 }
 
 function uniqueAddressParts(parts: Array<string | undefined>): string {
@@ -25,7 +43,10 @@ function uniqueAddressParts(parts: Array<string | undefined>): string {
     .join(', ')
 }
 
-async function reverseWithOpenStreetMap(latitude: number, longitude: number): Promise<string> {
+async function reverseWithOpenStreetMap(
+  latitude: number,
+  longitude: number
+): Promise<ReverseGeocodeLocation> {
   const params = new URLSearchParams({
     format: 'jsonv2',
     lat: String(latitude),
@@ -40,10 +61,27 @@ async function reverseWithOpenStreetMap(latitude: number, longitude: number): Pr
   if (!response.ok) throw new Error('OpenStreetMap reverse geocoding failed')
 
   const result = (await response.json()) as NominatimReverseResult
-  return result.display_name?.trim() ?? ''
+  const address = result.address
+  return {
+    address: result.display_name?.trim() ?? '',
+    country: address?.country?.trim() ?? '',
+    province: address?.state?.trim() ?? '',
+    city: (
+      address?.city ||
+      address?.town ||
+      address?.municipality ||
+      address?.county ||
+      address?.village ||
+      ''
+    ).trim(),
+    posCode: address?.postcode?.trim() ?? '',
+  }
 }
 
-async function reverseWithBigDataCloud(latitude: number, longitude: number): Promise<string> {
+async function reverseWithBigDataCloud(
+  latitude: number,
+  longitude: number
+): Promise<ReverseGeocodeLocation> {
   const params = new URLSearchParams({
     latitude: String(latitude),
     longitude: String(longitude),
@@ -55,30 +93,36 @@ async function reverseWithBigDataCloud(latitude: number, longitude: number): Pro
   if (!response.ok) throw new Error('BigDataCloud reverse geocoding failed')
 
   const result = (await response.json()) as BigDataCloudReverseResult
-  return uniqueAddressParts([
-    result.locality,
-    result.city,
-    result.principalSubdivision,
-    result.postcode,
-    result.countryName
-  ])
+  return {
+    address: uniqueAddressParts([
+      result.locality,
+      result.city,
+      result.principalSubdivision,
+      result.postcode,
+      result.countryName
+    ]),
+    country: result.countryName?.trim() ?? '',
+    province: result.principalSubdivision?.trim() ?? '',
+    city: (result.city || result.locality || '').trim(),
+    posCode: result.postcode?.trim() ?? '',
+  }
 }
 
-/** Mengubah koordinat GPS menjadi alamat manusiawi selengkap yang tersedia dari provider. */
-export async function reverseGeocodeAddress(
+/** Mengubah koordinat GPS menjadi alamat sekaligus bagian wilayah terstruktur. */
+export async function reverseGeocodeLocation(
   latitude: number,
   longitude: number
-): Promise<string> {
+): Promise<ReverseGeocodeLocation> {
   try {
-    const fullAddress = await reverseWithOpenStreetMap(latitude, longitude)
-    if (fullAddress) return fullAddress
+    const location = await reverseWithOpenStreetMap(latitude, longitude)
+    if (location.address) return location
   } catch {
     // Provider cadangan menjaga fitur tetap berjalan bila provider utama tidak tersedia.
   }
 
   try {
-    const fallbackAddress = await reverseWithBigDataCloud(latitude, longitude)
-    if (fallbackAddress) return fallbackAddress
+    const location = await reverseWithBigDataCloud(latitude, longitude)
+    if (location.address) return location
   } catch {
     // Pesan yang ditampilkan ke pengguna diseragamkan di bawah.
   }
@@ -86,6 +130,14 @@ export async function reverseGeocodeAddress(
   throw new Error(
     'Lokasi ditemukan, tetapi alamat lengkap gagal dimuat. Silakan isi alamat secara manual.'
   )
+}
+
+/** Mengubah koordinat GPS menjadi alamat manusiawi selengkap yang tersedia dari provider. */
+export async function reverseGeocodeAddress(
+  latitude: number,
+  longitude: number
+): Promise<string> {
+  return (await reverseGeocodeLocation(latitude, longitude)).address
 }
 
 export function getCurrentPosition(): Promise<GeolocationPosition> {
