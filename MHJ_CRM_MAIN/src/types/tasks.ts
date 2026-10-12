@@ -43,6 +43,7 @@ export interface SalesTaskPayload {
   projectName: string
   hospital: string
   contact: string
+  contactPhone: string
   scheduledAt: string
   divisions: string[]
   products: string[]
@@ -50,6 +51,7 @@ export interface SalesTaskPayload {
   stageFrom: string
   stageTo: string
   notes: string
+  photo: File | null
   photoName: string
   latitude: number
   longitude: number

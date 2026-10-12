@@ -413,9 +413,9 @@ function defaultSchedule() {
 function loggedInOwner() {
   try {
     const user = JSON.parse(localStorage.getItem('user') || 'null') as { name?: string } | null
-    return user?.name || 'Mark Jenco'
+    return user?.name?.trim() || ''
   } catch {
-    return 'Mark Jenco'
+    return ''
   }
 }
 
@@ -563,6 +563,24 @@ const selectedContacts = computed<DealOption[]>(() => {
   if (form.hasProject) return form.contact.selectedItems as DealOption[]
   const contact = form.contact.selected as DealOption | null
   return contact ? [contact] : []
+})
+const selectedContactPhone = computed(() => {
+  const selectedIds = new Set(selectedContacts.value.map((contact) => String(contact.value)))
+  const selectedLabels = new Set(
+    selectedContacts.value.map((contact) => normalizeRelation(String(contact.label))),
+  )
+
+  const phones = contactStore.contactApi.items
+    .filter((contact) => {
+      const id = String(contact.remoteId ?? contact.id)
+      const name = normalizeRelation(`${contact.firstName} ${contact.lastName}`)
+      return selectedIds.has(id) || selectedLabels.has(name)
+    })
+    .map((contact) => contact.telephone1 || contact.contactNumber || contact.phoneNumbers?.[0] || '')
+    .map((phone) => phone.trim())
+    .filter(Boolean)
+
+  return [...new Set(phones)].join(', ')
 })
 const selectedProducts = computed(() => form.products.selectedItems as DealOption[])
 const availableProducts = computed(() => {
@@ -820,6 +838,7 @@ async function submitTask() {
       projectName: project?.label ?? '',
       hospital: String((form.hospital.selected as DealOption).label),
       contact: selectedContacts.value.map((item) => String(item.label)).join(', '),
+      contactPhone: selectedContactPhone.value,
       scheduledAt: form.scheduledAt,
       divisions: selectedDivisions.value.map((item) => String(item.label)),
       products: selectedProducts.value.map((item) => String(item.label)),
@@ -827,6 +846,7 @@ async function submitTask() {
       stageFrom: project?.status ?? '',
       stageTo,
       notes: form.notes,
+      photo: form.photo,
       photoName: form.photo?.name ?? '',
       latitude: form.latitude,
       longitude: form.longitude,

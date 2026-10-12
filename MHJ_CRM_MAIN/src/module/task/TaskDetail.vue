@@ -59,7 +59,9 @@
 
         <div class="detail-notes">
           <span>Notes Tambahan</span>
-          <div>{{ task.description || 'Tidak ada catatan tambahan.' }}</div>
+          <div :class="{ 'detail-notes__value--empty': !task.description }">
+            {{ task.description || 'Tidak ada catatan tambahan.' }}
+          </div>
         </div>
 
         <div class="evidence-title">Live Photo &amp; GPS Location</div>
@@ -347,10 +349,16 @@ function preventUnavailableContact(event: MouseEvent) {
   border: 1px solid #dbe2ea;
   border-radius: 9px;
   padding: 12px 14px;
-  color: #4b5563;
+  color: #1f2937;
   font-size: 13px;
+  font-weight: 600;
   line-height: 1.55;
   white-space: pre-wrap;
+}
+
+.detail-notes .detail-notes__value--empty {
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .evidence-title {

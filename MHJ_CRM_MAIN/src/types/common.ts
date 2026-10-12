@@ -341,6 +341,8 @@ export interface SelectProps {
   disabled?: boolean
   showOptions?: boolean
   removableTags?: boolean
+  /** Tampilkan indikator "Memuat data lainnya..." di bawah list, dipakai untuk infinite scroll. */
+  loadingMore?: boolean
 }
 
 export interface CheckboxField {

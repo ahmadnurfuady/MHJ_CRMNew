@@ -112,6 +112,7 @@ export function normalizeOptions(
       'value',
       'stage_id',
       'owner_id',
+      'leader_id',
       'competitor_id',
       'sumberdana_id',
       'company_id',

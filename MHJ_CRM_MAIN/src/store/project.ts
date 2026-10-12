@@ -44,6 +44,7 @@ export interface ProjectPayload {
   company_id: number | null
   contact_id: number | null
   owner_id: number | null
+  owner_name: string | null
   stage_id: number | null
   currency: string | null
   amount_value: number | null

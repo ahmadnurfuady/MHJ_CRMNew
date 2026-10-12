@@ -162,8 +162,12 @@ export const useHospitalStore = defineStore('hospital', () => {
   const pagination = reactive<Pagination>({ page: 1, perPage: 10, total: 0, lastPage: 1 })
   const lastParams = ref<ListParams>({})
 
-  /** GET /api/company. Mendukung page, per_page, dan search jika backend menerimanya. */
-  function fetchHospitals(params: ListParams = {}) {
+  /**
+   * GET /api/company. Mendukung page, per_page, dan search jika backend menerimanya.
+   * `append: true` dipakai untuk infinite scroll (mis. dropdown Perusahaan): halaman baru
+   * ditambahkan ke daftar yang sudah ada, bukan menggantinya.
+   */
+  function fetchHospitals(params: ListParams = {}, { append = false } = {}) {
     return runApiAction({
       flag: loading,
       error,
@@ -171,11 +175,12 @@ export const useHospitalStore = defineStore('hospital', () => {
       task: async () => {
         const response = await api.getbydata(ENDPOINT, { ...params })
         const { items: rawItems, meta } = extractList(response.data, ['companies'])
-        items.value = rawItems.filter(isRecord).map(normalizeHospital)
+        const normalized = rawItems.filter(isRecord).map(normalizeHospital)
+        items.value = append ? [...items.value, ...normalized] : normalized
         const page = meta?.page ?? params.page ?? 1
         const perPage = meta?.perPage ?? params.per_page ?? pagination.perPage
         const knownTotal = meta?.total
-        const visitedTotal = (page - 1) * perPage + items.value.length
+        const visitedTotal = append ? items.value.length : (page - 1) * perPage + normalized.length
 
         pagination.page = page
         pagination.perPage = perPage
@@ -184,7 +189,7 @@ export const useHospitalStore = defineStore('hospital', () => {
           meta?.lastPage ??
           (knownTotal !== undefined
             ? Math.max(1, Math.ceil(knownTotal / perPage))
-            : items.value.length >= perPage
+            : normalized.length >= perPage
               ? Math.max(pagination.lastPage, page + 1)
               : page)
         lastParams.value = {

@@ -623,6 +623,8 @@ onBeforeUnmount(() => {
 }
 
 .task-table tbody td {
+  min-width: 0;
+  overflow: hidden;
   border-bottom: 1px solid var(--border-subtle, #e2e8f0);
   padding: 14px 16px;
   color: #334155;
@@ -728,7 +730,8 @@ onBeforeUnmount(() => {
 .project-badge,
 .pipeline-badge {
   display: inline-block;
-  max-width: 180px;
+  max-width: 100%;
+  box-sizing: border-box;
   overflow: hidden;
   border-radius: 6px;
   padding: 5px 8px;

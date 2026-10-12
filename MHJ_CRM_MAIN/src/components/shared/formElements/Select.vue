@@ -21,7 +21,9 @@
         >
           <template v-if="multiSelect && Array.isArray(displaySelected) && displaySelected.length">
             <span v-for="(item, index) in displaySelected" :key="index" class="badge badge-primary selected-tag">
-              {{ item[props.displayKey] }}
+              <span class="selected-tag__label" :title="String(item[props.displayKey] ?? '')">
+                {{ item[props.displayKey] }}
+              </span>
               <button
                 v-if="props.removableTags && !props.disabled"
                 class="selected-tag__remove"
@@ -68,7 +70,7 @@
           ref="searchInput"
           @keydown.stop="handleKeydown($event)"
         />
-        <ul class="custom-scrollbar">
+        <ul class="custom-scrollbar" @scroll="handleListScroll">
           <template v-for="(option, index) in filteredOptions" :key="index">
             <template
               v-if="option && option.data && Array.isArray(option.data) && props.showOptions"
@@ -98,6 +100,7 @@
             </template>
           </template>
           <li v-if="!filteredOptions.length" class="no-option">No Records Found</li>
+          <li v-else-if="loadingMore" class="no-option">Memuat data lainnya...</li>
         </ul>
       </div>
     </div>
@@ -131,9 +134,10 @@ const props = withDefaults(defineProps<SelectProps>(), {
   disabled: false,
   showOptions: false,
   removableTags: false,
+  loadingMore: false,
 })
 
-const emits = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue', 'reach-bottom'])
 
 const dropdownPlacement = ref<'bottom' | 'top'>('bottom')
 
@@ -170,6 +174,13 @@ function scrollBoundary(element: HTMLElement): { top: number; bottom: number } {
   return { top: 0, bottom: window.innerHeight }
 }
 
+/** Dipanggil saat list opsi di-scroll mentok bawah, dipakai untuk infinite scroll (lihat prop loadingMore). */
+function handleListScroll(event: Event) {
+  const list = event.target as HTMLElement
+  const reachedBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 32
+  if (reachedBottom) emits('reach-bottom')
+}
+
 function toggleWithPlacement(event: Event) {
   if (!showDropdown.value && wrapperRef.value) {
     const rect = wrapperRef.value.getBoundingClientRect()
@@ -190,6 +201,19 @@ function toggleWithPlacement(event: Event) {
 .form-select,
 .dropdown li {
   cursor: pointer;
+}
+
+.smart-select,
+.select-box,
+.form-select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.form-select {
+  overflow: hidden;
 }
 
 .select-box.is-disabled,
@@ -225,16 +249,28 @@ function toggleWithPlacement(event: Event) {
 
 .selected-tag {
   display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
   align-items: center;
   gap: 4px;
+  color: #ffffff !important;
+}
+
+.selected-tag__label {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .selected-tag__remove {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   padding: 0;
-  color: currentColor;
+  color: #ffffff !important;
   background: transparent;
   border: 0;
   line-height: 1;

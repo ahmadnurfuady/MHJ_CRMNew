@@ -29,6 +29,8 @@
                     v-model="projectForm.company"
                     :options="companyOptions"
                     :formSubmitted="formSubmitted"
+                    :loading-more="loadingMoreCompanies"
+                    @reach-bottom="loadMoreCompanies"
                   />
                 </InputWrapper>
               </div>
@@ -407,6 +409,7 @@ const editingId = computed<number | null>(() => {
 })
 const isEditMode = computed(() => editingId.value !== null)
 const loadingProject = ref(false)
+const loadingMoreCompanies = ref(false)
 // Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
 const prefilling = ref(false)
 
@@ -682,9 +685,25 @@ async function prefillForm(project: Projects) {
   prefilling.value = false
 }
 
+/** Infinite scroll dropdown Perusahaan: ambil halaman berikutnya dan tambahkan ke daftar yang ada. */
+async function loadMoreCompanies() {
+  if (loadingMoreCompanies.value) return
+  if (hospitalStore.pagination.page >= hospitalStore.pagination.lastPage) return
+
+  loadingMoreCompanies.value = true
+  try {
+    await hospitalStore.fetchHospitals(
+      { page: hospitalStore.pagination.page + 1, per_page: hospitalStore.pagination.perPage },
+      { append: true },
+    )
+  } finally {
+    loadingMoreCompanies.value = false
+  }
+}
+
 onMounted(async () => {
   const tasks: Promise<unknown>[] = [
-    hospitalStore.fetchHospitals(),
+    hospitalStore.fetchHospitals({ per_page: 15 }),
     contactStore.fetchRemoteContacts(),
     projectStore.fetchProjectLookups(),
     projectStore.fetchProjectCatalog(),
@@ -812,6 +831,7 @@ async function handleSubmit() {
     company_id: companyId,
     contact_id: contactId,
     owner_id: ownerId,
+    owner_name: owner.label || null,
     stage_id: stageId,
     currency: 'IDR',
     amount_value: projectValue.value,

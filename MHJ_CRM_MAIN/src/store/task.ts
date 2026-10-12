@@ -14,6 +14,7 @@ import {
   type Dict,
 } from '@/api/response'
 import { runApiAction } from '@/store/apiAction'
+import { useAuthStore } from '@/store/auth'
 import { useProjectStore } from '@/store/project'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Select } from '@/types/common'
@@ -33,7 +34,34 @@ function readStorage<T>(key: string, fallback: T): T {
 }
 
 function toStringArray(value: unknown): string[] {
-  return Array.isArray(value) ? value.map((item) => String(item)) : []
+  if (Array.isArray(value)) return value.map((item) => String(item).trim()).filter(Boolean)
+  if (typeof value !== 'string' || !value.trim()) return []
+
+  try {
+    const parsed = JSON.parse(value)
+    if (Array.isArray(parsed)) {
+      return parsed.map((item) => String(item).trim()).filter(Boolean)
+    }
+  } catch {
+    // Kolom varchar lama menyimpan daftar dengan pemisah koma.
+  }
+
+  return value.split(',').map((item) => item.trim()).filter(Boolean)
+}
+
+function nullableText(value: string): string | null {
+  const normalized = value.trim()
+  return normalized || null
+}
+
+/** Mengubah input datetime-local menjadi format yang diterima SQL Server datetime. */
+function toSqlDateTime(value: string): string | null {
+  const normalized = value.trim()
+  if (!normalized) return null
+  const sqlDateTime = normalized.replace('T', ' ')
+  return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(sqlDateTime)
+    ? `${sqlDateTime}:00`
+    : sqlDateTime
 }
 
 /**
@@ -65,6 +93,9 @@ export function normalizeTask(raw: Dict): TaskDetails {
     'rumahSakit',
     'rumah_sakit'
   )
+  const gpsCoordinates = pickString(raw, 'gps_coordinates').split(',')
+  const gpsLatitude = Number(gpsCoordinates[0])
+  const gpsLongitude = Number(gpsCoordinates[1])
 
   return {
     id: pickNumber(raw, 'id', 'ID') || Date.now(),
@@ -73,21 +104,38 @@ export function normalizeTask(raw: Dict): TaskDetails {
     description: pickString(raw, 'description', 'notes', 'keterangan'),
     kind: 'sales',
     category: pickString(raw, 'category', 'kategori'),
-    owner: pickString(raw, 'owner_name', 'created_by_name', 'leader_name', 'owner', 'created_by'),
+    owner: pickString(
+      raw,
+      'owner_name',
+      'assigned_name',
+      'created_by_name',
+      'leader_name',
+      'owner',
+      'assigned_id',
+      'created_by',
+    ),
     projectId,
     projectName,
     hospital,
-    contact: pickString(raw, 'contact_name', 'contact'),
+    contact: pickString(raw, 'contact_person', 'contact_name', 'contact'),
     scheduledAt: pickString(raw, 'due_date', 'scheduledAt', 'scheduled_at'),
-    divisions: toStringArray(raw.divisions),
-    products: toStringArray(raw.products),
+    divisions: toStringArray(pick(raw, 'divisions', 'division')),
+    products: toStringArray(pick(raw, 'products', 'product')),
     unrelatedProduct: Boolean(pick(raw, 'unrelatedProduct', 'unrelated_product')),
     stageFrom: pickString(raw, 'stageFrom', 'stage_from'),
-    stageTo: pickString(raw, 'stageTo', 'stage_to'),
-    photoName: pickString(raw, 'photoName', 'photo_name'),
-    photoUrl: pickString(raw, 'photoUrl', 'photo_url', 'live_photo_url', 'live_photo'),
-    latitude: pickNumber(raw, 'latitude'),
-    longitude: pickNumber(raw, 'longitude'),
+    stageTo: pickString(raw, 'pipeline_stage', 'stageTo', 'stage_to'),
+    photoName: pickString(raw, 'photoName', 'photo_name', 'photo_path'),
+    photoUrl: pickString(
+      raw,
+      'photoUrl',
+      'photo_url',
+      'photo_path',
+      'live_photo_url',
+      'live_photo',
+    ),
+    latitude: pickNumber(raw, 'latitude') || (Number.isFinite(gpsLatitude) ? gpsLatitude : 0),
+    longitude:
+      pickNumber(raw, 'longitude') || (Number.isFinite(gpsLongitude) ? gpsLongitude : 0),
     locationAccuracy: pickNumber(raw, 'locationAccuracy', 'location_accuracy'),
     locationAddress: pickString(raw, 'locationAddress', 'location_address', 'address_location'),
     contactPhone: pickString(raw, 'contactPhone', 'contact_phone', 'telephone_1', 'phone'),
@@ -96,6 +144,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
 }
 
 export const useTask = defineStore('task', () => {
+  const authStore = useAuthStore()
   const projectStore = useProjectStore()
 
   // Daftar tabel selalu dimulai kosong dan hanya diisi oleh response API/database.
@@ -156,6 +205,57 @@ export const useTask = defineStore('task', () => {
       contact: task.contact || project.contactName,
       contactPhone: task.contactPhone || project.contactPhone,
     }
+  }
+
+  /**
+   * Response task lama hanya membawa `created_by`, sehingga hasil normalisasi owner
+   * masih berupa ID. Cocokkan ID tersebut dengan master leader agar tabel dan detail
+   * task menampilkan nama akun, bukan angka.
+   */
+  async function resolveTaskOwners(tasks: TaskDetails[]): Promise<TaskDetails[]> {
+    const unresolvedOwnerIds = new Set(
+      tasks
+        .map((task) => task.owner?.trim() ?? '')
+        .filter((owner) => /^\d+$/.test(owner)),
+    )
+    if (!unresolvedOwnerIds.size) return tasks
+
+    const buildOwnerNames = () =>
+      new Map(
+        [...projectStore.lookups.owner, ...lookups.assignedTo]
+          .filter((option) => option.value !== '' && option.label)
+          .map((option) => [String(option.value), option.label]),
+      )
+
+    let ownerNames = buildOwnerNames()
+    let hasMissingOwner = [...unresolvedOwnerIds].some((ownerId) => !ownerNames.has(ownerId))
+
+    if (hasMissingOwner) {
+      try {
+        // Sumber utama nama akun/owner CRM: GET /api/project/leader.
+        await projectStore.fetchProjectLeaders()
+        ownerNames = buildOwnerNames()
+        hasMissingOwner = [...unresolvedOwnerIds].some((ownerId) => !ownerNames.has(ownerId))
+      } catch {
+        // Lanjutkan ke endpoint task lama sebagai fallback.
+      }
+    }
+
+    if (hasMissingOwner) {
+      try {
+        const response = await api.get('tasks/assignedto')
+        lookups.assignedTo = normalizeOptions(response.data, ['assignedto', 'users'])
+      } catch {
+        // ID tetap ditampilkan bila master owner tidak dapat dimuat.
+      }
+    }
+
+    ownerNames = buildOwnerNames()
+
+    return tasks.map((task) => ({
+      ...task,
+      owner: ownerNames.get(task.owner?.trim() ?? '') || task.owner,
+    }))
   }
 
   /**
@@ -234,7 +334,8 @@ export const useTask = defineStore('task', () => {
         const response = await api.getbydata('tasks', { ...params })
         const { items: rawItems, meta } = extractList(response.data, ['tasks'])
         const normalizedTasks = rawItems.filter(isRecord).map(normalizeTask)
-        salesTasks.value = await resolveTaskProjects(normalizedTasks)
+        const tasksWithOwners = await resolveTaskOwners(normalizedTasks)
+        salesTasks.value = await resolveTaskProjects(tasksWithOwners)
         if (meta) Object.assign(pagination, meta)
         rebuildCreatedByMe()
         return salesTasks.value
@@ -250,11 +351,18 @@ export const useTask = defineStore('task', () => {
       fallbackMessage: 'Gagal memuat detail task.',
       task: async () => {
         const response = await api.getbydata('tasks/fetchtaskbyid', { id })
-        const raw = extractItem(response.data, ['task'])
+        const raw = extractItem(response.data, ['task', 'result'])
         const normalizedTask = raw ? normalizeTask(raw) : null
-        selectedItem.value = normalizedTask
-          ? (await resolveTaskProjects([normalizedTask]))[0] ?? normalizedTask
-          : null
+        if (!normalizedTask) {
+          selectedItem.value = null
+          return selectedItem.value
+        }
+
+        const [taskWithOwner] = await resolveTaskOwners([normalizedTask])
+        selectedItem.value =
+          (await resolveTaskProjects([taskWithOwner ?? normalizedTask]))[0] ??
+          taskWithOwner ??
+          normalizedTask
         return selectedItem.value
       },
     })
@@ -294,15 +402,59 @@ export const useTask = defineStore('task', () => {
       error,
       fallbackMessage: 'Gagal menyimpan task.',
       task: async () => {
-        // Kolom tabel tasks. Field form lain (hospital, contact, produk, lokasi) belum punya kolomnya.
-        const response = await api.post('tasks/input', {
+        const currentUserId = Number(authStore.user?.id)
+        const userId = Number.isInteger(currentUserId) && currentUserId > 0 ? currentUserId : null
+        if (!userId) throw new Error('ID owner dari user login tidak tersedia.')
+        const gpsCoordinates =
+          payload.latitude && payload.longitude
+            ? `${payload.latitude},${payload.longitude}`
+            : null
+        const requestFields: Record<string, string | number | null> = {
+          // Parameter insert dbo.sp_tasks_crud.
           choice: 'i',
           task_name: payload.title,
-          description: payload.notes,
           project_id: payload.projectId,
-          due_date: payload.scheduledAt || null,
+          description: nullableText(payload.notes),
+          assigned_id: userId,
+          due_date: toSqlDateTime(payload.scheduledAt),
+          priority: null,
+          progress: null,
+          status_id: null,
+          created_by: userId,
+
+          // Konteks wajib sesuai Kerangka Menu - 4. Tasks dan kolom tabel tasks.
+          has_project: payload.projectId ? 1 : 0,
+          project_name: nullableText(payload.projectName),
+          hospital_name: nullableText(payload.hospital),
+          contact_person: nullableText(payload.contact),
+          contact_phone: nullableText(payload.contactPhone),
+          division: nullableText(payload.divisions.join(', ')),
+          unrelated_product: payload.unrelatedProduct ? 1 : 0,
+          product: payload.unrelatedProduct
+            ? 'Tidak terkait produk'
+            : nullableText(payload.products.join(', ')),
+          pipeline_stage_from: nullableText(payload.stageFrom),
+          pipeline_stage: nullableText(payload.stageTo),
+          category: nullableText(payload.category),
+          type: 'sales',
+          assigned_name: nullableText(payload.owner),
+          photo_path: nullableText(payload.photoName),
+          has_live_photo: payload.photo ? 1 : 0,
+          gps_coordinates: gpsCoordinates,
+          location_accuracy: payload.locationAccuracy || null,
+          location_address: nullableText(payload.locationAddress),
+          comments: null,
+        }
+        const requestData = new FormData()
+        Object.entries(requestFields).forEach(([key, value]) => {
+          requestData.append(key, value === null ? '' : String(value))
         })
-        const raw = extractItem(response.data, ['task'])
+        if (payload.photo) {
+          requestData.append('photo', payload.photo, payload.photoName || payload.photo.name)
+        }
+
+        const response = await api.post('tasks/input', requestData)
+        const raw = extractItem(response.data, ['task', 'result'])
         const createdId = raw ? pickNumber(raw, 'id', 'ID') : 0
 
         // Ambil ulang dari API supaya daftar tidak pernah memakai fallback lokal/dummy.
