@@ -69,6 +69,7 @@ export interface Contact {
 export interface RumahSakitForm {
   name: InputField;
   phoneNumbers: InputField[];
+  email: InputField;
   mapAddress: InputField;
   address: InputField;
   province: SelectField;

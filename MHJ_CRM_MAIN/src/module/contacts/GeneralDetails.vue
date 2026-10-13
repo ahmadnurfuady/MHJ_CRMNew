@@ -57,7 +57,7 @@
             <strong>{{ contactState.activeContact.email || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Company</span>
+            <span>Rumah Sakit</span>
             <strong>{{ companyLabel }}</strong>
           </div>
           <div class="col-md-6">
@@ -126,9 +126,9 @@
         class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
       >
         <div>
-          <h5 class="mb-1">Detail Perusahaan</h5>
+          <h5 class="mb-1">Detail Rumah Sakit</h5>
           <p class="text-muted mb-0">
-            Ringkasan perusahaan dan aktivitas peluang
+            Ringkasan rumah sakit dan aktivitas peluang
           </p>
         </div>
 
@@ -139,7 +139,7 @@
           <div
             class="card-header d-flex justify-content-between align-items-center pb-2"
           >
-            <h6 class="mb-0">Profil Perusahaan</h6>
+            <h6 class="mb-0">Profil Rumah Sakit</h6>
             <span
               v-if="!canEditCompanyProfile"
               class="badge badge-light-secondary"
@@ -260,7 +260,7 @@
             </template>
             <div v-else class="empty-company-section">
               <vue-feather type="folder" size="20" />
-              <span>Belum ada peluang berjalan untuk perusahaan ini.</span>
+              <span>Belum ada peluang berjalan untuk rumah sakit ini.</span>
             </div>
           </div>
         </div>
@@ -308,8 +308,8 @@
       </template>
 
       <div v-else class="alert alert-light border">
-        Pilih perusahaan pada data kontak untuk menampilkan dashboard
-        perusahaan.
+        Pilih rumah sakit pada data kontak untuk menampilkan dashboard
+        rumah sakit.
       </div>
     </section>
 
@@ -387,7 +387,7 @@ const companyLabel = computed(() => {
   return (
     liveCompany.value?.name ||
     contact?.company ||
-    (contact?.companyId ? `Company ID ${contact.companyId}` : "-")
+    (contact?.companyId ? `ID Rumah Sakit ${contact.companyId}` : "-")
   );
 });
 const ownerLabel = computed(() => {
@@ -477,8 +477,8 @@ const canEditCompanyProfile = computed(() =>
 );
 const companyEditTitle = computed(() =>
   canEditCompanyProfile.value
-    ? "Edit profil perusahaan"
-    : "Profil perusahaan hanya dapat diedit oleh admin",
+    ? "Edit profil rumah sakit"
+    : "Profil rumah sakit hanya dapat diedit oleh admin",
 );
 const isEditingCompany = ref(false);
 const companyDraft = reactive({ phone: "", website: "", address: "" });

@@ -43,10 +43,10 @@
                     class="form-control auto-filled-input"
                     type="text"
                     :value="taskName"
-                    placeholder="Otomatis: Kategori_Produk_Perusahaan"
+                    placeholder="Otomatis: Kategori_Produk_RumahSakit"
                     readonly
                   />
-                  <small class="text-muted">Nama terbentuk otomatis dari kategori, produk, dan perusahaan.</small>
+                  <small class="text-muted">Nama terbentuk otomatis dari kategori, produk, dan rumah sakit.</small>
                 </div>
 
                 <div class="col-md-6">
@@ -128,11 +128,11 @@
 
                 <template v-if="showContextFields">
                 <div class="col-md-6">
-                  <label class="form-label">Rumah Sakit/Perusahaan <span class="txt-danger">*</span></label>
+                  <label class="form-label">Rumah Sakit <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.hospital"
                     :options="hospitalOptions"
-                    placeholder="Cari rumah sakit/perusahaan"
+                    placeholder="Cari rumah sakit"
                     display-key="label"
                     get-value-key="value"
                     :form-submitted="formSubmitted"
@@ -807,7 +807,7 @@ function validateForm() {
   if (isCustomCategory.value && !form.customCategory) return 'Kategori lainnya wajib diisi.'
   if (!form.owner) return 'Owner tidak tersedia.'
   if (form.hasProject && !selectedProject.value) return 'Peluang wajib dipilih.'
-  if (!form.hospital.selected) return 'Rumah sakit/perusahaan wajib dipilih.'
+  if (!form.hospital.selected) return 'Rumah sakit wajib dipilih.'
   if (!selectedContacts.value.length) return 'Kontak person wajib dipilih.'
   if (!form.scheduledAt) return 'Tanggal dan waktu wajib diisi.'
   if (!selectedDivisions.value.length) return 'Minimal satu divisi wajib dipilih.'

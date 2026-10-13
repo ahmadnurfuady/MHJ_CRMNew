@@ -15,7 +15,13 @@ function readRawMenus(): FlMenuRawItem[] {
 
 function normalize(path: string): string {
   const trimmed = path.trim().replace(/\/+$/, '')
-  return trimmed || '/'
+  if (!trimmed) return '/'
+
+  // Menu lama masih dapat memakai /companies atau /peluang untuk halaman Rumah Sakit.
+  return trimmed.replace(
+    /^\/crmadmin\/(?:companies|hospital|peluang)(?=\/|$)/i,
+    '/crmAdmin/hospitals',
+  )
 }
 
 /**

@@ -135,9 +135,9 @@ const router = createRouter({
           name: 'ProjectCreate',
           component: () => import('@/pages/project/ProjectCreate.vue'),
           meta: {
-            mainTitle: 'Buat Peluang',
-            title: 'Buat Peluang | Riho - Premium Vue Admin Template',
-            breadcrumb: [{ text: 'Peluang', subText: 'Buat Peluang' }],
+            mainTitle: 'Tambah Peluang',
+            title: 'Tambah Peluang | MHJ CRM',
+            breadcrumb: [{ text: 'Peluang', subText: 'Tambah Peluang' }],
           },
         },
         {
@@ -527,20 +527,43 @@ const router = createRouter({
           component: () => import('@/pages/contacts/Contacts.vue'),
           alias: ['/app/contacts'],
           meta: {
-            mainTitle: 'Contacts',
-            title: 'Contacts | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Contacts' }],
+            mainTitle: 'Kontak',
+            title: 'Kontak | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Kontak' }],
           },
+        },
+        {
+          path: '/crmAdmin/companies',
+          redirect: (to) => ({
+            path: routes.App.RumahSakit,
+            query: to.query,
+            hash: to.hash,
+          }),
+        },
+        {
+          path: '/crmAdmin/peluang',
+          redirect: (to) => ({
+            path: routes.App.RumahSakit,
+            query: to.query,
+            hash: to.hash,
+          }),
+        },
+        {
+          path: '/app/rumah_sakit',
+          redirect: (to) => ({
+            path: routes.App.RumahSakit,
+            query: to.query,
+            hash: to.hash,
+          }),
         },
         {
           path: routes.App.RumahSakit,
           name: 'RumahSakit',
           component: () => import('@/pages/rumahSakit/RumahSakit.vue'),
-          alias: ['/app/rumah_sakit'],
           meta: {
-            mainTitle: 'Companies',
-            title: 'Companies | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Companies' }],
+            mainTitle: 'Rumah Sakit',
+            title: 'Rumah Sakit | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Rumah Sakit' }],
           },
         },
         {

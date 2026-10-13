@@ -58,16 +58,27 @@ function resolveIcon(raw?: string): string {
 }
 
 /**
- * Backend lama masih dapat mengirim nama menu Project/Proyek/Projek/Deal(s).
- * Semua variasi istilah tersebut dinormalisasi menjadi Peluang untuk ditampilkan.
+ * Backend lama masih dapat mengirim nama menu Project/Proyek/Projek/Deal(s)
+ * atau Company/Companies. Istilah project ditampilkan sebagai Peluang, sedangkan
+ * company ditampilkan sebagai Rumah Sakit.
  */
 function resolveMenuTitle(rawTitle: string, fallback: string): string {
   const title = rawTitle.trim() || fallback
   return title
+    .replace(/\b(?:compan(?:y|ies)|hospitals?)\b/gi, 'Rumah Sakit')
+    .replace(/\bcontacts?\b/gi, 'Kontak')
     .replace(/\b(?:projects?|pro(?:y|j)ek|peluang|deals?)\b/gi, 'Peluang')
     .replace(/^Peluang\s+Details?$/i, 'Detail Peluang')
     .replace(/^Peluang\s+List$/i, 'Daftar Peluang')
     .replace(/^Peluang\s+Detail\s+Ver2$/i, 'Detail Peluang V2')
+}
+
+/** Arahkan path menu Rumah Sakit yang lama ke URL kanonis. */
+function resolveMenuPath(rawPath?: string): string {
+  const path = (rawPath || '').trim()
+  return /^\/crmadmin\/(?:companies|hospital|peluang)\/?$/i.test(path)
+    ? '/crmAdmin/hospitals'
+    : path
 }
 
 function isRootRef(value?: string): boolean {
@@ -213,7 +224,7 @@ export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
     itemMap.set(id, {
       id,
       title: resolveMenuTitle(raw.CAPTION || raw.name || '', id),
-      path: (raw.pathfile || '').trim(),
+      path: resolveMenuPath(raw.pathfile),
       active: false,
       isPinned: false,
       children: [],

@@ -330,6 +330,7 @@ export const useContact = defineStore("contact", () => {
   const createRumahSakitForm = (): RumahSakitForm => ({
     name: initInputField(),
     phoneNumbers: [initInputField()],
+    email: initInputField(),
     mapAddress: initInputField(),
     address: initInputField(),
     province: initSelectField(),
@@ -1007,21 +1008,19 @@ export const useContact = defineStore("contact", () => {
 
     const { phoneNumbers, ...formFields } = contactState.contactForm;
     const optionalFields = [
+      "lastName",
       "jobTitle",
       "owner",
+      "status",
+      "email",
       "contactNumber",
       "contactType",
-      "mapAddress",
       "address",
       "country",
       "posCode",
       "kdKelurahan",
-      "province",
-      "city",
       "latitude",
       "longitude",
-      "source",
-      "gender",
       "company",
       "project",
     ];
@@ -1031,9 +1030,22 @@ export const useContact = defineStore("contact", () => {
       .filter(Boolean);
     let phoneNumbersValid = true;
 
-    phoneNumbers.forEach((phone, index) => {
-      phone.errorMessage = indonesianMobilePhoneError(phone.data, index === 0);
+    phoneNumbers.forEach((phone) => {
+      phone.errorMessage = indonesianMobilePhoneError(phone.data);
       if (phone.errorMessage) phoneNumbersValid = false;
+    });
+
+    const requiredLabels: Record<string, string> = {
+      firstName: "Nama Depan",
+      mapAddress: "Alamat Google Maps",
+      province: "Provinsi",
+      city: "Kota/Kabupaten",
+      source: "Source",
+      gender: "Jenis Kelamin",
+    };
+    Object.entries(requiredLabels).forEach(([key, label]) => {
+      const field = formFields[key as keyof typeof formFields];
+      if (field?.errorMessage) field.errorMessage = `${label} wajib diisi.`;
     });
 
     if (!validation.isValid || !phoneNumbersValid) return;
@@ -1053,7 +1065,9 @@ export const useContact = defineStore("contact", () => {
         status: textValue(formData.status) || DEFAULT_CONTACT_STATUS,
         telephone_1: normalizedPhoneNumbers[0] ?? "",
         telephone_2: normalizedPhoneNumbers.slice(1).join(", ") || null,
-        address: nullableText(formData.address),
+        // Endpoint kontak hanya menyediakan satu kolom alamat. Jika alamat manual
+        // kosong, pertahankan hasil Google Maps sebagai alamat kontak.
+        address: nullableText(formData.address) ?? nullableText(formData.mapAddress),
         country: nullableText(formData.country),
         province: nullableText(formData.province),
         city: nullableText(formData.city),
@@ -1083,18 +1097,7 @@ export const useContact = defineStore("contact", () => {
     contactState.formSubmitted = true;
 
     const { phoneNumbers, ...formFields } = contactState.rumahSakitForm;
-    const optionalFields = [
-      "mapAddress",
-      "address",
-      "province",
-      "city",
-      "jenis",
-      "tipe",
-      "penyelenggara",
-      "tipeMarketingGo500",
-      "keterangan",
-      "sirs",
-    ];
+    const optionalFields = ["email", "keterangan"];
     const validation = validateForm(formFields, optionalFields);
     const normalizedPhoneNumbers = phoneNumbers
       .map((phone) => phone.data.trim())
@@ -1106,20 +1109,43 @@ export const useContact = defineStore("contact", () => {
         !hasPhoneNumber && index === 0 ? "Nomor telepon wajib diisi." : "";
     });
 
+    const requiredLabels: Record<string, string> = {
+      name: "Nama Rumah Sakit",
+      mapAddress: "Alamat Google Maps",
+      address: "Alamat",
+      province: "Provinsi",
+      city: "Kota/Kabupaten",
+      jenis: "Jenis",
+      tipe: "Tipe",
+      penyelenggara: "Penyelenggara",
+      tipeMarketingGo500: "Tipe Marketing G0500",
+      sirs: "SIRS",
+    };
+    Object.entries(requiredLabels).forEach(([key, label]) => {
+      const field = formFields[key as keyof typeof formFields];
+      if (field?.errorMessage) field.errorMessage = `${label} wajib diisi.`;
+    });
+
     if (!validation.isValid || !hasPhoneNumber) return;
 
     const formData = validation.formData;
-    // Kolom tabel companies: company_name, telephone, address, province, city, description.
-    // Nomor telepon yang dikirim hanya satu (kolom telephone tunggal).
-    // Field jenis, tipe, penyelenggara, tipeMarketingGo500, sirs, dan mapAddress belum
-    // ada kolomnya di tabel companies yang terkonfirmasi, sehingga belum dikirim.
+    // Payload sementara mengikuti seluruh field pada Kerangka Menu RS.
+    // Backend saat ini menyediakan satu field telephone, sehingga beberapa nomor
+    // diserialisasi sebagai daftar yang dipisahkan koma tanpa membuang input pengguna.
     const payload: HospitalPayload = {
       company_name: textValue(formData.name),
-      telephone: normalizedPhoneNumbers[0] ?? "",
+      telephone: normalizedPhoneNumbers.join(", "),
+      email: textValue(formData.email),
+      map_address: textValue(formData.mapAddress),
       address: textValue(formData.address),
       province: textValue(formData.province),
       city: textValue(formData.city),
+      jenis: textValue(formData.jenis),
+      tipe: textValue(formData.tipe),
+      penyelenggara: textValue(formData.penyelenggara),
+      tipe_marketing_go500: textValue(formData.tipeMarketingGo500),
       description: textValue(formData.keterangan),
+      sirs: textValue(formData.sirs),
     };
 
     try {

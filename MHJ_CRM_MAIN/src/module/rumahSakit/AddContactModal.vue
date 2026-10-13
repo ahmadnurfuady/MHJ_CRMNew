@@ -14,13 +14,13 @@
                 v-model:modelValue="contactState.rumahSakitForm.name"
                 :formSubmitted="contactState.formSubmitted"
                 inputId="rs-name"
-                placeholder="Masukkan nama rumah sakit"
+                placeholder="Masukkan nama rumah sakit / faskes..."
               />
             </InputWrapper>
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Telp" required>
+            <InputWrapper title="Nomor Telepon" required>
               <div
                 v-for="(phone, index) in contactState.rumahSakitForm.phoneNumbers"
                 :key="index"
@@ -33,7 +33,9 @@
                     :inputId="`rs-phone-${index}`"
                     inputType="tel"
                     :placeholder="
-                      index === 0 ? 'Masukkan nomor telepon' : 'Nomor telepon tambahan'
+                      index === 0
+                        ? 'Contoh: 021-1234567 / 08123456789'
+                        : 'Nomor telepon tambahan'
                     "
                     :required="index === 0"
                   />
@@ -54,21 +56,33 @@
                 @click="addPhone"
               >
                 <vue-feather type="plus" size="17" />
-                <span>Tambah nomor</span>
+                <span>Tambah nomor telepon</span>
               </button>
             </InputWrapper>
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Alamat (Google Maps)">
+            <InputWrapper title="Email Faskes">
+              <InputField
+                v-model:modelValue="contactState.rumahSakitForm.email"
+                inputId="rs-email"
+                inputType="email"
+                placeholder="Contoh: info@rumahsakit.com"
+                :required="false"
+              />
+            </InputWrapper>
+          </div>
+
+          <div class="col-12">
+            <InputWrapper title="Alamat (Google Maps)" required>
               <div class="location-field">
                 <div class="location-input-group">
                   <div class="location-address-box">
                     <InputField
                       v-model:modelValue="contactState.rumahSakitForm.mapAddress"
+                      :formSubmitted="contactState.formSubmitted"
                       inputId="rs-map-address"
-                      placeholder="Alamat lengkap akan muncul dari lokasi saat ini"
-                      :required="false"
+                      placeholder="Ketik nama faskes atau alamat..."
                     />
                     <button
                       v-if="contactState.rumahSakitForm.mapAddress.data"
@@ -105,32 +119,32 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Alamat">
+            <InputWrapper title="Alamat" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.address"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="rs-address"
                 inputType="textarea"
-                placeholder="Ketik alamat lengkap"
-                :required="false"
+                placeholder="Masukkan alamat lengkap rumah sakit..."
                 :rows="2"
               />
             </InputWrapper>
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Provinsi">
+            <InputWrapper title="Provinsi" required>
               <Select
                 v-model="contactState.rumahSakitForm.province"
                 :options="provinceOptions"
                 display-key="label"
                 getValueKey="label"
-                placeholder="Cari provinsi"
-                :required="false"
+                placeholder="Pilih Provinsi"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="City">
+            <InputWrapper title="Kota/Kabupaten" required>
               <Select
                 v-model="contactState.rumahSakitForm.city"
                 :options="cityOptions"
@@ -138,64 +152,53 @@
                 getValueKey="label"
                 :placeholder="
                   contactState.rumahSakitForm.province.data
-                    ? 'Cari kota'
-                    : 'Pilih provinsi dahulu'
+                    ? 'Pilih Kota/Kabupaten'
+                    : 'Pilih Provinsi terlebih dahulu'
                 "
                 :disabled="!contactState.rumahSakitForm.province.data"
-                :required="false"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Jenis">
+            <InputWrapper title="Jenis" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.jenis"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="rs-jenis"
-                placeholder="Masukkan jenis"
-                :required="false"
+                placeholder="Pilih Jenis"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Tipe">
+            <InputWrapper title="Tipe" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.tipe"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="rs-tipe"
-                placeholder="Masukkan tipe"
-                :required="false"
+                placeholder="Pilih Tipe"
               />
             </InputWrapper>
           </div>
 
           <div class="col-md-6">
-            <InputWrapper title="Penyelenggara">
+            <InputWrapper title="Penyelenggara" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.penyelenggara"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="rs-penyelenggara"
-                placeholder="Masukkan penyelenggara"
-                :required="false"
+                placeholder="Pilih Penyelenggara"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Tipe Marketing GO500">
+            <InputWrapper title="Tipe Marketing G0500" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.tipeMarketingGo500"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="rs-tipe-marketing"
-                placeholder="Masukkan tipe marketing GO500"
-                :required="false"
-              />
-            </InputWrapper>
-          </div>
-
-          <div class="col-md-6">
-            <InputWrapper title="SIRS">
-              <InputField
-                v-model:modelValue="contactState.rumahSakitForm.sirs"
-                inputId="rs-sirs"
-                placeholder="Masukkan kode SIRS"
-                :required="false"
+                placeholder="Pilih Tipe Marketing"
               />
             </InputWrapper>
           </div>
@@ -206,9 +209,24 @@
                 v-model:modelValue="contactState.rumahSakitForm.keterangan"
                 inputId="rs-keterangan"
                 inputType="textarea"
-                placeholder="Tulis keterangan"
+                placeholder="Tambahkan keterangan (opsional)..."
                 :required="false"
                 :rows="3"
+                :maxLength="150"
+              />
+              <small class="field-character-count">
+                {{ contactState.rumahSakitForm.keterangan.data.length }}/150
+              </small>
+            </InputWrapper>
+          </div>
+
+          <div class="col-12">
+            <InputWrapper title="SIRS" required>
+              <InputField
+                v-model:modelValue="contactState.rumahSakitForm.sirs"
+                :formSubmitted="contactState.formSubmitted"
+                inputId="rs-sirs"
+                placeholder="Masukkan kode SIRS (contoh: 3578012)..."
               />
             </InputWrapper>
           </div>
@@ -218,7 +236,7 @@
       <div class="modal-footer">
         <button class="btn btn-light" type="button" @click="closeRumahSakitModal">Batal</button>
         <button class="btn btn-primary" type="submit">
-          <vue-feather type="save" size="16" class="me-1" />Simpan Rumah Sakit
+          <vue-feather type="save" size="16" class="me-1" />Simpan
         </button>
       </div>
     </form>
@@ -226,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 
 import { initInputField, initSelectField } from "@/core/data/common";
@@ -257,13 +275,17 @@ const { saveRumahSakit, closeRumahSakitModal } = contactStore;
 const locatingAddress = ref(false);
 const locationError = ref("");
 
-const { provinceOptions, cityOptionsByProvince } = useCompanyRegions();
+const { provinceOptions, cityOptionsByProvince, loadRegions } = useCompanyRegions();
 
 const cityOptions = computed(
   () =>
     cityOptionsByProvince.value[contactState.value.rumahSakitForm.province.data] ||
     [],
 );
+
+onMounted(() => {
+  void loadRegions();
+});
 
 watch(
   () => contactState.value.rumahSakitForm.province.data,
@@ -330,6 +352,13 @@ function clearCurrentAddress() {
 .location-field {
   display: grid;
   gap: 7px;
+}
+
+.field-character-count {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  text-align: right;
 }
 
 .location-input-group {

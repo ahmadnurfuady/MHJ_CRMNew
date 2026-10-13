@@ -9,7 +9,7 @@
         <i class="fa-solid fa-arrow-left"></i>
       </router-link>
       <div>
-        <p>Companies</p>
+        <p>Rumah Sakit</p>
         <h3>Detail Rumah Sakit</h3>
       </div>
     </div>
@@ -260,7 +260,7 @@
 
       <section v-else class="tab-panel profile-panel">
         <div class="panel-heading profile-heading">
-          <div><p>Informasi perusahaan</p><h5>Profil Rumah Sakit</h5></div>
+          <div><p>Informasi rumah sakit</p><h5>Profil Rumah Sakit</h5></div>
           <button class="close-profile" type="button" @click="activeTab = 'projects'">
             <i class="fa-solid fa-xmark"></i>Tutup profil
           </button>

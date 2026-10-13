@@ -19,17 +19,17 @@
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper :title="t('contacts.lastName')" required>
+            <InputWrapper :title="t('contacts.lastName')">
               <InputField
                 v-model:modelValue="contactState.contactForm.lastName"
-                :formSubmitted="contactState.formSubmitted"
                 inputId="contact-last-name"
                 :placeholder="t('contacts.placeholders.lastName')"
+                :required="false"
               />
             </InputWrapper>
           </div>
 
-          <div class="col-md-6">
+          <div class="col-12">
             <InputWrapper :title="t('contacts.jobTitle')">
               <InputField
                 v-model:modelValue="contactState.contactForm.jobTitle"
@@ -39,33 +39,21 @@
               />
             </InputWrapper>
           </div>
-          <div class="col-md-6">
-            <InputWrapper title="Penanggung Jawab">
-              <Select
-                v-model="contactState.contactForm.owner"
-                :options="ownerOptions"
-                display-key="label"
-                getValueKey="value"
-                :placeholder="loggedInOwnerName"
+
+          <div class="col-12">
+            <InputWrapper :title="t('contacts.email')">
+              <InputField
+                v-model:modelValue="contactState.contactForm.email"
+                inputId="contact-email"
+                inputType="email"
+                placeholder="Contoh: nama@domain.com"
                 :required="false"
               />
             </InputWrapper>
           </div>
 
           <div class="col-12">
-            <InputWrapper :title="t('contacts.email')" required>
-              <InputField
-                v-model:modelValue="contactState.contactForm.email"
-                :formSubmitted="contactState.formSubmitted"
-                inputId="contact-email"
-                inputType="email"
-                placeholder="nama@perusahaan.com"
-              />
-            </InputWrapper>
-          </div>
-
-          <div class="col-12">
-            <InputWrapper :title="t('contacts.phone')" required>
+            <InputWrapper :title="t('contacts.phone')">
               <div
                 v-for="(phone, index) in contactState.contactForm.phoneNumbers"
                 :key="index"
@@ -82,13 +70,13 @@
                     :maxLength="15"
                     :formatValue="true"
                     :formatFunction="sanitizeIndonesianPhoneInput"
-                    :validator="index === 0 ? requiredPhoneValidator : optionalPhoneValidator"
+                    :validator="optionalPhoneValidator"
                     :placeholder="
                       index === 0
-                        ? 'Contoh: 081234567890 atau +6281234567890'
+                        ? 'Contoh: 0812-3456-7890'
                         : 'Contoh nomor tambahan: 081234567890'
                     "
-                    :required="index === 0"
+                    :required="false"
                   />
                 </div>
                 <button
@@ -102,7 +90,7 @@
                 </button>
               </div>
               <small class="d-block text-muted mb-3">
-                Gunakan nomor HP Indonesia dengan awalan 08, 628, atau +628.
+                Jika diisi, gunakan awalan 08, 628, atau +628.
               </small>
               <button
                 class="btn btn-outline-primary add-phone-button"
@@ -116,15 +104,15 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper :title="t('contacts.mapAddress')">
+            <InputWrapper :title="t('contacts.mapAddress')" required>
               <div class="location-field">
                 <div class="location-input-group">
                   <div class="location-address-box">
                     <InputField
                       v-model:modelValue="contactState.contactForm.mapAddress"
+                      :formSubmitted="contactState.formSubmitted"
                       inputId="contact-map-address"
-                      placeholder="Alamat lengkap akan muncul dari lokasi saat ini"
-                      :required="false"
+                      placeholder="Ketik nama faskes atau alamat..."
                     />
                     <button
                       v-if="contactState.contactForm.mapAddress.data"
@@ -149,7 +137,7 @@
                       aria-hidden="true"
                     ></span>
                     <vue-feather v-else type="map-pin" size="17" />
-                    <span>{{ locatingAddress ? 'Mencari...' : 'Cari lokasi' }}</span>
+                    <span>{{ locatingAddress ? 'Mencari...' : 'Cari' }}</span>
                   </button>
                 </div>
                 <small class="text-muted">
@@ -174,19 +162,19 @@
           </div>
 
           <div class="col-md-6">
-            <InputWrapper :title="t('contacts.province')">
+            <InputWrapper :title="t('contacts.province')" required>
               <Select
                 v-model="contactState.contactForm.province"
                 :options="provinceOptions"
                 display-key="label"
                 getValueKey="label"
                 :placeholder="t('contacts.placeholders.province')"
-                :required="false"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper :title="t('contacts.city')">
+            <InputWrapper :title="t('contacts.city')" required>
               <Select
                 v-model="contactState.contactForm.city"
                 :options="cityOptions"
@@ -198,31 +186,31 @@
                     : t('contacts.placeholders.selectProvinceFirst')
                 "
                 :disabled="!contactState.contactForm.province.data"
-                :required="false"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper :title="t('contacts.source')">
+            <InputWrapper :title="t('contacts.source')" required>
               <Select
                 v-model="contactState.contactForm.source"
                 :options="sourceOptions"
                 display-key="label"
                 getValueKey="value"
                 :placeholder="t('contacts.placeholders.source')"
-                :required="false"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
           <div class="col-md-6">
-            <InputWrapper title="Jenis Kelamin">
+            <InputWrapper title="Jenis Kelamin" required>
               <Select
                 v-model="contactState.contactForm.gender"
                 :options="genderOptions"
                 display-key="label"
                 getValueKey="value"
                 placeholder="Pilih jenis kelamin"
-                :required="false"
+                :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
           </div>
@@ -334,8 +322,6 @@ const sourceOptions = computed(() => contactApi.value.sources);
 const statusOptions = computed(() => contactApi.value.statuses);
 const locatingAddress = ref(false);
 const locationError = ref("");
-const requiredPhoneValidator = (value: string) =>
-  indonesianMobilePhoneError(value, true);
 const optionalPhoneValidator = (value: string) =>
   indonesianMobilePhoneError(value);
 const loggedInOwnerName = computed(

@@ -7,29 +7,39 @@
           {{ formatTotal(hospitalPagination.total || filteredContact.length) }} total rumah sakit
         </p>
       </div>
-      <div class="hospital-search" role="search">
-        <label class="visually-hidden" for="hospital-search-input">Cari rumah sakit</label>
-        <vue-feather type="search" size="17" />
-        <input
-          id="hospital-search-input"
-          v-model="searchQuery"
-          type="search"
-          placeholder="Cari nama, provinsi, atau kota..."
-          autocomplete="off"
-        />
-        <span
-          v-if="hospitalLoading"
-          class="spinner-border spinner-border-sm hospital-search__loading"
-          aria-hidden="true"
-        ></span>
+      <div class="hospital-header-actions">
+        <div class="hospital-search" role="search">
+          <label class="visually-hidden" for="hospital-search-input">Cari rumah sakit</label>
+          <vue-feather type="search" size="17" />
+          <input
+            id="hospital-search-input"
+            v-model="searchQuery"
+            type="search"
+            placeholder="Cari nama, provinsi, atau kota..."
+            autocomplete="off"
+          />
+          <span
+            v-if="hospitalLoading"
+            class="spinner-border spinner-border-sm hospital-search__loading"
+            aria-hidden="true"
+          ></span>
+          <button
+            v-else-if="searchQuery"
+            class="hospital-search__clear"
+            type="button"
+            aria-label="Hapus pencarian"
+            @click="searchQuery = ''"
+          >
+            <vue-feather type="x" size="15" />
+          </button>
+        </div>
         <button
-          v-else-if="searchQuery"
-          class="hospital-search__clear"
+          class="btn btn-primary add-hospital-header-button"
           type="button"
-          aria-label="Hapus pencarian"
-          @click="searchQuery = ''"
+          @click="openContactModal"
         >
-          <vue-feather type="x" size="15" />
+          <vue-feather type="plus" size="17" />
+          <span>Tambah Rumah Sakit Baru</span>
         </button>
       </div>
     </div>
@@ -188,10 +198,11 @@
     </div>
   </div>
 
+  <AddContactModal v-if="contactState.openAddContactModal" />
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { companyDetails } from "@/core/data/contactCrm";
@@ -201,12 +212,15 @@ import { useHospitalStore } from "@/store/hospital";
 import type { Contact } from "@/types/contacts";
 import { getImages } from "@/utils/index";
 
+const AddContactModal = defineAsyncComponent(
+  () => import("@/module/rumahSakit/AddContactModal.vue"),
+);
 const router = useRouter();
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
-const { filteredContact } = storeToRefs(contactStore);
+const { contactState, filteredContact } = storeToRefs(contactStore);
 const { pagination: hospitalPagination, loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { changeHospitalPage, searchHospitals } = contactStore;
+const { changeHospitalPage, openContactModal, searchHospitals } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 const hospitalTableColumns = [
@@ -390,10 +404,19 @@ onBeforeUnmount(() => {
 <style scoped>
 .hospital-list-header {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(280px, 520px);
+  grid-template-columns: minmax(160px, 1fr) minmax(0, 720px);
   align-items: center;
   gap: 24px;
   padding: 20px 24px;
+}
+
+.hospital-header-actions {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) max-content;
+  width: 100%;
+  align-items: center;
+  justify-content: end;
+  gap: 10px;
 }
 
 .hospital-title-group {
@@ -469,6 +492,40 @@ onBeforeUnmount(() => {
   padding: 0;
   background: #f1f5f9;
   color: #64748b;
+}
+
+.add-hospital-header-button {
+  display: inline-flex;
+  width: auto;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-color: #18a6e4 !important;
+  border-radius: 8px;
+  margin: 0 !important;
+  padding: 0 18px;
+  background-color: #18a6e4 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+}
+
+.add-hospital-header-button:hover,
+.add-hospital-header-button:focus {
+  border-color: #1493cc !important;
+  background-color: #1493cc !important;
+  color: #ffffff !important;
+}
+
+.add-hospital-header-button span,
+.add-hospital-header-button svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .hospital-table-wrap {
@@ -707,9 +764,21 @@ onBeforeUnmount(() => {
     gap: 14px;
     padding: 18px;
   }
+
+  .hospital-header-actions {
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
 }
 
 @media (max-width: 575.98px) {
+  .hospital-header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .add-hospital-header-button {
+    width: 100%;
+  }
+
   .hospital-table-wrap {
     padding: 12px;
     overflow: visible;

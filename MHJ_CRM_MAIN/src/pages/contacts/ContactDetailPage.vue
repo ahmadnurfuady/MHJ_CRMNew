@@ -5,7 +5,7 @@
         <i class="fa-solid fa-arrow-left"></i>
       </button>
       <div>
-        <p>Contacts</p>
+        <p>Kontak</p>
         <h3>Detail Kontak</h3>
       </div>
     </div>

@@ -366,7 +366,7 @@
     "upgradeNow": "Upgrade Now"
   },
   "contacts": {
-    "addTitle": "Add Contact Person",
+    "addTitle": "Create Contact",
     "firstName": "First Name",
     "lastName": "Last Name",
     "jobTitle": "Job Title",
@@ -379,10 +379,10 @@
     "city": "City",
     "source": "Source",
     "gender": "Gender",
-    "company": "Company",
-    "project": "Opportunity",
-    "save": "Save Contact",
-    "addPhone": "Add number",
+    "company": "Hospital/Healthcare Facility",
+    "project": "Project",
+    "save": "Save",
+    "addPhone": "Add phone number",
     "deletePhone": "Delete number",
     "searchMaps": "Search Maps",
     "placeholders": {
@@ -399,7 +399,7 @@
       "selectProvinceFirst": "Select a province first",
       "source": "Select contact source",
       "gender": "Select M / F",
-      "company": "Search company",
+      "company": "Search hospital",
       "project": "Search opportunity name"
     }
   }

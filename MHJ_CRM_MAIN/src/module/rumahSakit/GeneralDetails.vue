@@ -31,17 +31,17 @@
 
     <div class="email-general">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <h6 class="mb-0">Informasi Company</h6>
+        <h6 class="mb-0">Informasi Rumah Sakit</h6>
         <span v-if="hospitalLoading" class="text-muted f-12">Memuat detail...</span>
       </div>
 
       <div class="company-detail-grid">
         <div class="company-detail-item">
-          <span class="detail-label">Nama Company</span>
+          <span class="detail-label">Nama Rumah Sakit</span>
           <span class="detail-value">{{ displayValue(contactState.activeContact.firstName) }}</span>
         </div>
         <div class="company-detail-item">
-          <span class="detail-label">Company Owner</span>
+          <span class="detail-label">Pemilik Rumah Sakit</span>
           <span class="detail-value">{{ displayValue(contactState.activeContact.owner) }}</span>
         </div>
         <div class="company-detail-item">

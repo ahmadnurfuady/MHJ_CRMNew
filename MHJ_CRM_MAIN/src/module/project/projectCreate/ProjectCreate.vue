@@ -4,28 +4,28 @@
       <div class="col-12">
         <div class="card create-project-form custom-input">
           <div class="card-body">
-            <h5 class="mb-3">{{ isEditMode ? 'Edit Peluang' : 'Tambah Peluang Baru' }}</h5>
+            <h5 class="mb-3">{{ isEditMode ? 'Edit Peluang' : 'Tambah Peluang' }}</h5>
             <div v-if="loadingProject" class="text-center py-5">
               <span class="spinner-border text-primary" role="status"></span>
             </div>
             <form v-else class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
               <div class="col-12">
-                <InputWrapper :title="'Nama Peluang'">
+                <InputWrapper :title="'Nama Peluang'" required>
                   <InputField
                     :modelValue="projectNameField"
                     :inputId="'project-name'"
-                    :placeholder="'Otomatis: EKAT/PRVT_Perusahaan_Produk'"
+                    :placeholder="'EKAT/PRVT_Nama Rumah Sakit_Nama Produk'"
                     :disabled="true"
                   />
                 </InputWrapper>
               </div>
 
               <div class="col-md-6">
-                <InputWrapper :title="'Perusahaan'">
+                <InputWrapper :title="'Rumah Sakit'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Cari perusahaan'"
+                    :placeholder="'Cari nama rumah sakit di database...'"
                     v-model="projectForm.company"
                     :options="companyOptions"
                     :formSubmitted="formSubmitted"
@@ -36,11 +36,11 @@
               </div>
 
               <div class="col-md-6">
-                <InputWrapper :title="'Contact'">
+                <InputWrapper :title="'Kontak PIC'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Cari contact'"
+                    :placeholder="'Cari PIC kontak di database...'"
                     v-model="projectForm.contact"
                     :options="contactOptions"
                     :formSubmitted="formSubmitted"
@@ -51,12 +51,25 @@
                   type="button"
                   @click="openContactModal"
                 >
-                  <vue-feather type="plus" size="14" class="me-1" />Tambah contact baru
+                  <vue-feather type="plus" size="14" class="me-1" />Tambah Kontak Baru
                 </button>
               </div>
 
               <div class="col-md-6">
-                <InputWrapper :title="'Stage'">
+                <InputWrapper :title="'Owner (Pemilik Peluang)'" required>
+                  <Select
+                    getValueKey="label"
+                    display-key="label"
+                    :placeholder="'Pilih owner di database...'"
+                    v-model="projectForm.owner"
+                    :options="ownerOptions"
+                    :formSubmitted="formSubmitted"
+                  />
+                </InputWrapper>
+              </div>
+
+              <div class="col-md-6">
+                <InputWrapper :title="'Stage'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
@@ -69,24 +82,11 @@
               </div>
 
               <div class="col-md-6">
-                <InputWrapper :title="'Owner'">
+                <InputWrapper :title="'Divisi'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Pilih owner'"
-                    v-model="projectForm.owner"
-                    :options="ownerOptions"
-                    :formSubmitted="formSubmitted"
-                  />
-                </InputWrapper>
-              </div>
-
-              <div class="col-md-6">
-                <InputWrapper :title="'Divisi'">
-                  <Select
-                    getValueKey="label"
-                    display-key="label"
-                    :placeholder="'Pilih satu divisi'"
+                    :placeholder="'Pilih Divisi Produk'"
                     v-model="projectForm.division"
                     :options="projectStore.lookups.divisi"
                     :formSubmitted="formSubmitted"
@@ -95,7 +95,7 @@
               </div>
 
               <div class="col-md-6">
-                <InputWrapper :title="'Produk'">
+                <InputWrapper :title="'Produk'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
@@ -110,10 +110,11 @@
                 </InputWrapper>
               </div>
 
-              <div class="col-md-4">
-                <InputWrapper :title="'Qty'">
+              <div class="col-6">
+                <InputWrapper :title="'Qty'" required>
                   <InputField
                     v-model:modelValue="projectForm.quantity"
+                    :formSubmitted="formSubmitted"
                     :inputId="'project-quantity'"
                     :placeholder="'Qty'"
                     :inputType="'number'"
@@ -121,8 +122,8 @@
                 </InputWrapper>
               </div>
 
-              <div class="col-md-4">
-                <InputWrapper :title="'Harga'">
+              <div class="col-6">
+                <InputWrapper :title="'Harga Satuan (Rp)'" required>
                   <InputField
                     :modelValue="priceField"
                     :inputId="'project-price'"
@@ -132,8 +133,8 @@
                 </InputWrapper>
               </div>
 
-              <div class="col-md-4">
-                <InputWrapper :title="'Value'">
+              <div class="col-12">
+                <InputWrapper :title="'Value Deal (Total)'">
                   <InputField
                     :modelValue="valueField"
                     :inputId="'project-value'"
@@ -144,9 +145,10 @@
               </div>
 
               <div class="col-md-4">
-                <InputWrapper :title="'Estimasi PO'">
+                <InputWrapper :title="'Estimasi PO'" required>
                   <InputField
                     v-model:modelValue="projectForm.estimatedPo"
+                    :formSubmitted="formSubmitted"
                     :inputId="'estimated-po'"
                     :placeholder="'Pilih tanggal'"
                     :inputType="'date'"
@@ -155,11 +157,11 @@
               </div>
 
               <div class="col-md-4">
-                <InputWrapper :title="'Kompetitor'">
+                <InputWrapper :title="'Kompetitor'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Pilih kompetitor'"
+                    :placeholder="'Pilih nama kompetitor di database...'"
                     v-model="projectForm.competitor"
                     :options="projectStore.lookups.competitor"
                     :formSubmitted="formSubmitted"
@@ -168,11 +170,11 @@
               </div>
 
               <div class="col-md-4">
-                <InputWrapper :title="'Sumber Pendanaan'">
+                <InputWrapper :title="'Sumber Pendanaan'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Pilih sumber pendanaan'"
+                    :placeholder="'Pilih sumber pendanaan di database...'"
                     v-model="projectForm.fundingSource"
                     :options="projectStore.lookups.sumberdana"
                     :formSubmitted="formSubmitted"
@@ -196,11 +198,11 @@
               </div>
 
               <div class="col-12">
-                <InputWrapper :title="'Notes/Comment'">
+                <InputWrapper :title="'Notes/Catatan'">
                   <InputField
                     v-model:modelValue="projectForm.notes"
                     :inputId="'project-notes'"
-                    :placeholder="'Contoh: Client serius, tinggal nego harga'"
+                    :placeholder="'Tambahkan konteks peluang, kebutuhan RS, spesifikasi alkes, dll.'"
                     :inputType="'textarea'"
                     :rows="3"
                     :required="false"
@@ -208,7 +210,7 @@
                 </InputWrapper>
               </div>
 
-              <div class="col-12">
+              <div v-if="isEditMode" class="col-12">
                 <div class="border rounded p-3">
                   <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
                     <div>
@@ -285,7 +287,7 @@
                       class="spinner-border spinner-border-sm me-2"
                       aria-hidden="true"
                     />
-                    {{ isEditMode ? 'Simpan Perubahan' : 'Tambah Peluang' }}
+                    {{ isEditMode ? 'Simpan Perubahan' : 'Simpan Peluang' }}
                   </button>
                 </div>
               </div>
@@ -344,18 +346,24 @@ const Select = defineAsyncComponent(() => import('@/components/shared/formElemen
 const AddContactModal = defineAsyncComponent(() => import('@/module/contacts/AddContactModal.vue'))
 
 const stageOptions: PipelineStageOption[] = [
-  { value: 1, code: 'qualified', label: 'Qualified', probability: 10 },
-  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo', probability: 30 },
-  { value: 3, code: 'quotation', label: 'Quotation', probability: 60 },
-  { value: 4, code: 'negotiation', label: 'Negotiation', probability: 80 },
-  { value: 5, code: 'closed_won', label: 'Closed Won', probability: 100 },
-  { value: 6, code: 'closed_lost', label: 'Closed Lost', probability: 0 },
-  { value: 7, code: 'closed_cancel', label: 'Closed Cancel', probability: 0 },
+  { value: 1, code: 'qualified', label: 'Qualified (10%)', probability: 10 },
+  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo (30%)', probability: 30 },
+  { value: 3, code: 'quotation', label: 'Quotation (60%)', probability: 60 },
+  { value: 4, code: 'negotiation', label: 'Negotiation (80%)', probability: 80 },
+  { value: 5, code: 'closed_won', label: 'Closed Won (100%)', probability: 100 },
+  { value: 6, code: 'closed_lost', label: 'Closed Lost (0%)', probability: 0 },
+  { value: 7, code: 'closed_cancel', label: 'Closed Cancel (0%)', probability: 0 },
 ]
 
 const defaultStage = stageOptions.find(
-  (stage) => stage.code === 'negotiation'
+  (stage) => stage.code === 'qualified'
 ) as PipelineStageOption
+
+function todayForDateInput() {
+  const today = new Date()
+  const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60_000)
+  return localToday.toISOString().slice(0, 10)
+}
 
 function selectedField(option?: DealOption) {
   const field = initSelectField()
@@ -385,7 +393,7 @@ const projectForm = ref({
   division: initSelectField(),
   products: initSelectField(),
   quantity: { data: '1', errorMessage: '' },
-  estimatedPo: initInputField(),
+  estimatedPo: { data: todayForDateInput(), errorMessage: '' },
   competitor: initSelectField(),
   fundingSource: initSelectField(),
   lostReasons: initSelectField(),
@@ -493,11 +501,15 @@ const projectValue = computed(() => price.value * quantity.value)
 const rupiah = (amount: number) => `Rp ${amount.toLocaleString('id-ID')}`
 const projectNameField = computed(() => ({
   data: projectName.value,
-  errorMessage: '',
+  errorMessage:
+    formSubmitted.value && !projectName.value ? 'Nama Peluang wajib diisi.' : '',
 }))
 const priceField = computed(() => ({
   data: rupiah(price.value),
-  errorMessage: '',
+  errorMessage:
+    formSubmitted.value && price.value <= 0
+      ? 'Harga Satuan wajib tersedia dan harus lebih besar dari 0.'
+      : '',
 }))
 const valueField = computed(() => ({
   data: rupiah(projectValue.value),
@@ -759,11 +771,11 @@ onMounted(async () => {
 async function handleSubmit() {
   formSubmitted.value = true
   const form = projectForm.value
-  const requiredFields: [string, { data: unknown }][] = [
-    ['Perusahaan', form.company],
-    ['Contact', form.contact],
+  const requiredFields: [string, { data: unknown; errorMessage?: string }][] = [
+    ['Rumah Sakit', form.company],
+    ['Kontak PIC', form.contact],
     ['Stage', form.stage],
-    ['Owner', form.owner],
+    ['Owner (Pemilik Peluang)', form.owner],
     ['Divisi', form.division],
     ['Produk', form.products],
     ['Qty', form.quantity],
@@ -773,6 +785,9 @@ async function handleSubmit() {
   ]
   if (isLostOrCancelled.value) requiredFields.push(['Alasan Kalah/Batal', form.lostReasons])
 
+  requiredFields.forEach(([label, field]) => {
+    field.errorMessage = isFilled(field) ? '' : `${label} wajib diisi.`
+  })
   const emptyFields = requiredFields.filter(([, field]) => !isFilled(field)).map(([label]) => label)
   if (emptyFields.length) {
     await Swal.fire({
@@ -792,6 +807,15 @@ async function handleSubmit() {
     return
   }
 
+  if (!Number.isFinite(price.value) || price.value <= 0) {
+    await Swal.fire({
+      icon: 'error',
+      text: 'Harga Satuan wajib tersedia dan harus lebih besar dari 0.',
+      confirmButtonColor: 'var(--theme-default)',
+    })
+    return
+  }
+
   const company = selectedCompany.value as CompanyOption
   const contact = selectedOf(form.contact) as DealOption
   const owner = selectedOf(form.owner) as DealOption
@@ -804,9 +828,9 @@ async function handleSubmit() {
 
   if (!companyId || !contactId || !ownerId || !stageId) {
     const missing = [
-      !companyId && 'Perusahaan',
-      !contactId && 'Contact',
-      !ownerId && 'Owner',
+      !companyId && 'Rumah Sakit',
+      !contactId && 'Kontak PIC',
+      !ownerId && 'Owner (Pemilik Peluang)',
       !stageId && `Stage "${selectedStage.value?.label ?? ''}"`,
     ].filter(Boolean)
     await Swal.fire({

@@ -57,7 +57,7 @@
             :formSubmitted="formSubmitted"
             inputId="edit-contact-email"
             inputType="email"
-            placeholder="nama@perusahaan.com"
+            placeholder="nama@rumahsakit.com"
           />
         </InputWrapper>
       </div>
@@ -220,13 +220,13 @@
       </div>
 
       <div class="col-md-6">
-        <InputWrapper title="Perusahaan">
+        <InputWrapper title="Rumah Sakit">
           <Select
             v-model="form.company"
             :options="companyOptions"
             display-key="label"
             getValueKey="value"
-            placeholder="Cari perusahaan"
+            placeholder="Cari rumah sakit"
             :required="false"
           />
         </InputWrapper>

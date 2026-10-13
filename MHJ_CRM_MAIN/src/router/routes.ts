@@ -8,7 +8,7 @@ export const routes = {
   },
   CrmAdmin: {
     Dashboard: '/crmAdmin',
-    Companies: '/crmAdmin/companies',
+    Hospitals: '/crmAdmin/hospitals',
     Contacts: '/crmAdmin/contacts',
     ProjectsPipeline: '/crmAdmin/projects-pipeline',
     Projects: '/crmAdmin/Projects',
@@ -44,7 +44,7 @@ export const routes = {
     MailBox: '/app/mail_box',
     BookMarks: '/app/bookmark',
     Contacts: '/crmAdmin/contacts',
-    RumahSakit: '/crmAdmin/companies',
+    RumahSakit: '/crmAdmin/hospitals',
     Task: '/crmAdmin/task',
     Calender: '/app/calender',
     SocialApps: '/app/social_app',

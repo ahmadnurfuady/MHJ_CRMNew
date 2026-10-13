@@ -65,6 +65,7 @@ export interface HospitalContactAssociation {
 export interface HospitalPayload {
   company_name: string
   telephone?: string
+  map_address?: string
   email?: string
   website?: string
   description?: string
@@ -73,4 +74,9 @@ export interface HospitalPayload {
   province?: string
   city?: string
   pos_code?: string
+  jenis?: string
+  tipe?: string
+  penyelenggara?: string
+  tipe_marketing_go500?: string
+  sirs?: string
 }
