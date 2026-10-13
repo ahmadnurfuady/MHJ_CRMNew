@@ -30,23 +30,24 @@
           <span>{{ projectDetailsHeader.dueDate }}</span>
         </li>
       </ul>
-      <router-link
+      <button
         class="btn btn-primary"
-        href="#"
-        :to="routes.Project.ProjectCreate"
+        type="button"
+        @click="projectStore.openCreateModal()"
       >
         <i class="fa-solid fa-plus"></i>
-        Add Peluang
-      </router-link>
+        Tambah Peluang
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
-import { routes } from '@/router/routes'
 import { projectDetailsHeader } from '@/core/data/project'
+import { useProjectStore } from '@/store/project'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 const GroupItem = defineAsyncComponent(() => import('@/components/shared/GroupItem.vue'))
+const projectStore = useProjectStore()
 </script>

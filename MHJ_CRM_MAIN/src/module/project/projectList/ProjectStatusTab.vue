@@ -24,18 +24,22 @@
           </li>
         </template>
       </ul>
-      <router-link class="btn btn-primary flex-shrink-0" :to="routes.Project.ProjectCreate">
+      <button
+        class="btn btn-primary flex-shrink-0"
+        type="button"
+        @click="projectStore.openCreateModal()"
+      >
         <i class="fa-solid fa-plus"></i>
-        Add Peluang
-      </router-link>
+        Tambah Peluang
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { routes } from '@/router/routes'
 import { computed, ref, onMounted } from 'vue'
 import { projectTab } from '@/core/data/project'
+import { useProjectStore } from '@/store/project'
 import type { Projects } from '@/types/project'
 
 const props = withDefaults(
@@ -48,6 +52,7 @@ const props = withDefaults(
 )
 
 const emit = defineEmits(['activeTabValue'])
+const projectStore = useProjectStore()
 
 const activeTab = ref(projectTab[0].value)
 

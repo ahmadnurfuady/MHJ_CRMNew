@@ -58,7 +58,7 @@ export const menu: MenuItem[] = [
       },
       {
         path: routes.Project.ProjectCreate,
-        title: 'Create new',
+        title: 'Tambah Peluang',
         type: 'link',
       },
     ],

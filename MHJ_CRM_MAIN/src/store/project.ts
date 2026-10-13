@@ -184,6 +184,8 @@ export const useProjectStore = defineStore('project', () => {
   const items = ref<Projects[]>([])
   const selectedItem = ref<Projects | null>(null)
   const selectedDetails = ref<Dict[]>([])
+  const createModalOpen = ref(false)
+  const createModalHospital = ref<{ id: number; name: string } | null>(null)
   const loading = ref(false)
   const submitting = ref(false)
   const error = ref<string | null>(null)
@@ -196,6 +198,16 @@ export const useProjectStore = defineStore('project', () => {
   // Menandai bahwa daftar sudah pernah berhasil dimuat dari API.
   const loaded = ref(false)
   const lastParams = ref<ListParams>({})
+
+  function openCreateModal(hospital?: { id: number; name: string }) {
+    createModalHospital.value = hospital ?? null
+    createModalOpen.value = true
+  }
+
+  function closeCreateModal() {
+    createModalOpen.value = false
+    createModalHospital.value = null
+  }
 
   // Data pendukung yang dipakai form project.
   const lookups = reactive<{
@@ -295,6 +307,11 @@ export const useProjectStore = defineStore('project', () => {
 
         if (created) {
           items.value = [created, ...items.value]
+          pagination.total += 1
+          pagination.lastPage = Math.max(
+            1,
+            Math.ceil(pagination.total / Math.max(1, pagination.perPage))
+          )
         } else {
           await fetchProjects(lastParams.value)
         }
@@ -494,12 +511,16 @@ export const useProjectStore = defineStore('project', () => {
     items,
     selectedItem,
     selectedDetails,
+    createModalOpen,
+    createModalHospital,
     loading,
     submitting,
     error,
     pagination,
     loaded,
     lookups,
+    openCreateModal,
+    closeCreateModal,
     fetchProjects,
     fetchProjectLeaders,
     fetchProjectById,

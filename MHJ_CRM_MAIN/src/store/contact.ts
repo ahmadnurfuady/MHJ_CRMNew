@@ -1023,12 +1023,29 @@ export const useContact = defineStore("contact", () => {
     contactState.openPrintContactModal = true;
   }
 
-  function openContactModal() {
+  function prepareContactModal(company?: { id: number; name: string }) {
     contactState.hospitalEditId = null;
     contactState.hospitalEditLocation = null;
     contactState.rumahSakitForm = createRumahSakitForm();
+    contactState.contactForm = createContactForm();
+    if (company) {
+      const option = { value: company.id, label: company.name };
+      contactState.contactForm.company = {
+        ...initSelectField(),
+        selected: option,
+        data: String(company.id),
+      };
+    }
     contactState.formSubmitted = false;
     contactState.openAddContactModal = true;
+  }
+
+  function openContactModal() {
+    prepareContactModal();
+  }
+
+  function openContactModalForCompany(company: { id: number; name: string }) {
+    prepareContactModal(company);
   }
 
   function openHospitalEditModal(hospital: Hospital) {
@@ -1272,6 +1289,7 @@ export const useContact = defineStore("contact", () => {
     showHistory,
     printContact,
     openContactModal,
+    openContactModalForCompany,
     openHospitalEditModal,
     prepareHospitalForm,
     saveContact,

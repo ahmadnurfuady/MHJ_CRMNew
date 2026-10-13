@@ -176,7 +176,7 @@
                   <l-map
                     :use-global-leaflet="false"
                     :zoom="16"
-                    :center="[selectedLocation.lat, selectedLocation.lng]"
+                    :center="selectedLocationCenter"
                     style="height: 220px; cursor: crosshair"
                     @click="onMapClick"
                   >
@@ -184,7 +184,7 @@
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
                     <l-marker
-                      :lat-lng="[selectedLocation.lat, selectedLocation.lng]"
+                      :lat-lng="selectedLocationCenter"
                       :draggable="true"
                       @dragend="onMarkerDragEnd"
                     />
@@ -394,9 +394,19 @@ const { provinceOptions, cityOptionsByProvince, loadRegions } = useCompanyRegion
 
 const ownerOptions = computed(() => projectStore.lookups.owner);
 // GET /api/company (sama dengan sumber data Rumah Sakit/Perusahaan di form Project & Task).
-const companyOptions = computed(() =>
-  hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name })),
-);
+const companyOptions = computed(() => {
+  const selectedHospital = hospitalStore.selectedItem;
+  const hospitals =
+    selectedHospital &&
+    !hospitalStore.items.some((hospital) => hospital.id === selectedHospital.id)
+      ? [selectedHospital, ...hospitalStore.items]
+      : hospitalStore.items;
+
+  return hospitals.map((hospital) => ({
+    value: hospital.id,
+    label: hospital.name,
+  }));
+});
 // GET /api/project (sama dengan daftar di halaman Peluang List).
 const projectOptions = computed(() =>
   projectStore.items.map((project) => ({ value: project.id, label: project.projectName })),
@@ -410,6 +420,11 @@ const searchingAddress = ref(false);
 const addressSearchError = ref("");
 const addressSearchNoResult = ref(false);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
+const selectedLocationCenter = computed<[number, number]>(() =>
+  selectedLocation.value
+    ? [selectedLocation.value.lat, selectedLocation.value.lng]
+    : [0, 0],
+);
 const pinUpdating = ref(false);
 let suppressNextAddressSearch = false;
 let suppressProvinceCityReset = false;

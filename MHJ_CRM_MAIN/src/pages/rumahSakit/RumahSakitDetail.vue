@@ -125,9 +125,19 @@
             <p>Pipeline sales</p>
             <h5>Peluang Rumah Sakit</h5>
           </div>
-          <div class="project-total">
-            <span>Total nilai</span>
-            <strong>{{ formatCurrency(totalProjectValue) }}</strong>
+          <div class="panel-heading-actions">
+            <button
+              type="button"
+              class="panel-add-button"
+              @click="createOpportunity"
+            >
+              <i class="fa-solid fa-plus"></i>
+              Tambah Peluang
+            </button>
+            <div class="project-total">
+              <span>Total nilai</span>
+              <strong>{{ formatCurrency(totalProjectValue) }}</strong>
+            </div>
           </div>
         </div>
 
@@ -237,7 +247,17 @@
             <p>Relasi utama</p>
             <h5>Kontak Rumah Sakit</h5>
           </div>
-          <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
+          <div class="panel-heading-actions">
+            <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
+            <button
+              type="button"
+              class="panel-add-button"
+              @click="createHospitalContact"
+            >
+              <i class="fa-solid fa-plus"></i>
+              Tambah Kontak
+            </button>
+          </div>
         </div>
         <div v-if="hospitalContacts.length" class="contact-grid">
           <article
@@ -527,13 +547,13 @@
               <l-map
                 :use-global-leaflet="false"
                 :zoom="16"
-                :center="[profileLocation.lat, profileLocation.lng]"
+                :center="profileMapCenter"
                 style="height: 310px"
               >
                 <l-tile-layer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <l-marker :lat-lng="[profileLocation.lat, profileLocation.lng]" />
+                <l-marker :lat-lng="profileMapCenter" />
               </l-map>
             </div>
             <div v-else class="hospital-map-empty">
@@ -552,7 +572,7 @@
           </div>
         </div>
 
-        <AddContactModal
+        <HospitalForm
           v-else
           inline
           @saved="handleHospitalSaved"
@@ -560,6 +580,11 @@
         />
       </section>
     </template>
+
+    <ContactFormModal
+      v-if="contactStore.contactState.openAddContactModal"
+      @saved="handleContactCreated"
+    />
   </div>
 </template>
 
@@ -580,7 +605,8 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
-import AddContactModal from "@/module/rumahSakit/AddContactModal.vue";
+import HospitalForm from "@/module/rumahSakit/AddContactModal.vue";
+import ContactFormModal from "@/module/contacts/AddContactModal.vue";
 import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
 
 type DetailTab =
@@ -609,6 +635,11 @@ const { selectedItem: hospital, detailLoading } = storeToRefs(hospitalStore);
 const activeTab = ref<DetailTab>("projects");
 const profileEditing = ref(false);
 const profileLocation = ref<{ lat: number; lng: number } | null>(null);
+const profileMapCenter = computed<[number, number]>(() =>
+  profileLocation.value
+    ? [profileLocation.value.lat, profileLocation.value.lng]
+    : [0, 0],
+);
 const profileMapLoading = ref(false);
 const expandedStage = ref("qualified");
 const loadError = ref("");
@@ -749,7 +780,10 @@ const tabs = computed(() => [
   {
     value: "projects" as const,
     label: "Peluang",
-    count: hospital.value?.totalProjects ?? hospitalProjects.value.length,
+    count: Math.max(
+      hospital.value?.totalProjects ?? 0,
+      hospitalProjects.value.length,
+    ),
     icon: "fa-solid fa-briefcase",
   },
   {
@@ -778,6 +812,29 @@ function selectStage(stage: string) {
 
 function openProject(id: number) {
   void router.push({ name: "Project Details V2", query: { id: String(id) } });
+}
+
+function createOpportunity() {
+  if (!hospital.value) return;
+  projectStore.openCreateModal({
+    id: hospital.value.id,
+    name: hospital.value.name,
+  });
+}
+
+function createHospitalContact() {
+  if (!hospital.value) return;
+  contactStore.openContactModalForCompany({
+    id: hospital.value.id,
+    name: hospital.value.name,
+  });
+}
+
+async function handleContactCreated() {
+  await Promise.allSettled([
+    contactStore.fetchRemoteContacts({ per_page: 100 }),
+    hospitalStore.fetchHospitalById(props.hospitalId),
+  ]);
 }
 
 function prepareProfileForm() {
@@ -1298,6 +1355,42 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   margin: 0;
   color: var(--ink);
   font-size: 18px;
+}
+.panel-heading-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.panel-add-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--primary);
+  border-radius: 9px;
+  color: #fff;
+  background: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.panel-add-button:hover,
+.panel-add-button:focus-visible {
+  color: var(--primary);
+  background: #fff;
+  box-shadow: 0 5px 14px rgba(24, 166, 228, 0.16);
+  transform: translateY(-1px);
+}
+.panel-add-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 24%, transparent);
+  outline-offset: 2px;
 }
 .project-total {
   text-align: right;
@@ -2094,6 +2187,15 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   }
   .panel-heading {
     align-items: flex-end;
+  }
+  .panel-heading-actions {
+    align-items: flex-end;
+    flex-direction: column-reverse;
+    gap: 7px;
+  }
+  .panel-add-button {
+    min-height: 36px;
+    padding-inline: 11px;
   }
   .project-total strong {
     font-size: 15px;

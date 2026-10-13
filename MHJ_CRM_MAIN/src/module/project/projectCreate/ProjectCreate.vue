@@ -1,10 +1,15 @@
 <template>
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-12">
-        <div class="card create-project-form custom-input">
-          <div class="card-body">
-            <h5 class="mb-3">{{ isEditMode ? 'Edit Peluang' : 'Tambah Peluang' }}</h5>
+  <div :class="{ 'container-fluid': !modalMode }">
+    <div :class="{ row: !modalMode }">
+      <div :class="{ 'col-12': !modalMode }">
+        <div
+          class="create-project-form custom-input"
+          :class="{ card: !modalMode, 'project-modal-form': modalMode }"
+        >
+          <div :class="{ 'card-body': !modalMode }">
+            <h5 v-if="!modalMode" class="mb-3">
+              {{ isEditMode ? 'Edit Peluang' : 'Tambah Peluang' }}
+            </h5>
             <div v-if="loadingProject" class="text-center py-5">
               <span class="spinner-border text-primary" role="status"></span>
             </div>
@@ -336,6 +341,22 @@ interface TimelineEntry {
   activity: InputFieldState
 }
 
+const props = withDefaults(
+  defineProps<{
+    modalMode?: boolean
+    initialHospital?: { id: number; name: string } | null
+  }>(),
+  {
+    modalMode: false,
+    initialHospital: null,
+  }
+)
+
+const emit = defineEmits<{
+  cancel: []
+  saved: [project: Projects | null]
+}>()
+
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
 )
@@ -411,6 +432,7 @@ const contactStore = useContact()
 const projectStore = useProjectStore()
 
 const editingId = computed<number | null>(() => {
+  if (props.modalMode) return null
   const raw = route.query.id
   const value = Number(Array.isArray(raw) ? raw[0] : raw)
   return Number.isFinite(value) && value > 0 ? value : null
@@ -430,8 +452,14 @@ function isGovernmentCompany(hospitalType: string, industry: string, name: strin
   return /government|pemerintah|negeri|publik|rsud|rsup|tni|polri/.test(classification)
 }
 
-const companyOptions = computed<CompanyOption[]>(() =>
-  hospitalStore.items.map((hospital) => ({
+const companyOptions = computed<CompanyOption[]>(() => {
+  const selectedHospital = hospitalStore.selectedItem
+  const hospitals =
+    selectedHospital && !hospitalStore.items.some((hospital) => hospital.id === selectedHospital.id)
+      ? [selectedHospital, ...hospitalStore.items]
+      : hospitalStore.items
+
+  return hospitals.map((hospital) => ({
     value: hospital.id,
     label: hospital.name,
     type: isGovernmentCompany(hospital.hospitalType, hospital.industry, hospital.name)
@@ -440,7 +468,7 @@ const companyOptions = computed<CompanyOption[]>(() =>
     address: hospital.address,
     kdKelurahan: hospital.kdKelurahan,
   }))
-)
+})
 
 function toContactOption(contact: Contact): DealOption {
   return {
@@ -544,10 +572,22 @@ watch(isLostOrCancelled, (visible) => {
 })
 
 function openContactModal() {
+  const company = selectedCompany.value
+  if (company) {
+    contactStore.openContactModalForCompany({
+      id: Number(company.value),
+      name: company.label,
+    })
+    return
+  }
   contactStore.openContactModal()
 }
 
 function cancel() {
+  if (props.modalMode) {
+    emit('cancel')
+    return
+  }
   if (isEditMode.value && editingId.value) {
     router.push({ path: routes.Project.ProjectDetailsV2, query: { id: String(editingId.value) } })
   } else {
@@ -713,6 +753,34 @@ async function loadMoreCompanies() {
   }
 }
 
+function prefillInitialHospital() {
+  if (isEditMode.value) return
+
+  const rawRouteId = Array.isArray(route.query.hospital_id)
+    ? route.query.hospital_id[0]
+    : route.query.hospital_id
+  const hospitalId = Number(props.initialHospital?.id ?? rawRouteId)
+  if (!Number.isFinite(hospitalId) || hospitalId <= 0) return
+
+  const rawRouteName = Array.isArray(route.query.hospital_name)
+    ? route.query.hospital_name[0]
+    : route.query.hospital_name
+  const hospitalName = props.initialHospital?.name ?? rawRouteName
+  const option =
+    findOptionById(companyOptions.value, hospitalId) ??
+    (hospitalName
+      ? {
+          value: hospitalId,
+          label: hospitalName,
+          type: 'Private',
+          address: '',
+          kdKelurahan: '',
+        }
+      : undefined)
+
+  if (option) projectForm.value.company = selectedField(option)
+}
+
 onMounted(async () => {
   const tasks: Promise<unknown>[] = [
     hospitalStore.fetchHospitals({ per_page: 15 }),
@@ -739,6 +807,7 @@ onMounted(async () => {
       })
     }
   } else {
+    prefillInitialHospital()
     const loggedInName = (() => {
       try {
         const user = JSON.parse(localStorage.getItem('user') || 'null') as {
@@ -898,13 +967,17 @@ async function handleSubmit() {
         query: { id: String(editingId.value) },
       })
     } else {
-      await projectStore.createProject(payload)
+      const created = await projectStore.createProject(payload)
       await Swal.fire({
         icon: 'success',
         title: 'Peluang berhasil ditambahkan',
         confirmButtonColor: 'var(--theme-default)',
       })
-      router.push(routes.Project.ProjectList)
+      if (props.modalMode) {
+        emit('saved', created)
+      } else {
+        router.push(routes.Project.ProjectList)
+      }
     }
   } catch {
     Swal.fire({

@@ -20,6 +20,7 @@
     </div>
   </div>
   <Customizer />
+  <ProjectCreateModal v-if="projectStore.createModalOpen" />
 </template>
 <script lang="ts" setup>
 import { useLayout } from '@/store/layout'
@@ -28,6 +29,7 @@ import { storeToRefs } from 'pinia'
 import { useWindowSize } from '@vueuse/core'
 import { defineAsyncComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { startPermissionWatcher, stopPermissionWatcher } from '@/services/permissionWatcher'
+import { useProjectStore } from '@/store/project'
 
 const Header = defineAsyncComponent(() => import('@/components/layout/header/Header.vue'))
 const Sidebar = defineAsyncComponent(() => import('@/components/layout/sidebar/Sidebar.vue'))
@@ -39,12 +41,16 @@ const Footer = defineAsyncComponent(() => import('@/components/layout/footer/Foo
 const Customizer = defineAsyncComponent(
   () => import('@/components/layout/customizer/Customizer.vue')
 )
+const ProjectCreateModal = defineAsyncComponent(
+  () => import('@/module/project/projectCreate/ProjectCreateModal.vue')
+)
 
 const display = ref(false)
 const layout = ref({})
 const storeLayout = useLayout()
 const { layoutState } = storeToRefs(storeLayout)
 const store = useMenu()
+const projectStore = useProjectStore()
 const { uiState } = storeToRefs(store)
 const { width } = useWindowSize()
 
