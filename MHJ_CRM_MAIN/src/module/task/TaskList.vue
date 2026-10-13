@@ -206,11 +206,11 @@
     </div>
 
     <div
-      v-if="taskRows.length || pagination.page > 1"
+      v-if="paginationEnabled && (taskRows.length || pagination.page > 1)"
       class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
     >
       <span class="text-muted f-14">
-        Halaman {{ pagination.page }} dari {{ pagination.lastPage }}
+        Halaman {{ pagination.page }} dari {{ effectiveLastPage }}
       </span>
       <div class="pagination-actions" role="group" aria-label="Pagination Tugas">
         <button
@@ -243,7 +243,7 @@
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
-          :disabled="loading || pagination.page >= pagination.lastPage"
+          :disabled="loading || pagination.page >= effectiveLastPage"
           @click="changePage(pagination.page + 1)"
         >
           Berikutnya<vue-feather type="chevron-right" size="15" class="ms-1" />
@@ -255,7 +255,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useTask } from '@/store/task'
@@ -267,6 +267,7 @@ const store = useTask()
 const router = useRouter()
 const { currentTask, loading, pagination } = storeToRefs(store)
 const searchQuery = ref('')
+const paginationEnabled = false
 const taskTableColumns = [
   { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Rumah Sakit', defaultWidth: 220, minWidth: 140, center: false },
@@ -283,9 +284,17 @@ const taskTableWidth = computed(() =>
 )
 
 const taskRows = computed(() => currentTask.value?.data ?? [])
+const usesClientPagination = computed(
+  () => taskRows.value.length > pagination.value.perPage,
+)
+const effectiveLastPage = computed(() =>
+  usesClientPagination.value
+    ? Math.max(1, Math.ceil(filteredTasks.value.length / pagination.value.perPage))
+    : Math.max(1, pagination.value.lastPage),
+)
 
 const visibleTaskPages = computed<Array<number | string>>(() => {
-  const totalPages = Math.max(1, pagination.value.lastPage)
+  const totalPages = effectiveLastPage.value
   const currentPage = Math.min(Math.max(1, pagination.value.page), totalPages)
 
   if (totalPages <= 7) {
@@ -382,6 +391,10 @@ const filteredTasks = computed(() => {
   )
 })
 
+watch(searchQuery, () => {
+  pagination.value.page = 1
+})
+
 function formatTotal(total: number) {
   return new Intl.NumberFormat('id-ID').format(total)
 }
@@ -426,7 +439,11 @@ function openTaskDetail(item: TaskDetails) {
 }
 
 function changePage(page: number) {
-  if (page < 1 || page > pagination.value.lastPage || page === pagination.value.page) return
+  if (page < 1 || page > effectiveLastPage.value || page === pagination.value.page) return
+  if (usesClientPagination.value) {
+    pagination.value.page = page
+    return
+  }
   void store.fetchTasks({ page })
 }
 

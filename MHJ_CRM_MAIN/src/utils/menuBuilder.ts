@@ -114,6 +114,14 @@ function hasMenuAccess(item: FlMenuRawItem): boolean {
 }
 
 /**
+ * Halaman detail dibuka dari item/kartu terkait, bukan ditampilkan sebagai
+ * tujuan navigasi mandiri pada sidebar.
+ */
+function isHiddenNavigationItem(item: FlMenuRawItem): boolean {
+  return /^\/crmadmin\/projects\/details-v2\/?$/i.test((item.pathfile || '').trim())
+}
+
+/**
  * Hanya item di level root yang boleh membawa ikon: NavMenu memakai keberadaan
  * `icon` untuk memilih antara kelas `sidebar-title` dan `submenu-title`.
  * Submenu yang punya ikon akan dirender dengan gaya menu utama.
@@ -166,44 +174,6 @@ function placeProjectListBeforeDetails(items: MenuItem[]): void {
 }
 
 /**
- * Detail v2 adalah halaman UI lokal yang belum ada pada tabel menu backend.
- * Sisipkan sebagai anak Project agar tetap muncul pada sidebar dinamis dan
- * mewarisi visibilitas menu Project milik pengguna.
- */
-function appendProjectDetailsV2(items: MenuItem[]): void {
-  items.forEach((item) => {
-    const children = item.children
-    if (!children?.length) return
-
-    const hasProjectChildren = children.some((child) => {
-      const path = child.path?.trim().toLowerCase()
-      return path === '/crmadmin/projects/list' || path === '/crmadmin/projects/details'
-    })
-    const alreadyExists = children.some(
-      (child) => child.path?.trim().toLowerCase() === '/crmadmin/projects/details-v2'
-    )
-
-    if (hasProjectChildren && !alreadyExists) {
-      const oldDetailsIndex = children.findIndex(
-        (child) => child.path?.trim().toLowerCase() === '/crmadmin/projects/details'
-      )
-      const insertAt = oldDetailsIndex === -1 ? children.length : oldDetailsIndex + 1
-      children.splice(insertAt, 0, {
-        id: `${item.id ?? 'project'}-details-v2`,
-        title: 'Detail Peluang V2',
-        path: '/crmAdmin/Projects/details-v2',
-        type: 'link',
-        active: false,
-        isPinned: false,
-        permissions: item.permissions,
-      })
-    }
-
-    appendProjectDetailsV2(children)
-  })
-}
-
-/**
  * Mengubah data flat dbFlMenuWebcrm menjadi struktur pohon yang dirender komponen NavMenu.
  * Item tanpa hak akses dibuang; anak yang parent-nya ikut terbuang
  * dinaikkan ke level root agar menu yang masih diizinkan tetap dapat dijangkau.
@@ -211,7 +181,9 @@ function appendProjectDetailsV2(items: MenuItem[]): void {
 export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
   if (!Array.isArray(rawItems)) return []
 
-  const accessibleItems = rawItems.filter(hasMenuAccess)
+  const accessibleItems = rawItems.filter(
+    (item) => hasMenuAccess(item) && !isHiddenNavigationItem(item)
+  )
 
   const itemMap = new Map<string, MenuItem>()
   const rawIconById = new Map<string, string>()
@@ -256,7 +228,6 @@ export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
 
   applyDepthRules(tree, rawIconById)
   placeProjectListBeforeDetails(tree)
-  appendProjectDetailsV2(tree)
 
   return tree
 }

@@ -676,7 +676,29 @@ onBeforeUnmount(() => {
   gap: 6px;
   border-radius: 7px;
   padding: 7px 10px;
+  border-color: var(--theme-default, #18a6e4) !important;
+  color: var(--theme-default, #1688bd) !important;
+  background: #fff !important;
   white-space: nowrap;
+}
+
+.detail-button > span,
+.detail-button :deep(svg) {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+.detail-button:hover,
+.detail-button:focus,
+.detail-button:focus-visible,
+.detail-button:active {
+  border-color: var(--theme-default, #18a6e4) !important;
+  color: #fff !important;
+  background: var(--theme-default, #18a6e4) !important;
+}
+
+.detail-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
 }
 
 .hospital-table-state {

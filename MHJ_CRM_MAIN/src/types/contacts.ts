@@ -74,10 +74,10 @@ export interface RumahSakitForm {
   address: InputField;
   province: SelectField;
   city: SelectField;
-  jenis: InputField;
-  tipe: InputField;
-  penyelenggara: InputField;
-  tipeMarketingGo500: InputField;
+  jenis: SelectField;
+  tipe: SelectField;
+  penyelenggara: SelectField;
+  tipeMarketingGo500: SelectField;
   keterangan: InputField;
   sirs: InputField;
 }
@@ -118,6 +118,8 @@ export interface ContactState {
   historyVisible: boolean;
   openPrintContactModal: boolean;
   openAddContactModal: boolean;
+  hospitalEditId: number | null;
+  hospitalEditLocation: { lat: number; lng: number } | null;
   openCategoryModal: boolean;
   formSubmitted: boolean;
   contactForm: ContactForm;

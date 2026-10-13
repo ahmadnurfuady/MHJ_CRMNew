@@ -11,7 +11,7 @@
         <div class="modal-header border-0 pb-0">
           <div>
             <span class="badge badge-light-primary mb-2">Sales Activity</span>
-            <h4 id="task-form-title" class="modal-title">Buat Task Sales</h4>
+            <h4 id="task-form-title" class="modal-title">Form Tugas Sales</h4>
             <p class="mb-0 text-muted">
               Catat aktivitas dan perbarui stage peluang dalam satu form.
             </p>
@@ -37,16 +37,27 @@
 
               <div class="row g-3">
                 <div class="col-12">
-                  <label class="form-label" for="task-name">Nama Task</label>
+                  <div class="d-flex align-items-center justify-content-between gap-2">
+                    <label class="form-label" for="task-name">
+                      Nama Tugas <span class="txt-danger">*</span>
+                    </label>
+                    <button
+                      class="btn btn-link btn-sm p-0 mb-2"
+                      type="button"
+                      @click="generateTaskName"
+                    >
+                      <vue-feather type="zap" size="15" class="me-1"></vue-feather>
+                      Generate Otomatis
+                    </button>
+                  </div>
                   <input
                     id="task-name"
-                    class="form-control auto-filled-input"
+                    v-model.trim="form.title"
+                    class="form-control"
+                    :class="{ 'is-invalid': formSubmitted && !form.title }"
                     type="text"
-                    :value="taskName"
-                    placeholder="Otomatis: Kategori_Produk_RumahSakit"
-                    readonly
+                    placeholder="Masukkan nama tugas..."
                   />
-                  <small class="text-muted">Nama terbentuk otomatis dari kategori, produk, dan rumah sakit.</small>
                 </div>
 
                 <div class="col-md-6">
@@ -70,22 +81,16 @@
                 </div>
 
                 <div class="col-md-6">
-                  <label class="form-label" for="task-owner">Owner <span class="txt-danger">*</span></label>
-                  <input id="task-owner" v-model="form.owner" class="form-control auto-filled-input" type="text" readonly />
-                  <small class="text-muted">Mengikuti user yang sedang login.</small>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label" for="task-schedule">
-                    Tanggal dan Waktu <span class="txt-danger">*</span>
-                  </label>
+                  <label class="form-label" for="task-owner">Sales <span class="txt-danger">*</span></label>
                   <input
-                    id="task-schedule"
-                    v-model="form.scheduledAt"
-                    class="form-control"
-                    :class="{ 'is-invalid': formSubmitted && !form.scheduledAt }"
-                    type="datetime-local"
+                    id="task-owner"
+                    v-model="form.owner"
+                    class="form-control auto-filled-input"
+                    :class="{ 'is-invalid': formSubmitted && !form.owner }"
+                    type="text"
+                    readonly
                   />
+                  <small class="text-muted">Mengikuti user yang sedang login.</small>
                 </div>
               </div>
             </section>
@@ -103,23 +108,23 @@
                 <div class="col-12">
                   <label class="form-label d-block">Peluang <span class="txt-danger">*</span></label>
                   <div class="d-flex flex-wrap gap-3">
-                    <label class="project-choice" :class="{ active: !form.hasProject }">
-                      <input v-model="form.hasProject" type="radio" :value="false" />
-                      <span>Tidak ada</span>
-                    </label>
                     <label class="project-choice" :class="{ active: form.hasProject }">
                       <input v-model="form.hasProject" type="radio" :value="true" />
-                      <span>Ada</span>
+                      <span>Ada Peluang</span>
+                    </label>
+                    <label class="project-choice" :class="{ active: !form.hasProject }">
+                      <input v-model="form.hasProject" type="radio" :value="false" />
+                      <span>Tanpa Peluang</span>
                     </label>
                   </div>
                 </div>
 
                 <div v-if="form.hasProject" class="col-12">
-                  <label class="form-label">Cari Peluang <span class="txt-danger">*</span></label>
+                  <label class="form-label">Pilih Peluang Real CRM <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.project"
                     :options="projectOptions"
-                    placeholder="Ketik untuk mencari nama peluang"
+                    placeholder="Pilih peluang dari database..."
                     display-key="label"
                     get-value-key="value"
                     :form-submitted="formSubmitted"
@@ -127,35 +132,45 @@
                 </div>
 
                 <template v-if="showContextFields">
-                <div class="col-md-6">
-                  <label class="form-label">Rumah Sakit <span class="txt-danger">*</span></label>
-                  <Select
-                    v-model="form.hospital"
-                    :options="hospitalOptions"
-                    placeholder="Cari rumah sakit"
-                    display-key="label"
-                    get-value-key="value"
-                    :form-submitted="formSubmitted"
-                    :disabled="form.hasProject"
-                    :disable-clear-button="form.hasProject"
-                  />
-                  <small v-if="form.hasProject" class="text-muted">Terisi otomatis dari peluang.</small>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label">Kontak Person <span class="txt-danger">*</span></label>
+                <div class="col-12">
+                  <label class="form-label">Kontak <span class="txt-danger">*</span></label>
                   <Select
                     v-model="form.contact"
                     :options="availableContacts"
-                    placeholder="Cari kontak person"
+                    placeholder="Nama Kontak / Dokter / PIC"
                     display-key="label"
                     get-value-key="value"
                     :multi-select="form.hasProject"
                     :form-submitted="formSubmitted"
                     :removable-tags="form.hasProject"
                   />
-                  <small v-if="form.hasProject" class="text-muted">Semua kontak terkait terisi otomatis dari peluang.</small>
-                  <small v-else class="text-muted">Kontak person hanya dapat dipilih satu.</small>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label" for="task-contact-phone">
+                    Nomor Telepon / WA <span class="txt-danger">*</span>
+                  </label>
+                  <input
+                    id="task-contact-phone"
+                    v-model.trim="form.contactPhone"
+                    class="form-control"
+                    :class="{ 'is-invalid': formSubmitted && !form.contactPhone }"
+                    type="tel"
+                    placeholder="0812-xxxx-xxxx"
+                  />
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label" for="task-schedule">
+                    Tanggal dan Waktu Kunjungan <span class="txt-danger">*</span>
+                  </label>
+                  <input
+                    id="task-schedule"
+                    v-model="form.scheduledAt"
+                    class="form-control"
+                    :class="{ 'is-invalid': formSubmitted && !form.scheduledAt }"
+                    type="datetime-local"
+                  />
                 </div>
 
                 <div class="col-md-6">
@@ -163,7 +178,7 @@
                   <Select
                     v-model="form.divisions"
                     :options="projectStore.lookups.divisi"
-                    placeholder="Pilih satu atau lebih divisi"
+                    placeholder="Pilih Divisi"
                     display-key="label"
                     get-value-key="value"
                     :multi-select="!form.hasProject"
@@ -197,7 +212,7 @@
                       class="form-check-input"
                       type="checkbox"
                     />
-                    <label class="form-check-label" for="unrelated-product">Tidak terkait produk</label>
+                    <label class="form-check-label" for="unrelated-product">Tidak Terkait Produk Tertentu</label>
                   </div>
                 </div>
 
@@ -239,20 +254,19 @@
 
               <div class="row g-3">
                 <div class="col-12">
-                  <label class="form-label" for="task-notes">Notes <span class="txt-danger">*</span></label>
+                  <label class="form-label" for="task-notes">Notes / Agenda</label>
                   <textarea
                     id="task-notes"
                     v-model.trim="form.notes"
                     class="form-control"
-                    :class="{ 'is-invalid': formSubmitted && !form.notes }"
                     rows="4"
-                    placeholder="Tulis hasil aktivitas atau catatan tambahan"
+                    placeholder="Tambahkan agenda pertemuan atau detail tugas (opsional)..."
                   ></textarea>
                 </div>
 
                 <div class="col-lg-6">
-                  <label class="form-label">Live Photo <span class="txt-danger">*</span></label>
-                  <div class="evidence-box" :class="{ 'evidence-error': formSubmitted && !form.photo }">
+                  <label class="form-label">Live Photo (Watermark GPS)</label>
+                  <div class="evidence-box">
                     <template v-if="cameraOpen">
                       <video ref="videoRef" class="camera-preview" autoplay muted playsinline></video>
                       <div class="evidence-actions evidence-actions--split">
@@ -288,8 +302,8 @@
                 </div>
 
                 <div class="col-lg-6">
-                  <label class="form-label">GPS Location <span class="txt-danger">*</span></label>
-                  <div class="evidence-box" :class="{ 'evidence-error': formSubmitted && !hasLocation }">
+                  <label class="form-label">GPS &amp; Pin Point</label>
+                  <div class="evidence-box">
                     <div class="evidence-actions evidence-actions--primary">
                       <button
                         class="btn btn-outline-primary evidence-main-button"
@@ -338,7 +352,7 @@
             <button class="btn btn-light" type="button" data-bs-dismiss="modal">Batal</button>
             <button class="btn btn-primary" type="submit">
               <vue-feather type="save" class="me-2"></vue-feather>
-              Simpan Task
+              Simpan Tugas Sales
             </button>
           </div>
         </form>
@@ -421,6 +435,7 @@ function loggedInOwner() {
 
 function initialForm() {
   return {
+    title: '',
     category: initSelectField(),
     customCategory: '',
     owner: loggedInOwner(),
@@ -428,6 +443,7 @@ function initialForm() {
     project: initSelectField(),
     hospital: initSelectField(),
     contact: initSelectField(),
+    contactPhone: '',
     scheduledAt: defaultSchedule(),
     divisions: initSelectField(),
     products: initSelectField(),
@@ -599,7 +615,7 @@ const selectedCategoryLabel = computed(() =>
 const currentStageLabel = computed(
   () => stageOptions.find((stage) => stage.value === selectedProject.value?.status)?.label || ''
 )
-const taskName = computed(() => {
+const generatedTaskName = computed(() => {
   const category = selectedCategoryLabel.value
   const product = form.unrelatedProduct
     ? 'Tidak Terkait Produk'
@@ -607,6 +623,10 @@ const taskName = computed(() => {
   const hospital = (form.hospital.selected as DealOption | null)?.label || ''
   return [category, product, hospital].filter(Boolean).join('_')
 })
+
+function generateTaskName() {
+  form.title = generatedTaskName.value
+}
 
 function selectField(option: DealOption | null): SelectField {
   return {
@@ -660,12 +680,17 @@ watch(
     form.pipeline = initSelectField()
     form.hospital = initSelectField()
     form.contact = initSelectField()
+    form.contactPhone = ''
     form.divisions = initSelectField()
     form.products = initSelectField()
     form.unrelatedProduct = false
     if (!hasProject) validationMessage.value = ''
   }
 )
+
+watch(selectedContactPhone, (phone) => {
+  form.contactPhone = phone
+})
 
 watch(
   () => [form.divisions.selected, form.divisions.selectedItems],
@@ -803,22 +828,33 @@ function clearLocation() {
 }
 
 function validateForm() {
-  if (!form.category.selected) return 'Kategori wajib dipilih.'
-  if (isCustomCategory.value && !form.customCategory) return 'Kategori lainnya wajib diisi.'
-  if (!form.owner) return 'Owner tidak tersedia.'
-  if (form.hasProject && !selectedProject.value) return 'Peluang wajib dipilih.'
-  if (!form.hospital.selected) return 'Rumah sakit wajib dipilih.'
-  if (!selectedContacts.value.length) return 'Kontak person wajib dipilih.'
-  if (!form.scheduledAt) return 'Tanggal dan waktu wajib diisi.'
-  if (!selectedDivisions.value.length) return 'Minimal satu divisi wajib dipilih.'
-  if (!form.unrelatedProduct && !selectedProducts.value.length) {
-    return 'Pilih minimal satu product atau centang Tidak terkait produk.'
-  }
-  if (form.hasProject && !form.pipeline.selected) return 'Pipeline peluang wajib dipilih.'
-  if (!form.notes) return 'Notes wajib diisi.'
-  if (!form.photo) return 'Live photo wajib diambil langsung dari kamera.'
-  if (!hasLocation.value) return 'GPS location wajib diambil.'
-  return ''
+  const errors: string[] = []
+  const categoryMissing = !form.category.selected
+  const projectMissing = form.hasProject && !selectedProject.value
+  const contactMissing = !selectedContacts.value.length
+  const divisionMissing = !selectedDivisions.value.length
+  const productMissing = !form.unrelatedProduct && !selectedProducts.value.length
+  const pipelineMissing = form.hasProject && !form.pipeline.selected
+
+  form.category.errorMessage = categoryMissing ? 'Kategori wajib dipilih.' : ''
+  form.project.errorMessage = projectMissing ? 'Peluang wajib dipilih.' : ''
+  form.contact.errorMessage = contactMissing ? 'Kontak wajib dipilih.' : ''
+  form.divisions.errorMessage = divisionMissing ? 'Divisi wajib dipilih.' : ''
+  form.products.errorMessage = productMissing ? 'Product wajib dipilih.' : ''
+  form.pipeline.errorMessage = pipelineMissing ? 'Pipeline peluang wajib dipilih.' : ''
+
+  if (!form.title) errors.push('Nama tugas wajib diisi.')
+  if (categoryMissing) errors.push('Kategori wajib dipilih.')
+  if (isCustomCategory.value && !form.customCategory) errors.push('Kategori lainnya wajib diisi.')
+  if (!form.owner) errors.push('Sales tidak tersedia.')
+  if (projectMissing) errors.push('Peluang wajib dipilih.')
+  if (contactMissing) errors.push('Kontak wajib dipilih.')
+  if (!form.contactPhone) errors.push('Nomor Telepon / WA wajib diisi.')
+  if (!form.scheduledAt) errors.push('Tanggal dan waktu kunjungan wajib diisi.')
+  if (divisionMissing) errors.push('Minimal satu divisi wajib dipilih.')
+  if (productMissing) errors.push('Pilih minimal satu product atau centang Tidak Terkait Produk Tertentu.')
+  if (pipelineMissing) errors.push('Pipeline peluang wajib dipilih.')
+  return errors[0] ?? ''
 }
 
 async function submitTask() {
@@ -831,14 +867,14 @@ async function submitTask() {
   let result
   try {
     result = await taskStore.createSalesTask({
-      title: taskName.value,
+      title: form.title,
       category: selectedCategoryLabel.value,
       owner: form.owner,
       projectId: project?.id ?? null,
       projectName: project?.label ?? '',
-      hospital: String((form.hospital.selected as DealOption).label),
+      hospital: String((form.hospital.selected as DealOption | null)?.label ?? ''),
       contact: selectedContacts.value.map((item) => String(item.label)).join(', '),
-      contactPhone: selectedContactPhone.value,
+      contactPhone: form.contactPhone,
       scheduledAt: form.scheduledAt,
       divisions: selectedDivisions.value.map((item) => String(item.label)),
       products: selectedProducts.value.map((item) => String(item.label)),

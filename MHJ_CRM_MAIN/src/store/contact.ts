@@ -26,8 +26,6 @@ import type { Hospital, HospitalPayload } from "@/types/hospital";
 import { runApiAction } from "@/store/apiAction";
 import { useHospitalStore } from "@/store/hospital";
 import {
-  indonesianMobilePhoneError,
-  normalizeIndonesianMobilePhone,
   splitPhoneNumbers,
 } from "@/utils/indonesianPhone";
 import { validateForm } from "@/utils/validators/formValidators";
@@ -327,21 +325,45 @@ export const useContact = defineStore("contact", () => {
     project: initSelectField(),
   });
 
-  const createRumahSakitForm = (): RumahSakitForm => ({
-    name: initInputField(),
-    phoneNumbers: [initInputField()],
-    email: initInputField(),
-    mapAddress: initInputField(),
-    address: initInputField(),
-    province: initSelectField(),
-    city: initSelectField(),
-    jenis: initInputField(),
-    tipe: initInputField(),
-    penyelenggara: initInputField(),
-    tipeMarketingGo500: initInputField(),
-    keterangan: initInputField(),
-    sirs: initInputField(),
+  const inputFieldWithValue = (value = "") => ({
+    ...initInputField(),
+    data: value,
   });
+
+  const selectFieldWithValue = (value = "") => ({
+    ...initSelectField(),
+    data: value,
+    selected: value ? { value, label: value } : null,
+  });
+
+  const createRumahSakitForm = (hospital?: Hospital): RumahSakitForm => {
+    const phoneNumbers = splitPhoneNumbers(hospital?.phone);
+    const jenis = hospital?.jenis || hospital?.industry || "";
+    const tipe = hospital?.tipe || hospital?.hospitalType || "";
+    const penyelenggara = hospital?.penyelenggara || hospital?.owner || "";
+
+    return {
+      name: inputFieldWithValue(hospital?.name),
+      phoneNumbers: (phoneNumbers.length ? phoneNumbers : [""]).map(
+        inputFieldWithValue,
+      ),
+      email: inputFieldWithValue(hospital?.email),
+      mapAddress: inputFieldWithValue(
+        hospital?.mapAddress || hospital?.address,
+      ),
+      address: inputFieldWithValue(hospital?.address),
+      province: selectFieldWithValue(hospital?.province),
+      city: selectFieldWithValue(hospital?.city),
+      jenis: selectFieldWithValue(jenis),
+      tipe: selectFieldWithValue(tipe),
+      penyelenggara: selectFieldWithValue(penyelenggara),
+      tipeMarketingGo500: selectFieldWithValue(
+        hospital?.tipeMarketingGo500,
+      ),
+      keterangan: inputFieldWithValue(hospital?.description),
+      sirs: inputFieldWithValue(hospital?.sirs),
+    };
+  };
 
   const contactState = reactive<ContactState>({
     tabList: contactSidebarList,
@@ -354,6 +376,8 @@ export const useContact = defineStore("contact", () => {
     historyVisible: false,
     openPrintContactModal: false,
     openAddContactModal: false,
+    hospitalEditId: null,
+    hospitalEditLocation: null,
     openCategoryModal: false,
     formSubmitted: false,
 
@@ -1000,7 +1024,26 @@ export const useContact = defineStore("contact", () => {
   }
 
   function openContactModal() {
+    contactState.hospitalEditId = null;
+    contactState.hospitalEditLocation = null;
+    contactState.rumahSakitForm = createRumahSakitForm();
+    contactState.formSubmitted = false;
     contactState.openAddContactModal = true;
+  }
+
+  function openHospitalEditModal(hospital: Hospital) {
+    prepareHospitalForm(hospital);
+    contactState.openAddContactModal = true;
+  }
+
+  function prepareHospitalForm(hospital: Hospital) {
+    contactState.hospitalEditId = hospital.id;
+    contactState.hospitalEditLocation =
+      hospital.latitude !== undefined && hospital.longitude !== undefined
+        ? { lat: hospital.latitude, lng: hospital.longitude }
+        : null;
+    contactState.rumahSakitForm = createRumahSakitForm(hospital);
+    contactState.formSubmitted = false;
   }
 
   async function saveContact() {
@@ -1026,14 +1069,8 @@ export const useContact = defineStore("contact", () => {
     ];
     const validation = validateForm(formFields, optionalFields);
     const normalizedPhoneNumbers = phoneNumbers
-      .map((phone) => normalizeIndonesianMobilePhone(phone.data))
+      .map((phone) => phone.data.trim())
       .filter(Boolean);
-    let phoneNumbersValid = true;
-
-    phoneNumbers.forEach((phone) => {
-      phone.errorMessage = indonesianMobilePhoneError(phone.data);
-      if (phone.errorMessage) phoneNumbersValid = false;
-    });
 
     const requiredLabels: Record<string, string> = {
       firstName: "Nama Depan",
@@ -1048,7 +1085,7 @@ export const useContact = defineStore("contact", () => {
       if (field?.errorMessage) field.errorMessage = `${label} wajib diisi.`;
     });
 
-    if (!validation.isValid || !phoneNumbersValid) return;
+    if (!validation.isValid) return;
 
     const formData = validation.formData;
     const selectedGender = contactState.contactForm.gender.selected;
@@ -1093,7 +1130,10 @@ export const useContact = defineStore("contact", () => {
     }
   }
 
-  async function saveRumahSakit() {
+  async function saveRumahSakit(
+    location?: { lat: number; lng: number } | null,
+    closeAfterSave = true,
+  ) {
     contactState.formSubmitted = true;
 
     const { phoneNumbers, ...formFields } = contactState.rumahSakitForm;
@@ -1126,47 +1166,91 @@ export const useContact = defineStore("contact", () => {
       if (field?.errorMessage) field.errorMessage = `${label} wajib diisi.`;
     });
 
-    if (!validation.isValid || !hasPhoneNumber) return;
+    if (!validation.isValid || !hasPhoneNumber) return false;
 
     const formData = validation.formData;
+    const jenis = textValue(formData.jenis).trim();
+    const tipe = textValue(formData.tipe).trim();
+    const penyelenggara = textValue(formData.penyelenggara).trim();
+    const industryId = nullableId(
+      contactState.rumahSakitForm.jenis.selected?.value,
+    );
+    const typeId = nullableId(contactState.rumahSakitForm.tipe.selected?.value);
+
+    // `company_owner` diwajibkan endpoint Company dan sumber nilainya adalah
+    // pilihan Penyelenggara pada form Rumah Sakit.
+    if (!penyelenggara) {
+      contactState.rumahSakitForm.penyelenggara.errorMessage =
+        "Penyelenggara wajib diisi.";
+      return false;
+    }
+    if (industryId === null) {
+      contactState.rumahSakitForm.jenis.errorMessage =
+        "Pilih Jenis dari daftar yang tersedia.";
+      return false;
+    }
+    if (typeId === null) {
+      contactState.rumahSakitForm.tipe.errorMessage =
+        "Pilih Tipe dari daftar yang tersedia.";
+      return false;
+    }
+
     // Payload sementara mengikuti seluruh field pada Kerangka Menu RS.
     // Backend saat ini menyediakan satu field telephone, sehingga beberapa nomor
     // diserialisasi sebagai daftar yang dipisahkan koma tanpa membuang input pengguna.
     const payload: HospitalPayload = {
       company_name: textValue(formData.name),
+      // Company owner mengikuti Penyelenggara, bukan diisi manual terpisah.
+      company_owner: penyelenggara,
       telephone: normalizedPhoneNumbers.join(", "),
       email: textValue(formData.email),
       map_address: textValue(formData.mapAddress),
       address: textValue(formData.address),
       province: textValue(formData.province),
       city: textValue(formData.city),
-      jenis: textValue(formData.jenis),
-      tipe: textValue(formData.tipe),
-      penyelenggara: textValue(formData.penyelenggara),
+      // Pertahankan key form lama dan kirim alias yang dipakai parameter SP.
+      jenis,
+      industry: industryId,
+      tipe,
+      type: typeId,
+      penyelenggara,
       tipe_marketing_go500: textValue(formData.tipeMarketingGo500),
       description: textValue(formData.keterangan),
       sirs: textValue(formData.sirs),
+      latitude: location?.lat ?? null,
+      longitude: location?.lng ?? null,
     };
 
     try {
-      const created = await hospitalStore.createHospital(payload);
+      const editId = contactState.hospitalEditId;
+      const created = editId
+        ? await hospitalStore.updateHospital(editId, payload)
+        : await hospitalStore.createHospital(payload);
+
+      // Response input/update hanya dapat berisi id. Ambil detail lagi supaya
+      // profil dan form berikutnya selalu memakai data terbaru dari backend.
+      if (editId) await hospitalStore.fetchHospitalById(editId);
       syncRemoteContacts();
 
-      if (created) {
+      if (!editId && created) {
         const createdContact = contactState.contactList.find(
           (contact) => contact.id === HOSPITAL_ID_OFFSET + created.id,
         );
         if (createdContact) contactState.activeContact = createdContact;
       }
-      closeRumahSakitModal();
+      if (closeAfterSave) closeRumahSakitModal();
+      return true;
     } catch {
       notifyError(hospitalStore.error ?? "Gagal menyimpan Rumah Sakit.");
+      return false;
     }
   }
 
   function closeRumahSakitModal() {
     contactState.openAddContactModal = false;
     contactState.formSubmitted = false;
+    contactState.hospitalEditId = null;
+    contactState.hospitalEditLocation = null;
     contactState.rumahSakitForm = createRumahSakitForm();
   }
 
@@ -1188,6 +1272,8 @@ export const useContact = defineStore("contact", () => {
     showHistory,
     printContact,
     openContactModal,
+    openHospitalEditModal,
+    prepareHospitalForm,
     saveContact,
     saveRumahSakit,
     closeRumahSakitModal,

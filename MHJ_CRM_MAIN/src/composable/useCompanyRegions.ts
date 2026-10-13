@@ -51,6 +51,62 @@ function rememberOptions(address: CompanyAddress) {
   }
 }
 
+/**
+ * Menyamakan nama wilayah dari sumber berbeda (geocoding vs dropdown) yang sering
+ * beda ejaan untuk tempat yang sama, mis. "Daerah Istimewa Yogyakarta" vs "DI Yogyakarta",
+ * atau "Kota Yogyakarta" vs "Yogyakarta".
+ */
+function normalizeRegionName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\b(provinsi|propinsi)\b/g, "")
+    .replace(/\b(daerah istimewa|daerah khusus ibukota|dki|di)\b/g, "")
+    .replace(/\b(kota administrasi|kabupaten administrasi|kota|kabupaten|kab)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function findMatchingOption(options: Select[], name: string): Select | null {
+  const target = normalizeRegionName(name);
+  if (!target) return null;
+  return options.find((option) => normalizeRegionName(option.label) === target) ?? null;
+}
+
+/**
+ * Dipakai saat lokasi diisi dari peta/GPS/pencarian alamat: cocokkan nama provinsi/kota
+ * hasil geocoding ke opsi dropdown yang sudah ada (perbandingan dinormalisasi di atas supaya
+ * tahan beda ejaan umum). Kalau tidak ada yang cocok, opsinya langsung ditambahkan supaya
+ * dropdown tetap bisa menampilkan dan memilihnya.
+ */
+function resolveRegionSelection(
+  provinceName: string,
+  cityName: string,
+): { province: Select | null; city: Select | null } {
+  const trimmedProvince = provinceName.trim();
+  const trimmedCity = cityName.trim();
+
+  let province = trimmedProvince ? findMatchingOption(provinceOptions.value, trimmedProvince) : null;
+  if (!province && trimmedProvince) {
+    province = { value: trimmedProvince, label: trimmedProvince };
+    provinceOptions.value = [...provinceOptions.value, province];
+  }
+
+  if (!province || !trimmedCity) return { province, city: null };
+
+  const bucket = cityOptionsByProvince.value[province.label] ?? [];
+  let city = findMatchingOption(bucket, trimmedCity);
+  if (!city) {
+    city = { value: trimmedCity, label: trimmedCity };
+    cityOptionsByProvince.value = {
+      ...cityOptionsByProvince.value,
+      [province.label]: [...bucket, city],
+    };
+  }
+
+  return { province, city };
+}
+
 /** Menemukan satu row company pada response detail yang mungkin dibungkus companies/data/dsb. */
 function findCompanyRecord(payload: unknown, depth = 0): Record<string, unknown> | null {
   if (depth > 4) return null;
@@ -237,5 +293,6 @@ export function useCompanyRegions() {
     cityOptionsByProvince,
     getCompanyAddress,
     loadRegions: loadRegionsFromApi,
+    resolveRegionSelection,
   };
 }

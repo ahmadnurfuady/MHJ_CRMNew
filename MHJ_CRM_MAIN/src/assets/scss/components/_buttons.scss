@@ -261,12 +261,35 @@
 .btn {
   padding: $btn-padding;
 
+  // Teks dan ikon di dalam tombol harus mengikuti warna state tombol.
+  // Badge dan spinner dikecualikan karena memiliki kontras/state sendiri.
+  > span:not(.badge):not(.spinner-border):not([class*='text-']) {
+    color: inherit !important;
+  }
+
+  > svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
   &.bg-light-primary {
     &:hover {
       background: $primary-color !important;
       color: $white !important;
     }
   }
+}
+
+// Tombol filled harus selalu memiliki foreground yang kontras. Beberapa
+// komponen lama hanya mengubah background sehingga teks mewarisi warna abu-abu.
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-danger,
+.btn-info,
+.btn-dark,
+.btn-warning {
+  color: $white !important;
 }
 
 .btn-lg {

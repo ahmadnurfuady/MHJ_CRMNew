@@ -458,7 +458,7 @@ export const useTask = defineStore('task', () => {
         const createdId = raw ? pickNumber(raw, 'id', 'ID') : 0
 
         // Ambil ulang dari API supaya daftar tidak pernah memakai fallback lokal/dummy.
-        await fetchTasks({ page: 1, per_page: pagination.perPage })
+        await fetchTasks()
         const newTask =
           (createdId > 0
             ? salesTasks.value.find((task) => task.id === createdId)

@@ -20,6 +20,8 @@ export interface Hospital {
   description: string
   /** address */
   address: string
+  /** map_address */
+  mapAddress: string
   /** country */
   country: string
   /** province */
@@ -36,6 +38,14 @@ export interface Hospital {
   hospitalClass: string
   /** jenis Rumah Sakit, bila disediakan endpoint company */
   hospitalType: string
+  /** Field khusus form Rumah Sakit. */
+  jenis: string
+  tipe: string
+  penyelenggara: string
+  tipeMarketingGo500: string
+  sirs: string
+  latitude?: number
+  longitude?: number
   /** metrik ringkas per Rumah Sakit */
   totalContacts?: number
   totalProjects?: number
@@ -64,6 +74,8 @@ export interface HospitalContactAssociation {
  */
 export interface HospitalPayload {
   company_name: string
+  /** Diisi dari field Penyelenggara pada form Tambah Rumah Sakit. */
+  company_owner?: string
   telephone?: string
   map_address?: string
   email?: string
@@ -75,8 +87,14 @@ export interface HospitalPayload {
   city?: string
   pos_code?: string
   jenis?: string
+  /** Alias backend/SP untuk field Jenis. */
+  industry?: number | null
   tipe?: string
+  /** Alias backend/SP untuk field Tipe. */
+  type?: number | null
   penyelenggara?: string
   tipe_marketing_go500?: string
   sirs?: string
+  latitude?: number | null
+  longitude?: number | null
 }
