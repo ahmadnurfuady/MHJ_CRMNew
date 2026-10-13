@@ -514,10 +514,6 @@ export const useContact = defineStore("contact", () => {
       notifyError(hospitalStore.error ?? contactError.value ?? "Gagal memuat data.");
     }
 
-    if (scope.value === "hospital" && results[0]?.status === "fulfilled") {
-      await hydrateHospitalPage();
-    }
-
     if (scope.value === "contact" && results[1]?.status === "fulfilled") {
       const firstContact = filteredContact.value[0];
       if (firstContact) await hydrateRemoteContact(firstContact);
@@ -542,8 +538,6 @@ export const useContact = defineStore("contact", () => {
       });
       contactState.activeContact = undefined;
       syncRemoteContacts();
-
-      await hydrateHospitalPage();
     } catch {
       notifyError(hospitalStore.error ?? "Gagal memuat halaman Rumah Sakit.");
     }
@@ -590,7 +584,6 @@ export const useContact = defineStore("contact", () => {
       });
       contactState.activeContact = undefined;
       syncRemoteContacts();
-      await hydrateHospitalPage();
     } catch {
       notifyError(hospitalStore.error ?? "Gagal mencari Rumah Sakit.");
     }

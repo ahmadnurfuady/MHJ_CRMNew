@@ -114,6 +114,7 @@ export function normalizeHospital(raw: Dict): Hospital {
       'totalProjects',
       'project_count',
       'projects_count',
+      'count_active_projects',
     ),
     totalInstalledEquipment: pickOptionalNumber(
       raw,
