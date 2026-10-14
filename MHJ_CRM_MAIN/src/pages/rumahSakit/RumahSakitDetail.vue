@@ -264,6 +264,11 @@
             v-for="contact in hospitalContacts"
             :key="contact.id"
             class="contact-card"
+            role="link"
+            tabindex="0"
+            :aria-label="`Buka detail kontak ${fullName(contact)}`"
+            @click="openContactDetail(contact)"
+            @keydown.enter.self="openContactDetail(contact)"
           >
             <div class="contact-top">
               <div class="contact-avatar">
@@ -280,6 +285,7 @@
                 :href="`tel:${contact.contactNumber}`"
                 class="phone-action"
                 :aria-label="`Telepon ${fullName(contact)}`"
+                @click.stop
               >
                 <i class="fa-solid fa-phone"></i>
               </a>
@@ -812,6 +818,12 @@ function selectStage(stage: string) {
 
 function openProject(id: number) {
   void router.push({ name: "Project Details V2", query: { id: String(id) } });
+}
+
+function openContactDetail(contact: Contact) {
+  const id = contact.remoteId ?? contact.id;
+  if (!Number.isFinite(id) || id <= 0) return;
+  void router.push({ path: routes.App.Contacts, query: { detail: String(id) } });
 }
 
 function createOpportunity() {
@@ -1653,6 +1665,18 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   border-radius: 14px;
   padding: 15px;
   background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.contact-card:hover,
+.contact-card:focus-visible {
+  border-color: color-mix(in srgb, var(--primary) 45%, #e2e7eb);
+  box-shadow: 0 8px 22px rgb(24 166 228 / 10%);
+  transform: translateY(-1px);
+  outline: none;
 }
 .contact-top {
   display: grid;

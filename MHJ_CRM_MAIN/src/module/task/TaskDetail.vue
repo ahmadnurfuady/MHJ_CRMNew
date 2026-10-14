@@ -2,13 +2,27 @@
   <div class="task-detail-shell">
     <div v-if="task" class="task-detail-scroll">
       <section class="task-name-card">
-        <h5>{{ task.title || 'Tanpa nama tugas' }}</h5>
+        <span class="task-name-card__icon" aria-hidden="true">
+          <vue-feather type="clipboard" size="24" />
+        </span>
+        <div class="task-name-card__content">
+          <span class="task-name-card__eyebrow">Task Sales</span>
+          <h4>{{ task.title || 'Tanpa nama tugas' }}</h4>
+          <div class="task-name-card__meta">
+            <span><vue-feather type="user" size="14" />{{ task.owner || '-' }}</span>
+            <span><vue-feather type="hash" size="14" />{{ task.id }}</span>
+          </div>
+        </div>
+        <span class="task-type-badge">Sales</span>
       </section>
 
       <section class="detail-card">
         <div class="detail-card-title">
           <span class="detail-card-icon"><vue-feather type="briefcase" size="18" /></span>
-          <h5>Detail Task Sales</h5>
+          <div>
+            <span class="detail-card-eyebrow">Informasi Tugas</span>
+            <h5>Detail Task Sales</h5>
+          </div>
         </div>
 
         <div class="detail-grid">
@@ -22,7 +36,13 @@
           </div>
           <div class="detail-field">
             <span>Status Peluang</span>
-            <strong>{{ task.projectId || task.projectName ? 'Ada' : 'Tidak Ada' }}</strong>
+            <strong
+              class="opportunity-status"
+              :class="{ 'opportunity-status--empty': !(task.projectId || task.projectName) }"
+            >
+              <i aria-hidden="true"></i>
+              {{ task.projectId || task.projectName ? 'Ada' : 'Tidak Ada' }}
+            </strong>
           </div>
           <div class="detail-field">
             <span>Nama Peluang</span>
@@ -64,7 +84,13 @@
           </div>
         </div>
 
-        <div class="evidence-title">Live Photo &amp; GPS Location</div>
+        <div class="evidence-title">
+          <span class="detail-card-icon"><vue-feather type="camera" size="18" /></span>
+          <div>
+            <strong>Live Photo &amp; GPS Location</strong>
+            <small>Bukti kunjungan dan titik lokasi aktivitas.</small>
+          </div>
+        </div>
         <div class="evidence-grid">
           <div class="evidence-preview">
             <img v-if="task.photoUrl" :src="task.photoUrl" alt="Live photo kunjungan" />
@@ -99,7 +125,10 @@
       <section class="detail-card comment-card">
         <div class="detail-card-title">
           <span class="detail-card-icon"><vue-feather type="message-square" size="18" /></span>
-          <h5>Komentar</h5>
+          <div>
+            <span class="detail-card-eyebrow">Aktivitas</span>
+            <h5>Komentar</h5>
+          </div>
         </div>
 
         <div v-if="comments.length" class="comment-list">
@@ -251,53 +280,142 @@ function preventUnavailableContact(event: MouseEvent) {
 
 .task-name-card,
 .detail-card {
-  border: 1px solid #e5eaee;
-  border-radius: 16px;
+  border: 1px solid #e3ebf0;
+  border-radius: 17px;
   background: #fff;
-  box-shadow: 0 7px 24px rgba(31, 52, 73, 0.05);
+  box-shadow: 0 9px 28px rgba(31, 52, 73, 0.055);
 }
 
 .task-name-card {
-  padding: 20px;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  border-color: rgba(24, 166, 228, 0.18);
+  padding: 22px 24px;
+  background:
+    radial-gradient(circle at 92% 15%, rgba(24, 166, 228, 0.14), transparent 24%),
+    linear-gradient(135deg, #ffffff 0%, #f5fbfe 62%, #eef9fd 100%);
 }
 
-.task-name-card h5 {
+.task-name-card::after {
+  position: absolute;
+  z-index: -1;
+  right: -42px;
+  bottom: -70px;
+  width: 150px;
+  height: 150px;
+  border: 22px solid rgba(24, 166, 228, 0.055);
+  border-radius: 50%;
+  content: '';
+}
+
+.task-name-card__icon,
+.detail-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--theme-default, #18a6e4);
+  background: rgba(24, 166, 228, 0.1);
+}
+
+.task-name-card__icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
+}
+
+.task-name-card__content {
+  min-width: 0;
+}
+
+.task-name-card__eyebrow,
+.detail-card-eyebrow {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--theme-default, #18a6e4);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.task-name-card h4 {
   margin: 0;
-  color: #111827;
-  font-size: 18px;
-  line-height: 1.35;
+  color: #102a43;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.task-name-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 8px;
+}
+
+.task-name-card__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #627d98;
+  font-size: 11px;
+}
+
+.task-type-badge {
+  align-self: start;
+  border: 1px solid rgba(24, 166, 228, 0.2);
+  border-radius: 999px;
+  padding: 6px 11px;
+  color: #087cae;
+  background: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .detail-card {
-  padding: 20px;
+  overflow: hidden;
+  padding: 0 22px 22px;
 }
 
 .detail-card-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin: 0 -22px 4px;
+  border-bottom: 1px solid #e8eef2;
+  padding: 17px 22px;
+  background: linear-gradient(90deg, #ffffff 0%, #f9fcfe 100%);
 }
 
 .detail-card-title h5 {
   margin: 0;
-  color: #111827;
+  color: #102a43;
   font-size: 16px;
 }
 
 .detail-card-icon {
-  display: inline-flex;
-  color: #1e3a5f;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: 11px;
 }
 
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px 24px;
+  column-gap: clamp(32px, 7vw, 88px);
 }
 
 .detail-field {
   min-width: 0;
+  border-bottom: 1px solid #edf2f5;
+  padding: 16px 3px 17px;
 }
 
 .detail-field--wide {
@@ -305,20 +423,41 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 .detail-field > span,
-.detail-notes > span,
-.evidence-title {
+.detail-notes > span {
   display: block;
-  margin-bottom: 4px;
-  color: #6b7280;
+  margin-bottom: 6px;
+  color: #718096;
   font-size: 12px;
 }
 
 .detail-field strong {
   display: block;
-  color: #111827;
-  font-size: 14px;
-  font-weight: 600;
+  color: #102a43;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.opportunity-status {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600 !important;
+}
+
+.opportunity-status i {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+.opportunity-status--empty i {
+  background: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
 }
 
 .pipeline-text {
@@ -341,17 +480,17 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 .detail-notes {
-  margin-top: 18px;
+  padding: 20px 3px 2px;
 }
 
 .detail-notes div {
-  min-height: 74px;
-  border: 1px solid #dbe2ea;
-  border-radius: 9px;
-  padding: 12px 14px;
-  color: #1f2937;
-  font-size: 13px;
-  font-weight: 600;
+  min-height: 0;
+  border: 0;
+  border-left: 3px solid rgba(24, 166, 228, 0.42);
+  padding: 6px 0 6px 14px;
+  color: #243b53;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.55;
   white-space: pre-wrap;
 }
@@ -362,13 +501,35 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 .evidence-title {
-  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #e8eef2;
+  margin-top: 22px;
+  padding-top: 20px;
+}
+
+.evidence-title strong,
+.evidence-title small {
+  display: block;
+}
+
+.evidence-title strong {
+  margin-bottom: 2px;
+  color: #102a43;
+  font-size: 14px;
+}
+
+.evidence-title small {
+  color: #829ab1;
+  font-size: 11px;
 }
 
 .evidence-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
+  margin-top: 14px;
 }
 
 .evidence-preview {
@@ -376,8 +537,8 @@ function preventUnavailableContact(event: MouseEvent) {
   min-height: 190px;
   overflow: hidden;
   border: 1px solid #dbe2ea;
-  border-radius: 10px;
-  background: #f8fafc;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #f8fbfd, #f3f8fb);
 }
 
 .evidence-preview img,
@@ -512,6 +673,7 @@ function preventUnavailableContact(event: MouseEvent) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  margin-top: 16px;
   border: 1px solid #e5eaee;
   border-radius: 16px;
   padding: 16px 20px;
@@ -534,22 +696,52 @@ function preventUnavailableContact(event: MouseEvent) {
     gap: 14px;
   }
 
-  .task-name-card,
-  .detail-card {
-    padding: 16px 12px;
+  .task-name-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 12px;
+    padding: 17px;
     border-radius: 13px;
   }
 
-  .task-name-card h5 {
-    font-size: 15px;
+  .task-name-card__icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+  }
+
+  .task-name-card h4 {
+    font-size: 17px;
+  }
+
+  .task-type-badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .detail-card {
+    border-radius: 13px;
+    padding: 0 14px 16px;
+  }
+
+  .detail-card-title {
+    margin: 0 -14px 2px;
+    padding: 15px 14px;
   }
 
   .detail-grid {
-    gap: 15px 12px;
+    grid-template-columns: 1fr;
+  }
+
+  .detail-field--wide {
+    grid-column: auto;
   }
 
   .detail-field strong {
-    font-size: 12px;
+    font-size: 14px;
+  }
+
+  .evidence-grid {
+    grid-template-columns: 1fr;
   }
 
   .evidence-preview,

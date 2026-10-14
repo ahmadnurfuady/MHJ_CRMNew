@@ -186,15 +186,19 @@ watch(() => props.contactId, loadContact, { immediate: true });
 }
 
 .detail-content {
+  min-width: 0;
+}
+
+.content-card {
+  min-height: 420px;
+}
+
+.edit-view {
   border: 1px solid #e5eaee;
   border-radius: 16px;
   padding: 24px;
   background: #fff;
   box-shadow: 0 7px 24px rgba(31, 52, 73, 0.05);
-}
-
-.content-card {
-  min-height: 420px;
 }
 
 .history-view {
@@ -255,7 +259,7 @@ watch(() => props.contactId, loadContact, { immediate: true });
 
 @media (max-width: 575.98px) {
   .detail-toolbar h3 { font-size: 19px; }
-  .detail-content { border-radius: 12px; padding: 16px; }
+  .edit-view { border-radius: 12px; padding: 16px; }
   .section-heading { align-items: flex-start; }
 }
 </style>

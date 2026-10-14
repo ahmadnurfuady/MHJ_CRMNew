@@ -37,27 +37,18 @@
 
               <div class="row g-3">
                 <div class="col-12">
-                  <div class="d-flex align-items-center justify-content-between gap-2">
-                    <label class="form-label" for="task-name">
-                      Nama Tugas <span class="txt-danger">*</span>
-                    </label>
-                    <button
-                      class="btn btn-link btn-sm p-0 mb-2"
-                      type="button"
-                      @click="generateTaskName"
-                    >
-                      <vue-feather type="zap" size="15" class="me-1"></vue-feather>
-                      Generate Otomatis
-                    </button>
-                  </div>
+                  <label class="form-label" for="task-name">Nama Tugas</label>
                   <input
                     id="task-name"
-                    v-model.trim="form.title"
-                    class="form-control"
-                    :class="{ 'is-invalid': formSubmitted && !form.title }"
+                    class="form-control auto-filled-input"
                     type="text"
-                    placeholder="Masukkan nama tugas..."
+                    :value="taskName"
+                    placeholder="Otomatis: Kategori_Produk_Perusahaan"
+                    readonly
                   />
+                  <small class="text-muted">
+                    Nama terbentuk otomatis dari kategori, produk, dan perusahaan.
+                  </small>
                 </div>
 
                 <div class="col-md-6">
@@ -435,7 +426,6 @@ function loggedInOwner() {
 
 function initialForm() {
   return {
-    title: '',
     category: initSelectField(),
     customCategory: '',
     owner: loggedInOwner(),
@@ -580,6 +570,22 @@ const selectedContacts = computed<DealOption[]>(() => {
   const contact = form.contact.selected as DealOption | null
   return contact ? [contact] : []
 })
+const selectedCompanyLabel = computed(() => {
+  const selectedHospital = (form.hospital.selected as DealOption | null)?.label
+  if (selectedHospital) return selectedHospital
+
+  const selectedIds = new Set(selectedContacts.value.map((contact) => String(contact.value)))
+  const selectedLabels = new Set(
+    selectedContacts.value.map((contact) => normalizeRelation(String(contact.label)))
+  )
+  const relatedContact = contactStore.contactApi.items.find((contact) => {
+    const id = String(contact.remoteId ?? contact.id)
+    const name = normalizeRelation(`${contact.firstName} ${contact.lastName}`)
+    return selectedIds.has(id) || selectedLabels.has(name)
+  })
+
+  return relatedContact?.company || ''
+})
 const selectedContactPhone = computed(() => {
   const selectedIds = new Set(selectedContacts.value.map((contact) => String(contact.value)))
   const selectedLabels = new Set(
@@ -615,18 +621,13 @@ const selectedCategoryLabel = computed(() =>
 const currentStageLabel = computed(
   () => stageOptions.find((stage) => stage.value === selectedProject.value?.status)?.label || ''
 )
-const generatedTaskName = computed(() => {
+const taskName = computed(() => {
   const category = selectedCategoryLabel.value
   const product = form.unrelatedProduct
     ? 'Tidak Terkait Produk'
     : selectedProducts.value.map((item) => item.label).join(', ')
-  const hospital = (form.hospital.selected as DealOption | null)?.label || ''
-  return [category, product, hospital].filter(Boolean).join('_')
+  return [category, product, selectedCompanyLabel.value].filter(Boolean).join('_')
 })
-
-function generateTaskName() {
-  form.title = generatedTaskName.value
-}
 
 function selectField(option: DealOption | null): SelectField {
   return {
@@ -843,7 +844,6 @@ function validateForm() {
   form.products.errorMessage = productMissing ? 'Product wajib dipilih.' : ''
   form.pipeline.errorMessage = pipelineMissing ? 'Pipeline peluang wajib dipilih.' : ''
 
-  if (!form.title) errors.push('Nama tugas wajib diisi.')
   if (categoryMissing) errors.push('Kategori wajib dipilih.')
   if (isCustomCategory.value && !form.customCategory) errors.push('Kategori lainnya wajib diisi.')
   if (!form.owner) errors.push('Sales tidak tersedia.')
@@ -867,12 +867,12 @@ async function submitTask() {
   let result
   try {
     result = await taskStore.createSalesTask({
-      title: form.title,
+      title: taskName.value,
       category: selectedCategoryLabel.value,
       owner: form.owner,
       projectId: project?.id ?? null,
       projectName: project?.label ?? '',
-      hospital: String((form.hospital.selected as DealOption | null)?.label ?? ''),
+      hospital: selectedCompanyLabel.value,
       contact: selectedContacts.value.map((item) => String(item.label)).join(', '),
       contactPhone: form.contactPhone,
       scheduledAt: form.scheduledAt,

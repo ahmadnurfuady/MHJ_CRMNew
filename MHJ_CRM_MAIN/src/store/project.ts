@@ -182,11 +182,13 @@ export function normalizeProject(raw: Dict): Projects {
 
 export const useProjectStore = defineStore('project', () => {
   const items = ref<Projects[]>([])
+  const summaryItems = ref<Projects[]>([])
   const selectedItem = ref<Projects | null>(null)
   const selectedDetails = ref<Dict[]>([])
   const createModalOpen = ref(false)
   const createModalHospital = ref<{ id: number; name: string } | null>(null)
   const loading = ref(false)
+  const summaryLoading = ref(false)
   const submitting = ref(false)
   const error = ref<string | null>(null)
   const pagination = reactive<Pagination>({
@@ -244,6 +246,26 @@ export const useProjectStore = defineStore('project', () => {
         return items.value
       }
     })
+  }
+
+  /** Dataset ringkasan terpisah agar KPI dan stage tidak terbatas halaman aktif. */
+  async function fetchProjectSummary() {
+    summaryLoading.value = true
+    try {
+      const response = await api.getbydata(ENDPOINT, { page: 1, per_page: 1000 })
+      const { items: rawItems } = extractList(response.data, [
+        'deals',
+        'projects',
+        'companies'
+      ])
+      summaryItems.value = rawItems.filter(isRecord).map(normalizeProject)
+      return summaryItems.value
+    } catch {
+      if (!summaryItems.value.length) summaryItems.value = [...items.value]
+      return summaryItems.value
+    } finally {
+      summaryLoading.value = false
+    }
   }
 
   /** GET /api/project/fetchprojectbyid. */
@@ -307,6 +329,7 @@ export const useProjectStore = defineStore('project', () => {
 
         if (created) {
           items.value = [created, ...items.value]
+          summaryItems.value = [created, ...summaryItems.value.filter((item) => item.id !== created.id)]
           pagination.total += 1
           pagination.lastPage = Math.max(
             1,
@@ -314,6 +337,7 @@ export const useProjectStore = defineStore('project', () => {
           )
         } else {
           await fetchProjects(lastParams.value)
+          await fetchProjectSummary()
         }
         return created
       }
@@ -345,11 +369,15 @@ export const useProjectStore = defineStore('project', () => {
 
         if (updated) {
           items.value = items.value.map((item) => (item.id === id ? (updated as Projects) : item))
+          summaryItems.value = summaryItems.value.map((item) =>
+            item.id === id ? (updated as Projects) : item
+          )
           if (selectedItem.value?.id === id) selectedItem.value = updated
           return updated
         }
 
         await fetchProjects(lastParams.value)
+        await fetchProjectSummary()
         return null
       }
     })
@@ -364,6 +392,12 @@ export const useProjectStore = defineStore('project', () => {
       task: async () => {
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
         items.value = items.value.filter((item) => item.id !== id)
+        summaryItems.value = summaryItems.value.filter((item) => item.id !== id)
+        pagination.total = Math.max(0, pagination.total - 1)
+        pagination.lastPage = Math.max(
+          1,
+          Math.ceil(pagination.total / Math.max(1, pagination.perPage))
+        )
         if (selectedItem.value?.id === id) selectedItem.value = null
       }
     })
@@ -509,11 +543,13 @@ export const useProjectStore = defineStore('project', () => {
 
   return {
     items,
+    summaryItems,
     selectedItem,
     selectedDetails,
     createModalOpen,
     createModalHospital,
     loading,
+    summaryLoading,
     submitting,
     error,
     pagination,
@@ -522,6 +558,7 @@ export const useProjectStore = defineStore('project', () => {
     openCreateModal,
     closeCreateModal,
     fetchProjects,
+    fetchProjectSummary,
     fetchProjectLeaders,
     fetchProjectById,
     createProject,

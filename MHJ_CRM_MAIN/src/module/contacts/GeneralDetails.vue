@@ -1,40 +1,68 @@
 <template>
   <template v-if="contactState.activeContact">
-    <div class="contact-header contact-profile-summary">
-      <img
-        class="img-100 img-fluid rounded-circle"
-        :src="getImages(contactState.activeContact.profile)"
-        :alt="contactState.activeContact.firstName"
-      />
+    <section class="contact-header contact-profile-summary">
+      <div class="contact-avatar-shell">
+        <img
+          class="contact-profile-avatar"
+          :src="getImages(contactState.activeContact.profile)"
+          :alt="contactState.activeContact.firstName"
+        />
+        <span class="contact-avatar-status" aria-hidden="true"></span>
+      </div>
       <div class="contact-identity">
-        <h5 class="contact-identity__row mb-0">{{ fullName }}</h5>
-        <p class="contact-identity__row mb-0 text-muted">
+        <span class="contact-profile-label">
+          <vue-feather type="user" size="13" />
+          Profil Kontak
+        </span>
+        <h4 class="contact-identity__row mb-0">{{ fullName }}</h4>
+        <p class="contact-identity__row contact-role mb-0">
           {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
         </p>
-        <p class="contact-identity__row mb-0">
-          <vue-feather type="briefcase" size="14" class="me-1" />
-          {{ companyLabel }}
-        </p>
+        <div class="contact-profile-meta">
+          <span>
+            <vue-feather type="briefcase" size="14" />
+            {{ companyLabel }}
+          </span>
+          <a
+            v-if="contactState.activeContact.email"
+            :href="`mailto:${contactState.activeContact.email}`"
+          >
+            <vue-feather type="mail" size="14" />
+            {{ contactState.activeContact.email }}
+          </a>
+          <span v-if="contactLocation.city !== '-'">
+            <vue-feather type="map-pin" size="14" />
+            {{ contactLocation.city }}
+          </span>
+        </div>
       </div>
       <div class="contact-primary-actions">
-        <button class="btn btn-outline-primary btn-sm" type="button" @click="editContact">
+        <button class="profile-action profile-action--primary" type="button" @click="editContact">
           <vue-feather type="edit-2" size="14" />Edit
         </button>
-        <button class="btn btn-outline-primary btn-sm" type="button" @click="showHistory">
+        <button class="profile-action" type="button" @click="showHistory">
           <vue-feather type="clock" size="14" />History
         </button>
-        <button class="btn btn-outline-primary btn-sm" type="button" @click="printContact">
+        <button class="profile-action" type="button" @click="printContact">
           <vue-feather type="printer" size="14" />Print
         </button>
       </div>
-    </div>
+    </section>
 
-    <div class="card border mt-4 mb-4">
-      <div class="card-header d-flex align-items-center justify-content-between pb-2">
-        <h6 class="mb-0">Informasi Kontak</h6>
+    <section class="detail-section contact-information-card mt-4 mb-4">
+      <header class="detail-section-header">
+        <div class="detail-section-title">
+          <span class="detail-section-icon" aria-hidden="true">
+            <vue-feather type="user-check" size="19" />
+          </span>
+          <div>
+            <h5>Informasi Kontak</h5>
+            <p>Data pribadi dan informasi untuk menghubungi kontak.</p>
+          </div>
+        </div>
         <span v-if="contactApi.detailLoading" class="text-muted f-12">Memuat detail...</span>
-      </div>
-      <div class="card-body pt-3">
+      </header>
+      <div class="detail-section-body">
         <div class="row g-3 contact-info-grid">
           <div class="col-md-6">
             <span>Nama Depan</span>
@@ -119,23 +147,23 @@
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <section class="company-dashboard">
-      <div
-        class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3"
-      >
+      <div class="company-section-heading mb-3">
+        <span class="detail-section-icon" aria-hidden="true">
+          <vue-feather type="home" size="19" />
+        </span>
         <div>
-          <h5 class="mb-1">Detail Rumah Sakit</h5>
-          <p class="text-muted mb-0">
+          <h5>Detail Rumah Sakit</h5>
+          <p>
             Ringkasan rumah sakit dan aktivitas peluang
           </p>
         </div>
-
       </div>
 
       <template v-if="companyDetail">
-        <div class="card border mb-4">
+        <div class="card border mb-4 company-profile-card">
           <div
             class="card-header d-flex justify-content-between align-items-center pb-2"
           >
@@ -214,7 +242,7 @@
           </div>
         </div>
 
-        <div class="card border mb-4">
+        <div class="card border mb-4 opportunity-card">
           <div class="card-header pb-2">
             <h6 class="mb-0">Peluang Berjalan per Stage</h6>
           </div>
@@ -245,7 +273,7 @@
                     class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
                   >
                     <span
-                      ><strong>{{ project.name }}</strong
+                      ><strong class="opportunity-name">{{ project.name }}</strong
                       ><small class="d-block text-muted">{{
                         project.id
                       }}</small></span
@@ -266,7 +294,7 @@
         </div>
 
 
-         <div class="card border mb-0">
+         <div class="card border mb-0 installed-product-card">
           <div class="card-header pb-2">
             <h6 class="mb-0">Histori Produk Terinstal</h6>
           </div>
@@ -621,10 +649,60 @@ async function toggleCompanyEdit() {
 
 <style scoped>
 .contact-profile-summary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: 100px minmax(0, 1fr) auto;
-  align-items: start;
-  column-gap: 20px;
+  grid-template-columns: 108px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  border: 1px solid rgba(24, 166, 228, 0.18);
+  border-radius: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(24, 166, 228, 0.16), transparent 24%),
+    linear-gradient(135deg, #ffffff 0%, #f5fbfe 58%, #eef9fd 100%);
+  box-shadow: 0 12px 32px rgba(22, 76, 105, 0.08);
+}
+
+.contact-profile-summary::after {
+  position: absolute;
+  z-index: -1;
+  right: -54px;
+  bottom: -74px;
+  width: 180px;
+  height: 180px;
+  border: 24px solid rgba(24, 166, 228, 0.06);
+  border-radius: 50%;
+  content: "";
+}
+
+.contact-avatar-shell {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.contact-profile-avatar {
+  width: 96px;
+  height: 96px;
+  border: 5px solid #ffffff;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(22, 76, 105, 0.15);
+  object-fit: cover;
+}
+
+.contact-avatar-status {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 22px;
+  height: 22px;
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.28);
 }
 
 .contact-identity {
@@ -633,7 +711,19 @@ async function toggleCompanyEdit() {
   align-items: flex-start;
   align-self: center;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
+}
+
+.contact-profile-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+  color: var(--theme-default, #18a6e4);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .contact-identity__row {
@@ -644,28 +734,147 @@ async function toggleCompanyEdit() {
   overflow-wrap: anywhere;
 }
 
-.contact-primary-actions {
-  display: grid;
-  grid-template-rows: repeat(3, auto);
-  justify-items: end;
-  gap: 6px;
+.contact-identity h4 {
+  color: #102a43;
+  font-size: clamp(21px, 2vw, 27px);
+  font-weight: 700;
 }
 
-.contact-primary-actions .btn,
+.contact-role {
+  color: #627d98;
+  font-size: 13px;
+}
+
+.contact-profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.contact-profile-meta span,
+.contact-profile-meta a {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(24, 166, 228, 0.13);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: #486581;
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 11px;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.contact-profile-meta a:hover {
+  border-color: rgba(24, 166, 228, 0.34);
+  color: var(--theme-default, #18a6e4);
+  background: #ffffff;
+}
+
+.contact-primary-actions {
+  display: flex;
+  align-self: start;
+  gap: 8px;
+}
+
+.profile-action,
 .contact-danger-zone .btn {
   display: inline-flex;
   width: auto;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border-radius: 7px;
-  padding: 7px 11px;
+  border-radius: 9px;
+  padding: 8px 12px;
 }
 
-.contact-primary-actions .btn {
-  min-width: 104px;
-  height: 32px;
-  align-self: center;
+.profile-action {
+  border: 1px solid #d8e5ec;
+  color: #486581;
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(22, 76, 105, 0.05);
+  transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.profile-action:hover,
+.profile-action:focus-visible {
+  border-color: var(--theme-default, #18a6e4);
+  color: var(--theme-default, #18a6e4);
+  transform: translateY(-1px);
+}
+
+.profile-action:focus-visible {
+  outline: 3px solid rgba(24, 166, 228, 0.16);
+  outline-offset: 2px;
+}
+
+.profile-action--primary,
+.profile-action--primary:hover,
+.profile-action--primary:focus-visible {
+  border-color: var(--theme-default, #18a6e4);
+  color: #ffffff;
+  background: var(--theme-default, #18a6e4);
+}
+
+.detail-section {
+  overflow: hidden;
+  border: 1px solid #e3ebf0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(31, 52, 73, 0.05);
+}
+
+.detail-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #e8eef2;
+  padding: 18px 20px;
+  background: linear-gradient(90deg, #ffffff 0%, #f8fcfe 100%);
+}
+
+.detail-section-title,
+.company-section-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-section-icon {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: var(--theme-default, #18a6e4);
+  background: rgba(24, 166, 228, 0.1);
+}
+
+.detail-section-title h5,
+.company-section-heading h5 {
+  margin: 0 0 3px;
+  color: #102a43;
+  font-size: 16px;
+}
+
+.detail-section-title p,
+.company-section-heading p {
+  margin: 0;
+  color: #829ab1;
+  font-size: 12px;
+}
+
+.detail-section-body {
+  padding: 20px;
 }
 
 .contact-danger-zone {
@@ -690,19 +899,45 @@ async function toggleCompanyEdit() {
   font-size: 12px;
 }
 
+.contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(36px, 7vw, 96px);
+  row-gap: 26px;
+  margin: 0;
+}
+
 .contact-info-grid > div {
   display: flex;
+  width: auto;
+  max-width: none;
+  min-height: 0;
+  justify-content: flex-start;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
+  border: 0;
+  border-radius: 0;
+  padding: 2px 4px;
+  background: transparent;
 }
+
+.contact-info-grid > .col-12 {
+  grid-column: 1 / -1;
+}
+
 .contact-info-grid span {
-  color: var(--bs-secondary-color);
+  color: #718096;
   font-size: 12px;
-  text-transform: capitalize;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 .contact-info-grid strong,
 .contact-info-grid a {
+  color: #102a43;
+  font-size: 15px;
   font-weight: 500;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
@@ -711,7 +946,7 @@ async function toggleCompanyEdit() {
 }
 
 .contact-phone-list {
-  margin-top: -12px;
+  margin-top: 1px;
 }
 
 .contact-phone-item {
@@ -719,6 +954,7 @@ async function toggleCompanyEdit() {
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
+  border-radius: 8px;
 }
 
 .contact-phone-item strong {
@@ -754,24 +990,79 @@ async function toggleCompanyEdit() {
 .contact-phone-actions a:hover {
   background: #e9f5fb;
 }
+
+.company-dashboard {
+  border: 1px solid #e3ebf0;
+  border-radius: 16px;
+  padding: 20px;
+  background: linear-gradient(180deg, #fafdff 0%, #ffffff 180px);
+  box-shadow: 0 8px 24px rgba(31, 52, 73, 0.045);
+}
+
+.company-dashboard .card {
+  overflow: hidden;
+  border-color: #e3ebf0 !important;
+  border-radius: 13px;
+  box-shadow: 0 5px 16px rgba(31, 52, 73, 0.04);
+}
+
+.company-dashboard .card-header {
+  border-bottom: 1px solid #e8eef2;
+  padding: 15px 17px;
+  background: #ffffff;
+}
+
+.company-dashboard .card-header h6 {
+  color: #243b53;
+  font-weight: 700;
+}
+
+.company-profile-card {
+  border-top: 3px solid var(--theme-default, #18a6e4) !important;
+}
 /* Kartu stage: lebar minimum tetap supaya judul, nominal, dan badge tidak terpotong. */
 .stage-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
   gap: 1rem;
+  overflow-x: auto;
+  padding: 2px 2px 9px;
+  scrollbar-color: rgba(24, 166, 228, 0.35) transparent;
+  scrollbar-width: thin;
 }
 .stage-summary {
-  min-width: 0;
-  border-left: 3px solid var(--theme-default) !important;
+  min-width: 165px;
+  flex: 1 0 165px;
+  border-top: 3px solid var(--theme-default, #18a6e4) !important;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fcfe 100%) !important;
+  transition: box-shadow 0.18s ease, transform 0.18s ease;
+}
+.stage-summary-grid::-webkit-scrollbar {
+  height: 6px;
+}
+.stage-summary-grid::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(24, 166, 228, 0.35);
+}
+.stage-summary-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+.stage-summary:hover {
+  box-shadow: 0 10px 22px rgba(31, 52, 73, 0.08);
+  transform: translateY(-2px);
+}
+.stage-summary .card-body {
+  padding: 17px;
 }
 .stage-badge {
-  display: block;
+  display: inline-flex;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .stage-count {
+  color: #102a43;
   font-size: 1.25rem;
   white-space: nowrap;
 }
@@ -783,6 +1074,34 @@ async function toggleCompanyEdit() {
 }
 .project-stage:last-child {
   margin-bottom: 0 !important;
+}
+
+.opportunity-card .list-group-item {
+  border-color: #edf1f4;
+  padding: 13px 14px;
+}
+
+.opportunity-card .list-group-item:hover {
+  color: #102a43;
+  background: #f4fbfe;
+}
+
+.opportunity-name {
+  font-weight: 600;
+}
+
+.installed-product-card .table thead th {
+  border-bottom-color: #e3ebf0;
+  color: #627d98;
+  background: #f8fbfd;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.installed-product-card .table tbody td {
+  border-bottom-color: #edf2f5;
+  color: #334e68;
 }
 .empty-company-section {
   display: flex;
@@ -802,29 +1121,99 @@ async function toggleCompanyEdit() {
   color: var(--theme-default);
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 991.98px) {
   .contact-profile-summary {
-    grid-template-columns: 72px minmax(0, 1fr);
-    column-gap: 14px;
-  }
-
-  .contact-profile-summary > img {
-    width: 72px;
-    height: 72px;
-    object-fit: cover;
+    grid-template-columns: 96px minmax(0, 1fr);
   }
 
   .contact-primary-actions {
     grid-column: 1 / -1;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto;
-    gap: 8px;
-    margin-top: 14px;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .contact-profile-summary {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 14px;
+    border-radius: 14px;
+    padding: 17px;
   }
 
-  .contact-primary-actions .btn {
+  .contact-avatar-shell,
+  .contact-profile-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .contact-profile-avatar {
+    border-width: 4px;
+    border-radius: 19px;
+  }
+
+  .contact-avatar-status {
+    width: 18px;
+    height: 18px;
+    border-width: 3px;
+  }
+
+  .contact-profile-label {
+    font-size: 10px;
+  }
+
+  .contact-identity h4 {
+    font-size: 19px;
+  }
+
+  .contact-profile-meta {
+    grid-column: 1 / -1;
+  }
+
+  .contact-profile-meta span,
+  .contact-profile-meta a {
+    max-width: 100%;
+  }
+
+  .contact-primary-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .profile-action {
     width: 100%;
     min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .detail-section-header,
+  .detail-section-body,
+  .company-dashboard {
+    padding: 15px;
+  }
+
+  .detail-section-header {
+    align-items: flex-start;
+  }
+
+  .detail-section-icon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .company-dashboard {
+    border-radius: 13px;
+  }
+
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-info-grid > .col-12 {
+    grid-column: auto;
   }
 
   .contact-danger-zone {

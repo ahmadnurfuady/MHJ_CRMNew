@@ -86,7 +86,16 @@
               </td>
             </tr>
             <tr v-for="hospital in filteredContact" :key="hospital.id">
-              <td data-label="Nama Rumah Sakit">
+              <td
+                class="entity-detail-cell"
+                data-label="Nama Rumah Sakit"
+                role="link"
+                tabindex="0"
+                :title="`Buka detail ${displayValue(hospital.firstName)}`"
+                :aria-label="`Buka detail rumah sakit ${displayValue(hospital.firstName)}`"
+                @click="openHospitalDetail(hospital)"
+                @keydown.enter="openHospitalDetail(hospital)"
+              >
                 <div class="hospital-identity">
                   <img
                     class="hospital-avatar"
@@ -94,7 +103,9 @@
                     :alt="hospital.firstName"
                   />
                   <div class="hospital-identity__text">
-                    <strong>{{ displayValue(hospital.firstName) }}</strong>
+                    <strong class="entity-detail-name">
+                      {{ displayValue(hospital.firstName) }}
+                    </strong>
                     <span>{{ hospital.email || "Email belum tersedia" }}</span>
                   </div>
                 </div>
@@ -632,6 +643,20 @@ onBeforeUnmount(() => {
 .hospital-identity__text strong {
   color: #0f172a;
   font-weight: 600;
+}
+
+.entity-detail-cell {
+  cursor: pointer;
+}
+
+.entity-detail-cell:hover .entity-detail-name,
+.entity-detail-cell:focus-visible .entity-detail-name {
+  color: var(--theme-default, #18a6e4);
+}
+
+.entity-detail-cell:focus-visible {
+  outline: 2px solid rgba(24, 166, 228, 0.22);
+  outline-offset: -2px;
 }
 
 .hospital-identity__text span {

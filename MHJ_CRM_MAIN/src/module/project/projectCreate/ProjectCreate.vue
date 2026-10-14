@@ -128,7 +128,7 @@
               </div>
 
               <div class="col-6">
-                <InputWrapper :title="'Harga Satuan (Rp)'" required>
+                <InputWrapper :title="'Harga Satuan (Rp)'">
                   <InputField
                     :modelValue="priceField"
                     :inputId="'project-price'"
@@ -534,10 +534,7 @@ const projectNameField = computed(() => ({
 }))
 const priceField = computed(() => ({
   data: rupiah(price.value),
-  errorMessage:
-    formSubmitted.value && price.value <= 0
-      ? 'Harga Satuan wajib tersedia dan harus lebih besar dari 0.'
-      : '',
+  errorMessage: '',
 }))
 const valueField = computed(() => ({
   data: rupiah(projectValue.value),
@@ -871,15 +868,6 @@ async function handleSubmit() {
     await Swal.fire({
       icon: 'error',
       text: 'Qty harus berupa bilangan bulat minimal 1.',
-      confirmButtonColor: 'var(--theme-default)',
-    })
-    return
-  }
-
-  if (!Number.isFinite(price.value) || price.value <= 0) {
-    await Swal.fire({
-      icon: 'error',
-      text: 'Harga Satuan wajib tersedia dan harus lebih besar dari 0.',
       confirmButtonColor: 'var(--theme-default)',
     })
     return

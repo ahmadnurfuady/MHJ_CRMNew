@@ -114,11 +114,29 @@
 
               <td data-label="Rumah Sakit">
                 <div class="task-context">
-                  <span class="cell-primary" :title="item.hospital || item.subtitle || '-'">
+                  <button
+                    v-if="hospitalDetailId(item)"
+                    class="task-context-link cell-primary"
+                    type="button"
+                    :title="item.hospital || item.subtitle || '-'"
+                    :aria-label="`Buka detail rumah sakit ${item.hospital || item.subtitle}`"
+                    @click="openHospitalDetail(item)"
+                  >
+                    {{ item.hospital || item.subtitle || '-' }}
+                  </button>
+                  <span v-else class="cell-primary" :title="item.hospital || item.subtitle || '-'">
                     {{ item.hospital || item.subtitle || '-' }}
                   </span>
                   <small v-if="item.contact" :title="`Kontak: ${item.contact}`">
-                    Kontak: {{ item.contact }}
+                    Kontak:
+                    <button
+                      v-if="contactDetailId(item)"
+                      class="task-context-link task-contact-link"
+                      type="button"
+                      :aria-label="`Buka detail kontak ${item.contact}`"
+                      @click="openContactDetail(item)"
+                    >{{ item.contact }}</button>
+                    <span v-else>{{ item.contact }}</span>
                   </small>
                 </div>
               </td>
@@ -255,15 +273,21 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import { useContact } from '@/store/contact'
+import { useHospitalStore } from '@/store/hospital'
+import { useProjectStore } from '@/store/project'
 import { useTask } from '@/store/task'
 import { projectTab } from '@/core/data/project'
 import { routes } from '@/router/routes'
 import type { TaskDetails } from '@/types/tasks'
 
 const store = useTask()
+const contactStore = useContact()
+const hospitalStore = useHospitalStore()
+const projectStore = useProjectStore()
 const router = useRouter()
 const { currentTask, loading, pagination } = storeToRefs(store)
 const searchQuery = ref('')
@@ -438,6 +462,55 @@ function openTaskDetail(item: TaskDetails) {
   void router.push({ path: routes.App.Task, query: { detail: String(item.id) } })
 }
 
+function normalizeRelationName(value: string) {
+  return value.trim().toLocaleLowerCase('id-ID')
+}
+
+function relatedProject(item: TaskDetails) {
+  if (!item.projectId) return undefined
+  return projectStore.items.find((project) => project.id === item.projectId)
+}
+
+function hospitalDetailId(item: TaskDetails): number | undefined {
+  const relationId = item.hospitalId ?? relatedProject(item)?.companyId
+  if (relationId) return relationId
+
+  const hospitalName = normalizeRelationName(item.hospital || '')
+  if (!hospitalName) return undefined
+  return hospitalStore.items.find(
+    (hospital) => normalizeRelationName(hospital.name) === hospitalName
+  )?.id
+}
+
+function contactDetailId(item: TaskDetails): number | undefined {
+  const relationId = item.contactId ?? relatedProject(item)?.contactId
+  if (relationId) return relationId
+
+  const contactNames = (item.contact || '')
+    .split(/[,;|]/)
+    .map(normalizeRelationName)
+    .filter(Boolean)
+  if (!contactNames.length) return undefined
+
+  const contact = contactStore.contactApi.items.find((candidate) => {
+    const fullName = normalizeRelationName(`${candidate.firstName} ${candidate.lastName}`)
+    return contactNames.includes(fullName)
+  })
+  return contact?.remoteId
+}
+
+function openHospitalDetail(item: TaskDetails) {
+  const id = hospitalDetailId(item)
+  if (!id) return
+  void router.push({ path: routes.App.RumahSakit, query: { detail: String(id) } })
+}
+
+function openContactDetail(item: TaskDetails) {
+  const id = contactDetailId(item)
+  if (!id) return
+  void router.push({ path: routes.App.Contacts, query: { detail: String(id) } })
+}
+
 function changePage(page: number) {
   if (page < 1 || page > effectiveLastPage.value || page === pagination.value.page) return
   if (usesClientPagination.value) {
@@ -446,6 +519,17 @@ function changePage(page: number) {
   }
   void store.fetchTasks({ page })
 }
+
+onMounted(() => {
+  const requests: Promise<unknown>[] = []
+  if (!hospitalStore.items.length) {
+    requests.push(hospitalStore.fetchHospitals({ per_page: 100 }))
+  }
+  if (!contactStore.contactApi.items.length) {
+    requests.push(contactStore.fetchRemoteContacts({ per_page: 100 }))
+  }
+  void Promise.allSettled(requests)
+})
 
 onBeforeUnmount(() => {
   stopTaskColumnResize()
@@ -724,6 +808,39 @@ onBeforeUnmount(() => {
   font-weight: 600;
 }
 
+.task-context-link {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.task-context-link:hover,
+.task-context-link:focus-visible {
+  color: #0284c7;
+}
+
+.task-context-link:focus-visible {
+  border-radius: 3px;
+  outline: 2px solid rgba(24, 166, 228, 0.22);
+  outline-offset: 2px;
+}
+
+.task-contact-link {
+  display: inline;
+  color: #64748b;
+  font-size: 11px;
+}
+
 .task-identity__text strong,
 .task-identity__text span,
 .cell-primary,
@@ -988,6 +1105,11 @@ onBeforeUnmount(() => {
   .task-identity {
     min-width: 0;
     justify-content: flex-end;
+    text-align: right;
+  }
+
+  .task-context-link {
+    margin-left: auto;
     text-align: right;
   }
 
