@@ -17,7 +17,9 @@ export interface TaskDetails {
   owner?: string
   projectId?: number | null
   projectName?: string
+  hospitalId?: number
   hospital?: string
+  contactId?: number
   contact?: string
   scheduledAt?: string
   divisions?: string[]

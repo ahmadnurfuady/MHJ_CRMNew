@@ -85,7 +85,16 @@
               </td>
             </tr>
             <tr v-for="contact in filteredContact" :key="contact.id">
-              <td data-label="Nama">
+              <td
+                class="entity-detail-cell"
+                data-label="Nama"
+                role="link"
+                tabindex="0"
+                :title="`Buka detail ${fullName(contact)}`"
+                :aria-label="`Buka detail kontak ${fullName(contact)}`"
+                @click="openContactDetail(contact)"
+                @keydown.enter="openContactDetail(contact)"
+              >
                 <div class="contact-person">
                   <img
                     class="contact-avatar"
@@ -93,7 +102,7 @@
                     :alt="fullName(contact)"
                   />
                   <div class="contact-person__identity">
-                    <strong class="mhj-cell-ellipsis" :title="fullName(contact)">
+                    <strong class="entity-detail-name mhj-cell-ellipsis">
                       {{ fullName(contact) }}
                     </strong>
                     <span
@@ -678,6 +687,20 @@ onBeforeUnmount(() => {
 .cell-primary {
   color: #0f172a;
   font-weight: 600;
+}
+
+.entity-detail-cell {
+  cursor: pointer;
+}
+
+.entity-detail-cell:hover .entity-detail-name,
+.entity-detail-cell:focus-visible .entity-detail-name {
+  color: var(--theme-default, #18a6e4);
+}
+
+.entity-detail-cell:focus-visible {
+  outline: 2px solid rgba(24, 166, 228, 0.22);
+  outline-offset: -2px;
 }
 
 .contact-person__identity span {

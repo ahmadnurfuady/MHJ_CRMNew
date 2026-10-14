@@ -72,6 +72,8 @@ function toSqlDateTime(value: string): string | null {
 export function normalizeTask(raw: Dict): TaskDetails {
   const rawProjectId = pick(raw, 'project_id', 'projectId')
   const projectId = rawProjectId === undefined ? null : Number(rawProjectId)
+  const hospitalId = pickNumber(raw, 'company_id', 'hospital_id', 'companyId', 'hospitalId')
+  const contactId = pickNumber(raw, 'contact_id', 'contactId')
   const rawTitle = pickString(raw, 'task_name', 'title', 'judul').trim()
   const explicitProjectName = pickString(
     raw,
@@ -116,7 +118,9 @@ export function normalizeTask(raw: Dict): TaskDetails {
     ),
     projectId,
     projectName,
+    hospitalId: hospitalId || undefined,
     hospital,
+    contactId: contactId || undefined,
     contact: pickString(raw, 'contact_person', 'contact_name', 'contact'),
     scheduledAt: pickString(raw, 'due_date', 'scheduledAt', 'scheduled_at'),
     divisions: toStringArray(pick(raw, 'divisions', 'division')),
@@ -201,7 +205,9 @@ export const useTask = defineStore('task', () => {
       ...task,
       projectName: task.projectName || project.projectName,
       subtitle: task.subtitle || project.projectName,
+      hospitalId: task.hospitalId ?? project.companyId,
       hospital: task.hospital || project.companyName,
+      contactId: task.contactId ?? project.contactId,
       contact: task.contact || project.contactName,
       contactPhone: task.contactPhone || project.contactPhone,
     }
