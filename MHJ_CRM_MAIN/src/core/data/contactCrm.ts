@@ -54,8 +54,8 @@ export const sourceOptions: Select[] = [
 ];
 
 export const genderOptions: Select[] = [
-  { value: "L", label: "Laki-laki" },
-  { value: "P", label: "Perempuan" },
+  { value: "Laki-laki", label: "Laki-laki" },
+  { value: "Perempuan", label: "Perempuan" },
 ];
 
 export const companyOptions: Select[] = [

@@ -509,8 +509,14 @@ function fillForm() {
     };
   }
 
+  const rawGender = String(contact.gender || "").trim().toLowerCase();
+  const normalizedGender = rawGender.includes("laki")
+    ? "laki-laki"
+    : rawGender.includes("perempuan") || rawGender.includes("wanita")
+      ? "perempuan"
+      : rawGender;
   const gender = genderOptions.find(
-    (option) => String(option.value).toLowerCase() === String(contact.gender || "").toLowerCase(),
+    (option) => String(option.value).toLowerCase() === normalizedGender,
   );
   form.value.gender = gender
     ? {

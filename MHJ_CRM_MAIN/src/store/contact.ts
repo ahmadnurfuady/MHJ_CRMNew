@@ -159,6 +159,13 @@ function textValue(value: unknown): string {
   return value === undefined || value === null ? "" : String(value);
 }
 
+function normalizeGender(value: string): string {
+  const lower = value.trim().toLowerCase();
+  if (lower === "l" || lower.includes("laki")) return "Laki-laki";
+  if (lower === "p" || lower.includes("perempuan") || lower.includes("wanita")) return "Perempuan";
+  return value;
+}
+
 function notifyError(message: string) {
   Swal.fire({
     icon: "error",
@@ -220,7 +227,7 @@ function normalizeApiContact(raw: Dict): Contact {
     firstName: pickString(raw, "first_name", "First Name", "firstName"),
     lastName: pickString(raw, "last_name", "Last Name", "lastName"),
     profile: "user/user.png",
-    gender: pickString(raw, "gender") || "-",
+    gender: normalizeGender(pickString(raw, "gender") || "") || "-",
     dob: pickString(raw, "dob", "birthday") || "-",
     personality: "-",
     city: pickString(raw, "city", "City") || "-",
