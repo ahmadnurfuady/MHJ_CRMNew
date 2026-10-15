@@ -140,6 +140,17 @@
                   <div class="d-flex flex-wrap gap-3">
                     <label
                       class="project-choice"
+                      :class="{ active: !form.hasProject }"
+                    >
+                      <input
+                        v-model="form.hasProject"
+                        type="radio"
+                        :value="false"
+                      />
+                      <span>{{ taskType === "sales" ? "Tidak ada" : "Tidak" }}</span>
+                    </label>
+                    <label
+                      class="project-choice"
                       :class="{ active: form.hasProject }"
                     >
                       <input
@@ -148,19 +159,6 @@
                         :value="true"
                       />
                       <span>{{ taskType === "sales" ? "Ada" : "Ya" }}</span>
-                    </label>
-                    <label
-                      class="project-choice"
-                      :class="{ active: !form.hasProject }"
-                    >
-                      <input
-                        v-model="form.hasProject"
-                        type="radio"
-                        :value="false"
-                      />
-                      <span>{{
-                        taskType === "sales" ? "Tidak ada" : "Tidak"
-                      }}</span>
                     </label>
                   </div>
                 </div>
@@ -298,6 +296,7 @@
                       :removable-tags="true"
                     />
                     <div
+                      v-if="!form.hasProject"
                       class="form-check"
                       :class="{ 'mt-2': !form.unrelatedProduct }"
                     >
@@ -1115,7 +1114,9 @@ async function hydrateForm(task: TaskDetails) {
     ? selectField(divisions[0] ?? null)
     : multiSelectField(divisions);
   form.products = multiSelectField(products);
-  form.unrelatedProduct = Boolean(task.unrelatedProduct);
+  form.unrelatedProduct = form.hasProject
+    ? false
+    : Boolean(task.unrelatedProduct);
   form.pipeline = selectField(
     stageOptions.find((stage) => stage.value === task.stageTo) ?? null,
   );
@@ -1155,7 +1156,7 @@ watch(
       (product) => product.divisiCode === project.division?.code,
     );
     form.products = multiSelectField(relatedProducts);
-    form.unrelatedProduct = relatedProducts.length === 0;
+    form.unrelatedProduct = false;
     const currentStage =
       stageOptions.find((stage) => stage.value === project.status) ?? null;
     form.pipeline = selectField(currentStage);
