@@ -1,7 +1,7 @@
 <template>
   <div class="task-detail-page">
     <div class="detail-toolbar">
-      <router-link :to="routes.App.Task" class="back-button" aria-label="Kembali ke daftar tugas">
+      <router-link :to="backTarget" class="back-button" aria-label="Kembali ke daftar tugas">
         <i class="fa-solid fa-arrow-left"></i>
       </router-link>
       <div>
@@ -19,7 +19,7 @@
       <div class="state-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
       <strong>Detail tugas tidak dapat ditampilkan</strong>
       <p>{{ loadError || 'Data tugas tidak ditemukan.' }}</p>
-      <router-link :to="routes.App.Task" class="btn btn-primary btn-sm">
+      <router-link :to="backTarget" class="btn btn-primary btn-sm">
         Kembali ke daftar
       </router-link>
     </div>
@@ -29,8 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
 import { routes } from '@/router/routes'
 import { useTask } from '@/store/task'
 import type { TaskDetails } from '@/types/tasks'
@@ -38,10 +39,15 @@ import type { TaskDetails } from '@/types/tasks'
 const TaskDetail = defineAsyncComponent(() => import('@/module/task/TaskDetail.vue'))
 const props = defineProps<{ taskId: number }>()
 const taskStore = useTask()
+const route = useRoute()
 const { currentTask } = storeToRefs(taskStore)
 const task = ref<TaskDetails | null>(null)
 const loading = ref(false)
 const loadError = ref('')
+const backTarget = computed(() => ({
+  path: routes.App.Task,
+  query: route.query.view === 'calendar' ? { view: 'calendar' } : undefined,
+}))
 
 function mergeTaskDetail(base: TaskDetails, detail: TaskDetails) {
   const merged = { ...base }

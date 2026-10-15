@@ -24,6 +24,39 @@ import type { SalesTaskPayload, Task, TaskData, TaskDetails } from '@/types/task
 const projectStageStorageKey = 'mhj-crm-project-stages'
 const CREATED_BY_ME = 'CreatedByMe'
 
+function normalizeText(value: unknown, fallback = ''): string {
+  if (value == null) return fallback
+  const text = String(value).trim()
+  return !text || text === '-' ? fallback : text
+}
+
+function pickText(raw: Dict, ...keys: string[]): string {
+  for (const key of keys) {
+    const text = normalizeText(raw[key])
+    if (text) return text
+  }
+  return ''
+}
+
+/**
+ * Mengambil task dengan urutan sumber canonical tanpa menggabungkan collection.
+ * Urutan ini mencegah record yang sama dari `tasks`, `data`, dan `list` tampil ganda.
+ */
+export function extractTasks(payload: unknown): ReturnType<typeof extractList> {
+  if (Array.isArray(payload)) return { items: payload }
+  if (!isRecord(payload)) return { items: [] }
+
+  const tasks = payload.tasks
+  if (Array.isArray(tasks) || (isRecord(tasks) && Array.isArray(tasks.data))) {
+    return extractList(payload, ['tasks'])
+  }
+  if (Array.isArray(payload.data)) return extractList(payload)
+  if (Array.isArray(payload.list)) return extractList(payload, ['list'])
+  if (isRecord(payload.data)) return extractTasks(payload.data)
+
+  return { items: [] }
+}
+
 function readStorage<T>(key: string, fallback: T): T {
   try {
     const value = localStorage.getItem(key)
@@ -74,20 +107,15 @@ export function normalizeTask(raw: Dict): TaskDetails {
   const projectId = rawProjectId === undefined ? null : Number(rawProjectId)
   const hospitalId = pickNumber(raw, 'company_id', 'hospital_id', 'companyId', 'hospitalId')
   const contactId = pickNumber(raw, 'contact_id', 'contactId')
-  const rawTitle = pickString(raw, 'task_name', 'title', 'judul').trim()
-  const explicitProjectName = pickString(
-    raw,
-    'projects_name',
-    'project_name',
-    'projectName',
-  ).trim()
+  const rawTitle = pickText(raw, 'task_name', 'title', 'judul')
+  const explicitProjectName = pickText(raw, 'projects_name', 'project_name', 'projectName')
   const embeddedProjectMatch =
     Number.isFinite(projectId) && projectId !== null && projectId > 0
       ? rawTitle.match(/^(.*?)\s*\(([^()]+)\)\s*$/)
       : null
-  const title = embeddedProjectMatch?.[1]?.trim() || rawTitle
-  const projectName = explicitProjectName || embeddedProjectMatch?.[2]?.trim() || ''
-  const hospital = pickString(
+  const title = embeddedProjectMatch?.[1]?.trim() || rawTitle || 'Task tanpa judul'
+  const projectName = normalizeText(explicitProjectName || embeddedProjectMatch?.[2]?.trim())
+  const hospital = pickText(
     raw,
     'hospital_name',
     'company_name',
@@ -103,10 +131,15 @@ export function normalizeTask(raw: Dict): TaskDetails {
     id: pickNumber(raw, 'id', 'ID') || Date.now(),
     title,
     subtitle: pickString(raw, 'subtitle') || projectName || hospital,
-    description: pickString(raw, 'description', 'notes', 'keterangan'),
+    description: pickText(raw, 'description', 'notes', 'keterangan'),
     kind: 'sales',
-    category: pickString(raw, 'category', 'kategori'),
-    owner: pickString(
+    category: pickText(raw, 'category', 'kategori'),
+    status: pickText(raw, 'status', 'status_name') || 'Unknown',
+    type: pickText(raw, 'type') || 'Unknown',
+    priority: pickText(raw, 'priority') || 'Normal',
+    progress: pickNumber(raw, 'progress'),
+    assignedId: pickNumber(raw, 'assigned_id', 'assignedId') || null,
+    owner: pickText(
       raw,
       'owner_name',
       'assigned_name',
@@ -114,15 +147,16 @@ export function normalizeTask(raw: Dict): TaskDetails {
       'leader_name',
       'owner',
       'assigned_id',
-      'created_by',
+      'created_by'
     ),
     projectId,
     projectName,
     hospitalId: hospitalId || undefined,
     hospital,
     contactId: contactId || undefined,
-    contact: pickString(raw, 'contact_person', 'contact_name', 'contact'),
-    scheduledAt: pickString(raw, 'due_date', 'scheduledAt', 'scheduled_at'),
+    contact: pickText(raw, 'contact_person', 'contact_name', 'contact'),
+    scheduledAt: pickText(raw, 'scheduled_at', 'scheduledAt', 'due_date'),
+    dueDate: pickText(raw, 'due_date', 'dueDate'),
     divisions: toStringArray(pick(raw, 'divisions', 'division')),
     products: toStringArray(pick(raw, 'products', 'product')),
     unrelatedProduct: Boolean(pick(raw, 'unrelatedProduct', 'unrelated_product')),
@@ -337,9 +371,44 @@ export const useTask = defineStore('task', () => {
       error,
       fallbackMessage: 'Gagal memuat data task.',
       task: async () => {
-        const response = await api.getbydata('tasks', { ...params })
-        const { items: rawItems, meta } = extractList(response.data, ['tasks'])
-        const normalizedTasks = rawItems.filter(isRecord).map(normalizeTask)
+        const requestParams = {
+          per_page: 100,
+          ...params,
+        }
+        const response = await api.getbydata('tasks', requestParams)
+        const firstPage = extractTasks(response.data)
+        let rawItems = firstPage.items
+        const meta = firstPage.meta
+
+        // List dan Calendar berbagi state lengkap yang sama. Jika backend memaginasi,
+        // ambil halaman sisanya lewat endpoint yang sama (bukan loader Calendar baru).
+        if (!params.page && meta?.total && meta.total > rawItems.length) {
+          const perPage = meta.perPage || requestParams.per_page
+          const lastPage = meta.lastPage || Math.ceil(meta.total / perPage)
+          const remainingPages = Array.from(
+            { length: Math.max(0, lastPage - 1) },
+            (_, index) => index + 2,
+          )
+          const responses = await Promise.all(
+            remainingPages.map((page) => api.getbydata('tasks', { ...requestParams, page })),
+          )
+          rawItems = [
+            ...rawItems,
+            ...responses.flatMap((pageResponse) => extractTasks(pageResponse.data).items),
+          ]
+        }
+
+        const seenIds = new Set<string>()
+        const normalizedTasks = rawItems
+          .filter(isRecord)
+          .filter((raw) => {
+            const id = normalizeText(pick(raw, 'id', 'ID'))
+            if (!id) return true
+            if (seenIds.has(id)) return false
+            seenIds.add(id)
+            return true
+          })
+          .map(normalizeTask)
         const tasksWithOwners = await resolveTaskOwners(normalizedTasks)
         salesTasks.value = await resolveTaskProjects(tasksWithOwners)
         if (meta) Object.assign(pagination, meta)

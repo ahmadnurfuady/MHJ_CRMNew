@@ -35,6 +35,27 @@
           </button>
         </div>
 
+        <div class="task-view-switch" role="group" aria-label="Mode tampilan task">
+          <button
+            type="button"
+            :class="{ 'task-view-switch__button--active': activeView === 'list' }"
+            :aria-pressed="activeView === 'list'"
+            @click="setActiveView('list')"
+          >
+            <vue-feather type="list" size="15" />
+            <span>List</span>
+          </button>
+          <button
+            type="button"
+            :class="{ 'task-view-switch__button--active': activeView === 'calendar' }"
+            :aria-pressed="activeView === 'calendar'"
+            @click="setActiveView('calendar')"
+          >
+            <vue-feather type="calendar" size="15" />
+            <span>Calendar</span>
+          </button>
+        </div>
+
         <button
           class="btn btn-primary add-task-header-button"
           type="button"
@@ -48,7 +69,7 @@
     </div>
 
     <div class="card-body p-0">
-      <div class="table-responsive task-table-wrap">
+      <div v-if="activeView === 'list'" class="table-responsive task-table-wrap">
         <table
           class="table mhj-data-table task-table align-middle mb-0"
           :style="{ width: `${taskTableWidth}px` }"
@@ -221,10 +242,19 @@
           </tbody>
         </table>
       </div>
+
+      <TaskCalendarView
+        v-else
+        :tasks="filteredTasks"
+        :total-task-count="taskRows.length"
+        :loading="loading"
+        :load-error="store.error"
+        @open-task="openTaskDetail"
+      />
     </div>
 
     <div
-      v-if="paginationEnabled && (taskRows.length || pagination.page > 1)"
+      v-if="activeView === 'list' && paginationEnabled && (taskRows.length || pagination.page > 1)"
       class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
     >
       <span class="text-muted f-14">
@@ -275,13 +305,15 @@
 <script lang="ts" setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore } from '@/store/project'
 import { useTask } from '@/store/task'
 import { projectTab } from '@/core/data/project'
 import { routes } from '@/router/routes'
+import TaskCalendarView from '@/module/task/TaskCalendarView.vue'
+import { parseLocalDate } from '@/module/task/taskCalendar'
 import type { TaskDetails } from '@/types/tasks'
 
 const store = useTask()
@@ -289,8 +321,10 @@ const contactStore = useContact()
 const hospitalStore = useHospitalStore()
 const projectStore = useProjectStore()
 const router = useRouter()
+const route = useRoute()
 const { currentTask, loading, pagination } = storeToRefs(store)
 const searchQuery = ref('')
+const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'calendar' : 'list')
 const paginationEnabled = false
 const taskTableColumns = [
   { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
@@ -419,12 +453,33 @@ watch(searchQuery, () => {
   pagination.value.page = 1
 })
 
+watch(
+  () => route.query.view,
+  (view) => {
+    activeView.value = view === 'calendar' ? 'calendar' : 'list'
+  },
+)
+
+function setActiveView(view: 'list' | 'calendar') {
+  if (activeView.value === view) return
+  activeView.value = view
+  void router.replace({
+    path: routes.App.Task,
+    query: {
+      ...route.query,
+      view: view === 'calendar' ? 'calendar' : undefined,
+    },
+  })
+}
+
 function formatTotal(total: number) {
   return new Intl.NumberFormat('id-ID').format(total)
 }
 
 function parseDate(value: string) {
-  const date = new Date(value)
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value.trim())
+  const date = dateOnly ? parseLocalDate(value) : new Date(value.trim().replace(' ', 'T'))
+  if (!date) return null
   return Number.isNaN(date.getTime()) ? null : date
 }
 
@@ -459,7 +514,10 @@ function deleteTask(item: TaskDetails) {
 }
 
 function openTaskDetail(item: TaskDetails) {
-  void router.push({ path: routes.App.Task, query: { detail: String(item.id) } })
+  void router.push({
+    path: routes.App.Task,
+    query: { ...route.query, detail: String(item.id) },
+  })
 }
 
 function normalizeRelationName(value: string) {
@@ -539,7 +597,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .task-list-header {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(0, 700px);
+  grid-template-columns: minmax(140px, 1fr) minmax(0, 900px);
   align-items: center;
   gap: 24px;
   padding: 20px 24px;
@@ -567,11 +625,43 @@ onBeforeUnmount(() => {
 
 .task-header-actions {
   display: grid;
-  grid-template-columns: minmax(280px, 440px) max-content;
+  grid-template-columns: minmax(240px, 1fr) max-content max-content;
   width: 100%;
   align-items: center;
   justify-content: end;
   gap: 10px;
+}
+
+.task-view-switch {
+  display: inline-flex;
+  height: 44px;
+  align-items: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 3px;
+  background: #f8fafc;
+}
+
+.task-view-switch button {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 11px;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.task-view-switch .task-view-switch__button--active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
 }
 
 .task-search {
@@ -1025,7 +1115,7 @@ onBeforeUnmount(() => {
   }
 
   .task-header-actions {
-    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
     justify-content: stretch;
   }
 }
@@ -1033,6 +1123,14 @@ onBeforeUnmount(() => {
 @media (max-width: 575.98px) {
   .task-header-actions {
     grid-template-columns: 1fr;
+  }
+
+  .task-view-switch {
+    width: 100%;
+  }
+
+  .task-view-switch button {
+    flex: 1;
   }
 
   .add-task-header-button {

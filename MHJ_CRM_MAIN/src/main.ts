@@ -7,6 +7,7 @@ import router from './router'
 import { createHead } from '@vueuse/head'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
+import 'devextreme/dist/css/dx.material.blue.light.compact.css'
 import './assets/scss/app.scss'
 import 'leaflet/dist/leaflet.css'
 

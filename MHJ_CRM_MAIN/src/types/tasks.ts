@@ -14,6 +14,11 @@ export interface TaskDetails {
   description: string
   kind?: 'sales'
   category?: string
+  status?: string
+  type?: string
+  priority?: string
+  progress?: number
+  assignedId?: number | null
   owner?: string
   projectId?: number | null
   projectName?: string
@@ -22,6 +27,7 @@ export interface TaskDetails {
   contactId?: number
   contact?: string
   scheduledAt?: string
+  dueDate?: string
   divisions?: string[]
   products?: string[]
   unrelatedProduct?: boolean
