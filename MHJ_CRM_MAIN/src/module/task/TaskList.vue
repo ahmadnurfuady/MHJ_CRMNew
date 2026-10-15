@@ -60,7 +60,7 @@
           class="btn btn-primary add-task-header-button"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#taskmodel"
+          data-bs-target="#task-type-selector"
         >
           <vue-feather type="plus" size="17" />
           <span>Buat Task Baru</span>
@@ -126,7 +126,7 @@
                       {{ item.title || 'Tanpa nama tugas' }}
                     </strong>
                     <span :title="item.category || 'Kategori belum tersedia'">
-                      {{ item.category || 'Kategori belum tersedia' }}
+                      {{ item.category || 'Kategori belum tersedia' }} · {{ taskKindLabel(item) }}
                     </span>
                   </div>
                   <vue-feather class="task-detail-indicator" type="chevron-right" size="16" />
@@ -445,6 +445,7 @@ const filteredTasks = computed(() => {
       item.projectName,
       item.owner,
       item.description,
+      taskKindLabel(item),
     ].some((value) => String(value ?? '').toLowerCase().includes(query))
   )
 })
@@ -506,6 +507,10 @@ function formatTime(value: string) {
 
 function stageLabel(value: string) {
   return projectTab.find((stage) => stage.value === value)?.title || value
+}
+
+function taskKindLabel(item: TaskDetails) {
+  return item.kind === 'app-specialist' ? 'App Specialist' : 'Sales'
 }
 
 function deleteTask(item: TaskDetails) {

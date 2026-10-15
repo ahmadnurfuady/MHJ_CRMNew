@@ -27,7 +27,7 @@
                       class="badge-primary btn-block btn-mail w-100"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#taskmodel"
+                      data-bs-target="#task-type-selector"
                     >
                       <vue-feather type="check-circle" class="stroke-primary"></vue-feather>Buat Task
                     </button>
@@ -76,7 +76,9 @@
         <div class="ps-0">
           <div class="tab-content">
             <TaskList />
-            <NewTask />
+            <TaskTypeSelector @select="selectedTaskType = $event" />
+            <SalesTaskForm v-if="selectedTaskType === 'sales'" />
+            <AppSpecialistTaskForm v-else-if="selectedTaskType === 'app-specialist'" />
             <CreateTaskTag />
           </div>
         </div>
@@ -89,9 +91,12 @@ import { computed, ref, defineAsyncComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTask } from '@/store/task'
 import { getImages } from '@/utils/index'
-import type { Task } from '@/types/tasks'
+import type { Task, TaskKind } from '@/types/tasks'
+import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
+import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
 
 const filtered = ref(false)
+const selectedTaskType = ref<TaskKind | null>(null)
 const store = useTask()
 const { taskData } = storeToRefs(store)
 const task = computed(() => taskData.value.task)
@@ -111,7 +116,7 @@ const currentUser = (() => {
 })()
 
 const TaskList = defineAsyncComponent(() => import('@/module/task/TaskList.vue'))
-const NewTask = defineAsyncComponent(() => import('@/module/task/NewTask.vue'))
+const TaskTypeSelector = defineAsyncComponent(() => import('@/module/task/TaskTypeSelector.vue'))
 const CreateTaskTag = defineAsyncComponent(() => import('@/module/task/CreateTaskTag.vue'))
 
 function setActiveTask(task: Task) {

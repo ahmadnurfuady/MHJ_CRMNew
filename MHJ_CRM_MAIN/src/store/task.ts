@@ -19,7 +19,7 @@ import { useProjectStore } from '@/store/project'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Select } from '@/types/common'
 import type { Projects } from '@/types/project'
-import type { SalesTaskPayload, Task, TaskData, TaskDetails } from '@/types/tasks'
+import type { TaskPayload, TaskUpdatePayload, Task, TaskData, TaskDetails } from '@/types/tasks'
 
 const projectStageStorageKey = 'mhj-crm-project-stages'
 const CREATED_BY_ME = 'CreatedByMe'
@@ -97,6 +97,60 @@ function toSqlDateTime(value: string): string | null {
     : sqlDateTime
 }
 
+function buildTaskRequestData(
+  payload: TaskPayload,
+  userId: number,
+  choice: 'i' | 'u',
+  taskId?: number,
+) {
+  const gpsCoordinates =
+    payload.latitude && payload.longitude ? `${payload.latitude},${payload.longitude}` : null
+  const requestFields: Record<string, string | number | null> = {
+    choice,
+    id: taskId ?? null,
+    task_id: taskId ?? null,
+    task_name: payload.title,
+    project_id: payload.projectId,
+    description: nullableText(payload.notes),
+    assigned_id: payload.assignedId ?? userId,
+    due_date: toSqlDateTime(payload.scheduledAt),
+    priority: null,
+    progress: null,
+    status_id: null,
+    created_by: userId,
+    has_project: payload.projectId ? 1 : 0,
+    project_name: nullableText(payload.projectName),
+    hospital_name: nullableText(payload.hospital),
+    contact_person: nullableText(payload.contact),
+    contact_phone: nullableText(payload.contactPhone),
+    division: nullableText(payload.divisions.join(', ')),
+    unrelated_product: payload.unrelatedProduct ? 1 : 0,
+    product: payload.unrelatedProduct
+      ? 'Tidak terkait produk'
+      : nullableText(payload.products.join(', ')),
+    pipeline_stage_from: nullableText(payload.stageFrom),
+    pipeline_stage: nullableText(payload.stageTo),
+    category: nullableText(payload.category),
+    type: payload.taskType,
+    serial_number: nullableText(payload.serialNumber),
+    assigned_name: nullableText(payload.owner),
+    photo_path: nullableText(payload.photoName),
+    has_live_photo: payload.photo || payload.photoName ? 1 : 0,
+    gps_coordinates: gpsCoordinates,
+    location_accuracy: payload.locationAccuracy || null,
+    location_address: nullableText(payload.locationAddress),
+    comments: null,
+  }
+  const requestData = new FormData()
+  Object.entries(requestFields).forEach(([key, value]) => {
+    requestData.append(key, value === null ? '' : String(value))
+  })
+  if (payload.photo) {
+    requestData.append('photo', payload.photo, payload.photoName || payload.photo.name)
+  }
+  return requestData
+}
+
 /**
  * Mengubah satu baris tabel `tasks` menjadi TaskDetails.
  * Kolom DB: task_name, description, project_id, due_date, created_at, created_by.
@@ -126,13 +180,15 @@ export function normalizeTask(raw: Dict): TaskDetails {
   const gpsCoordinates = pickString(raw, 'gps_coordinates').split(',')
   const gpsLatitude = Number(gpsCoordinates[0])
   const gpsLongitude = Number(gpsCoordinates[1])
+  const rawTaskType = pickText(raw, 'type', 'task_type').toLowerCase()
+  const isAppSpecialist = /app(?:lication)?[-_\s]?specialist/.test(rawTaskType)
 
   return {
     id: pickNumber(raw, 'id', 'ID') || Date.now(),
     title,
     subtitle: pickString(raw, 'subtitle') || projectName || hospital,
     description: pickText(raw, 'description', 'notes', 'keterangan'),
-    kind: 'sales',
+    kind: isAppSpecialist ? 'app-specialist' : 'sales',
     category: pickText(raw, 'category', 'kategori'),
     status: pickText(raw, 'status', 'status_name') || 'Unknown',
     type: pickText(raw, 'type') || 'Unknown',
@@ -177,6 +233,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
     locationAccuracy: pickNumber(raw, 'locationAccuracy', 'location_accuracy'),
     locationAddress: pickString(raw, 'locationAddress', 'location_address', 'address_location'),
     contactPhone: pickString(raw, 'contactPhone', 'contact_phone', 'telephone_1', 'phone'),
+    serialNumber: pickString(raw, 'serialNumber', 'serial_number', 'no_serial', 'nomor_seri'),
     createdAt: pickString(raw, 'createdAt', 'created_at'),
   }
 }
@@ -468,7 +525,7 @@ export const useTask = defineStore('task', () => {
    * POST /api/tasks/input dengan choice "i".
    * Mengembalikan null jika grup CreatedByMe tidak ada; error API dilempar kembali.
    */
-  async function createSalesTask(payload: SalesTaskPayload): Promise<TaskDetails | null> {
+  async function createTask(payload: TaskPayload): Promise<TaskDetails | null> {
     const target = createdByMeGroup()
     if (!target?.data) return null
 
@@ -480,53 +537,7 @@ export const useTask = defineStore('task', () => {
         const currentUserId = Number(authStore.user?.id)
         const userId = Number.isInteger(currentUserId) && currentUserId > 0 ? currentUserId : null
         if (!userId) throw new Error('ID owner dari user login tidak tersedia.')
-        const gpsCoordinates =
-          payload.latitude && payload.longitude
-            ? `${payload.latitude},${payload.longitude}`
-            : null
-        const requestFields: Record<string, string | number | null> = {
-          // Parameter insert dbo.sp_tasks_crud.
-          choice: 'i',
-          task_name: payload.title,
-          project_id: payload.projectId,
-          description: nullableText(payload.notes),
-          assigned_id: userId,
-          due_date: toSqlDateTime(payload.scheduledAt),
-          priority: null,
-          progress: null,
-          status_id: null,
-          created_by: userId,
-
-          // Konteks wajib sesuai Kerangka Menu - 4. Tasks dan kolom tabel tasks.
-          has_project: payload.projectId ? 1 : 0,
-          project_name: nullableText(payload.projectName),
-          hospital_name: nullableText(payload.hospital),
-          contact_person: nullableText(payload.contact),
-          contact_phone: nullableText(payload.contactPhone),
-          division: nullableText(payload.divisions.join(', ')),
-          unrelated_product: payload.unrelatedProduct ? 1 : 0,
-          product: payload.unrelatedProduct
-            ? 'Tidak terkait produk'
-            : nullableText(payload.products.join(', ')),
-          pipeline_stage_from: nullableText(payload.stageFrom),
-          pipeline_stage: nullableText(payload.stageTo),
-          category: nullableText(payload.category),
-          type: 'sales',
-          assigned_name: nullableText(payload.owner),
-          photo_path: nullableText(payload.photoName),
-          has_live_photo: payload.photo ? 1 : 0,
-          gps_coordinates: gpsCoordinates,
-          location_accuracy: payload.locationAccuracy || null,
-          location_address: nullableText(payload.locationAddress),
-          comments: null,
-        }
-        const requestData = new FormData()
-        Object.entries(requestFields).forEach(([key, value]) => {
-          requestData.append(key, value === null ? '' : String(value))
-        })
-        if (payload.photo) {
-          requestData.append('photo', payload.photo, payload.photoName || payload.photo.name)
-        }
+        const requestData = buildTaskRequestData(payload, userId, 'i')
 
         const response = await api.post('tasks/input', requestData)
         const raw = extractItem(response.data, ['task', 'result'])
@@ -552,6 +563,37 @@ export const useTask = defineStore('task', () => {
         return newTask
       },
     })
+  }
+
+  /** POST /api/tasks/input dengan choice "u" untuk memperbarui task sesuai tipenya. */
+  async function updateTask(payload: TaskUpdatePayload): Promise<TaskDetails | null> {
+    return runApiAction({
+      flag: submitting,
+      error,
+      fallbackMessage: 'Gagal memperbarui task.',
+      task: async () => {
+        const currentUserId = Number(authStore.user?.id)
+        const userId = Number.isInteger(currentUserId) && currentUserId > 0 ? currentUserId : null
+        if (!userId) throw new Error('ID owner dari user login tidak tersedia.')
+
+        await api.post('tasks/input', buildTaskRequestData(payload, userId, 'u', payload.id))
+        await fetchTasks()
+        const updatedTask = salesTasks.value.find((task) => task.id === payload.id) ?? null
+        selectedItem.value = updatedTask
+
+        if (payload.projectId && payload.stageTo) {
+          projectStages[payload.projectId] = payload.stageTo
+          localStorage.setItem(projectStageStorageKey, JSON.stringify(projectStages))
+        }
+
+        return updatedTask
+      },
+    })
+  }
+
+  /** Kompatibilitas untuk pemanggil lama yang hanya membuat task Sales. */
+  function createSalesTask(payload: TaskPayload) {
+    return createTask({ ...payload, taskType: 'sales' })
   }
 
   const save = () => {
@@ -684,6 +726,8 @@ export const useTask = defineStore('task', () => {
     fetchTasks,
     fetchTaskById,
     fetchTaskLookups,
+    createTask,
+    updateTask,
     createSalesTask,
   }
 })

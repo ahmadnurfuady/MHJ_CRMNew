@@ -6,14 +6,14 @@
           <vue-feather type="clipboard" size="24" />
         </span>
         <div class="task-name-card__content">
-          <span class="task-name-card__eyebrow">Task Sales</span>
+          <span class="task-name-card__eyebrow">Task {{ taskTypeLabel }}</span>
           <h4>{{ task.title || 'Tanpa nama tugas' }}</h4>
           <div class="task-name-card__meta">
             <span><vue-feather type="user" size="14" />{{ task.owner || '-' }}</span>
             <span><vue-feather type="hash" size="14" />{{ task.id }}</span>
           </div>
         </div>
-        <span class="task-type-badge">Sales</span>
+        <span class="task-type-badge">{{ taskTypeLabel }}</span>
       </section>
 
       <section class="detail-card">
@@ -21,7 +21,7 @@
           <span class="detail-card-icon"><vue-feather type="briefcase" size="18" /></span>
           <div>
             <span class="detail-card-eyebrow">Informasi Tugas</span>
-            <h5>Detail Task Sales</h5>
+            <h5>Detail Task {{ taskTypeLabel }}</h5>
           </div>
         </div>
 
@@ -60,9 +60,13 @@
             <span>Waktu Kunjungan</span>
             <strong>{{ formattedSchedule }}</strong>
           </div>
-          <div class="detail-field">
+          <div v-if="task.kind !== 'app-specialist'" class="detail-field">
             <span>Pipeline Peluang</span>
             <strong class="pipeline-text">{{ pipelineLabel }}</strong>
+          </div>
+          <div v-else class="detail-field">
+            <span>Serial Number</span>
+            <strong>{{ task.serialNumber || '-' }}</strong>
           </div>
           <div class="detail-field detail-field--wide">
             <span>Divisi Terkait</span>
@@ -186,6 +190,9 @@ const props = defineProps<{
 
 const commentText = ref('')
 const comments = ref<CommentItem[]>([])
+const taskTypeLabel = computed(() =>
+  props.task?.kind === 'app-specialist' ? 'App Specialist' : 'Sales',
+)
 
 const currentUser = computed(() => {
   try {
@@ -753,6 +760,7 @@ function preventUnavailableContact(event: MouseEvent) {
   }
 
   .task-detail-footer {
+    grid-template-columns: 1fr;
     padding: 12px;
   }
 

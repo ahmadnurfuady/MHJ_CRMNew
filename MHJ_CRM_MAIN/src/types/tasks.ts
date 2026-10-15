@@ -12,7 +12,7 @@ export interface TaskDetails {
   title: string
   subtitle: string
   description: string
-  kind?: 'sales'
+  kind?: TaskKind
   category?: string
   status?: string
   type?: string
@@ -40,13 +40,18 @@ export interface TaskDetails {
   locationAccuracy?: number
   locationAddress?: string
   contactPhone?: string
+  serialNumber?: string
   createdAt?: string
 }
 
-export interface SalesTaskPayload {
+export type TaskKind = 'sales' | 'app-specialist'
+
+export interface TaskPayload {
+  taskType: TaskKind
   title: string
   category: string
   owner: string
+  assignedId?: number | null
   projectId: number | null
   projectName: string
   hospital: string
@@ -65,7 +70,15 @@ export interface SalesTaskPayload {
   longitude: number
   locationAccuracy: number
   locationAddress: string
+  serialNumber: string
 }
+
+export interface TaskUpdatePayload extends TaskPayload {
+  id: number
+}
+
+/** @deprecated Gunakan TaskPayload untuk task Sales maupun App Specialist. */
+export type SalesTaskPayload = TaskPayload
 
 export interface TaskData {
   task: Task[]

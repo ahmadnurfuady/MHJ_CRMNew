@@ -309,6 +309,7 @@ export interface Projects {
   unitPrice?: number
   notes?: string
   contactPhone?: string
+  serialNumber?: string
   address?: string
   kdKelurahan?: string
 }

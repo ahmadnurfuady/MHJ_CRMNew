@@ -175,6 +175,7 @@ export function normalizeProject(raw: Dict): Projects {
     unitPrice: optionalNumber(raw, 'unit_price', 'price', 'harga'),
     notes: pickString(raw, 'notes', 'note', 'description'),
     contactPhone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile'),
+    serialNumber: pickString(raw, 'serial_number', 'serialNumber', 'no_serial', 'nomor_seri'),
     address: pickString(raw, 'address'),
     kdKelurahan: pickString(raw, 'kd_kelurahan')
   }

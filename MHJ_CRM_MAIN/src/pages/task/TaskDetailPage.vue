@@ -8,6 +8,16 @@
         <p>Tasks</p>
         <h3>Detail Tugas</h3>
       </div>
+      <button
+        v-if="task"
+        class="btn btn-primary edit-task-header"
+        type="button"
+        data-bs-toggle="modal"
+        :data-bs-target="editModalTarget"
+      >
+        <vue-feather type="edit-2" size="17" />
+        <span>Edit Task</span>
+      </button>
     </div>
 
     <div v-if="loading && !task" class="task-detail-state card">
@@ -24,7 +34,15 @@
       </router-link>
     </div>
 
-    <TaskDetail v-else :task="task" />
+    <template v-else>
+      <TaskDetail :task="task" />
+      <SalesTaskForm
+        v-if="task.kind !== 'app-specialist'"
+        :task="task"
+        @saved="loadTask"
+      />
+      <AppSpecialistTaskForm v-else :task="task" @saved="loadTask" />
+    </template>
   </div>
 </template>
 
@@ -35,6 +53,8 @@ import { useRoute } from 'vue-router'
 import { routes } from '@/router/routes'
 import { useTask } from '@/store/task'
 import type { TaskDetails } from '@/types/tasks'
+import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
+import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
 
 const TaskDetail = defineAsyncComponent(() => import('@/module/task/TaskDetail.vue'))
 const props = defineProps<{ taskId: number }>()
@@ -48,6 +68,11 @@ const backTarget = computed(() => ({
   path: routes.App.Task,
   query: route.query.view === 'calendar' ? { view: 'calendar' } : undefined,
 }))
+const editModalTarget = computed(() =>
+  task.value?.kind === 'app-specialist'
+    ? '#app-specialist-task-modal'
+    : '#sales-task-modal',
+)
 
 function mergeTaskDetail(base: TaskDetails, detail: TaskDetails) {
   const merged = { ...base }
@@ -126,6 +151,18 @@ watch(() => props.taskId, loadTask, { immediate: true })
   box-shadow: 0 4px 14px rgba(26, 47, 67, 0.06);
 }
 
+.edit-task-header {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 9px 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+}
+
 .task-detail-state {
   display: flex;
   min-height: 330px;
@@ -158,6 +195,15 @@ watch(() => props.taskId, loadTask, { immediate: true })
 @media (max-width: 575.98px) {
   .detail-toolbar h3 {
     font-size: 19px;
+  }
+
+  .edit-task-header {
+    width: 42px;
+    padding: 0;
+  }
+
+  .edit-task-header span {
+    display: none;
   }
 }
 
