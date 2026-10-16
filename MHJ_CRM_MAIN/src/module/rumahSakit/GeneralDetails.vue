@@ -1,11 +1,13 @@
 <template>
   <template v-if="contactState.activeContact">
     <div class="hospital-profile-summary">
-      <img
-        class="img-100 img-fluid rounded-circle update_img_0"
-        :src="getImages(contactState.activeContact.profile)"
-        :alt="contactState.activeContact.firstName"
-      />
+      <div
+        class="hospital-profile-icon"
+        :style="avatarColorStyle(contactState.activeContact.firstName || contactState.activeContact.id)"
+        aria-hidden="true"
+      >
+        <i class="fa-solid fa-hospital"></i>
+      </div>
       <div class="hospital-identity">
         <h5 class="mb-0">{{ displayValue(contactState.activeContact.firstName) }}</h5>
         <p class="email_add_0 mb-0">
@@ -94,9 +96,9 @@
           <span class="detail-value">{{ displayValue(contactState.activeContact.kdKelurahan) }}</span>
         </div>
         <div class="company-detail-item">
-          <span class="detail-label">Status</span>
+          <span class="detail-label">Grading / Status Finance</span>
           <span class="detail-value">
-            {{ contactState.activeContact.aktif === 1 ? "Aktif" : "Tidak aktif" }}
+            {{ financeStatusLabel }}
           </span>
         </div>
         <div class="company-detail-item company-detail-wide">
@@ -124,7 +126,7 @@ import { storeToRefs } from "pinia";
 
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
-import { getImages } from "@/utils/index";
+import { avatarColorStyle } from "@/utils/avatar";
 
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
@@ -132,6 +134,10 @@ const { contactState } = storeToRefs(contactStore);
 const { detailLoading: hospitalLoading } = storeToRefs(hospitalStore);
 
 const { editContact, deleteContact, showHistory, printContact } = contactStore;
+
+const financeStatusLabel = computed(
+  () => contactState.value.activeContact?.financeStatus?.trim() || "Belum dinilai",
+);
 
 const locationLabel = computed(() => {
   const contact = contactState.value.activeContact;
@@ -157,6 +163,17 @@ function websiteHref(value: string) {
   grid-template-columns: 100px minmax(0, 1fr) auto;
   align-items: start;
   column-gap: 20px;
+}
+
+.hospital-profile-icon {
+  display: grid;
+  width: 100px;
+  height: 100px;
+  place-items: center;
+  border-radius: 24px;
+  color: #ffffff;
+  font-size: 40px;
+  box-shadow: 0 10px 24px rgba(22, 76, 105, 0.15);
 }
 
 .hospital-identity {

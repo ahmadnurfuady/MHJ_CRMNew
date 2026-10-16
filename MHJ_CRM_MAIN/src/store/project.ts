@@ -19,7 +19,7 @@ import {
   products as barangFallback
 } from '@/core/data/projectDeal'
 import type { ListParams, Pagination } from '@/types/api'
-import type { Profile, Projects } from '@/types/project'
+import type { Profile, ProjectContact, Projects } from '@/types/project'
 import type { Select } from '@/types/common'
 
 export interface DivisiOption extends Select {
@@ -110,9 +110,79 @@ function formatDate(value: string): string {
   })
 }
 
+function normalizeProjectContacts(raw: Dict): ProjectContact[] {
+  const result: ProjectContact[] = []
+  const source = pick(
+    raw,
+    'contacts',
+    'project_contacts',
+    'deal_contacts',
+    'contact_list',
+    'contact_names',
+    'contacts_name'
+  )
+
+  let values: unknown[] = []
+  if (Array.isArray(source)) values = source
+  else if (isRecord(source)) values = Object.values(source)
+  else if (typeof source === 'string' && source.trim()) {
+    try {
+      const parsed: unknown = JSON.parse(source)
+      values = Array.isArray(parsed) ? parsed : [parsed]
+    } catch {
+      values = source.split(/[,;|]/).map((name) => ({ name: name.trim() }))
+    }
+  }
+
+  values.forEach((value) => {
+    if (typeof value === 'string') {
+      if (value.trim()) result.push({ name: value.trim() })
+      return
+    }
+    if (!isRecord(value)) return
+    const firstName = pickString(value, 'first_name', 'firstName')
+    const lastName = pickString(value, 'last_name', 'lastName')
+    const name =
+      pickString(value, 'contact_name', 'name', 'full_name', 'label') ||
+      `${firstName} ${lastName}`.trim()
+    if (!name) return
+    result.push({
+      id: optionalNumber(value, 'contact_id', 'id', 'ID'),
+      name,
+      phone: pickString(value, 'contact_phone', 'phone', 'telephone_1', 'mobile'),
+      jobTitle: pickString(value, 'job_title', 'position', 'jabatan') || undefined
+    })
+  })
+
+  const contactName = pickString(raw, 'contact_name')
+  if (contactName && !result.some((contact) => contact.name === contactName)) {
+    result.unshift({
+      id: optionalNumber(raw, 'contact_id'),
+      name: contactName,
+      phone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile')
+    })
+  }
+
+  return result.filter(
+    (contact, index, contacts) =>
+      contacts.findIndex((candidate) =>
+        contact.id && candidate.id
+          ? candidate.id === contact.id
+          : candidate.name.toLocaleLowerCase('id-ID') === contact.name.toLocaleLowerCase('id-ID')
+      ) === index
+  )
+}
+
 /** Mengubah satu baris dbo.m_projects / view project menjadi model tampilan. */
 export function normalizeProject(raw: Dict): Projects {
-  const ownerName = pickString(raw, 'owner_name', 'leader_name')
+  const ownerName = pickString(
+    raw,
+    'owner_name',
+    'leader_name',
+    'sales_name',
+    'pic_name',
+    'created_by_name'
+  )
   const stageId = optionalNumber(raw, 'stage_id', 'pipeline_id', 'status_id')
   const stageName =
     pickString(raw, 'stage_name', 'pipeline_name', 'status_name', 'stage', 'status') ||
@@ -133,7 +203,32 @@ export function normalizeProject(raw: Dict): Projects {
   const currency = pickString(raw, 'currency') || 'IDR'
   const expectedCloseDate = pickString(raw, 'expected_close_date')
   const probability = optionalNumber(raw, 'probability')
-  const companyName = pickString(raw, 'company_name')
+  const companyName = pickString(
+    raw,
+    'company_name',
+    'hospital_name',
+    'rumah_sakit_name',
+    'customer_name'
+  )
+  const createdAt = pickString(raw, 'created_at', 'created_date', 'date_created')
+  const updatedAt = pickString(
+    raw,
+    'updated_at',
+    'modified_at',
+    'last_updated_at',
+    'last_update',
+    'updated_date'
+  )
+  const stageEnteredAt = pickString(
+    raw,
+    'stage_entered_at',
+    'stage_changed_at',
+    'stage_started_at',
+    'pipeline_entered_at',
+    'pipeline_changed_at',
+    'status_changed_at'
+  )
+  const contacts = normalizeProjectContacts(raw)
 
   return {
     id: optionalNumber(raw, 'id', 'ID') ?? 0,
@@ -141,7 +236,7 @@ export function normalizeProject(raw: Dict): Projects {
     projectName: pickString(raw, 'projects_name', 'deal_name', 'project_name'),
     projectDescription: companyName,
     projectBanner: DEFAULT_BANNER,
-    date: formatDate(expectedCloseDate || pickString(raw, 'created_at')),
+    date: formatDate(createdAt),
     progress: probability ?? 0,
     status: toSlug(stageName) || String(stageId ?? ''),
     budget: amountValue !== undefined ? `${currency} ${amountValue.toLocaleString('id-ID')}` : '',
@@ -150,6 +245,7 @@ export function normalizeProject(raw: Dict): Projects {
     companyName,
     contactId: optionalNumber(raw, 'contact_id'),
     contactName: pickString(raw, 'contact_name'),
+    contacts,
     ownerId,
     ownerName,
     stageId,
@@ -170,7 +266,9 @@ export function normalizeProject(raw: Dict): Projects {
     lostReasons: pickString(raw, 'lost_reasons'),
     teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
     createdBy: pickString(raw, 'created_by'),
-    createdAt: pickString(raw, 'created_at'),
+    createdAt,
+    updatedAt: updatedAt || createdAt,
+    stageEnteredAt: stageEnteredAt || updatedAt || createdAt,
     quantity: optionalNumber(raw, 'quantity', 'qty'),
     unitPrice: optionalNumber(raw, 'unit_price', 'price', 'harga'),
     notes: pickString(raw, 'notes', 'note', 'description'),

@@ -16,6 +16,11 @@ import type {
   HospitalPayload,
 } from '@/types/hospital'
 import { runApiAction } from '@/store/apiAction'
+import {
+  createDemoHospital,
+  HOSPITAL_DEMO_ENABLED,
+  isDemoHospitalId,
+} from '@/core/data/hospitalDemo'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
 const ENDPOINT = 'company'
@@ -76,6 +81,18 @@ export function normalizeHospital(raw: Dict): Hospital {
     posCode: pickString(raw, 'Pos Code', 'pos_code'),
     kdKelurahan: pickString(raw, 'Kd Kelurahan', 'kd_kelurahan'),
     aktif: pickNumber(raw, 'Aktif', 'aktif'),
+    financeStatus: pickString(
+      raw,
+      'Status Finance',
+      'status_finance',
+      'statusFinance',
+      'Finance Status',
+      'finance_status',
+      'Grading',
+      'grading',
+      'Grade',
+      'grade',
+    ),
     hospitalClass: pickString(
       raw,
       'Hospital Class',
@@ -238,6 +255,12 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal memuat detail Rumah Sakit.',
       task: async () => {
+        if (isDemoHospitalId(id)) {
+          contactAssociations.value = []
+          selectedItem.value = HOSPITAL_DEMO_ENABLED ? createDemoHospital() : null
+          return selectedItem.value
+        }
+
         const response = await api.getbydata(`${ENDPOINT}/fetchcompanybyid`, { id })
         const raw = findCompanyRecord(response.data)
         const { items: rawContacts } = extractList(response.data, ['contactassoc'])
@@ -284,6 +307,10 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal memperbarui Rumah Sakit.',
       task: async () => {
+        if (isDemoHospitalId(id)) {
+          throw new Error('Data demo lokal tidak dapat disimpan ke API.')
+        }
+
         const response = await api.post(`${ENDPOINT}/input`, { choice: 'u', id, ...payload })
         const raw = findCompanyRecord(response.data)
         if (!raw) {
@@ -307,6 +334,10 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal menghapus Rumah Sakit.',
       task: async () => {
+        if (isDemoHospitalId(id)) {
+          throw new Error('Data demo lokal tidak dapat dihapus melalui API.')
+        }
+
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
         items.value = items.value.filter((item) => item.id !== id)
         if (selectedItem.value?.id === id) selectedItem.value = null

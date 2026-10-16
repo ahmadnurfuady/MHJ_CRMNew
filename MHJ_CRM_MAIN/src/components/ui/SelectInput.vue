@@ -11,12 +11,23 @@
     </button>
 
     <ul v-show="isOpen" class="select-menu" :class="placement" role="listbox">
+      <li class="select-search">
+        <input
+          ref="searchInputRef"
+          v-model="searchQuery"
+          type="text"
+          class="select-search-input"
+          placeholder="Cari..."
+          @click.stop
+          @keydown.stop
+        />
+      </li>
       <li>
         <button type="button" class="select-item text-muted" @click="select('')">
           {{ placeholder }}
         </button>
       </li>
-      <li v-for="opt in options" :key="opt.value">
+      <li v-for="opt in filteredOptions" :key="opt.value">
         <button
           type="button"
           class="select-item"
@@ -27,12 +38,15 @@
           {{ opt.label }}
         </button>
       </li>
+      <li v-if="!filteredOptions.length" class="select-empty text-muted">
+        Tidak ditemukan.
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { MasterOption } from '@/types/user'
 
 const props = defineProps<{
@@ -49,12 +63,20 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const placement = ref<'bottom' | 'top'>('bottom')
 const wrapperRef = ref<HTMLElement | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
+const searchQuery = ref('')
 
 const MENU_HEIGHT = 200
 
 const selectedLabel = computed(
   () => props.options.find((o) => o.value === props.modelValue)?.label ?? '',
 )
+
+const filteredOptions = computed(() => {
+  const keyword = searchQuery.value.trim().toLocaleLowerCase('id-ID')
+  if (!keyword) return props.options
+  return props.options.filter((opt) => opt.label.toLocaleLowerCase('id-ID').includes(keyword))
+})
 
 function toggle() {
   if (!isOpen.value && wrapperRef.value) {
@@ -63,6 +85,13 @@ function toggle() {
   }
   isOpen.value = !isOpen.value
 }
+
+watch(isOpen, (open) => {
+  if (open) {
+    searchQuery.value = ''
+    nextTick(() => searchInputRef.value?.focus())
+  }
+})
 
 function select(value: string) {
   emit('update:modelValue', value)
@@ -148,5 +177,32 @@ onBeforeUnmount(() => {
 .select-menu.top {
   top: auto;
   bottom: calc(100% + 2px);
+}
+
+.select-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.35rem 0.5rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.select-search-input {
+  width: 100%;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.3rem;
+  outline: none;
+}
+
+.select-search-input:focus {
+  border-color: var(--theme-default, #7366ff);
+}
+
+.select-empty {
+  padding: 0.4rem 1rem;
+  font-size: 0.875rem;
 }
 </style>

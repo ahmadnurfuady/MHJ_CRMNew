@@ -8,6 +8,8 @@ export interface ContactSidebarList {
 
 export interface Contact {
   id: number;
+  /** Penanda fixture lokal untuk preview UI; tidak pernah berasal dari API. */
+  isDemo?: boolean;
   /** Penanda asal data dari backend: "hospital" (endpoint Company) atau "api" (endpoint Contact). */
   origin?: "hospital" | "api";
   /** ID asli dari backend, dipakai untuk request update/delete. */
@@ -43,6 +45,7 @@ export interface Contact {
   kdKelurahan?: string;
   industry?: string;
   aktif?: number;
+  financeStatus?: string;
   source?: string;
   company?: string;
   project?: string;
@@ -80,6 +83,7 @@ export interface RumahSakitForm {
   tipeMarketingGo500: SelectField;
   keterangan: InputField;
   sirs: InputField;
+  financeStatus: InputField;
 }
 
 export interface ContactForm {

@@ -1,0 +1,48 @@
+import type { Projects } from '@/types/project'
+
+/** Preview lokal untuk memastikan seluruh elemen kartu/detail peluang dapat ditinjau saat development. */
+export const completeProjectDemo: Projects = {
+  id: -1001,
+  projectName: 'Pengadaan Patient Monitor ICU 2026',
+  projectDescription: 'RS Harapan Sehat Jakarta',
+  projectBanner: '',
+  date: '12 Oct 2026',
+  progress: 75,
+  status: 'negotiation',
+  budget: 'IDR 1285000000',
+  projectValue: 1_285_000_000,
+  amountValue: 1_285_000_000,
+  currency: 'IDR',
+  companyId: 9001,
+  companyName: 'RS Harapan Sehat Jakarta',
+  contactId: 9101,
+  contactName: 'dr. Nadia Putri',
+  contactPhone: '081234567890',
+  contacts: [
+    { id: 9101, name: 'dr. Nadia Putri', phone: '081234567890', jobTitle: 'Kepala ICU' },
+    { id: 9102, name: 'Budi Santoso', phone: '081298765432', jobTitle: 'Bagian Pengadaan' },
+    { id: 9103, name: 'Siti Rahma', phone: '081377788899', jobTitle: 'Keuangan' }
+  ],
+  ownerId: 9201,
+  ownerName: 'Andi Pratama',
+  teamMember: [{ name: 'Andi Pratama' }],
+  stageId: 4,
+  stageName: 'Negotiation',
+  expectedCloseDate: '2026-10-30T09:00:00+07:00',
+  createdAt: '2026-10-12T08:30:00+07:00',
+  updatedAt: '2026-10-14T15:20:00+07:00',
+  stageEnteredAt: '2026-10-10T10:00:00+07:00',
+  priority: 1,
+  competitorId: 1,
+  competitorName: 'PT Medika Kompetitor',
+  sumberdanaId: 1,
+  sumberdanaName: 'BLUD',
+  probability: 75,
+  aktif: 1,
+  divisionCode: 'MED',
+  productNames: 'Patient Monitor ICU, Central Monitoring System',
+  quantity: 5,
+  unitPrice: 257_000_000,
+  notes: 'Menunggu persetujuan final direktur. Jadwalkan follow-up penawaran pada minggu ini.',
+  createdBy: 'Admin CRM'
+}

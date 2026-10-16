@@ -45,14 +45,14 @@
           <p><i class="fa-solid fa-location-dot"></i>{{ project.companyName || 'Lokasi belum tersedia' }}</p>
           <div class="hero-meta">
             <span class="stage-pill">{{ project.stageName || titleCase(project.status) }}</span>
-            <span class="probability-pill">
-              <i class="fa-solid fa-chart-line"></i>{{ project.probability ?? project.progress }}% probabilitas
+            <span class="duration-pill">
+              <i class="fa-regular fa-clock"></i>{{ stageDuration }} di stage ini
             </span>
           </div>
         </div>
-        <div class="hero-value">
+        <div class="hero-value" :title="formatMoney(projectValue)">
           <small>Nilai Peluang</small>
-          <strong>{{ formatMoney(projectValue) }}</strong>
+          <strong>{{ formatCompactMoney(projectValue) }}</strong>
         </div>
       </section>
 
@@ -94,28 +94,31 @@
             </div>
 
             <div class="summary-metrics">
-              <div class="metric primary">
+              <div class="metric primary" :title="formatMoney(projectValue)">
                 <span>Nilai Peluang</span>
-                <strong>{{ formatMoney(projectValue) }}</strong>
+                <strong>{{ formatCompactMoney(projectValue) }}</strong>
               </div>
               <div class="metric">
-                <span>Probabilitas</span>
-                <strong>{{ project.probability ?? project.progress }}%</strong>
-              </div>
-              <div class="metric">
-                <span>Estimasi PO</span>
-                <strong>{{ formatDate(project.expectedCloseDate) }}</strong>
+                <span>Lama di Stage</span>
+                <strong>{{ stageDuration }}</strong>
               </div>
               <div class="metric">
                 <span>Dibuat</span>
                 <strong>{{ formatDate(project.createdAt) }}</strong>
+              </div>
+              <div class="metric">
+                <span>Update Terakhir</span>
+                <strong>{{ lastUpdated }}</strong>
               </div>
             </div>
 
             <div class="detail-list">
               <div class="detail-row">
                 <span><i class="fa-regular fa-user"></i>Owner</span>
-                <strong>{{ project.ownerName || 'Belum ditentukan' }}</strong>
+                <strong class="owner-detail">
+                  <i class="owner-avatar">{{ initials(project.ownerName || '') }}</i>
+                  {{ project.ownerName || 'Belum ditentukan' }}
+                </strong>
               </div>
               <div class="detail-row">
                 <span><i class="fa-solid fa-layer-group"></i>Divisi</span>
@@ -143,29 +146,38 @@
             <section class="support-section">
               <h6><i class="fa-regular fa-address-card"></i>Kontak Utama</h6>
               <div v-if="contacts.length" class="contact-list">
-                <div v-for="contact in contacts" :key="`${contact.name}-${contact.phone}`" class="contact-item">
-                  <div class="contact-avatar">{{ initials(contact.name) }}</div>
+                <div class="contact-item">
+                  <div class="contact-avatar">{{ initials(primaryContact.name) }}</div>
                   <div class="contact-copy">
                     <router-link
-                      v-if="contact.id"
-                      :to="{ path: routes.App.Contacts, query: { detail: String(contact.id) } }"
-                    >{{ contact.name }}</router-link>
-                    <strong v-else>{{ contact.name }}</strong>
-                    <span>{{ contact.jobTitle || contact.phone || 'Nomor telepon belum tersedia' }}</span>
+                      v-if="primaryContact.id"
+                      :to="{ path: routes.App.Contacts, query: { detail: String(primaryContact.id) } }"
+                    >{{ primaryContact.name }}</router-link>
+                    <strong v-else>{{ primaryContact.name }}</strong>
+                    <span>{{ primaryContact.jobTitle || primaryContact.phone || 'Nomor telepon belum tersedia' }}</span>
                   </div>
                   <div class="contact-actions">
                     <a
-                      v-if="contact.phone"
-                      :href="`tel:${contact.phone}`"
-                      :aria-label="`Telepon ${contact.name}`"
+                      v-if="primaryContact.phone"
+                      :href="`tel:${primaryContact.phone}`"
+                      :aria-label="`Telepon ${primaryContact.name}`"
                     ><i class="fa-solid fa-phone"></i></a>
                     <a
-                      v-if="contact.phone"
-                      :href="whatsappLink(contact.phone)"
+                      v-if="primaryContact.phone"
+                      :href="whatsappLink(primaryContact.phone)"
                       target="_blank"
                       rel="noopener noreferrer"
-                      :aria-label="`WhatsApp ${contact.name}`"
+                      :aria-label="`WhatsApp ${primaryContact.name}`"
                     ><i class="fa-brands fa-whatsapp"></i></a>
+                    <div v-if="additionalContacts.length" class="more-detail-contacts">
+                      <button type="button" :aria-label="`${additionalContacts.length} kontak lainnya`">•••</button>
+                      <div class="detail-contact-popover" role="tooltip">
+                        <div v-for="otherContact in additionalContacts" :key="`${otherContact.id}-${otherContact.name}`">
+                          <span class="contact-avatar contact-avatar--small">{{ initials(otherContact.name) }}</span>
+                          <span><strong>{{ otherContact.name }}</strong><small>{{ otherContact.jobTitle || otherContact.phone || 'Kontak tambahan' }}</small></span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -256,6 +268,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { routes } from '@/router/routes'
+import { completeProjectDemo } from '@/core/data/projectDemo'
 import { useContact } from '@/store/contact'
 import { useProjectStore } from '@/store/project'
 import { shortProjectTitle } from '@/utils/index'
@@ -342,6 +355,7 @@ const fundingSourceName = computed(() => {
 
 const contacts = computed<ContactInfo[]>(() => {
   const collected: ContactInfo[] = []
+  project.value?.contacts?.forEach((contact) => collected.push({ ...contact, phone: contact.phone || '' }))
   const detailedContact = supportingContact.value
   if (detailedContact) {
     collected.push({
@@ -372,6 +386,12 @@ const contacts = computed<ContactInfo[]>(() => {
   }
   return collected
 })
+const primaryContact = computed<ContactInfo>(() => contacts.value[0] || { name: '', phone: '' })
+const additionalContacts = computed(() => contacts.value.slice(1))
+const stageDuration = computed(() => formatDuration(
+  project.value?.stageEnteredAt || project.value?.updatedAt || project.value?.createdAt
+))
+const lastUpdated = computed(() => formatRelativeTime(project.value?.updatedAt || project.value?.createdAt))
 
 const activities = computed<ActivityInfo[]>(() => {
   const fromApi = detailRows.value
@@ -399,6 +419,16 @@ function formatMoney(value: number): string {
   return `${currency} ${Math.max(0, value).toLocaleString('id-ID')}`
 }
 
+function formatCompactMoney(value: number): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: project.value?.currency || 'IDR',
+    currencyDisplay: 'narrowSymbol',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(Math.max(0, value))
+}
+
 function formatOptionalMoney(value: number | null): string {
   return value === null ? 'Tidak tersedia' : formatMoney(value)
 }
@@ -408,6 +438,38 @@ function formatDate(value?: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
   return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
+}
+
+function elapsed(value?: string): number | null {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : Math.max(0, Date.now() - date.getTime())
+}
+
+function formatRelativeTime(value?: string): string {
+  const milliseconds = elapsed(value)
+  if (milliseconds === null) return 'Belum tersedia'
+  const minutes = Math.floor(milliseconds / 60_000)
+  if (minutes < 1) return 'Baru saja'
+  if (minutes < 60) return `${minutes} menit lalu`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} jam lalu`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} hari lalu`
+  const months = Math.floor(days / 30)
+  return months < 12 ? `${months} bulan lalu` : `${Math.floor(months / 12)} tahun lalu`
+}
+
+function formatDuration(value?: string): string {
+  const milliseconds = elapsed(value)
+  if (milliseconds === null) return 'Belum tersedia'
+  const hours = Math.floor(milliseconds / 3_600_000)
+  if (hours < 1) return '< 1 jam'
+  if (hours < 24) return `${hours} jam`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} hari`
+  const months = Math.floor(days / 30)
+  return months < 12 ? `${months} bulan` : `${Math.floor(months / 12)} tahun`
 }
 
 function whatsappLink(phone: string): string {
@@ -435,6 +497,22 @@ async function loadProject() {
   const requestedId = Number(route.query.id)
   try {
     let id = Number.isFinite(requestedId) && requestedId > 0 ? requestedId : 0
+    if (import.meta.env.DEV && requestedId === completeProjectDemo.id) {
+      store.selectedItem = completeProjectDemo
+      store.selectedDetails = [
+        {
+          activity: 'Negosiasi harga dan termin pembayaran',
+          activity_date: '2026-10-14T15:20:00+07:00',
+          activity_description: 'Penawaran revisi telah dikirim ke tim pengadaan rumah sakit.'
+        },
+        {
+          activity: 'Presentasi produk',
+          activity_date: '2026-10-10T10:00:00+07:00',
+          activity_description: 'Demo Patient Monitor dilakukan bersama tim ICU.'
+        }
+      ]
+      return
+    }
     if (!id) {
       if (!items.value.length) await store.fetchProjects({ per_page: 100 })
       id = items.value[0]?.id ?? 0
@@ -478,7 +556,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .hero-copy p { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; color: #627d98; }
 .hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
 .stage-pill { display: inline-flex; padding: 5px 14px; border: 1px solid rgba(24,166,228,.18); border-radius: 999px; color: #087cae; background: rgba(24,166,228,.09); font-size: 11px; font-weight: 700; letter-spacing: .03em; }
-.probability-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border: 1px solid #dce8ee; border-radius: 999px; color: #486581; background: rgba(255,255,255,.82); font-size: 11px; }
+.duration-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border: 1px solid #dce8ee; border-radius: 999px; color: #486581; background: rgba(255,255,255,.82); font-size: 11px; }
 .hero-value { min-width: 175px; padding-left: 24px; border-left: 1px solid rgba(24,166,228,.2); text-align: right; }
 .hero-value small, .hero-value strong { display: block; }
 .hero-value small { margin-bottom: 4px; color: #718096; font-size: 11px; }
@@ -508,6 +586,8 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .detail-row > span { display: inline-flex; align-items: center; gap: 9px; color: #7f8992; font-size: 12px; }
 .detail-row > span i { width: 16px; color: var(--detail-blue); text-align: center; }
 .detail-row strong { color: #242d35; font-size: 13px; font-weight: 600; text-align: right; }
+.owner-detail { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.owner-avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; background: linear-gradient(145deg, #209de5, #75c4ef); font-size: 9px; font-style: normal; }
 .support-section h6 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; color: #65717c; font-size: 12px; font-weight: 600; }
 .support-section h6 i { color: var(--detail-blue); }
 .contact-list { display: grid; gap: 8px; }
@@ -520,6 +600,15 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .contact-actions { display: flex; gap: 12px; }
 .contact-actions a { color: #24467b; font-size: 18px; }
 .contact-actions a:last-child { color: #14c96e; }
+.more-detail-contacts { position: relative; }
+.more-detail-contacts > button { width: 32px; height: 28px; border: 1px solid #dbe4ea; border-radius: 8px; color: #687783; background: #f8fafb; font-size: 10px; font-weight: 800; line-height: 1; }
+.detail-contact-popover { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; display: none; width: 240px; padding: 8px; border: 1px solid #dfe7ec; border-radius: 11px; background: #fff; box-shadow: 0 12px 30px rgba(31,54,72,.17); }
+.more-detail-contacts:hover .detail-contact-popover, .more-detail-contacts:focus-within .detail-contact-popover { display: grid; gap: 3px; }
+.detail-contact-popover > div { display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 8px; padding: 6px; text-align: left; }
+.contact-avatar--small { width: 30px; height: 30px; font-size: 8px; }
+.detail-contact-popover strong, .detail-contact-popover small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.detail-contact-popover strong { color: #29333d; font-size: 10px; }
+.detail-contact-popover small { color: #89949d; font-size: 9px; }
 .support-empty { display: flex; align-items: center; gap: 10px; padding: 14px; border: 1px dashed #d9e1e6; border-radius: 12px; color: #89939c; font-size: 12px; }
 .support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 14px; }
 .support-item { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 10px; min-width: 0; border: 0; border-bottom: 1px solid #edf1f4; border-radius: 0; padding: 14px 2px; }

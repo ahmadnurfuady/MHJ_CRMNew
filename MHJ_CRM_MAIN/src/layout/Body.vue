@@ -30,6 +30,7 @@ import { useWindowSize } from '@vueuse/core'
 import { defineAsyncComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { startPermissionWatcher, stopPermissionWatcher } from '@/services/permissionWatcher'
 import { useProjectStore } from '@/store/project'
+import { useNotificationStore } from '@/store/notification'
 
 const Header = defineAsyncComponent(() => import('@/components/layout/header/Header.vue'))
 const Sidebar = defineAsyncComponent(() => import('@/components/layout/sidebar/Sidebar.vue'))
@@ -80,9 +81,11 @@ onMounted(() => {
 
   layout.value = layoutState.value.layouts.settings.sidebarSetting
   startPermissionWatcher()
+  useNotificationStore().init()
 })
 
 onBeforeUnmount(() => {
   stopPermissionWatcher()
+  useNotificationStore().stop()
 })
 </script>

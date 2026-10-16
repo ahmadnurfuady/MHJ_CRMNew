@@ -146,6 +146,13 @@ export interface Profile {
   url?: string
 }
 
+export interface ProjectContact {
+  id?: number
+  name: string
+  phone?: string
+  jobTitle?: string
+}
+
 export interface Finance {
   expenses: Expenses[]
   budgetDetails: BudgetDetails[]
@@ -285,6 +292,8 @@ export interface Projects {
   companyName?: string
   contactId?: number
   contactName?: string
+  /** Semua kontak relasi yang ikut dikirim API; kontak pertama menjadi kontak utama di UI. */
+  contacts?: ProjectContact[]
   ownerId?: number
   ownerName?: string
   stageId?: number
@@ -305,6 +314,9 @@ export interface Projects {
   lostReasons?: string
   createdBy?: string
   createdAt?: string
+  updatedAt?: string
+  /** Waktu peluang terakhir kali masuk/pindah ke stage yang aktif. */
+  stageEnteredAt?: string
   quantity?: number
   unitPrice?: number
   notes?: string

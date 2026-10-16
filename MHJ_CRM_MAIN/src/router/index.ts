@@ -82,12 +82,16 @@ const router = createRouter({
         },
         {
           path: '/crmAdmin/settings',
-          name: 'CrmSettings',
-          component: () => import('@/pages/samplePage/SamplePage.vue'),
+          redirect: routes.CrmAdmin.Promo,
+        },
+        {
+          path: routes.CrmAdmin.Promo,
+          name: 'SettingsPromo',
+          component: () => import('@/pages/settings/Promo.vue'),
           meta: {
-            mainTitle: 'Settings',
-            title: 'Settings | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Settings' }],
+            mainTitle: 'Promo',
+            title: 'Promo | MHJ CRM',
+            breadcrumb: [{ text: 'Setting', subText: 'Promo' }],
           },
         },
         {

@@ -9,7 +9,12 @@
           { 'modal-dialog-centered': props.modalCentered },
         ]"
       >
-        <OnClickOutside @trigger="closeModal" class="modal-content" :class="contentClass">
+        <OnClickOutside
+          :options="clickOutsideOptions"
+          @trigger="closeModal"
+          class="modal-content"
+          :class="contentClass"
+        >
           <div class="modal-header" v-if="props.title">
             <h5 class="modal-title">{{ props.title }}</h5>
             <button class="btn-close" type="button" @click="closeModal"></button>
@@ -36,6 +41,12 @@ const props = withDefaults(defineProps<ModalProps>(), {
 })
 
 const emit = defineEmits(['closeModal'])
+
+// SweetAlert dirender di luar elemen modal (langsung di body). Tanpa pengecualian
+// ini, klik tombol popup dianggap sebagai klik di luar dan ikut menutup form.
+const clickOutsideOptions = {
+  ignore: ['.swal2-container'],
+}
 
 function closeModal() {
   if (!props.staticBackdrop) {

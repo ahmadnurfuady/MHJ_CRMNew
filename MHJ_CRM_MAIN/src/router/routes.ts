@@ -20,6 +20,7 @@ export const routes = {
     UserList: '/crmAdmin/users/list',
     Roles: '/crmAdmin/roles',
     Settings: '/crmAdmin/settings',
+    Promo: '/crmAdmin/settings/promo',
   },
   Master: {
     Root: '/crmAdmin/master',
