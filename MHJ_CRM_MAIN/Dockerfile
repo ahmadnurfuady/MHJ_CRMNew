@@ -14,6 +14,8 @@ RUN npm ci --no-audit --no-fund
 COPY . .
 
 # build app for production with minification
+# naikkan batas heap Node agar build tidak "JavaScript heap out of memory"
+ENV NODE_OPTIONS=--max-old-space-size=6144
 RUN npm run build
 
 FROM nginx AS production-stage

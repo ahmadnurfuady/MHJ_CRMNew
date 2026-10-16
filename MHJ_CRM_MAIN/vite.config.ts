@@ -5,9 +5,10 @@ import vue from "@vitejs/plugin-vue";
 import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   base: "/",
-  plugins: [vue(), vueDevTools()],
+  // devtools hanya saat dev, tidak ikut build production
+  plugins: [vue(), ...(command === "serve" ? [vueDevTools()] : [])],
   resolve: {
     extensions: ['.ts', '.vue', '.js', '.mjs', '.tsx', '.jsx', '.json'],
     alias: {
@@ -21,4 +22,9 @@ export default defineConfig({
       },
     },
   },
-});
+  build: {
+    sourcemap: false,
+    reportCompressedSize: false,
+    chunkSizeWarningLimit: 3000,
+  },
+}));

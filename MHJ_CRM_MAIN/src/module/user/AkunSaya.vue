@@ -35,7 +35,8 @@
           <AkunField icon="user" label="Nama Belakang" :value="user.lastname" />
           <AkunField icon="mail" label="Email" :value="user.email" />
           <AkunField icon="phone" label="No. Handphone" :value="user.no_handphone" />
-          <AkunField icon="credit-card" label="NIK" :value="user.nik" />
+          <AkunField icon="credit-card" label="NIK" :value="user.nik ?? undefined" />
+
           <AkunField icon="briefcase" label="Jabatan" :value="jabatanLabel" />
           <AkunField
             icon="map-pin"
