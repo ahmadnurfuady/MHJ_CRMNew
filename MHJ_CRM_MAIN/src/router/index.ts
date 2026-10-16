@@ -1723,7 +1723,7 @@ const router = createRouter({
       path: routes.Auth.ForgotPassword,
       name: 'ForgotPassword',
       component: () => import('@/pages/authentication/ForgotPassword.vue'),
-      meta: { title: 'Forgot Password | Riho - Premium Vue Admin Template' },
+      meta: { title: 'Lupa Password | MHJ CRM' },
     },
     {
       path: routes.Auth.ResetPassword,

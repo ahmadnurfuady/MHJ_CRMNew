@@ -39,7 +39,7 @@
         <input class="checkbox-primary form-check-input" id="checkbox1" type="checkbox" />
         <label class="text-muted form-check-label" for="checkbox1">Remember password</label>
       </div>
-      <router-link class="link" :to="routes.Auth.ForgotPassword">Forgot password?</router-link>
+      <router-link class="link" :to="routes.Auth.ForgotPassword">Lupa password?</router-link>
       <div class="text-end">
         <button
           class="btn btn-primary btn-block w-100 mt-3"

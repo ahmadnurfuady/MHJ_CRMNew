@@ -31,6 +31,39 @@ interface AuthState {
   error: string | null
 }
 
+export interface ResetPasswordPayload {
+  email: string
+  otp: string
+  password: string
+  password_confirmation: string
+}
+
+export interface AuthActionResult {
+  success: boolean
+  message: string
+}
+
+function extractErrorMessage(err: any, fallback: string): string {
+  const response = err?.response
+  if (!response) {
+    return 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu coba lagi.'
+  }
+  if (response.status === 429) {
+    return 'Terlalu banyak permintaan. Silakan tunggu sebentar lalu coba lagi.'
+  }
+  if (response.status === 404) {
+    return 'Fitur lupa password belum tersedia di server. Silakan hubungi administrator.'
+  }
+  // Hanya pesan dari controller kita (success: false) yang ditampilkan; pesan bawaan
+  // Laravel seperti "Server Error" atau "The route ... could not be found" tidak ramah pengguna.
+  if (response.data?.success === false) {
+    const message = response.data.message
+    if (Array.isArray(message)) return message.join(', ')
+    if (typeof message === 'string' && message) return message
+  }
+  return fallback
+}
+
 function safeParse<T>(key: string, fallback: T): T {
   try {
     return JSON.parse(localStorage.getItem(key) || '') ?? fallback
@@ -136,6 +169,36 @@ export const useAuthStore = defineStore('auth', {
      */
     async validateAndFetchMenu() {
       await this.syncSidebarMenu()
+    },
+
+    /** POST /api/auth/forgot-password — kirim kode OTP 6 digit ke email. */
+    async forgotPassword(email: string): Promise<AuthActionResult> {
+      try {
+        const { data } = await api.post('/auth/forgot-password', { email })
+        return { success: true, message: data?.message || 'Kode OTP telah dikirim ke email Anda.' }
+      } catch (err) {
+        return { success: false, message: extractErrorMessage(err, 'Gagal mengirim kode OTP. Silakan coba beberapa saat lagi.') }
+      }
+    },
+
+    /** POST /api/auth/verify-otp — cek kode OTP tanpa menandainya terpakai. */
+    async verifyOtp(email: string, otp: string): Promise<AuthActionResult> {
+      try {
+        const { data } = await api.post('/auth/verify-otp', { email, otp })
+        return { success: true, message: data?.message || 'Kode OTP valid.' }
+      } catch (err) {
+        return { success: false, message: extractErrorMessage(err, 'Gagal memverifikasi kode OTP. Silakan coba beberapa saat lagi.') }
+      }
+    },
+
+    /** POST /api/auth/reset-password — simpan password baru, OTP ditandai terpakai. */
+    async resetPassword(payload: ResetPasswordPayload): Promise<AuthActionResult> {
+      try {
+        const { data } = await api.post('/auth/reset-password', payload)
+        return { success: true, message: data?.message || 'Password berhasil diperbarui.' }
+      } catch (err) {
+        return { success: false, message: extractErrorMessage(err, 'Gagal menyimpan password baru. Silakan coba beberapa saat lagi.') }
+      }
     },
 
     /**
