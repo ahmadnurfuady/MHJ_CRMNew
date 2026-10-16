@@ -33,24 +33,34 @@
     <template v-else>
       <section class="hospital-overview card">
         <div class="hospital-main">
-          <div class="hospital-symbol">
+          <div
+            class="hospital-symbol"
+            :style="avatarColorStyle(hospital.name || hospital.id)"
+          >
             <i class="fa-solid fa-hospital"></i>
           </div>
           <div class="hospital-copy">
             <div class="hospital-title-row">
               <h4>{{ hospital.name }}</h4>
-              <span
-                :class="['status-badge', { inactive: hospital.aktif === 0 }]"
+              <button
+                :class="['status-badge', { unrated: !hospital.financeStatus }]"
+                type="button"
+                :disabled="hospital.isDemo"
+                :title="hospital.isDemo ? 'Status data demo tidak dapat diubah' : 'Perbarui grading/status Finance'"
+                @click="editHospitalStatus"
               >
                 <i class="fa-solid fa-circle"></i>
-                {{ hospital.aktif === 0 ? "Tidak aktif" : "Aktif" }}
-              </span>
+                {{ financeStatusLabel }}
+              </button>
             </div>
             <p class="hospital-location">
               <i class="fa-solid fa-location-dot"></i>
               {{ locationLabel }}
             </p>
             <div class="hospital-tags">
+              <span v-if="hospital.isDemo" class="demo-data-badge">
+                <i class="fa-solid fa-flask"></i> Data demo lokal
+              </span>
               <span>{{
                 hospital.hospitalClass || "Kelas belum tersedia"
               }}</span>
@@ -105,6 +115,68 @@
         </div>
       </section>
 
+      <section class="purchase-cycle card" aria-labelledby="purchase-cycle-title">
+        <div class="purchase-cycle-heading">
+          <div>
+            <h5 id="purchase-cycle-title">Purchase Cycle</h5>
+            <p>Siklus pembelian alat</p>
+          </div>
+          <span class="purchase-average">
+            Rata-rata {{ averagePurchaseLabel }}
+          </span>
+        </div>
+
+        <div class="purchase-cycle-metrics">
+          <div>
+            <strong>{{ purchaseTotal }}</strong>
+            <span>Total Pembelian</span>
+          </div>
+          <div>
+            <strong>{{ monthsSinceLastPurchaseLabel }}</strong>
+            <span>Sejak terakhir</span>
+          </div>
+        </div>
+
+        <div
+          v-if="purchaseTimeline.length"
+          class="purchase-timeline-scroll"
+          aria-label="Timeline purchase cycle"
+        >
+          <div class="purchase-timeline">
+            <div
+              v-for="(purchase, index) in purchaseTimeline"
+              :key="purchase.id"
+              class="purchase-step"
+              :class="{ latest: index === purchaseTimeline.length - 1 }"
+              :title="purchase.title"
+            >
+              <span class="purchase-dot"><i class="fa-solid fa-check"></i></span>
+              <strong>Pembelian {{ index + 1 }}</strong>
+              <small>{{ purchase.dateLabel }}</small>
+            </div>
+          </div>
+        </div>
+        <div v-else class="purchase-timeline-empty">
+          <i class="fa-solid fa-circle-nodes"></i>
+          Belum ada riwayat pembelian.
+        </div>
+
+        <div class="purchase-last">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>{{ lastPurchaseLabel }}</span>
+        </div>
+
+        <button
+          class="purchase-history-button"
+          type="button"
+          :disabled="purchaseTotal === 0"
+          @click="openPurchaseHistory"
+        >
+          Lihat {{ purchaseTotal }} riwayat pembelian
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </section>
+
       <nav class="detail-tabs" aria-label="Navigasi detail rumah sakit">
         <button
           v-for="tab in tabs"
@@ -126,18 +198,20 @@
             <h5>Peluang Rumah Sakit</h5>
           </div>
           <div class="panel-heading-actions">
+            <div class="project-total">
+              <span>Total nilai</span>
+              <strong>{{ formatCurrency(totalProjectValue) }}</strong>
+            </div>
             <button
               type="button"
               class="panel-add-button"
+              :disabled="hospital.isDemo"
+              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah peluang'"
               @click="createOpportunity"
             >
               <i class="fa-solid fa-plus"></i>
               Tambah Peluang
             </button>
-            <div class="project-total">
-              <span>Total nilai</span>
-              <strong>{{ formatCurrency(totalProjectValue) }}</strong>
-            </div>
           </div>
         </div>
 
@@ -205,11 +279,12 @@
                 :key="project.id"
                 type="button"
                 class="project-row"
+                :disabled="hospital.isDemo"
                 @click="openProject(project.id)"
               >
                 <span class="project-name">
                   <strong>{{ project.projectName }}</strong>
-                  <small>Klik untuk melihat detail peluang</small>
+                  <small>{{ hospital.isDemo ? "Peluang demo lokal" : "Klik untuk melihat detail peluang" }}</small>
                 </span>
                 <span class="project-owner">
                   <i class="fa-regular fa-user"></i>
@@ -252,6 +327,8 @@
             <button
               type="button"
               class="panel-add-button"
+              :disabled="hospital.isDemo"
+              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah kontak'"
               @click="createHospitalContact"
             >
               <i class="fa-solid fa-plus"></i>
@@ -264,15 +341,18 @@
             v-for="contact in hospitalContacts"
             :key="contact.id"
             class="contact-card"
-            role="link"
-            tabindex="0"
-            :aria-label="`Buka detail kontak ${fullName(contact)}`"
+            :role="contact.isDemo ? undefined : 'link'"
+            :tabindex="contact.isDemo ? -1 : 0"
+            :aria-label="contact.isDemo ? undefined : `Buka detail kontak ${fullName(contact)}`"
             @click="openContactDetail(contact)"
             @keydown.enter.self="openContactDetail(contact)"
           >
             <div class="contact-top">
-              <div class="contact-avatar">
-                {{ initials(`${contact.firstName} ${contact.lastName}`) }}
+              <div
+                class="contact-avatar"
+                :style="avatarColorStyle(fullName(contact) || contact.id)"
+              >
+                {{ personInitials(contact.firstName, contact.lastName) }}
               </div>
               <div class="contact-identity">
                 <strong>{{ fullName(contact) }}</strong>
@@ -442,7 +522,7 @@
           </div>
           <div class="profile-actions">
             <button
-              v-if="!profileEditing"
+              v-if="!profileEditing && !hospital.isDemo"
               class="edit-profile"
               type="button"
               @click="editHospital"
@@ -534,6 +614,10 @@
               <span>SIRS</span>
               <strong>{{ displayValue(hospital.sirs) }}</strong>
             </div>
+            <div class="hospital-info-item">
+              <span>Grading / Status Finance</span>
+              <strong>{{ financeStatusLabel }}</strong>
+            </div>
             <div class="hospital-info-item hospital-info-wide">
               <span>Alamat</span>
               <strong>{{ displayValue(hospital.address) }}</strong>
@@ -600,6 +684,13 @@ import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 import { companyDetails, type InstalledProduct } from "@/core/data/contactCrm";
+import {
+  DEMO_HOSPITAL_CONTACTS,
+  DEMO_HOSPITAL_INSTALLED_PRODUCTS,
+  DEMO_HOSPITAL_PROJECTS,
+  isDemoHospitalId,
+  isDemoProjectId,
+} from "@/core/data/hospitalDemo";
 import { routes } from "@/router/routes";
 import { searchAddress } from "@/services/geocoding";
 import {
@@ -614,6 +705,7 @@ import type { Contact } from "@/types/contacts";
 import HospitalForm from "@/module/rumahSakit/AddContactModal.vue";
 import ContactFormModal from "@/module/contacts/AddContactModal.vue";
 import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
+import { avatarColorStyle, personInitials } from "@/utils/avatar";
 
 type DetailTab =
   | "projects"
@@ -630,6 +722,12 @@ interface CommentItem {
   id: number;
   author: string;
   message: string;
+}
+interface PurchaseTimelineItem {
+  id: string;
+  title: string;
+  date: Date | null;
+  dateLabel: string;
 }
 
 const props = defineProps<{ hospitalId: number }>();
@@ -663,6 +761,7 @@ const normalizeName = (value: string) => value.trim().toLowerCase();
 
 const hospitalProjects = computed(() => {
   if (!hospital.value) return [];
+  if (hospital.value.isDemo) return DEMO_HOSPITAL_PROJECTS;
   const name = normalizeName(hospital.value.name);
   return projectStore.items.filter(
     (project) =>
@@ -673,6 +772,7 @@ const hospitalProjects = computed(() => {
 
 const hospitalContacts = computed(() => {
   if (!hospital.value) return [];
+  if (hospital.value.isDemo) return DEMO_HOSPITAL_CONTACTS;
   const companyId = String(hospital.value.id);
   const name = normalizeName(hospital.value.name);
   return contactStore.contactApi.items.filter(
@@ -684,9 +784,11 @@ const hospitalContacts = computed(() => {
 
 const installedProducts = computed<InstalledProduct[]>(
   () =>
-    (hospital.value
-      ? companyDetails[hospital.value.name]?.installedProducts
-      : []) ?? [],
+    (hospital.value?.isDemo
+      ? DEMO_HOSPITAL_INSTALLED_PRODUCTS
+      : hospital.value
+        ? companyDetails[hospital.value.name]?.installedProducts
+        : []) ?? [],
 );
 
 const totalProjectValue = computed(() =>
@@ -705,8 +807,109 @@ const installedCount = computed(
     hospital.value?.totalInstalledEquipment ?? installedProducts.value.length,
 );
 
+const wonProjectPurchases = computed<PurchaseTimelineItem[]>(() =>
+  hospitalProjects.value
+    .filter((project) => {
+      const stage = `${project.status} ${project.stageName || ""}`.toLowerCase();
+      return /closed[_\s-]?won|\bwon\b|menang/.test(stage);
+    })
+    .map((project) => {
+      const rawDate = project.expectedCloseDate || project.createdAt || project.date;
+      const date = parsePurchaseDate(rawDate);
+      return {
+        id: `project-${project.id}`,
+        title: project.projectName || `Pembelian #${project.id}`,
+        date,
+        dateLabel: date ? formatPurchaseDate(date) : "Tanggal belum tersedia",
+      };
+    }),
+);
+
+const installedProductPurchases = computed<PurchaseTimelineItem[]>(() =>
+  installedProducts.value.map((product, index) => {
+    const date = parsePurchaseDate(product.installedAt);
+    return {
+      id: `installed-${product.serialNumber || index}`,
+      title: product.product || `Pembelian ${index + 1}`,
+      date,
+      dateLabel: date ? formatPurchaseDate(date) : "Tanggal belum tersedia",
+    };
+  }),
+);
+
+const purchaseRecords = computed<PurchaseTimelineItem[]>(() => {
+  const records = wonProjectPurchases.value.length
+    ? wonProjectPurchases.value
+    : installedProductPurchases.value;
+  return [...records].sort((left, right) => {
+    if (!left.date && !right.date) return 0;
+    if (!left.date) return 1;
+    if (!right.date) return -1;
+    return left.date.getTime() - right.date.getTime();
+  });
+});
+
+const purchaseTotal = computed(() =>
+  Math.max(
+    hospital.value?.totalInstalledEquipment ?? 0,
+    purchaseRecords.value.length,
+  ),
+);
+
+const purchaseTimeline = computed<PurchaseTimelineItem[]>(() => {
+  if (purchaseRecords.value.length) return purchaseRecords.value;
+  return Array.from({ length: purchaseTotal.value }, (_, index) => ({
+    id: `purchase-${index + 1}`,
+    title: `Pembelian ${index + 1}`,
+    date: null,
+    dateLabel: "Tanggal belum tersedia",
+  }));
+});
+
+const datedPurchases = computed(() =>
+  purchaseRecords.value.filter(
+    (purchase): purchase is PurchaseTimelineItem & { date: Date } => Boolean(purchase.date),
+  ),
+);
+
+const lastPurchase = computed(() => datedPurchases.value.at(-1) ?? null);
+
+const averagePurchaseLabel = computed(() => {
+  const dates = datedPurchases.value.map((purchase) => purchase.date);
+  if (dates.length < 2) return "belum tersedia";
+  const totalMonths = dates.slice(1).reduce((total, date, index) => {
+    const previous = dates[index];
+    return total + Math.max(0, date.getTime() - previous.getTime()) / 2_629_746_000;
+  }, 0);
+  return `${Math.max(1, Math.round(totalMonths / (dates.length - 1)))} bulan`;
+});
+
+const monthsSinceLastPurchaseLabel = computed(() => {
+  const date = lastPurchase.value?.date;
+  if (!date) return "—";
+  const now = new Date();
+  const months = Math.max(
+    0,
+    (now.getFullYear() - date.getFullYear()) * 12 +
+      now.getMonth() -
+      date.getMonth() -
+      (now.getDate() < date.getDate() ? 1 : 0),
+  );
+  return `${months} bln`;
+});
+
+const lastPurchaseLabel = computed(() =>
+  lastPurchase.value
+    ? `Pembelian terakhir ${formatPurchaseDate(lastPurchase.value.date)}`
+    : "Tanggal pembelian terakhir belum tersedia",
+);
+
 const hospitalPhoneNumbers = computed(() =>
   splitPhoneNumbers(hospital.value?.phone),
+);
+
+const financeStatusLabel = computed(
+  () => hospital.value?.financeStatus?.trim() || "Belum dinilai",
 );
 
 const locationLabel = computed(() => {
@@ -817,17 +1020,19 @@ function selectStage(stage: string) {
 }
 
 function openProject(id: number) {
+  if (isDemoProjectId(id)) return;
   void router.push({ name: "Project Details V2", query: { id: String(id) } });
 }
 
 function openContactDetail(contact: Contact) {
+  if (contact.isDemo) return;
   const id = contact.remoteId ?? contact.id;
   if (!Number.isFinite(id) || id <= 0) return;
   void router.push({ path: routes.App.Contacts, query: { detail: String(id) } });
 }
 
 function createOpportunity() {
-  if (!hospital.value) return;
+  if (!hospital.value || hospital.value.isDemo) return;
   projectStore.openCreateModal({
     id: hospital.value.id,
     name: hospital.value.name,
@@ -835,14 +1040,25 @@ function createOpportunity() {
 }
 
 function createHospitalContact() {
-  if (!hospital.value) return;
+  if (!hospital.value || hospital.value.isDemo) return;
   contactStore.openContactModalForCompany({
     id: hospital.value.id,
     name: hospital.value.name,
   });
 }
 
+function openPurchaseHistory() {
+  if (!purchaseTotal.value) return;
+  if (wonProjectPurchases.value.length) {
+    expandedStage.value = "closed_won";
+    activeTab.value = "projects";
+    return;
+  }
+  activeTab.value = "installed";
+}
+
 async function handleContactCreated() {
+  if (isDemoHospitalId(props.hospitalId)) return;
   await Promise.allSettled([
     contactStore.fetchRemoteContacts({ per_page: 100 }),
     hospitalStore.fetchHospitalById(props.hospitalId),
@@ -897,7 +1113,15 @@ function openProfile() {
 }
 
 function editHospital() {
+  if (hospital.value?.isDemo) return;
   prepareProfileForm();
+  profileEditing.value = true;
+}
+
+function editHospitalStatus() {
+  if (hospital.value?.isDemo) return;
+  prepareProfileForm();
+  activeTab.value = "profile";
   profileEditing.value = true;
 }
 
@@ -972,6 +1196,44 @@ function dateValue(value: string): number {
   return Number.isNaN(date.getTime()) ? 0 : date.getTime();
 }
 
+function parsePurchaseDate(value?: string): Date | null {
+  const normalized = String(value ?? "").trim();
+  if (!normalized) return null;
+
+  const timestamp = Date.parse(normalized);
+  if (!Number.isNaN(timestamp)) return new Date(timestamp);
+
+  const months: Record<string, number> = {
+    jan: 0,
+    feb: 1,
+    mar: 2,
+    apr: 3,
+    mei: 4,
+    jun: 5,
+    jul: 6,
+    agu: 7,
+    ags: 7,
+    sep: 8,
+    okt: 9,
+    nov: 10,
+    des: 11,
+  };
+  const match = normalized.toLocaleLowerCase("id-ID").match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+  if (!match) return null;
+  const month = months[match[2].slice(0, 3)];
+  if (month === undefined) return null;
+  const date = new Date(Number(match[3]), month, Number(match[1]));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function formatPurchaseDate(date: Date): string {
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
 function formatDate(value: string): string {
   if (!value) return "Tanggal belum tersedia";
   const date = new Date(value);
@@ -1009,11 +1271,14 @@ async function loadDetail() {
   loadError.value = "";
   activeTab.value = "projects";
   hospitalStore.selectedItem = null;
-  const results = await Promise.allSettled([
-    hospitalStore.fetchHospitalById(props.hospitalId),
-    projectStore.fetchProjects({ per_page: 100 }),
-    contactStore.fetchRemoteContacts({ per_page: 100 }),
-  ]);
+  const detailRequests = isDemoHospitalId(props.hospitalId)
+    ? [hospitalStore.fetchHospitalById(props.hospitalId)]
+    : [
+        hospitalStore.fetchHospitalById(props.hospitalId),
+        projectStore.fetchProjects({ per_page: 100 }),
+        contactStore.fetchRemoteContacts({ per_page: 100 }),
+      ];
+  const results = await Promise.allSettled(detailRequests);
 
   if (results[0]?.status === "rejected" || !hospitalStore.selectedItem) {
     loadError.value =
@@ -1124,13 +1389,22 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   background: #e3f7ec;
   font-size: 10px;
   font-weight: 700;
+  border: 0;
+  cursor: pointer;
 }
 .status-badge i {
   font-size: 6px;
 }
-.status-badge.inactive {
-  color: #a33a3a;
-  background: #fdeaea;
+.status-badge.unrated {
+  color: #64748b;
+  background: #eef2f6;
+}
+.status-badge:hover,
+.status-badge:focus-visible {
+  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+}
+.status-badge:disabled {
+  cursor: default;
 }
 .hospital-location {
   display: flex;
@@ -1159,6 +1433,15 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   background: #f4fbfe;
   font-size: 10px;
   font-weight: 600;
+}
+.hospital-tags .demo-data-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-color: #bae6fd;
+  color: #0369a1;
+  background: #f0f9ff;
+  font-weight: 700;
 }
 .profile-link {
   display: inline-flex;
@@ -1260,6 +1543,206 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .overview-metric strong {
   color: var(--ink);
   font-size: 14px;
+}
+.purchase-cycle {
+  margin-bottom: 18px;
+  border-radius: 16px;
+  padding: 20px 22px;
+  background: #fff;
+}
+.purchase-cycle-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.purchase-cycle-heading h5 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+}
+.purchase-cycle-heading p {
+  margin: 3px 0 0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+.purchase-average {
+  flex: 0 0 auto;
+  border-radius: 9px;
+  padding: 7px 11px;
+  color: #078ac3;
+  background: #e7f7fd;
+  font-size: 11px;
+  font-weight: 700;
+}
+.purchase-cycle-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.purchase-cycle-metrics > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 72px;
+  border-right: 1px solid #e8edf2;
+  padding: 10px;
+  text-align: center;
+}
+.purchase-cycle-metrics > div:last-child {
+  border-right: 0;
+}
+.purchase-cycle-metrics strong,
+.purchase-cycle-metrics span {
+  display: block;
+}
+.purchase-cycle-metrics strong {
+  color: #101820;
+  font-size: 22px;
+  line-height: 1;
+}
+.purchase-cycle-metrics span {
+  margin-top: 5px;
+  color: #87919b;
+  font-size: 11px;
+  font-weight: 600;
+}
+.purchase-timeline-scroll {
+  overflow-x: auto;
+  margin-top: 18px;
+  padding: 2px 4px 7px;
+  scrollbar-color: #bae8f8 transparent;
+  scrollbar-width: thin;
+}
+.purchase-timeline {
+  display: flex;
+  min-width: max-content;
+}
+.purchase-step {
+  position: relative;
+  display: flex;
+  width: 132px;
+  min-width: 132px;
+  align-items: center;
+  flex: 1 0 132px;
+  flex-direction: column;
+  color: #73808b;
+  text-align: center;
+}
+.purchase-step:not(:first-child)::before {
+  position: absolute;
+  z-index: 0;
+  top: 8px;
+  right: 50%;
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #75d1ef, #23aee1);
+  content: "";
+}
+.purchase-dot {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border: 4px solid #dff6fe;
+  border-radius: 50%;
+  color: #fff;
+  background: #20aee2;
+  box-shadow: 0 0 0 3px rgba(32, 174, 226, 0.1);
+}
+.purchase-dot i {
+  font-size: 6px;
+}
+.purchase-step.latest .purchase-dot {
+  border-color: #c8effc;
+  background: #078ac3;
+  box-shadow: 0 0 0 4px rgba(7, 138, 195, 0.13);
+}
+.purchase-step strong {
+  overflow: hidden;
+  width: 100%;
+  margin-top: 9px;
+  color: #3f4e59;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.purchase-step.latest strong {
+  color: #078ac3;
+}
+.purchase-step small {
+  overflow: hidden;
+  width: 100%;
+  margin-top: 2px;
+  color: #98a3ad;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.purchase-timeline-empty {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  border: 1px dashed #d9e4ea;
+  border-radius: 11px;
+  color: #89959f;
+  background: #fbfcfd;
+  font-size: 11px;
+}
+.purchase-timeline-empty i {
+  color: var(--primary);
+}
+.purchase-last {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 14px;
+  border-radius: 10px;
+  padding: 11px 13px;
+  color: #bd633a;
+  background: #fff7dd;
+  font-size: 11px;
+  font-weight: 600;
+}
+.purchase-last i {
+  font-size: 16px;
+}
+.purchase-history-button {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  color: var(--primary);
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+.purchase-history-button:hover:not(:disabled),
+.purchase-history-button:focus-visible:not(:disabled) {
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+}
+.purchase-history-button:disabled {
+  border-color: #d9e2e7;
+  color: #a1abb3;
+  background: #f8fafb;
+  cursor: not-allowed;
 }
 .detail-tabs {
   display: flex;
@@ -1403,6 +1886,15 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .panel-add-button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--primary) 24%, transparent);
   outline-offset: 2px;
+}
+.panel-add-button:disabled,
+.panel-add-button:disabled:hover {
+  border-color: #d8e3e9;
+  color: #82909b;
+  background: #f5f8fa;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
 }
 .project-total {
   text-align: right;
@@ -1589,6 +2081,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .project-row:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--stage-color) 55%, transparent);
   outline-offset: -2px;
+}
+.project-row:disabled {
+  color: var(--ink);
+  cursor: default;
+  opacity: 1;
 }
 .project-name {
   min-width: 0;
@@ -2187,6 +2684,26 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   .overview-metric {
     padding: 13px;
   }
+  .purchase-cycle {
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .purchase-cycle-heading {
+    align-items: flex-start;
+  }
+  .purchase-average {
+    max-width: 145px;
+    padding: 6px 9px;
+    text-align: center;
+  }
+  .purchase-cycle-metrics strong {
+    font-size: 19px;
+  }
+  .purchase-step {
+    width: 112px;
+    min-width: 112px;
+    flex-basis: 112px;
+  }
   .metric-icon {
     display: none;
   }
@@ -2214,7 +2731,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   }
   .panel-heading-actions {
     align-items: flex-end;
-    flex-direction: column-reverse;
+    flex-direction: column;
     gap: 7px;
   }
   .panel-add-button {

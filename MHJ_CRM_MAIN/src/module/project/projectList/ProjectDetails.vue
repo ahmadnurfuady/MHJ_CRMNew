@@ -1,109 +1,202 @@
 <template>
-  <div
-    class="progress-project-box project-card-link"
-    v-if="props.project"
+  <article
+    v-if="project"
+    class="opp-card"
+    :class="`opp-card--${viewMode}`"
     role="link"
     tabindex="0"
-    :aria-label="`Buka detail ${props.project.projectName}`"
+    :aria-label="`Buka detail ${project.projectName}`"
+    :style="stageCssVariables"
     @click="openProjectDetail"
     @keydown.enter="openProjectDetail"
     @keydown.space.prevent="openProjectDetail"
   >
-    <div :class="`list-box title-line-${stageColor}`">
-      <div class="header-top">
-        <span :class="`badge badge-light-${stageColor}`">
-          {{ stageTitle }}
-        </span>
-        <p class="mb-0 c-o-light">
-          <SvgIcon :icon="'vector-calendar'" :class="'me-2'"></SvgIcon>
-          {{ props.project.date }}
+    <div class="opp-card__stage">
+      <span class="opp-stage-pill">
+        <i class="opp-stage-pill__dot"></i>
+        {{ stageTitle }}
+      </span>
+      <span class="opp-created" :title="formatFullDate(project.createdAt)">
+        <vue-feather type="calendar" size="14" />
+        <span>{{ formatShortDate(project.createdAt) }}</span>
+      </span>
+    </div>
+
+    <div class="opp-card__main">
+      <div class="opp-card__copy">
+        <small>Peluang</small>
+        <h5>{{ shortProjectTitle(project.projectName) }}</h5>
+        <p>
+          <span>{{ project.companyName || 'Rumah sakit belum ditentukan' }}</span>
         </p>
       </div>
-      <div class="project-body">
-        <div class="common-f-start gap-3">
-          <img class="img-fluid" :src="getImages(props.project.projectBanner)" alt="banner" />
-          <div>
-            <h5>{{ shortProjectTitle(props.project.projectName) }}</h5>
-            <span>{{ props.project.projectDescription }}</span>
-          </div>
-        </div>
-        <div class="common-space">
-          <p class="mb-0 c-o-light">Tasks</p>
-          <span>{{ props.project.progress }}%</span>
-        </div>
-        <div class="progress">
-          <div
-            :class="`progress-bar bg-${stageColor}`"
-            :style="{ width: props.project.progress + '%' }"
-          ></div>
-        </div>
-        <div class="project-bottom common-space" v-if="props.showMember">
-          <template v-if="props.project.teamMember && props.project.teamMember.length">
-            <GroupItem :items="props.project.teamMember" :class="'common-f-start'" />
-          </template>
-          <p class="mb-0">
-            Value
-            <span>{{ props.project.budget }}</span>
-          </p>
-        </div>
+    </div>
+
+    <div class="opp-card__owner">
+      <span class="opp-avatar opp-avatar--owner" aria-hidden="true">{{ initials(project.ownerName) }}</span>
+      <div>
+        <small>Owner</small>
+        <strong>{{ project.ownerName || 'Belum ditentukan' }}</strong>
       </div>
     </div>
-  </div>
+
+    <div class="opp-card__timing">
+      <div>
+        <span><small>Di stage ini</small><strong>{{ stageDuration }}</strong></span>
+      </div>
+      <div>
+        <span><small>Update terakhir</small><strong>{{ lastUpdated }}</strong></span>
+      </div>
+    </div>
+
+    <div class="opp-card__contact">
+      <template v-if="projectContacts.length">
+        <span class="opp-avatar" aria-hidden="true">{{ initials(projectContacts[0].name) }}</span>
+        <div class="opp-contact-name">
+          <small>Kontak utama</small>
+          <strong>{{ projectContacts[0].name }}</strong>
+        </div>
+        <div v-if="remainingContacts.length" class="opp-more-contacts" @click.stop>
+          <button type="button" :aria-label="`${remainingContacts.length} kontak lainnya`">
+            <vue-feather type="more-horizontal" size="16" />
+          </button>
+          <div class="opp-contact-popover" role="tooltip">
+            <p>{{ remainingContacts.length }} kontak lainnya</p>
+            <div v-for="contact in remainingContacts" :key="`${contact.id}-${contact.name}`">
+              <i class="opp-avatar opp-avatar--small">{{ initials(contact.name) }}</i>
+              <span>
+                <strong>{{ contact.name }}</strong>
+                <small>{{ contact.jobTitle || contact.phone || 'Kontak tambahan' }}</small>
+              </span>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <span class="opp-contact-empty"><small>Kontak utama</small><strong>Belum ada kontak</strong></span>
+      </template>
+    </div>
+
+    <div class="opp-card__value" :title="formatFullMoney(projectValue)">
+      <small>Nilai peluang</small>
+      <strong>{{ formatCompactMoney(projectValue) }}</strong>
+      <span>Lihat detail <vue-feather type="arrow-up-right" size="13" /></span>
+    </div>
+  </article>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, computed } from 'vue'
+import { computed, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
-import { titleCase, getImages, shortProjectTitle } from '@/utils/index'
 import { projectTab } from '@/core/data/project'
-
-import type { Projects } from '@/types/project'
-
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
-const GroupItem = defineAsyncComponent(() => import('@/components/shared/GroupItem.vue'))
-const router = useRouter()
+import { shortProjectTitle } from '@/utils/index'
+import type { ProjectContact, Projects } from '@/types/project'
 
 const props = withDefaults(
   defineProps<{
     project: Projects
-    showMember?: boolean
+    viewMode?: 'board' | 'list'
   }>(),
-  {
-    showMember: true
-  }
+  { viewMode: 'board' }
 )
+const router = useRouter()
 
-// Nama dan warna kartu mengikuti stage yang sama dengan tab di atas.
-const stage = computed(() => projectTab.find((tab) => tab.value == props.project.status))
-const stageTitle = computed(
-  () => stage.value?.title ?? titleCase(props.project.status.replace('_', ' '))
-)
-const stageColor = computed(() => stage.value?.color ?? 'primary')
+const STAGE_COLORS: Record<string, string> = {
+  qualified: '#2563eb',
+  presentation_demo: '#0891b2',
+  quotation: '#d97706',
+  negotiation: '#7c3aed',
+  closed_won: '#16a34a',
+  closed_lost: '#dc2626',
+  closed_cancel: '#64748b'
+}
+
+const stage = computed(() => projectTab.find((tab) => tab.value === props.project.status))
+const stageTitle = computed(() => stage.value?.title || titleCase(props.project.stageName || props.project.status))
+const stageCssVariables = computed<CSSProperties>(() => ({
+  '--opp-stage': STAGE_COLORS[props.project.status] || '#64748b'
+} as CSSProperties))
+const projectValue = computed(() => props.project.amountValue ?? props.project.projectValue ?? 0)
+const projectContacts = computed<ProjectContact[]>(() => {
+  if (props.project.contacts?.length) return props.project.contacts
+  return props.project.contactName
+    ? [{ id: props.project.contactId, name: props.project.contactName, phone: props.project.contactPhone }]
+    : []
+})
+const remainingContacts = computed(() => projectContacts.value.slice(1))
+const lastUpdated = computed(() => formatRelativeTime(props.project.updatedAt || props.project.createdAt))
+const stageDuration = computed(() => formatDuration(props.project.stageEnteredAt || props.project.updatedAt || props.project.createdAt))
+
+function titleCase(value: string) {
+  return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) || 'Tanpa stage'
+}
+
+function initials(name?: string) {
+  if (!name) return '?'
+  return name.trim().split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase()
+}
+
+function parsedDate(value?: string) {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
+function formatShortDate(value?: string) {
+  const date = parsedDate(value)
+  return date ? new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(date) : 'Belum tersedia'
+}
+
+function formatFullDate(value?: string) {
+  const date = parsedDate(value)
+  return date ? new Intl.DateTimeFormat('id-ID', { dateStyle: 'long', timeStyle: 'short' }).format(date) : 'Tanggal belum tersedia'
+}
+
+function elapsed(value?: string) {
+  const date = parsedDate(value)
+  return date ? Math.max(0, Date.now() - date.getTime()) : null
+}
+
+function formatRelativeTime(value?: string) {
+  const milliseconds = elapsed(value)
+  if (milliseconds === null) return 'Belum tersedia'
+  const minutes = Math.floor(milliseconds / 60_000)
+  if (minutes < 1) return 'Baru saja'
+  if (minutes < 60) return `${minutes} menit lalu`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} jam lalu`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} hari lalu`
+  const months = Math.floor(days / 30)
+  return months < 12 ? `${months} bulan lalu` : `${Math.floor(months / 12)} tahun lalu`
+}
+
+function formatDuration(value?: string) {
+  const milliseconds = elapsed(value)
+  if (milliseconds === null) return 'Belum tersedia'
+  const hours = Math.floor(milliseconds / 3_600_000)
+  if (hours < 1) return '< 1 jam'
+  if (hours < 24) return `${hours} jam`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} hari`
+  const months = Math.floor(days / 30)
+  return months < 12 ? `${months} bulan` : `${Math.floor(months / 12)} tahun`
+}
+
+function formatCompactMoney(value: number) {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency', currency: props.project.currency || 'IDR', notation: 'compact',
+    maximumFractionDigits: 1, currencyDisplay: 'narrowSymbol'
+  }).format(value)
+}
+
+function formatFullMoney(value: number) {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency', currency: props.project.currency || 'IDR', maximumFractionDigits: 0
+  }).format(value)
+}
 
 function openProjectDetail() {
-  router.push({
-    name: 'Project Details V2',
-    query: props.project.id ? { id: String(props.project.id) } : undefined,
-  })
+  router.push({ name: 'Project Details V2', query: { id: String(props.project.id) } })
 }
 </script>
-
-<style scoped>
-.project-card-link {
-  height: 100%;
-  cursor: pointer;
-  border-radius: 10px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.project-card-link:hover,
-.project-card-link:focus-visible {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px rgba(27, 113, 183, 0.16);
-}
-
-.project-card-link:focus-visible {
-  outline: 2px solid var(--theme-default, #2aa8df);
-  outline-offset: 3px;
-}
-</style>

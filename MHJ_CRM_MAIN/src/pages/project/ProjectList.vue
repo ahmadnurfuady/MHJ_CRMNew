@@ -57,17 +57,14 @@
                   v-for="stage in stageCards"
                   :key="stage.value"
                   :style="{
-                    width: `${stage.percentage}%`,
+                    flexGrow: Math.max(stage.totalValue || stage.quantity, 1),
                     background: stage.color,
                   }"
-                  :title="`${stage.title}: ${stage.percentage}%`"
+                  :title="`${stage.title}: ${stage.quantity} peluang`"
                 ></span>
               </div>
               <div class="composition-legend">
-                <span
-                  >{{ dominantStage.title }}
-                  {{ dominantStage.percentage }}%</span
-                >
+                <span>Terbesar · {{ dominantStage.title }}</span>
                 <span
                   >Aktif · {{ formatCompactMoney(activePipelineValue) }}</span
                 >
@@ -208,10 +205,10 @@
                     :class="
                       viewMode === 'list'
                         ? 'col-12'
-                        : 'col-xxl-3 col-md-6 col-ed-4 box-col-6'
+                        : 'col-xxl-4 col-xl-6 col-md-6'
                     "
                   >
-                    <ProjectDetails :project="project" />
+                    <ProjectDetails :project="project" :view-mode="viewMode" />
                   </div>
                   <div
                     v-if="!projectLoading && !filteredProjects.length"
@@ -328,6 +325,7 @@ import {
 import { storeToRefs } from "pinia";
 import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
+import { completeProjectDemo } from "@/core/data/projectDemo";
 import { useTask } from "@/store/task";
 import { useProjectStore } from "@/store/project";
 import type { Projects } from "@/types/project";
@@ -363,13 +361,13 @@ const ProjectDetails = defineAsyncComponent(
 const activeTab = ref<string>("all");
 
 const STAGE_COLORS: Record<string, string> = {
-  qualified: "#18a6e4",
-  presentation_demo: "#0e7490",
-  quotation: "#ffae1a",
-  negotiation: "#84d7eb",
-  closed_won: "#0284c7",
-  closed_lost: "#e72929",
-  closed_cancel: "#84d7eb",
+  qualified: "#2563eb",
+  presentation_demo: "#0891b2",
+  quotation: "#d97706",
+  negotiation: "#7c3aed",
+  closed_won: "#16a34a",
+  closed_lost: "#dc2626",
+  closed_cancel: "#64748b",
 };
 
 function parseProjectAmount(project: Projects) {
@@ -393,8 +391,14 @@ function parseProjectAmount(project: Projects) {
   return Number(`${integer}.${decimal}`) || 0;
 }
 
+const withDevelopmentDemo = (projects: Projects[]) =>
+  import.meta.env.DEV && !projects.some((project) => project.id === completeProjectDemo.id)
+    ? [completeProjectDemo, ...projects]
+    : projects;
+
+const listedProjects = computed(() => withDevelopmentDemo(projectList.value));
 const summaryProjects = computed(() =>
-  summaryItems.value.length ? summaryItems.value : projectList.value,
+  withDevelopmentDemo(summaryItems.value.length ? summaryItems.value : projectList.value),
 );
 
 const pipelineTotal = computed(() =>
@@ -419,25 +423,16 @@ const stageCards = computed(() => {
           (total, project) => total + parseProjectAmount(project),
           0,
         ),
-        percentage: 0,
       };
     });
-  const countTotal = stages.reduce((total, stage) => total + stage.quantity, 0);
-
-  return stages.map((stage) => ({
-    ...stage,
-    percentage: Math.round(
-      pipelineTotal.value > 0
-        ? (stage.totalValue / pipelineTotal.value) * 100
-        : countTotal > 0
-          ? (stage.quantity / countTotal) * 100
-          : 0,
-    ),
-  }));
+  return stages;
 });
 
 const summaryTotal = computed(() =>
-  Math.max(projectPagination.value.total, summaryProjects.value.length),
+  Math.max(
+    projectPagination.value.total + (import.meta.env.DEV ? 1 : 0),
+    summaryProjects.value.length,
+  ),
 );
 const closedStatuses = new Set(["closed_won", "closed_lost", "closed_cancel"]);
 const activeProjects = computed(() =>
@@ -465,8 +460,8 @@ const lostPipelineValue = computed(() =>
 const dominantStage = computed(() =>
   stageCards.value.reduce(
     (dominant, stage) =>
-      stage.percentage > dominant.percentage ? stage : dominant,
-    { title: "Belum ada data", percentage: 0 },
+      stage.totalValue > dominant.totalValue ? stage : dominant,
+    { title: "Belum ada data", totalValue: 0 },
   ),
 );
 const ownerOptions = computed(() =>
@@ -491,7 +486,7 @@ const usesSummaryData = computed(
 const filteredProjects = computed(() => {
   const source = usesSummaryData.value
     ? summaryProjects.value
-    : projectList.value;
+    : listedProjects.value;
   const query = searchQuery.value.trim().toLocaleLowerCase("id-ID");
 
   return source.filter((project) => {
@@ -818,9 +813,10 @@ onBeforeUnmount(() => {
 }
 
 .pipeline-composition span {
+  flex-basis: 0;
   min-width: 0;
   border-right: 2px solid #ffffff;
-  transition: width 0.25s ease;
+  transition: flex-grow 0.25s ease;
 }
 
 .pipeline-composition span:last-child {
@@ -848,6 +844,7 @@ onBeforeUnmount(() => {
 
 .pipeline-stage-panel {
   margin-top: 0;
+  overflow: visible;
 }
 
 .stage-panel-heading {
@@ -1093,6 +1090,482 @@ onBeforeUnmount(() => {
   width: 100%;
 }
 
+/* Kartu peluang memakai class khusus agar tidak bertabrakan dengan style card template. */
+:deep(.opp-card) {
+  --opp-stage: #475569;
+  --opp-blue: #18a6e4;
+  --opp-blue-soft: #eef9fd;
+  --opp-blue-border: #bde9f7;
+  --opp-blue-glow: rgba(24, 166, 228, 0.15);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-width: 0;
+  height: 100%;
+  overflow: visible;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  color: #172033;
+  background: #ffffff;
+  box-shadow: 0 8px 26px rgba(30, 48, 68, 0.07);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+:deep(.opp-card:hover),
+:deep(.opp-card:focus-visible) {
+  border-color: var(--opp-blue-border);
+  box-shadow: 0 16px 38px var(--opp-blue-glow);
+  transform: translateY(-3px);
+}
+
+:deep(.opp-card:focus-visible) {
+  outline: 3px solid var(--opp-blue-glow);
+  outline-offset: 3px;
+}
+
+:deep(.opp-card--board) {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "stage stage"
+    "main main"
+    "contact contact"
+    "timing timing"
+    "owner value";
+  grid-template-rows: auto minmax(76px, auto) auto auto auto;
+  padding: 21px 20px 18px;
+}
+
+:deep(.opp-card__stage) {
+  grid-area: stage;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+:deep(.opp-stage-pill) {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid color-mix(in srgb, var(--opp-stage) 28%, #ffffff);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--opp-stage);
+  background: color-mix(in srgb, var(--opp-stage) 8%, #ffffff);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.025em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+:deep(.opp-stage-pill__dot) {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--opp-stage);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--opp-stage) 13%, transparent);
+}
+
+:deep(.opp-created) {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  color: #718096;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+:deep(.opp-created svg) {
+  color: #7b8794;
+  stroke: currentColor;
+}
+
+:deep(.opp-card__main) {
+  grid-area: main;
+  display: block;
+  min-width: 0;
+}
+
+:deep(.opp-card--board .opp-card__main) {
+  margin-top: 16px;
+  padding-bottom: 16px;
+}
+
+:deep(.opp-card__copy) {
+  min-width: 0;
+}
+
+:deep(.opp-card__copy > small) {
+  display: none;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:deep(.opp-card__copy h5) {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.38;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+:deep(.opp-card__copy p) {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #68768a;
+  font-size: 13px;
+}
+
+:deep(.opp-card__copy p span) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.opp-card__owner) {
+  grid-area: owner;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+:deep(.opp-card--board .opp-card__owner) {
+  border-top: 1px solid #edf1f5;
+  padding: 13px 0;
+}
+
+:deep(.opp-avatar) {
+  display: grid;
+  width: 35px;
+  height: 35px;
+  flex: 0 0 35px;
+  place-items: center;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  color: #ffffff;
+  background: linear-gradient(145deg, #18a6e4, #087eaf);
+  box-shadow: 0 0 0 1px var(--opp-blue-border);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 750;
+}
+
+:deep(.opp-avatar--owner) {
+  background: var(--opp-blue);
+}
+
+:deep(.opp-card__owner > div),
+:deep(.opp-contact-name),
+:deep(.opp-contact-empty) {
+  min-width: 0;
+}
+
+:deep(.opp-contact-name) {
+  flex: 1 1 auto;
+}
+
+:deep(.opp-card__owner small),
+:deep(.opp-card__timing small),
+:deep(.opp-contact-name small),
+:deep(.opp-contact-empty small),
+:deep(.opp-card__value small) {
+  display: block;
+  margin-bottom: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+:deep(.opp-card__owner strong),
+:deep(.opp-contact-name strong),
+:deep(.opp-contact-empty strong) {
+  display: block;
+  overflow: hidden;
+  color: #2d3748;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.opp-card__timing) {
+  grid-area: timing;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  gap: 9px;
+}
+
+:deep(.opp-card--board .opp-card__timing) {
+  border-top: 1px solid #edf1f5;
+  padding: 13px 0;
+}
+
+:deep(.opp-card__timing > div) {
+  display: block;
+  min-width: 0;
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: #f7f9fb;
+}
+
+:deep(.opp-card__timing strong) {
+  display: block;
+  overflow: hidden;
+  color: #3f4b5c;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.opp-card__contact) {
+  grid-area: contact;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+:deep(.opp-card--board .opp-card__contact) {
+  border-top: 1px solid #edf1f5;
+  padding-top: 14px;
+}
+
+:deep(.opp-more-contacts) {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+:deep(.opp-more-contacts > button) {
+  display: grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border: 1px solid #dce4eb;
+  border-radius: 9px;
+  padding: 0;
+  color: #64748b;
+  background: #f8fafc;
+  transition: 0.18s ease;
+}
+
+:deep(.opp-more-contacts > button:hover),
+:deep(.opp-more-contacts > button:focus-visible) {
+  border-color: var(--opp-blue-border);
+  color: var(--opp-blue);
+  background: var(--opp-blue-soft);
+  outline: 0;
+}
+
+:deep(.opp-contact-popover) {
+  position: absolute;
+  z-index: 30;
+  right: 0;
+  bottom: calc(100% + 9px);
+  display: none;
+  width: 250px;
+  border: 1px solid #dce5ec;
+  border-radius: 13px;
+  padding: 10px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(30, 48, 68, 0.18);
+}
+
+:deep(.opp-more-contacts:hover .opp-contact-popover),
+:deep(.opp-more-contacts:focus-within .opp-contact-popover) {
+  display: grid;
+  gap: 3px;
+}
+
+:deep(.opp-contact-popover > p) {
+  margin: 0 0 5px;
+  padding: 2px 5px 7px;
+  border-bottom: 1px solid #edf1f5;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+:deep(.opp-contact-popover > div) {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  border-radius: 9px;
+  padding: 6px 5px;
+}
+
+:deep(.opp-contact-popover > div:hover) {
+  background: var(--opp-blue-soft);
+}
+
+:deep(.opp-avatar--small) {
+  width: 29px;
+  height: 29px;
+  flex-basis: 29px;
+  font-size: 8px;
+}
+
+:deep(.opp-contact-popover strong),
+:deep(.opp-contact-popover small) {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.opp-contact-popover strong) {
+  color: #283548;
+  font-size: 10px;
+}
+
+:deep(.opp-contact-popover small) {
+  margin-top: 2px;
+  color: #8a97a8;
+  font-size: 9px;
+}
+
+:deep(.opp-card__value) {
+  grid-area: value;
+  min-width: 0;
+  text-align: right;
+}
+
+:deep(.opp-card--board .opp-card__value) {
+  border-top: 1px solid #edf1f5;
+  padding-top: 14px;
+}
+
+:deep(.opp-card__value strong) {
+  display: block;
+  overflow: hidden;
+  color: var(--opp-blue);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.opp-card__value > span) {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 5px;
+  color: var(--opp-blue);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+/* Mode list: satu baris informatif, bukan kartu board yang dilebarkan. */
+:deep(.opp-card--list) {
+  grid-template-columns: 120px minmax(260px, 1.5fr) minmax(190px, 0.9fr) minmax(180px, 0.8fr) minmax(125px, 0.55fr);
+  grid-template-areas:
+    "stage main timing owner value"
+    "stage contact timing owner value";
+  align-items: center;
+  gap: 5px 17px;
+  min-height: 142px;
+  padding: 18px 20px 17px;
+}
+
+:deep(.opp-card--list .opp-card__stage) {
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 9px;
+}
+
+:deep(.opp-card--list .opp-card__main) {
+  display: block;
+}
+
+:deep(.opp-card--list .opp-card__copy > small) {
+  display: block;
+  margin-bottom: 3px;
+}
+
+:deep(.opp-card--list .opp-card__copy h5) {
+  margin-bottom: 5px;
+  font-size: 15px;
+  -webkit-line-clamp: 1;
+}
+
+:deep(.opp-card--list .opp-card__owner),
+:deep(.opp-card--list .opp-card__timing),
+:deep(.opp-card--list .opp-card__contact),
+:deep(.opp-card--list .opp-card__value) {
+  min-height: 58px;
+  border-left: 1px solid #edf1f5;
+  padding-left: 15px;
+}
+
+:deep(.opp-card--list .opp-card__contact) {
+  min-height: 0;
+  border-left: 0;
+  padding-left: 0;
+}
+
+:deep(.opp-card--list .opp-card__contact .opp-avatar) {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+}
+
+:deep(.opp-card--list .opp-card__timing) {
+  grid-template-columns: 1fr;
+  align-content: center;
+  gap: 8px;
+}
+
+:deep(.opp-card--list .opp-card__timing > div) {
+  padding: 5px 8px;
+}
+
+:deep(.opp-card--list .opp-card__value) {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-direction: column;
+}
+
+:deep(.opp-card--list .opp-card__value > span) {
+  display: inline-flex;
+}
+
+:deep(.opp-card--list .opp-contact-popover) {
+  right: 0;
+  bottom: auto;
+  top: calc(100% + 9px);
+}
+
 .project-empty-state {
   display: flex;
   min-height: 220px;
@@ -1187,6 +1660,37 @@ onBeforeUnmount(() => {
   .overview-card--composition {
     grid-column: 1 / -1;
   }
+
+  :deep(.opp-card--list) {
+    grid-template-columns: 130px minmax(220px, 1fr) minmax(190px, 0.8fr);
+    grid-template-areas:
+      "stage main main"
+      "stage contact contact"
+      "owner timing value";
+    gap: 14px 18px;
+    padding: 19px 20px 18px;
+  }
+
+  :deep(.opp-card--list .opp-card__owner),
+  :deep(.opp-card--list .opp-card__timing),
+  :deep(.opp-card--list .opp-card__contact),
+  :deep(.opp-card--list .opp-card__value) {
+    min-height: 52px;
+    border-top: 1px solid #edf1f5;
+    border-left: 0;
+    padding-top: 12px;
+    padding-left: 0;
+  }
+
+  :deep(.opp-card--list .opp-card__timing) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :deep(.opp-card--list .opp-card__contact) {
+    min-height: 0;
+    border-top: 0;
+    padding-top: 0;
+  }
 }
 
 @media (max-width: 991.98px) {
@@ -1244,6 +1748,70 @@ onBeforeUnmount(() => {
 
   .pagination-actions {
     justify-content: flex-start;
+  }
+
+  :deep(.opp-card--list),
+  :deep(.opp-card--board) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "stage stage"
+      "main main"
+      "contact contact"
+      "timing timing"
+      "owner value";
+    grid-template-rows: auto;
+    gap: 0;
+    min-height: 0;
+    padding: 20px 18px 17px;
+  }
+
+  :deep(.opp-card--list .opp-card__stage) {
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  :deep(.opp-card--list .opp-card__main),
+  :deep(.opp-card--board .opp-card__main) {
+    margin-top: 15px;
+    padding-bottom: 15px;
+  }
+
+  :deep(.opp-card--list .opp-card__copy > small) {
+    display: none;
+  }
+
+  :deep(.opp-card--list .opp-card__copy h5) {
+    font-size: 14px;
+    -webkit-line-clamp: 2;
+  }
+
+  :deep(.opp-card--list .opp-card__owner),
+  :deep(.opp-card--list .opp-card__timing),
+  :deep(.opp-card--list .opp-card__contact),
+  :deep(.opp-card--list .opp-card__value) {
+    min-height: 0;
+    border-top: 1px solid #edf1f5;
+    border-left: 0;
+    padding: 13px 0;
+  }
+
+  :deep(.opp-card--list .opp-card__timing) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  :deep(.opp-card--list .opp-card__value) {
+    align-items: flex-end;
+    padding-left: 12px;
+  }
+
+  :deep(.opp-card--list .opp-card__value > span) {
+    display: none;
+  }
+
+  :deep(.opp-card--list .opp-contact-popover) {
+    top: auto;
+    bottom: calc(100% + 9px);
   }
 }
 

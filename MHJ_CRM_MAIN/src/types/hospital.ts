@@ -4,6 +4,8 @@
  */
 export interface Hospital {
   id: number
+  /** Penanda fixture lokal untuk preview UI; tidak pernah berasal dari API. */
+  isDemo?: boolean
   /** company_name */
   name: string
   /** company_owner */
@@ -34,6 +36,8 @@ export interface Hospital {
   kdKelurahan: string
   /** aktif (1 = aktif) */
   aktif: number
+  /** status_finance / grading dari penilaian Finance */
+  financeStatus: string
   /** kelas Rumah Sakit, bila disediakan endpoint company */
   hospitalClass: string
   /** jenis Rumah Sakit, bila disediakan endpoint company */
@@ -97,4 +101,8 @@ export interface HospitalPayload {
   sirs?: string
   latitude?: number | null
   longitude?: number | null
+  /** Grading/status yang dikelola oleh Finance. */
+  status_finance?: string
+  /** Alias yang dipakai sebagian respons/prosedur backend. */
+  grading?: string
 }

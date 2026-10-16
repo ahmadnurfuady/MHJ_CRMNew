@@ -4,7 +4,7 @@
       <div class="hospital-title-group">
         <h5 class="mb-1">Rumah Sakit</h5>
         <p class="hospital-total mb-0">
-          {{ formatTotal(hospitalPagination.total || filteredContact.length) }} total rumah sakit
+          {{ formatTotal(hospitalDisplayTotal) }} total rumah sakit
         </p>
       </div>
       <div class="hospital-header-actions">
@@ -97,15 +97,20 @@
                 @keydown.enter="openHospitalDetail(hospital)"
               >
                 <div class="hospital-identity">
-                  <img
+                  <div
                     class="hospital-avatar"
-                    :src="getImages(hospital.profile)"
-                    :alt="hospital.firstName"
-                  />
+                    :style="avatarColorStyle(hospital.firstName || hospital.id)"
+                    aria-hidden="true"
+                  >
+                    <i class="fa-solid fa-hospital"></i>
+                  </div>
                   <div class="hospital-identity__text">
                     <strong class="entity-detail-name">
                       {{ displayValue(hospital.firstName) }}
                     </strong>
+                    <span v-if="hospital.isDemo" class="demo-list-badge">
+                      Demo lokal
+                    </span>
                     <span>{{ hospital.email || "Email belum tersedia" }}</span>
                   </div>
                 </div>
@@ -221,7 +226,7 @@ import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Contact } from "@/types/contacts";
-import { getImages } from "@/utils/index";
+import { avatarColorStyle } from "@/utils/avatar";
 
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/rumahSakit/AddContactModal.vue"),
@@ -252,6 +257,13 @@ const hospitalColumnWidths = ref<number[]>(
 const hospitalTableWidth = computed(() =>
   hospitalColumnWidths.value.reduce((total, width) => total + width, 0),
 );
+const hospitalDisplayTotal = computed(() => {
+  const demoTotal = filteredContact.value.some((hospital) => hospital.isDemo) ? 1 : 0;
+  const apiTotal =
+    hospitalPagination.value.total ||
+    filteredContact.value.filter((hospital) => !hospital.isDemo).length;
+  return apiTotal + demoTotal;
+});
 const visibleHospitalPages = computed<Array<number | string>>(() => {
   const totalPages = Math.max(1, hospitalPagination.value.lastPage);
   const currentPage = Math.min(Math.max(1, hospitalPagination.value.page), totalPages);
@@ -621,12 +633,15 @@ onBeforeUnmount(() => {
 }
 
 .hospital-avatar {
+  display: grid;
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
-  border: 2px solid rgba(24, 166, 228, 0.18);
-  border-radius: 50%;
-  object-fit: cover;
+  place-items: center;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 17px;
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.14);
 }
 
 .hospital-identity__text {
@@ -666,6 +681,21 @@ onBeforeUnmount(() => {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.hospital-identity__text .demo-list-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin: 3px 0;
+  padding: 2px 7px;
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  color: #0369a1;
+  background: #f0f9ff;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .last-visit small {

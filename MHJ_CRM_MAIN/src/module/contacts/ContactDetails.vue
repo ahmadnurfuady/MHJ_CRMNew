@@ -96,11 +96,13 @@
                 @keydown.enter="openContactDetail(contact)"
               >
                 <div class="contact-person">
-                  <img
+                  <div
                     class="contact-avatar"
-                    :src="getImages(contact.profile)"
-                    :alt="fullName(contact)"
-                  />
+                    :style="avatarColorStyle(fullName(contact) || contact.id)"
+                    aria-hidden="true"
+                  >
+                    {{ personInitials(contact.firstName, contact.lastName) }}
+                  </div>
                   <div class="contact-person__identity">
                     <strong class="entity-detail-name mhj-cell-ellipsis">
                       {{ fullName(contact) }}
@@ -246,7 +248,7 @@ import { useContact } from "@/store/contact";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
 import type { Projects } from "@/types/project";
-import { getImages } from "@/utils/index";
+import { avatarColorStyle, personInitials } from "@/utils/avatar";
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );
@@ -666,12 +668,18 @@ onBeforeUnmount(() => {
 }
 
 .contact-avatar {
+  display: grid;
   width: 38px;
   height: 38px;
   flex: 0 0 38px;
-  border: 2px solid rgba(24, 166, 228, 0.18);
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.78);
   border-radius: 50%;
-  object-fit: cover;
+  color: #ffffff;
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.14);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
 }
 
 .contact-person__identity {

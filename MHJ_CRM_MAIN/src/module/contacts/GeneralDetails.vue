@@ -2,11 +2,19 @@
   <template v-if="contactState.activeContact">
     <section class="contact-header contact-profile-summary">
       <div class="contact-avatar-shell">
-        <img
+        <div
           class="contact-profile-avatar"
-          :src="getImages(contactState.activeContact.profile)"
-          :alt="contactState.activeContact.firstName"
-        />
+          :style="avatarColorStyle(fullName || contactState.activeContact.id)"
+          role="img"
+          :aria-label="`Inisial ${fullName}`"
+        >
+          {{
+            personInitials(
+              contactState.activeContact.firstName,
+              contactState.activeContact.lastName,
+            )
+          }}
+        </div>
         <span class="contact-avatar-status" aria-hidden="true"></span>
       </div>
       <div class="contact-identity">
@@ -363,7 +371,7 @@ import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
-import { getImages } from "@/utils/index";
+import { avatarColorStyle, personInitials } from "@/utils/avatar";
 import {
   indonesianPhoneCallUrl,
   indonesianWhatsAppUrl,
@@ -684,13 +692,17 @@ async function toggleCompanyEdit() {
 }
 
 .contact-profile-avatar {
+  display: grid;
   width: 96px;
   height: 96px;
+  place-items: center;
   border: 5px solid #ffffff;
   border-radius: 24px;
-  background: #ffffff;
+  color: #ffffff;
   box-shadow: 0 10px 24px rgba(22, 76, 105, 0.15);
-  object-fit: cover;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
 }
 
 .contact-avatar-status {

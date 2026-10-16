@@ -121,4 +121,18 @@ export const menu: MenuItem[] = [
     active: false,
     type: 'link',
   },
+  {
+    title: 'Setting',
+    icon: 'others',
+    type: 'sub',
+    active: false,
+    isPinned: false,
+    children: [
+      {
+        path: routes.CrmAdmin.Promo,
+        title: 'Promo',
+        type: 'link',
+      },
+    ],
+  },
 ]

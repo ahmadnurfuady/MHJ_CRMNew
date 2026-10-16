@@ -14,6 +14,11 @@ import {
 } from "@/api/response";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { contactSidebarList } from "@/core/data/contacts";
+import {
+  createDemoHospital,
+  demoHospitalMatchesSearch,
+  HOSPITAL_DEMO_ENABLED,
+} from "@/core/data/hospitalDemo";
 import type {
   Contact,
   ContactSidebarList,
@@ -178,6 +183,7 @@ function notifyError(message: string) {
 function hospitalToContact(hospital: Hospital): Contact {
   return {
     id: HOSPITAL_ID_OFFSET + hospital.id,
+    isDemo: hospital.isDemo,
     origin: "hospital",
     remoteId: hospital.id,
     firstName: hospital.name,
@@ -203,6 +209,7 @@ function hospitalToContact(hospital: Hospital): Contact {
     kdKelurahan: hospital.kdKelurahan,
     industry: hospital.industry,
     aktif: hospital.aktif,
+    financeStatus: hospital.financeStatus,
     keterangan: hospital.description,
     hospitalClass: hospital.hospitalClass,
     hospitalType: hospital.hospitalType,
@@ -369,6 +376,7 @@ export const useContact = defineStore("contact", () => {
       ),
       keterangan: inputFieldWithValue(hospital?.description),
       sirs: inputFieldWithValue(hospital?.sirs),
+      financeStatus: inputFieldWithValue(hospital?.financeStatus),
     };
   };
 
@@ -465,7 +473,15 @@ export const useContact = defineStore("contact", () => {
    */
   function syncRemoteContacts() {
     const localContacts = contactState.contactList.filter((contact) => !contact.origin);
-    const hospitalContacts = hospitalStore.items.map(hospitalToContact);
+    const showDemoHospital =
+      HOSPITAL_DEMO_ENABLED &&
+      scope.value === "hospital" &&
+      hospitalStore.pagination.page === 1 &&
+      demoHospitalMatchesSearch(hospitalSearch.value);
+    const hospitalContacts = [
+      ...(showDemoHospital ? [hospitalToContact(createDemoHospital())] : []),
+      ...hospitalStore.items.map(hospitalToContact),
+    ];
     contactState.contactList = [...localContacts, ...hospitalContacts, ...contactApi.items];
 
     const current = contactState.activeContact;
@@ -1161,7 +1177,7 @@ export const useContact = defineStore("contact", () => {
     contactState.formSubmitted = true;
 
     const { phoneNumbers, ...formFields } = contactState.rumahSakitForm;
-    const optionalFields = ["email", "keterangan"];
+    const optionalFields = ["email", "keterangan", "financeStatus"];
     const validation = validateForm(formFields, optionalFields);
     const normalizedPhoneNumbers = phoneNumbers
       .map((phone) => phone.data.trim())
@@ -1241,6 +1257,8 @@ export const useContact = defineStore("contact", () => {
       tipe_marketing_go500: textValue(formData.tipeMarketingGo500),
       description: textValue(formData.keterangan),
       sirs: textValue(formData.sirs),
+      status_finance: textValue(formData.financeStatus),
+      grading: textValue(formData.financeStatus),
       latitude: location?.lat ?? null,
       longitude: location?.lng ?? null,
     };

@@ -65,6 +65,7 @@ function resolveIcon(raw?: string): string {
 function resolveMenuTitle(rawTitle: string, fallback: string): string {
   const title = rawTitle.trim() || fallback
   return title
+    .replace(/^Settings$/i, 'Setting')
     .replace(/\b(?:compan(?:y|ies)|hospitals?)\b/gi, 'Rumah Sakit')
     .replace(/\bcontacts?\b/gi, 'Kontak')
     .replace(/\b(?:projects?|pro(?:y|j)ek|peluang|deals?)\b/gi, 'Peluang')
@@ -174,6 +175,45 @@ function placeProjectListBeforeDetails(items: MenuItem[]): void {
 }
 
 /**
+ * Promo adalah halaman turunan Setting yang disediakan frontend. Selama baris menu
+ * Promo belum tersedia di database lama, turunkan izinnya dari menu Setting agar
+ * pengguna yang memang boleh membuka Setting tetap dapat melihat halaman ini.
+ */
+function ensurePromoSettingsMenu(items: MenuItem[], addFallback: boolean): void {
+  for (const item of items) {
+    const path = item.path?.trim().replace(/\/+$/, '').toLowerCase()
+    const isSettingsMenu = path === '/crmadmin/settings'
+
+    if (isSettingsMenu && addFallback) {
+      const children = item.children ?? []
+      const hasPromo = children.some(
+        (child) =>
+          child.path?.trim().replace(/\/+$/, '').toLowerCase() === '/crmadmin/settings/promo'
+      )
+
+      if (!hasPromo) {
+        children.push({
+          id: `${item.id || 'settings'}-promo`,
+          title: 'Promo',
+          path: '/crmAdmin/settings/promo',
+          type: 'link',
+          active: false,
+          isPinned: false,
+          permissions: item.permissions,
+        })
+      }
+
+      item.children = children
+      item.type = 'sub'
+    }
+
+    if (item.children?.length && !isSettingsMenu) {
+      ensurePromoSettingsMenu(item.children, addFallback)
+    }
+  }
+}
+
+/**
  * Mengubah data flat dbFlMenuWebcrm menjadi struktur pohon yang dirender komponen NavMenu.
  * Item tanpa hak akses dibuang; anak yang parent-nya ikut terbuang
  * dinaikkan ke level root agar menu yang masih diizinkan tetap dapat dijangkau.
@@ -227,6 +267,11 @@ export function transformFlMenuToTree(rawItems: FlMenuRawItem[]): MenuItem[] {
   })
 
   applyDepthRules(tree, rawIconById)
+  const hasPromoDefinition = rawItems.some(
+    (item) =>
+      item.pathfile?.trim().replace(/\/+$/, '').toLowerCase() === '/crmadmin/settings/promo'
+  )
+  ensurePromoSettingsMenu(tree, !hasPromoDefinition)
   placeProjectListBeforeDetails(tree)
 
   return tree

@@ -21,9 +21,9 @@
       </a>
     </li>
     <li>
-      <a href="#" @click.prevent="showComingSoon('Pengaturan')">
+      <router-link :to="routes.CrmAdmin.Promo" @click="show = false">
         <vue-feather type="settings"></vue-feather><span>Pengaturan</span>
-      </a>
+      </router-link>
     </li>
     <li>
       <a class="btn btn-pill btn-outline-primary btn-sm" @click="handleLogout()">Keluar</a>

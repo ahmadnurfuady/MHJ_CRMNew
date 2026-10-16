@@ -332,6 +332,22 @@
             </InputWrapper>
           </div>
 
+          <div class="col-12 hospital-form-section">
+            <span>Status</span>
+            <small>Penilaian yang dikelola oleh bagian Finance</small>
+          </div>
+          <div class="col-12">
+            <InputWrapper title="Grading / Status Finance">
+              <InputField
+                v-model:modelValue="contactState.rumahSakitForm.financeStatus"
+                inputId="rs-finance-status"
+                placeholder="Contoh: Grade A, Lancar, atau Dalam Peninjauan..."
+                :required="false"
+                :disabled="readOnly"
+              />
+            </InputWrapper>
+          </div>
+
           <div class="col-12">
             <InputWrapper title="Keterangan">
               <InputField
@@ -778,6 +794,25 @@ function clearCurrentAddress() {
 </script>
 
 <style scoped>
+.hospital-form-section {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.hospital-form-section span {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hospital-form-section small {
+  color: #64748b;
+}
+
 .rumah-sakit-form-body {
   max-height: 70vh;
   overflow-y: auto;
