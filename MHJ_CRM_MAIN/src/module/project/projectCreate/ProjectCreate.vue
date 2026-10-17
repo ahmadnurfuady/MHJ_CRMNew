@@ -383,10 +383,12 @@ const props = withDefaults(
   defineProps<{
     modalMode?: boolean
     initialHospital?: { id: number; name: string } | null
+    editProjectId?: number | null
   }>(),
   {
     modalMode: false,
     initialHospital: null,
+    editProjectId: null,
   }
 )
 
@@ -405,13 +407,13 @@ const Select = defineAsyncComponent(() => import('@/components/shared/formElemen
 const AddContactModal = defineAsyncComponent(() => import('@/module/contacts/AddContactModal.vue'))
 
 const stageOptions: PipelineStageOption[] = [
-  { value: 1, code: 'qualified', label: 'Qualified (10%)', probability: 10 },
-  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo (30%)', probability: 30 },
-  { value: 3, code: 'quotation', label: 'Quotation (60%)', probability: 60 },
-  { value: 4, code: 'negotiation', label: 'Negotiation (80%)', probability: 80 },
-  { value: 5, code: 'closed_won', label: 'Closed Won (100%)', probability: 100 },
-  { value: 6, code: 'closed_lost', label: 'Closed Lost (0%)', probability: 0 },
-  { value: 7, code: 'closed_cancel', label: 'Closed Cancel (0%)', probability: 0 },
+  { value: 1, code: 'qualified', label: 'Qualified', probability: 10 },
+  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo', probability: 30 },
+  { value: 3, code: 'quotation', label: 'Quotation', probability: 60 },
+  { value: 4, code: 'negotiation', label: 'Negotiation', probability: 80 },
+  { value: 5, code: 'closed_won', label: 'Closed Won', probability: 100 },
+  { value: 6, code: 'closed_lost', label: 'Closed Lost', probability: 0 },
+  { value: 7, code: 'closed_cancel', label: 'Closed Cancel', probability: 0 },
 ]
 
 const defaultStage = stageOptions.find(
@@ -469,6 +471,8 @@ const contactStore = useContact()
 const projectStore = useProjectStore()
 
 const editingId = computed<number | null>(() => {
+  const explicitId = Number(props.editProjectId)
+  if (Number.isFinite(explicitId) && explicitId > 0) return explicitId
   if (props.modalMode) return null
   const raw = route.query.id
   const value = Number(Array.isArray(raw) ? raw[0] : raw)

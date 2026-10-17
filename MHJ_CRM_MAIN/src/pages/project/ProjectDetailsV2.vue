@@ -11,7 +11,7 @@
       <router-link
         v-if="project"
         class="edit-button"
-        :to="{ path: routes.Project.ProjectCreate, query: { id: String(project.id) } }"
+        :to="{ path: routes.Project.ProjectEdit, query: { id: String(project.id) } }"
         aria-label="Edit peluang"
       >
         <i class="fa-solid fa-pen"></i>
@@ -55,6 +55,8 @@
           <strong>{{ formatCompactMoney(projectValue) }}</strong>
         </div>
       </section>
+
+      <WonProjectDocuments v-if="isWonProject" :project="project" />
 
       <div class="detail-tabs" role="tablist" aria-label="Detail peluang">
         <button
@@ -269,6 +271,7 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { routes } from '@/router/routes'
 import { completeProjectDemo } from '@/core/data/projectDemo'
+import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
 import { useContact } from '@/store/contact'
 import { useProjectStore } from '@/store/project'
 import { shortProjectTitle } from '@/utils/index'
@@ -291,6 +294,13 @@ const comments = ref<CommentInfo[]>([])
 const supportingContact = ref<Contact | null>(null)
 
 const project = computed<Projects | null>(() => selectedItem.value)
+const isWonProject = computed(() => {
+  const status = `${project.value?.status ?? ''} ${project.value?.stageName ?? ''}`
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_')
+  return status.includes('closed_won')
+})
 const detailRows = computed(() => selectedDetails.value as UnknownRecord[])
 
 function firstValue(keys: string[]): unknown {
