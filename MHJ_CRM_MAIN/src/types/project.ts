@@ -153,6 +153,13 @@ export interface ProjectContact {
   jobTitle?: string
 }
 
+export interface ProjectProductDetail {
+  code?: string
+  name: string
+  quantity: number
+  unitPrice: number
+}
+
 export interface Finance {
   expenses: Expenses[]
   budgetDetails: BudgetDetails[]
@@ -311,6 +318,8 @@ export interface Projects {
   idold?: number
   divisionCode?: string
   productNames?: string
+  /** Rincian qty dan harga per produk bila disediakan API. */
+  productDetails?: ProjectProductDetail[]
   lostReasons?: string
   createdBy?: string
   createdAt?: string

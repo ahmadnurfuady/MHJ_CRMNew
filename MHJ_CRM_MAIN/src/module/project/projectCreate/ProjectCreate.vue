@@ -16,12 +16,25 @@
             <form v-else class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
               <div class="col-12">
                 <InputWrapper :title="'Nama Peluang'" required>
-                  <InputField
-                    :modelValue="projectNameField"
-                    :inputId="'project-name'"
-                    :placeholder="'EKAT/PRVT_Nama Rumah Sakit_Nama Produk'"
-                    :disabled="true"
-                  />
+                  <div class="input-group project-name-input">
+                    <InputField
+                      :modelValue="projectNameField"
+                      :inputId="'project-name'"
+                      :placeholder="'EKAT/PRVT_Nama Rumah Sakit_Nama Produk'"
+                      :disabled="!isProjectNameEditing"
+                      @update:modelValue="updateProjectName"
+                    />
+                    <button
+                      class="btn project-name-edit"
+                      type="button"
+                      :title="isProjectNameEditing ? 'Selesai mengedit nama peluang' : 'Edit nama peluang'"
+                      :aria-label="isProjectNameEditing ? 'Selesai mengedit nama peluang' : 'Edit nama peluang'"
+                      :aria-pressed="isProjectNameEditing"
+                      @click="toggleProjectNameEdit"
+                    >
+                      <vue-feather :type="isProjectNameEditing ? 'check' : 'edit-2'" size="15" />
+                    </button>
+                  </div>
                 </InputWrapper>
               </div>
 
@@ -48,6 +61,8 @@
                     :placeholder="'Cari PIC kontak di database...'"
                     v-model="projectForm.contact"
                     :options="contactOptions"
+                    :multiSelect="true"
+                    :removableTags="true"
                     :formSubmitted="formSubmitted"
                   />
                 </InputWrapper>
@@ -115,27 +130,43 @@
                 </InputWrapper>
               </div>
 
-              <div class="col-6">
-                <InputWrapper :title="'Qty'" required>
-                  <InputField
-                    v-model:modelValue="projectForm.quantity"
-                    :formSubmitted="formSubmitted"
-                    :inputId="'project-quantity'"
-                    :placeholder="'Qty'"
-                    :inputType="'number'"
-                  />
-                </InputWrapper>
-              </div>
-
-              <div class="col-6">
-                <InputWrapper :title="'Harga Satuan (Rp)'">
-                  <InputField
-                    :modelValue="priceField"
-                    :inputId="'project-price'"
-                    :placeholder="'Otomatis dari produk'"
-                    :disabled="true"
-                  />
-                </InputWrapper>
+              <div v-if="productLines.length" class="col-12">
+                <div class="product-lines border rounded p-3">
+                  <div class="row g-2 d-none d-md-flex product-lines__header">
+                    <div class="col-md-6">Produk</div>
+                    <div class="col-md-2">Qty <span class="text-danger">*</span></div>
+                    <div class="col-md-4">Harga Satuan (Rp)</div>
+                  </div>
+                  <div
+                    v-for="line in productLines"
+                    :key="line.key"
+                    class="row g-2 align-items-start product-line"
+                  >
+                    <div class="col-md-6 product-line__name" :title="line.product.label">
+                      {{ line.product.label }}
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label d-md-none" :for="`project-quantity-${line.key}`">Qty</label>
+                      <InputField
+                        v-model:modelValue="line.quantity"
+                        :formSubmitted="formSubmitted"
+                        :inputId="`project-quantity-${line.key}`"
+                        :placeholder="'Qty'"
+                        :inputType="'number'"
+                      />
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label d-md-none" :for="`project-price-${line.key}`">Harga Satuan (Rp)</label>
+                      <InputField
+                        v-model:modelValue="line.unitPrice"
+                        :formSubmitted="formSubmitted"
+                        :inputId="`project-price-${line.key}`"
+                        :placeholder="'Masukkan harga satuan'"
+                        :inputType="'number'"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class="col-12">
@@ -341,6 +372,13 @@ interface TimelineEntry {
   activity: InputFieldState
 }
 
+interface ProductLine {
+  key: string
+  product: BarangOption
+  quantity: InputFieldState
+  unitPrice: InputFieldState
+}
+
 const props = withDefaults(
   defineProps<{
     modalMode?: boolean
@@ -413,7 +451,6 @@ const projectForm = ref({
   owner: initSelectField(),
   division: initSelectField(),
   products: initSelectField(),
-  quantity: { data: '1', errorMessage: '' },
   estimatedPo: { data: todayForDateInput(), errorMessage: '' },
   competitor: initSelectField(),
   fundingSource: initSelectField(),
@@ -442,6 +479,10 @@ const loadingProject = ref(false)
 const loadingMoreCompanies = ref(false)
 // Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
 const prefilling = ref(false)
+const productLines = ref<ProductLine[]>([])
+const customProjectName = ref('')
+const usesCustomProjectName = ref(false)
+const isProjectNameEditing = ref(false)
 
 function selectedOf(field: { selected: unknown }) {
   return field.selected as DealOption | null
@@ -497,7 +538,7 @@ const contactOptions = computed<DealOption[]>(() => {
 })
 
 const ownerOptions = computed<DealOption[]>(() => projectStore.lookups.owner)
-const selectedProducts = computed(() => projectForm.value.products.selectedItems as DealOption[])
+const selectedProducts = computed(() => projectForm.value.products.selectedItems as BarangOption[])
 const productOptions = computed(() =>
   projectStore.lookups.barang.filter(
     (product) => product.divisiCode === selectedOf(projectForm.value.division)?.code
@@ -513,28 +554,30 @@ const productPlaceholder = computed(() => {
 const selectedCompany = computed(
   () => selectedOf(projectForm.value.company) as CompanyOption | null
 )
-const projectName = computed(() => {
+const automaticProjectName = computed(() => {
   const company = selectedCompany.value
   if (!company) return ''
   const prefix = company.type === 'Government' ? 'EKAT' : 'PRVT'
   const productNames = selectedProducts.value.map((product) => product.label).join(', ')
   return [prefix, company.label, productNames].filter(Boolean).join('_')
 })
-
-const price = computed(() =>
-  selectedProducts.value.reduce((total, product) => total + (product.price ?? 0), 0)
+const projectName = computed(() =>
+  usesCustomProjectName.value ? customProjectName.value.trim() : automaticProjectName.value
 )
-const quantity = computed(() => Number(projectForm.value.quantity.data) || 0)
-const projectValue = computed(() => price.value * quantity.value)
+const totalQuantity = computed(() =>
+  productLines.value.reduce((total, line) => total + (Number(line.quantity.data) || 0), 0)
+)
+const projectValue = computed(() =>
+  productLines.value.reduce(
+    (total, line) => total + (Number(line.quantity.data) || 0) * (Number(line.unitPrice.data) || 0),
+    0
+  )
+)
 const rupiah = (amount: number) => `Rp ${amount.toLocaleString('id-ID')}`
 const projectNameField = computed(() => ({
-  data: projectName.value,
+  data: usesCustomProjectName.value ? customProjectName.value : automaticProjectName.value,
   errorMessage:
     formSubmitted.value && !projectName.value ? 'Nama Peluang wajib diisi.' : '',
-}))
-const priceField = computed(() => ({
-  data: rupiah(price.value),
-  errorMessage: '',
 }))
 const valueField = computed(() => ({
   data: rupiah(projectValue.value),
@@ -562,6 +605,23 @@ watch(
     if (prefilling.value) return
     projectForm.value.products = initSelectField()
   }
+)
+
+watch(
+  selectedProducts,
+  (products) => {
+    const existingLines = new Map(productLines.value.map((line) => [line.key, line]))
+    productLines.value = products.map((product) => {
+      const key = String(product.code || product.value)
+      return existingLines.get(key) ?? {
+        key,
+        product,
+        quantity: { data: '1', errorMessage: '' },
+        unitPrice: { data: String(product.price ?? 0), errorMessage: '' },
+      }
+    })
+  },
+  { deep: true }
 )
 
 watch(isLostOrCancelled, (visible) => {
@@ -593,7 +653,29 @@ function cancel() {
 }
 
 function selectCreatedContact(created: Contact) {
-  projectForm.value.contact = selectedField(toContactOption(created))
+  const option = toContactOption(created)
+  const current = projectForm.value.contact.selectedItems as DealOption[]
+  projectForm.value.contact = multiSelectedField([
+    ...current.filter((item) => String(item.value) !== String(option.value)),
+    option,
+  ])
+}
+
+function updateProjectName(field: InputFieldState) {
+  usesCustomProjectName.value = true
+  customProjectName.value = String(field.data ?? '')
+}
+
+async function toggleProjectNameEdit() {
+  if (!isProjectNameEditing.value) {
+    if (!usesCustomProjectName.value) customProjectName.value = automaticProjectName.value
+    usesCustomProjectName.value = true
+    isProjectNameEditing.value = true
+    await nextTick()
+    document.getElementById('project-name')?.focus()
+    return
+  }
+  isProjectNameEditing.value = false
 }
 
 function addTimelineEntry() {
@@ -682,10 +764,17 @@ async function prefillForm(project: Projects) {
   const company = findOptionById(companyOptions.value, project.companyId)
   if (company) projectForm.value.company = selectedField(company)
 
-  const contact =
-    findOptionById(contactOptions.value, project.contactId) ??
-    findOptionByLabel(contactOptions.value, project.contactName)
-  if (contact) projectForm.value.contact = selectedField(contact)
+  const contacts = (project.contacts?.length
+    ? project.contacts.map((item) =>
+        findOptionById(contactOptions.value, item.id) ??
+        findOptionByLabel(contactOptions.value, item.name)
+      )
+    : [
+        findOptionById(contactOptions.value, project.contactId) ??
+        findOptionByLabel(contactOptions.value, project.contactName),
+      ]
+  ).filter((option): option is DealOption => Boolean(option))
+  if (contacts.length) projectForm.value.contact = multiSelectedField(contacts)
 
   const stage = stageOptions.find((option) => option.value === project.stageId)
   if (stage) projectForm.value.stage = selectedField(stage)
@@ -702,8 +791,29 @@ async function prefillForm(project: Projects) {
     .map((label) => findOptionByLabel(productOptions.value, label))
     .filter((option): option is BarangOption => Boolean(option))
   if (products.length) projectForm.value.products = multiSelectedField(products)
-
-  projectForm.value.quantity = { data: String(project.quantity ?? 1), errorMessage: '' }
+  await nextTick()
+  productLines.value.forEach((line) => {
+    const savedDetail = project.productDetails?.find(
+      (detail) =>
+        (detail.code && detail.code === line.product.code) ||
+        normalizeLabel(detail.name) === normalizeLabel(line.product.label)
+    )
+    line.quantity = {
+      data: String(savedDetail?.quantity ?? project.quantity ?? 1),
+      errorMessage: '',
+    }
+    line.unitPrice = {
+      data: String(
+        savedDetail?.unitPrice ??
+          (productLines.value.length === 1 && project.unitPrice !== undefined
+            ? project.unitPrice
+            : line.product.price ?? 0)
+      ),
+      errorMessage: '',
+    }
+  })
+  customProjectName.value = project.projectName
+  usesCustomProjectName.value = true
   projectForm.value.estimatedPo = {
     data: (project.expectedCloseDate ?? '').slice(0, 10),
     errorMessage: '',
@@ -844,7 +954,6 @@ async function handleSubmit() {
     ['Owner (Pemilik Peluang)', form.owner],
     ['Divisi', form.division],
     ['Produk', form.products],
-    ['Qty', form.quantity],
     ['Estimasi PO', form.estimatedPo],
     ['Kompetitor', form.competitor],
     ['Sumber Pendanaan', form.fundingSource],
@@ -864,29 +973,46 @@ async function handleSubmit() {
     return
   }
 
-  if (!Number.isInteger(quantity.value) || quantity.value < 1) {
+  const invalidQuantity = productLines.value.find(
+    (line) => !Number.isInteger(Number(line.quantity.data)) || Number(line.quantity.data) < 1
+  )
+  if (invalidQuantity) {
     await Swal.fire({
       icon: 'error',
-      text: 'Qty harus berupa bilangan bulat minimal 1.',
+      text: `Qty untuk ${invalidQuantity.product.label} harus berupa bilangan bulat minimal 1.`,
+      confirmButtonColor: 'var(--theme-default)',
+    })
+    return
+  }
+
+  const invalidPrice = productLines.value.find(
+    (line) => !Number.isFinite(Number(line.unitPrice.data)) || Number(line.unitPrice.data) < 0
+  )
+  if (invalidPrice) {
+    await Swal.fire({
+      icon: 'error',
+      text: `Harga satuan untuk ${invalidPrice.product.label} harus berupa angka minimal 0.`,
       confirmButtonColor: 'var(--theme-default)',
     })
     return
   }
 
   const company = selectedCompany.value as CompanyOption
-  const contact = selectedOf(form.contact) as DealOption
+  const contacts = form.contact.selectedItems as DealOption[]
   const owner = selectedOf(form.owner) as DealOption
   const competitor = selectedOf(form.competitor) as DealOption
   const fundingSource = selectedOf(form.fundingSource) as DealOption
   const companyId = numericId(company.value)
-  const contactId = numericId(contact.value)
+  const contactIds = contacts
+    .map((contact) => numericId(contact.value))
+    .filter((id): id is number => id !== undefined)
   const ownerId = findLookupId(projectStore.lookups.owner, owner)
   const stageId = numericId(selectedStage.value?.value)
 
-  if (!companyId || !contactId || !ownerId || !stageId) {
+  if (!companyId || contactIds.length !== contacts.length || !ownerId || !stageId) {
     const missing = [
       !companyId && 'Rumah Sakit',
-      !contactId && 'Kontak PIC',
+      contactIds.length !== contacts.length && 'Kontak PIC',
       !ownerId && 'Owner (Pemilik Peluang)',
       !stageId && `Stage "${selectedStage.value?.label ?? ''}"`,
     ].filter(Boolean)
@@ -910,7 +1036,8 @@ async function handleSubmit() {
   const payload: ProjectPayload = {
     projects_name: projectName.value,
     company_id: companyId,
-    contact_id: contactId,
+    contact_id: contactIds[0],
+    contact_ids: contactIds,
     owner_id: ownerId,
     owner_name: owner.label || null,
     stage_id: stageId,
@@ -926,8 +1053,15 @@ async function handleSubmit() {
     created_by: numericId(authStore.user?.id) ?? null,
     division_code: selectedOf(form.division)?.code ?? null,
     product_names: selectedProducts.value.map((product) => product.label),
-    quantity: quantity.value,
-    unit_price: price.value,
+    product_details: productLines.value.map((line) => ({
+      product_code: line.product.code || String(line.product.value),
+      product_name: line.product.label,
+      quantity: Number(line.quantity.data),
+      unit_price: Number(line.unitPrice.data),
+      subtotal: Number(line.quantity.data) * Number(line.unitPrice.data),
+    })),
+    quantity: totalQuantity.value,
+    unit_price: totalQuantity.value ? projectValue.value / totalQuantity.value : 0,
     lost_reasons: (form.lostReasons.selectedItems as DealOption[]).map(
       (reason) => reason.label
     ),
@@ -976,3 +1110,83 @@ async function handleSubmit() {
   }
 }
 </script>
+
+<style scoped>
+.project-name-input :deep(.form-control) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.project-name-edit {
+  display: inline-flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  padding: 0;
+  color: #ffffff !important;
+  background-color: var(--bg-sidebar, var(--theme-default)) !important;
+  border-color: var(--bg-sidebar, var(--theme-default)) !important;
+}
+
+.project-name-edit:hover,
+.project-name-edit:focus-visible {
+  color: #ffffff !important;
+  background-color: var(--color-primary-dark, var(--theme-default)) !important;
+  border-color: var(--color-primary-dark, var(--theme-default)) !important;
+}
+
+.project-name-edit:focus-visible {
+  box-shadow: 0 0 0 0.2rem rgba(var(--app-primary-rgb), 0.24);
+}
+
+.project-name-edit :deep(svg) {
+  display: block !important;
+  width: 17px !important;
+  height: 17px !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.project-name-edit :deep(.vue-feather) {
+  display: inline-flex !important;
+  width: 17px !important;
+  height: 17px !important;
+  align-items: center;
+  justify-content: center;
+  overflow: visible !important;
+  color: #ffffff !important;
+  line-height: 1;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.product-lines__header {
+  margin-bottom: 0.35rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.product-line + .product-line {
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.product-line__name {
+  align-self: center;
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 767.98px) {
+  .product-line__name {
+    margin-bottom: 0.25rem;
+  }
+}
+</style>

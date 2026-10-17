@@ -114,6 +114,21 @@ export const api = {
     return client.post<T>(resolveEndpoint(endpoint), payload, config)
   },
 
+  /**
+   * POST dengan body `FormData` (upload file). Instance axios ini punya default
+   * header `Content-Type: application/json`, dan axios akan mengubah FormData
+   * menjadi `JSON.stringify()` kalau Content-Type masih application/json (lihat
+   * transformRequest di axios) — field File di dalamnya jadi `{}` dan gagal
+   * terkirim. Header di-override ke `undefined` di sini supaya axios membiarkan
+   * FormData apa adanya dan browser yang menentukan boundary multipart.
+   */
+  postForm<T = any>(endpoint: string, formData: FormData, config?: AxiosRequestConfig) {
+    return client.post<T>(resolveEndpoint(endpoint), formData, {
+      ...config,
+      headers: { ...config?.headers, 'Content-Type': undefined },
+    })
+  },
+
   patch<T = any>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
     return client.patch<T>(resolveEndpoint(endpoint), payload, config)
   },

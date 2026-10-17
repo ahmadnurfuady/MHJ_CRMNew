@@ -207,6 +207,16 @@ export const useAuthStore = defineStore('auth', {
      * Endpoint: GET /api/logout
      */
     async logout() {
+      const notificationStore = useNotificationStore()
+
+      // Hapus asosiasi token sebelum Bearer token login dibersihkan.
+      try {
+        await notificationStore.unregisterToken()
+      } catch (e) {
+        // Kegagalan unregister FCM tidak boleh menghalangi proses logout utama.
+        console.warn('Gagal menghapus FCM token dari backend:', e)
+      }
+
       try {
         await api.get('/logout')
       } catch (e) {
@@ -222,7 +232,7 @@ export const useAuthStore = defineStore('auth', {
 
         try {
           stopPermissionWatcher()
-          useNotificationStore().stop()
+          notificationStore.stop()
           useMenu().resetMenu()
         } catch (e) {
           console.warn('Gagal mengembalikan menu sidebar:', e)

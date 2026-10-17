@@ -1,48 +1,59 @@
-// Service worker Firebase Cloud Messaging.
-// File ini di-serve apa adanya oleh Vite (folder /public), tidak diproses/di-build,
-// sehingga environment variable (.env) tidak bisa dipakai di sini.
-// Isi object di bawah dengan config Firebase Web App yang SAMA PERSIS dengan
-// VITE_FIREBASE_* di file .env, lalu build & deploy ulang.
-importScripts('https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js')
-importScripts('https://www.gstatic.com/firebasejs/13.0.0/firebase-messaging-compat.js')
+/* global firebase, clients */
 
-firebase.initializeApp({
-  apiKey: 'ISI_API_KEY',
-  authDomain: 'ISI_AUTH_DOMAIN',
-  projectId: 'ISI_PROJECT_ID',
-  storageBucket: 'ISI_STORAGE_BUCKET',
-  messagingSenderId: 'ISI_MESSAGING_SENDER_ID',
-  appId: 'ISI_APP_ID',
-})
+// Config publik Firebase dikirim aplikasi melalui query string saat SW didaftarkan.
+// Dengan begitu nilai di .env dan service worker selalu sinkron setiap deployment.
+const encodedConfig = new URL(self.location.href).searchParams.get('config')
 
-const messaging = firebase.messaging()
+if (encodedConfig) {
+  const normalized = encodedConfig.replace(/-/g, '+').replace(/_/g, '/')
+  const padding = '='.repeat((4 - (normalized.length % 4)) % 4)
+  const firebaseConfig = JSON.parse(atob(normalized + padding))
 
-// Notifikasi yang masuk saat tab CRM tertutup/di-background.
-messaging.onBackgroundMessage((payload) => {
-  const notification = payload.notification || {}
-  self.registration.showNotification(notification.title || 'MHJ CRM', {
-    body: notification.body || '',
-    icon: notification.icon || '/favicon.ico',
-    data: payload.data || {},
+  importScripts('https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js')
+  importScripts('https://www.gstatic.com/firebasejs/13.0.0/firebase-messaging-compat.js')
+
+  firebase.initializeApp(firebaseConfig)
+  const messaging = firebase.messaging()
+
+  // Data-only messages perlu ditampilkan manual. Notification messages sudah
+  // ditampilkan otomatis oleh FCM sehingga tidak dibuat dua kali di sini.
+  messaging.onBackgroundMessage((payload) => {
+    if (payload.notification) return
+
+    const data = payload.data || {}
+    self.registration.showNotification(data.title || 'MHJ CRM', {
+      body: data.body || '',
+      icon: data.icon || '/favicon.ico',
+      data: { url: data.url || '/' },
+    })
   })
-})
+}
 
-// Fokuskan/alihkan tab CRM yang sudah terbuka saat notifikasi diklik.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const targetUrl = (event.notification.data && event.notification.data.url) || '/'
+
+  let targetUrl = new URL('/', self.location.origin)
+  try {
+    const notificationData = event.notification.data || {}
+    const requestedPath =
+      notificationData.url ||
+      notificationData.FCM_MSG?.fcmOptions?.link ||
+      notificationData.FCM_MSG?.data?.url ||
+      '/'
+    const requestedUrl = new URL(requestedPath, self.location.origin)
+    if (requestedUrl.origin === self.location.origin) targetUrl = requestedUrl
+  } catch {
+    // URL payload tidak valid: kembali ke halaman utama aplikasi.
+  }
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
       for (const client of windowClients) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(targetUrl)
-          return client.focus()
+        if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+          return client.navigate(targetUrl.href).then(() => client.focus())
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl)
-      }
-    })
+      return clients.openWindow ? clients.openWindow(targetUrl.href) : undefined
+    }),
   )
 })

@@ -5,6 +5,8 @@ export interface PromoApiItem {
   title: string
   content: string | null
   image_path: string | null
+  /** URL lengkap siap pakai untuk <img>, mis. `https://.../storage/information-cards/xxx.jpg`. */
+  image_url?: string | null
   is_active: boolean | number
   start_date: string | null
   end_date: string | null
@@ -80,7 +82,7 @@ export const promoService = {
 
   /** POST /api/master-information-cards */
   async createPromo(payload: PromoPayload): Promise<PromoApiItem> {
-    const res = await api.post<{ data?: PromoApiItem } & PromoApiItem>(
+    const res = await api.postForm<{ data?: PromoApiItem } & PromoApiItem>(
       '/master-information-cards',
       buildFormData(payload)
     )
@@ -89,7 +91,7 @@ export const promoService = {
 
   /** POST /api/master-information-cards/{id} dengan `_method=PUT` (method-spoofing untuk upload file). */
   async updatePromo(id: number, payload: PromoPayload): Promise<PromoApiItem> {
-    const res = await api.post<{ data?: PromoApiItem } & PromoApiItem>(
+    const res = await api.postForm<{ data?: PromoApiItem } & PromoApiItem>(
       `/master-information-cards/${id}`,
       buildFormData(payload, 'PUT')
     )

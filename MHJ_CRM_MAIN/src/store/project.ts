@@ -19,7 +19,7 @@ import {
   products as barangFallback
 } from '@/core/data/projectDeal'
 import type { ListParams, Pagination } from '@/types/api'
-import type { Profile, ProjectContact, Projects } from '@/types/project'
+import type { Profile, ProjectContact, ProjectProductDetail, Projects } from '@/types/project'
 import type { Select } from '@/types/common'
 
 export interface DivisiOption extends Select {
@@ -43,6 +43,7 @@ export interface ProjectPayload {
   projects_name: string
   company_id: number | null
   contact_id: number | null
+  contact_ids: number[]
   owner_id: number | null
   owner_name: string | null
   stage_id: number | null
@@ -58,6 +59,7 @@ export interface ProjectPayload {
   created_by: number | null
   division_code: string | null
   product_names: string[]
+  product_details: ProjectProductPayload[]
   quantity: number
   unit_price: number
   lost_reasons: string[]
@@ -65,6 +67,14 @@ export interface ProjectPayload {
   address?: string | null
   kd_kelurahan?: string | null
   timeline: ProjectTimelinePayload[]
+}
+
+export interface ProjectProductPayload {
+  product_code: string
+  product_name: string
+  quantity: number
+  unit_price: number
+  subtotal: number
 }
 
 export interface ProjectTimelinePayload {
@@ -173,6 +183,34 @@ function normalizeProjectContacts(raw: Dict): ProjectContact[] {
   )
 }
 
+function normalizeProjectProducts(raw: Dict): ProjectProductDetail[] {
+  const source = pick(raw, 'product_details', 'project_products', 'deal_products', 'products')
+  let values: unknown[] = []
+
+  if (Array.isArray(source)) values = source
+  else if (isRecord(source)) values = Object.values(source)
+  else if (typeof source === 'string' && source.trim()) {
+    try {
+      const parsed: unknown = JSON.parse(source)
+      values = Array.isArray(parsed) ? parsed : []
+    } catch {
+      values = []
+    }
+  }
+
+  return values.flatMap((value) => {
+    if (!isRecord(value)) return []
+    const name = pickString(value, 'product_name', 'name', 'label', 'NamaBrg')
+    if (!name) return []
+    return [{
+      code: pickString(value, 'product_code', 'code', 'value', 'KodeBrg') || undefined,
+      name,
+      quantity: optionalNumber(value, 'quantity', 'qty') ?? 1,
+      unitPrice: optionalNumber(value, 'unit_price', 'price', 'harga') ?? 0
+    }]
+  })
+}
+
 /** Mengubah satu baris dbo.m_projects / view project menjadi model tampilan. */
 export function normalizeProject(raw: Dict): Projects {
   const ownerName = pickString(
@@ -229,6 +267,7 @@ export function normalizeProject(raw: Dict): Projects {
     'status_changed_at'
   )
   const contacts = normalizeProjectContacts(raw)
+  const productDetails = normalizeProjectProducts(raw)
 
   return {
     id: optionalNumber(raw, 'id', 'ID') ?? 0,
@@ -263,6 +302,7 @@ export function normalizeProject(raw: Dict): Projects {
     idold: optionalNumber(raw, 'idold'),
     divisionCode: pickString(raw, 'division_code'),
     productNames: pickString(raw, 'product_names', 'deal_name'),
+    productDetails,
     lostReasons: pickString(raw, 'lost_reasons'),
     teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
     createdBy: pickString(raw, 'created_by'),
@@ -561,7 +601,8 @@ export const useProjectStore = defineStore('project', () => {
               const label = (item.NamaAlias?.trim() || item.NamaDevisi || code).trim()
               return { value: code, label, code }
             })
-            .filter((option) => option.value && option.label)
+            // Entri "none" dari master data bukan divisi sungguhan, jangan tampil di dropdown.
+            .filter((option) => option.value && option.label && option.label.toLowerCase() !== 'none')
           lookups.divisi = divisiOptions.length
             ? divisiOptions
             : divisiFallback.map((item) => ({

@@ -1,7 +1,24 @@
 import { defineStore } from 'pinia'
 import type { MessagePayload } from 'firebase/messaging'
 import { api } from '@/services/api'
-import { requestFcmToken, listenForegroundMessages } from '@/firebase/messaging'
+import {
+  isFirebaseMessagingConfigured,
+  isFirebaseMessagingSupported,
+  listenForegroundMessages,
+  requestFcmToken,
+  revokeFcmToken,
+  restoreFcmToken,
+} from '@/firebase/messaging'
+
+export type PushStatus =
+  | 'checking'
+  | 'unconfigured'
+  | 'unsupported'
+  | 'prompt'
+  | 'enabling'
+  | 'enabled'
+  | 'denied'
+  | 'error'
 
 export interface PushNotificationEntry {
   id: string
@@ -17,10 +34,14 @@ interface NotificationState {
   items: PushNotificationEntry[]
   fcmToken: string | null
   initialized: boolean
+  pushStatus: PushStatus
+  backendRegistered: boolean
+  pushError: string | null
 }
 
 const STORAGE_KEY = 'mhj-crm-push-notifications'
 const MAX_ITEMS = 30
+const TOKEN_ENDPOINT = import.meta.env.VITE_FCM_TOKEN_ENDPOINT || '/fcm/device-token'
 
 let stopForegroundListener: (() => void) | null = null
 
@@ -46,6 +67,9 @@ export const useNotificationStore = defineStore('pushNotification', {
     items: loadFromStorage(),
     fcmToken: null,
     initialized: false,
+    pushStatus: 'checking',
+    backendRegistered: false,
+    pushError: null,
   }),
 
   getters: {
@@ -80,36 +104,114 @@ export const useNotificationStore = defineStore('pushNotification', {
       persist(this.items)
     },
 
+    async registerToken(token: string) {
+      this.fcmToken = token
+      this.pushStatus = 'enabled'
+      this.pushError = null
+
+      try {
+        await api.post(TOKEN_ENDPOINT, { token, device: 'web' })
+        this.backendRegistered = true
+      } catch {
+        this.backendRegistered = false
+        this.pushError =
+          `Browser sudah terhubung ke Firebase, tetapi endpoint backend ${TOKEN_ENDPOINT} belum tersedia.`
+      }
+    },
+
+    /** Hapus token dari backend dan cabut subscription agar login berikutnya memakai token baru. */
+    async unregisterToken() {
+      if (!this.fcmToken) return
+
+      let backendError: unknown = null
+
+      try {
+        await api.delete(TOKEN_ENDPOINT, {
+          data: { token: this.fcmToken, device: 'web' },
+        })
+      } catch (error) {
+        backendError = error
+      }
+
+      // Tetap cabut token lokal walaupun request backend gagal. Token yang masih
+      // tersimpan di backend kemudian menjadi invalid dan tidak bisa menerima push.
+      await revokeFcmToken()
+      this.backendRegistered = false
+      this.fcmToken = null
+
+      if (backendError) throw backendError
+    },
+
+    /** Meminta izin melalui aksi pengguna, lalu mendaftarkan perangkat ke backend. */
+    async enablePush() {
+      if (this.pushStatus === 'enabling') return
+      this.pushStatus = 'enabling'
+      this.pushError = null
+
+      try {
+        const token = await requestFcmToken()
+        if (!token) {
+          this.pushStatus = Notification.permission === 'denied' ? 'denied' : 'error'
+          this.pushError =
+            Notification.permission === 'denied'
+              ? 'Izin notifikasi diblokir. Aktifkan kembali melalui pengaturan browser.'
+              : 'FCM tidak menghasilkan registration token.'
+          return
+        }
+        await this.registerToken(token)
+      } catch (error) {
+        this.pushStatus = Notification.permission === 'denied' ? 'denied' : 'error'
+        this.pushError = error instanceof Error ? error.message : 'Gagal mengaktifkan push notification.'
+      }
+    },
+
     /**
-     * Minta izin notifikasi browser, ambil FCM token, daftarkan token ke backend,
-     * lalu dengarkan notifikasi FCM yang masuk saat tab CRM aktif (foreground).
-     * Dipanggil sekali setelah user login (lihat src/layout/Body.vue).
+     * Menyiapkan listener. Prompt izin hanya ditampilkan dari tombol Aktifkan agar
+     * tidak diblokir browser karena bukan hasil interaksi pengguna.
      */
     async init() {
       if (this.initialized) return
       this.initialized = true
 
-      const token = await requestFcmToken().catch(() => null)
-      this.fcmToken = token
+      if (!isFirebaseMessagingConfigured()) {
+        this.pushStatus = 'unconfigured'
+        return
+      }
 
-      if (token) {
-        // TODO backend: endpoint POST /fcm/token belum ada di API Laravel.
-        // Perlu dibuat agar token tersimpan per user dan bisa dipakai untuk
-        // mengirim push notification lewat Firebase Admin SDK dari server.
-        api.post('/fcm/token', { token, device: 'web' }).catch(() => {
-          // Diamkan selama endpoint backend belum tersedia.
-        })
+      if (!(await isFirebaseMessagingSupported())) {
+        this.pushStatus = 'unsupported'
+        return
       }
 
       stopForegroundListener = await listenForegroundMessages((payload: MessagePayload) => {
         const notif = payload.notification
         this.addNotification({
-          title: notif?.title || 'Notifikasi Baru',
-          body: notif?.body || '',
-          icon: notif?.icon,
-          url: payload.data?.url,
+          title: notif?.title || payload.data?.title || 'Notifikasi Baru',
+          body: notif?.body || payload.data?.body || '',
+          icon: notif?.icon || payload.data?.icon,
+          url: payload.fcmOptions?.link || payload.data?.url,
         })
       })
+
+      if (Notification.permission === 'denied') {
+        this.pushStatus = 'denied'
+        return
+      }
+
+      if (Notification.permission === 'default') {
+        this.pushStatus = 'prompt'
+        return
+      }
+
+      this.pushStatus = 'checking'
+      try {
+        const token = await restoreFcmToken()
+        if (token) await this.registerToken(token)
+        else this.pushStatus = 'error'
+      } catch (error) {
+        this.pushStatus = 'error'
+        this.pushError = error instanceof Error ? error.message : 'Gagal memulihkan koneksi FCM.'
+      }
     },
 
     /** Hentikan listener FCM, dipanggil saat logout. */
@@ -118,6 +220,7 @@ export const useNotificationStore = defineStore('pushNotification', {
       stopForegroundListener = null
       this.initialized = false
       this.fcmToken = null
+      this.backendRegistered = false
     },
   },
 })

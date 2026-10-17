@@ -279,6 +279,7 @@ export interface ModalProps {
 export interface Select {
   value: string | number
   label: string
+  serialNumber?: string
   profile?: string
   data?: Select[]
 }

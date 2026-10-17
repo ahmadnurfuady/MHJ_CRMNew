@@ -18,6 +18,48 @@
         >
       </div>
       <div class="card-body">
+        <div v-if="pushStatus !== 'enabled'" class="push-status mb-3">
+          <template v-if="pushStatus === 'unconfigured'">
+            <strong>Firebase Web belum lengkap.</strong>
+            <span>Isi konfigurasi Web App dan VAPID key pada file environment.</span>
+          </template>
+          <template v-else-if="pushStatus === 'unsupported'">
+            <strong>Browser tidak mendukung push notification.</strong>
+          </template>
+          <template v-else-if="pushStatus === 'denied'">
+            <strong>Notifikasi diblokir.</strong>
+            <span>Izinkan notifikasi melalui Site settings pada browser.</span>
+          </template>
+          <template v-else-if="pushStatus === 'error'">
+            <strong>Push notification belum aktif.</strong>
+            <span>{{ pushError || 'Terjadi kesalahan saat menghubungkan Firebase.' }}</span>
+            <button class="btn btn-sm btn-primary mt-2" type="button" @click="notificationStore.enablePush()">
+              Coba lagi
+            </button>
+          </template>
+          <template v-else>
+            <strong>Aktifkan push notification</strong>
+            <span>Dapatkan pemberitahuan meskipun tab CRM sedang tidak aktif.</span>
+            <button
+              class="btn btn-sm btn-primary mt-2"
+              type="button"
+              :disabled="pushStatus === 'checking' || pushStatus === 'enabling'"
+              @click="notificationStore.enablePush()"
+            >
+              {{ pushStatus === 'enabling' ? 'Mengaktifkan...' : 'Aktifkan' }}
+            </button>
+          </template>
+        </div>
+
+        <div v-else class="push-status push-status-success mb-3">
+          <div>
+            <strong>Notifikasi aktif</strong>
+            <span v-if="!backendRegistered">
+              {{ pushError || 'Token belum tersimpan di backend.' }}
+            </span>
+          </div>
+        </div>
+
         <div class="notitications-bar">
           <div class="user-message">
             <div class="firstcart-empty" v-if="items.length === 0">
@@ -75,7 +117,8 @@ import { useNotificationStore, type PushNotificationEntry } from '@/store/notifi
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
 const notificationStore = useNotificationStore()
-const { items, unreadCount } = storeToRefs(notificationStore)
+const { items, unreadCount, pushStatus, backendRegistered, pushError } =
+  storeToRefs(notificationStore)
 
 onMounted(() => {
   notificationStore.init()
@@ -91,9 +134,33 @@ function handleItemClick(item: PushNotificationEntry) {
     window.open(item.url, '_self')
   }
 }
+
 </script>
 
 <style scoped>
+.push-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(24, 166, 228, 0.08);
+  font-size: 12px;
+}
+
+.push-status-success {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(46, 184, 92, 0.08);
+}
+
+.push-status span {
+  display: block;
+  margin-top: 2px;
+}
+
 .notif-list {
   max-height: 340px;
   overflow-y: auto;

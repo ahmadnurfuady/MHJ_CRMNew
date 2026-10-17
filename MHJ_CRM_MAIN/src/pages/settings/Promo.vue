@@ -502,7 +502,7 @@ function normalizePromo(value: unknown, index: number): PromoItem {
     id: toNumberOrNull(raw.id) ?? index + 1,
     title: String(raw.title ?? ''),
     content: String(raw.content ?? raw.offer ?? ''),
-    image_path: String(raw.image_path ?? raw.image ?? ''),
+    image_path: String(raw.image_url ?? raw.image_path ?? raw.image ?? ''),
     is_active: Boolean(raw.is_active ?? raw.active ?? true),
     start_date: String(raw.start_date ?? raw.startDate ?? ''),
     end_date: String(raw.end_date ?? raw.endDate ?? ''),
@@ -1213,6 +1213,11 @@ onMounted(() => {
   font-size: 13px;
 }
 
+.promo-product :deep(.vue-feather),
+.promo-period :deep(.vue-feather) {
+  flex-shrink: 0;
+}
+
 .promo-period {
   color: #34548c;
   background: #eaf2ff;
@@ -1242,8 +1247,8 @@ onMounted(() => {
   -webkit-line-clamp: 3;
 }
 
-.promo-offer svg {
-  flex: 0 0 auto;
+.promo-offer :deep(.vue-feather) {
+  flex-shrink: 0;
   margin-top: 1px;
 }
 

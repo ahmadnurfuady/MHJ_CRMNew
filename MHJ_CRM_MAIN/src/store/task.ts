@@ -539,7 +539,7 @@ export const useTask = defineStore('task', () => {
         if (!userId) throw new Error('ID owner dari user login tidak tersedia.')
         const requestData = buildTaskRequestData(payload, userId, 'i')
 
-        const response = await api.post('tasks/input', requestData)
+        const response = await api.postForm('tasks/input', requestData)
         const raw = extractItem(response.data, ['task', 'result'])
         const createdId = raw ? pickNumber(raw, 'id', 'ID') : 0
 
@@ -576,7 +576,7 @@ export const useTask = defineStore('task', () => {
         const userId = Number.isInteger(currentUserId) && currentUserId > 0 ? currentUserId : null
         if (!userId) throw new Error('ID owner dari user login tidak tersedia.')
 
-        await api.post('tasks/input', buildTaskRequestData(payload, userId, 'u', payload.id))
+        await api.postForm('tasks/input', buildTaskRequestData(payload, userId, 'u', payload.id))
         await fetchTasks()
         const updatedTask = salesTasks.value.find((task) => task.id === payload.id) ?? null
         selectedItem.value = updatedTask

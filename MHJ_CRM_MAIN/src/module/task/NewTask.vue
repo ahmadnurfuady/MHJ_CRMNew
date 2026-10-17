@@ -59,14 +59,38 @@
                   <label class="form-label" :for="`${modalId}-task-name`"
                     >Nama Tugas</label
                   >
-                  <input
-                    :id="`${modalId}-task-name`"
-                    class="form-control auto-filled-input"
-                    type="text"
-                    :value="taskName"
-                    placeholder="Otomatis: Kategori_Produk_Perusahaan"
-                    readonly
-                  />
+                  <div class="input-group task-name-input">
+                    <input
+                      :id="`${modalId}-task-name`"
+                      v-model="taskName"
+                      class="form-control"
+                      :class="{ 'auto-filled-input': !isTaskNameEditable }"
+                      type="text"
+                      placeholder="Otomatis: Kategori_Produk_Perusahaan"
+                      :disabled="!isTaskNameEditable"
+                    />
+                    <button
+                      class="btn task-name-edit"
+                      type="button"
+                      :title="
+                        isTaskNameEditable
+                          ? 'Selesai mengedit nama tugas'
+                          : 'Edit nama tugas'
+                      "
+                      :aria-label="
+                        isTaskNameEditable
+                          ? 'Selesai mengedit nama tugas'
+                          : 'Edit nama tugas'
+                      "
+                      :aria-pressed="isTaskNameEditable"
+                      @click="toggleTaskNameEditing"
+                    >
+                      <vue-feather
+                        :type="isTaskNameEditable ? 'check' : 'edit-2'"
+                        size="15"
+                      ></vue-feather>
+                    </button>
+                  </div>
                   <small class="text-muted">
                     Nama terbentuk otomatis dari kategori, produk, dan
                     perusahaan.
@@ -165,17 +189,47 @@
 
                 <div v-if="form.hasProject" class="col-12">
                   <label class="form-label"
-                    >Pilih Peluang Real CRM
+                    >{{
+                      taskType === "app-specialist"
+                        ? "Cari Serial Number"
+                        : "Pilih Peluang Real CRM"
+                    }}
                     <span class="txt-danger">*</span></label
                   >
                   <Select
                     v-model="form.project"
-                    :options="projectOptions"
-                    placeholder="Pilih peluang dari database..."
-                    display-key="label"
+                    :options="
+                      taskType === 'app-specialist'
+                        ? serialProjectOptions
+                        : projectOptions
+                    "
+                    :placeholder="
+                      taskType === 'app-specialist'
+                        ? 'Cari dan pilih serial number...'
+                        : 'Pilih peluang dari database...'
+                    "
+                    :display-key="
+                      taskType === 'app-specialist' ? 'serialNumber' : 'label'
+                    "
                     get-value-key="value"
                     :form-submitted="formSubmitted"
                   />
+                  <small
+                    v-if="taskType === 'app-specialist'"
+                    class="text-muted"
+                  >
+                    Memilih serial number akan menampilkan konfirmasi ringkasan
+                    peluang Sales.
+                  </small>
+                  <small
+                    v-if="
+                      taskType === 'app-specialist' && usingDummySerialProjects
+                    "
+                    class="d-block text-warning mt-1"
+                  >
+                    Data dummy aktif karena serial number dari backend belum
+                    tersedia.
+                  </small>
                 </div>
 
                 <template v-if="showContextFields">
@@ -211,25 +265,6 @@
                       :multi-select="form.hasProject"
                       :form-submitted="formSubmitted"
                       :removable-tags="form.hasProject"
-                    />
-                  </div>
-
-                  <div class="col-12">
-                    <label
-                      class="form-label"
-                      :for="`${modalId}-task-contact-phone`"
-                    >
-                      Nomor Telepon / WA <span class="txt-danger">*</span>
-                    </label>
-                    <input
-                      :id="`${modalId}-task-contact-phone`"
-                      v-model.trim="form.contactPhone"
-                      class="form-control"
-                      :class="{
-                        'is-invalid': formSubmitted && !form.contactPhone,
-                      }"
-                      type="tel"
-                      placeholder="0812-xxxx-xxxx"
                     />
                   </div>
 
@@ -290,7 +325,9 @@
                       display-key="label"
                       get-value-key="value"
                       :multi-select="true"
-                      :disabled="!selectedDivisions.length"
+                      :disabled="
+                        isEditing || form.hasProject || !selectedDivisions.length
+                      "
                       :required="true"
                       :form-submitted="formSubmitted"
                       :removable-tags="true"
@@ -347,7 +384,10 @@
                     </small>
                   </div>
 
-                  <div v-if="taskType === 'app-specialist'" class="col-12">
+                  <div
+                    v-if="taskType === 'app-specialist' && !form.hasProject"
+                    class="col-12"
+                  >
                     <label
                       class="form-label"
                       :for="`${modalId}-task-serial-number`"
@@ -362,19 +402,10 @@
                         'is-invalid': formSubmitted && !form.serialNumber,
                       }"
                       type="text"
-                      :readonly="form.hasProject"
-                      :placeholder="
-                        form.hasProject
-                          ? 'Terisi otomatis dari peluang'
-                          : 'Masukkan serial number produk'
-                      "
+                      placeholder="Masukkan serial number produk"
                     />
                     <small class="text-muted">
-                      {{
-                        form.hasProject
-                          ? "Serial number mengikuti data produk pada peluang Sales."
-                          : "Isi serial number perangkat yang ditangani."
-                      }}
+                      Isi serial number perangkat yang ditangani.
                     </small>
                   </div>
                 </template>
@@ -424,10 +455,23 @@
                         <button
                           class="btn btn-primary evidence-main-button"
                           type="button"
+                          :disabled="capturingPhoto"
                           @click="capturePhoto"
                         >
-                          <vue-feather type="camera" class="me-2"></vue-feather>
-                          Ambil Foto
+                          <span
+                            v-if="capturingPhoto"
+                            class="spinner-border spinner-border-sm me-2"
+                          ></span>
+                          <vue-feather
+                            v-else
+                            type="camera"
+                            class="me-2"
+                          ></vue-feather>
+                          {{
+                            capturingPhoto
+                              ? "Memproses watermark..."
+                              : "Ambil Foto"
+                          }}
                         </button>
                         <button
                           class="btn btn-outline-secondary evidence-main-button"
@@ -439,11 +483,22 @@
                       </div>
                     </template>
                     <template v-else-if="photoPreview">
-                      <img
-                        :src="photoPreview"
-                        class="photo-preview"
-                        alt="Preview foto kunjungan"
-                      />
+                      <button
+                        class="photo-preview-trigger"
+                        type="button"
+                        aria-label="Buka preview foto ukuran penuh"
+                        @click="openFullPhotoPreview"
+                      >
+                        <img
+                          :src="photoPreview"
+                          class="photo-preview"
+                          alt="Preview foto kunjungan dengan watermark GPS"
+                        />
+                        <span class="photo-preview-zoom">
+                          <vue-feather type="maximize-2" size="17"></vue-feather>
+                          Lihat penuh
+                        </span>
+                      </button>
                       <div class="evidence-actions evidence-actions--primary">
                         <button
                           class="btn btn-outline-primary evidence-main-button"
@@ -582,6 +637,45 @@
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="fullPhotoPreviewOpen"
+      ref="fullPhotoPreviewRef"
+      class="photo-lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Preview penuh foto bukti GPS"
+      tabindex="-1"
+      @click.self="closeFullPhotoPreview"
+      @keydown.esc="closeFullPhotoPreview"
+    >
+      <div class="photo-lightbox__header">
+        <div>
+          <strong>Foto Bukti GPS</strong>
+          <small>Watermark tersimpan di dalam file foto</small>
+        </div>
+        <button
+          class="photo-lightbox__close"
+          type="button"
+          aria-label="Tutup preview foto"
+          @click="closeFullPhotoPreview"
+        >
+          <vue-feather type="x" size="26"></vue-feather>
+        </button>
+      </div>
+      <div class="photo-lightbox__content" @click.self="closeFullPhotoPreview">
+        <img
+          :src="photoPreview"
+          class="photo-lightbox__image"
+          alt="Foto bukti GPS ukuran penuh dengan watermark"
+        />
+      </div>
+      <p class="photo-lightbox__hint">
+        Klik area gelap atau tekan Esc untuk menutup.
+      </p>
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
@@ -624,6 +718,7 @@ interface ProjectOption extends DealOption {
   hospital: DealOption | null;
   contacts: DealOption[];
   division: DealOption | null;
+  products: DealOption[];
   serialNumber: string;
 }
 
@@ -689,6 +784,61 @@ const fallbackCategoryOptions: DealOption[] = [
   { value: "lainnya", label: "Lainnya: (Ketik Sendiri)" },
 ];
 
+// Fallback sementara untuk menguji alur serial number sebelum endpoint Sales siap.
+// Otomatis tidak dipakai setelah backend mengembalikan minimal satu peluang berserial.
+const dummySerialProjectOptions: ProjectOption[] = [
+  {
+    id: 990001,
+    value: 990001,
+    label: "Pengadaan USG Radiology RSUD Dr. Soetomo",
+    status: "presentation_demo",
+    hospital: { value: "dummy-rsud-soetomo", label: "RSUD Dr. Soetomo" },
+    contacts: [
+      { value: "dummy-dr-andika", label: "dr. Andika Pratama, Sp.Rad" },
+    ],
+    division: { value: "MHJ USG", label: "MHJ USG", code: "USG" },
+    products: [
+      { value: "dummy-usg-logiq-e10", label: "USG LOGIQ E10" },
+    ],
+    serialNumber: "DUMMY-USG-26001",
+  },
+  {
+    id: 990002,
+    value: 990002,
+    label: "Instalasi CT Scan RS Premier Surabaya",
+    status: "negotiation",
+    hospital: {
+      value: "dummy-rs-premier-surabaya",
+      label: "RS Premier Surabaya",
+    },
+    contacts: [
+      { value: "dummy-siti-rahma", label: "Siti Rahma - Kepala Radiologi" },
+    ],
+    division: { value: "MHJ CT & XR", label: "MHJ CT & XR", code: "DI" },
+    products: [
+      { value: "dummy-ct-revolution", label: "CT Scan Revolution Maxima" },
+    ],
+    serialNumber: "DUMMY-CT-26002",
+  },
+  {
+    id: 990003,
+    value: 990003,
+    label: "Pengadaan MRI RS Siloam Surabaya",
+    status: "closed_won",
+    hospital: {
+      value: "dummy-rs-siloam-surabaya",
+      label: "RS Siloam Surabaya",
+    },
+    contacts: [
+      { value: "dummy-dr-budi", label: "dr. Budi Santoso, Sp.Rad" },
+      { value: "dummy-rina", label: "Rina Kurnia - Purchasing" },
+    ],
+    division: { value: "MHJ MRI", label: "MHJ MRI", code: "MRI" },
+    products: [{ value: "dummy-mri-signa", label: "MRI SIGNA Artist" }],
+    serialNumber: "DUMMY-MRI-26003",
+  },
+];
+
 // Untuk integrasi backend nanti, isi ref ini dengan hasil API dalam format { value, label }.
 // Fallback tetap dipakai jika data kategori dari backend kosong atau gagal dimuat.
 const categoryOptions = ref<DealOption[]>([...fallbackCategoryOptions]);
@@ -740,20 +890,30 @@ function initialForm() {
 }
 
 const form = reactive(initialForm());
+const isTaskNameEditable = ref(false);
+const hasManualTaskName = ref(false);
+const manualTaskName = ref("");
 const formSubmitted = ref(false);
 const validationMessage = ref("");
 const locating = ref(false);
 const locationError = ref("");
 const resolvingAddress = ref(false);
 const photoPreview = ref("");
+const fullPhotoPreviewOpen = ref(false);
+const fullPhotoPreviewRef = ref<HTMLElement | null>(null);
 const existingPhotoName = ref("");
 const videoRef = ref<HTMLVideoElement | null>(null);
 const cameraOpen = ref(false);
 const cameraStarting = ref(false);
+const capturingPhoto = ref(false);
 const cameraError = ref("");
 const hydrating = ref(false);
+const confirmedProject = ref<ProjectOption | null>(null);
+const lastLocationCapturedAt = ref(0);
 let cameraStream: MediaStream | null = null;
 let addressRequestId = 0;
+let projectConfirmationRequestId = 0;
+let restoringProjectSelection = false;
 
 function normalizeRelation(value: string) {
   return value.trim().toLocaleLowerCase("id-ID");
@@ -864,6 +1024,27 @@ const projectOptions = computed<ProjectOption[]>(() =>
           (item) => item.code === project.divisionCode,
         ) ?? null)
       : (divisionForProject(project.projectName, index) ?? null);
+    const divisionProducts = projectStore.lookups.barang.filter(
+      (product) => product.divisiCode === division?.code,
+    );
+    const productNames = project.productDetails?.length
+      ? project.productDetails.map((product) => product.name).filter(Boolean)
+      : normalizeRelation(project.productNames || "") !==
+          normalizeRelation(project.projectName)
+        ? (project.productNames || "")
+            .split(/[,;|]/)
+            .map((product) => product.trim())
+            .filter(Boolean)
+        : [];
+    const products = productNames.length
+      ? productNames.map(
+          (name) =>
+            projectStore.lookups.barang.find(
+              (product) =>
+                normalizeRelation(product.label) === normalizeRelation(name),
+            ) ?? { value: name, label: name },
+        )
+      : divisionProducts;
 
     return {
       id: project.id,
@@ -873,22 +1054,47 @@ const projectOptions = computed<ProjectOption[]>(() =>
       hospital,
       contacts,
       division,
+      products,
       serialNumber: project.serialNumber || "",
     };
   }),
 );
 
+const backendSerialProjectOptions = computed(() =>
+  projectOptions.value.filter((project) => project.serialNumber.trim()),
+);
+const usingDummySerialProjects = computed(
+  () => backendSerialProjectOptions.value.length === 0,
+);
+const serialProjectOptions = computed(() =>
+  usingDummySerialProjects.value
+    ? dummySerialProjectOptions
+    : backendSerialProjectOptions.value,
+);
+
 const selectedProject = computed(
   () => form.project.selected as ProjectOption | null,
+);
+const isAppSpecialistProject = computed(
+  () => taskType.value === "app-specialist" && form.hasProject,
 );
 const showContextFields = computed(
   () => !form.hasProject || Boolean(selectedProject.value),
 );
-const availableContacts = computed(() =>
-  form.hasProject
-    ? (selectedProject.value?.contacts ?? [])
-    : contactOptions.value,
-);
+const availableContacts = computed(() => {
+  if (!form.hasProject) return contactOptions.value;
+
+  const projectContacts = selectedProject.value?.contacts ?? [];
+  if (!isAppSpecialistProject.value) return projectContacts;
+
+  const seen = new Set<string>();
+  return [...projectContacts, ...contactOptions.value].filter((contact) => {
+    const key = String(contact.value);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+});
 const selectedDivisions = computed<DealOption[]>(() => {
   if (form.hasProject) {
     const division = form.divisions.selected as DealOption | null;
@@ -955,6 +1161,10 @@ const selectedProducts = computed(
   () => form.products.selectedItems as DealOption[],
 );
 const availableProducts = computed(() => {
+  if (isAppSpecialistProject.value) {
+    return selectedProject.value?.products ?? [];
+  }
+
   const divisionCodes = selectedDivisions.value.map(
     (division) => division.code,
   );
@@ -977,7 +1187,7 @@ const currentStageLabel = computed(
     stageOptions.find((stage) => stage.value === selectedProject.value?.status)
       ?.label || "",
 );
-const taskName = computed(() => {
+const generatedTaskName = computed(() => {
   const category = selectedCategoryLabel.value;
   const product = form.unrelatedProduct
     ? "Tidak Terkait Produk"
@@ -986,6 +1196,22 @@ const taskName = computed(() => {
     .filter(Boolean)
     .join("_");
 });
+const taskName = computed({
+  get: () =>
+    hasManualTaskName.value ? manualTaskName.value : generatedTaskName.value,
+  set: (value: string) => {
+    manualTaskName.value = value;
+    hasManualTaskName.value = true;
+  },
+});
+
+function toggleTaskNameEditing() {
+  if (!isTaskNameEditable.value) {
+    manualTaskName.value = taskName.value;
+    hasManualTaskName.value = true;
+  }
+  isTaskNameEditable.value = !isTaskNameEditable.value;
+}
 
 function selectField(option: DealOption | null): SelectField {
   return {
@@ -1057,6 +1283,11 @@ function toDateTimeLocal(value = "") {
 
 async function hydrateForm(task: TaskDetails) {
   hydrating.value = true;
+  confirmedProject.value = null;
+  lastLocationCapturedAt.value = 0;
+  isTaskNameEditable.value = false;
+  hasManualTaskName.value = false;
+  manualTaskName.value = "";
   Object.assign(form, initialForm());
 
   const category = categoryOptions.value.find(
@@ -1099,9 +1330,11 @@ async function hydrateForm(task: TaskDetails) {
       hospital,
       contacts,
       division: divisions[0] ?? null,
+      products,
       serialNumber: task.serialNumber || "",
     };
     form.project = selectField(project);
+    confirmedProject.value = project;
   }
 
   form.hospital = selectField(hospital);
@@ -1127,6 +1360,11 @@ async function hydrateForm(task: TaskDetails) {
   form.locationAddress = task.locationAddress || "";
   form.serialNumber = task.serialNumber || "";
   form.photo = null;
+  const savedTaskName = task.title?.trim() || "";
+  if (savedTaskName && savedTaskName !== generatedTaskName.value) {
+    manualTaskName.value = savedTaskName;
+    hasManualTaskName.value = true;
+  }
   existingPhotoName.value = task.photoName || "";
   photoPreview.value = task.photoUrl || "";
   validationMessage.value = "";
@@ -1145,38 +1383,117 @@ watch(
 
 watch(
   () => form.project.selected,
-  () => {
-    if (hydrating.value) return;
+  async () => {
+    if (hydrating.value || restoringProjectSelection) return;
     const project = selectedProject.value;
-    if (!project) return;
+    if (!project) {
+      projectConfirmationRequestId += 1;
+      confirmedProject.value = null;
+      clearProjectDetails();
+      return;
+    }
+
+    if (taskType.value === "app-specialist") {
+      const requestId = ++projectConfirmationRequestId;
+      const previousProject = confirmedProject.value;
+      const confirmation = await Swal.fire({
+        icon: "question",
+        title: "Konfirmasi Serial Number",
+        html: projectConfirmationSummary(project),
+        showCancelButton: true,
+        confirmButtonText: "Gunakan",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "var(--theme-default)",
+        reverseButtons: true,
+        focusCancel: true,
+      });
+
+      if (requestId !== projectConfirmationRequestId) return;
+      if (!confirmation.isConfirmed) {
+        restoringProjectSelection = true;
+        form.project = selectField(previousProject);
+        await nextTick();
+        restoringProjectSelection = false;
+        return;
+      }
+      confirmedProject.value = project;
+    }
+
+    applyProjectDetails(project);
+  },
+);
+
+function clearProjectDetails() {
+  form.pipeline = initSelectField();
+  form.hospital = initSelectField();
+  form.contact = initSelectField();
+  form.contactPhone = "";
+  form.divisions = initSelectField();
+  form.products = initSelectField();
+  form.unrelatedProduct = false;
+  form.serialNumber = "";
+}
+
+function applyProjectDetails(project: ProjectOption) {
     form.hospital = selectField(project.hospital);
     form.contact = multiSelectField(project.contacts);
     form.divisions = selectField(project.division);
-    const relatedProducts = projectStore.lookups.barang.filter(
-      (product) => product.divisiCode === project.division?.code,
-    );
-    form.products = multiSelectField(relatedProducts);
+    form.products = multiSelectField(project.products);
     form.unrelatedProduct = false;
     const currentStage =
       stageOptions.find((stage) => stage.value === project.status) ?? null;
     form.pipeline = selectField(currentStage);
     form.serialNumber = project.serialNumber;
-  },
-);
+}
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function projectConfirmationSummary(project: ProjectOption) {
+  const rows = [
+    ["Serial Number", project.serialNumber],
+    ["Peluang Sales", project.label],
+    ["Rumah Sakit", project.hospital?.label || "-"],
+    [
+      "Kontak",
+      project.contacts.map((contact) => contact.label).join(", ") || "-",
+    ],
+    ["Divisi", project.division?.label || "-"],
+    [
+      "Produk",
+      project.products.map((product) => product.label).join(", ") || "-",
+    ],
+  ];
+
+  return `<div style="margin-top:8px;text-align:left">
+    <p style="margin:0 0 12px;color:#64748b">Pastikan data peluang Sales berikut sudah sesuai.</p>
+    <div style="overflow:hidden;border:1px solid #e2e8f0;border-radius:10px">
+      ${rows
+        .map(
+          ([label, value]) => `<div style="display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;padding:9px 12px;border-bottom:1px solid #edf2f7">
+            <span style="color:#64748b">${escapeHtml(label)}</span>
+            <span style="overflow-wrap:anywhere;color:#1e293b;font-weight:600">${escapeHtml(value)}</span>
+          </div>`,
+        )
+        .join("")}
+    </div>
+  </div>`;
+}
 
 watch(
   () => form.hasProject,
   (hasProject) => {
     if (hydrating.value) return;
+    projectConfirmationRequestId += 1;
+    confirmedProject.value = null;
     form.project = initSelectField();
-    form.pipeline = initSelectField();
-    form.hospital = initSelectField();
-    form.contact = initSelectField();
-    form.contactPhone = "";
-    form.divisions = initSelectField();
-    form.products = initSelectField();
-    form.unrelatedProduct = false;
-    form.serialNumber = "";
+    clearProjectDetails();
     if (!hasProject) validationMessage.value = "";
   },
 );
@@ -1246,6 +1563,230 @@ async function openCamera() {
   }
 }
 
+function clampNumber(value: number, minimum: number, maximum: number) {
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function formatWatermarkTime(timestamp: Date) {
+  const parts = new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(timestamp);
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value || "";
+
+  return `${value("day")} ${value("month")} ${value("year")}, ${value("hour")}:${value("minute")}:${value("second")} WIB`;
+}
+
+function shortenCanvasText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+) {
+  if (context.measureText(text).width <= maxWidth) return text;
+  let shortened = text;
+  while (
+    shortened.length > 1 &&
+    context.measureText(`${shortened}...`).width > maxWidth
+  ) {
+    shortened = shortened.slice(0, -1);
+  }
+  return `${shortened.trimEnd()}...`;
+}
+
+function wrapCanvasText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxLines = 2,
+) {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return [];
+
+  const lines: string[] = [];
+  let currentLine = "";
+  for (const [index, word] of words.entries()) {
+    const candidate = currentLine ? `${currentLine} ${word}` : word;
+    if (context.measureText(candidate).width <= maxWidth) {
+      currentLine = candidate;
+      continue;
+    }
+    if (lines.length === maxLines - 1) {
+      const remainder = [currentLine, ...words.slice(index)]
+        .filter(Boolean)
+        .join(" ");
+      lines.push(shortenCanvasText(context, `${remainder}...`, maxWidth));
+      return lines;
+    }
+    if (currentLine) lines.push(currentLine);
+    currentLine = word;
+  }
+  if (currentLine && lines.length < maxLines)
+    lines.push(shortenCanvasText(context, currentLine, maxWidth));
+  return lines;
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+  let timeoutId: number | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeoutId = window.setTimeout(
+          () => reject(new Error("Permintaan melewati batas waktu.")),
+          timeoutMs,
+        );
+      }),
+    ]);
+  } finally {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+  }
+}
+
+function drawPhotoWatermark(
+  context: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  capturedAt: Date,
+  gpsVerified: boolean,
+) {
+  const width = canvas.width;
+  const height = canvas.height;
+  const referenceSize = Math.min(width, height);
+  const padding = clampNumber(referenceSize * 0.035, 14, 48);
+  const titleSize = clampNumber(referenceSize * 0.034, 16, 42);
+  const metaSize = clampNumber(referenceSize * 0.022, 12, 27);
+  const titleLineHeight = titleSize * 1.35;
+  const metaLineHeight = metaSize * 1.45;
+  const maxTextWidth = width - padding * 2;
+  const coordinateText = gpsVerified
+    ? `LAT: ${form.latitude.toFixed(6)}, LNG: ${form.longitude.toFixed(6)}`
+    : "LAT: -, LNG: -";
+  const timestampText = formatWatermarkTime(capturedAt);
+  const ownerText = [
+    form.owner || loggedInOwner() || "User CRM",
+    selectedCompanyLabel.value || selectedCategoryLabel.value || "Aktivitas CRM",
+  ].join("  •  ");
+
+  context.save();
+  context.font = `500 ${metaSize}px Inter, Arial, sans-serif`;
+  const timeAndCoordinate = `${timestampText}  |  ${coordinateText}`;
+  const detailLines =
+    context.measureText(timeAndCoordinate).width <= maxTextWidth
+      ? [timeAndCoordinate]
+      : [timestampText, coordinateText];
+  detailLines.push(shortenCanvasText(context, ownerText, maxTextWidth));
+  const addressLines = wrapCanvasText(
+    context,
+    form.locationAddress || "Alamat lokasi belum tersedia",
+    maxTextWidth,
+    2,
+  );
+  const metadataLines = [...detailLines, ...addressLines];
+  const overlayHeight = Math.min(
+    height,
+    padding * 2 + titleLineHeight + metadataLines.length * metaLineHeight,
+  );
+  const overlayTop = height - overlayHeight;
+  const gradient = context.createLinearGradient(0, overlayTop, 0, height);
+  gradient.addColorStop(0, "rgba(5, 18, 32, 0.72)");
+  gradient.addColorStop(1, "rgba(5, 18, 32, 0.96)");
+  context.fillStyle = gradient;
+  context.fillRect(0, overlayTop, width, overlayHeight);
+
+  context.fillStyle = "#16b9e8";
+  context.fillRect(
+    0,
+    overlayTop,
+    width,
+    clampNumber(referenceSize * 0.004, 2, 6),
+  );
+
+  let cursorY = overlayTop + padding + titleSize;
+  const brandText = "SIAPCRM MHJ";
+  context.font = `700 ${titleSize}px Inter, Arial, sans-serif`;
+  context.fillStyle = "#25b9e6";
+  context.fillText(brandText, padding, cursorY);
+
+  const brandWidth = context.measureText(brandText).width;
+  const statusX = padding + brandWidth + metaSize * 1.7;
+  const dotRadius = Math.max(3, metaSize * 0.22);
+  context.beginPath();
+  context.arc(
+    statusX - metaSize * 0.72,
+    cursorY - metaSize * 0.32,
+    dotRadius,
+    0,
+    Math.PI * 2,
+  );
+  context.fillStyle = gpsVerified ? "#37d99a" : "#f6ad55";
+  context.fill();
+  context.font = `700 ${metaSize}px Inter, Arial, sans-serif`;
+  context.fillStyle = gpsVerified ? "#37d99a" : "#f6ad55";
+  context.fillText(
+    gpsVerified ? "LIVE GPS VERIFIED" : "GPS TIDAK TERSEDIA",
+    statusX,
+    cursorY,
+  );
+
+  cursorY += titleLineHeight;
+  context.font = `500 ${metaSize}px Inter, Arial, sans-serif`;
+  for (const [index, line] of metadataLines.entries()) {
+    context.fillStyle =
+      index === metadataLines.length - 1 ? "#cbd5e1" : "#f8fafc";
+    context.fillText(
+      shortenCanvasText(context, line, maxTextWidth),
+      padding,
+      cursorY,
+    );
+    cursorY += metaLineHeight;
+  }
+  context.restore();
+}
+
+async function preparePhotoLocation() {
+  const recentlyVerified =
+    hasLocation.value && Date.now() - lastLocationCapturedAt.value <= 30_000;
+  if (!recentlyVerified) {
+    locating.value = true;
+    locationError.value = "";
+    try {
+      const position = await getCurrentPosition();
+      form.latitude = position.coords.latitude;
+      form.longitude = position.coords.longitude;
+      form.locationAccuracy = position.coords.accuracy;
+      form.locationAddress = "";
+      lastLocationCapturedAt.value = Date.now();
+    } catch (error) {
+      locationError.value = geolocationErrorMessage(error);
+      return false;
+    } finally {
+      locating.value = false;
+    }
+  }
+
+  if (!form.locationAddress && hasLocation.value) {
+    resolvingAddress.value = true;
+    try {
+      form.locationAddress = await withTimeout(
+        reverseGeocodeAddress(form.latitude, form.longitude),
+        6000,
+      );
+    } catch {
+      locationError.value =
+        "Koordinat GPS ditemukan, tetapi alamat watermark tidak dapat dimuat.";
+    } finally {
+      resolvingAddress.value = false;
+    }
+  }
+  return true;
+}
+
 async function capturePhoto() {
   const video = videoRef.value;
   if (!video?.videoWidth || !video.videoHeight) {
@@ -1253,34 +1794,53 @@ async function capturePhoto() {
     return;
   }
 
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const context = canvas.getContext("2d");
-  if (!context) {
-    cameraError.value = "Foto gagal diproses. Silakan coba lagi.";
-    return;
-  }
-  context.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/jpeg", 0.9),
-  );
-  if (!blob) {
-    cameraError.value = "Foto gagal diproses. Silakan coba lagi.";
-    return;
-  }
-
-  form.photo = new File([blob], `live-photo-${Date.now()}.jpg`, {
-    type: "image/jpeg",
-  });
-  existingPhotoName.value = form.photo.name;
-  if (photoPreview.value) URL.revokeObjectURL(photoPreview.value);
-  photoPreview.value = URL.createObjectURL(form.photo);
+  capturingPhoto.value = true;
   cameraError.value = "";
-  stopCamera();
+  const capturedAt = new Date();
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas tidak tersedia.");
+
+    // Bekukan frame sebelum proses GPS agar foto sesuai saat tombol ditekan.
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const gpsVerified = await preparePhotoLocation();
+    drawPhotoWatermark(context, canvas, capturedAt, gpsVerified);
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", 0.9),
+    );
+    if (!blob) throw new Error("Blob foto tidak tersedia.");
+
+    form.photo = new File([blob], `live-photo-${Date.now()}.jpg`, {
+      type: "image/jpeg",
+    });
+    existingPhotoName.value = form.photo.name;
+    if (photoPreview.value) URL.revokeObjectURL(photoPreview.value);
+    photoPreview.value = URL.createObjectURL(form.photo);
+    stopCamera();
+  } catch {
+    cameraError.value = "Foto gagal diproses. Silakan coba lagi.";
+  } finally {
+    capturingPhoto.value = false;
+  }
+}
+
+async function openFullPhotoPreview() {
+  if (!photoPreview.value) return;
+  fullPhotoPreviewOpen.value = true;
+  await nextTick();
+  fullPhotoPreviewRef.value?.focus();
+}
+
+function closeFullPhotoPreview() {
+  fullPhotoPreviewOpen.value = false;
 }
 
 function removePhoto() {
+  closeFullPhotoPreview();
   if (photoPreview.value) URL.revokeObjectURL(photoPreview.value);
   form.photo = null;
   existingPhotoName.value = "";
@@ -1317,6 +1877,7 @@ async function captureLocation() {
     form.latitude = position.coords.latitude;
     form.longitude = position.coords.longitude;
     form.locationAccuracy = position.coords.accuracy;
+    lastLocationCapturedAt.value = Date.now();
     await resolveLocationAddress(
       position.coords.latitude,
       position.coords.longitude,
@@ -1335,6 +1896,7 @@ function clearLocation() {
   form.longitude = 0;
   form.locationAccuracy = 0;
   form.locationAddress = "";
+  lastLocationCapturedAt.value = 0;
   locationError.value = "";
 }
 
@@ -1343,17 +1905,25 @@ function validateForm() {
   const categoryMissing = !form.category.selected;
   const projectMissing = form.hasProject && !selectedProject.value;
   const contactMissing = !selectedContacts.value.length;
-  const divisionMissing = !selectedDivisions.value.length;
+  const divisionMissing =
+    !isAppSpecialistProject.value && !selectedDivisions.value.length;
   const productMissing =
-    !form.unrelatedProduct && !selectedProducts.value.length;
-  const hospitalMissing = !selectedCompanyLabel.value;
+    !isAppSpecialistProject.value &&
+    !form.unrelatedProduct &&
+    !selectedProducts.value.length;
+  const hospitalMissing =
+    !isAppSpecialistProject.value && !selectedCompanyLabel.value;
   const pipelineMissing =
     taskType.value === "sales" && form.hasProject && !form.pipeline.selected;
   const serialNumberMissing =
     taskType.value === "app-specialist" && !form.serialNumber;
 
   form.category.errorMessage = categoryMissing ? "Kategori wajib dipilih." : "";
-  form.project.errorMessage = projectMissing ? "Peluang wajib dipilih." : "";
+  form.project.errorMessage = projectMissing
+    ? taskType.value === "app-specialist"
+      ? "Serial number wajib dipilih."
+      : "Peluang wajib dipilih."
+    : "";
   form.contact.errorMessage = contactMissing ? "Kontak wajib dipilih." : "";
   form.divisions.errorMessage = divisionMissing ? "Divisi wajib dipilih." : "";
   form.products.errorMessage = productMissing ? "Product wajib dipilih." : "";
@@ -1369,10 +1939,14 @@ function validateForm() {
     errors.push("Kategori lainnya wajib diisi.");
   if (!form.owner)
     errors.push(`Owner ${formMeta.value.shortLabel} tidak tersedia.`);
-  if (projectMissing) errors.push("Peluang wajib dipilih.");
+  if (projectMissing)
+    errors.push(
+      taskType.value === "app-specialist"
+        ? "Serial number wajib dipilih."
+        : "Peluang wajib dipilih.",
+    );
   if (hospitalMissing) errors.push("Rumah sakit wajib dipilih.");
   if (contactMissing) errors.push("Kontak wajib dipilih.");
-  if (!form.contactPhone) errors.push("Nomor Telepon / WA wajib diisi.");
   if (!form.scheduledAt)
     errors.push("Tanggal dan waktu kunjungan wajib diisi.");
   if (divisionMissing) errors.push("Minimal satu divisi wajib dipilih.");
@@ -1475,8 +2049,15 @@ async function submitTask() {
 
 function resetForm() {
   stopCamera();
+  closeFullPhotoPreview();
+  projectConfirmationRequestId += 1;
+  confirmedProject.value = null;
   if (photoPreview.value) URL.revokeObjectURL(photoPreview.value);
   Object.assign(form, initialForm());
+  isTaskNameEditable.value = false;
+  hasManualTaskName.value = false;
+  manualTaskName.value = "";
+  lastLocationCapturedAt.value = 0;
   photoPreview.value = "";
   existingPhotoName.value = "";
   validationMessage.value = "";
@@ -1487,6 +2068,8 @@ function resetForm() {
 
 function handleModalHidden() {
   stopCamera();
+  closeFullPhotoPreview();
+  isTaskNameEditable.value = false;
 }
 
 function handleModalShow() {
@@ -1573,6 +2156,58 @@ onBeforeUnmount(() => {
   font-weight: 400;
   background: #eef2f5 !important;
   opacity: 1;
+}
+
+.task-name-input .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.task-name-edit {
+  display: inline-flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  padding: 0;
+  color: #ffffff !important;
+  background-color: var(--bg-sidebar, var(--theme-default)) !important;
+  border-color: var(--bg-sidebar, var(--theme-default)) !important;
+}
+
+.task-name-edit:hover,
+.task-name-edit:focus-visible {
+  color: #ffffff !important;
+  background-color: var(--color-primary-dark, var(--theme-default)) !important;
+  border-color: var(--color-primary-dark, var(--theme-default)) !important;
+}
+
+.task-name-edit:focus-visible {
+  box-shadow: 0 0 0 0.2rem rgba(var(--app-primary-rgb), 0.24);
+}
+
+.task-name-edit :deep(svg) {
+  display: block !important;
+  width: 17px !important;
+  height: 17px !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.task-name-edit :deep(.vue-feather) {
+  display: inline-flex !important;
+  width: 17px !important;
+  height: 17px !important;
+  align-items: center;
+  justify-content: center;
+  overflow: visible !important;
+  color: #ffffff !important;
+  line-height: 1;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .section-heading p {
@@ -1704,10 +2339,128 @@ onBeforeUnmount(() => {
 }
 
 .photo-preview {
+  display: block;
   width: 100%;
   max-height: 220px;
   object-fit: cover;
   border-radius: 9px;
+}
+
+.photo-preview-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  color: inherit;
+  text-align: initial;
+  border: 0;
+  border-radius: 9px;
+  background: #0b1220;
+  cursor: pointer;
+}
+
+.photo-preview-trigger:focus-visible {
+  outline: 3px solid rgba(var(--app-primary-rgb), 0.3);
+  outline-offset: 2px;
+}
+
+.photo-preview-zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(5, 18, 32, 0.78);
+  backdrop-filter: blur(6px);
+}
+
+.photo-lightbox {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  padding: 18px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.96);
+  outline: none;
+}
+
+.photo-lightbox__header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 0 14px;
+}
+
+.photo-lightbox__header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.photo-lightbox__header strong {
+  font-size: 18px;
+}
+
+.photo-lightbox__header small,
+.photo-lightbox__hint {
+  color: #aab4c3;
+}
+
+.photo-lightbox__close {
+  display: inline-flex;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.photo-lightbox__close:hover,
+.photo-lightbox__close:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.photo-lightbox__content {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-lightbox__image {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+
+.photo-lightbox__hint {
+  flex: 0 0 auto;
+  margin: 14px 0 0;
+  font-size: 12px;
+  text-align: center;
 }
 
 .location-result {

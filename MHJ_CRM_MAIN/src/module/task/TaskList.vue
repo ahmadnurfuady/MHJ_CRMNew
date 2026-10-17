@@ -4,7 +4,7 @@
       <div class="task-title-group">
         <h5 class="mb-1">Tugas</h5>
         <p class="task-total mb-0">
-          {{ formatTotal(pagination.total || taskRows.length) }} total tugas
+          {{ formatTotal(filteredTasks.length) }} tugas ditampilkan
         </p>
       </div>
 
@@ -64,6 +64,47 @@
         >
           <vue-feather type="plus" size="17" />
           <span>Buat Task Baru</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="task-list-toolbar">
+      <div class="task-period-filter" aria-label="Filter periode task">
+        <span class="task-toolbar-label">Periode</span>
+        <div class="task-period-options" role="group">
+          <button
+            v-for="option in periodOptions"
+            :key="option.value"
+            class="task-period-button"
+            :class="{ 'task-period-button--active': periodFilter === option.value }"
+            type="button"
+            :aria-pressed="periodFilter === option.value"
+            @click="periodFilter = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="task-export-actions">
+        <span class="task-export-hint">Ekspor mengikuti filter aktif</span>
+        <button
+          class="btn btn-outline-primary task-export-button"
+          type="button"
+          :disabled="!filteredTasks.length"
+          @click="exportTasks('csv')"
+        >
+          <vue-feather type="file-text" size="15" />
+          CSV
+        </button>
+        <button
+          class="btn btn-outline-success task-export-button"
+          type="button"
+          :disabled="!filteredTasks.length"
+          @click="exportTasks('excel')"
+        >
+          <vue-feather type="grid" size="15" />
+          Excel
         </button>
       </div>
     </div>
@@ -236,7 +277,7 @@
                   <vue-feather type="check-square" size="22" />
                 </div>
                 <strong>Tugas tidak ditemukan</strong>
-                <span>Coba gunakan kata pencarian lain atau buat tugas baru.</span>
+                <span>Coba ubah pencarian atau filter periode yang digunakan.</span>
               </td>
             </tr>
           </tbody>
@@ -246,7 +287,7 @@
       <TaskCalendarView
         v-else
         :tasks="filteredTasks"
-        :total-task-count="taskRows.length"
+        :total-task-count="filteredTasks.length"
         :loading="loading"
         :load-error="store.error"
         @open-task="openTaskDetail"
@@ -316,6 +357,9 @@ import TaskCalendarView from '@/module/task/TaskCalendarView.vue'
 import { parseLocalDate } from '@/module/task/taskCalendar'
 import type { TaskDetails } from '@/types/tasks'
 
+type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
+type ExportFormat = 'csv' | 'excel'
+
 const store = useTask()
 const contactStore = useContact()
 const hospitalStore = useHospitalStore()
@@ -324,6 +368,14 @@ const router = useRouter()
 const route = useRoute()
 const { currentTask, loading, pagination } = storeToRefs(store)
 const searchQuery = ref('')
+const periodFilter = ref<PeriodFilter>('all')
+const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
+  { value: 'all', label: 'Semua' },
+  { value: 'daily', label: 'Harian' },
+  { value: 'weekly', label: 'Mingguan' },
+  { value: 'monthly', label: 'Bulanan' },
+  { value: 'yearly', label: 'Tahunan' },
+]
 const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'calendar' : 'list')
 const paginationEnabled = false
 const taskTableColumns = [
@@ -433,10 +485,16 @@ function resetTaskColumnWidth(index: number) {
 
 const filteredTasks = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
-  if (!query) return taskRows.value
+  const range = activePeriodRange(periodFilter.value)
 
-  return taskRows.value.filter((item) =>
-    [
+  return taskRows.value.filter((item) => {
+    if (range) {
+      const taskDate = parseDate(item.scheduledAt || item.dueDate || item.createdAt || '')
+      if (!taskDate || taskDate < range.start || taskDate >= range.end) return false
+    }
+
+    if (!query) return true
+    return [
       item.title,
       item.category,
       item.hospital,
@@ -445,14 +503,46 @@ const filteredTasks = computed(() => {
       item.projectName,
       item.owner,
       item.description,
+      item.serialNumber,
+      item.products?.join(' '),
+      item.divisions?.join(' '),
       taskKindLabel(item),
     ].some((value) => String(value ?? '').toLowerCase().includes(query))
-  )
+  })
 })
 
-watch(searchQuery, () => {
+watch([searchQuery, periodFilter], () => {
   pagination.value.page = 1
 })
+
+function localDayStart(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+function activePeriodRange(filter: PeriodFilter) {
+  if (filter === 'all') return null
+
+  const now = new Date()
+  const start = localDayStart(now)
+  const end = new Date(start)
+
+  if (filter === 'daily') {
+    end.setDate(end.getDate() + 1)
+  } else if (filter === 'weekly') {
+    const daysFromMonday = (start.getDay() + 6) % 7
+    start.setDate(start.getDate() - daysFromMonday)
+    end.setTime(start.getTime())
+    end.setDate(end.getDate() + 7)
+  } else if (filter === 'monthly') {
+    start.setDate(1)
+    end.setFullYear(start.getFullYear(), start.getMonth() + 1, 1)
+  } else {
+    start.setMonth(0, 1)
+    end.setFullYear(start.getFullYear() + 1, 0, 1)
+  }
+
+  return { start, end }
+}
 
 watch(
   () => route.query.view,
@@ -503,6 +593,124 @@ function formatTime(value: string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(date)
+}
+
+function formatExportDateTime(value?: string) {
+  if (!value) return ''
+  const date = parseDate(value)
+  if (!date) return value
+
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+const exportColumns: Array<{
+  label: string
+  value: (task: TaskDetails) => string | number
+}> = [
+  { label: 'ID', value: (task) => task.id },
+  { label: 'Nama Task', value: (task) => task.title || '' },
+  { label: 'Jenis Task', value: (task) => taskKindLabel(task) },
+  { label: 'Kategori', value: (task) => task.category || '' },
+  { label: 'Rumah Sakit', value: (task) => task.hospital || task.subtitle || '' },
+  { label: 'Kontak', value: (task) => task.contact || '' },
+  { label: 'Telepon / WA', value: (task) => task.contactPhone || '' },
+  { label: 'Peluang Sales', value: (task) => task.projectName || '' },
+  { label: 'Serial Number', value: (task) => task.serialNumber || '' },
+  { label: 'Jadwal', value: (task) => formatExportDateTime(task.scheduledAt || task.dueDate) },
+  { label: 'Owner', value: (task) => task.owner || '' },
+  { label: 'Divisi', value: (task) => task.divisions?.join(', ') || '' },
+  {
+    label: 'Produk',
+    value: (task) =>
+      task.unrelatedProduct ? 'Tidak terkait produk' : task.products?.join(', ') || '',
+  },
+  { label: 'Pipeline Awal', value: (task) => stageLabel(task.stageFrom || '') },
+  { label: 'Pipeline Akhir', value: (task) => stageLabel(task.stageTo || '') },
+  { label: 'Catatan', value: (task) => task.description || '' },
+  { label: 'Alamat Lokasi', value: (task) => task.locationAddress || '' },
+  { label: 'Latitude', value: (task) => task.latitude || '' },
+  { label: 'Longitude', value: (task) => task.longitude || '' },
+]
+
+function exportRows() {
+  return [
+    exportColumns.map((column) => column.label),
+    ...filteredTasks.value.map((task) =>
+      exportColumns.map((column) => String(column.value(task) ?? '')),
+    ),
+  ]
+}
+
+function safeCsvValue(value: string) {
+  const spreadsheetSafe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+  return `"${spreadsheetSafe.replaceAll('"', '""')}"`
+}
+
+function escapeXml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;')
+}
+
+function downloadTaskFile(content: string, mimeType: string, extension: string) {
+  const stamp = [
+    new Date().getFullYear(),
+    String(new Date().getMonth() + 1).padStart(2, '0'),
+    String(new Date().getDate()).padStart(2, '0'),
+  ].join('-')
+  const filename = `task-${periodFilter.value}-${stamp}.${extension}`
+  const url = URL.createObjectURL(new Blob([content], { type: mimeType }))
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+
+function exportTasks(format: ExportFormat) {
+  if (!filteredTasks.value.length) return
+  const rows = exportRows()
+
+  if (format === 'csv') {
+    const csv = `\ufeff${rows.map((row) => row.map(safeCsvValue).join(',')).join('\r\n')}`
+    downloadTaskFile(csv, 'text/csv;charset=utf-8', 'csv')
+    return
+  }
+
+  const tableRows = rows
+    .map(
+      (row, rowIndex) => `<Row>${row
+        .map(
+          (cell) =>
+            `<Cell${rowIndex === 0 ? ' ss:StyleID="Header"' : ''}><Data ss:Type="String">${escapeXml(cell)}</Data></Cell>`,
+        )
+        .join('')}</Row>`,
+    )
+    .join('')
+  const workbook = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="11"/></Style>
+  <Style ss:ID="Header"><Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1"/><Interior ss:Color="#DDEBF7" ss:Pattern="Solid"/></Style>
+ </Styles>
+ <Worksheet ss:Name="Tasks"><Table>${tableRows}</Table></Worksheet>
+</Workbook>`
+  downloadTaskFile(`\ufeff${workbook}`, 'application/vnd.ms-excel;charset=utf-8', 'xls')
 }
 
 function stageLabel(value: string) {
@@ -635,6 +843,92 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: end;
   gap: 10px;
+}
+
+.task-list-toolbar {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #eef2f7;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  background: #f8fafc;
+}
+
+.task-period-filter,
+.task-export-actions,
+.task-period-options {
+  display: flex;
+  align-items: center;
+}
+
+.task-period-filter,
+.task-export-actions {
+  gap: 10px;
+}
+
+.task-toolbar-label,
+.task-export-hint {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.task-period-options {
+  gap: 3px;
+  border: 1px solid #dbe3ec;
+  border-radius: 8px;
+  padding: 3px;
+  background: #ffffff;
+}
+
+.task-period-button {
+  min-height: 32px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0 11px;
+  background: transparent;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    color 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.task-period-button:hover,
+.task-period-button:focus-visible {
+  color: #0284c7;
+}
+
+.task-period-button:focus-visible {
+  outline: 2px solid rgba(24, 166, 228, 0.24);
+  outline-offset: 1px;
+}
+
+.task-period-button--active,
+.task-period-button--active:hover {
+  background: #18a6e4;
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgba(24, 166, 228, 0.2);
+}
+
+.task-export-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 7px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .task-view-switch {
@@ -1123,6 +1417,11 @@ onBeforeUnmount(() => {
     grid-template-columns: minmax(0, 1fr) max-content max-content;
     justify-content: stretch;
   }
+
+  .task-list-toolbar {
+    flex-wrap: wrap;
+    padding: 12px 18px;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -1140,6 +1439,36 @@ onBeforeUnmount(() => {
 
   .add-task-header-button {
     width: 100%;
+  }
+
+  .task-list-toolbar,
+  .task-period-filter,
+  .task-export-actions {
+    width: 100%;
+  }
+
+  .task-list-toolbar,
+  .task-period-filter {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .task-period-options {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .task-period-button {
+    flex: 1 0 auto;
+  }
+
+  .task-export-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .task-export-hint {
+    grid-column: 1 / -1;
   }
 
   .task-table-wrap {
