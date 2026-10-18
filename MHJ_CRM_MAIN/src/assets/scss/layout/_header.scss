@@ -74,7 +74,8 @@
   .nav-menus {
     li {
       .input-icon {
-        svg {
+        svg,
+        .mhj-icon {
           position: absolute;
           top: 11px;
           left: 15px;
@@ -102,6 +103,9 @@
       }
       .input-show {
         position: relative;
+        >.mhj-icon {
+          cursor: pointer;
+        }
         input {
           position: absolute;
           z-index: 11;

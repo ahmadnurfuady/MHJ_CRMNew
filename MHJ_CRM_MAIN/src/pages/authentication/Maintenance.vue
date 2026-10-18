@@ -3,13 +3,13 @@
     <div class="container">
       <ul class="maintenance-icons">
         <li>
-          <i class="fa-solid fa-gear"></i>
+          <SolarIcon name="fa-gear" />
         </li>
         <li>
-          <i class="fa-solid fa-gear"></i>
+          <SolarIcon name="fa-gear" />
         </li>
         <li>
-          <i class="fa-solid fa-gear"></i>
+          <SolarIcon name="fa-gear" />
         </li>
       </ul>
       <div class="maintenance-heading">

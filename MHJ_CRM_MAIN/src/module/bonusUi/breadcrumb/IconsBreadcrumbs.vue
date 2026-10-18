@@ -11,7 +11,7 @@
     <ol class="breadcrumb bg-white p-l-0">
       <li class="breadcrumb-item">
         <a href="#">
-          <i class="fa-solid fa-house"></i>
+          <SolarIcon name="fa-house" />
         </a>
       </li>
       <li class="breadcrumb-item active">Bonus Ui</li>
@@ -19,7 +19,7 @@
     <ol class="breadcrumb bg-white m-b-0 p-b-0 p-l-0">
       <li class="breadcrumb-item">
         <a href="#">
-          <i class="fa-solid fa-house"></i>
+          <SolarIcon name="fa-house" />
         </a>
       </li>
       <li class="breadcrumb-item">Bonus Ui</li>

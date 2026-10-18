@@ -38,6 +38,7 @@ export const routes = {
     ProjectDetailsV2: '/crmAdmin/Projects/details-v2',
     ProjectList: '/crmAdmin/Projects/list',
     ProjectCreate: '/project/project_create',
+    ProjectEdit: '/crmAdmin/Projects/edit',
   },
   App: {
     FileManager: '/app/file_manager',

@@ -22,10 +22,10 @@
                   <template v-if="item.list">
                     <li class="list-group-item" :class="{ 'active bg-warning-light': item.active }">
                       <template v-if="item.icon">
-                        <i :class="`icofont icofont-${item.icon}`"></i>
+                        <SolarIcon :name="`icofont icofont-${item.icon}`" />
                       </template>
                       <template v-else>
-                        <i class="icofont icofont-arrow-right"></i>
+                        <SolarIcon name="icofont-arrow-right" class="icofont" />
                       </template>
                       {{ item.name }}
                     </li>

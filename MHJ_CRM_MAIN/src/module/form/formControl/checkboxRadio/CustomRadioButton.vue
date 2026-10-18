@@ -40,7 +40,7 @@
                   :checked="item.checked"
                 />
                 <label class="form-check-label" :for="item.id">
-                  <i :class="`fa fa-${item.icon}`"></i>
+                  <SolarIcon :name="`fa fa-${item.icon}`" />
                   <span>{{ item.label }}</span>
                 </label>
               </li>

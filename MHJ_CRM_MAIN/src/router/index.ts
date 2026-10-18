@@ -145,6 +145,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.Project.ProjectEdit,
+          name: 'ProjectEdit',
+          component: () => import('@/pages/project/ProjectCreate.vue'),
+          meta: {
+            mainTitle: 'Edit Peluang',
+            title: 'Edit Peluang | MHJ CRM',
+            breadcrumb: [{ text: 'Peluang', subText: 'Edit Peluang' }],
+          },
+        },
+        {
           path: routes.Project.ProjectDetails,
           name: 'Project Details',
           component: () => import('@/pages/project/ProjectDetails.vue'),

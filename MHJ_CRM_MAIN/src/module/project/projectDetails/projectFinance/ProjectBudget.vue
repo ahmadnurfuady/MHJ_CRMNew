@@ -28,11 +28,11 @@
           <div class="col-auto">
             <div class="touchspin-wrapper">
               <button class="decrement-touchspin btn-touchspin" @click="changeValue(-1)">
-                <i class="fa-solid fa-minus"> </i>
+                <SolarIcon name="fa-minus" />
               </button>
               <input class="input-touchspin" type="number" v-model="budgetValue" />
               <button class="increment-touchspin btn-touchspin" @click="changeValue(1)">
-                <i class="fa-solid fa-plus"></i>
+                <SolarIcon name="fa-plus" />
               </button>
             </div>
           </div>

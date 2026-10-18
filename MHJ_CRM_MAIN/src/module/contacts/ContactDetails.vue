@@ -10,7 +10,15 @@
       <div class="contact-header-actions">
         <div class="contact-search" role="search">
           <label class="visually-hidden" for="contact-search-input">Cari kontak</label>
-          <vue-feather type="search" size="17" />
+          <SolarIcon
+            name="magnifier"
+            class="crm-search-icon"
+            :size="18"
+            color="#032A4E"
+            secondary-color="#18A6E4"
+            :secondary-opacity="0.75"
+            aria-hidden="true"
+          />
           <input
             id="contact-search-input"
             v-model="searchQuery"
@@ -167,7 +175,14 @@
                   :aria-label="`Lihat detail ${fullName(contact)}`"
                   @click="openContactDetail(contact)"
                 >
-                  <vue-feather type="eye" size="15" />
+                  <SolarIcon
+                    name="eye"
+                    :size="17"
+                    color="currentColor"
+                    secondary-color="currentColor"
+                    :secondary-opacity="0.42"
+                    aria-hidden="true"
+                  />
                   <span>Lihat Detail</span>
                 </button>
               </td>
@@ -512,6 +527,10 @@ onBeforeUnmount(() => {
     box-shadow 0.2s ease;
 }
 
+.contact-search .crm-search-icon {
+  flex: 0 0 18px;
+}
+
 .contact-search:focus-within {
   border-color: #18a6e4;
   box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
@@ -803,9 +822,12 @@ onBeforeUnmount(() => {
 }
 
 .detail-button > span,
-.detail-button :deep(svg) {
+.detail-button :deep(.solar-icon) {
   color: inherit !important;
-  stroke: currentColor !important;
+}
+
+.detail-button :deep(.solar-icon path) {
+  stroke: none !important;
 }
 
 .detail-button:hover,

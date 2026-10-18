@@ -16,7 +16,7 @@
           type="button"
           @click="copyFunction(clipboardExample2)"
         >
-          <i class="fa fa-copy"></i>
+          <SolarIcon name="fa-copy" />
           Copy
         </button>
         <button
@@ -24,7 +24,7 @@
           type="button"
           @click="cutFunction('clipboardExample2')"
         >
-          <i class="fa fa-cut"></i>
+          <SolarIcon name="fa-cut" />
           Cut
         </button>
       </div>

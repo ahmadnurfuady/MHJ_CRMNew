@@ -18,7 +18,7 @@
           href="#"
           @click.prevent="handleTab(index)"
         >
-          <i :class="`icofont icofont-${tab.icon}`"></i>{{ tab.title }}
+          <SolarIcon :name="`icofont icofont-${tab.icon}`" />{{ tab.title }}
         </a>
       </li>
     </ul>

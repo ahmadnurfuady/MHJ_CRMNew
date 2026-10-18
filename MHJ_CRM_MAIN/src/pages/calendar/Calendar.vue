@@ -17,7 +17,7 @@
                         draggable="true"
                       >
                         <div class="fc-event-main">
-                          <i :class="`fa-solid ${event.icon} me-2`"></i>{{ event.title }}
+                          <SolarIcon :name="`fa-solid ${event.icon} me-2`" />{{ event.title }}
                         </div>
                       </div>
                     </template>

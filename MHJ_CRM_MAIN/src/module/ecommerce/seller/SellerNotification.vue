@@ -28,7 +28,7 @@
         type="checkbox"
       />
       <label class="form-check-label" :for="'checkbox-icon' + item.id">
-        <i :class="item.logo"></i>
+        <SolarIcon :name="item.logo" />
       </label>
     </li>
   </ul>

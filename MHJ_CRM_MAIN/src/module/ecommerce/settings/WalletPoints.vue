@@ -4,7 +4,7 @@
       <div class="col-md-9">
         <div class="input-group">
           <span class="input-group-text" id="minPerOrder">
-            <i class="fa-regular fa-gem"></i>
+            <SolarIcon name="fa-gem" />
           </span>
           <InputField
             :inputId="'signup-points'"
@@ -24,7 +24,7 @@
       <div class="col-md-9">
         <div class="input-group">
           <span class="input-group-text" id="collectPointOrder">
-            <i class="fa-solid fa-dollar-sign"></i>
+            <SolarIcon name="fa-dollar-sign" />
           </span>
           <InputField
             :inputId="'min-order-amount'"

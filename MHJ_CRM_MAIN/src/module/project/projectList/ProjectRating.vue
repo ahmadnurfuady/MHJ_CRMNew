@@ -6,7 +6,7 @@
         <span class="c-o-light">{{ projectRating.title }}</span>
       </div>
       <div :class="`project-right-icon bg-10-${projectRating.cardColor}`">
-        <i :class="`fa-solid fa-${projectRating.icon} fa-fade txt-${projectRating.cardColor}`"></i>
+        <SolarIcon :name="`fa-solid fa-${projectRating.icon} fa-fade txt-${projectRating.cardColor}`" />
       </div>
     </div>
     <div class="highlight-content">

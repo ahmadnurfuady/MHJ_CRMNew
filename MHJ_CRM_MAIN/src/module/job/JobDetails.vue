@@ -36,13 +36,13 @@
       <div class="job-description">
         <button class="btn btn-primary me-2" type="button">
           <span>
-            <i class="fa-solid fa-check me-1"></i>
+            <SolarIcon name="fa-check" class="me-1" />
           </span>
           Save this job
         </button>
         <button class="btn btn-primary" type="button">
           <span>
-            <i class="fa fa-share-alt me-1"></i>
+            <SolarIcon name="fa-share-alt" class="me-1" />
           </span>
           Share
         </button>

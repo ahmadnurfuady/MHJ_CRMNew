@@ -3,7 +3,7 @@
     <OnClickOutside @trigger="show = false">
       <div class="dropdown icon-dropdown">
         <button class="btn dropdown-toggle" type="button" @click="openDropdown()">
-          <i class="icon-more-alt"></i>
+          <SolarIcon name="icon-more-alt" />
         </button>
         <div class="dropdown-menu dropdown-menu-end" :class="{ show: show }">
           <template v-for="(option, index) in props.options" :key="index">

@@ -7,7 +7,7 @@
           <img alt="images" :src="getImages('user/7.jpg')" />
         </div>
         <div class="icon-wrapper">
-          <i class="icofont icofont-pencil-alt-5"></i>
+          <SolarIcon name="icofont-pencil-alt-5" class="icofont" />
         </div>
       </div>
       <div class="info">
@@ -17,7 +17,7 @@
             <div class="row">
               <div v-for="(item, index) in userInfo" :key="index" class="col-md-6">
                 <div class="ttl-info text-start">
-                  <h6><i :class="'fa-brands' + item.icon"></i> {{ item.label }}</h6>
+                  <h6><SolarIcon :name="'fa-brands' + item.icon" /> {{ item.label }}</h6>
                   <span>{{ item.value }}</span>
                 </div>
               </div>
@@ -35,7 +35,7 @@
             <div class="row">
               <div v-for="(item, index) in contactInfo" :key="index" class="col-md-6">
                 <div class="ttl-info text-start">
-                  <h6><i :class="item.icon"></i> {{ item.label }}</h6>
+                  <h6><SolarIcon :name="item.icon" /> {{ item.label }}</h6>
                   <span>{{ item.value }}</span>
                 </div>
               </div>
@@ -50,7 +50,7 @@
               :key="index"
               class="list-inline-item"
             >
-              <a :href="item.url" target="_blank"><i :class="'' + item.icon"></i> </a>
+              <a :href="item.url" target="_blank"><SolarIcon :name="item.icon" /> </a>
             </li>
           </ul>
         </div>

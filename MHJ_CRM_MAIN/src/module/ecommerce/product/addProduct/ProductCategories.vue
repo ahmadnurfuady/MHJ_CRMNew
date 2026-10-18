@@ -16,7 +16,7 @@
         <div class="col-auto">
           <div class="category-btn">
             <a class="btn button-primary" href="#" @click.prevent="createCategoryModal()">
-              <i class="me-2 fa-solid fa-plus"> </i>Create New Category
+              <SolarIcon name="fa-plus" class="me-2" />Create New Category
             </a>
           </div>
         </div>

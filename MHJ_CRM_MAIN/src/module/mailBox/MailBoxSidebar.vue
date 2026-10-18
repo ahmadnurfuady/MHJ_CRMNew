@@ -8,7 +8,7 @@
         <Card class="custom-scrollbar">
           <div class="email-app-sidebar">
             <button class="btn btn-primary emailbox" type="button" @click="composeEmail()">
-              <i class="fa-solid fa-plus"></i>Compose Email
+              <SolarIcon name="fa-plus" />Compose Email
             </button>
             <ul
               class="nav nav-pills main-menu email-category"
@@ -47,7 +47,7 @@
               </li>
               <li class="nav-item">
                 <a class="nav-link btn" href="#" @click.prevent="openLabelModal()">
-                  <i class="fa-solid fa-plus"></i>
+                  <SolarIcon name="fa-plus" />
                   Add Label
                 </a>
               </li>

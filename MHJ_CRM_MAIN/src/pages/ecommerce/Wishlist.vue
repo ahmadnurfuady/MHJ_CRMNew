@@ -36,7 +36,7 @@
                       </router-link>
                       <div class="wishlist-close-btn">
                         <button class="btn trash-3" @click="removeItem(item)">
-                          <i class="fa-solid fa-xmark"></i>
+                          <SolarIcon name="fa-xmark" />
                         </button>
                       </div>
                     </div>
@@ -63,14 +63,14 @@
                           :class="{ disabled: item.status == 'Out of Stock' }"
                           :to="routes.Ecommerce.Cart"
                         >
-                          <i class="fa-solid fa-cart-shopping me-2"></i>Move to Cart
+                          <SolarIcon name="fa-cart-shopping" class="me-2" />Move to Cart
                         </router-link>
                         <a
                           class="btn bg-danger btn-hover-effect"
                           href="#"
                           v-if="item.status == 'Out of Stock'"
                         >
-                          <i class="fa-solid fa-bell me-2"></i>Notify Me When Available
+                          <SolarIcon name="fa-bell" class="me-2" />Notify Me When Available
                         </a>
                       </div>
                     </div>

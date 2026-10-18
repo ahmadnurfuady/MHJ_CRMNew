@@ -8,7 +8,7 @@
     </template>
     <ul class="list-group list-group-flush">
       <li class="list-group-item" v-for="(list, index) in flushList" :key="index">
-        <i :class="`icofont icofont-${list.icon}`"></i>{{ list.item }}
+        <SolarIcon :name="`icofont icofont-${list.icon}`" />{{ list.item }}
       </li>
     </ul>
   </Card>

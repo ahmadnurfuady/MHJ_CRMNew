@@ -53,13 +53,13 @@
                       <div class="d-flex mt-3">
                         <ul class="list">
                           <li v-tooltip title="Comments" data-bs-placement="bottom">
-                            <i class="fa-regular fa-comments"></i>{{ card.comments }}
+                            <SolarIcon name="fa-comments" />{{ card.comments }}
                           </li>
                           <li v-tooltip title="Attachment" data-bs-placement="bottom">
-                            <i class="fa-solid fa-paperclip"></i>{{ card.attachment }}
+                            <SolarIcon name="fa-paperclip" />{{ card.attachment }}
                           </li>
                           <li v-tooltip title="View" data-bs-placement="bottom">
-                            <i class="fa-regular fa-eye"></i>
+                            <SolarIcon name="fa-eye" />
                           </li>
                         </ul>
                         <template v-if="card.members && card.members.length">

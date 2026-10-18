@@ -23,7 +23,7 @@
                 <td>Label With Icon</td>
                 <td class="w-50 m-5">
                   <div class="badge badge-primary label-square">
-                    <i class="fa-solid fa-paperclip fa-lg me-1"></i>
+                    <SolarIcon name="fa-lg" class="fa-paperclip me-1" />
                     <span class="f-14">Primary Label</span>
                   </div>
                 </td>

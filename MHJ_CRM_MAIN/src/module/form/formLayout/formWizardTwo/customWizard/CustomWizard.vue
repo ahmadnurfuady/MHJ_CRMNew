@@ -12,7 +12,7 @@
               >
                 <div class="horizontal-wizard">
                   <div class="stroke-icon-wizard">
-                    <i :class="`fa-solid fa-${tab.icon}`"></i>
+                    <SolarIcon :name="`fa-solid fa-${tab.icon}`" />
                   </div>
                   <div class="horizontal-wizard-content">
                     <h6>{{ tab.title }}</h6>

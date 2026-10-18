@@ -1,9 +1,6 @@
 <template>
-  <div class="notification-box">
-    <SvgIcon icon="notification-header"></SvgIcon>
-    <span v-if="unreadCount > 0" class="badge rounded-pill badge-secondary">
-      {{ unreadCount > 9 ? '9+' : unreadCount }}
-    </span>
+  <div class="notification-box" :aria-label="unreadCount ? `${unreadCount} notifikasi belum dibaca` : 'Notifikasi'">
+    <MhjIcon :name="unreadCount > 0 ? 'letter_unread' : 'letter'" />
   </div>
   <div class="onhover-show-div notification-dropdown">
     <div class="card mb-0">
@@ -107,14 +104,12 @@
 </template>
 
 <script lang="ts" setup>
-import { defineAsyncComponent, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { getImages } from '@/utils'
 import { useNotificationStore, type PushNotificationEntry } from '@/store/notification'
-
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
 const notificationStore = useNotificationStore()
 const { items, unreadCount, pushStatus, backendRegistered, pushError } =

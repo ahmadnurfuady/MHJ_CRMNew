@@ -31,7 +31,7 @@
         <div class="card-wrapper border rounded-3 h-100 checkbox-checked">
           <section class="main-upgrade">
             <div>
-              <i class="fa fa-rocket"></i>
+              <SolarIcon name="fa-rocket" />
               <h5 class="mb-2">It&apos;s time to <span class="txt-primary">upgrade</span></h5>
               <p class="text-muted mb-2">
                 Select the theme that best suits your requirements, and you're ready to go!

@@ -10,28 +10,28 @@
     <ul class="seller-details">
       <li>
         <div>
-          <i class="fa-solid fa-location-dot"></i>
+          <SolarIcon name="fa-location-dot" />
           <h6>Location</h6>
         </div>
         <span>{{ props.currentStore.location }}</span>
       </li>
       <li>
         <div>
-          <i class="fa-solid fa-phone"></i>
+          <SolarIcon name="fa-phone" />
           <h6>Phone Number</h6>
         </div>
         <span>{{ props.currentStore.phone }}</span>
       </li>
       <li>
         <div>
-          <i class="fa-solid fa-envelope"></i>
+          <SolarIcon name="fa-envelope" />
           <h6>Email</h6>
         </div>
         <span>{{ props.currentStore.email }}</span>
       </li>
       <li>
         <div>
-          <i class="fa-solid fa-square-up-right"></i>
+          <SolarIcon name="fa-square-up-right" />
           <h6>URL</h6>
         </div>
         <router-link :to="props.currentStore.url" target="_blank">{{

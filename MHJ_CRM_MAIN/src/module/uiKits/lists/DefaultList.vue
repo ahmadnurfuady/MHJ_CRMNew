@@ -14,7 +14,7 @@
 
     <ul class="list-group">
       <li class="list-group-item" v-for="(list, index) in defaultList" :key="index">
-        <i class="icofont icofont-arrow-right"></i>{{ list }}
+        <SolarIcon name="icofont-arrow-right" class="icofont" />{{ list }}
       </li>
     </ul>
   </Card>

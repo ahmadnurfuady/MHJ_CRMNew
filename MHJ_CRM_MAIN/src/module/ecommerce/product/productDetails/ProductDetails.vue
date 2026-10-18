@@ -29,7 +29,7 @@
             <ul class="product-social">
               <li class="d-inline-block" v-for="(item, index) in social" :key="index">
                 <a :href="item.link" target="_blank">
-                  <i :class="item.icon"></i>
+                  <SolarIcon :name="item.icon" />
                 </a>
               </li>
             </ul>
@@ -48,7 +48,7 @@
               class="decrement-touchspin btn-touchspin touchspin-primary"
               @click="decrement(displayedProduct)"
             >
-              <i class="fa fa-minus"></i>
+              <SolarIcon name="fa-minus" />
             </button>
 
             <input
@@ -62,7 +62,7 @@
               class="increment-touchspin btn-touchspin touchspin-primary"
               @click="increment(displayedProduct)"
             >
-              <i class="fa fa-plus"></i>
+              <SolarIcon name="fa-plus" />
             </button>
           </div>
         </div>
@@ -90,10 +90,10 @@
           class="btn btn-primary btn-hover-effect"
           :to="routes.Ecommerce.Cart"
         >
-          <i class="fa fa-shopping-basket me-1"></i>Add To Cart
+          <SolarIcon name="fa-shopping-basket" class="me-1" />Add To Cart
         </router-link>
         <router-link class="btn btn-danger btn-hover-effect" :to="routes.Ecommerce.Wishlist">
-          <i class="fa fa-heart me-1"></i>Add To WishList
+          <SolarIcon name="fa-heart" class="me-1" />Add To WishList
         </router-link>
       </div>
     </Card>

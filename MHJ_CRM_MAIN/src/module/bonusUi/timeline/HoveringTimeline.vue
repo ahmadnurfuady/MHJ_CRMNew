@@ -32,9 +32,9 @@
                     </div>
                   </div>
                   <div class="timeline-icon">
-                    <i class="icon-facebook"></i>
-                    <i class="icon-google"> </i>
-                    <i class="icon-twitter-alt"></i>
+                    <SolarIcon name="icon-facebook" />
+                    <SolarIcon name="icon-google" />
+                    <SolarIcon name="icon-twitter-alt" />
                   </div>
                 </div>
                 <p class="mb-1">Next step is to choose a tone of voice for your content type.</p>

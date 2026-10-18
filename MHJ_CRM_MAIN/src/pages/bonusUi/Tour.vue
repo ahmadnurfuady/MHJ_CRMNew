@@ -15,11 +15,10 @@
                 />
               </div>
               <div class="icon-wrapper">
-                <i
-                  class="icofont icofont-pencil-alt-5"
+                <SolarIcon name="icofont-pencil-alt-5" class="icofont"
+
                   id="update-profile-tour"
-                  data-intro="Change Riho profile image here"
-                ></i>
+                  data-intro="Change Riho profile image here" />
               </div>
             </div>
             <div class="info">
@@ -28,13 +27,13 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <div class="text-start tour-email">
-                        <h6 class="tour-mb-space"><i class="fa fa-envelope"></i>   Email</h6>
+                        <h6 class="tour-mb-space"><SolarIcon name="fa-envelope" />   Email</h6>
                         <span>William@jourrapide.com</span>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="text-start ttl-sm-mb-0 tour-email">
-                        <h6 class="tour-mb-space"><i class="fa fa-calendar"></i>   BOD</h6>
+                        <h6 class="tour-mb-space"><SolarIcon name="fa-calendar" />   BOD</h6>
                         <span>02 January 1988</span>
                       </div>
                     </div>
@@ -52,14 +51,14 @@
                   <div class="row g-3">
                     <div class="col-md-6 mt-0 mt-sm-3">
                       <div class="text-start ttl-xs-mt tour-email">
-                        <h6 class="tour-mb-space"><i class="fa fa-phone"></i>   Contact Us</h6>
+                        <h6 class="tour-mb-space"><SolarIcon name="fa-phone" />   Contact Us</h6>
                         <span>US 310-273-0666</span>
                       </div>
                     </div>
                     <div class="col-md-6">
                       <div class="text-start ttl-sm-mb-0 tour-email">
                         <h6 class="tour-mb-space">
-                          <i class="fa fa-location-arrow"></i>   Location
+                          <SolarIcon name="fa-location-arrow" />   Location
                         </h6>
                         <span>4377 Libby Street Beverly Hills</span>
                       </div>
@@ -75,7 +74,7 @@
               >
                 <ul class="list-inline">
                   <li v-for="(item, index) in socialLinks" :key="index" class="list-inline-item">
-                    <a :href="item.url" target="_blank"><i :class="item.icon"></i> </a>
+                    <a :href="item.url" target="_blank"><SolarIcon :name="item.icon" /> </a>
                   </li>
                 </ul>
               </div>

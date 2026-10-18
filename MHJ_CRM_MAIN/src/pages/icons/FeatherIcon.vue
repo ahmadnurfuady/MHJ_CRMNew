@@ -28,7 +28,7 @@
       <div class="row">
         <div class="icon-popup">
           <div class="close-icon">
-            <i class="icofont icofont-close" @click="details.detailsVisible = false"></i>
+            <SolarIcon name="icofont-close" class="icofont" @click="details.detailsVisible = false" />
           </div>
           <div class="icon-first">
             <vue-feather :type="details.icon" />

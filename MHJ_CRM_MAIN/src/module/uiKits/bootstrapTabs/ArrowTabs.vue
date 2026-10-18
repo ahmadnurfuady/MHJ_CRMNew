@@ -22,7 +22,7 @@
         <div class="tab-pane fade show active">
           <template v-if="activeTab === 'account_info'">
             <div class="common-box">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 Your account details serve as the digital gateway to safe, customized online
                 experiences. Modern security measures are in place to safeguard your data, and we
@@ -31,7 +31,7 @@
               </p>
             </div>
             <div class="common-box">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 We design systems that enable customers to easily update and access their account
                 information, from user-friendly interfaces to simple navigation. Because of our
@@ -73,7 +73,7 @@
           </template>
           <template v-else-if="activeTab === 'installment'">
             <div class="common-box">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 We will handle your payment procedure, saving you the trouble of following up with
                 clients after each assignment. We'll try our hardest to make sure you receive your
@@ -81,7 +81,7 @@
               </p>
             </div>
             <div class="common-box">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 Seamless website development requires a foundation that's reliable and efficient.
                 Enter the installment process – the bedrock of building a powerful online presence.

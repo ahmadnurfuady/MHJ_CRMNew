@@ -2,7 +2,7 @@
   <div class="contact-detail-page">
     <div class="detail-toolbar">
       <button type="button" class="back-button" :aria-label="backButtonLabel" @click="handleBack">
-        <i class="fa-solid fa-arrow-left"></i>
+        <SolarIcon name="fa-arrow-left" />
       </button>
       <div>
         <p>Kontak</p>
@@ -16,7 +16,7 @@
     </div>
 
     <div v-else-if="loadError || !activeContact" class="detail-state card">
-      <div class="error-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+      <div class="error-icon"><SolarIcon name="fa-circle-exclamation" /></div>
       <strong>Detail kontak tidak dapat ditampilkan</strong>
       <p>{{ loadError || "Data kontak tidak ditemukan." }}</p>
       <router-link :to="routes.App.Contacts" class="btn btn-primary btn-sm">
@@ -32,7 +32,7 @@
         <div class="section-heading">
           <div><p>Perbarui data</p><h5>Edit Kontak</h5></div>
         </div>
-        <EditContactForm />
+        <EditContactForm @cancel="cancelContactEdit" @saved="finishContactEdit" />
       </section>
       <GeneralDetails v-else />
     </div>
@@ -40,13 +40,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref, watch } from "vue";
+import {
+  computed,
+  defineAsyncComponent,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import {
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+  useRoute,
+  useRouter,
+  type LocationQueryRaw,
+} from "vue-router";
 import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
+import { confirmEditExit } from "@/utils/confirmEditExit";
 
 const GeneralDetails = defineAsyncComponent(
   () => import("@/module/contacts/GeneralDetails.vue"),
@@ -59,12 +73,14 @@ const ContactHistory = defineAsyncComponent(
 );
 
 const props = defineProps<{ contactId: number }>();
+const route = useRoute();
 const router = useRouter();
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const loadError = ref("");
+let allowEditNavigation = false;
 
 const activeContact = computed(() => contactState.value.activeContact);
 const loading = computed(
@@ -76,13 +92,32 @@ const backButtonLabel = computed(() =>
     : "Kembali ke halaman sebelumnya",
 );
 
-function handleBack() {
+function detailRouteQuery() {
+  const query = { ...route.query, detail: String(props.contactId) } as LocationQueryRaw & {
+    edit?: unknown;
+  };
+  delete query.edit;
+  return query;
+}
+
+async function finishContactEdit() {
+  allowEditNavigation = true;
+  contactState.value.isEditContact = false;
+  await router.replace({ path: routes.App.Contacts, query: detailRouteQuery() });
+}
+
+async function cancelContactEdit() {
+  if (!(await confirmEditExit())) return;
+  await finishContactEdit();
+}
+
+async function handleBack() {
   if (contactState.value.historyVisible) {
     contactState.value.historyVisible = false;
     return;
   }
   if (contactState.value.isEditContact) {
-    contactState.value.isEditContact = false;
+    await cancelContactEdit();
     return;
   }
 
@@ -96,7 +131,7 @@ function handleBack() {
 async function loadContact() {
   loadError.value = "";
   contactState.value.activeContact = undefined;
-  contactState.value.isEditContact = false;
+  contactState.value.isEditContact = String(route.query.edit ?? "") === "1";
   contactState.value.historyVisible = false;
 
   try {
@@ -142,6 +177,57 @@ async function loadContact() {
 }
 
 watch(() => props.contactId, loadContact, { immediate: true });
+
+watch(
+  () => contactState.value.isEditContact,
+  (editing) => {
+    if (editing && String(route.query.edit ?? "") !== "1") {
+      allowEditNavigation = false;
+      void router.push({
+        path: routes.App.Contacts,
+        query: { ...route.query, detail: String(props.contactId), edit: "1" },
+      });
+    }
+  },
+);
+
+watch(
+  () => route.query.edit,
+  (edit) => {
+    const routeIsEditing = String(edit ?? "") === "1";
+    if (routeIsEditing && activeContact.value) {
+      allowEditNavigation = false;
+      contactState.value.isEditContact = true;
+    } else if (!routeIsEditing && allowEditNavigation) {
+      contactState.value.isEditContact = false;
+    }
+  },
+);
+
+async function confirmContactNavigation() {
+  if (!contactState.value.isEditContact || allowEditNavigation) return true;
+  const confirmed = await confirmEditExit();
+  if (confirmed) {
+    allowEditNavigation = true;
+    contactState.value.isEditContact = false;
+  }
+  return confirmed;
+}
+
+onBeforeRouteUpdate((to, from) => {
+  const leavingEdit = String(from.query.edit ?? "") === "1" && String(to.query.edit ?? "") !== "1";
+  return leavingEdit ? confirmContactNavigation() : true;
+});
+onBeforeRouteLeave((_to, _from) => confirmContactNavigation());
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!contactState.value.isEditContact) return;
+  event.preventDefault();
+  event.returnValue = "";
+}
+
+onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
+onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnload));
 </script>
 
 <style scoped>

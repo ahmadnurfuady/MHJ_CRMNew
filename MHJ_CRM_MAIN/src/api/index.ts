@@ -98,19 +98,19 @@ client.interceptors.response.use(
  * isi tetap lewat response.data.
  */
 export const api = {
-  get<T = any>(endpoint: string, config?: AxiosRequestConfig) {
+  get<T = unknown>(endpoint: string, config?: AxiosRequestConfig) {
     return client.get<T>(resolveEndpoint(endpoint), config)
   },
 
   /** GET dengan query params, mis. getbydata('company/fetchcompanybyid', { id }). */
-  getbydata<T = any>(endpoint: string, params?: object, config?: AxiosRequestConfig) {
+  getbydata<T = unknown>(endpoint: string, params?: object, config?: AxiosRequestConfig) {
     return client.get<T>(resolveEndpoint(endpoint), {
       ...config,
       params: { ...(config?.params as object | undefined), ...params },
     })
   },
 
-  post<T = any>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
+  post<T = unknown>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
     return client.post<T>(resolveEndpoint(endpoint), payload, config)
   },
 
@@ -122,18 +122,18 @@ export const api = {
    * terkirim. Header di-override ke `undefined` di sini supaya axios membiarkan
    * FormData apa adanya dan browser yang menentukan boundary multipart.
    */
-  postForm<T = any>(endpoint: string, formData: FormData, config?: AxiosRequestConfig) {
+  postForm<T = unknown>(endpoint: string, formData: FormData, config?: AxiosRequestConfig) {
     return client.post<T>(resolveEndpoint(endpoint), formData, {
       ...config,
       headers: { ...config?.headers, 'Content-Type': undefined },
     })
   },
 
-  patch<T = any>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
+  patch<T = unknown>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
     return client.patch<T>(resolveEndpoint(endpoint), payload, config)
   },
 
-  delete<T = any>(endpoint: string, config?: AxiosRequestConfig) {
+  delete<T = unknown>(endpoint: string, config?: AxiosRequestConfig) {
     return client.delete<T>(resolveEndpoint(endpoint), config)
   },
 }

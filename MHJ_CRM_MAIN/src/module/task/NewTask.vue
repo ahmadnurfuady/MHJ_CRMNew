@@ -690,6 +690,12 @@ import {
   defineAsyncComponent,
 } from "vue";
 import { Modal } from "bootstrap";
+import {
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+  useRoute,
+  useRouter,
+} from "vue-router";
 import Swal from "sweetalert2";
 import { initSelectField } from "@/core/data/common";
 import {
@@ -711,6 +717,8 @@ import { storeToRefs } from "pinia";
 import type { SelectField } from "@/types/common";
 import type { Contact } from "@/types/contacts";
 import type { TaskDetails, TaskKind, TaskPayload } from "@/types/tasks";
+import { routes } from "@/router/routes";
+import { confirmEditExit } from "@/utils/confirmEditExit";
 
 interface ProjectOption extends DealOption {
   id: number;
@@ -741,6 +749,8 @@ const Select = defineAsyncComponent(
   () => import("@/components/shared/formElements/Select.vue"),
 );
 const taskStore = useTask();
+const route = useRoute();
+const router = useRouter();
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
@@ -748,6 +758,10 @@ const { projectList } = storeToRefs(taskStore);
 const taskType = computed(() => props.taskType);
 const modalId = computed(() => props.modalId);
 const isEditing = computed(() => Boolean(props.task?.id));
+let editModalOpen = false;
+let allowModalClose = false;
+let confirmingModalClose = false;
+let navigatingAway = false;
 
 const formMeta = computed(() =>
   taskType.value === "sales"
@@ -2028,6 +2042,7 @@ async function submitTask() {
   const stageChanged =
     taskType.value === "sales" && project && project.status !== stageTo;
   const modalElement = document.getElementById(modalId.value);
+  allowModalClose = true;
   if (modalElement) Modal.getOrCreateInstance(modalElement).hide();
 
   await Swal.fire({
@@ -2070,10 +2085,75 @@ function handleModalHidden() {
   stopCamera();
   closeFullPhotoPreview();
   isTaskNameEditable.value = false;
+  editModalOpen = false;
+  if (
+    isEditing.value &&
+    !navigatingAway &&
+    route.path.toLowerCase() === routes.App.Task.toLowerCase() &&
+    String(route.query.edit ?? "") === "1"
+  ) {
+    const query = { ...route.query };
+    delete query.edit;
+    void router.replace({ path: routes.App.Task, query });
+  }
+  allowModalClose = false;
+  navigatingAway = false;
 }
 
 function handleModalShow() {
-  if (props.task) void hydrateForm(props.task);
+  if (!props.task) return;
+  editModalOpen = true;
+  allowModalClose = false;
+  navigatingAway = false;
+  void hydrateForm(props.task);
+  if (String(route.query.edit ?? "") !== "1") {
+    void router.push({
+      path: routes.App.Task,
+      query: { ...route.query, edit: "1" },
+    });
+  }
+}
+
+function handleModalHide(event: Event) {
+  if (!isEditing.value || allowModalClose) return;
+  event.preventDefault();
+  if (confirmingModalClose) return;
+
+  confirmingModalClose = true;
+  void confirmEditExit()
+    .then((confirmed) => {
+      if (!confirmed) return;
+      allowModalClose = true;
+      const modalElement = document.getElementById(modalId.value);
+      if (modalElement) Modal.getOrCreateInstance(modalElement).hide();
+    })
+    .finally(() => {
+      confirmingModalClose = false;
+    });
+}
+
+async function confirmTaskNavigation() {
+  if (!isEditing.value || !editModalOpen || allowModalClose) return true;
+  const confirmed = await confirmEditExit();
+  if (!confirmed) return false;
+
+  navigatingAway = true;
+  allowModalClose = true;
+  const modalElement = document.getElementById(modalId.value);
+  if (modalElement) Modal.getOrCreateInstance(modalElement).hide();
+  return true;
+}
+
+onBeforeRouteUpdate((to, from) => {
+  const leavingEdit = String(from.query.edit ?? "") === "1" && String(to.query.edit ?? "") !== "1";
+  return leavingEdit ? confirmTaskNavigation() : true;
+});
+onBeforeRouteLeave((_to, _from) => confirmTaskNavigation());
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!isEditing.value || !editModalOpen) return;
+  event.preventDefault();
+  event.returnValue = "";
 }
 
 onMounted(async () => {
@@ -2088,19 +2168,27 @@ onMounted(async () => {
   if (!projectStore.lookups.divisi.length)
     requests.push(projectStore.fetchProjectCatalog());
   const modalElement = document.getElementById(modalId.value);
+  modalElement?.addEventListener("hide.bs.modal", handleModalHide);
   modalElement?.addEventListener("hidden.bs.modal", handleModalHidden);
   modalElement?.addEventListener("show.bs.modal", handleModalShow);
   await Promise.allSettled(requests);
   if (props.task) await hydrateForm(props.task);
+  if (props.task && String(route.query.edit ?? "") === "1" && modalElement) {
+    Modal.getOrCreateInstance(modalElement).show();
+  }
 });
 
 onBeforeUnmount(() => {
   stopCamera();
   if (photoPreview.value) URL.revokeObjectURL(photoPreview.value);
   const modalElement = document.getElementById(modalId.value);
+  modalElement?.removeEventListener("hide.bs.modal", handleModalHide);
   modalElement?.removeEventListener("hidden.bs.modal", handleModalHidden);
   modalElement?.removeEventListener("show.bs.modal", handleModalShow);
+  window.removeEventListener("beforeunload", warnBeforeUnload);
 });
+
+onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
 </script>
 
 <style scoped>

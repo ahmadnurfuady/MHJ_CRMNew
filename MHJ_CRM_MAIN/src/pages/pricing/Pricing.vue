@@ -42,7 +42,7 @@
                   <h5>${{ price.price }}</h5>
                   <ul class="pricing-content">
                     <li v-for="(item, i) in price.details" :key="i">
-                      <i class="fa-solid fa-circle-check"></i>{{ item.text }}
+                      <SolarIcon name="fa-circle-check" />{{ item.text }}
                     </li>
                   </ul>
                 </div>

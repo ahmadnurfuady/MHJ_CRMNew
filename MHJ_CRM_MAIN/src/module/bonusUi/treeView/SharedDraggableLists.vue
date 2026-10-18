@@ -21,7 +21,7 @@
                 class="list-group-item"
                 :class="{ 'light-background': sharedList2.includes(element) }"
               >
-                <i class="fa sitemap me-2"></i><span>{{ element }}</span>
+                <SolarIcon name="widget" class="sitemap me-2" /><span>{{ element }}</span>
               </li>
             </template>
           </draggable>
@@ -40,7 +40,7 @@
                 class="list-group-item"
                 :class="{ 'light-background': sharedList2.includes(element) }"
               >
-                <i class="fa sitemap me-2"></i><span>{{ element }}</span>
+                <SolarIcon name="widget" class="sitemap me-2" /><span>{{ element }}</span>
               </li>
             </template>
           </draggable>

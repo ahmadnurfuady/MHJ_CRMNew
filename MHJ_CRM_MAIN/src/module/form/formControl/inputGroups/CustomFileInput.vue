@@ -24,7 +24,7 @@
     </div>
     <div class="input-group">
       <button class="btn btn-outline-secondary" id="inputGroupFileAddon03" type="button">
-        <i class="icofont icofont-ui-copy"></i>
+        <SolarIcon name="icofont-ui-copy" class="icofont" />
       </button>
       <InputField :inputId="'file-upload-3'" :inputType="'file'" :required="false" />
     </div>

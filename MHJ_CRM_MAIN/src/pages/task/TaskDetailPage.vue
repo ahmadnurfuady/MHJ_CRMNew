@@ -2,7 +2,7 @@
   <div class="task-detail-page">
     <div class="detail-toolbar">
       <router-link :to="backTarget" class="back-button" aria-label="Kembali ke daftar tugas">
-        <i class="fa-solid fa-arrow-left"></i>
+        <SolarIcon name="fa-arrow-left" />
       </router-link>
       <div>
         <p>Tasks</p>
@@ -26,7 +26,7 @@
     </div>
 
     <div v-else-if="loadError || !task" class="task-detail-state card">
-      <div class="state-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+      <div class="state-icon"><SolarIcon name="fa-circle-exclamation" /></div>
       <strong>Detail tugas tidak dapat ditampilkan</strong>
       <p>{{ loadError || 'Data tugas tidak ditemukan.' }}</p>
       <router-link :to="backTarget" class="btn btn-primary btn-sm">

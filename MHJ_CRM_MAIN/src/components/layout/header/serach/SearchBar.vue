@@ -2,7 +2,14 @@
   <div class="form search-form mb-0">
     <div class="input-group">
       <span class="input-icon">
-        <SvgIcon icon="search-header" />
+        <SolarIcon
+          name="magnifier"
+          :size="20"
+          color="#032A4E"
+          secondary-color="#18A6E4"
+          :secondary-opacity="0.75"
+          aria-hidden="true"
+        />
         <input
           class="w-100"
           type="text"
@@ -35,8 +42,6 @@ const { t } = useI18n()
 const SearchResult = defineAsyncComponent(
   () => import('@/components/layout/header/serach/SearchResult.vue')
 )
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
-
 const store = useSearch()
 const terms = ref<string>('')
 const { searchData: menuItems, show } = storeToRefs(store)

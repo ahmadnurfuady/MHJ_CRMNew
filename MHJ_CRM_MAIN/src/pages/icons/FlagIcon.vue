@@ -26,7 +26,7 @@
       <div class="row">
         <div class="icon-popup">
           <div class="close-icon">
-            <i class="icofont icofont-close" @click="details.detailsVisible = false"></i>
+            <SolarIcon name="icofont-close" class="icofont" @click="details.detailsVisible = false" />
           </div>
           <div class="icon-first">
             <i :class="`flag-icon flag-icon-${details.icon} fa-2x text-white`" id="icon_main"></i>

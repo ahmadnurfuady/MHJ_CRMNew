@@ -40,7 +40,7 @@
                   v-model:modelValue="icon.model"
                   :customizeCheckbox="true"
                 >
-                  <i :class="`fa ${icon.icon}`"></i>
+                  <SolarIcon :name="icon.icon" />
                   <span>{{ icon.label }}</span>
                 </Checkbox>
               </li>

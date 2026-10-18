@@ -7,17 +7,17 @@
         class="btn btn-primary f-w-500"
         @click="openCreate"
       >
-        <i class="fa-solid fa-plus pe-2"></i>Tambah Jabatan
+        <SolarIcon name="fa-plus" class="pe-2" />Tambah Jabatan
       </button>
     </div>
 
     <div class="card-body pt-0">
       <div v-if="jabatanList.length > 0" class="d-flex justify-content-end gap-2 mb-2">
         <button type="button" class="btn btn-sm btn-light" @click="expandAll">
-          <i class="fa-solid fa-angles-down pe-1"></i>Buka Semua
+          <SolarIcon name="fa-angles-down" class="pe-1" />Buka Semua
         </button>
         <button type="button" class="btn btn-sm btn-light" @click="collapseAll">
-          <i class="fa-solid fa-angles-up pe-1"></i>Tutup Semua
+          <SolarIcon name="fa-angles-up" class="pe-1" />Tutup Semua
         </button>
       </div>
       <div class="table-responsive custom-scrollbar">
@@ -54,13 +54,13 @@
                     :title="isExpanded(row.item.id) ? 'Tutup' : 'Buka'"
                     @click="toggleNode(row.item.id)"
                   >
-                    <i
-                      class="fa-solid"
-                      :class="isExpanded(row.item.id) ? 'fa-chevron-down' : 'fa-chevron-right'"
-                    ></i>
+                    <SolarIcon :name="isExpanded(row.item.id) ? 'fa-chevron-down' : 'fa-chevron-right'"
+
+
+                     />
                   </button>
                   <span v-else class="tree-toggle tree-leaf">
-                    <i class="fa-solid fa-circle"></i>
+                    <SolarIcon name="fa-circle" />
                   </span>
                   <span :class="row.depth === 0 ? 'fw-bold' : 'fw-semibold'">
                     {{ row.item.nama_jabatan }}

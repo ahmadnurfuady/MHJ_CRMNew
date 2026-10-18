@@ -111,8 +111,7 @@
                     <div class="d-flex marks-count">
                       <h5>89/<sub class="text-muted">100</sub></h5>
                       <div class="d-flex justify-content-center align-items-center">
-                        <i class="icon-arrow-up txt-success pe-2 f-w-600"></i
-                        ><span class="txt-success f-w-500">+80%</span>
+                        <SolarIcon name="icon-arrow-up" class="txt-success pe-2 f-w-600" /><span class="txt-success f-w-500">+80%</span>
                       </div>
                     </div>
                   </div>
@@ -138,8 +137,7 @@
                     <div class="d-flex marks-count">
                       <h5>95/<sub class="text-muted">100</sub></h5>
                       <div class="d-flex justify-content-center align-items-center">
-                        <i class="icon-arrow-up txt-success pe-2 f-w-600"></i
-                        ><span class="txt-success f-w-500">+97%</span>
+                        <SolarIcon name="icon-arrow-up" class="txt-success pe-2 f-w-600" /><span class="txt-success f-w-500">+97%</span>
                       </div>
                     </div>
                   </div>
@@ -164,8 +162,7 @@
                     <div class="d-flex marks-count">
                       <h5>92/<sub class="text-muted">100</sub></h5>
                       <div class="d-flex justify-content-center align-items-center">
-                        <i class="icon-arrow-up txt-success pe-2 f-w-600"></i
-                        ><span class="txt-success f-w-500">+94%</span>
+                        <SolarIcon name="icon-arrow-up" class="txt-success pe-2 f-w-600" /><span class="txt-success f-w-500">+94%</span>
                       </div>
                     </div>
                   </div>

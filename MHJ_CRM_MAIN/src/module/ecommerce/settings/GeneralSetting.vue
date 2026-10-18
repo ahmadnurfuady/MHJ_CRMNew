@@ -50,7 +50,7 @@
       <div class="col-md-9">
         <div class="input-group">
           <span class="input-group-text" id="minOrder">
-            <i class="fa-solid fa-dollar-sign"></i>
+            <SolarIcon name="fa-dollar-sign" />
           </span>
           <InputField
             :inputId="'min-order-amount'"
@@ -73,7 +73,7 @@
       <div class="col-md-9">
         <div class="input-group">
           <span class="input-group-text" id="minOrderShipping">
-            <i class="fa-solid fa-dollar-sign"></i>
+            <SolarIcon name="fa-dollar-sign" />
           </span>
           <InputField
             :inputId="'min-order-shipping'"

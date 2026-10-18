@@ -9,7 +9,7 @@
       <p>Recent chats</p>
       <div class="header-top">
         <button class="btn badge-light-primary f-w-500">
-          <i class="fa fa-plus"></i>
+          <SolarIcon name="fa-plus" />
         </button>
       </div>
     </div>

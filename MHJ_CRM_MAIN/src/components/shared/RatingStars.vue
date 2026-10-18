@@ -1,12 +1,12 @@
 <template>
   <div class="rating">
-    <i
-      v-for="i in maxStars"
-      :key="i"
-      :class="
+    <SolarIcon :name="
         i <= Math.round(rating) ? 'fa-solid fa-star txt-warning' : 'fa-regular fa-star txt-warning'
       "
-    ></i>
+      v-for="i in maxStars"
+      :key="i"
+
+     />
   </div>
 </template>
 

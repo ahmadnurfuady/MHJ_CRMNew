@@ -24,26 +24,22 @@
               <ul class="list-inline">
                 <li class="list-inline-item">
                   <a href="https://www.facebook.com/" target="_blank"
-                    ><i class="fa-brands fa-facebook-f"></i
-                  ></a>
+                    ><SolarIcon name="fa-facebook-f" /></a>
                 </li>
                 <li class="list-inline-item">
                   <a href="https://accounts.google.com/" target="_blank"
-                    ><i class="fa-brands fa-google-plus-g"></i
-                  ></a>
+                    ><SolarIcon name="fa-google-plus-g" /></a>
                 </li>
                 <li class="list-inline-item">
                   <a href="https://twitter.com/" target="_blank"
-                    ><i class="fa-brands fa-twitter"></i
-                  ></a>
+                    ><SolarIcon name="fa-twitter" /></a>
                 </li>
                 <li class="list-inline-item">
                   <a href="https://www.instagram.com/" target="_blank"
-                    ><i class="fa-brands fa-instagram"></i
-                  ></a>
+                    ><SolarIcon name="fa-instagram" /></a>
                 </li>
                 <li class="list-inline-item">
-                  <a href="https://rss.app/" target="_blank"><i class="fa fa-rss"></i></a>
+                  <a href="https://rss.app/" target="_blank"><SolarIcon name="fa-rss" /></a>
                 </li>
               </ul>
               <div class="float-sm-end"><small>3 min ago</small></div>
@@ -62,7 +58,7 @@
           <ul class="list-inline">
             <li class="list-inline-item border-right pe-3">
               <label class="m-0"
-                ><a><i class="fa fa-heart"></i></a>  Like</label
+                ><a><SolarIcon name="fa-heart" /></a>  Like</label
               >
               <span class="ms-2 counter" id="count8">
                 <number
@@ -78,7 +74,7 @@
             </li>
             <li class="list-inline-item ms-2">
               <label class="m-0"
-                ><a><i class="fa fa-comment"></i></a>  Comment</label
+                ><a><SolarIcon name="fa-comment" /></a>  Comment</label
               >
               <span class="ms-2 counter" id="count9">
                 <number

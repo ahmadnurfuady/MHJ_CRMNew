@@ -39,7 +39,7 @@
           rows="2"
           placeholder="Comment Here.."
         ></textarea>
-        <i class="fa-solid fa-paper-plane"></i>
+        <SolarIcon name="fa-paper-plane" />
       </div>
     </div>
   </Card>

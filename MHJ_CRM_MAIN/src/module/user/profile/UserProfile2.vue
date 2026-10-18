@@ -21,7 +21,7 @@
               <ul class="list-inline">
                 <li class="list-inline-item">
                   <a href="https://facebook.com" target="_blank">
-                    <i class="fa-brands fa-facebook-f"></i>
+                    <SolarIcon name="fa-facebook-f" />
                   </a>
                 </li>
               </ul>

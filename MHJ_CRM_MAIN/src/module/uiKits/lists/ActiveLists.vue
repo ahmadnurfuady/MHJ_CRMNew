@@ -14,7 +14,7 @@
         v-for="(list, index) in activeLists"
         :key="index"
       >
-        <i class="icofont icofont-arrow-right"> </i>
+        <SolarIcon name="icofont-arrow-right" class="icofont" />
         {{ list.item }}
       </li>
     </ul>

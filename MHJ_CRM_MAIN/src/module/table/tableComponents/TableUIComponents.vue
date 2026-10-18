@@ -70,7 +70,7 @@
                 <td>Buttons with Icon</td>
                 <td>
                   <button class="btn btn-primary">
-                    <i class="fa-solid fa-circle-info"></i>
+                    <SolarIcon name="fa-circle-info" />
                     Primary
                   </button>
                 </td>
@@ -85,7 +85,7 @@
                 <td>Icon Button</td>
                 <td>
                   <button class="btn btn-primary">
-                    <i class="fa-solid fa-camera"></i>
+                    <SolarIcon name="fa-camera" />
                   </button>
                 </td>
                 <td>
@@ -96,7 +96,7 @@
                 <td>Loading Buttons</td>
                 <td>
                   <button class="btn btn-primary">
-                    <i class="fa-solid fa-spin fa-spinner me-2"></i>
+                    <SolarIcon name="fa-spinner" class="fa-spin me-2" />
                     Expand UP
                   </button>
                 </td>

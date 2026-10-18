@@ -6,7 +6,13 @@
 
           <!-- Ikon -->
           <div class="se-icon">
-            <vue-feather type="lock" size="32" />
+            <LockKeyholeMinimalisticIcon
+              :size="36"
+              color="#032A4E"
+              secondary-color="#18A6E4"
+              :secondary-opacity="0.9"
+              aria-hidden="true"
+            />
           </div>
 
           <h5 id="se-title" class="se-title">Sesi Telah Berakhir</h5>
@@ -26,6 +32,7 @@
 </template>
 
 <script setup lang="ts">
+import { LockKeyholeMinimalisticIcon } from '@solar-icons/vue/bold-duotone/lock-keyhole-minimalistic'
 import { sessionExpired } from '@/store/sessionSignal'
 
 function goLogin() {
@@ -71,8 +78,8 @@ function goLogin() {
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18A6E4;
+  background: #DDF2FB;
+  color: #032A4E;
   margin-bottom: 1.1rem;
 }
 

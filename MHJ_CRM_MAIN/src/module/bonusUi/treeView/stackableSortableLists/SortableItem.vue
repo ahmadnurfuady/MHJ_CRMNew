@@ -8,7 +8,7 @@
   >
     <template #item="{ element }">
       <div :class="`list-group-item nested-${depth}`">
-        <i class="fa-solid fa-folder-open me-2"></i>
+        <SolarIcon name="fa-folder-open" class="me-2" />
         {{ element.title }}
 
         <div

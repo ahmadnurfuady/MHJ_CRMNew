@@ -11,7 +11,7 @@
               @click.prevent
             >
               <span class="project-tab-main">
-                <i :class="`fa-solid fa-${tab.icon}`"></i>
+                <SolarIcon :name="`fa-solid fa-${tab.icon}`" />
                 <span>{{ tab.title }}</span>
               </span>
               <span class="project-tab-summary">
@@ -29,7 +29,7 @@
         type="button"
         @click="projectStore.openCreateModal()"
       >
-        <i class="fa-solid fa-plus"></i>
+        <SolarIcon name="fa-plus" />
         Tambah Peluang
       </button>
     </div>

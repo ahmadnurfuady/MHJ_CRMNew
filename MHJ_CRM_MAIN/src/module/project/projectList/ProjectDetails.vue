@@ -80,7 +80,17 @@
     <div class="opp-card__value" :title="formatFullMoney(projectValue)">
       <small>Nilai peluang</small>
       <strong>{{ formatCompactMoney(projectValue) }}</strong>
-      <span>Lihat detail <vue-feather type="arrow-up-right" size="13" /></span>
+      <span>
+        <SolarIcon
+          name="eye"
+          :size="15"
+          color="currentColor"
+          secondary-color="currentColor"
+          :secondary-opacity="0.42"
+          aria-hidden="true"
+        />
+        Lihat detail
+      </span>
     </div>
   </article>
 </template>

@@ -20,14 +20,14 @@
           </router-link>
           <div class="mobile-back text-end">
             <span>{{ t('common.back') }}</span
-            ><i class="fa-solid fa-angle-right ps-2" aria-hidden="true"></i>
+            ><SolarIcon name="fa-angle-right" class="ps-2" aria-hidden="true" />
           </div>
         </li>
         <li
           class="pin-title"
           :style="menuState.pinedArray.length ? 'display:block !important; list-style:none; padding:10px 20px 4px; order:-1;' : 'display:none !important;'"
         >
-          <h6 style="font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:capitalize; opacity:0.6; margin-bottom:0; color:white;">
+          <h6 style="font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:capitalize; opacity:1; margin-bottom:0; color:white;">
             {{ t('common.pinned') }}
           </h6>
         </li>
@@ -36,7 +36,7 @@
           style="list-style:none; margin: 6px 20px; border-top: 1px solid rgba(255,255,255,0.25);"
         ></li>
         <li style="display:block !important; list-style:none; padding: 10px 20px 4px;">
-          <h6 style="font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:capitalize; opacity:0.6; margin-bottom:0; color:white;">
+          <h6 style="font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:capitalize; opacity:1; margin-bottom:0; color:white;">
             {{ t('General') }}
           </h6>
         </li>

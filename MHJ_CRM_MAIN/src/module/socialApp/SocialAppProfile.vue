@@ -25,32 +25,29 @@
               @click="removeProfile()"
               v-if="appState.userProfile.profile"
             >
-              <i class="icofont icofont-error"></i>
+              <SolarIcon name="icofont-error" class="icofont" />
             </div>
             <div
               class="icon-wrapper"
               @click="fileInput.click()"
               v-if="appState.userProfile.profile && fileInput"
             >
-              <i class="icofont icofont-pencil-alt-5"></i>
+              <SolarIcon name="icofont-pencil-alt-5" class="icofont" />
             </div>
           </div>
         </div>
         <ul class="share-icons">
           <li>
             <a class="social-icon bg-primary" href="#"
-              ><i class="fa-regular fa-face-smile fa-flip"></i
-            ></a>
+              ><SolarIcon name="fa-face-smile" class="fa-flip" /></a>
           </li>
           <li>
             <a class="social-icon bg-secondary" href="#"
-              ><i class="fa-brands fa-weixin fa-flip"></i
-            ></a>
+              ><SolarIcon name="fa-weixin" class="fa-flip" /></a>
           </li>
           <li>
             <a class="social-icon bg-warning" href="#"
-              ><i class="fa-solid fa-share-nodes fa-flip"></i
-            ></a>
+              ><SolarIcon name="fa-share-nodes" class="fa-flip" /></a>
           </li>
         </ul>
       </div>

@@ -26,7 +26,7 @@
         >
           <div class="d-flex align-items-start gap-3">
             <div class="badge bg-danger p-2 rounded-circle mt-1">
-              <i class="fa fa-exclamation-triangle text-white"></i>
+              <SolarIcon name="fa-exclamation-triangle" class="text-white" />
             </div>
             <div class="flex-grow-1">
               <h6 class="txt-danger fw-bold mb-1 d-flex align-items-center gap-2">

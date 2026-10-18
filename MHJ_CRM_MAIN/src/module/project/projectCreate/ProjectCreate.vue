@@ -71,7 +71,7 @@
                   type="button"
                   @click="openContactModal"
                 >
-                  <vue-feather type="plus" size="14" class="me-1" />Tambah Kontak Baru
+                  <MhjIcon name="action_add" :size="14" class="me-1" />Tambah Kontak Baru
                 </button>
               </div>
 
@@ -260,7 +260,7 @@
                       type="button"
                       @click="addTimelineEntry"
                     >
-                      <vue-feather type="plus" size="14" class="me-1" />Tambah aktivitas
+                      <MhjIcon name="action_add" :size="14" class="me-1" />Tambah aktivitas
                     </button>
                   </div>
 
@@ -341,12 +341,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
 import { lostReasons, type DealOption } from '@/core/data/projectDeal'
 import { routes } from '@/router/routes'
+import { confirmEditExit } from '@/utils/confirmEditExit'
 import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
@@ -383,10 +392,12 @@ const props = withDefaults(
   defineProps<{
     modalMode?: boolean
     initialHospital?: { id: number; name: string } | null
+    editProjectId?: number | null
   }>(),
   {
     modalMode: false,
     initialHospital: null,
+    editProjectId: null,
   }
 )
 
@@ -405,13 +416,13 @@ const Select = defineAsyncComponent(() => import('@/components/shared/formElemen
 const AddContactModal = defineAsyncComponent(() => import('@/module/contacts/AddContactModal.vue'))
 
 const stageOptions: PipelineStageOption[] = [
-  { value: 1, code: 'qualified', label: 'Qualified (10%)', probability: 10 },
-  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo (30%)', probability: 30 },
-  { value: 3, code: 'quotation', label: 'Quotation (60%)', probability: 60 },
-  { value: 4, code: 'negotiation', label: 'Negotiation (80%)', probability: 80 },
-  { value: 5, code: 'closed_won', label: 'Closed Won (100%)', probability: 100 },
-  { value: 6, code: 'closed_lost', label: 'Closed Lost (0%)', probability: 0 },
-  { value: 7, code: 'closed_cancel', label: 'Closed Cancel (0%)', probability: 0 },
+  { value: 1, code: 'qualified', label: 'Qualified', probability: 10 },
+  { value: 2, code: 'presentation_demo', label: 'Presentation/Demo', probability: 30 },
+  { value: 3, code: 'quotation', label: 'Quotation', probability: 60 },
+  { value: 4, code: 'negotiation', label: 'Negotiation', probability: 80 },
+  { value: 5, code: 'closed_won', label: 'Closed Won', probability: 100 },
+  { value: 6, code: 'closed_lost', label: 'Closed Lost', probability: 0 },
+  { value: 7, code: 'closed_cancel', label: 'Closed Cancel', probability: 0 },
 ]
 
 const defaultStage = stageOptions.find(
@@ -469,12 +480,15 @@ const contactStore = useContact()
 const projectStore = useProjectStore()
 
 const editingId = computed<number | null>(() => {
+  const explicitId = Number(props.editProjectId)
+  if (Number.isFinite(explicitId) && explicitId > 0) return explicitId
   if (props.modalMode) return null
   const raw = route.query.id
   const value = Number(Array.isArray(raw) ? raw[0] : raw)
   return Number.isFinite(value) && value > 0 ? value : null
 })
 const isEditMode = computed(() => editingId.value !== null)
+let allowEditNavigation = false
 const loadingProject = ref(false)
 const loadingMoreCompanies = ref(false)
 // Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
@@ -640,7 +654,9 @@ function openContactModal() {
   contactStore.openContactModal()
 }
 
-function cancel() {
+async function cancel() {
+  if (isEditMode.value && !(await confirmEditExit())) return
+  allowEditNavigation = true
   if (props.modalMode) {
     emit('cancel')
     return
@@ -1084,6 +1100,7 @@ async function handleSubmit() {
         title: 'Peluang berhasil diperbarui',
         confirmButtonColor: 'var(--theme-default)',
       })
+      allowEditNavigation = true
       router.push({
         path: routes.Project.ProjectDetailsV2,
         query: { id: String(editingId.value) },
@@ -1109,6 +1126,22 @@ async function handleSubmit() {
     })
   }
 }
+
+onBeforeRouteLeave(async () => {
+  if (!isEditMode.value || props.modalMode || allowEditNavigation) return true
+  const confirmed = await confirmEditExit()
+  if (confirmed) allowEditNavigation = true
+  return confirmed
+})
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!isEditMode.value || props.modalMode || allowEditNavigation) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+onMounted(() => window.addEventListener('beforeunload', warnBeforeUnload))
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warnBeforeUnload))
 </script>
 
 <style scoped>

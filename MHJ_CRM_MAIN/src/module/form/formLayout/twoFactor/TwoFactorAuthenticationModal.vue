@@ -23,7 +23,7 @@
                   value="option2"
                 />
                 <label class="form-check-label mb-0" for="radioOptionWizard1">
-                  <i class="fa-solid fa-gear fa-spin"></i>
+                  <SolarIcon name="fa-gear" class="fa-spin" />
                   <span class="d-flex flex-column">
                     <span>2FA Authenticator</span>
                     <span>Obtain codes from a authy/google authenticator/ios 15 etc.</span>
@@ -40,7 +40,7 @@
                   checked
                 />
                 <label class="form-check-label mb-0" for="radioOptionWizard2">
-                  <i class="fa-solid fa-comments"></i>
+                  <SolarIcon name="fa-comments" />
                   <span class="d-flex flex-column">
                     <span>SMS</span>
                     <span

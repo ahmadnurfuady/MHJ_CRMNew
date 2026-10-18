@@ -6,7 +6,7 @@
         class="back-button"
         aria-label="Kembali ke daftar rumah sakit"
       >
-        <i class="fa-solid fa-arrow-left"></i>
+        <SolarIcon name="fa-arrow-left" />
       </router-link>
       <div>
         <p>Rumah Sakit</p>
@@ -21,7 +21,7 @@
 
     <div v-else-if="loadError || !hospital" class="detail-state card">
       <div class="state-icon error">
-        <i class="fa-solid fa-circle-exclamation"></i>
+        <SolarIcon name="fa-circle-exclamation" />
       </div>
       <strong>Detail tidak dapat ditampilkan</strong>
       <p>{{ loadError || "Data rumah sakit tidak ditemukan." }}</p>
@@ -33,11 +33,8 @@
     <template v-else>
       <section class="hospital-overview card">
         <div class="hospital-main">
-          <div
-            class="hospital-symbol"
-            :style="avatarColorStyle(hospital.name || hospital.id)"
-          >
-            <i class="fa-solid fa-hospital"></i>
+          <div class="hospital-symbol">
+            <MhjIcon name="hospital_profile" :size="32" />
           </div>
           <div class="hospital-copy">
             <div class="hospital-title-row">
@@ -49,17 +46,17 @@
                 :title="hospital.isDemo ? 'Status data demo tidak dapat diubah' : 'Perbarui grading/status Finance'"
                 @click="editHospitalStatus"
               >
-                <i class="fa-solid fa-circle"></i>
+                <SolarIcon name="fa-circle" />
                 {{ financeStatusLabel }}
               </button>
             </div>
             <p class="hospital-location">
-              <i class="fa-solid fa-location-dot"></i>
+              <MhjIcon name="action_location" />
               {{ locationLabel }}
             </p>
             <div class="hospital-tags">
               <span v-if="hospital.isDemo" class="demo-data-badge">
-                <i class="fa-solid fa-flask"></i> Data demo lokal
+                <SolarIcon name="fa-flask" /> Data demo lokal
               </span>
               <span>{{
                 hospital.hospitalClass || "Kelas belum tersedia"
@@ -74,14 +71,15 @@
             type="button"
             @click="openProfile"
           >
-            <span>Profil RS</span><i class="fa-solid fa-chevron-right"></i>
+            <MhjIcon name="hospital_profile" />
+            <span>Profil RS</span><SolarIcon name="fa-chevron-right" />
           </button>
         </div>
 
         <div class="overview-metrics">
           <div class="overview-metric">
             <div class="metric-icon blue">
-              <i class="fa-regular fa-clock"></i>
+              <SolarIcon name="fa-clock" />
             </div>
             <div>
               <span>Visit terakhir</span><strong>{{ lastVisitLabel }}</strong>
@@ -89,7 +87,7 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon violet">
-              <i class="fa-solid fa-chart-line"></i>
+              <MhjIcon name="kpi_graph" />
             </div>
             <div>
               <span>Nilai peluang</span
@@ -98,7 +96,7 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon green">
-              <i class="fa-regular fa-address-book"></i>
+              <MhjIcon name="nav_contact" />
             </div>
             <div>
               <span>Total kontak</span><strong>{{ contactCount }}</strong>
@@ -106,7 +104,7 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon amber">
-              <i class="fa-solid fa-toolbox"></i>
+              <MhjIcon name="hospital_installed" />
             </div>
             <div>
               <span>Alat terpasang</span><strong>{{ installedCount }}</strong>
@@ -150,19 +148,19 @@
               :class="{ latest: index === purchaseTimeline.length - 1 }"
               :title="purchase.title"
             >
-              <span class="purchase-dot"><i class="fa-solid fa-check"></i></span>
+              <span class="purchase-dot" aria-hidden="true"></span>
               <strong>Pembelian {{ index + 1 }}</strong>
               <small>{{ purchase.dateLabel }}</small>
             </div>
           </div>
         </div>
         <div v-else class="purchase-timeline-empty">
-          <i class="fa-solid fa-circle-nodes"></i>
+          <SolarIcon name="fa-circle-nodes" />
           Belum ada riwayat pembelian.
         </div>
 
         <div class="purchase-last">
-          <i class="fa-solid fa-clock-rotate-left"></i>
+          <SolarIcon name="fa-clock-rotate-left" />
           <span>{{ lastPurchaseLabel }}</span>
         </div>
 
@@ -173,7 +171,7 @@
           @click="openPurchaseHistory"
         >
           Lihat {{ purchaseTotal }} riwayat pembelian
-          <i class="fa-solid fa-chevron-right"></i>
+          <SolarIcon name="fa-chevron-right" />
         </button>
       </section>
 
@@ -185,7 +183,7 @@
           :class="{ active: activeTab === tab.value }"
           @click="activeTab = tab.value"
         >
-          <i :class="tab.icon"></i>
+          <MhjIcon :name="tab.mhjIcon" />
           <span>{{ tab.label }}</span>
           <em>{{ tab.count }}</em>
         </button>
@@ -209,7 +207,7 @@
               :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah peluang'"
               @click="createOpportunity"
             >
-              <i class="fa-solid fa-plus"></i>
+              <MhjIcon name="action_add" />
               Tambah Peluang
             </button>
           </div>
@@ -287,7 +285,7 @@
                   <small>{{ hospital.isDemo ? "Peluang demo lokal" : "Klik untuk melihat detail peluang" }}</small>
                 </span>
                 <span class="project-owner">
-                  <i class="fa-regular fa-user"></i>
+                  <SolarIcon name="fa-user" />
                   {{ project.ownerName || "Owner belum tersedia" }}
                 </span>
                 <strong class="project-value">
@@ -298,12 +296,12 @@
                   }}
                 </strong>
                 <span class="project-open">
-                  Buka<i class="fa-solid fa-arrow-right"></i>
+                  Buka<SolarIcon name="fa-arrow-right" />
                 </span>
               </button>
             </div>
             <div v-else class="stage-empty">
-              <i class="fa-regular fa-folder-open"></i>
+              <SolarIcon name="fa-folder-open" />
               <span>Belum ada peluang pada stage ini.</span>
             </div>
           </section>
@@ -331,7 +329,7 @@
               :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah kontak'"
               @click="createHospitalContact"
             >
-              <i class="fa-solid fa-plus"></i>
+              <MhjIcon name="action_add" />
               Tambah Kontak
             </button>
           </div>
@@ -367,7 +365,7 @@
                 :aria-label="`Telepon ${fullName(contact)}`"
                 @click.stop
               >
-                <i class="fa-solid fa-phone"></i>
+                <MhjIcon name="action_phone" />
               </a>
             </div>
             <div class="contact-activity">
@@ -377,13 +375,13 @@
                   { muted: !contact.lastActivity },
                 ]"
               >
-                <i
-                  :class="
+                <SolarIcon :name="
                     contact.lastActivity
                       ? 'fa-solid fa-user-group'
                       : 'fa-regular fa-clock'
                   "
-                ></i>
+
+                 />
               </div>
               <div>
                 <strong>{{
@@ -419,7 +417,7 @@
             class="installed-card"
           >
             <div class="equipment-icon" :class="index % 2 ? 'cyan' : 'amber'">
-              <i class="fa-solid fa-kit-medical"></i>
+              <MhjIcon name="hospital_installed" />
             </div>
             <div>
               <strong>{{ item.product }}</strong>
@@ -457,18 +455,13 @@
               class="activity-item"
             >
               <div class="activity-marker" :class="index % 2 ? 'green' : 'red'">
-                <i
-                  :class="
-                    index % 2 ? 'fa-solid fa-phone' : 'fa-solid fa-user-group'
-                  "
-                ></i>
+                <MhjIcon name="hospital_activity" />
               </div>
               <div class="activity-content">
                 <strong>{{ activity.title }}</strong>
                 <p>{{ activity.description }}</p>
                 <span
-                  ><i class="fa-regular fa-calendar"></i
-                  >{{ formatDate(activity.date) }}</span
+                  ><SolarIcon name="fa-calendar" />{{ formatDate(activity.date) }}</span
                 >
               </div>
             </div>
@@ -514,7 +507,12 @@
         </article>
       </section>
 
-      <section v-else class="tab-panel profile-panel">
+      <section
+        v-else
+        ref="profilePanel"
+        class="tab-panel profile-panel"
+        tabindex="-1"
+      >
         <div class="panel-heading profile-heading">
           <div>
             <p>Informasi rumah sakit</p>
@@ -527,14 +525,14 @@
               type="button"
               @click="editHospital"
             >
-              <i class="fa-solid fa-pen-to-square"></i>Edit Rumah Sakit
+              <SolarIcon name="fa-pen-to-square" />Edit Rumah Sakit
             </button>
             <button
               class="close-profile"
               type="button"
               @click="profileEditing ? cancelHospitalEdit() : closeProfile()"
             >
-              <i class="fa-solid fa-xmark"></i>
+              <SolarIcon name="fa-xmark" />
               {{ profileEditing ? "Batal Edit" : "Tutup profil" }}
             </button>
           </div>
@@ -567,7 +565,7 @@
                       :aria-label="`Telepon ${phone}`"
                       :title="`Telepon ${phone}`"
                     >
-                      <vue-feather type="phone" size="16" />
+                      <MhjIcon name="action_phone" :size="16" />
                     </a>
                     <a
                       :href="indonesianWhatsAppUrl(phone)"
@@ -576,7 +574,7 @@
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <i class="fa-brands fa-whatsapp"></i>
+                      <MhjIcon name="whatsapp" :size="16" />
                     </a>
                   </div>
                 </div>
@@ -652,7 +650,7 @@
                 class="spinner-border spinner-border-sm"
                 aria-hidden="true"
               ></span>
-              <i v-else class="fa-solid fa-location-dot"></i>
+              <MhjIcon name="action_location" v-else />
               <span>{{
                 profileMapLoading
                   ? "Mencari lokasi rumah sakit..."
@@ -679,8 +677,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  onBeforeRouteLeave,
+  onBeforeRouteUpdate,
+  useRoute,
+  useRouter,
+  type LocationQueryRaw,
+} from "vue-router";
 import { storeToRefs } from "pinia";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 import { companyDetails, type InstalledProduct } from "@/core/data/contactCrm";
@@ -692,6 +696,7 @@ import {
   isDemoProjectId,
 } from "@/core/data/hospitalDemo";
 import { routes } from "@/router/routes";
+import { confirmEditExit } from "@/utils/confirmEditExit";
 import { searchAddress } from "@/services/geocoding";
 import {
   indonesianPhoneCallUrl,
@@ -731,6 +736,7 @@ interface PurchaseTimelineItem {
 }
 
 const props = defineProps<{ hospitalId: number }>();
+const route = useRoute();
 const router = useRouter();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
@@ -738,6 +744,8 @@ const contactStore = useContact();
 const { selectedItem: hospital, detailLoading } = storeToRefs(hospitalStore);
 const activeTab = ref<DetailTab>("projects");
 const profileEditing = ref(false);
+const profilePanel = ref<HTMLElement | null>(null);
+let allowEditNavigation = false;
 const profileLocation = ref<{ lat: number; lng: number } | null>(null);
 const profileMapCenter = computed<[number, number]>(() =>
   profileLocation.value
@@ -993,25 +1001,25 @@ const tabs = computed(() => [
       hospital.value?.totalProjects ?? 0,
       hospitalProjects.value.length,
     ),
-    icon: "fa-solid fa-briefcase",
+    mhjIcon: "nav_peluang",
   },
   {
     value: "contacts" as const,
     label: "Kontak",
     count: contactCount.value,
-    icon: "fa-regular fa-address-book",
+    mhjIcon: "nav_contact",
   },
   {
     value: "installed" as const,
     label: "Terpasang",
     count: installedCount.value,
-    icon: "fa-solid fa-kit-medical",
+    mhjIcon: "hospital_installed",
   },
   {
     value: "activities" as const,
     label: "Aktivitas",
     count: activities.value.length,
-    icon: "fa-regular fa-calendar-check",
+    mhjIcon: "hospital_activity",
   },
 ]);
 
@@ -1105,17 +1113,38 @@ async function loadProfileMap() {
   }
 }
 
-function openProfile() {
+async function openProfile() {
   prepareProfileForm();
   profileEditing.value = false;
   activeTab.value = "profile";
   void loadProfileMap();
+  await nextTick();
+  profilePanel.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function editRouteQuery() {
+  return { ...route.query, detail: String(props.hospitalId), edit: "1" };
+}
+
+function detailRouteQuery() {
+  const query = { ...route.query, detail: String(props.hospitalId) } as LocationQueryRaw & {
+    edit?: unknown;
+  };
+  delete query.edit;
+  return query;
+}
+
+function syncHospitalEditRoute() {
+  if (String(route.query.edit ?? "") === "1") return;
+  void router.push({ path: routes.App.RumahSakit, query: editRouteQuery() });
 }
 
 function editHospital() {
   if (hospital.value?.isDemo) return;
   prepareProfileForm();
   profileEditing.value = true;
+  allowEditNavigation = false;
+  syncHospitalEditRoute();
 }
 
 function editHospitalStatus() {
@@ -1123,23 +1152,71 @@ function editHospitalStatus() {
   prepareProfileForm();
   activeTab.value = "profile";
   profileEditing.value = true;
+  allowEditNavigation = false;
+  syncHospitalEditRoute();
 }
 
-function cancelHospitalEdit() {
+async function cancelHospitalEdit() {
+  if (!(await confirmEditExit())) return;
+  allowEditNavigation = true;
   prepareProfileForm();
   profileEditing.value = false;
+  await router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
 }
 
 function handleHospitalSaved() {
+  allowEditNavigation = true;
   prepareProfileForm();
   profileEditing.value = false;
+  void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
   void loadProfileMap();
 }
 
 function closeProfile() {
-  cancelHospitalEdit();
+  prepareProfileForm();
+  profileEditing.value = false;
   activeTab.value = "projects";
 }
+
+async function confirmHospitalNavigation() {
+  if (!profileEditing.value || allowEditNavigation) return true;
+  const confirmed = await confirmEditExit();
+  if (confirmed) {
+    allowEditNavigation = true;
+    profileEditing.value = false;
+  }
+  return confirmed;
+}
+
+onBeforeRouteUpdate((to, from) => {
+  const leavingEdit = String(from.query.edit ?? "") === "1" && String(to.query.edit ?? "") !== "1";
+  return leavingEdit ? confirmHospitalNavigation() : true;
+});
+onBeforeRouteLeave((_to, _from) => confirmHospitalNavigation());
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!profileEditing.value) return;
+  event.preventDefault();
+  event.returnValue = "";
+}
+
+onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
+onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnload));
+
+watch(
+  [() => route.query.edit, hospital],
+  ([edit, currentHospital]) => {
+    if (String(edit ?? "") === "1" && !profileEditing.value && currentHospital) {
+      prepareProfileForm();
+      activeTab.value = "profile";
+      profileEditing.value = true;
+      allowEditNavigation = false;
+    } else if (String(edit ?? "") !== "1" && profileEditing.value && allowEditNavigation) {
+      profileEditing.value = false;
+    }
+  },
+  { immediate: true },
+);
 
 function displayValue(value: unknown): string {
   const normalized = String(value ?? "").trim();
@@ -1348,9 +1425,10 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   gap: 17px;
   padding: 22px 24px;
   background: linear-gradient(
-    120deg,
-    rgba(24, 166, 228, 0.08),
-    rgba(255, 255, 255, 0.8) 55%
+    110deg,
+    #fff 0%,
+    color-mix(in srgb, var(--primary) 4%, #fff) 48%,
+    color-mix(in srgb, var(--primary) 15%, #fff) 100%
   );
 }
 .hospital-symbol {
@@ -1360,8 +1438,9 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   height: 62px;
   border-radius: 17px;
   color: var(--primary);
-  background: #dff5fd;
+  background: color-mix(in srgb, var(--primary) 14%, #fff);
   font-size: 27px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 8%, transparent);
 }
 .hospital-copy {
   min-width: 0;
@@ -1471,16 +1550,17 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .profile-link:hover,
 .profile-link:focus-visible {
-  color: #fff !important;
-  background: var(--primary);
-  box-shadow: 0 7px 18px rgba(24, 166, 228, 0.24);
+  border-color: var(--primary);
+  color: var(--primary) !important;
+  background: color-mix(in srgb, var(--primary) 8%, #fff);
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--primary) 18%, transparent);
   transform: translateY(-1px);
 }
 .profile-link:hover i,
 .profile-link:focus-visible i,
 .profile-link:hover > span,
 .profile-link:focus-visible > span {
-  color: #fff !important;
+  color: var(--primary) !important;
   transform: translateX(2px);
 }
 .profile-link:focus-visible {
@@ -1635,7 +1715,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .purchase-step:not(:first-child)::before {
   position: absolute;
   z-index: 0;
-  top: 8px;
+  top: 6px;
   right: 50%;
   width: 100%;
   height: 3px;
@@ -1647,22 +1727,20 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   position: relative;
   z-index: 1;
   display: grid;
-  width: 19px;
-  height: 19px;
+  width: 14px;
+  height: 14px;
   place-items: center;
-  border: 4px solid #dff6fe;
+  border: 3px solid color-mix(in srgb, var(--primary) 18%, #fff);
   border-radius: 50%;
-  color: #fff;
-  background: #20aee2;
-  box-shadow: 0 0 0 3px rgba(32, 174, 226, 0.1);
-}
-.purchase-dot i {
-  font-size: 6px;
+  background: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 10%, transparent);
 }
 .purchase-step.latest .purchase-dot {
-  border-color: #c8effc;
-  background: #078ac3;
-  box-shadow: 0 0 0 4px rgba(7, 138, 195, 0.13);
+  width: 16px;
+  height: 16px;
+  border-color: color-mix(in srgb, var(--primary) 24%, #fff);
+  background: color-mix(in srgb, var(--primary) 82%, #032a4e);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
 }
 .purchase-step strong {
   overflow: hidden;
@@ -1734,9 +1812,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .purchase-history-button:hover:not(:disabled),
 .purchase-history-button:focus-visible:not(:disabled) {
-  color: #fff;
-  background: var(--primary);
-  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 7%, #fff);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 16%, transparent);
+  transform: translateY(-1px);
 }
 .purchase-history-button:disabled {
   border-color: #d9e2e7;
@@ -1816,6 +1896,10 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .detail-tabs button.active > span {
   color: #fff !important;
 }
+.detail-tabs button.active > .mhj-icon {
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
 .detail-tabs button.active em {
   color: var(--primary);
   background: #fff;
@@ -1830,6 +1914,10 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   padding: 22px;
   background: #fff;
   box-shadow: 0 7px 22px rgba(31, 52, 73, 0.04);
+}
+.profile-panel {
+  scroll-margin-top: 96px;
+  outline: none;
 }
 .panel-heading {
   display: flex;
@@ -2719,7 +2807,8 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
     border-radius: 0;
     padding: 11px 8px;
   }
-  .detail-tabs button i {
+  .detail-tabs button i,
+  .detail-tabs button .mhj-icon {
     display: none;
   }
   .tab-panel {

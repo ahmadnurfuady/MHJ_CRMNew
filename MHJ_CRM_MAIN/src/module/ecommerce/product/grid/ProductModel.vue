@@ -46,7 +46,7 @@
                         @click="decrement()"
                         type="button"
                       >
-                        <i class="fa fa-minus"></i>
+                        <SolarIcon name="fa-minus" />
                       </button>
                       <input
                         class="touchspin text-center form-control"
@@ -59,7 +59,7 @@
                         @click="increment()"
                         type="button"
                       >
-                        <i class="fa fa-plus"></i>
+                        <SolarIcon name="fa-plus" />
                       </button>
                     </div>
                   </fieldset>

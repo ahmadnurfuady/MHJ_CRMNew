@@ -6,9 +6,9 @@
         <p>{{ props.blog.date }} {{ props.blog.year }}</p>
         <h5 class="text-white">{{ props.blog.title }}</h5>
         <ul class="blog-social">
-          <li><i class="icofont icofont-user"></i>{{ props.blog.createdBy }}</li>
-          <li><i class="icofont icofont-thumbs-up"></i>{{ props.blog.hits }} Hits</li>
-          <li><i class="icofont icofont-ui-chat"></i>{{ props.blog.comment }} Comments</li>
+          <li><SolarIcon name="icofont-user" class="icofont" />{{ props.blog.createdBy }}</li>
+          <li><SolarIcon name="icofont-thumbs-up" class="icofont" />{{ props.blog.hits }} Hits</li>
+          <li><SolarIcon name="icofont-ui-chat" class="icofont" />{{ props.blog.comment }} Comments</li>
         </ul>
       </div>
     </div>

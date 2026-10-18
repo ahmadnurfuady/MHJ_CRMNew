@@ -89,7 +89,7 @@
         </div>
 
         <div class="evidence-title">
-          <span class="detail-card-icon"><vue-feather type="camera" size="18" /></span>
+          <span class="detail-card-icon"><MhjIcon name="action_camera" :size="18" /></span>
           <div>
             <strong>Live Photo &amp; GPS Location</strong>
             <small>Bukti kunjungan dan titik lokasi aktivitas.</small>
@@ -99,7 +99,7 @@
           <div class="evidence-preview">
             <img v-if="task.photoUrl" :src="task.photoUrl" alt="Live photo kunjungan" />
             <div v-else class="evidence-empty">
-              <vue-feather type="camera" size="24" />
+              <MhjIcon name="action_camera" />
               <span>{{ task.photoName || 'Live photo belum tersedia' }}</span>
             </div>
           </div>
@@ -112,7 +112,7 @@
               loading="lazy"
             ></iframe>
             <div v-else class="evidence-empty">
-              <vue-feather type="map-pin" size="24" />
+              <MhjIcon name="action_location" />
               <span>Lokasi belum tersedia</span>
             </div>
             <a v-if="mapPageUrl" :href="mapPageUrl" target="_blank" rel="noopener noreferrer">
@@ -121,7 +121,7 @@
           </div>
         </div>
         <p v-if="task.locationAddress" class="location-address">
-          <vue-feather type="map-pin" size="15" />
+          <MhjIcon name="action_location" :size="15" />
           <span>{{ task.locationAddress }}</span>
         </p>
       </section>
@@ -166,7 +166,7 @@
         :aria-disabled="!task.contactPhone"
         @click="preventUnavailableContact"
       >
-        <vue-feather type="phone" size="17" />
+        <MhjIcon name="action_phone" :size="17" />
         Hubungi Kontak
       </a>
     </footer>

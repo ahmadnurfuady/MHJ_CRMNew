@@ -1,6 +1,6 @@
 <template>
   <div class="hospital-empty-state">
-    <div class="hospital-empty-state__icon"><i :class="icon"></i></div>
+    <div class="hospital-empty-state__icon"><SolarIcon :name="icon" /></div>
     <strong>{{ title }}</strong>
     <p>{{ description }}</p>
   </div>

@@ -20,7 +20,7 @@
                     <span class="pull-right">
                       <button class="btn btn-primary" type="button">
                         <span>
-                          <i class="fa-solid fa-check text-white me-1"></i>
+                          <SolarIcon name="fa-check" class="text-white me-1" />
                         </span>
                         Save this job
                       </button>

@@ -5,7 +5,7 @@
     v-if="props.details"
   >
     <div class="ribbon ribbon-bookmark ribbon-vertical-left ribbon-warning" v-if="details.ribbon">
-      <i :class="`icofont icofont-${details.ribbonIcon}`"></i>
+      <SolarIcon :name="`icofont icofont-${details.ribbonIcon}`" />
     </div>
     <div class="job-search">
       <div class="card-body">

@@ -14,16 +14,16 @@
 
     <div class="common-flex">
       <div class="btn-outline-primary" v-tooltip :title="'Notification'">
-        <i class="icofont icofont-envelope"></i>
+        <SolarIcon name="icofont-envelope" class="icofont" />
       </div>
       <div class="btn-outline-danger" v-tooltip :title="'Message'">
-        <i class="icofont icofont-ui-text-loading"></i>
+        <SolarIcon name="icofont-ui-text-loading" class="icofont" />
       </div>
       <div class="btn-outline-dark" v-tooltip :title="'Send'">
-        <i class="icofont icofont-location-arrow"></i>
+        <SolarIcon name="icofont-location-arrow" class="icofont" />
       </div>
       <div class="btn-outline-danger" v-tooltip :title="'Like'">
-        <i class="icofont icofont-heart-alt"></i>
+        <SolarIcon name="icofont-heart-alt" class="icofont" />
       </div>
     </div>
   </Card>

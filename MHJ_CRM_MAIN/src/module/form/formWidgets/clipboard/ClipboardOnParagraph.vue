@@ -11,7 +11,7 @@
           type="button"
           @click="copyFunction(paragraphDetails)"
         >
-          <i class="fa fa-copy"></i>
+          <SolarIcon name="fa-copy" />
           Copy
         </button>
       </div>

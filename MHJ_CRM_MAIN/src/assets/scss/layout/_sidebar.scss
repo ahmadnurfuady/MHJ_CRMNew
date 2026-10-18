@@ -1085,7 +1085,7 @@
         }
       }
 
-      i.fa-thumb-tack {
+      .sidebar-pin {
         visibility: hidden;
         position: absolute;
         top: 19px;
@@ -1099,7 +1099,7 @@
       }
 
       &:hover {
-        i.fa-thumb-tack {
+        .sidebar-pin {
           visibility: hidden;
           cursor: pointer;
         }
@@ -1559,22 +1559,55 @@
   // left sidebar css
   &.compact-wrapper {
     .sidebar-list {
-      i.fa-thumb-tack {
+      .sidebar-pin {
         visibility: hidden;
         position: absolute;
-        top: 11px;
-        right: -9px;
-        color: $white;
+        top: 50%;
+        right: 14px;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        color: $white !important;
+        background: transparent;
+        border: 0;
+        border-radius: 4px;
+        opacity: 1;
         z-index: 9999;
+        filter: drop-shadow(0 1px 1px rgba(3, 42, 78, 0.45));
+        transform: translateY(-50%);
+        transition: transform 0.2s ease;
 
         [dir='rtl'] & {
-          left: -9px;
+          left: 14px;
           right: unset;
+        }
+
+        &:hover,
+        &.is-pinned {
+          color: $white !important;
+          transform: translateY(-50%) scale(1.12);
+        }
+
+        &:focus-visible {
+          outline: 2px solid rgba($white, 0.9);
+          outline-offset: 2px;
+          transform: translateY(-50%);
+        }
+
+        path {
+          color: $white !important;
+          opacity: 1 !important;
+          stroke: $white;
+          fill: $white;
+        }
+
+        &:focus:not(:focus-visible) {
+          outline: none;
         }
       }
 
       &:hover {
-        i.fa-thumb-tack {
+        .sidebar-pin {
           visibility: visible;
           cursor: pointer;
         }
@@ -1582,6 +1615,10 @@
 
       &.pined {
         order: -1;
+
+        >.sidebar-pin {
+          visibility: visible;
+        }
       }
     }
 
@@ -1849,7 +1886,7 @@
             }
 
             .sidebar-list {
-              i.fa-thumb-tack {
+              .sidebar-pin {
                 visibility: hidden;
                 position: absolute;
                 top: -8px;
@@ -1868,7 +1905,7 @@
               }
 
               &:hover {
-                i.fa-thumb-tack {
+                .sidebar-pin {
                   visibility: visible;
                   cursor: pointer;
                 }
@@ -1907,10 +1944,38 @@
                     transition: all 0.3s ease;
                   }
 
+                  >.sidebar-mhj-icon {
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 10px;
+                    filter: brightness(0) invert(1);
+                    opacity: 1;
+                    vertical-align: -2px;
+                    transition: filter 0.3s ease, opacity 0.3s ease;
+                  }
+
+                  &.active>.sidebar-mhj-icon,
+                  &:hover>.sidebar-mhj-icon {
+                    opacity: 1;
+                  }
+
+                  >.solar-icon,
+                  .according-menu .solar-icon {
+                    color: $white !important;
+                    opacity: 1;
+                  }
+
+                  &.active>.solar-icon,
+                  &.active .according-menu .solar-icon,
+                  &:hover>.solar-icon,
+                  &:hover .according-menu .solar-icon {
+                    opacity: 1;
+                  }
+
                   span {
                     letter-spacing: 0.7px;
                     text-transform: capitalize;
-                    color: rgba($theme-body-sub-title-color, 0.8);
+                    color: $white;
                   }
 
                   &.link-nav {
@@ -1956,6 +2021,11 @@
                   padding: 25px 0 6px 20px;
                   margin-top: 0px;
                   margin-bottom: 12px;
+
+                  h6 {
+                    color: $white;
+                    opacity: 1;
+                  }
 
                   &.pin-title {
                     display: none !important;
@@ -2370,9 +2440,32 @@
 
       .according-menu {
         position: absolute;
-        right: 20px;
-        top: 16px;
-        display: block;
+        right: 14px;
+        top: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        background: transparent;
+        transform: translateY(-50%);
+
+        .sidebar-chevron {
+          width: 18px !important;
+          height: 18px !important;
+          margin: 0 !important;
+          color: $white !important;
+          opacity: 1 !important;
+          vertical-align: middle;
+          filter: drop-shadow(0 1px 1px rgba(3, 42, 78, 0.45));
+
+          path {
+            color: $white !important;
+            opacity: 1 !important;
+            stroke: $white !important;
+          }
+        }
 
         i {
           vertical-align: middle;
@@ -2584,7 +2677,7 @@
     flex-direction: column;
 
     .sidebar-list {
-      i.fa-thumb-tack {
+      .sidebar-pin {
         visibility: hidden;
         position: absolute;
         top: 8px;
@@ -2605,7 +2698,7 @@
       }
 
       &:hover {
-        i.fa-thumb-tack {
+        .sidebar-pin {
           visibility: visible;
           cursor: pointer;
           z-index: 1;
@@ -2977,7 +3070,7 @@
     }
 
     .sidebar-list {
-      i.fa-thumb-tack {
+      .sidebar-pin {
         visibility: hidden;
         position: absolute;
         top: 8px;
@@ -2998,7 +3091,7 @@
       }
 
       &:hover {
-        i.fa-thumb-tack {
+        .sidebar-pin {
           visibility: visible;
         }
       }

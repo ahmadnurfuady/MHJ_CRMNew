@@ -16,7 +16,7 @@
                 @click="favoriteBookmark(bookmark)"
               >
                 <a href="#">
-                  <i class="fa-solid fa-star"></i>
+                  <SolarIcon name="fa-star" />
                 </a>
               </div>
               <div class="desciption-data">

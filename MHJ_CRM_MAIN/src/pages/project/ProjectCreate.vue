@@ -1,6 +1,6 @@
 <template>
   <div v-if="editingId" class="container-fluid">
-    <ProjectCreate />
+    <ProjectCreate :edit-project-id="editingId" />
   </div>
 </template>
 <script setup lang="ts">

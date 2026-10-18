@@ -8,7 +8,7 @@
   >
     <template #header3>
       <router-link class="btn btn-primary" :to="routes.Ecommerce.Invoice.Invoice2">
-        <i class="fa-regular fa-file-lines pe-2 f-14"></i>
+        <SolarIcon name="fa-file-lines" class="pe-2 f-14" />
         Invoice
       </router-link>
     </template>

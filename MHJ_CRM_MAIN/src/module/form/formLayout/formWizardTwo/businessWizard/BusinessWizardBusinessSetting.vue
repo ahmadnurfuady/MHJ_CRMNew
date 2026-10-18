@@ -38,7 +38,7 @@
     <div class="col-12">
       <section class="main-upgrade">
         <div>
-          <i class="fa-solid fa-rocket"></i>
+          <SolarIcon name="fa-rocket" />
           <h5 class="mb-2 mt-sm-3 mt-2">
             Select team size with <span class="txt-primary">opportunities</span>
           </h5>

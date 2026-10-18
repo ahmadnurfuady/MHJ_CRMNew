@@ -25,26 +25,22 @@
             <ul class="card-social">
               <li>
                 <a href="https://www.facebook.com/" target="_blank"
-                  ><i class="fa-brands fa-facebook-f"></i
-                ></a>
+                  ><SolarIcon name="fa-facebook-f" /></a>
               </li>
               <li>
                 <a href="https://myaccount.google.com/" target="_blank"
-                  ><i class="fa-brands fa-google-plus-g"></i
-                ></a>
+                  ><SolarIcon name="fa-google-plus-g" /></a>
               </li>
               <li>
                 <a href="https://twitter.com/" target="_blank"
-                  ><i class="fa-brands fa-x-twitter"></i
-                ></a>
+                  ><SolarIcon name="fa-x-twitter" /></a>
               </li>
               <li>
                 <a href="https://www.instagram.com/" target="_blank"
-                  ><i class="fa-brands fa-instagram"></i
-                ></a>
+                  ><SolarIcon name="fa-instagram" /></a>
               </li>
               <li>
-                <a href="https://rss.app/" target="_blank"><i class="fa-solid fa-rss"></i></a>
+                <a href="https://rss.app/" target="_blank"><SolarIcon name="fa-rss" /></a>
               </li>
             </ul>
             <ul class="social-follow">

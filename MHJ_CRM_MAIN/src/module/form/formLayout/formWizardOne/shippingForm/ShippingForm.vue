@@ -17,7 +17,7 @@
                 >
                   <div class="cart-options">
                     <div class="stroke-icon-wizard">
-                      <i :class="`fa-solid fa-${tab.icon}`"></i>
+                      <SolarIcon :name="`fa-solid fa-${tab.icon}`" />
                     </div>
                     <div class="cart-options-content">
                       <h6>{{ tab.title }}</h6>
@@ -43,11 +43,11 @@
                     @click="handleStep(-1)"
                     :disabled="activeTab == 1"
                   >
-                    Process To Back <i class="fa-solid fa-truck proceed-prev"></i>
+                    Process To Back <SolarIcon name="fa-truck" class="proceed-prev" />
                   </button>
                   <button class="btn btn-primary" id="nextbtn" @click="handleStep(1)">
                     {{ activeTab == shippingForm.length ? 'Finish' : 'Process To Next'
-                    }}<i class="fa-solid fa-truck proceed-next"></i>
+                    }}<SolarIcon name="fa-truck" class="proceed-next" />
                   </button>
                 </div>
               </div>

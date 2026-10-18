@@ -183,7 +183,7 @@
                         @click="handleAction(row, details)"
                       >
                         <template v-if="row.fontType">
-                          <i :class="`fa-solid fa-${row.icon}`"></i>
+                          <SolarIcon :name="`fa-solid fa-${row.icon}`" />
                         </template>
                         <template v-else>
                           {{ row.label === 'Create' ? '+' : row.label }}
@@ -199,7 +199,7 @@
                           v-if="['Edit', 'Delete'].includes(row.label)"
                           :icon="row.icon || ''"
                         />
-                        <i v-else-if="row.label === 'View'" class="fa-solid fa-eye"></i>
+                        <SolarIcon name="fa-eye" v-else-if="row.label === 'View'" />
                       </router-link>
                       <a
                         v-else
@@ -209,9 +209,9 @@
                         v-tooltip
                         :title="row.label"
                       >
-                        <i
-                          :class="`fa-solid fa-${row.icon || getDefaultIcon(row.label as RowActionType)}`"
-                        ></i>
+                        <SolarIcon :name="`fa-solid fa-${row.icon || getDefaultIcon(row.label as RowActionType)}`"
+
+                         />
                       </a>
                     </template>
                   </div>

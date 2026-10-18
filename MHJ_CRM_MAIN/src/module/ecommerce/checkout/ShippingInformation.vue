@@ -4,7 +4,7 @@
       <div class="shipping-title">
         <h6>Delivery Address</h6>
         <button class="btn btn-primary" type="button" @click="openModal()">
-          <i class="fa-solid fa-square-plus f-20"></i>
+          <SolarIcon name="fa-square-plus" class="f-20" />
         </button>
       </div>
       <div class="row g-3 mt-0 flex-column">
@@ -27,8 +27,8 @@
                 </div>
               </div>
               <div class="card-icon">
-                <i class="fa-solid fa-pencil"></i>
-                <i class="fa-solid fa-trash-can"></i>
+                <SolarIcon name="fa-pencil" />
+                <SolarIcon name="fa-trash-can" />
                 <span class="badge badge-primary" v-if="address.tag">{{ address.tag }}</span>
               </div>
             </div>

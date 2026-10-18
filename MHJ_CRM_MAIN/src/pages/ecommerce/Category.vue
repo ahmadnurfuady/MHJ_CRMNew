@@ -13,7 +13,7 @@
                 href="#"
                 @click.prevent="createCategoryModal()"
               >
-                <i class="fa-solid fa-plus pe-2"></i>
+                <SolarIcon name="fa-plus" class="pe-2" />
                 Add Category
               </a>
             </div>

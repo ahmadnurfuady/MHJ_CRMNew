@@ -20,7 +20,7 @@
           type="button"
           @click="copyFunction(copyHighlightTxt)"
         >
-          <i class="fa fa-copy"></i>
+          <SolarIcon name="fa-copy" />
           Copy highlighted text
         </button>
       </div>

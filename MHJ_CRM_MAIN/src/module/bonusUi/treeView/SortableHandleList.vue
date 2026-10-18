@@ -23,7 +23,7 @@
       >
         <template #item="{ element }">
           <li :class="`list-group-item ${element.class}`">
-            <i class="fa-solid fa-arrows-up-down-left-right handle me-2"></i>
+            <SolarIcon name="fa-arrows-up-down-left-right" class="handle me-2" />
             <span>{{ element.name }}</span>
           </li>
         </template>

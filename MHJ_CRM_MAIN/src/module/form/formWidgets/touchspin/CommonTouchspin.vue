@@ -4,7 +4,7 @@
       :class="`decrement-touchspin btn-touchspin ${touchSpinClass}-${details.color}`"
       @click="changeValue(details.id, -1)"
     >
-      <i class="fa-solid fa-minus"> </i>
+      <SolarIcon name="fa-minus" />
     </button>
     <input
       :class="`input-touchspin spin-outline-${details.color}`"
@@ -15,7 +15,7 @@
       :class="`increment-touchspin btn-touchspin ${touchSpinClass}-${details.color}`"
       @click="changeValue(details.id, 1)"
     >
-      <i class="fa-solid fa-plus"> </i>
+      <SolarIcon name="fa-plus" />
     </button>
   </div>
 </template>

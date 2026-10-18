@@ -10,7 +10,7 @@
               v-for="(icons, i) in list.icons"
               :key="i"
             >
-              <i :class="icons"></i>
+              <SolarIcon :name="icons" />
               {{ icons }}
             </div>
           </div>
@@ -24,10 +24,10 @@
       <div class="row">
         <div class="icon-popup">
           <div class="close-icon">
-            <i class="icofont icofont-close" @click="details.detailsVisible = false"></i>
+            <SolarIcon name="icofont-close" class="icofont" @click="details.detailsVisible = false" />
           </div>
           <div class="icon-first">
-            <i :class="`${details.icon} fa-2x`" id="icon_main"></i>
+            <SolarIcon :name="`${details.icon} fa-2x`" id="icon_main" />
           </div>
           <div class="icon-class">
             <label class="icon-title">Class</label>

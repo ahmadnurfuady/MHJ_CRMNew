@@ -14,10 +14,10 @@
           <div class="product-hover">
             <ul>
               <li>
-                <i class="icon-link"></i>
+                <SolarIcon name="icon-link" />
               </li>
               <li>
-                <i class="icon-import"></i>
+                <SolarIcon name="icon-import" />
               </li>
             </ul>
           </div>

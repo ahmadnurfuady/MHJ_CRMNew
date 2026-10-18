@@ -80,7 +80,7 @@
                 <td>Alerts with Icons</td>
                 <td>
                   <div class="alert alert-primary alert-dismissible fade show" role="alert">
-                    <i class="icofont icofont-heart-alt"></i>
+                    <SolarIcon name="icofont-heart-alt" class="icofont" />
                     <p class="txt-light">Good Morning! Start your day with some alerts.</p>
                     <button
                       class="btn-close"

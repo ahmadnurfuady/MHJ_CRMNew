@@ -22,11 +22,11 @@
                 <div class="col-md-8 xl-100" v-if="!comment.reply">
                   <ul class="comment-social float-start float-md-end learning-comment">
                     <li>
-                      <i class="icofont icofont-thumbs-up"></i>
+                      <SolarIcon name="icofont-thumbs-up" class="icofont" />
                       {{ comment.hits }} Hits
                     </li>
                     <li>
-                      <i class="icofont icofont-ui-chat"></i>
+                      <SolarIcon name="icofont-ui-chat" class="icofont" />
                       {{ comment.comments }} Comments
                     </li>
                   </ul>
@@ -46,7 +46,7 @@
             rows="2"
             placeholder="Comment Here.."
           ></textarea>
-          <i class="fa-solid fa-paper-plane"></i>
+          <SolarIcon name="fa-paper-plane" />
         </div>
       </li>
     </ul>

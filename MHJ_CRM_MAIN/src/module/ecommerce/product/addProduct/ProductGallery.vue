@@ -17,7 +17,7 @@
           >
             <template #message>
               <div class="dz-message needsclick">
-                <i class="fa-solid fa-cloud-arrow-up fa-fade"></i>
+                <SolarIcon name="fa-cloud-arrow-up" class="fa-fade" />
                 <h6>Drop files here or click to upload.</h6>
                 <span class="note needsclick">SVG, PNG, JPG <strong>or</strong> GIF</span>
               </div>
@@ -38,7 +38,7 @@
           >
             <template #message>
               <div class="dz-message needsclick">
-                <i class="fa-solid fa-cloud-arrow-up fa-fade"></i>
+                <SolarIcon name="fa-cloud-arrow-up" class="fa-fade" />
                 <h6>Drop files here or click to upload.</h6>
                 <span class="note needsclick">SVG, PNG, JPG <strong>or</strong> GIF</span>
               </div>

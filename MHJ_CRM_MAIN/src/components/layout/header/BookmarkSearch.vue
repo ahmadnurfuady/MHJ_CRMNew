@@ -73,12 +73,12 @@
                           </router-link>
                           <span class="pull-right">
                             <a href="#" @click.prevent="addToBookmark(menuItem)">
-                              <i
-                                class="fa-regular fa-star"
-                                :class="{
+                              <SolarIcon :name="{
                                   'text-warning': isBookmarked(menuItem),
                                 }"
-                              ></i>
+
+
+                               />
                             </a>
                           </span>
                         </div>

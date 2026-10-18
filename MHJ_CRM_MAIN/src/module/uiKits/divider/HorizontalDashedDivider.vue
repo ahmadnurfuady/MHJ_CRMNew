@@ -12,7 +12,7 @@
     <template v-for="(divider, index) in horizontalDashedDivider" :key="index">
       <div :class="`divider-body divider-body-2 divider-${divider.color}`">
         <div :class="`divider-circle bg-light-${divider.color}`">
-          <i :class="`${divider.icon} txt-${divider.color}`"></i>
+          <SolarIcon :name="divider.icon" :class="`txt-${divider.color}`" />
         </div>
       </div>
     </template>

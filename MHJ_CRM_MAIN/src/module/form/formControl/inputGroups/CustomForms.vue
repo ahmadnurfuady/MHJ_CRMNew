@@ -36,7 +36,7 @@
     </div>
     <div class="input-group">
       <button class="btn btn-outline-secondary" type="button">
-        <i class="icofont icofont-credit-card"></i>
+        <SolarIcon name="icofont-credit-card" class="icofont" />
       </button>
       <Select
         getValueKey="label"
