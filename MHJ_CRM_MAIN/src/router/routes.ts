@@ -15,6 +15,7 @@ export const routes = {
     ProjectDetails: '/crmAdmin/Projects/details',
     ProjectList: '/crmAdmin/Projects/list',
     Tasks: '/crmAdmin/task',
+    Kalender: '/crmAdmin/calendar',
     Report: '/crmAdmin/Report',
     Users: '/crmAdmin/users',
     UserList: '/crmAdmin/users/list',

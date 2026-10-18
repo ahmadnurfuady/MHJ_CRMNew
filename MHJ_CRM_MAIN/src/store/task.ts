@@ -87,6 +87,37 @@ function nullableText(value: string): string | null {
   return normalized || null
 }
 
+/**
+ * Ambil nama file dari path/URL. Jika `photo_path` sudah berupa URL penuh
+ * (mis. hasil upload TOS), kembalikan segment terakhir supaya UI tidak
+ * menampilkan URL panjang sebagai "nama file".
+ */
+function deriveFileName(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  try {
+    const url = new URL(trimmed)
+    const segments = url.pathname.split('/').filter(Boolean)
+    const last = segments[segments.length - 1] ?? ''
+    return decodeURIComponent(last) || trimmed
+  } catch {
+    return trimmed
+  }
+}
+
+/**
+ * Hanya kembalikan value sebagai URL gambar jika benar-benar URL absolut
+ * (http/https). Data lama hanya menyimpan nama file (mis. `live-photo-xxx.jpg`)
+ * tanpa pernah mengupload file-nya; mengembalikan string seperti itu ke
+ * `<img :src>` cuma menghasilkan broken image. Dengan filter ini FE jatuh
+ * ke placeholder "Live photo belum tersedia".
+ */
+function toAbsoluteImageUrl(value: string): string {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  return /^https?:\/\//i.test(trimmed) ? trimmed : ''
+}
+
 /** Mengubah input datetime-local menjadi format yang diterima SQL Server datetime. */
 function toSqlDateTime(value: string): string | null {
   const normalized = value.trim()
@@ -218,14 +249,18 @@ export function normalizeTask(raw: Dict): TaskDetails {
     unrelatedProduct: Boolean(pick(raw, 'unrelatedProduct', 'unrelated_product')),
     stageFrom: pickString(raw, 'stageFrom', 'stage_from'),
     stageTo: pickString(raw, 'pipeline_stage', 'stageTo', 'stage_to'),
-    photoName: pickString(raw, 'photoName', 'photo_name', 'photo_path'),
-    photoUrl: pickString(
-      raw,
-      'photoUrl',
-      'photo_url',
-      'photo_path',
-      'live_photo_url',
-      'live_photo',
+    photoName:
+      pickString(raw, 'photoName', 'photo_name') ||
+      deriveFileName(pickString(raw, 'photo_path')),
+    photoUrl: toAbsoluteImageUrl(
+      pickString(
+        raw,
+        'photoUrl',
+        'photo_url',
+        'photo_path',
+        'live_photo_url',
+        'live_photo',
+      ),
     ),
     latitude: pickNumber(raw, 'latitude') || (Number.isFinite(gpsLatitude) ? gpsLatitude : 0),
     longitude:

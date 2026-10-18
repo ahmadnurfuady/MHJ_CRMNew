@@ -592,6 +592,17 @@ const router = createRouter({
           },
         },
         {
+          path: routes.CrmAdmin.Kalender,
+          name: 'Kalender',
+          component: () => import('@/pages/kalender/Kalender.vue'),
+          alias: ['/crmAdmin/kalender'],
+          meta: {
+            mainTitle: 'Kalender',
+            title: 'Kalender | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Kalender' }],
+          },
+        },
+        {
           path: routes.App.Calender,
           name: 'Calendar',
           component: () => import('@/pages/calendar/Calendar.vue'),

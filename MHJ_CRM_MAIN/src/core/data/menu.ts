@@ -122,6 +122,14 @@ export const menu: MenuItem[] = [
     type: 'link',
   },
   {
+    path: routes.CrmAdmin.Kalender,
+    title: 'Kalender',
+    icon: 'calendar',
+    isPinned: false,
+    active: false,
+    type: 'link',
+  },
+  {
     title: 'Setting',
     icon: 'others',
     type: 'sub',
