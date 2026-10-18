@@ -37,10 +37,21 @@
     </div>
 
     <ul v-show="isOpen" class="select-menu" :class="placement" role="listbox" aria-multiselectable="true">
-      <li v-if="options.length === 0">
-        <span class="select-item text-muted">{{ placeholder }}</span>
+      <li class="select-search">
+        <input
+          ref="searchInputRef"
+          v-model="searchQuery"
+          type="text"
+          class="select-search-input"
+          placeholder="Cari..."
+          @click.stop
+          @keydown.stop
+        />
       </li>
-      <li v-for="opt in options" :key="opt.value">
+      <li v-if="filteredOptions.length === 0">
+        <span class="select-item text-muted">{{ options.length === 0 ? placeholder : 'Tidak ditemukan.' }}</span>
+      </li>
+      <li v-for="opt in filteredOptions" :key="opt.value">
         <button
           type="button"
           class="select-item multiselect-item"
@@ -59,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { MasterOption } from '@/types/user'
 
 // Atribut luar (mis. `id` agar <label for> bekerja) menempel pada kotak kontrol,
@@ -80,6 +91,8 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const placement = ref<'bottom' | 'top'>('bottom')
 const wrapperRef = ref<HTMLElement | null>(null)
+const searchInputRef = ref<HTMLInputElement | null>(null)
+const searchQuery = ref('')
 
 const MENU_HEIGHT = 200
 
@@ -94,6 +107,12 @@ const selectedOptions = computed<MasterOption[]>(() =>
     (code) => props.options.find((opt) => opt.value === code) ?? { value: code, label: code },
   ),
 )
+
+const filteredOptions = computed(() => {
+  const keyword = searchQuery.value.trim().toLocaleLowerCase('id-ID')
+  if (!keyword) return props.options
+  return props.options.filter((opt) => opt.label.toLocaleLowerCase('id-ID').includes(keyword))
+})
 
 function isSelected(value: string): boolean {
   return props.modelValue.includes(value)
@@ -122,6 +141,13 @@ function toggle() {
   }
   isOpen.value = !isOpen.value
 }
+
+watch(isOpen, (open) => {
+  if (open) {
+    searchQuery.value = ''
+    nextTick(() => searchInputRef.value?.focus())
+  }
+})
 
 function onDocumentClick(e: MouseEvent) {
   if (wrapperRef.value && !wrapperRef.value.contains(e.target as Node)) {
@@ -273,5 +299,27 @@ onBeforeUnmount(() => {
 .multiselect-check {
   flex-shrink: 0;
   font-weight: 600;
+}
+
+.select-search {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.35rem 0.5rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.select-search-input {
+  width: 100%;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.875rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.3rem;
+  outline: none;
+}
+
+.select-search-input:focus {
+  border-color: #18A6E4;
 }
 </style>
