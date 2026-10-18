@@ -59,7 +59,7 @@
           <div class="ribbon-wrapper border border-1 height-equal alert-light-light">
             <div class="ribbon ribbon-success ribbon-bookmark">
               <span>Latest</span>
-              <i class="fa fa-bolt"></i>
+              <SolarIcon name="fa-bolt" />
             </div>
             <p>
               Ribbon designs use the class of
@@ -91,7 +91,7 @@
           >
             <div class="ribbon ribbon-bookmark ribbon-vertical-right ribbon-warning">
               <div>
-                <i class="fa fa-bolt"></i>
+                <SolarIcon name="fa-bolt" />
                 <span>FlashSale</span>
               </div>
             </div>

@@ -26,7 +26,7 @@
                   class="ribbon ribbon-secondary ribbon-vertical-left"
                   v-if="product.gift"
                 >
-                  <i class="icon-gift"></i>
+                  <SolarIcon name="icon-gift" />
                 </div>
                 <div class="ribbon ribbon-danger" v-if="product.sale">Sale</div>
                 <div class="ribbon ribbon-success ribbon-right" v-if="product.off">
@@ -36,7 +36,7 @@
                   class="ribbon ribbon-bookmark ribbon-vertical-right ribbon-info"
                   v-if="product.ribbon"
                 >
-                  <i class="icofont icofont-love"></i>
+                  <SolarIcon name="icofont-love" class="icofont" />
                 </div>
                 <div class="ribbon ribbon-clip ribbon-warning" v-if="product.hot">
                   Hot
@@ -46,7 +46,7 @@
                   <ul>
                     <li @click="addToCars(product)">
                       <router-link :to="routes.Ecommerce.Cart" class="btn">
-                        <i class="icon-shopping-cart"></i>
+                        <SolarIcon name="icon-shopping-cart" />
                       </router-link>
                     </li>
                     <li @click="openModal(product)">
@@ -55,13 +55,12 @@
                         data-bs-toggle="modal"
                         data-bs-target="#exampleModalCenter"
                       >
-                        <i class="icon-eye"></i>
+                        <SolarIcon name="icon-eye" />
                       </a>
                     </li>
                     <li>
                       <a class="btn" href="#"
-                        ><i class="fa-solid fa-code-compare fa-rotate-90"></i
-                      ></a>
+                        ><SolarIcon name="fa-code-compare" class="fa-rotate-90" /></a>
                     </li>
                   </ul>
                 </div>

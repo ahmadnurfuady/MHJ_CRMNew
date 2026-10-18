@@ -17,14 +17,14 @@
                     Profit
                     <span class="product-stts txt-success ms-2">
                       {{ item.profit }}
-                      <i class="icon-angle-up f-12 ms-1"></i>
+                      <SolarIcon name="icon-angle-up" class="f-12 ms-1" />
                     </span>
                   </li>
                   <li>
                     Loss
                     <span class="product-stts txt-danger ms-2">
                       {{ item.loss }}
-                      <i class="icon-angle-down f-12 ms-1"></i>
+                      <SolarIcon name="icon-angle-down" class="f-12 ms-1" />
                     </span>
                   </li>
                 </ul>

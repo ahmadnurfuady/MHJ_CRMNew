@@ -11,8 +11,8 @@
         <h2 class="f-w-600 counter" data-target="1523">{{ item.number }}</h2>
         <span class="f-12 f-w-400">(This month)</span>
       </div>
-      <div class="product-sub" :class="'bg-light-' + item.class2">
-        <SvgIcon :icon="item.icon" svgClass="invoice-icon" />
+      <div class="mhj-kpi-icon">
+        <MhjIcon :name="item.icon" />
       </div>
     </div>
     <ul class="bubbles">
@@ -24,10 +24,20 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
 import { Widgets } from '@/types/dashboard/project'
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 
 const props = defineProps<{
   item: Widgets
 }>()
 </script>
+
+<style scoped>
+.mhj-kpi-icon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  place-items: center;
+  align-self: flex-start;
+}
+</style>

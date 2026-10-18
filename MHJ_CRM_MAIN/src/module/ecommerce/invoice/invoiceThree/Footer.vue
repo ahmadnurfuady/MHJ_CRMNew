@@ -9,11 +9,11 @@
       <span class="action-buttons">
         <a class="btn-print" @click="handlePrint()">
           Print Invoice
-          <i class="icon-arrow-right"></i>
+          <SolarIcon name="icon-arrow-right" />
         </a>
         <a class="btn-download" href="#" download>
           Download
-          <i class="icon-arrow-right"></i>
+          <SolarIcon name="icon-arrow-right" />
         </a>
       </span>
     </td>

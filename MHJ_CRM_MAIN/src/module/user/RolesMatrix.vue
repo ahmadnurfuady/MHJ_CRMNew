@@ -38,28 +38,28 @@
         class="d-flex flex-wrap gap-2 mb-3 align-items-center bg-light p-2 rounded"
       >
         <span class="f-w-600 f-13 text-secondary me-1">
-          <i class="fa fa-sliders me-1"></i> Aksi Cepat:
+          <SolarIcon name="fa-sliders" class="me-1" /> Aksi Cepat:
         </span>
         <button
           type="button"
           class="btn btn-xs btn-outline-primary"
           @click="setAllPermissions(true)"
         >
-          <i class="fa fa-check-double me-1"></i> Beri Semua Hak Akses
+          <SolarIcon name="fa-check-double" class="me-1" /> Beri Semua Hak Akses
         </button>
         <button
           type="button"
           class="btn btn-xs btn-outline-info"
           @click="setReadOnlyAccess()"
         >
-          <i class="fa fa-eye me-1"></i> Hanya Akses Baca (View)
+          <SolarIcon name="fa-eye" class="me-1" /> Hanya Akses Baca (View)
         </button>
         <button
           type="button"
           class="btn btn-xs btn-outline-secondary"
           @click="setAllPermissions(false)"
         >
-          <i class="fa fa-ban me-1"></i> Kosongkan Semua
+          <SolarIcon name="fa-ban" class="me-1" /> Kosongkan Semua
         </button>
       </div>
 

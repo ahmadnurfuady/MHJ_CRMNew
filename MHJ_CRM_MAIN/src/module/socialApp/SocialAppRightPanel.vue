@@ -36,7 +36,7 @@
                           v-tooltip
                           :title="platform.platformName"
                         >
-                          <i :class="platform.icon + ' ' + 'm-r-5'"></i>
+                          <SolarIcon :name="platform.icon" class="m-r-5" />
                         </button>
                       </template>
                     </div>

@@ -3,7 +3,7 @@
     <div class="card-header card-no-border d-flex justify-content-between align-items-center">
       <h4 class="mb-0">Daftar Pengguna CRM</h4>
       <router-link v-if="canUser('tambah')" class="btn btn-primary f-w-500" :to="routes.User.AddUser">
-        <i class="fa-solid fa-plus pe-2"></i>Tambah User
+        <SolarIcon name="fa-plus" class="pe-2" />Tambah User
       </router-link>
     </div>
 
@@ -50,7 +50,7 @@
               <th scope="col">No</th>
               <th scope="col" role="button" @click="toggleSort">
                 Nama Lengkap
-                <i class="fa-solid ps-1" :class="sortDesc ? 'fa-arrow-down-z-a' : 'fa-arrow-down-a-z'"></i>
+                <SolarIcon :name="sortDesc ? 'fa-arrow-down-z-a' : 'fa-arrow-down-a-z'" class="ps-1" />
               </th>
               <th scope="col">Email</th>
               <th scope="col">No. Handphone</th>

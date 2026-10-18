@@ -54,11 +54,11 @@
       <span class="buttons-wrapper">
         <a class="btn btn-print" @click="handlePrint()">
           Print Invoice
-          <i class="icon-arrow-right btn-icon"></i>
+          <SolarIcon name="icon-arrow-right" class="btn-icon" />
         </a>
         <a class="btn btn-download" href="#" download>
           Download
-          <i class="icon-arrow-right btn-icon"></i>
+          <SolarIcon name="icon-arrow-right" class="btn-icon" />
         </a>
       </span>
     </td>

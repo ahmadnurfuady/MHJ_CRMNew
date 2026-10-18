@@ -1,7 +1,7 @@
 <template>
   <form class="msger-inputarea clearfix" @submit.prevent="addChats">
     <div class="dropdown-form dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="icon-plus"></i>
+      <SolarIcon name="icon-plus" />
       <div class="chat-icon dropdown-menu dropdown-menu-start">
         <div class="dropdown-item mb-2">
           <vue-feather class="feather" type="camera" />
@@ -22,7 +22,7 @@
     <EmojiChat @selectEmoji="appendEmoji" />
 
     <button type="submit" class="msger-send-btn">
-      <i class="fa fa-location-arrow"></i>
+      <SolarIcon name="fa-location-arrow" />
     </button>
   </form>
 </template>

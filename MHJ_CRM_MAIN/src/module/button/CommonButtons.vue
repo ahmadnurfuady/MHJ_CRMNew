@@ -15,7 +15,7 @@
         <template v-if="button.text">
           {{ button.text }}
         </template>
-        <i :class="button.simpleIcon" v-if="button.simpleIcon"></i>
+        <SolarIcon v-if="button.simpleIcon" :name="button.simpleIcon" />
         <span v-if="button.title">{{ button.title }}</span>
       </button>
     </Card>

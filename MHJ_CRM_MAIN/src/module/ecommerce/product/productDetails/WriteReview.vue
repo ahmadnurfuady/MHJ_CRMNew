@@ -6,7 +6,7 @@
           <div class="row">
             <div class="col-12">
               <div class="common-f-start mb-3">
-                <h5 class="main-product-rating">4.5<i class="fa-solid fa-star"></i></h5>
+                <h5 class="main-product-rating">4.5<SolarIcon name="fa-star" /></h5>
                 <h6 class="ms-3 c-o-light">5 Overall Rating</h6>
               </div>
             </div>
@@ -15,7 +15,7 @@
                 <ul>
                   <li v-for="data in ratingBreakdown" :key="data.id">
                     <div class="rating-list">
-                      <h6>{{ data.ratingId }}<i class="fa-solid fa-star"></i></h6>
+                      <h6>{{ data.ratingId }}<SolarIcon name="fa-star" /></h6>
                       <div class="progress">
                         <div
                           class="progress-bar"

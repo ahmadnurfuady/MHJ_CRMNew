@@ -25,13 +25,13 @@
     <div class="mail-body">
       <div class="mail-search d-flex-align-items-center">
         <input class="form-control" type="search" placeholder="Search..." />
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <SolarIcon name="fa-magnifying-glass" />
       </div>
       <div class="light-square block-btn-1">
-        <i class="fa-solid fa-arrows-rotate"></i>
+        <SolarIcon name="fa-arrows-rotate" />
       </div>
       <div class="light-square bg-light-danger">
-        <i class="fa-solid fa-trash-can txt-danger"></i>
+        <SolarIcon name="fa-trash-can" class="txt-danger" />
       </div>
       <div
         class="light-square dropdown-toggle"
@@ -39,7 +39,7 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        <i class="fa-solid fa-ellipsis-vertical"></i>
+        <SolarIcon name="fa-ellipsis-vertical" />
       </div>
       <ul class="dropdown-menu dropdown-block dropdown-menu-end">
         <li><a class="dropdown-item" href="#">All</a></li>

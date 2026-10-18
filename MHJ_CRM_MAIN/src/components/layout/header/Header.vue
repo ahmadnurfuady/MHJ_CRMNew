@@ -3,9 +3,6 @@
     <Logo />
     <div class="left-header col-xxl-5 col-xl-6 col-lg-5 col-md-4 col-sm-3 p-0">
       <div>
-        <a class="toggle-sidebar" href="#">
-          <i class="iconly-Category icli"> </i
-        ></a>
         <div class="d-flex align-items-center gap-2">
           <h4 class="f-w-600">{{ t('header.welcome', { name: displayName }) }}</h4>
           <img class="mt-0" :src="getImages('hand.gif')" alt="hand-gif" />

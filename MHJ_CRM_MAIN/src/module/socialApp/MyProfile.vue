@@ -9,7 +9,7 @@
       <h6 class="font-primary pb-1">My Page</h6>
       <span class="d-block">
         <span>
-          <i class="fa-regular fa-comments"> </i>
+          <SolarIcon name="fa-comments" />
           <span class="px-2">
             Messages
             <span class="badge rounded-pill badge-light ms-2"> {{ profile.message }}</span>
@@ -18,7 +18,7 @@
       </span>
       <span class="d-block">
         <span>
-          <i class="fa-regular fa-bell"> </i>
+          <SolarIcon name="fa-bell" />
           <span class="px-2">
             Notification
             <span class="badge rounded-pill badge-light ms-2">{{ profile.notification }}</span>
@@ -34,7 +34,7 @@
   <div class="likes-profile text-center">
     <h5>
       <span class="counter">
-        <i class="fa-solid fa-heart font-danger"></i>
+        <SolarIcon name="fa-heart" class="font-danger" />
         {{ profile.totalLikes }}</span
       >
     </h5>

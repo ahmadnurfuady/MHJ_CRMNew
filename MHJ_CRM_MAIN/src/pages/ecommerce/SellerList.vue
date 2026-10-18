@@ -34,7 +34,7 @@
                 />
               </div>
               <a class="btn btn-primary" @click="openSellerModal()"
-                ><i class="me-2 fa-solid fa-plus"></i>Add Seller</a
+                ><SolarIcon name="fa-plus" class="me-2" />Add Seller</a
               >
             </div>
             <AddSellerModal

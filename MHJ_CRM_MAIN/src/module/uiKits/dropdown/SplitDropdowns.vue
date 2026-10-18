@@ -19,7 +19,7 @@
             :class="`btn btn-${dropdown.color} dropdown-toggle-split`"
             data-bs-toggle="dropdown"
           >
-            <i class="icofont icofont-arrow-down"></i>
+            <SolarIcon name="icofont-arrow-down" class="icofont" />
           </button>
           <ul class="dropdown-menu dropdown-block">
             <li>

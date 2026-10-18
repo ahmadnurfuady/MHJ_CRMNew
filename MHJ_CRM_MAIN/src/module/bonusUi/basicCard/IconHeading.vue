@@ -1,7 +1,7 @@
 <template>
   <Card :headerTitle="'Icon In Heading'" :border="true" :padding="false">
     <template #icon>
-      <i class="icofont icofont-library me-2"></i>
+      <SolarIcon name="icofont-library" class="icofont me-2" />
     </template>
     <template #header5>
       <p class="f-m-light mt-1">

@@ -46,12 +46,12 @@
             <span>{{ email.time }}</span>
           </div>
           <div class="email-options">
-            <i
-              class="fa-regular"
-              :class="email.isRead ? 'fa-envelope-open envelope-2' : 'fa-envelope envelope-1'"
+            <SolarIcon :name="email.isRead ? 'fa-envelope-open envelope-2' : 'fa-envelope envelope-1'"
+
+
               @click="email.isRead = !email.isRead"
-            ></i>
-            <i class="fa-regular fa-trash-can trash-3" @click="deleteMail(email)"></i>
+             />
+            <SolarIcon name="fa-trash-can" class="trash-3" @click="deleteMail(email)" />
           </div>
         </div>
       </li>

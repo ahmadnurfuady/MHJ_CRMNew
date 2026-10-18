@@ -106,8 +106,8 @@ function formatReview(reviews: Review[]) {
   return reviews.map((r) => {
     const stars = Array.from({ length: 5 }, (_, i) =>
       i < r.rating
-        ? '<i class="fa-solid fa-star txt-warning"></i>'
-        : '<i class="fa-regular fa-star txt-warning"></i>'
+        ? '<SolarIcon name="fa-star" class="txt-warning" />'
+        : '<SolarIcon name="fa-star" class="txt-warning" />'
     ).join('')
     return {
       ...r,

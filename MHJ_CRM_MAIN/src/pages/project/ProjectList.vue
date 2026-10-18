@@ -17,7 +17,7 @@
               @click="projectStore.openCreateModal()"
             >
               <span aria-hidden="true"
-                ><vue-feather type="plus" size="20"
+                ><MhjIcon name="action_add" :size="20"
               /></span>
               Tambah Peluang
             </button>
@@ -88,7 +88,15 @@
                 <label class="visually-hidden" for="project-search-input"
                   >Cari peluang</label
                 >
-                <vue-feather type="search" size="16" />
+                <SolarIcon
+                  name="magnifier"
+                  class="crm-search-icon"
+                  :size="18"
+                  color="#032A4E"
+                  secondary-color="#18A6E4"
+                  :secondary-opacity="0.75"
+                  aria-hidden="true"
+                />
                 <input
                   id="project-search-input"
                   v-model="searchQuery"
@@ -214,7 +222,7 @@
                     v-if="!projectLoading && !filteredProjects.length"
                     class="col-12 project-empty-state"
                   >
-                    <vue-feather type="folder" size="24" />
+                    <MhjIcon name="action_folder" />
                     <strong>Peluang tidak ditemukan</strong>
                     <span
                       >Coba gunakan nama peluang atau stage yang berbeda.</span
@@ -1036,6 +1044,10 @@ onBeforeUnmount(() => {
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+.project-search .crm-search-icon {
+  flex: 0 0 18px;
 }
 
 .project-search:focus-within {

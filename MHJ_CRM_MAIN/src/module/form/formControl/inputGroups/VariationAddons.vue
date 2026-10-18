@@ -18,7 +18,7 @@
             <label class="form-label">Left Addon</label>
             <div class="input-group">
               <span class="input-group-text bg-light-primary">
-                <i class="icofont icofont-pencil-alt-5 txt-primary"></i>
+                <SolarIcon name="icofont-pencil-alt-5" class="icofont txt-primary" />
               </span>
               <InputField :inputId="'email'" :placeholder="'Email'" :required="false" />
             </div>
@@ -32,7 +32,7 @@
                 :required="false"
               />
               <span class="input-group-text bg-light-secondary">
-                <i class="icofont icofont-ui-dial-phone txt-secondary"> </i>
+                <SolarIcon name="icofont-ui-dial-phone" class="icofont txt-secondary" />
               </span>
             </div>
           </div>
@@ -40,7 +40,7 @@
             <label class="form-label">Joint Addon</label>
             <div class="input-group">
               <span class="input-group-text bg-light-primary">
-                <i class="icofont icofont-unlink txt-primary"></i>
+                <SolarIcon name="icofont-unlink" class="icofont txt-primary" />
               </span>
               <span class="input-group-text">0.00 </span>
               <InputField :inputId="'joint-addon'" :isPlaceholder="false" :required="false" />
@@ -50,11 +50,11 @@
             <label class="form-label">Left & Right Addon</label>
             <div class="input-group mb-3">
               <span class="input-group-text bg-light-secondary">
-                <i class="icofont icofont-ui-zoom-out txt-secondary"></i>
+                <SolarIcon name="icofont-ui-zoom-out" class="icofont txt-secondary" />
               </span>
               <InputField :inputId="'left-right-addon'" :isPlaceholder="false" :required="false" />
               <span class="input-group-text bg-light-secondary">
-                <i class="icofont icofont-ui-zoom-in txt-secondary"></i>
+                <SolarIcon name="icofont-ui-zoom-in" class="icofont txt-secondary" />
               </span>
             </div>
           </div>
@@ -62,7 +62,7 @@
             <label class="form-label">Solid Style</label>
             <div class="input-group">
               <span class="input-group-text bg-light-primary">
-                <i class="icofont icofont-users txt-primary"></i>
+                <SolarIcon name="icofont-users" class="icofont txt-primary" />
               </span>
               <InputField
                 :inputId="'solid-style-field'"
@@ -75,7 +75,7 @@
             <label class="form-label">Flat Style</label>
             <div class="input-group">
               <span class="input-group-text bg-light-secondary">
-                <i class="icofont icofont-credit-card txt-secondary"></i>
+                <SolarIcon name="icofont-credit-card" class="icofont txt-secondary" />
               </span>
               <InputField :inputId="'flat-style-field'" :isPlaceholder="false" :required="false" />
             </div>
@@ -84,7 +84,7 @@
             <label class="form-label">Raise Style</label>
             <div class="input-group">
               <span class="input-group-text bg-light-primary">
-                <i class="icofont icofont-download txt-primary"></i>
+                <SolarIcon name="icofont-download" class="icofont txt-primary" />
               </span>
               <InputField
                 :inputId="'raise-style-field'"
@@ -98,11 +98,11 @@
             <label class="form-label">Left & Right Addon</label>
             <div class="input-group pill-input-group">
               <span class="input-group-text bg-light-secondary">
-                <i class="icofont icofont-ui-copy txt-secondary"></i>
+                <SolarIcon name="icofont-ui-copy" class="icofont txt-secondary" />
               </span>
               <InputField :inputId="'left-right-addon'" :isPlaceholder="false" :required="false" />
               <span class="input-group-text bg-light-secondary">
-                <i class="icofont icofont-stock-search txt-secondary"></i>
+                <SolarIcon name="icofont-stock-search" class="icofont txt-secondary" />
               </span>
             </div>
           </div>

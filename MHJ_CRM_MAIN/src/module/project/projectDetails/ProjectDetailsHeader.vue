@@ -35,7 +35,7 @@
         type="button"
         @click="projectStore.openCreateModal()"
       >
-        <i class="fa-solid fa-plus"></i>
+        <SolarIcon name="fa-plus" />
         Tambah Peluang
       </button>
     </div>

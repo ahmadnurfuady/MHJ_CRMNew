@@ -21,8 +21,7 @@
         >
       </button>
       <button class="btn btn-info position-relative badge-square" type="button">
-        <i class="fa-brands fa-x-twitter"></i
-        ><span
+        <SolarIcon name="fa-x-twitter" /><span
           class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
           >8</span
         >
@@ -34,21 +33,21 @@
         >
       </button>
       <button class="btn btn-info position-relative badge-square" type="button">
-        <i class="fa-brands fa-linkedin-in"></i>
+        <SolarIcon name="fa-linkedin-in" />
         <span
           class="position-absolute top-0 start-100 translate-middle badge-p-5 bg-danger border border-light rounded-circle"
           ><span class="visually-hidden">New alerts</span></span
         >
       </button>
       <button class="btn btn-success position-relative badge-square" type="button">
-        <i class="fa-solid fa-comments"></i>
+        <SolarIcon name="fa-comments" />
         <span
           class="position-absolute top-0 start-100 translate-middle badge-p-5 bg-danger border border-light rounded-circle"
           ><span class="visually-hidden">New alerts</span></span
         >
       </button>
       <button class="btn btn-info position-relative badge-square" type="button">
-        <i class="fa-brands fa-x-twitter"></i>
+        <SolarIcon name="fa-x-twitter" />
         <span
           class="position-absolute top-0 start-100 translate-middle badge-p-5 bg-danger border border-light rounded-circle"
           ><span class="visually-hidden">New alerts</span></span

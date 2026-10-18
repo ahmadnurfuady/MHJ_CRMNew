@@ -15,7 +15,7 @@
               <h5>CSS</h5>
             </div>
             <div class="tab-paragraph">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 "One of the three main web technologies is CSS. The terms "cascading" and "style,"
                 with cascading indicating how one style can cascade from another, are actually the
@@ -23,7 +23,7 @@
               </p>
             </div>
             <div class="tab-paragraph">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>To specify how HTML code will appear on a website, utilize CSS.</p>
             </div>
           </template>
@@ -33,7 +33,7 @@
               <h5>Vendors</h5>
             </div>
             <div class="tab-paragraph">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 To improve the development of your website, find a carefully chosen list of premier
                 suppliers. Use our dependable network to locate the ideal partners for the
@@ -41,7 +41,7 @@
               </p>
             </div>
             <div class="tab-paragraph">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 Cutting-edge design tools, or specialized services, our curated list ensures you
                 have access to the best resources for a seamless and successful website development
@@ -55,14 +55,14 @@
               <h5>Javascript</h5>
             </div>
             <div class="tab-paragraph">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 Development of interactive and adaptable websites is made possible by JavaScript,
                 the web's dynamic programming language.
               </p>
             </div>
             <div class="tab-paragraph">
-              <i class="fa-solid fa-circle-arrow-right"></i>
+              <SolarIcon name="fa-circle-arrow-right" />
               <p>
                 Building strong and interactive online apps requires JavaScript, which is essential
                 for everything from enabling asynchronous requests to designing captivating user

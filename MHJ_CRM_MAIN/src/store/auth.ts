@@ -3,6 +3,7 @@ import { api } from '@/services/api'
 import { useMenu } from '@/store/menu'
 import { stopPermissionWatcher } from '@/services/permissionWatcher'
 import { useNotificationStore } from '@/store/notification'
+import { isAxiosError } from 'axios'
 
 // ── Tipe data sesuai kontrak API backend ──────────────────────────────────────
 export interface AuthUser {
@@ -44,8 +45,17 @@ export interface AuthActionResult {
   message: string
 }
 
-function extractErrorMessage(err: any, fallback: string): string {
-  const response = err?.response
+interface AuthResponseData {
+  token?: string
+  user?: AuthUser
+  success?: boolean
+  message?: string | string[]
+  msg?: string | string[]
+  error?: string
+}
+
+function extractErrorMessage(err: unknown, fallback: string): string {
+  const response = isAxiosError<AuthResponseData>(err) ? err.response : undefined
   if (!response) {
     return 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda lalu coba lagi.'
   }
@@ -116,7 +126,7 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true
       this.error = null
       try {
-        const response = await api.post('/login', credentials)
+        const response = await api.post<AuthResponseData>('/login', credentials)
         const data = response.data
 
         if (data.token) {
@@ -140,9 +150,9 @@ export const useAuthStore = defineStore('auth', {
         }
 
         return { success: false, message: 'Respon server tidak valid' }
-      } catch (err: any) {
+      } catch (err: unknown) {
         let errorMsg = 'Login gagal. Periksa koneksi ke server.'
-        const resData = err.response?.data
+        const resData = isAxiosError<AuthResponseData>(err) ? err.response?.data : undefined
 
         if (resData?.message) {
           errorMsg = Array.isArray(resData.message)
@@ -175,7 +185,7 @@ export const useAuthStore = defineStore('auth', {
     /** POST /api/auth/forgot-password — kirim kode OTP 6 digit ke email. */
     async forgotPassword(email: string): Promise<AuthActionResult> {
       try {
-        const { data } = await api.post('/auth/forgot-password', { email })
+        const { data } = await api.post<{ message?: string }>('/auth/forgot-password', { email })
         return { success: true, message: data?.message || 'Kode OTP telah dikirim ke email Anda.' }
       } catch (err) {
         return { success: false, message: extractErrorMessage(err, 'Gagal mengirim kode OTP. Silakan coba beberapa saat lagi.') }
@@ -185,7 +195,7 @@ export const useAuthStore = defineStore('auth', {
     /** POST /api/auth/verify-otp — cek kode OTP tanpa menandainya terpakai. */
     async verifyOtp(email: string, otp: string): Promise<AuthActionResult> {
       try {
-        const { data } = await api.post('/auth/verify-otp', { email, otp })
+        const { data } = await api.post<{ message?: string }>('/auth/verify-otp', { email, otp })
         return { success: true, message: data?.message || 'Kode OTP valid.' }
       } catch (err) {
         return { success: false, message: extractErrorMessage(err, 'Gagal memverifikasi kode OTP. Silakan coba beberapa saat lagi.') }
@@ -195,7 +205,7 @@ export const useAuthStore = defineStore('auth', {
     /** POST /api/auth/reset-password — simpan password baru, OTP ditandai terpakai. */
     async resetPassword(payload: ResetPasswordPayload): Promise<AuthActionResult> {
       try {
-        const { data } = await api.post('/auth/reset-password', payload)
+        const { data } = await api.post<{ message?: string }>('/auth/reset-password', payload)
         return { success: true, message: data?.message || 'Password berhasil diperbarui.' }
       } catch (err) {
         return { success: false, message: extractErrorMessage(err, 'Gagal menyimpan password baru. Silakan coba beberapa saat lagi.') }

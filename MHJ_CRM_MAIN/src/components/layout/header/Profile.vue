@@ -3,7 +3,7 @@
     <img class="b-r-10" :src="getImages('dashboard/profile.png')" alt="profile" />
     <div class="media-body d-xxl-block d-none box-col-none">
       <div class="d-flex align-items-center gap-2">
-        <span>{{ authStore.user?.name || 'Admin' }} </span><i class="middle fa fa-angle-down"> </i>
+        <span>{{ authStore.user?.name || 'Admin' }} </span><SolarIcon name="fa-angle-down" class="middle" />
       </div>
       <p class="mb-0 font-roboto">{{ authStore.user?.email || 'Admin' }}</p>
     </div>

@@ -22,22 +22,22 @@ import { getImages } from '@/utils';
               <ul class="list-inline">
                 <li class="list-inline-item">
                   <a href="https://www.facebook.com/" target="_blank">
-                    <i class="fa-brands fa-facebook-f"></i>
+                    <SolarIcon name="fa-facebook-f" />
                   </a>
                 </li>
                 <li class="list-inline-item">
                   <a href="https://accounts.google.com/" target="_blank">
-                    <i class="fa-brands fa-google-plus-g"></i>
+                    <SolarIcon name="fa-google-plus-g" />
                   </a>
                 </li>
                 <li class="list-inline-item">
                   <a href="https://twitter.com/" target="_blank">
-                    <i class="fa-brands fa-twitter"></i>
+                    <SolarIcon name="fa-twitter" />
                   </a>
                 </li>
                 <li class="list-inline-item">
                   <a href="https://www.instagram.com/" target="_blank">
-                    <i class="fa-brands fa-instagram"></i>
+                    <SolarIcon name="fa-instagram" />
                   </a>
                 </li>
               </ul>

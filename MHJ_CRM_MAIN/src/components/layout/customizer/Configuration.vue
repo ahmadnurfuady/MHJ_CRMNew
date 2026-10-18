@@ -1,8 +1,8 @@
 <template>
   <div class="customizer-header">
-    <i class="icofont-close icon-close" @click="closecustomizer()"></i>
+    <SolarIcon name="icon-close" class="icofont-close" @click="closecustomizer()" />
     <h5 class="f-w-700">Preview Settings</h5>
-    <p class="mb-0">Try It Real Time <i class="fa fa-thumbs-o-up txt-primary"></i></p>
+    <p class="mb-0">Try It Real Time <SolarIcon name="fa-thumbs-o-up" class="txt-primary" /></p>
     <button
       type="button"
       class="btn btn-primary plus-popup mt-2"

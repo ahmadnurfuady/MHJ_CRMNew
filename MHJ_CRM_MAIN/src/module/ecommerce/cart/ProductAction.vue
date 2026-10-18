@@ -5,7 +5,7 @@
         @click="$emit('decrement', item)"
         class="decrement-touchspin btn-touchspin touchspin-primary"
       >
-        <i class="fa fa-minus"></i>
+        <SolarIcon name="fa-minus" />
       </button>
       <input
         class="input-touchspin spin-outline-primary"
@@ -16,7 +16,7 @@
         @click="$emit('increment', item)"
         class="increment-touchspin btn-touchspin touchspin-primary"
       >
-        <i class="fa fa-plus"></i>
+        <SolarIcon name="fa-plus" />
       </button>
     </div>
   </td>

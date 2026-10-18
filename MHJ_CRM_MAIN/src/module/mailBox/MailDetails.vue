@@ -114,9 +114,9 @@
               </div>
               <div class="dropdown-menu dropdown-block">
                 <a class="dropdown-item" href="#"
-                  ><i class="fa fa-mail-reply"></i>Reply</a
+                  ><SolarIcon name="fa-mail-reply" />Reply</a
                 ><a class="dropdown-item" href="#">
-                  <i class="fa fa-mail-forward"></i>Forward</a
+                  <SolarIcon name="fa-mail-forward" />Forward</a
                 >
               </div>
             </div>
@@ -145,7 +145,7 @@
                 </div>
               </div>
               <a href="#">
-                <i class="fa fa-download f-light"></i>
+                <SolarIcon name="fa-download" class="f-light" />
               </a>
             </div>
           </div>
@@ -156,7 +156,7 @@
         <div class="send-btn">
           <button class="btn btn-primary">
             Send
-            <i class="fa-solid fa-paper-plane"></i>
+            <SolarIcon name="fa-paper-plane" />
           </button>
         </div>
       </div>

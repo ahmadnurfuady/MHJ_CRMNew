@@ -4,7 +4,7 @@
       <div class="common-space mb-3">
         <h5 class="main-product-rating">
           {{ sellerRating.rating }}/5
-          <i class="fa-solid fa-star"></i>
+          <SolarIcon name="fa-star" />
         </h5>
         <h6 class="ms-3 c-o-light">({{ sellerRating.totalRating }})</h6>
       </div>
@@ -16,7 +16,7 @@
             <div class="rating-list">
               <h6>
                 {{ rating[rating.length - index - 1] }}
-                <i class="fa-solid fa-star"></i>
+                <SolarIcon name="fa-star" />
               </h6>
               <div class="progress">
                 <div

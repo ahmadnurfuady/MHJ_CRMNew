@@ -1,7 +1,7 @@
 <template>
   <section ref="actionsRoot" class="won-document-actions" aria-labelledby="won-document-title">
     <div class="document-intro">
-      <span class="document-icon"><i class="fa-regular fa-file-lines"></i></span>
+      <span class="document-icon"><SolarIcon name="fa-file-lines" /></span>
       <div>
         <h5 id="won-document-title">Dokumen Peluang</h5>
         <p>Upload dokumen yang sudah ada atau buat dokumen baru dari data peluang.</p>
@@ -11,16 +11,16 @@
     <div class="document-buttons">
       <details class="document-menu">
         <summary>
-          <span><i class="fa-solid fa-file-invoice-dollar"></i>PO Customer</span>
-          <i class="fa-solid fa-chevron-down menu-chevron"></i>
+          <span><SolarIcon name="fa-file-invoice-dollar" />PO Customer</span>
+          <SolarIcon name="fa-chevron-down" class="menu-chevron" />
         </summary>
         <div class="document-menu__panel">
           <button type="button" @click="chooseUpload('customer-po', $event)">
-            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            <SolarIcon name="fa-arrow-up-from-bracket" />
             <span><strong>Upload PO Customer</strong><small>PDF, Word, Excel, atau gambar</small></span>
           </button>
           <button type="button" @click="openForm('customer-po', $event)">
-            <i class="fa-regular fa-pen-to-square"></i>
+            <SolarIcon name="fa-pen-to-square" />
             <span><strong>Isi Form Data Pelanggan</strong><small>Buat dokumen dari data peluang</small></span>
           </button>
           <button
@@ -29,7 +29,7 @@
             type="button"
             @click="downloadDocument(latestCustomerPo, $event)"
           >
-            <i class="fa-solid fa-download"></i>
+            <SolarIcon name="fa-download" />
             <span><strong>Unduh terakhir</strong><small>{{ latestCustomerPo.fileName }}</small></span>
           </button>
         </div>
@@ -37,16 +37,16 @@
 
       <details class="document-menu">
         <summary>
-          <span><i class="fa-regular fa-file-word"></i>Surat Pesanan</span>
-          <i class="fa-solid fa-chevron-down menu-chevron"></i>
+          <span><SolarIcon name="fa-file-word" />Surat Pesanan</span>
+          <SolarIcon name="fa-chevron-down" class="menu-chevron" />
         </summary>
         <div class="document-menu__panel document-menu__panel--right">
           <button type="button" @click="chooseUpload('sales-order', $event)">
-            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+            <SolarIcon name="fa-arrow-up-from-bracket" />
             <span><strong>Upload Surat Pesanan</strong><small>PDF, Word, Excel, atau gambar</small></span>
           </button>
           <button type="button" @click="openForm('sales-order', $event)">
-            <i class="fa-regular fa-pen-to-square"></i>
+            <SolarIcon name="fa-pen-to-square" />
             <span><strong>Buat Draft Surat Pesanan</strong><small>Isi lalu unduh sebagai Word</small></span>
           </button>
           <button
@@ -55,7 +55,7 @@
             type="button"
             @click="downloadDocument(latestSalesOrder, $event)"
           >
-            <i class="fa-solid fa-download"></i>
+            <SolarIcon name="fa-download" />
             <span><strong>Unduh terakhir</strong><small>{{ latestSalesOrder.fileName }}</small></span>
           </button>
         </div>
@@ -63,7 +63,7 @@
     </div>
 
     <p class="local-storage-note">
-      <i class="fa-solid fa-circle-info"></i>
+      <SolarIcon name="fa-circle-info" />
       Dokumen disimpan lokal sementara sampai endpoint backend tersedia.
     </p>
 
@@ -291,17 +291,17 @@
           <details class="export-menu" :class="{ disabled: saving }">
             <summary class="btn btn-primary" @click="saving && $event.preventDefault()">
               <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
-              <i v-else class="fa-solid fa-download me-2"></i>
+              <SolarIcon name="fa-download" class="me-2" v-else />
               Simpan Dokumen
-              <i class="fa-solid fa-chevron-down export-chevron"></i>
+              <SolarIcon name="fa-chevron-down" class="export-chevron" />
             </summary>
             <div class="export-menu__panel">
               <button type="submit" @click="exportFormat = 'word'">
-                <i class="fa-regular fa-file-word"></i>
+                <SolarIcon name="fa-file-word" />
                 <span><strong>Simpan sebagai Word</strong><small>Format .doc yang dapat diedit</small></span>
               </button>
               <button type="submit" @click="exportFormat = 'pdf'">
-                <i class="fa-regular fa-file-pdf"></i>
+                <SolarIcon name="fa-file-pdf" />
                 <span><strong>Simpan sebagai PDF</strong><small>Format .pdf siap dikirim</small></span>
               </button>
             </div>

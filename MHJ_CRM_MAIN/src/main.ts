@@ -11,7 +11,8 @@ import 'devextreme/dist/css/dx.material.blue.light.compact.css'
 import './assets/scss/app.scss'
 import 'leaflet/dist/leaflet.css'
 
-import VueFeather from 'vue-feather'
+import SolarIcon from '@/components/shared/SolarIcon.vue'
+import MhjIcon from '@/components/shared/MhjIcon.vue'
 import VueApexCharts from 'vue3-apexcharts'
 import VueECharts from 'vue-echarts'
 import VueSlider from 'vue-3-slider-component'
@@ -100,7 +101,10 @@ app
   .use(DropZone)
   .use(vueChartist)
   .use(Lightbox)
-  .component(VueFeather.name!, VueFeather)
+  // Compatibility alias: existing <vue-feather> usages now render Solar Icons.
+  .component('vue-feather', SolarIcon)
+  .component('SolarIcon', SolarIcon)
+  .component('MhjIcon', MhjIcon)
   .component('apexchart', VueApexCharts)
   .component('v-chart', VueECharts)
   .component('VueSlider', VueSlider)

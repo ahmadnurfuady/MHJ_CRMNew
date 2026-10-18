@@ -5,11 +5,10 @@
         <div class="row">
           <div class="col-12">
             <InputWrapper :title="'Weight (kg)'">
-              <i
-                class="icon-help-alt ms-1"
+              <SolarIcon name="icon-help-alt" class="ms-1"
+
                 v-tooltip
-                title="set proper weight for product items."
-              ></i>
+                title="set proper weight for product items." />
               <InputField
                 :inputId="'meta-title'"
                 :placeholder="'Enter your meta title'"
@@ -27,11 +26,10 @@
         <div class="row gx-xl-3 gx-md-2 gy-md-0 g-2">
           <div class="col-12">
             <InputWrapper :title="'Dimensions'">
-              <i
-                class="icon-help-alt ms-1"
+              <SolarIcon name="icon-help-alt" class="ms-1"
+
                 v-tooltip
-                title="set proper length/width and height for product items."
-              ></i>
+                title="set proper length/width and height for product items." />
             </InputWrapper>
           </div>
           <div class="col-md-4 col-sm-6">

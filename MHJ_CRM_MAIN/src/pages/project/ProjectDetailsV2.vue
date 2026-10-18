@@ -2,7 +2,7 @@
   <div class="container-fluid project-detail-v2">
     <div class="detail-toolbar">
       <router-link :to="routes.Project.ProjectList" class="back-link" aria-label="Kembali ke daftar peluang">
-        <i class="fa-solid fa-arrow-left"></i>
+        <SolarIcon name="fa-arrow-left" />
       </router-link>
       <div>
         <p class="toolbar-eyebrow">Peluang</p>
@@ -14,10 +14,10 @@
         :to="{ path: routes.Project.ProjectEdit, query: { id: String(project.id) } }"
         aria-label="Edit peluang"
       >
-        <i class="fa-solid fa-pen"></i>
+        <SolarIcon name="fa-pen" />
       </router-link>
       <button v-else class="edit-button" type="button" aria-label="Edit peluang" disabled>
-        <i class="fa-solid fa-pen"></i>
+        <SolarIcon name="fa-pen" />
       </button>
     </div>
 
@@ -27,7 +27,7 @@
     </div>
 
     <div v-else-if="loadError || !project" class="detail-state card">
-      <i class="fa-solid fa-circle-exclamation text-danger"></i>
+      <SolarIcon name="fa-circle-exclamation" class="text-danger" />
       <span>{{ loadError || 'Data peluang tidak ditemukan.' }}</span>
       <router-link class="btn btn-primary btn-sm" :to="routes.Project.ProjectList">
         Kembali ke Daftar Peluang
@@ -37,16 +37,16 @@
     <template v-else>
       <section class="project-hero">
         <div class="product-icon" aria-hidden="true">
-          <i class="fa-solid fa-kit-medical"></i>
+          <MhjIcon name="action_medical_kit" />
         </div>
         <div class="hero-copy">
           <span class="hero-eyebrow">Profil Peluang</span>
           <h4>{{ project.projectName || productTitle }}</h4>
-          <p><i class="fa-solid fa-location-dot"></i>{{ project.companyName || 'Lokasi belum tersedia' }}</p>
+          <p><MhjIcon name="action_location" />{{ project.companyName || 'Lokasi belum tersedia' }}</p>
           <div class="hero-meta">
             <span class="stage-pill">{{ project.stageName || titleCase(project.status) }}</span>
             <span class="duration-pill">
-              <i class="fa-regular fa-clock"></i>{{ stageDuration }} di stage ini
+              <SolarIcon name="fa-clock" />{{ stageDuration }} di stage ini
             </span>
           </div>
         </div>
@@ -87,7 +87,7 @@
                 <span class="section-kicker">Ringkasan</span>
                 <h5>Informasi Peluang</h5>
               </div>
-              <span class="record-status"><i class="fa-solid fa-circle"></i>Aktif</span>
+              <span class="record-status"><SolarIcon name="fa-circle" />Aktif</span>
             </div>
 
             <div class="opportunity-name">
@@ -116,22 +116,22 @@
 
             <div class="detail-list">
               <div class="detail-row">
-                <span><i class="fa-regular fa-user"></i>Owner</span>
+                <span><SolarIcon name="fa-user" />Owner</span>
                 <strong class="owner-detail">
                   <i class="owner-avatar">{{ initials(project.ownerName || '') }}</i>
                   {{ project.ownerName || 'Belum ditentukan' }}
                 </strong>
               </div>
               <div class="detail-row">
-                <span><i class="fa-solid fa-layer-group"></i>Divisi</span>
+                <span><SolarIcon name="fa-layer-group" />Divisi</span>
                 <strong>{{ project.divisionCode || 'Belum ditentukan' }}</strong>
               </div>
               <div class="detail-row">
-                <span><i class="fa-solid fa-boxes-stacked"></i>Qty</span>
+                <span><SolarIcon name="fa-boxes-stacked" />Qty</span>
                 <strong>{{ quantity ?? 'Tidak tersedia' }}</strong>
               </div>
               <div class="detail-row">
-                <span><i class="fa-solid fa-tag"></i>Harga Satuan</span>
+                <span><SolarIcon name="fa-tag" />Harga Satuan</span>
                 <strong>{{ formatOptionalMoney(unitPrice) }}</strong>
               </div>
             </div>
@@ -146,7 +146,7 @@
             </div>
 
             <section class="support-section">
-              <h6><i class="fa-regular fa-address-card"></i>Kontak Utama</h6>
+              <h6><SolarIcon name="fa-address-card" />Kontak Utama</h6>
               <div v-if="contacts.length" class="contact-list">
                 <div class="contact-item">
                   <div class="contact-avatar">{{ initials(primaryContact.name) }}</div>
@@ -163,14 +163,14 @@
                       v-if="primaryContact.phone"
                       :href="`tel:${primaryContact.phone}`"
                       :aria-label="`Telepon ${primaryContact.name}`"
-                    ><i class="fa-solid fa-phone"></i></a>
+                    ><MhjIcon name="action_phone" /></a>
                     <a
                       v-if="primaryContact.phone"
                       :href="whatsappLink(primaryContact.phone)"
                       target="_blank"
                       rel="noopener noreferrer"
                       :aria-label="`WhatsApp ${primaryContact.name}`"
-                    ><i class="fa-brands fa-whatsapp"></i></a>
+                    ><MhjIcon name="whatsapp" :size="16" /></a>
                     <div v-if="additionalContacts.length" class="more-detail-contacts">
                       <button type="button" :aria-label="`${additionalContacts.length} kontak lainnya`">•••</button>
                       <div class="detail-contact-popover" role="tooltip">
@@ -184,21 +184,21 @@
                 </div>
               </div>
               <div v-else class="support-empty">
-                <i class="fa-regular fa-address-card"></i>
+                <SolarIcon name="fa-address-card" />
                 <span>Kontak belum dapat dimuat.</span>
               </div>
             </section>
 
             <div class="support-grid">
               <div class="support-item">
-                <span class="support-icon competitor"><i class="fa-solid fa-building"></i></span>
+                <span class="support-icon competitor"><SolarIcon name="fa-building" /></span>
                 <div>
                   <span>Kompetitor</span>
                   <strong>{{ competitorName }}</strong>
                 </div>
               </div>
               <div class="support-item">
-                <span class="support-icon funding"><i class="fa-solid fa-wallet"></i></span>
+                <span class="support-icon funding"><MhjIcon name="action_wallet" /></span>
                 <div>
                   <span>Sumber Pendanaan</span>
                   <strong>{{ fundingSourceName }}</strong>
@@ -208,7 +208,7 @@
 
             <section class="notes-panel">
               <div>
-                <i class="fa-regular fa-note-sticky"></i>
+                <SolarIcon name="fa-note-sticky" />
                 <span>Notes/Catatan</span>
               </div>
               <p>{{ notes }}</p>
@@ -230,7 +230,7 @@
             <div v-for="(activity, index) in activities" :key="`${activity.title}-${index}`" class="timeline-item">
               <div class="timeline-marker">
                 <div class="timeline-icon" :class="index % 2 ? 'green' : 'blue'">
-                  <i :class="index % 2 ? 'fa-solid fa-phone' : 'fa-solid fa-briefcase'"></i>
+                  <SolarIcon :name="index % 2 ? 'fa-solid fa-phone' : 'fa-solid fa-briefcase'" />
                 </div>
               </div>
               <div class="timeline-content">
@@ -240,7 +240,7 @@
                 </div>
                 <p class="activity-description">{{ activity.description }}</p>
                 <div class="activity-date">
-                  <i class="fa-regular fa-calendar"></i>
+                  <SolarIcon name="fa-calendar" />
                   <span>{{ activity.date }}</span>
                 </div>
               </div>
@@ -249,7 +249,7 @@
         </article>
 
         <article class="detail-card comments-card">
-          <h5><i class="fa-regular fa-comment"></i> Komentar</h5>
+          <h5><SolarIcon name="fa-comment" /> Komentar</h5>
           <p v-if="!comments.length" class="empty-comment">Belum ada komentar.</p>
           <div v-for="comment in comments" :key="comment.id" class="comment-item">
             <div class="comment-avatar">{{ initials(comment.author) }}</div>

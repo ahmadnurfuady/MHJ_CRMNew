@@ -13,7 +13,7 @@
       <div class="col-md-9">
         <div class="input-group">
           <span class="input-group-text" id="commissionRate">
-            <i class="fa-solid fa-dollar-sign"></i>
+            <SolarIcon name="fa-dollar-sign" />
           </span>
           <InputField
             :inputId="'min-withdraw-amount'"

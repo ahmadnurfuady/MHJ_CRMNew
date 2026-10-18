@@ -9,11 +9,11 @@
       <span>
         <a href="#" @click.prevent="handlePrint">
           Print Invoice
-          <i class="icon-arrow-right"></i>
+          <SolarIcon name="icon-arrow-right" />
         </a>
         <a href="#" download>
           Download
-          <i class="icon-arrow-right"></i>
+          <SolarIcon name="icon-arrow-right" />
         </a>
       </span>
     </td>

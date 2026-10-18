@@ -18,7 +18,7 @@
               :class="{ active: activeTab === tab.id }"
               @click="activeTab = tab.id"
             >
-              <i :class="tab.icon" v-if="tab.icon"></i> {{ tab.title }}
+              <SolarIcon v-if="tab.icon" :name="tab.icon" /> {{ tab.title }}
             </a>
           </li>
         </ul>

@@ -3,7 +3,7 @@
     <router-link class="logo-link" :to="routes.Dashboards.Default">
       <img class="img-fluid" :src="getImages('logo/logo-white.png')" alt=""
     /></router-link>
-    <div class="back-btn" @click="toggleSidebar()"><i class="fa fa-angle-left"> </i></div>
+    <div class="back-btn" @click="toggleSidebar()"><SolarIcon name="fa-angle-left" /></div>
     <div class="toggle-sidebar" @click="toggleSidebar()">
       <vue-feather :type="'grid'" class="status_toggle middle sidebar-toggle"></vue-feather>
     </div>

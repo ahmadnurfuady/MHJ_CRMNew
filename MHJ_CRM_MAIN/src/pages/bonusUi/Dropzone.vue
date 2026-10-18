@@ -19,7 +19,7 @@
           <form class="dropzone dropzone-secondary custom-scrollbar">
             <FilePond
               name="file"
-              label-idle="<div class='dz-message needsclick'><i class='fa-solid fa-cloud-arrow-up fa-fade'></i><h6>Drop files here or click to upload.</h6><span class='note needsclick'>SVG, PNG, JPG <strong>or</strong> GIF</span></div>"
+              :label-idle="solarUploadLabel"
               :accepted-file-types="['image/png', 'image/jpeg']"
             />
           </form>
@@ -46,7 +46,7 @@
             <FilePond
               class="multipal"
               name="file"
-              label-idle="<div class='dz-message needsclick'><i class='fa-solid fa-cloud-arrow-up fa-fade'></i><h6>Drop files here or click to upload.</h6><span class='note needsclick'>SVG, PNG, JPG <strong>or</strong> GIF</span></div>"
+              :label-idle="solarUploadLabel"
               :accepted-file-types="['image/png', 'image/jpeg']"
               :allow-multiple="true"
               :max-files="10"
@@ -60,6 +60,7 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from 'vue'
+import { solarUploadLabel } from '@/utils/solarIconMarkup'
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 </script>

@@ -24,14 +24,13 @@
             </div>
           </div>
           <div class="d-flex gap-2">
-            <div class="contact-edit chat-alert"><i class="icon-info-alt"></i></div>
+            <div class="contact-edit chat-alert"><SolarIcon name="icon-info-alt" /></div>
             <div class="contact-edit chat-alert">
-              <i
-                class="fa-solid fa-bars dropdown-toggle"
+              <SolarIcon name="fa-bars" class="dropdown-toggle"
+
                 role="menu"
                 data-bs-toggle="dropdown"
-                aria-expanded="false"
-              ></i>
+                aria-expanded="false" />
               <div class="dropdown-menu dropdown-menu-end">
                 <a
                   class="dropdown-item"

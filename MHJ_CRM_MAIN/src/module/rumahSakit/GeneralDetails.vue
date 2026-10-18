@@ -6,7 +6,7 @@
         :style="avatarColorStyle(contactState.activeContact.firstName || contactState.activeContact.id)"
         aria-hidden="true"
       >
-        <i class="fa-solid fa-hospital"></i>
+        <MhjIcon name="hospital_profile" :size="40" />
       </div>
       <div class="hospital-identity">
         <h5 class="mb-0">{{ displayValue(contactState.activeContact.firstName) }}</h5>
@@ -14,7 +14,7 @@
           {{ displayValue(contactState.activeContact.email) }}
         </p>
         <p class="hospital-location mb-0">
-          <vue-feather type="map-pin" size="14" />
+          <MhjIcon name="action_location" :size="14" />
           {{ locationLabel }}
         </p>
       </div>

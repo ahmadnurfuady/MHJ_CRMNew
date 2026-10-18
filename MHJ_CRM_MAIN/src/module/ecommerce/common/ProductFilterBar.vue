@@ -111,8 +111,7 @@
             />
             <label class="form-check-label" :for="'rating-' + rate">
               <span class="common-flex"
-                ><i v-for="i in rate" :key="i" class="fa-solid fa-star fill"></i
-              ></span>
+                ><SolarIcon name="fa-star" class="fill" v-for="i in rate" :key="i" /></span>
               <span class="number">({{ rate }} Star)</span>
             </label>
           </div>

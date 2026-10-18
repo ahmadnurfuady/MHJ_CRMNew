@@ -11,14 +11,14 @@
       </p>
     </template>
     <div class="alert border-warning alert-dismissible fade show p-0" role="alert">
-      <div class="alert-arrow bg-warning"><i class="icon-timer"></i></div>
+      <div class="alert-arrow bg-warning"><SolarIcon name="icon-timer" /></div>
       <p>Your time Over after <strong class="txt-dark"> 5</strong> minute</p>
       <button class="p-0 border-0 me-2 ms-auto" type="button" data-bs-dismiss="alert">
         <span class="bg-warning px-3 py-1">Check</span>
       </button>
     </div>
     <div class="alert border-danger alert-dismissible fade show p-0 mb-0" role="alert">
-      <div class="alert-arrow bg-danger"><i class="icon-heart"></i></div>
+      <div class="alert-arrow bg-danger"><SolarIcon name="icon-heart" /></div>
       <p>Oh snap! Change a few things up <strong class="txt-dark"> Notification check</strong></p>
       <button class="p-0 border-0 me-2 ms-auto" type="button" data-bs-dismiss="alert">
         <span class="bg-danger text-white px-3 py-1">Alert</span>

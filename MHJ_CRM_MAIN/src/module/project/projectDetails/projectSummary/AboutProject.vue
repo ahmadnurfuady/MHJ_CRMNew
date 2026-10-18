@@ -56,7 +56,7 @@
                     </div>
                   </div>
                   <router-link :to="projectSummary.resource.file" download>
-                    <i class="fa-solid fa-download f-light"></i>
+                    <SolarIcon name="fa-download" class="f-light" />
                   </router-link>
                 </div>
               </li>

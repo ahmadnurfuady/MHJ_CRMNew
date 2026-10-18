@@ -4,7 +4,7 @@
       :class="`decrement-touchspin btn-touchspin touchspin-${props.color}`"
       @click="decrement(0)"
     >
-      <i class="fa-solid fa-minus"></i>
+      <SolarIcon name="fa-minus" />
     </button>
     <button class="btn-outline-warning" id="button-addon1" type="button" v-if="props.button">
       Pre
@@ -19,7 +19,7 @@
       :class="`increment-touchspin btn-touchspin touchspin-${props.color}`"
       @click="increment(0)"
     >
-      <i class="fa-solid fa-plus"></i>
+      <SolarIcon name="fa-plus" />
     </button>
   </div>
   <div class="input-group">
@@ -27,7 +27,7 @@
       :class="`decrement-touchspin btn-touchspin touchspin-${props.color}`"
       @click="decrement(1)"
     >
-      <i class="fa-solid fa-minus"></i>
+      <SolarIcon name="fa-minus" />
     </button>
     <input
       :class="`input-touchspin spin-outline-${props.color}`"
@@ -42,7 +42,7 @@
       :class="`increment-touchspin btn-touchspin touchspin-${props.color}`"
       @click="increment(1)"
     >
-      <i class="fa-solid fa-plus"></i>
+      <SolarIcon name="fa-plus" />
     </button>
   </div>
 </template>

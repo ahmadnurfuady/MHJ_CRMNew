@@ -20,7 +20,7 @@
               v-model="props.form.accountType"
             />
             <label class="form-check-label mb-0" :for="type.id">
-              <i :class="`fa-solid fa-${type.icon}`"></i>
+              <SolarIcon :name="`fa-solid fa-${type.icon}`" />
               <span class="d-flex flex-column">
                 <span>{{ type.title }} </span>
                 <span>{{ type.description }}</span>

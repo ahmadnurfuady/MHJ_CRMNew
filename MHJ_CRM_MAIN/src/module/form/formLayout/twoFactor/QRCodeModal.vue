@@ -20,7 +20,7 @@
               class="alert alert-light-dark light alert-dismissible fade show text-dark border-left-wrapper"
               role="alert"
             >
-              <i class="fa-solid fa-triangle-exclamation"></i>
+              <SolarIcon name="fa-triangle-exclamation" />
               <div>
                 <span
                   >If your qr code is not working then enter this code in your input field.</span

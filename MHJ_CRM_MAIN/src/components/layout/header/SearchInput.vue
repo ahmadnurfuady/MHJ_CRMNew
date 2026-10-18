@@ -2,7 +2,15 @@
   <div class="form search-form mb-0">
     <div class="input-group">
       <span class="input-show">
-        <SvgIcon icon="search-header" @click="collapseFilter()" />
+        <SolarIcon
+          name="magnifier"
+          :size="20"
+          color="#032A4E"
+          secondary-color="#18A6E4"
+          :secondary-opacity="0.75"
+          aria-label="Buka pencarian"
+          @click="collapseFilter()"
+        />
         <div id="searchInput" :class="{ show: filtered }">
           <input
             :placeholder="t('header.searchPlaceholder')"

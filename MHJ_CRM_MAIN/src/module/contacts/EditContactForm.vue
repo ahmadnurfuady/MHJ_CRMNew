@@ -144,7 +144,16 @@
                   class="spinner-border spinner-border-sm"
                   aria-hidden="true"
                 ></span>
-                <vue-feather v-else type="map-pin" size="17" />
+                <SolarIcon
+                  v-else
+                  name="magnifier"
+                  class="location-button__icon"
+                  :size="18"
+                  color="currentColor"
+                  secondary-color="currentColor"
+                  :secondary-opacity="0.42"
+                  aria-hidden="true"
+                />
                 <span>{{ locatingAddress ? 'Mencari...' : 'Cari lokasi' }}</span>
               </button>
             </div>
@@ -283,6 +292,11 @@ import {
   getCurrentPosition,
   reverseGeocodeLocation,
 } from "@/services/geocoding";
+
+const emit = defineEmits<{
+  cancel: [];
+  saved: [];
+}>();
 
 const InputWrapper = defineAsyncComponent(
   () => import("@/components/shared/formElements/InputWrapper.vue"),
@@ -685,17 +699,14 @@ async function save() {
   saveError.value = "";
   try {
     await updateRemoteContact(contact.remoteId, payload);
-    contactState.value.isEditContact = false;
+    emit("saved");
   } catch {
     saveError.value = contactApi.value.error || "Gagal memperbarui kontak.";
   }
 }
 
 function cancel() {
-  contactState.value.isEditContact = false;
-  formSubmitted.value = false;
-  saveError.value = "";
-  locationError.value = "";
+  emit("cancel");
 }
 
 watch(
@@ -797,7 +808,7 @@ onMounted(async () => {
 .location-input-group {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
   gap: 10px;
 }
 
@@ -836,11 +847,21 @@ onMounted(async () => {
 .location-button {
   display: inline-flex;
   min-width: 156px;
-  height: 46px;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px;
+  box-sizing: border-box;
   align-items: center;
+  align-self: start;
   justify-content: center;
   gap: 8px;
+  margin: 0 !important;
+  padding-block: 0;
   white-space: nowrap;
+}
+
+.location-button__icon {
+  flex: 0 0 18px;
 }
 
 @media (max-width: 575.98px) {

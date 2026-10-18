@@ -14,7 +14,7 @@
       <template v-for="(details, index) in halfRoundedTimeline" :key="details.id">
         <div class="container" :class="index % 2 === 0 ? 'left' : 'right'">
           <div class="date">{{ details.date }}</div>
-          <i :class="`icon fa-${details.icon}`"></i>
+          <SolarIcon :name="`icon fa-${details.icon}`" />
           <div class="content">
             <div class="timeline-wrapper">
               <div :class="`badge bg-${details.badgeClass}`">{{ details.badge }}</div>

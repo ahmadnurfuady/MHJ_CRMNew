@@ -15,7 +15,7 @@
 
       <!-- Error -->
       <div v-else-if="error" class="alert alert-light-danger border-left-danger mb-0">
-        <i class="fa fa-exclamation-triangle me-2"></i>{{ error }}
+        <SolarIcon name="fa-exclamation-triangle" class="me-2" />{{ error }}
       </div>
 
       <!-- Hierarki -->

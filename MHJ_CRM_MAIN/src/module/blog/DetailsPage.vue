@@ -7,15 +7,15 @@
           <ul class="blog-social">
             <li>{{ details.date }} {{ details.year }}</li>
             <li>
-              <i class="icofont icofont-user"></i>
+              <SolarIcon name="icofont-user" class="icofont" />
               {{ details.createdBy }}
             </li>
             <li>
-              <i class="icofont icofont-thumbs-up"></i>
+              <SolarIcon name="icofont-thumbs-up" class="icofont" />
               {{ details.hits }} Hits
             </li>
             <li>
-              <i class="icofont icofont-ui-chat"></i>
+              <SolarIcon name="icofont-ui-chat" class="icofont" />
               {{ details.comment }} Comments
             </li>
           </ul>

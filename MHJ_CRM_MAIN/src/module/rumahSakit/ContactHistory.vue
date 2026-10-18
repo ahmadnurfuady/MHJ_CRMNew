@@ -4,18 +4,18 @@
       Riwayat Rumah Sakit
       <span class="pull-right">
         <a class="close-history" href="#" @click.prevent="closeHistory()">
-          <i class="icofont icofont-close"></i>
+          <SolarIcon name="icofont-close" class="icofont" />
         </a>
       </span>
     </h6>
   </div>
   <div class="history-details">
     <div class="text-center">
-      <i class="icofont icofont-ui-edit"></i>
+      <SolarIcon name="icofont-ui-edit" class="icofont" />
       <p>Rumah Sakit belum pernah diubah.</p>
     </div>
     <div class="d-flex">
-      <i class="icofont icofont-star"></i>
+      <SolarIcon name="icofont-star" class="icofont" />
       <div class="flex-grow-1 mt-0">
         <h6 class="mt-0">Rumah Sakit Dibuat</h6>
         <p class="mb-0">Data rumah sakit dibuat</p>

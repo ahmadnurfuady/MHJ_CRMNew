@@ -35,11 +35,11 @@ function open() {
     showCancelButton: true,
     focusConfirm: false,
     confirmButtonText: `
-        <i class="fa fa-thumbs-up"></i> Great!
+        <SolarIcon name="fa-thumbs-up" /> Great!
       `,
     confirmButtonAriaLabel: 'Thumbs up, great!',
     cancelButtonText: `
-        <i class="fa fa-thumbs-down"></i>
+        <SolarIcon name="fa-thumbs-down" />
       `,
     cancelButtonAriaLabel: 'Thumbs down',
   })

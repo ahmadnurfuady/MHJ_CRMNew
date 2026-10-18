@@ -12,7 +12,7 @@
     <template v-for="(divider, index) in horizontalSolidDivider" :key="index">
       <div :class="`divider-body divider-body-1 divider-${divider.color}`">
         <div :class="`divider-p-${divider.color}`">
-          <i :class="`${divider.icon} me-2 txt-${divider.color} f-20`"></i>
+          <SolarIcon :name="divider.icon" :class="`me-2 txt-${divider.color} f-20`" />
           <span :class="`txt-${divider.color}`">{{ titleCase(divider.color) }}</span>
         </div>
       </div>

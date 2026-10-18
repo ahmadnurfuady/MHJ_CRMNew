@@ -28,18 +28,18 @@
               <p>{{ post.description }}</p>
               <div class="like-content">
                 <span>
-                  <i class="fa-solid fa-heart font-danger"></i>
+                  <SolarIcon name="fa-heart" class="font-danger" />
                 </span>
                 <span class="pull-right comment-number">
                   <span>{{ post.comment }}</span>
                   <span>
-                    <i class="fa-solid fa-share-nodes"></i>
+                    <SolarIcon name="fa-share-nodes" />
                   </span>
                 </span>
                 <span class="pull-right comment-number">
                   <span>{{ post.share }} </span>
                   <span>
-                    <i class="fa-regular fa-comments"></i>
+                    <SolarIcon name="fa-comments" />
                   </span>
                 </span>
               </div>
@@ -57,7 +57,7 @@
                           >{{ comment.userName }}
                           <span
                             >{{ comment.time }} ago
-                            <i class="fa-solid fa-reply font-primary"></i>
+                            <SolarIcon name="fa-reply" class="font-primary" />
                           </span>
                         </span>
                         <p>{{ comment.comment }}</p>
@@ -86,7 +86,7 @@
                       />
                       <div class="input-group-append">
                         <button class="btn btn-transparent" type="button">
-                          <i class="fa-regular fa-face-smile"> </i>
+                          <SolarIcon name="fa-face-smile" />
                         </button>
                       </div>
                     </div>

@@ -4,8 +4,7 @@
       <p>Contacts</p>
       <div class="header-top">
         <a class="btn badge-light-primary f-w-500" href="#"
-          ><i class="fa fa-plus"></i
-        ></a>
+          ><SolarIcon name="fa-plus" /></a>
       </div>
     </div>
     <div class="search-contacts">

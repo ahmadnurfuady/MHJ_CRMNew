@@ -10,8 +10,7 @@
                   <div class="card-header card-no-border">
                     <h6 class="mb-0 f-w-600" @click="collapseFilter()">
                       Filters<span class="pull-right">
-                        <i class="fa fa-chevron-down toggle-data"></i
-                      ></span>
+                        <SolarIcon name="fa-chevron-down" class="toggle-data" /></span>
                     </h6>
                   </div>
                   <ProductFilter />
@@ -29,7 +28,7 @@
                 class="btn btn-primary f-w-500"
                 :to="routes.Ecommerce.Products.AddProduct"
               >
-                <i class="fa-solid fa-plus pe-2"></i>
+                <SolarIcon name="fa-plus" class="pe-2" />
                 Add Products
               </router-link>
             </div>

@@ -16,11 +16,10 @@
       <div class="col-12">
         <label class="form-label">
           Product Discount Options
-          <i
-            class="icon-help-alt ms-1"
+          <SolarIcon name="icon-help-alt" class="ms-1"
+
             v-tooltip
-            title="Choose the kind of discount that will be used on that particular item."
-          ></i>
+            title="Choose the kind of discount that will be used on that particular item." />
         </label>
 
         <ul class="nav nav-pills discount-options">

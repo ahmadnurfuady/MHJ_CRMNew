@@ -44,28 +44,23 @@
           <ul class="card-social">
             <li>
               <a href="https://www.facebook.com/" target="_blank"
-                ><i class="fa-brands fa-facebook-f"></i
-              ></a>
+                ><SolarIcon name="fa-facebook-f" /></a>
             </li>
             <li>
               <a href="https://accounts.google.com/" target="_blank"
-                ><i class="fa-brands fa-linkedin-in"></i
-              ></a>
+                ><SolarIcon name="fa-linkedin-in" /></a>
             </li>
             <li>
               <a href="https://twitter.com/" target="_blank"
-                ><i class="fa-brands fa-x-twitter"></i
-              ></a>
+                ><SolarIcon name="fa-x-twitter" /></a>
             </li>
             <li>
               <a href="https://www.instagram.com/" target="_blank"
-                ><i class="fa-brands fa-instagram"></i
-              ></a>
+                ><SolarIcon name="fa-instagram" /></a>
             </li>
             <li>
               <a href="https://youtube.com/" target="_blank"
-                ><i class="fa-brands fa-youtube"></i
-              ></a>
+                ><SolarIcon name="fa-youtube" /></a>
             </li>
           </ul>
         </div>

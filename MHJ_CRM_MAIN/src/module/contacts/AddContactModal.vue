@@ -143,7 +143,7 @@
                         class="address-suggestion-item"
                         @mousedown.prevent="selectAddressSuggestion(suggestion)"
                       >
-                        <i class="fa-solid fa-location-dot"></i>
+                        <SolarIcon name="fa-location-dot" />
                         <span>{{ suggestion.address }}</span>
                       </li>
                     </ul>
@@ -164,8 +164,17 @@
                       class="spinner-border spinner-border-sm"
                       aria-hidden="true"
                     ></span>
-                    <vue-feather v-else type="map-pin" size="17" />
-                    <span>{{ locatingAddress ? 'Mencari...' : 'Cari' }}</span>
+                    <SolarIcon
+                      v-else
+                      name="magnifier"
+                      class="location-button__icon"
+                      :size="18"
+                      color="currentColor"
+                      secondary-color="currentColor"
+                      :secondary-opacity="0.42"
+                      aria-hidden="true"
+                    />
+                    <span>{{ locatingAddress ? 'Mencari...' : 'Cari lokasi' }}</span>
                   </button>
                 </div>
 
@@ -190,7 +199,7 @@
                     />
                   </l-map>
                   <p class="location-preview-address">
-                    <i class="fa-solid fa-location-dot"></i>
+                    <SolarIcon name="fa-location-dot" />
                     <span>
                       {{
                         contactState.contactForm.mapAddress.data ||
@@ -791,7 +800,7 @@ function closeModal() {
 .location-input-group {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
   gap: 10px;
 }
 
@@ -876,11 +885,21 @@ function closeModal() {
 .location-button {
   display: inline-flex;
   min-width: 156px;
-  height: 46px;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px;
+  box-sizing: border-box;
   align-items: center;
+  align-self: start;
   justify-content: center;
   gap: 8px;
+  margin: 0 !important;
+  padding-block: 0;
   white-space: nowrap;
+}
+
+.location-button__icon {
+  flex: 0 0 18px;
 }
 
 .location-preview {

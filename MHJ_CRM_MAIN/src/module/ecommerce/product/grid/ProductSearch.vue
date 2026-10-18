@@ -8,7 +8,7 @@
         v-model.trim="inputValue"
         @input="onInput"
       />
-      <i class="fa fa-search" :class="inputValue ? 'd-none' : ''"></i>
+      <SolarIcon :name="inputValue ? 'd-none' : ''" />
     </div>
   </form>
 </template>

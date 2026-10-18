@@ -8,28 +8,28 @@ export const topProjectWidgets: Widgets[] = [
     number: 1523,
     class1: ' total-project border-b-primary border-2',
     class2: 'primary',
-    icon: 'color-swatch',
+    icon: 'kpi_pin_list',
   },
   {
     title: 'In Progress',
     number: 836,
     class1: 'total-Progress border-b-warning border-2',
     class2: 'warning',
-    icon: 'tick-circle',
+    icon: 'kpi_graph',
   },
   {
     title: 'Complete',
     number: 475,
     class1: ' total-Complete border-b-secondary border-2',
     class2: 'secondary',
-    icon: 'add-square',
+    icon: 'kpi_medal_ribbons_star',
   },
   {
     title: 'Upcoming',
     number: 189,
     class1: 'total-upcoming',
     class2: 'light',
-    icon: 'edit-2',
+    icon: 'kpi_cart_large_2',
   },
 ]
 

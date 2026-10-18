@@ -35,6 +35,21 @@ const COLUMN_FRIENDLY_NAMES: Record<string, string> = {
   idjabatan: 'Jabatan',
 }
 
+interface BackendErrorLike {
+  code?: string
+  message?: string
+  response?: {
+    status?: number
+    config?: { url?: string }
+    data?: {
+      message?: string
+      msg?: string
+      error?: string
+      errors?: Record<string, unknown>
+    }
+  }
+}
+
 function getFriendlyColumnName(rawCol: string): string {
   let clean = rawCol.trim()
   if (/^FK_/i.test(clean)) {
@@ -57,7 +72,7 @@ export function parseBackendError(error: unknown, defaultTitle = 'Gagal Menyimpa
     return parseErrorMessageString(error, defaultTitle)
   }
 
-  const err = error as any
+  const err = error as BackendErrorLike
 
   // 0. HTTP status-level errors (sebelum parsing body)
   const httpStatus: number | undefined = err?.response?.status

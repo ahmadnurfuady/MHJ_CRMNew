@@ -33,7 +33,7 @@
                       class="btn btn-light-primary f-w-500"
                       :to="routes.Ecommerce.Products.AddProduct"
                     >
-                      <i class="fa-solid fa-plus pe-2"></i>
+                      <SolarIcon name="fa-plus" class="pe-2" />
                       Add Products
                     </router-link>
                   </div>

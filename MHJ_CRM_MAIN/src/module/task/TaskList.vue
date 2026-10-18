@@ -11,7 +11,15 @@
       <div class="task-header-actions">
         <div class="task-search" role="search">
           <label class="visually-hidden" for="task-search-input">Cari tugas</label>
-          <vue-feather type="search" size="17" />
+          <SolarIcon
+            name="magnifier"
+            class="crm-search-icon"
+            :size="18"
+            color="#032A4E"
+            secondary-color="#18A6E4"
+            :secondary-opacity="0.75"
+            aria-hidden="true"
+          />
           <input
             id="task-search-input"
             v-model="searchQuery"
@@ -51,7 +59,7 @@
             :aria-pressed="activeView === 'calendar'"
             @click="setActiveView('calendar')"
           >
-            <vue-feather type="calendar" size="15" />
+            <MhjIcon name="action_calendar_tugas" :size="15" />
             <span>Calendar</span>
           </button>
         </div>
@@ -62,7 +70,7 @@
           data-bs-toggle="modal"
           data-bs-target="#task-type-selector"
         >
-          <vue-feather type="plus" size="17" />
+          <MhjIcon name="action_add" :size="17" />
           <span>Buat Task Baru</span>
         </button>
       </div>
@@ -160,7 +168,7 @@
                   @click="openTaskDetail(item)"
                 >
                   <div class="task-icon">
-                    <vue-feather type="check-square" size="18" />
+                    <MhjIcon name="action_checklist" :size="18" />
                   </div>
                   <div class="task-identity__text">
                     <strong :title="item.title || 'Tanpa nama tugas'">
@@ -170,7 +178,15 @@
                       {{ item.category || 'Kategori belum tersedia' }} · {{ taskKindLabel(item) }}
                     </span>
                   </div>
-                  <vue-feather class="task-detail-indicator" type="chevron-right" size="16" />
+                  <SolarIcon
+                    class="task-detail-indicator"
+                    name="eye"
+                    :size="17"
+                    color="currentColor"
+                    secondary-color="currentColor"
+                    :secondary-opacity="0.42"
+                    aria-hidden="true"
+                  />
                 </button>
               </td>
 
@@ -255,7 +271,14 @@
                     :aria-label="`Lihat detail ${item.title}`"
                     @click="openTaskDetail(item)"
                   >
-                    <vue-feather type="eye" size="15" />
+                    <SolarIcon
+                      name="eye"
+                      :size="17"
+                      color="currentColor"
+                      secondary-color="currentColor"
+                      :secondary-opacity="0.42"
+                      aria-hidden="true"
+                    />
                     <span>Detail</span>
                   </button>
                   <button
@@ -981,6 +1004,10 @@ onBeforeUnmount(() => {
     box-shadow 0.2s ease;
 }
 
+.task-search .crm-search-icon {
+  flex: 0 0 18px;
+}
+
 .task-search:focus-within {
   border-color: #18a6e4;
   box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
@@ -1156,7 +1183,7 @@ onBeforeUnmount(() => {
 }
 
 .task-detail-indicator {
-  flex: 0 0 16px;
+  flex: 0 0 17px;
   margin-left: auto;
   color: #94a3b8;
 }
@@ -1319,6 +1346,16 @@ onBeforeUnmount(() => {
 
 .task-detail-button {
   min-width: 76px;
+}
+
+.task-detail-button :deep(.solar-icon),
+.task-identity-button :deep(.solar-icon) {
+  color: inherit !important;
+}
+
+.task-detail-button :deep(.solar-icon path),
+.task-identity-button :deep(.solar-icon path) {
+  stroke: none !important;
 }
 
 .task-delete-button {

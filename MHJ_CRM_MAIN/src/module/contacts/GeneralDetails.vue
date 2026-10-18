@@ -35,11 +35,11 @@
             v-if="contactState.activeContact.email"
             :href="`mailto:${contactState.activeContact.email}`"
           >
-            <vue-feather type="mail" size="14" />
+            <MhjIcon name="action_email" :size="14" />
             {{ contactState.activeContact.email }}
           </a>
           <span v-if="contactLocation.city !== '-'">
-            <vue-feather type="map-pin" size="14" />
+            <MhjIcon name="action_location" :size="14" />
             {{ contactLocation.city }}
           </span>
         </div>
@@ -116,7 +116,7 @@
                       :aria-label="`Telepon ${phone}`"
                       :title="`Telepon ${phone}`"
                     >
-                      <vue-feather type="phone" size="16" />
+                      <MhjIcon name="action_phone" :size="16" />
                     </a>
                     <a
                       :href="indonesianWhatsAppUrl(phone)"
@@ -125,7 +125,7 @@
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <i class="fa-brands fa-whatsapp"></i>
+                      <MhjIcon name="whatsapp" :size="16" />
                     </a>
                   </div>
                 </div>

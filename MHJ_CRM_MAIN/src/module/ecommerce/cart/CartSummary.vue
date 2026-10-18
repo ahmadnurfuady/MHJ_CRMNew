@@ -41,7 +41,7 @@
                     :to="routes.Ecommerce.Products.ProductGrid"
                     class="btn btn-hover-effect"
                   >
-                    <span><i class="fa-solid fa-caret-left fa-lg"></i></span>
+                    <span><SolarIcon name="fa-lg" class="fa-caret-left" /></span>
                     Return to Shopping
                   </router-link>
                 </li>

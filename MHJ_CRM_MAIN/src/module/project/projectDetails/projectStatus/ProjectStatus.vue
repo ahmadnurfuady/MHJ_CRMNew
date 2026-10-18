@@ -33,7 +33,7 @@
                         project.tag
                       }}</span>
                       <div class="common-box" v-if="project.projectBanner">
-                        <i :class="`fa-solid fa-plus txt-${project.tagColor}`"></i>
+                        <SolarIcon :name="`fa-solid fa-plus txt-${project.tagColor}`" />
                       </div>
                     </div>
                     <div class="project-body">

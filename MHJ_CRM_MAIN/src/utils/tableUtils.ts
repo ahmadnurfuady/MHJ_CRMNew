@@ -260,8 +260,9 @@ export function tableUtils<T extends TableData>() {
       // Date range filter
       if (tableState.filter['date']['startDate']) {
         filteredData = filteredData.filter((data: T) => {
-          if ('date' in (data as object) && (data as any).date) {
-            const recordDate = new Date((data as any).date as string | number | Date)
+          const dateValue = (data as T & { date?: string | number | Date }).date
+          if (dateValue) {
+            const recordDate = new Date(dateValue)
             const fromDate = new Date(
               tableState.filter['date']['startDate'] as string | number | Date
             )
@@ -288,7 +289,7 @@ export function tableUtils<T extends TableData>() {
       )
 
       if (tableState.paginate) {
-        ;(tableState.tableRecords as any) = filteredData.slice(
+        ;(tableState.tableRecords as T[]) = filteredData.slice(
           tableState.paginate.startIndex,
           tableState.paginate.endIndex + 1
         )

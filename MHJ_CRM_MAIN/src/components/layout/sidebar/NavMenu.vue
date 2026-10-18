@@ -11,11 +11,23 @@
     <div v-if="menuItem?.type == 'headtitle'">
       <h6 class="lan-1">{{ $t(menuItem?.headTitle || '') }}</h6>
     </div>
-    <i
+    <SolarIcon
       v-if="menuItem?.type != 'headtitle' && menuItem?.icon"
-      class="fa fa-thumb-tack"
-      @click="getPined(menuItem)"
-    ></i>
+      name="pin"
+      class="sidebar-pin"
+      :class="{ 'is-pinned': menuItem.title && menuState.pinedArray.includes(menuItem.title) }"
+      :size="20"
+      color="#ffffff"
+      secondary-color="#ffffff"
+      :secondary-opacity="1"
+      :aria-label="menuItem.title ? `Pin ${menuItem.title}` : 'Pin menu'"
+      :title="menuItem.title ? `Pin ${menuItem.title}` : 'Pin menu'"
+      role="button"
+      tabindex="0"
+      @click.stop="getPined(menuItem)"
+      @keydown.enter.stop="getPined(menuItem)"
+      @keydown.space.prevent.stop="getPined(menuItem)"
+    />
     <label
       v-if="menuItem?.badgeType"
       class="badge badge-new"
@@ -33,27 +45,37 @@
       ]"
       @click.prevent="onMenuClick(menuItem)"
     >
-      <SvgIcon
-        :icon="menuItem.icon"
-        svgClass="stroke-icon"
-        v-if="menuItem.icon && layoutState.svgIcon == 'stroke-svg'"
-        type="stroke"
+      <MhjIcon
+        v-if="resolveMhjNavigationIcon(menuItem)"
+        :name="resolveMhjNavigationIcon(menuItem)!"
+        class="sidebar-mhj-icon"
       />
-      <SvgIcon
-        :icon="menuItem.icon"
-        svgClass="fill-icon"
-        v-if="menuItem.icon && layoutState.svgIcon == 'fill-svg'"
-        type="fill"
-      />
+      <template v-else>
+        <SvgIcon
+          :icon="menuItem.icon"
+          svgClass="stroke-icon"
+          v-if="menuItem.icon && layoutState.svgIcon == 'stroke-svg'"
+          type="stroke"
+        />
+        <SvgIcon
+          :icon="menuItem.icon"
+          svgClass="fill-icon"
+          v-if="menuItem.icon && layoutState.svgIcon == 'fill-svg'"
+          type="fill"
+        />
+      </template>
 
       <span class="lan-3" v-if="menuItem.icon">{{ $t(menuItem.title) }}</span>
       <template v-else>{{ $t(menuItem.title) }}</template>
 
       <div class="according-menu" v-if="menuItem.children">
-        <i
-          class="pull-right"
-          :class="[menuItem.active ? 'fa fa-angle-down' : 'fa fa-angle-right']"
-        ></i>
+        <SolarIcon
+          :name="menuItem.active ? 'chevron-down' : 'chevron-right'"
+          class="sidebar-chevron"
+          :size="18"
+          color="#ffffff"
+          aria-hidden="true"
+        />
       </div>
     </router-link>
     <ul
@@ -76,6 +98,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useLayout } from '@/store/layout'
 import { MenuItem } from '@/types/menu'
+import { resolveMhjNavigationIcon } from '@/utils/mhjIcons'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 

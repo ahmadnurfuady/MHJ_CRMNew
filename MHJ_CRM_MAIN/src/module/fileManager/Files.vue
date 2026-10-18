@@ -8,19 +8,19 @@
       <div class="filemanger">
         <div class="top-menu">
           <button @click="openDialog('New File', 'file')">
-            <i class="fa-solid fa-file-circle-plus"></i>
+            <SolarIcon name="fa-file-circle-plus" />
             Add Files
           </button>
           <button @click="openDialog('New Folder', 'folder')">
-            <i class="fa-regular fa-folder-open"></i>
+            <SolarIcon name="fa-folder-open" />
             Add Folder
           </button>
           <button @click="openDialog('Rename', 'rename')">
-            <i class="fa-solid fa-pen-to-square"></i>
+            <SolarIcon name="fa-pen-to-square" />
             Rename
           </button>
           <button @click="deleteModal()">
-            <i class="fa-solid fa-trash"></i>
+            <SolarIcon name="fa-trash" />
             Delete
           </button>
         </div>
@@ -31,17 +31,17 @@
               @click="navigate('back')"
               :disabled="!fileManagerState.isSubFolder"
             >
-              <i class="fa-solid fa-arrow-left"></i>
+              <SolarIcon name="fa-arrow-left" />
             </button>
             <button
               id="forwardBtn"
               @click="navigate('next')"
               :disabled="fileManagerState.forwardStack.length === 0"
             >
-              <i class="fa-solid fa-arrow-right"></i>
+              <SolarIcon name="fa-arrow-right" />
             </button>
             <button @click="goHome()">
-              <i class="fa-solid fa-house"></i>
+              <SolarIcon name="fa-house" />
             </button>
           </div>
           <div class="folder-path-write">
@@ -52,7 +52,7 @@
               readonly
             />
             <button class="block-btn-1">
-              <i class="fa-solid fa-arrows-rotate"></i>
+              <SolarIcon name="fa-arrows-rotate" />
             </button>
           </div>
         </div>

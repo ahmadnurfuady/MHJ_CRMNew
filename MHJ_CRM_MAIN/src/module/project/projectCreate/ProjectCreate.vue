@@ -71,7 +71,7 @@
                   type="button"
                   @click="openContactModal"
                 >
-                  <vue-feather type="plus" size="14" class="me-1" />Tambah Kontak Baru
+                  <MhjIcon name="action_add" :size="14" class="me-1" />Tambah Kontak Baru
                 </button>
               </div>
 
@@ -260,7 +260,7 @@
                       type="button"
                       @click="addTimelineEntry"
                     >
-                      <vue-feather type="plus" size="14" class="me-1" />Tambah aktivitas
+                      <MhjIcon name="action_add" :size="14" class="me-1" />Tambah aktivitas
                     </button>
                   </div>
 
@@ -341,12 +341,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { initInputField, initSelectField } from '@/core/data/common'
 import { lostReasons, type DealOption } from '@/core/data/projectDeal'
 import { routes } from '@/router/routes'
+import { confirmEditExit } from '@/utils/confirmEditExit'
 import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
@@ -479,6 +488,7 @@ const editingId = computed<number | null>(() => {
   return Number.isFinite(value) && value > 0 ? value : null
 })
 const isEditMode = computed(() => editingId.value !== null)
+let allowEditNavigation = false
 const loadingProject = ref(false)
 const loadingMoreCompanies = ref(false)
 // Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
@@ -644,7 +654,9 @@ function openContactModal() {
   contactStore.openContactModal()
 }
 
-function cancel() {
+async function cancel() {
+  if (isEditMode.value && !(await confirmEditExit())) return
+  allowEditNavigation = true
   if (props.modalMode) {
     emit('cancel')
     return
@@ -1088,6 +1100,7 @@ async function handleSubmit() {
         title: 'Peluang berhasil diperbarui',
         confirmButtonColor: 'var(--theme-default)',
       })
+      allowEditNavigation = true
       router.push({
         path: routes.Project.ProjectDetailsV2,
         query: { id: String(editingId.value) },
@@ -1113,6 +1126,22 @@ async function handleSubmit() {
     })
   }
 }
+
+onBeforeRouteLeave(async () => {
+  if (!isEditMode.value || props.modalMode || allowEditNavigation) return true
+  const confirmed = await confirmEditExit()
+  if (confirmed) allowEditNavigation = true
+  return confirmed
+})
+
+function warnBeforeUnload(event: BeforeUnloadEvent) {
+  if (!isEditMode.value || props.modalMode || allowEditNavigation) return
+  event.preventDefault()
+  event.returnValue = ''
+}
+
+onMounted(() => window.addEventListener('beforeunload', warnBeforeUnload))
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warnBeforeUnload))
 </script>
 
 <style scoped>

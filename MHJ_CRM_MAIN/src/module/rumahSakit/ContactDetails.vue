@@ -10,7 +10,15 @@
       <div class="hospital-header-actions">
         <div class="hospital-search" role="search">
           <label class="visually-hidden" for="hospital-search-input">Cari rumah sakit</label>
-          <vue-feather type="search" size="17" />
+          <SolarIcon
+            name="magnifier"
+            class="crm-search-icon"
+            :size="18"
+            color="#032A4E"
+            secondary-color="#18A6E4"
+            :secondary-opacity="0.75"
+            aria-hidden="true"
+          />
           <input
             id="hospital-search-input"
             v-model="searchQuery"
@@ -38,7 +46,12 @@
           type="button"
           @click="openContactModal"
         >
-          <vue-feather type="plus" size="17" />
+          <MhjIcon
+            name="nav_hospital"
+            class="add-hospital-header-button__icon"
+            :size="19"
+            aria-hidden="true"
+          />
           <span>Tambah Rumah Sakit Baru</span>
         </button>
       </div>
@@ -99,10 +112,15 @@
                 <div class="hospital-identity">
                   <div
                     class="hospital-avatar"
-                    :style="avatarColorStyle(hospital.firstName || hospital.id)"
                     aria-hidden="true"
                   >
-                    <i class="fa-solid fa-hospital"></i>
+                    <SolarIcon
+                      name="hospital"
+                      :size="21"
+                      color="var(--theme-default, #18a6e4)"
+                      secondary-color="var(--theme-default, #18a6e4)"
+                      :secondary-opacity="0.48"
+                    />
                   </div>
                   <div class="hospital-identity__text">
                     <strong class="entity-detail-name">
@@ -146,7 +164,14 @@
                   :aria-label="`Lihat detail ${hospital.firstName}`"
                   @click="openHospitalDetail(hospital)"
                 >
-                  <vue-feather type="eye" size="15" />
+                  <SolarIcon
+                    name="eye"
+                    :size="17"
+                    color="currentColor"
+                    secondary-color="currentColor"
+                    :secondary-opacity="0.42"
+                    aria-hidden="true"
+                  />
                   <span>Lihat Detail</span>
                 </button>
               </td>
@@ -226,7 +251,6 @@ import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Contact } from "@/types/contacts";
-import { avatarColorStyle } from "@/utils/avatar";
 
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/rumahSakit/AddContactModal.vue"),
@@ -477,6 +501,10 @@ onBeforeUnmount(() => {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.hospital-search .crm-search-icon {
+  flex: 0 0 18px;
+}
+
 .hospital-search:focus-within {
   border-color: #18a6e4;
   box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
@@ -549,6 +577,11 @@ onBeforeUnmount(() => {
 .add-hospital-header-button svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+.add-hospital-header-button .add-hospital-header-button__icon {
+  flex: 0 0 19px;
+  filter: brightness(0) invert(1);
 }
 
 .hospital-table-wrap {
@@ -639,9 +672,10 @@ onBeforeUnmount(() => {
   flex: 0 0 38px;
   place-items: center;
   border-radius: 10px;
-  color: #ffffff;
+  color: var(--theme-default, #18a6e4);
+  background: color-mix(in srgb, var(--theme-default, #18a6e4) 13%, #fff);
   font-size: 17px;
-  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.14);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--theme-default, #18a6e4) 8%, transparent);
 }
 
 .hospital-identity__text {
@@ -738,9 +772,12 @@ onBeforeUnmount(() => {
 }
 
 .detail-button > span,
-.detail-button :deep(svg) {
+.detail-button :deep(.solar-icon) {
   color: inherit !important;
-  stroke: currentColor !important;
+}
+
+.detail-button :deep(.solar-icon path) {
+  stroke: none !important;
 }
 
 .detail-button:hover,

@@ -26,8 +26,8 @@
             <p>25 July 2024</p>
             <h4>Accusamus et iusto odio dignissimos ducimus qui blanditiis.</h4>
             <ul class="blog-social">
-              <li><i class="icofont icofont-user"></i>Mark Jecno</li>
-              <li><i class="icofont icofont-thumbs-up"></i>02 Hits</li>
+              <li><SolarIcon name="icofont-user" class="icofont" />Mark Jecno</li>
+              <li><SolarIcon name="icofont-thumbs-up" class="icofont" />02 Hits</li>
             </ul>
           </div>
         </div>

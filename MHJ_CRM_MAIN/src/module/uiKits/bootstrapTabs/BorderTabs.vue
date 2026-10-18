@@ -13,7 +13,7 @@
           href="#"
           @click.prevent="handleTab(tab.value)"
         >
-          <i :class="`icofont icofont-${tab.icon}`"></i>{{ tab.title }}
+          <SolarIcon :name="`icofont icofont-${tab.icon}`" />{{ tab.title }}
         </a>
       </li>
     </ul>
@@ -49,14 +49,13 @@
                   <li>
                     <p>8 JAN 11:30PM</p>
                   </li>
-                  <li><i class="txt-danger icofont icofont-ui-delete"></i></li>
-                  <li><i class="icofont icofont-telegram"></i></li>
+                  <li><SolarIcon name="icofont-ui-delete" class="txt-danger icofont" /></li>
+                  <li><SolarIcon name="icofont-telegram" class="icofont" /></li>
                 </ul>
               </div>
               <div class="body-inbox mt-2">
                 <div class="body-h-wrapper">
-                  <i class="me-2 tab-space icofont icofont-star"></i
-                  ><em>Compare Prices Find the Best Computer Assessors Fronted Issue.</em>
+                  <SolarIcon name="icofont-star" class="me-2 tab-space icofont" /><em>Compare Prices Find the Best Computer Assessors Fronted Issue.</em>
                 </div>
                 <p class="pt-2">
                   Site speed and design are two of the most important ranking factors Google takes

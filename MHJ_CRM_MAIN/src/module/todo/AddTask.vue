@@ -42,7 +42,7 @@
                             title="Delete Task"
                             @click="remove(index)"
                           >
-                            <i class="icon"><i class="icon-trash"></i></i>
+                            <i class="icon"><SolarIcon name="icon-trash" /></i>
                           </span>
                         </span>
                       </div>

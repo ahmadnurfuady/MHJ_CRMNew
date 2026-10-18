@@ -8,7 +8,7 @@
       <div class="feature-products">
         <div class="common-f-start justify-content-md-end mb-3">
           <router-link :to="routes.Ecommerce.Products.AddProduct" class="btn btn-primary f-w-500">
-            <i class="fa fa-plus pe-2"></i>Add Products
+            <SolarIcon name="fa-plus" class="pe-2" />Add Products
           </router-link>
         </div>
         <div class="row">
@@ -76,7 +76,7 @@
                     <h6 class="mb-0 f-w-700">
                       Filters
                       <span class="pull-right" @click="collapseFilter()">
-                        <i class="fa fa-chevron-down toggle-data"></i>
+                        <SolarIcon name="fa-chevron-down" class="toggle-data" />
                       </span>
                     </h6>
                   </div>
