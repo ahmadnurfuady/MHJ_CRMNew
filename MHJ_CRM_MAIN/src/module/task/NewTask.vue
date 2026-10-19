@@ -559,7 +559,7 @@
                       <button
                         class="btn btn-outline-primary evidence-main-button"
                         type="button"
-                        :disabled="locating"
+                        :disabled="locating || preparingPhotoLocation"
                         @click="captureLocation"
                       >
                         <span
@@ -910,6 +910,10 @@ const manualTaskName = ref("");
 const formSubmitted = ref(false);
 const validationMessage = ref("");
 const locating = ref(false);
+// Flag khusus untuk fetch GPS yang dipicu capturePhoto (bukan dari tombol
+// "Cari lokasi"). Dipisah supaya UI tombol GPS tidak ikut berubah "Mengambil
+// lokasi..." ketika user klik "Ambil Foto".
+const preparingPhotoLocation = ref(false);
 const locationError = ref("");
 const resolvingAddress = ref(false);
 const photoPreview = ref("");
@@ -1767,7 +1771,7 @@ async function preparePhotoLocation() {
   const recentlyVerified =
     hasLocation.value && Date.now() - lastLocationCapturedAt.value <= 30_000;
   if (!recentlyVerified) {
-    locating.value = true;
+    preparingPhotoLocation.value = true;
     locationError.value = "";
     try {
       const position = await getCurrentPosition();
@@ -1780,7 +1784,7 @@ async function preparePhotoLocation() {
       locationError.value = geolocationErrorMessage(error);
       return false;
     } finally {
-      locating.value = false;
+      preparingPhotoLocation.value = false;
     }
   }
 
@@ -2098,6 +2102,11 @@ function handleModalHidden() {
   }
   allowModalClose = false;
   navigatingAway = false;
+  // Kosongkan form setiap kali modal benar-benar tertutup (Batal, X, atau
+  // backdrop click). Pada mode edit, next time modal dibuka handleModalShow
+  // akan memanggil hydrateForm(props.task) sehingga data terisi kembali
+  // dari server — jadi aman di-reset di sini.
+  resetForm();
 }
 
 function handleModalShow() {
@@ -2114,13 +2123,61 @@ function handleModalShow() {
   }
 }
 
+/** True kalau user sudah mengisi minimal satu field selain default awal. */
+function isFormDirty(): boolean {
+  if (manualTaskName.value.trim()) return true;
+  if (form.customCategory.trim()) return true;
+  if (form.contactPhone.trim()) return true;
+  if (form.notes.trim()) return true;
+  if (form.serialNumber.trim()) return true;
+  if (form.locationAddress.trim()) return true;
+  if (form.category.selected) return true;
+  if (form.project.selected) return true;
+  if (form.hospital.selected) return true;
+  if (form.contact.selected) return true;
+  if (form.pipeline.selected) return true;
+  const divisionsSelected = form.divisions.selected;
+  if (Array.isArray(divisionsSelected) ? divisionsSelected.length : divisionsSelected)
+    return true;
+  const productsSelected = form.products.selected;
+  if (Array.isArray(productsSelected) ? productsSelected.length : productsSelected)
+    return true;
+  if (form.unrelatedProduct) return true;
+  if (form.hasProject) return true;
+  if (form.photo) return true;
+  if (form.latitude || form.longitude) return true;
+  return false;
+}
+
+async function confirmTaskExit(): Promise<boolean> {
+  if (isEditing.value) return confirmEditExit();
+
+  const result = await Swal.fire({
+    icon: "warning",
+    title: "Batalkan input task baru?",
+    text: "Data yang sudah diisi akan hilang.",
+    showCancelButton: true,
+    confirmButtonText: "Ya, keluar",
+    cancelButtonText: "Lanjut mengisi",
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "var(--theme-default)",
+    reverseButtons: true,
+    focusCancel: true,
+  });
+  return result.isConfirmed;
+}
+
 function handleModalHide(event: Event) {
-  if (!isEditing.value || allowModalClose) return;
+  if (allowModalClose) return;
+  // Kalau form masih pristine (user baru saja buka modal, belum isi apa-apa),
+  // close langsung tanpa konfirmasi — konfirmasi hanya untuk mencegah data
+  // input tidak sengaja hilang.
+  if (!isFormDirty()) return;
   event.preventDefault();
   if (confirmingModalClose) return;
 
   confirmingModalClose = true;
-  void confirmEditExit()
+  void confirmTaskExit()
     .then((confirmed) => {
       if (!confirmed) return;
       allowModalClose = true;
