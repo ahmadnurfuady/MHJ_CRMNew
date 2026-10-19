@@ -2,7 +2,12 @@
   <div class="contact-detail-page">
     <div class="detail-toolbar">
       <button type="button" class="back-button" :aria-label="backButtonLabel" @click="handleBack">
-        <SolarIcon name="fa-arrow-left" />
+        <SolarIcon
+          name="arrow-left-linear"
+          :size="26"
+          color="#087cae"
+          :stroke-width="2.5"
+        />
       </button>
       <div>
         <p>Kontak</p>
@@ -261,14 +266,42 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnloa
 .back-button {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid #e2e8ed;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+  border: 1px solid rgba(24, 166, 228, 0.28);
   border-radius: 12px;
-  color: var(--contact-primary);
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(26, 47, 67, 0.06);
   padding: 0;
+  background: #fff;
+  box-shadow: none;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.back-button :deep(.solar-icon) {
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.back-button:hover :deep(.solar-icon),
+.back-button:focus-visible :deep(.solar-icon) {
+  color: #fff !important;
+  transform: translateX(-2px);
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  border-color: var(--contact-primary);
+  background: var(--contact-primary);
+  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+}
+
+.back-button:focus-visible {
+  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline-offset: 2px;
 }
 
 .detail-content {

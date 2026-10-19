@@ -6,7 +6,12 @@
         class="back-button"
         aria-label="Kembali ke daftar rumah sakit"
       >
-        <SolarIcon name="fa-arrow-left" />
+        <SolarIcon
+          name="arrow-left-linear"
+          :size="26"
+          color="#087cae"
+          :stroke-width="2.5"
+        />
       </router-link>
       <div>
         <p>Rumah Sakit</p>
@@ -207,7 +212,7 @@
               :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah peluang'"
               @click="createOpportunity"
             >
-              <MhjIcon name="action_add" />
+              <SolarIcon name="add" color="#fff" secondary-color="#fff" aria-hidden="true" />
               Tambah Peluang
             </button>
           </div>
@@ -329,7 +334,7 @@
               :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah kontak'"
               @click="createHospitalContact"
             >
-              <MhjIcon name="action_add" />
+              <SolarIcon name="add" color="#fff" secondary-color="#fff" aria-hidden="true" />
               Tambah Kontak
             </button>
           </div>
@@ -1400,13 +1405,42 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .back-button {
   display: grid;
   place-items: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid #e2e8ed;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+  border: 1px solid rgba(24, 166, 228, 0.28);
   border-radius: 12px;
-  color: var(--primary);
+  padding: 0;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(26, 47, 67, 0.06);
+  box-shadow: none;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.back-button :deep(.solar-icon) {
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.back-button:hover :deep(.solar-icon),
+.back-button:focus-visible :deep(.solar-icon) {
+  color: #fff !important;
+  transform: translateX(-2px);
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+  border-color: var(--primary);
+  background: var(--primary);
+  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+}
+
+.back-button:focus-visible {
+  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline-offset: 2px;
 }
 .card {
   border: 1px solid #e5eaee;

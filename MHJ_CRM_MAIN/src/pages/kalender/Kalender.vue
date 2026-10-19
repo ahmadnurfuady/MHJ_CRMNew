@@ -55,7 +55,6 @@
 
           <UnifiedCalendarView
             :entries="filteredEntries"
-            :loading="loading"
             :load-error="loadError"
             :focus-range="focusRange"
             @open-entry="handleOpenEntry"
@@ -97,7 +96,6 @@ const projectStore = useProjectStore()
 const { currentTask } = storeToRefs(taskStore)
 const { items: projectItems } = storeToRefs(projectStore)
 
-const loading = ref(false)
 const loadError = ref<string | null>(null)
 const periodFilter = ref<PeriodFilter>('all')
 
@@ -183,15 +181,12 @@ const focusRange = computed(() => {
 })
 
 async function loadData() {
-  loading.value = true
   loadError.value = null
 
   const [taskResult, projectResult] = await Promise.allSettled([
     taskStore.fetchTasks(),
     projectStore.fetchProjects({ page: 1, per_page: 1000 }),
   ])
-
-  loading.value = false
 
   const taskOk =
     taskResult.status === 'fulfilled' &&

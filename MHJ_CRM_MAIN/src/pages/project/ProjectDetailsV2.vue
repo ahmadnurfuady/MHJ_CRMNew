@@ -2,7 +2,12 @@
   <div class="container-fluid project-detail-v2">
     <div class="detail-toolbar">
       <router-link :to="routes.Project.ProjectList" class="back-link" aria-label="Kembali ke daftar peluang">
-        <SolarIcon name="fa-arrow-left" />
+        <SolarIcon
+          name="arrow-left-linear"
+          :size="26"
+          color="#087cae"
+          :stroke-width="2.5"
+        />
       </router-link>
       <div>
         <p class="toolbar-eyebrow">Peluang</p>
@@ -56,9 +61,14 @@
         </div>
       </section>
 
-      <WonProjectDocuments v-if="isWonProject" :project="project" />
+      <WonProjectDocuments
+        v-if="isWonProject"
+        :project="project"
+        @documents-loaded="handleDocumentsLoaded"
+        @sales-order-saved="handleSalesOrderSaved"
+      />
 
-      <div class="detail-tabs" role="tablist" aria-label="Detail peluang">
+      <div class="detail-tabs" :class="{ 'has-order-status': hasOrderStatus }" role="tablist" aria-label="Detail peluang">
         <button
           type="button"
           role="tab"
@@ -76,6 +86,16 @@
           @click="activeTab = 'activity'"
         >
           Aktivitas
+        </button>
+        <button
+          v-if="hasOrderStatus"
+          type="button"
+          role="tab"
+          :aria-selected="activeTab === 'order-status'"
+          :class="{ active: activeTab === 'order-status' }"
+          @click="activeTab = 'order-status'"
+        >
+          Status Pesanan
         </button>
       </div>
 
@@ -217,7 +237,7 @@
         </div>
       </section>
 
-      <section v-else class="activity-panel">
+      <section v-else-if="activeTab === 'activity'" class="activity-panel">
         <article class="detail-card timeline-card">
           <div class="section-heading">
             <div>
@@ -261,6 +281,12 @@
           </form>
         </article>
       </section>
+
+      <OrderStatusPanel
+        v-else-if="latestSalesOrder"
+        :project="project"
+        :sales-order="latestSalesOrder"
+      />
     </template>
   </div>
 </template>
@@ -271,7 +297,9 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { routes } from '@/router/routes'
 import { completeProjectDemo } from '@/core/data/projectDemo'
+import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
 import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
+import type { StoredProjectDocument } from '@/services/projectDocumentStorage'
 import { useContact } from '@/store/contact'
 import { useProjectStore } from '@/store/project'
 import { shortProjectTitle } from '@/utils/index'
@@ -287,13 +315,15 @@ const route = useRoute()
 const store = useProjectStore()
 const contactStore = useContact()
 const { items, selectedItem, selectedDetails, loading } = storeToRefs(store)
-const activeTab = ref<'info' | 'activity'>('info')
+const activeTab = ref<'info' | 'activity' | 'order-status'>('info')
 const loadError = ref('')
 const newComment = ref('')
 const comments = ref<CommentInfo[]>([])
 const supportingContact = ref<Contact | null>(null)
+const latestSalesOrder = ref<StoredProjectDocument | null>(null)
 
 const project = computed<Projects | null>(() => selectedItem.value)
+const hasOrderStatus = computed(() => latestSalesOrder.value !== null)
 const isWonProject = computed(() => {
   const status = `${project.value?.status ?? ''} ${project.value?.stageName ?? ''}`
     .trim()
@@ -498,9 +528,19 @@ function addComment() {
   newComment.value = ''
 }
 
+function handleDocumentsLoaded(documents: StoredProjectDocument[]): void {
+  latestSalesOrder.value = documents.find((document) => document.kind === 'sales-order') ?? null
+}
+
+function handleSalesOrderSaved(document: StoredProjectDocument): void {
+  latestSalesOrder.value = document
+  activeTab.value = 'order-status'
+}
+
 async function loadProject() {
   loadError.value = ''
   activeTab.value = 'info'
+  latestSalesOrder.value = null
   supportingContact.value = null
   store.selectedItem = null
   store.selectedDetails = []
@@ -553,10 +593,15 @@ watch(() => route.query.id, loadProject, { immediate: true })
 
 <style scoped>
 .project-detail-v2 { --detail-blue: var(--theme-default, #25a9e0); max-width: 1180px; padding-bottom: 28px; }
-.detail-toolbar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 14px; margin-bottom: 18px; }
+.detail-toolbar { display: grid; grid-template-columns: 52px 1fr 44px; align-items: center; gap: 14px; margin-bottom: 18px; }
 .detail-toolbar h3 { margin: 0; font-size: 24px; }
 .toolbar-eyebrow { margin: 0 0 2px; color: #8c939c; font-size: 12px; text-transform: capitalize; letter-spacing: .08em; }
 .back-link, .edit-button { display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 12px; color: var(--detail-blue); background: #fff; box-shadow: 0 4px 16px rgba(28, 45, 69, .08); }
+.back-link { box-sizing: border-box; width: 50px; height: 50px; border: 1px solid rgba(24,166,228,.28); border-radius: 12px; padding: 0; background: #fff; box-shadow: none; transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease; }
+.back-link :deep(.solar-icon) { transition: color .18s ease, transform .18s ease; }
+.back-link:hover, .back-link:focus-visible { border-color: var(--detail-blue); background: var(--detail-blue); box-shadow: 0 6px 16px rgba(24,166,228,.2); }
+.back-link:hover :deep(.solar-icon), .back-link:focus-visible :deep(.solar-icon) { color: #fff !important; transform: translateX(-2px); }
+.back-link:focus-visible { outline: 3px solid rgba(24,166,228,.2); outline-offset: 2px; }
 .edit-button:disabled { opacity: .65; }
 .project-hero { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 18px; border: 1px solid rgba(24,166,228,.18); border-radius: 18px; padding: 22px 26px; color: #102a43; background: radial-gradient(circle at 90% 18%, rgba(24,166,228,.15), transparent 24%), linear-gradient(135deg, #fff 0%, #f5fbfe 60%, #eef9fd 100%); box-shadow: 0 12px 32px rgba(22,76,105,.08); }
 .project-hero::after { position: absolute; z-index: -1; right: -50px; bottom: -78px; width: 170px; height: 170px; border: 24px solid rgba(24,166,228,.055); border-radius: 50%; content: ''; }
@@ -571,7 +616,8 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .hero-value small, .hero-value strong { display: block; }
 .hero-value small { margin-bottom: 4px; color: #718096; font-size: 11px; }
 .hero-value strong { color: var(--detail-blue); font-size: 18px; }
-.detail-tabs { display: grid; grid-template-columns: 1fr 1fr; margin: 18px 0; border-bottom: 1px solid #d9dde2; }
+.detail-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 18px 0; border-bottom: 1px solid #d9dde2; }
+.detail-tabs.has-order-status { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .detail-tabs button { position: relative; padding: 12px; border: 0; color: #8b8b8b; background: transparent; font-weight: 500; }
 .detail-tabs button::after { content: ''; position: absolute; right: 0; bottom: -1px; left: 0; height: 4px; border-radius: 4px 4px 0 0; background: transparent; }
 .detail-tabs button.active { color: var(--detail-blue); }
@@ -666,7 +712,10 @@ watch(() => route.query.id, loadProject, { immediate: true })
   .detail-toolbar { grid-template-columns: 38px 1fr 38px; }
   .detail-toolbar h3 { font-size: 20px; text-align: center; }
   .toolbar-eyebrow { display: none; }
-  .back-link, .edit-button { width: 36px; height: 36px; box-shadow: none; background: transparent; }
+  .back-link, .edit-button { width: 36px; height: 36px; box-shadow: none; }
+  .back-link { background: #fff; }
+  .back-link:hover, .back-link:focus-visible { background: var(--detail-blue); }
+  .back-link :deep(.solar-icon) { width: 21px !important; height: 21px !important; }
   .project-hero { grid-template-columns: 58px minmax(0, 1fr); gap: 12px; padding: 16px; border-radius: 14px; }
   .product-icon { width: 56px; height: 56px; font-size: 24px; }
   .hero-copy h4 { overflow: hidden; font-size: 18px; text-overflow: ellipsis; white-space: nowrap; }

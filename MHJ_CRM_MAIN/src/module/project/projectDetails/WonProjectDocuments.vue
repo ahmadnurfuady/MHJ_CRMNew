@@ -327,6 +327,10 @@ import {
 import type { Projects } from '@/types/project'
 
 const props = defineProps<{ project: Projects }>()
+const emit = defineEmits<{
+  'documents-loaded': [documents: StoredProjectDocument[]]
+  'sales-order-saved': [document: StoredProjectDocument]
+}>()
 
 const acceptedFileTypes = '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png'
 const maxFileSize = 10 * 1024 * 1024
@@ -495,9 +499,11 @@ async function handleUpload(kind: ProjectDocumentKind, event: Event): Promise<vo
       size: file.size,
       createdAt: new Date().toISOString(),
       blob: file,
+      metadata: kind === 'sales-order' ? { completedOrderStep: 1 } : undefined,
     }
     await saveProjectDocument(document)
     documents.value = [document, ...documents.value]
+    if (kind === 'sales-order') emit('sales-order-saved', document)
     await Swal.fire({
       icon: 'success',
       title: 'Dokumen tersimpan',
@@ -516,6 +522,7 @@ async function loadDocuments(): Promise<void> {
   } catch {
     documents.value = []
   }
+  emit('documents-loaded', documents.value)
 }
 
 function downloadDocument(document: StoredProjectDocument, event: Event): void {
@@ -864,9 +871,18 @@ async function generateDocument(): Promise<void> {
       size: blob.size,
       createdAt: new Date().toISOString(),
       blob,
+      metadata: kind === 'sales-order'
+        ? {
+            documentNumber: form.documentNumber,
+            customer: form.customer,
+            totalValue: form.totalValue,
+            completedOrderStep: 1,
+          }
+        : undefined,
     }
     await saveProjectDocument(document)
     documents.value = [document, ...documents.value]
+    if (kind === 'sales-order') emit('sales-order-saved', document)
     downloadStoredDocument(document)
     formMode.value = null
     await Swal.fire({

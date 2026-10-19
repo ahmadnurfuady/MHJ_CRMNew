@@ -46,7 +46,14 @@
           type="button"
           @click="openContactModal"
         >
-          <vue-feather type="user-plus" size="17" />
+          <SolarIcon
+            name="users"
+            :size="18"
+            color="#fff"
+            secondary-color="#fff"
+            :secondary-opacity="0.85"
+            aria-hidden="true"
+          />
           <span>Tambah Kontak Baru</span>
         </button>
       </div>

@@ -17,7 +17,11 @@
               @click="projectStore.openCreateModal()"
             >
               <span aria-hidden="true"
-                ><MhjIcon name="action_add" :size="20"
+                ><SolarIcon
+                  name="add"
+                  :size="20"
+                  color="#fff"
+                  secondary-color="#fff"
               /></span>
               Tambah Peluang
             </button>
@@ -1232,7 +1236,7 @@ onBeforeUnmount(() => {
   margin: 0 0 6px;
   color: #172033;
   font-size: 17px;
-  font-weight: 750;
+  font-weight: 600;
   line-height: 1.38;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

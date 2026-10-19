@@ -1,26 +1,11 @@
 <template>
   <div class="unified-calendar-shell">
-    <DxLoadPanel
-      :visible="loading"
-      :show-indicator="true"
-      :show-pane="true"
-      :shading="false"
-    />
-
-    <div v-if="!loading && loadError" class="unified-calendar-state" role="alert">
+    <div v-if="loadError" class="unified-calendar-state" role="alert">
       <span class="unified-calendar-state__icon unified-calendar-state__icon--error">
         <vue-feather type="alert-circle" size="22" />
       </span>
       <strong>Kalender tidak dapat dimuat</strong>
       <span>{{ loadError }}</span>
-    </div>
-
-    <div v-else-if="!loading && !entries.length" class="unified-calendar-state">
-      <span class="unified-calendar-state__icon">
-        <vue-feather type="calendar" size="22" />
-      </span>
-      <strong>Belum ada data</strong>
-      <span>Task atau peluang yang memiliki tanggal akan tampil di sini.</span>
     </div>
 
     <template v-else>
@@ -266,7 +251,6 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import DxLoadPanel from 'devextreme-vue/load-panel'
 import { DxScheduler, type DxSchedulerTypes } from 'devextreme-vue/scheduler'
 import type { CalendarEntry } from './calendarEntry'
 import { entryAccent } from './calendarEntry'
@@ -287,7 +271,6 @@ interface FocusDay extends CalendarDay {
 
 const props = defineProps<{
   entries: CalendarEntry[]
-  loading: boolean
   loadError?: string | null
   /**
    * Jika diisi, kalender tidak merender grid bulanan DxScheduler melainkan

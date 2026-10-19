@@ -11,6 +11,12 @@ export interface StoredProjectDocument {
   size: number
   createdAt: string
   blob: Blob
+  metadata?: {
+    documentNumber?: string
+    customer?: string
+    totalValue?: string
+    completedOrderStep?: number
+  }
 }
 
 const DATABASE_NAME = 'mhj-crm-project-documents'

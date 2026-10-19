@@ -70,7 +70,7 @@
           data-bs-toggle="modal"
           data-bs-target="#task-type-selector"
         >
-          <MhjIcon name="action_add" :size="17" />
+          <SolarIcon name="add" :size="17" color="#fff" secondary-color="#fff" aria-hidden="true" />
           <span>Buat Task Baru</span>
         </button>
       </div>
@@ -178,13 +178,10 @@
                       {{ item.category || 'Kategori belum tersedia' }} · {{ taskKindLabel(item) }}
                     </span>
                   </div>
-                  <SolarIcon
+                  <vue-feather
                     class="task-detail-indicator"
-                    name="eye"
-                    :size="17"
-                    color="currentColor"
-                    secondary-color="currentColor"
-                    :secondary-opacity="0.42"
+                    type="chevron-right"
+                    size="17"
                     aria-hidden="true"
                   />
                 </button>
@@ -287,7 +284,13 @@
                     :aria-label="`Hapus ${item.title}`"
                     @click="deleteTask(item)"
                   >
-                    <vue-feather type="trash-2" size="15" />
+                    <vue-feather
+                      type="trash-2"
+                      size="15"
+                      color="currentColor"
+                      secondary-color="#fecaca"
+                      :secondary-opacity="1"
+                    />
                     <span class="visually-hidden">Hapus</span>
                   </button>
                 </div>
@@ -1346,22 +1349,68 @@ onBeforeUnmount(() => {
 
 .task-detail-button {
   min-width: 76px;
+  border-color: var(--theme-default, #18a6e4) !important;
+  background: #fff !important;
+  color: var(--theme-default, #1688bd) !important;
 }
 
-.task-detail-button :deep(.solar-icon),
-.task-identity-button :deep(.solar-icon) {
+.task-detail-button > span,
+.task-detail-button :deep(.solar-icon) {
   color: inherit !important;
 }
 
-.task-detail-button :deep(.solar-icon path),
-.task-identity-button :deep(.solar-icon path) {
+.task-detail-button :deep(.solar-icon path) {
   stroke: none !important;
+}
+
+.task-detail-button:hover,
+.task-detail-button:focus,
+.task-detail-button:focus-visible,
+.task-detail-button:active {
+  border-color: var(--theme-default, #18a6e4) !important;
+  background: var(--theme-default, #18a6e4) !important;
+  color: #fff !important;
+}
+
+.task-detail-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
 }
 
 .task-delete-button {
   width: 34px;
   height: 32px;
+  border-color: #dc3545 !important;
   padding: 0;
+  background: #fff !important;
+  color: #dc3545 !important;
+}
+
+.task-delete-button :deep(.solar-icon) {
+  --solar-secondary-color: #fecaca !important;
+  --solar-secondary-opacity: 1 !important;
+  color: #dc3545 !important;
+}
+
+.task-delete-button:hover,
+.task-delete-button:focus,
+.task-delete-button:focus-visible,
+.task-delete-button:active {
+  border-color: #dc3545 !important;
+  background: #dc3545 !important;
+  color: #fff !important;
+}
+
+.task-delete-button:hover :deep(.solar-icon),
+.task-delete-button:focus :deep(.solar-icon),
+.task-delete-button:focus-visible :deep(.solar-icon),
+.task-delete-button:active :deep(.solar-icon) {
+  --solar-secondary-color: #fff !important;
+  --solar-secondary-opacity: 0.62 !important;
+  color: #fff !important;
+}
+
+.task-delete-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.22) !important;
 }
 
 .task-table-state {

@@ -22,6 +22,7 @@ import { AltArrowLeftIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-left";
 import { AltArrowRightIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-right";
 import { AltArrowUpIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-up";
 import { ArrowLeftIcon } from "@solar-icons/vue/bold-duotone/arrow-left";
+import { ArrowLeftIcon as ArrowLeftLinearIcon } from "@solar-icons/vue/linear/arrow-left";
 import { ArrowRightIcon } from "@solar-icons/vue/bold-duotone/arrow-right";
 import { ArrowRightUpIcon } from "@solar-icons/vue/bold-duotone/arrow-right-up";
 import { BellIcon } from "@solar-icons/vue/bold-duotone/bell";
@@ -78,7 +79,7 @@ import { ListIcon } from "@solar-icons/vue/bold-duotone/list";
 import { LockIcon } from "@solar-icons/vue/bold-duotone/lock";
 import { LoginIcon } from "@solar-icons/vue/bold-duotone/login";
 import { LogoutIcon } from "@solar-icons/vue/bold-duotone/logout";
-import { MagnifierIcon } from "@solar-icons/vue/bold-duotone/magnifier";
+import { MagnifierIcon } from "@solar-icons/vue/linear/magnifier";
 import { MagnifierZoomInIcon } from "@solar-icons/vue/bold-duotone/magnifier-zoom-in";
 import { MagnifierZoomOutIcon } from "@solar-icons/vue/bold-duotone/magnifier-zoom-out";
 import { MapPointIcon } from "@solar-icons/vue/bold-duotone/map-point";
@@ -104,6 +105,7 @@ import { ShieldCheckIcon } from "@solar-icons/vue/bold-duotone/shield-check";
 import { ShieldWarningIcon } from "@solar-icons/vue/bold-duotone/shield-warning";
 import { SmileCircleIcon } from "@solar-icons/vue/bold-duotone/smile-circle";
 import { SortIcon } from "@solar-icons/vue/bold-duotone/sort";
+import { SquareArrowLeftIcon } from "@solar-icons/vue/bold-duotone/square-arrow-left";
 import { SquareArrowRightUpIcon } from "@solar-icons/vue/bold-duotone/square-arrow-right-up";
 import { StarIcon } from "@solar-icons/vue/bold-duotone/star";
 import { TagIcon } from "@solar-icons/vue/bold-duotone/tag";
@@ -147,6 +149,7 @@ const icons: Record<string, Component> = {
   "alt-arrow-right": AltArrowRightIcon,
   "alt-arrow-up": AltArrowUpIcon,
   "arrow-left": ArrowLeftIcon,
+  "arrow-left-linear": ArrowLeftLinearIcon,
   "arrow-right": ArrowRightIcon,
   "arrow-right-up": ArrowRightUpIcon,
   bell: BellIcon,
@@ -229,6 +232,7 @@ const icons: Record<string, Component> = {
   "shield-warning": ShieldWarningIcon,
   smile: SmileCircleIcon,
   sort: SortIcon,
+  "square-arrow-left": SquareArrowLeftIcon,
   "square-arrow-right-up": SquareArrowRightUpIcon,
   star: StarIcon,
   tag: TagIcon,
