@@ -274,6 +274,7 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import Swal from "sweetalert2";
 
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
@@ -699,6 +700,14 @@ async function save() {
   saveError.value = "";
   try {
     await updateRemoteContact(contact.remoteId, payload);
+    Swal.fire({
+      icon: "success",
+      title: "Kontak berhasil diperbarui",
+      text: "Perubahan data kontak sudah tersimpan.",
+      confirmButtonColor: "var(--theme-default)",
+      timer: 2000,
+      showConfirmButton: false,
+    });
     emit("saved");
   } catch {
     saveError.value = contactApi.value.error || "Gagal memperbarui kontak.";

@@ -76,14 +76,14 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper title="Email Faskes">
+            <InputWrapper title="Email Faskes" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.email"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="rs-email"
                 inputType="email"
                 placeholder="Contoh: info@rumahsakit.com"
-                :required="false"
-                :validator="optionalEmailValidator"
+                :validator="validateEmail"
                 :disabled="readOnly"
               />
             </InputWrapper>
@@ -481,8 +481,6 @@ const containerProps = computed(() =>
 );
 const locatingAddress = ref(false);
 const locationError = ref("");
-const optionalEmailValidator = (value: string) =>
-  value.trim() ? validateEmail(value).errorMessage : "";
 
 const addressSuggestions = ref<AddressSearchResult[]>([]);
 const searchingAddress = ref(false);

@@ -239,33 +239,13 @@
 
       <section v-else-if="activeTab === 'activity'" class="activity-panel">
         <article class="detail-card timeline-card">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">Timeline peluang</span>
-              <h5>Riwayat Aktivitas</h5>
-            </div>
-            <span class="activity-count">{{ activities.length }} aktivitas</span>
-          </div>
-          <div class="timeline">
-            <div v-for="(activity, index) in activities" :key="`${activity.title}-${index}`" class="timeline-item">
-              <div class="timeline-marker">
-                <div class="timeline-icon" :class="index % 2 ? 'green' : 'blue'">
-                  <SolarIcon :name="index % 2 ? 'fa-solid fa-phone' : 'fa-solid fa-briefcase'" />
-                </div>
-              </div>
-              <div class="timeline-content">
-                <div class="timeline-content-top">
-                  <strong>{{ activity.title }}</strong>
-                  <span v-if="index === 0" class="latest-badge">Terbaru</span>
-                </div>
-                <p class="activity-description">{{ activity.description }}</p>
-                <div class="activity-date">
-                  <SolarIcon name="fa-calendar" />
-                  <span>{{ activity.date }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ActivityTimeline
+            entity="m_projects"
+            :entity-id="project?.id ?? null"
+            :title="`Aktivitas ${project?.projectName || 'Peluang'}`"
+            heading="Timeline Peluang"
+            :created-description="`Peluang ${project?.projectName || ''} dibuat.`"
+          />
         </article>
 
         <article class="detail-card comments-card">
@@ -295,6 +275,7 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import ActivityTimeline from '@/components/shared/ActivityTimeline.vue'
 import { routes } from '@/router/routes'
 import { completeProjectDemo } from '@/core/data/projectDemo'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'

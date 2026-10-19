@@ -24,6 +24,31 @@ import type { TaskPayload, TaskUpdatePayload, Task, TaskData, TaskDetails } from
 const projectStageStorageKey = 'mhj-crm-project-stages'
 const CREATED_BY_ME = 'CreatedByMe'
 
+/**
+ * Slug stage (dipakai form task) ke stage_id di tabel m_projects.
+ * Harus sinkron dengan stageOptions di ProjectCreate.vue.
+ */
+const STAGE_SLUG_TO_ID: Record<string, number> = {
+  qualified: 1,
+  presentation_demo: 2,
+  quotation: 3,
+  negotiation: 4,
+  closed_won: 5,
+  closed_lost: 6,
+  closed_cancel: 7,
+}
+
+/** Probability default per stage, mengikuti ProjectCreate.vue. */
+const STAGE_PROBABILITY: Record<number, number> = {
+  1: 10,
+  2: 30,
+  3: 60,
+  4: 80,
+  5: 100,
+  6: 0,
+  7: 0,
+}
+
 function normalizeText(value: unknown, fallback = ''): string {
   if (value == null) return fallback
   const text = String(value).trim()
@@ -591,6 +616,7 @@ export const useTask = defineStore('task', () => {
         taskData.activeTask = target
 
         if (payload.projectId && payload.stageTo) {
+          await syncProjectStage(payload.projectId, payload.stageTo)
           projectStages[payload.projectId] = payload.stageTo
           localStorage.setItem(projectStageStorageKey, JSON.stringify(projectStages))
         }
@@ -598,6 +624,59 @@ export const useTask = defineStore('task', () => {
         return newTask
       },
     })
+  }
+
+  /**
+   * Menuliskan perubahan stage dari form task ke tabel m_projects.
+   *
+   * sp_projects_crud menerima seluruh kolom sekaligus, bukan patch parsial —
+   * mengirim stage_id saja akan menihilkan kolom lain. Karena itu payload
+   * disusun ulang dari data peluang yang sedang tersimpan, dan hanya stage
+   * (beserta probability yang melekat padanya) yang diganti.
+   *
+   * Kegagalan di sini tidak membatalkan penyimpanan task: task sudah tersimpan
+   * di server, jadi error cukup dicatat dan dikembalikan sebagai false.
+   */
+  async function syncProjectStage(projectId: number, stageSlug: string): Promise<boolean> {
+    const stageId = STAGE_SLUG_TO_ID[stageSlug]
+    if (!stageId) return false
+
+    let project = projectStore.items.find((item) => item.id === projectId)
+    if (!project) {
+      try {
+        project = (await projectStore.fetchProjectById(projectId)) ?? undefined
+      } catch {
+        project = undefined
+      }
+    }
+    if (!project) return false
+    if (project.stageId === stageId) return true
+
+    try {
+      await projectStore.updateProject(projectId, {
+        projects_name: project.projectName,
+        company_id: project.companyId ?? null,
+        contact_id: project.contactId ?? null,
+        contact_ids: [],
+        owner_id: project.ownerId ?? null,
+        owner_name: project.ownerName ?? null,
+        stage_id: stageId,
+        currency: project.currency ?? null,
+        amount_value: project.amountValue ?? null,
+        expected_close_date: project.expectedCloseDate ?? null,
+        priority: project.priority ?? null,
+        competitor_id: project.competitorId ?? null,
+        sumberdana_id: project.sumberdanaId ?? null,
+        probability: STAGE_PROBABILITY[stageId] ?? project.probability ?? null,
+        aktif: project.aktif ?? 1,
+        idold: project.idold ?? null,
+        division_code: project.divisionCode ?? null,
+      })
+      return true
+    } catch (syncError) {
+      console.warn('Stage peluang gagal diperbarui dari form task.', syncError)
+      return false
+    }
   }
 
   /** POST /api/tasks/input dengan choice "u" untuk memperbarui task sesuai tipenya. */
@@ -617,6 +696,7 @@ export const useTask = defineStore('task', () => {
         selectedItem.value = updatedTask
 
         if (payload.projectId && payload.stageTo) {
+          await syncProjectStage(payload.projectId, payload.stageTo)
           projectStages[payload.projectId] = payload.stageTo
           localStorage.setItem(projectStageStorageKey, JSON.stringify(projectStages))
         }
@@ -713,34 +793,67 @@ export const useTask = defineStore('task', () => {
     taskData.description = ''
   }
 
-  const warningAlert = (index: number) => {
-    Swal.fire({
+  /**
+   * POST /api/tasks/input dengan choice "d". Menghapus task di server.
+   *
+   * BE memvalidasi due_date untuk semua choice: nilai bukan-string ditolak
+   * 422. Sayangnya middleware ConvertEmptyStringsToNull Laravel mengubah ""
+   * menjadi null sebelum controller membaca, jadi string kosong juga ditolak.
+   * Kirim tanggal dummy yang valid — SP sp_tasks_crud dengan choice='d'
+   * tidak membaca kolom due_date, jadi nilainya tidak berefek apa pun.
+   */
+  function deleteTask(id: number) {
+    return runApiAction({
+      flag: submitting,
+      error,
+      fallbackMessage: 'Gagal menghapus task.',
+      task: async () => {
+        const today = new Date().toISOString().slice(0, 10)
+        await api.post('tasks/input', { choice: 'd', id, due_date: today })
+        await fetchTasks()
+        if (selectedItem.value?.id === id) selectedItem.value = null
+        return true
+      },
+    })
+  }
+
+  const warningAlert = async (index: number) => {
+    const target = currentTask.value?.data?.[index]
+    if (!target) return
+
+    const result = await Swal.fire({
       icon: 'warning',
-      title: 'Are you sure?',
-      text: 'This Task will be deleted from your Personal task',
+      title: 'Hapus task ini?',
+      text: `"${target.title}" akan dihapus permanen dan tidak bisa dikembalikan.`,
       showCancelButton: true,
-      cancelButtonText: 'Cancel',
-      confirmButtonText: 'Ok',
+      cancelButtonText: 'Batal',
+      confirmButtonText: 'Ya, hapus',
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: 'var(--theme-default)',
+      reverseButtons: true,
+      focusCancel: true,
+    })
+    if (!result.isConfirmed) return
+
+    // Hapus di server dulu; daftar baru di-refresh oleh deleteTask lewat
+    // fetchTasks() sehingga tampilan selalu mencerminkan isi database.
+    try {
+      await deleteTask(target.id)
+    } catch {
+      Swal.fire({
+        icon: 'error',
+        text: error.value ?? 'Task gagal dihapus. Silakan coba lagi.',
+        confirmButtonColor: 'var(--theme-default)',
+      })
+      return
+    }
+
+    Swal.fire({
+      icon: 'success',
+      text: 'Task berhasil dihapus.',
       confirmButtonColor: 'var(--theme-default)',
-    }).then((result: { isConfirmed: boolean }) => {
-      if (result.isConfirmed) {
-        if (currentTask.value?.data) {
-          const [removed] = currentTask.value.data.splice(index, 1)
-          if (removed?.kind === 'sales') {
-            salesTasks.value = salesTasks.value.filter((task) => task.id !== removed.id)
-          }
-        }
-        Swal.fire({
-          icon: 'success',
-          text: 'Your task has been deleted!',
-          confirmButtonColor: 'var(--theme-default)',
-        })
-      } else {
-        Swal.fire({
-          text: 'Your task is safe!',
-          confirmButtonColor: 'var(--theme-default)',
-        })
-      }
+      timer: 1800,
+      showConfirmButton: false,
     })
   }
 
@@ -763,6 +876,8 @@ export const useTask = defineStore('task', () => {
     fetchTaskLookups,
     createTask,
     updateTask,
+    deleteTask,
+    syncProjectStage,
     createSalesTask,
   }
 })

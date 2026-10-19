@@ -1178,7 +1178,8 @@ export const useContact = defineStore("contact", () => {
     contactState.formSubmitted = true;
 
     const { phoneNumbers, ...formFields } = contactState.rumahSakitForm;
-    const optionalFields = ["email", "keterangan", "financeStatus"];
+    // Backend CompanyController@input memvalidasi email sebagai required|string.
+    const optionalFields = ["keterangan", "financeStatus"];
     const validation = validateForm(formFields, optionalFields);
     const normalizedPhoneNumbers = phoneNumbers
       .map((phone) => phone.data.trim())
@@ -1192,6 +1193,7 @@ export const useContact = defineStore("contact", () => {
 
     const requiredLabels: Record<string, string> = {
       name: "Nama Rumah Sakit",
+      email: "Email Faskes",
       mapAddress: "Alamat Google Maps",
       address: "Alamat",
       province: "Provinsi",
@@ -1282,6 +1284,20 @@ export const useContact = defineStore("contact", () => {
         if (createdContact) contactState.activeContact = createdContact;
       }
       if (closeAfterSave) closeRumahSakitModal();
+
+      Swal.fire({
+        icon: "success",
+        title: editId
+          ? "Rumah Sakit berhasil diperbarui"
+          : "Rumah Sakit berhasil ditambahkan",
+        text: editId
+          ? "Perubahan data Rumah Sakit sudah tersimpan."
+          : "Data Rumah Sakit baru sudah masuk ke daftar.",
+        confirmButtonColor: "var(--theme-default)",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       return true;
     } catch {
       notifyError(hospitalStore.error ?? "Gagal menyimpan Rumah Sakit.");
