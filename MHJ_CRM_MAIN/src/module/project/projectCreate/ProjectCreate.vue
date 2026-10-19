@@ -80,10 +80,11 @@
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Pilih owner di database...'"
+                    :placeholder="'Owner otomatis dari user login...'"
                     v-model="projectForm.owner"
                     :options="ownerOptions"
                     :formSubmitted="formSubmitted"
+                    :disabled="true"
                   />
                 </InputWrapper>
               </div>
@@ -536,6 +537,14 @@ function toContactOption(contact: Contact): DealOption {
   }
 }
 
+/**
+ * Kontak yang baru dibuat lewat modal di form ini. Disimpan terpisah karena
+ * response detail backend kadang belum membawa company_id, sehingga kontak
+ * tersebut akan tersaring keluar oleh filter rumah sakit di bawah dan tidak
+ * bisa tampil sebagai pilihan terpilih.
+ */
+const justCreatedContactIds = ref<Set<string>>(new Set())
+
 const contactOptions = computed<DealOption[]>(() => {
   const contacts = contactStore.contactApi.items.filter(
     (contact) =>
@@ -545,7 +554,9 @@ const contactOptions = computed<DealOption[]>(() => {
   if (companyId === undefined) return contacts.map(toContactOption)
 
   const relatedContacts = contacts.filter(
-    (contact) => contact.companyId && String(contact.companyId) === String(companyId)
+    (contact) =>
+      justCreatedContactIds.value.has(String(contact.remoteId ?? contact.id)) ||
+      (contact.companyId && String(contact.companyId) === String(companyId))
   )
   const hasCompanyRelations = contacts.some((contact) => Boolean(contact.companyId))
   return (hasCompanyRelations ? relatedContacts : contacts).map(toContactOption)
@@ -670,6 +681,10 @@ async function cancel() {
 
 function selectCreatedContact(created: Contact) {
   const option = toContactOption(created)
+  justCreatedContactIds.value = new Set([
+    ...justCreatedContactIds.value,
+    String(option.value),
+  ])
   const current = projectForm.value.contact.selectedItems as DealOption[]
   projectForm.value.contact = multiSelectedField([
     ...current.filter((item) => String(item.value) !== String(option.value)),
@@ -931,7 +946,13 @@ onMounted(async () => {
     }
   } else {
     prefillInitialHospital()
+    // Owner wajib = user yang sedang login. Cari option berdasarkan ID
+    // dulu (reliable) baru fallback ke matching nama (kalau ID tidak ada
+    // di lookup owner).
+    const loggedInUserId = numericId(authStore.user?.id)
     const loggedInName = (() => {
+      const authName = (authStore.user as { name?: string } | null | undefined)?.name
+      if (authName) return authName.trim().toLocaleLowerCase('id-ID')
       try {
         const user = JSON.parse(localStorage.getItem('user') || 'null') as {
           name?: string
@@ -941,9 +962,11 @@ onMounted(async () => {
         return ''
       }
     })()
-    const loggedInOwner = ownerOptions.value.find(
-      (owner) => owner.label.trim().toLocaleLowerCase('id-ID') === loggedInName
-    )
+    const loggedInOwner =
+      findOptionById(ownerOptions.value, loggedInUserId) ??
+      ownerOptions.value.find(
+        (owner) => owner.label.trim().toLocaleLowerCase('id-ID') === loggedInName
+      )
     if (loggedInOwner) projectForm.value.owner = selectedField(loggedInOwner)
   }
 

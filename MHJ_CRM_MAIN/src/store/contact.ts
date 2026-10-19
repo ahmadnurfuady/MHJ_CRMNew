@@ -1095,7 +1095,6 @@ export const useContact = defineStore("contact", () => {
       "jobTitle",
       "owner",
       "status",
-      "email",
       "contactNumber",
       "contactType",
       "address",
@@ -1114,6 +1113,8 @@ export const useContact = defineStore("contact", () => {
 
     const requiredLabels: Record<string, string> = {
       firstName: "Nama Depan",
+      // Backend ContactController@input memvalidasi email sebagai required|email.
+      email: "Email",
       mapAddress: "Alamat Google Maps",
       province: "Provinsi",
       city: "Kota/Kabupaten",

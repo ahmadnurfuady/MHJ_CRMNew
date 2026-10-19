@@ -221,6 +221,13 @@ function toggleWithPlacement(event: Event) {
   cursor: not-allowed;
 }
 
+/* Panah dropdown bawaan .form-select tidak relevan saat field dikunci —
+   nilainya diisi sistem dan tidak ada daftar yang bisa dibuka. */
+.select-box.is-disabled .form-select {
+  padding-right: 0.75rem !important;
+  background-image: none;
+}
+
 .dropdown.dropdown-bottom {
   top: calc(100% + 4px);
   bottom: auto;

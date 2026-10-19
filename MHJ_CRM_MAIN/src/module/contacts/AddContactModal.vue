@@ -41,13 +41,13 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper :title="t('contacts.email')">
+            <InputWrapper :title="t('contacts.email')" required>
               <InputField
                 v-model:modelValue="contactState.contactForm.email"
+                :formSubmitted="contactState.formSubmitted"
                 inputId="contact-email"
                 inputType="email"
                 placeholder="Contoh: nama@domain.com"
-                :required="false"
               />
             </InputWrapper>
           </div>
