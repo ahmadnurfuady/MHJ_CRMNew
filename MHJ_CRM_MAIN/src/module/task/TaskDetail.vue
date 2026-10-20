@@ -135,12 +135,39 @@
           </div>
         </div>
 
-        <div v-if="comments.length" class="comment-list">
+        <div v-if="loadingComments" class="comment-empty">
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          Memuat komentar...
+        </div>
+
+        <div v-else-if="comments.length" class="comment-list">
           <div v-for="comment in comments" :key="comment.id" class="comment-item">
-            <span class="comment-avatar">{{ initials(comment.author) }}</span>
-            <div>
-              <strong>{{ comment.author }} <small>baru saja</small></strong>
+            <span class="comment-avatar">{{ comment.initial || initials(comment.author) }}</span>
+            <div class="comment-item__body">
+              <div class="comment-item__top">
+                <strong>
+                  {{ comment.author }}
+                  <small>· {{ relativeTime(comment.created_at) }}</small>
+                </strong>
+                <span
+                  v-if="comment.frmdvc"
+                  class="comment-source"
+                  :class="`comment-source--${(comment.frmdvc || '').toLowerCase()}`"
+                >
+                  {{ comment.frmdvc }}
+                </span>
+              </div>
               <p>{{ comment.message }}</p>
+              <button
+                v-if="canDelete(comment)"
+                type="button"
+                class="comment-delete"
+                :disabled="deletingId === comment.id"
+                @click="handleDelete(comment)"
+              >
+                <vue-feather type="trash-2" size="12" />
+                Hapus
+              </button>
             </div>
           </div>
         </div>
@@ -148,8 +175,15 @@
 
         <form class="comment-form" @submit.prevent="addComment">
           <span class="comment-avatar">{{ initials(currentUser) }}</span>
-          <input v-model.trim="commentText" type="text" placeholder="Tambahkan komentar..." />
-          <button type="submit" :disabled="!commentText">Kirim</button>
+          <input
+            v-model.trim="commentText"
+            type="text"
+            placeholder="Tambahkan komentar..."
+            :disabled="submitting"
+          />
+          <button type="submit" :disabled="!commentText || submitting">
+            {{ submitting ? '...' : 'Kirim' }}
+          </button>
         </form>
       </section>
     </div>
@@ -174,22 +208,31 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import Swal from 'sweetalert2'
 import { projectTab } from '@/core/data/project'
 import type { TaskDetails } from '@/types/tasks'
-
-interface CommentItem {
-  id: number
-  author: string
-  message: string
-}
+import {
+  fetchTaskComments,
+  addTaskComment,
+  deleteTaskComment,
+  type TaskComment,
+} from '@/services/taskCommentService'
+import { useAuthStore } from '@/store/auth'
+import { storeToRefs } from 'pinia'
 
 const props = defineProps<{
   task: TaskDetails | null
 }>()
 
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
+
 const commentText = ref('')
-const comments = ref<CommentItem[]>([])
+const comments = ref<TaskComment[]>([])
+const loadingComments = ref(false)
+const submitting = ref(false)
+const deletingId = ref<string | null>(null)
 const taskTypeLabel = computed(() =>
   props.task?.kind === 'app-specialist' ? 'App Specialist' : 'Sales',
 )
@@ -257,11 +300,93 @@ function initials(name: string) {
     .join('')
 }
 
-function addComment() {
+async function loadComments() {
+  const id = Number(props.task?.id)
+  if (!Number.isFinite(id) || id <= 0) {
+    comments.value = []
+    return
+  }
+  loadingComments.value = true
+  try {
+    comments.value = await fetchTaskComments(id)
+  } catch {
+    comments.value = []
+  } finally {
+    loadingComments.value = false
+  }
+}
+
+watch(
+  () => props.task?.id,
+  () => {
+    void loadComments()
+  },
+  { immediate: true },
+)
+
+async function addComment() {
   const message = commentText.value.trim()
-  if (!message) return
-  comments.value.push({ id: Date.now(), author: currentUser.value, message })
-  commentText.value = ''
+  const id = Number(props.task?.id)
+  if (!message || !Number.isFinite(id) || id <= 0) return
+  submitting.value = true
+  try {
+    comments.value = await addTaskComment(id, message)
+    commentText.value = ''
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Gagal mengirim komentar' })
+  } finally {
+    submitting.value = false
+  }
+}
+
+function canDelete(comment: TaskComment): boolean {
+  const authorId = typeof comment.author_id === 'number' ? comment.author_id : null
+  return authorId !== null && authorId === (user.value?.id ?? -1)
+}
+
+async function handleDelete(comment: TaskComment) {
+  const id = Number(props.task?.id)
+  if (!Number.isFinite(id) || id <= 0) return
+
+  const confirmed = await Swal.fire({
+    icon: 'warning',
+    title: 'Hapus komentar?',
+    text: 'Komentar ini akan dihapus permanen.',
+    showCancelButton: true,
+    confirmButtonText: 'Hapus',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#ef4444',
+  })
+  if (!confirmed.isConfirmed) return
+
+  deletingId.value = comment.id
+  try {
+    comments.value = await deleteTaskComment(id, comment.id)
+  } catch {
+    Swal.fire({ icon: 'error', title: 'Gagal menghapus komentar' })
+  } finally {
+    deletingId.value = null
+  }
+}
+
+function relativeTime(value: string | null | undefined): string {
+  if (!value) return ''
+  const date = new Date(value)
+  const ts = date.getTime()
+  if (!Number.isFinite(ts)) return ''
+  const diffMs = Date.now() - ts
+  if (diffMs < 0) return 'Baru saja'
+  const sec = Math.floor(diffMs / 1000)
+  if (sec < 45) return 'Baru saja'
+  const min = Math.floor(sec / 60)
+  if (min < 60) return `${min} menit lalu`
+  const hour = Math.floor(min / 60)
+  if (hour < 24) return `${hour} jam lalu`
+  const day = Math.floor(hour / 24)
+  if (day < 30) return `${day} hari lalu`
+  const month = Math.floor(day / 30)
+  if (month < 12) return `${month} bulan lalu`
+  return `${Math.floor(day / 365)} tahun lalu`
 }
 
 function printDetail() {
@@ -624,6 +749,18 @@ function preventUnavailableContact(event: MouseEvent) {
   font-weight: 700;
 }
 
+.comment-item__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-item__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .comment-item strong {
   color: #111827;
   font-size: 12px;
@@ -638,6 +775,51 @@ function preventUnavailableContact(event: MouseEvent) {
   margin: 2px 0 0;
   color: #6b7280;
   font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comment-source {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comment-source--apk {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+}
+
+.comment-source--web {
+  background: rgba(99, 102, 241, 0.14);
+  color: #4338ca;
+}
+
+.comment-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border: 0;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.comment-delete:hover:not(:disabled) {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.comment-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .comment-empty {

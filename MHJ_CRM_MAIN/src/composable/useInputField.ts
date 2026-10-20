@@ -57,8 +57,19 @@ export function useInputField(
     changed.value = true
 
     if (props.validator) {
-      const errorMessage = props.validator(String(inputValue ?? ''))
-      validStatus.value = { valid: !errorMessage, errorMessage }
+      // Validator bisa return:
+      // - string: pesan error (kosong = valid)
+      // - { valid, errorMessage }: hasil ValidationStatus langsung
+      const output = props.validator(String(inputValue ?? ''))
+      if (output && typeof output === 'object' && 'errorMessage' in output) {
+        validStatus.value = {
+          valid: Boolean((output as ValidationStatus).valid),
+          errorMessage: String((output as ValidationStatus).errorMessage ?? ''),
+        }
+      } else {
+        const errorMessage = typeof output === 'string' ? output : ''
+        validStatus.value = { valid: !errorMessage, errorMessage }
+      }
     } else if (props.required) {
       if (props.inputType === 'email') {
         validStatus.value = validateEmail(String(inputValue))

@@ -446,69 +446,21 @@
 
       <section v-else-if="activeTab === 'activities'" class="activity-layout">
         <article class="tab-panel activity-card">
-          <div class="panel-heading">
-            <div>
-              <p>Timeline terbaru</p>
-              <h5>Aktivitas Rumah Sakit</h5>
-            </div>
-            <span class="panel-count">{{ activities.length }} aktivitas</span>
-          </div>
-          <div v-if="activities.length" class="activity-timeline">
-            <div
-              v-for="(activity, index) in activities"
-              :key="`${activity.title}-${index}`"
-              class="activity-item"
-            >
-              <div class="activity-marker" :class="index % 2 ? 'green' : 'red'">
-                <MhjIcon name="hospital_activity" />
-              </div>
-              <div class="activity-content">
-                <strong>{{ activity.title }}</strong>
-                <p>{{ activity.description }}</p>
-                <span
-                  ><SolarIcon name="fa-calendar" />{{ formatDate(activity.date) }}</span
-                >
-              </div>
-            </div>
-          </div>
-          <HospitalEmptyState
-            v-else
-            icon="fa-regular fa-calendar-xmark"
-            title="Belum ada aktivitas"
-            description="Aktivitas kontak dan peluang terbaru akan dirangkum di sini."
+          <ActivityTimeline
+            entity="companies"
+            :entity-id="hospital?.id ?? null"
+            :title="`Aktivitas ${hospital?.name || 'Rumah Sakit'}`"
+            heading="Timeline Terbaru"
+            @loaded="(n) => (activityTimelineCount = n)"
           />
         </article>
 
         <article class="tab-panel comments-panel">
-          <div class="panel-heading compact">
-            <div>
-              <p>Kolaborasi</p>
-              <h5>Komentar</h5>
-            </div>
-          </div>
-          <p v-if="!comments.length" class="empty-comments">
-            Belum ada komentar pada rumah sakit ini.
-          </p>
-          <div
-            v-for="comment in comments"
-            :key="comment.id"
-            class="comment-row"
-          >
-            <div class="comment-avatar">{{ initials(comment.author) }}</div>
-            <div>
-              <strong>{{ comment.author }}</strong>
-              <p>{{ comment.message }}</p>
-            </div>
-          </div>
-          <form class="comment-form" @submit.prevent="addComment">
-            <input
-              v-model.trim="newComment"
-              type="text"
-              placeholder="Tambahkan komentar..."
-              aria-label="Komentar baru"
-            />
-            <button type="submit" :disabled="!newComment">Kirim</button>
-          </form>
+          <CommentsPanel
+            parent-type="company"
+            :parent-id="hospital?.id ?? null"
+            title="Komentar Rumah Sakit"
+          />
         </article>
       </section>
 
@@ -710,6 +662,9 @@ import {
 } from "@/utils/indonesianPhone";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
+import ActivityTimeline from "@/components/shared/ActivityTimeline.vue";
+import CommentsPanel from "@/components/shared/CommentsPanel.vue";
+import { fetchUnifiedTimeline } from "@/services/activityLogService";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
 import HospitalForm from "@/module/rumahSakit/AddContactModal.vue";
@@ -818,6 +773,19 @@ const contactCount = computed(
 const installedCount = computed(
   () =>
     hospital.value?.totalInstalledEquipment ?? installedProducts.value.length,
+);
+
+const activityTimelineCount = ref(0);
+
+watch(
+  () => hospital.value?.id,
+  (id) => {
+    if (!id) return;
+    fetchUnifiedTimeline('companies', id, 100)
+      .then((items) => { activityTimelineCount.value = items.length })
+      .catch(() => {});
+  },
+  { immediate: true },
 );
 
 const wonProjectPurchases = computed<PurchaseTimelineItem[]>(() =>
@@ -1023,7 +991,7 @@ const tabs = computed(() => [
   {
     value: "activities" as const,
     label: "Aktivitas",
-    count: activities.value.length,
+    count: activityTimelineCount.value,
     mhjIcon: "hospital_activity",
   },
 ]);

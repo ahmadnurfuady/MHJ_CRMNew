@@ -8,13 +8,17 @@ export type ActivityLogEntity =
   | 'tasks'
   | 'master_information_cards'
 
-export type ActivityLogAction = 'i' | 'u' | 'd' | 'I' | 'U' | 'D'
+/** Action tersimpan di DB bisa single-letter (web lama) atau full-word (APK). */
+export type ActivityLogRawAction = string
+
+/** Action yang sudah dinormalkan untuk pemakaian FE. */
+export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'other'
 
 export interface ActivityLogRow {
   id: number
   user_id: number | null
   user_name: string | null
-  action: ActivityLogAction
+  action: ActivityLogRawAction
   entity_name: string
   entity_id: number
   /** JSON string berisi `{ before: ..., after: ... }` dari controller CRUD. */
@@ -26,6 +30,20 @@ export interface ActivityLogRow {
 interface ActivityLogResponse {
   data: ActivityLogRow[]
   total: number
+}
+
+/**
+ * Normalisasi nilai `action` dari berbagai konvensi (web single-letter vs APK
+ * full-word) menjadi satu representasi.
+ */
+export function normalizeAction(action: string | null | undefined): NormalizedAction {
+  const value = (action || '').toString().trim().toLowerCase()
+  if (!value) return 'other'
+  if (value === 'i' || value.startsWith('ins') || value.startsWith('crea') || value.startsWith('add')) return 'i'
+  if (value === 'u' || value.startsWith('upd') || value.startsWith('edit') || value.startsWith('chg')) return 'u'
+  if (value === 'd' || value.startsWith('del') || value.startsWith('rem')) return 'd'
+  if (value === 'r' || value.startsWith('rea') || value.startsWith('view')) return 'r'
+  return 'other'
 }
 
 /**
@@ -62,307 +80,354 @@ export function parseActivityDetails(details: string | null): ActivityLogDetails
   }
 }
 
-const ACTION_LABEL: Record<string, string> = {
-  i: 'Dibuat',
-  u: 'Diperbarui',
-  d: 'Dihapus',
+// ---------------------------------------------------------------------------
+// Mapping parent_type pada tabel dbvnotes ke activity entity.
+// APK & SP sering menyimpan dengan nama berbeda, jadi kita normalisasi.
+// ---------------------------------------------------------------------------
+
+const ENTITY_TO_NOTE_PARENT: Record<ActivityLogEntity, string[]> = {
+  contacts: ['contact', 'contacts', 'kontak'],
+  companies: ['company', 'companies', 'rumah_sakit', 'hospital'],
+  m_projects: ['project', 'projects', 'm_projects', 'deal', 'deals', 'peluang'],
+  tasks: ['task', 'tasks', 'tugas'],
+  master_information_cards: ['information_card', 'master_information_cards', 'card'],
 }
 
-export function actionLabel(action: ActivityLogAction): string {
-  return ACTION_LABEL[action.toLowerCase()] ?? action
+// ---------------------------------------------------------------------------
+// Related items (projek & tugas yang referensikan entity ini).
+// ---------------------------------------------------------------------------
+
+interface RelatedItemRow {
+  kind: 'related_project' | 'related_task' | 'entity_created'
+  ref_id: number
+  title: string
+  author_name: string | null
+  created_at: string | null
+  frmdvc: string | null
 }
 
-/** Icon vue-feather yang pas untuk tiap jenis aksi. */
-export function actionIcon(action: ActivityLogAction): string {
-  switch (action.toLowerCase()) {
+async function fetchRelatedItems(
+  entity: ActivityLogEntity,
+  entityId: number,
+): Promise<RelatedItemRow[]> {
+  if (entity === 'tasks' || entity === 'master_information_cards') return []
+  try {
+    const response = await api.getbydata<{ data: RelatedItemRow[] }>('/activity-logs/related', {
+      entity_name: entity,
+      entity_id: entityId,
+    })
+    return Array.isArray(response.data?.data) ? response.data.data : []
+  } catch {
+    return []
+  }
+}
+
+/** Raw row dari `GET /api/history?noteable_type=&noteable_id=`. */
+interface NoteRow {
+  id: number
+  parent_type?: string
+  parent_id?: number
+  notes?: string | null
+  body?: string | null
+  created_at?: string
+  created_by?: number | null
+  sender_name?: string | null
+  frmdvc?: string | null
+  attachment?: string | null
+}
+
+async function fetchNotesForParent(parentType: string, parentId: number): Promise<NoteRow[]> {
+  try {
+    const response = await api.getbydata<NoteRow[] | { data: NoteRow[] }>('/history', {
+      noteable_type: parentType,
+      noteable_id: parentId,
+    })
+    const payload = response.data as NoteRow[] | { data?: NoteRow[] } | null
+    if (Array.isArray(payload)) return payload
+    if (payload && Array.isArray(payload.data)) return payload.data
+    return []
+  } catch {
+    return []
+  }
+}
+
+/** Ambil notes untuk sebuah entity dengan mencoba semua alias parent_type. */
+async function fetchAllNotes(entity: ActivityLogEntity, entityId: number): Promise<NoteRow[]> {
+  const parents = ENTITY_TO_NOTE_PARENT[entity] ?? []
+  const results = await Promise.all(parents.map((pt) => fetchNotesForParent(pt, entityId)))
+  const seen = new Set<number>()
+  const merged: NoteRow[] = []
+  for (const list of results) {
+    for (const row of list) {
+      if (seen.has(row.id)) continue
+      seen.add(row.id)
+      merged.push(row)
+    }
+  }
+  return merged
+}
+
+// ---------------------------------------------------------------------------
+// Unified timeline item (activity log + note digabung dalam satu list).
+// ---------------------------------------------------------------------------
+
+export type TimelineItemKind =
+  | 'activity'
+  | 'note'
+  | 'related_project'
+  | 'related_task'
+  | 'entity_created'
+
+export interface TimelineItem {
+  /** Composite key supaya aman kalau id antar sumber kebetulan sama. */
+  key: string
+  kind: TimelineItemKind
+  type: NormalizedAction | 'note' | 'project' | 'task'
+  title: string
+  subtitle?: string
+  authorName: string
+  createdAt: string
+  source: 'APK' | 'WEB' | null
+}
+
+/** Judul manusiawi berdasarkan entity + action untuk entri activity_logs. */
+function buildActivityTitle(entity: ActivityLogEntity, action: NormalizedAction, details: ActivityLogDetails): string {
+  const after = (details.after && typeof details.after === 'object' ? details.after : {}) as Record<string, unknown>
+  const name = pickName(entity, after)
+
+  const base: Record<ActivityLogEntity, { i: string; u: string; d: string; r: string }> = {
+    contacts: {
+      i: 'Kontak Didaftarkan di SiapCRM',
+      u: 'Kontak Diperbarui',
+      d: 'Kontak Dihapus',
+      r: 'Kontak Dibuka',
+    },
+    companies: {
+      i: 'Rumah Sakit Didaftarkan di SiapCRM',
+      u: 'Data Rumah Sakit Diperbarui',
+      d: 'Rumah Sakit Dihapus',
+      r: 'Rumah Sakit Dibuka',
+    },
+    m_projects: {
+      i: name ? `Peluang Proyek: ${name}` : 'Peluang Baru Dibuat',
+      u: 'Peluang Diperbarui',
+      d: 'Peluang Dihapus',
+      r: 'Peluang Dibuka',
+    },
+    tasks: {
+      i: name ? `Tugas Dibuat: ${name}` : 'Tugas Baru Dibuat',
+      u: 'Tugas Diperbarui',
+      d: 'Tugas Dihapus',
+      r: 'Tugas Dibuka',
+    },
+    master_information_cards: {
+      i: name ? `Kartu Informasi: ${name}` : 'Kartu Informasi Dibuat',
+      u: 'Kartu Informasi Diperbarui',
+      d: 'Kartu Informasi Dihapus',
+      r: 'Kartu Informasi Dibuka',
+    },
+  }
+  const bucket = base[entity]
+  if (!bucket) return 'Aktivitas tercatat'
+  if (action === 'other') return 'Aktivitas tercatat'
+  return bucket[action] ?? 'Aktivitas tercatat'
+}
+
+/** Field "nama" per entity untuk ditempel ke judul. */
+function pickName(entity: ActivityLogEntity, after: Record<string, unknown>): string {
+  const candidate = (() => {
+    switch (entity) {
+      case 'contacts':
+        return [after.first_name, after.last_name].filter(Boolean).join(' ')
+      case 'companies':
+        return after.company_name
+      case 'm_projects':
+        return after.projects_name
+      case 'tasks':
+        return after.task_subject || after.task_name
+      case 'master_information_cards':
+        return after.name || after.title
+    }
+  })()
+  return typeof candidate === 'string' ? candidate.trim() : ''
+}
+
+/** Ambil badge sumber (APK/WEB) secara normal. */
+function normalizeSource(frmdvc: string | null | undefined): 'APK' | 'WEB' | null {
+  if (!frmdvc) return null
+  const value = frmdvc.toString().trim().toUpperCase()
+  if (value === 'APK' || value === 'MOBILE' || value === 'ANDROID' || value === 'IOS') return 'APK'
+  if (value === 'WEB') return 'WEB'
+  return null
+}
+
+function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow): TimelineItem {
+  const action = normalizeAction(row.action)
+  const details = parseActivityDetails(row.details)
+  return {
+    key: `a-${row.id}`,
+    kind: 'activity',
+    type: action,
+    title: buildActivityTitle(entity, action, details),
+    authorName: row.user_name || 'Pengguna sistem',
+    createdAt: row.created_at,
+    source: normalizeSource(row.frmdvc),
+  }
+}
+
+function noteToTimelineItem(row: NoteRow): TimelineItem {
+  const body = (row.notes ?? row.body ?? '').toString().trim()
+  const shortBody = body.length > 120 ? `${body.slice(0, 117)}…` : body
+  return {
+    key: `n-${row.id}`,
+    kind: 'note',
+    type: 'note',
+    title: shortBody ? `Catatan: ${shortBody}` : 'Catatan',
+    subtitle: body !== shortBody ? body : undefined,
+    authorName: row.sender_name || 'Pengguna sistem',
+    createdAt: row.created_at || '',
+    source: normalizeSource(row.frmdvc),
+  }
+}
+
+function relatedToTimelineItem(row: RelatedItemRow): TimelineItem {
+  // Map kind → key prefix + display type.
+  const spec = (() => {
+    switch (row.kind) {
+      case 'related_project':
+        return { prefix: 'p', kind: 'related_project' as const, type: 'project' as const }
+      case 'related_task':
+        return { prefix: 't', kind: 'related_task' as const, type: 'task' as const }
+      case 'entity_created':
+        return { prefix: 'e', kind: 'entity_created' as const, type: 'i' as const }
+    }
+  })()
+
+  return {
+    key: `${spec.prefix}-${row.ref_id}`,
+    kind: spec.kind,
+    type: spec.type,
+    title: row.title,
+    authorName: row.author_name || 'Pengguna sistem',
+    createdAt: row.created_at || '',
+    source: normalizeSource(row.frmdvc),
+  }
+}
+
+/**
+ * Timeline final = activity_logs + notes (dbvnotes) + related items
+ * (projek/tugas yang me-refer entity ini), diurut desc by created_at.
+ */
+export async function fetchUnifiedTimeline(
+  entity: ActivityLogEntity,
+  entityId: number,
+  limit = 100,
+): Promise<TimelineItem[]> {
+  const [activities, notes, related] = await Promise.all([
+    fetchActivityLogs(entity, entityId, limit),
+    fetchAllNotes(entity, entityId),
+    fetchRelatedItems(entity, entityId),
+  ])
+
+  const items: TimelineItem[] = []
+  let hasInsertActivity = false
+  for (const row of activities) {
+    const normalized = normalizeAction(row.action)
+    if (normalized === 'i') hasInsertActivity = true
+    items.push(activityToTimelineItem(entity, row))
+  }
+  for (const row of notes) {
+    items.push(noteToTimelineItem(row))
+  }
+  for (const row of related) {
+    // Skip entry sintetik "entity_created" bila activity_logs sudah punya 'i'.
+    if (row.kind === 'entity_created' && hasInsertActivity) continue
+    items.push(relatedToTimelineItem(row))
+  }
+
+  items.sort((a, b) => {
+    const timeA = new Date(a.createdAt).getTime() || 0
+    const timeB = new Date(b.createdAt).getTime() || 0
+    return timeB - timeA
+  })
+  return items
+}
+
+// ---------------------------------------------------------------------------
+// Helpers tampilan.
+// ---------------------------------------------------------------------------
+
+export function timelineIcon(type: TimelineItem['type']): string {
+  switch (type) {
     case 'i':
-      return 'plus-circle'
+      return 'user-plus'
     case 'u':
       return 'edit-3'
     case 'd':
       return 'trash-2'
+    case 'r':
+      return 'eye'
+    case 'note':
+      return 'message-square'
+    case 'project':
+      return 'briefcase'
+    case 'task':
+      return 'check-square'
     default:
       return 'activity'
   }
 }
 
-/** Kelas warna untuk badge aksi (konsisten dengan sweetalert palette). */
-export function actionBadgeTone(action: ActivityLogAction): 'success' | 'warning' | 'danger' | 'muted' {
-  switch (action.toLowerCase()) {
+export function timelineTone(type: TimelineItem['type']): 'success' | 'warning' | 'danger' | 'info' | 'muted' {
+  switch (type) {
     case 'i':
       return 'success'
     case 'u':
       return 'warning'
     case 'd':
       return 'danger'
+    case 'r':
+      return 'muted'
+    case 'note':
+      return 'info'
+    case 'project':
+      return 'info'
+    case 'task':
+      return 'warning'
     default:
       return 'muted'
   }
 }
 
-// ---------------------------------------------------------------------------
-// Field metadata per entity: label manusiawi + format nilai.
-// ---------------------------------------------------------------------------
-
-export type FieldFormatter = 'text' | 'currency' | 'number' | 'date' | 'datetime' | 'bool' | 'id'
-
-interface FieldMeta {
-  label: string
-  format?: FieldFormatter
+/** Format relatif "Baru saja", "5 menit lalu", "2 jam lalu", "3 hari lalu". */
+export function timeAgo(value: string): string {
+  if (!value) return ''
+  const date = new Date(value)
+  const ts = date.getTime()
+  if (!Number.isFinite(ts)) return ''
+  const diffMs = Date.now() - ts
+  if (diffMs < 0) return 'Baru saja'
+  const sec = Math.floor(diffMs / 1000)
+  if (sec < 45) return 'Baru saja'
+  const min = Math.floor(sec / 60)
+  if (min < 60) return `${min} menit lalu`
+  const hour = Math.floor(min / 60)
+  if (hour < 24) return `${hour} jam lalu`
+  const day = Math.floor(hour / 24)
+  if (day < 30) return `${day} hari lalu`
+  const month = Math.floor(day / 30)
+  if (month < 12) return `${month} bulan lalu`
+  const year = Math.floor(day / 365)
+  return `${year} tahun lalu`
 }
 
-/**
- * Mapping field → { label, format }. Field yang TIDAK ada di map akan
- * disembunyikan dari timeline supaya tidak muncul data mentah yang membingungkan
- * (mis. kolom audit, koordinat, kode internal, dll).
- */
-const FIELD_META: Record<ActivityLogEntity, Record<string, FieldMeta>> = {
-  contacts: {
-    first_name: { label: 'Nama Depan' },
-    last_name: { label: 'Nama Belakang' },
-    email: { label: 'Email' },
-    phone: { label: 'Telepon' },
-    jobtitle: { label: 'Jabatan' },
-    department: { label: 'Departemen' },
-    company_id: { label: 'Rumah Sakit', format: 'id' },
-    address_1: { label: 'Alamat' },
-    city: { label: 'Kota' },
-    province: { label: 'Provinsi' },
-    country: { label: 'Negara' },
-    note: { label: 'Catatan' },
-    tags: { label: 'Tag' },
-  },
-  companies: {
-    company_name: { label: 'Nama Rumah Sakit' },
-    phone: { label: 'Telepon' },
-    email: { label: 'Email' },
-    website: { label: 'Website' },
-    industry: { label: 'Industri' },
-    address_1: { label: 'Alamat' },
-    city: { label: 'Kota' },
-    province: { label: 'Provinsi' },
-    country: { label: 'Negara' },
-    postal_code: { label: 'Kode Pos' },
-    note: { label: 'Catatan' },
-    tags: { label: 'Tag' },
-  },
-  m_projects: {
-    projects_name: { label: 'Nama Peluang' },
-    company_id: { label: 'Rumah Sakit', format: 'id' },
-    contact_id: { label: 'Kontak', format: 'id' },
-    owner_id: { label: 'Pemilik', format: 'id' },
-    stage_id: { label: 'Tahap', format: 'id' },
-    currency: { label: 'Mata Uang' },
-    amount_value: { label: 'Nilai', format: 'currency' },
-    expected_close_date: { label: 'Target Tutup', format: 'date' },
-    priority: { label: 'Prioritas' },
-    competitor_id: { label: 'Kompetitor', format: 'id' },
-    sumberdana_id: { label: 'Sumber Dana', format: 'id' },
-    probability: { label: 'Probabilitas (%)', format: 'number' },
-    division_code: { label: 'Divisi' },
-    aktif: { label: 'Status Aktif', format: 'bool' },
-  },
-  tasks: {
-    task_subject: { label: 'Judul Tugas' },
-    task_description: { label: 'Deskripsi' },
-    description: { label: 'Deskripsi' },
-    task_type: { label: 'Tipe Tugas' },
-    due_date: { label: 'Tenggat', format: 'date' },
-    start_date: { label: 'Mulai', format: 'date' },
-    end_date: { label: 'Selesai', format: 'date' },
-    priority: { label: 'Prioritas' },
-    status: { label: 'Status' },
-    stage: { label: 'Tahap' },
-    stage_id: { label: 'Tahap', format: 'id' },
-    assigned_to: { label: 'Diteruskan ke', format: 'id' },
-    project_id: { label: 'Peluang', format: 'id' },
-    contact_id: { label: 'Kontak', format: 'id' },
-    company_id: { label: 'Rumah Sakit', format: 'id' },
-    photo_path: { label: 'Foto Lokasi' },
-    note: { label: 'Catatan' },
-  },
-  master_information_cards: {
-    name: { label: 'Nama' },
-    description: { label: 'Deskripsi' },
-    note: { label: 'Catatan' },
-  },
-}
-
-/** Field yang di-skip saat menghitung diff — kolom audit / internal. */
-const DIFF_SKIP = new Set([
-  'choice',
-  'id',
-  'idold',
-  'created_by',
-  'updated_by',
-  'updated_at',
-  'created_at',
-  'latitude',
-  'longitude',
-  'remote_ip',
-])
-
-/** Format nilai menjadi string yang enak dibaca sesuai `format`. */
-function formatValue(value: unknown, format?: FieldFormatter): string {
-  if (value === null || value === undefined || value === '') return '—'
-
-  switch (format) {
-    case 'currency': {
-      const num = Number(value)
-      if (Number.isNaN(num)) return String(value)
-      return `Rp ${num.toLocaleString('id-ID', { maximumFractionDigits: 0 })}`
-    }
-    case 'number': {
-      const num = Number(value)
-      if (Number.isNaN(num)) return String(value)
-      return num.toLocaleString('id-ID', { maximumFractionDigits: 2 })
-    }
-    case 'date': {
-      const date = new Date(String(value))
-      if (Number.isNaN(date.getTime())) return String(value)
-      return new Intl.DateTimeFormat('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }).format(date)
-    }
-    case 'datetime': {
-      const date = new Date(String(value))
-      if (Number.isNaN(date.getTime())) return String(value)
-      return new Intl.DateTimeFormat('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(date)
-    }
-    case 'bool': {
-      const str = String(value).toLowerCase()
-      if (['1', 'true', 'y', 'ya', 'yes'].includes(str)) return 'Ya'
-      if (['0', 'false', 'n', 'no', 'tidak'].includes(str)) return 'Tidak'
-      return String(value)
-    }
-    case 'id': {
-      const num = Number(value)
-      if (!Number.isNaN(num)) return `#${num}`
-      return String(value)
-    }
-    default: {
-      const text = typeof value === 'object' ? JSON.stringify(value) : String(value)
-      return text.length > 120 ? `${text.slice(0, 117)}…` : text
-    }
-  }
-}
-
-export interface FieldDiff {
-  field: string
-  label: string
-  format?: FieldFormatter
-  before: unknown
-  after: unknown
-  beforeDisplay: string
-  afterDisplay: string
-}
-
-/**
- * Normalisasi untuk membandingkan nilai. Angka berbentuk string "17100000.00"
- * dan "17100000" diperlakukan setara. Nilai kosong dinormalkan ke string kosong.
- */
-function normalizeValue(value: unknown): string {
-  if (value === null || value === undefined) return ''
-  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : ''
-
-  const text = String(value).trim()
-  if (text === '') return ''
-
-  if (/^-?\d+(\.\d+)?$/.test(text)) {
-    const num = Number(text)
-    if (!Number.isNaN(num)) return String(num)
-  }
-
-  return text
-}
-
-/**
- * Bandingkan before/after per field. Hanya field yang punya meta di `FIELD_META`
- * untuk entity tersebut yang ditampilkan — menghindari data mentah yang tidak
- * dipahami user non-teknis (mis. kolom audit atau kode internal).
- */
-export function computeDiff(
-  entity: ActivityLogEntity,
-  details: ActivityLogDetails,
-): FieldDiff[] {
-  const beforeRaw = Array.isArray(details.before) ? details.before[0] : details.before
-  const after = details.after
-  if (!after || typeof after !== 'object') return []
-
-  const before = (beforeRaw && typeof beforeRaw === 'object' ? beforeRaw : {}) as Record<
-    string,
-    unknown
-  >
-  const meta = FIELD_META[entity] ?? {}
-
-  const diffs: FieldDiff[] = []
-  Object.entries(after).forEach(([key, value]) => {
-    if (DIFF_SKIP.has(key)) return
-    const fieldMeta = meta[key]
-    if (!fieldMeta) return
-
-    const previous = before[key]
-    if (normalizeValue(previous) === normalizeValue(value)) return
-
-    diffs.push({
-      field: key,
-      label: fieldMeta.label,
-      format: fieldMeta.format,
-      before: previous,
-      after: value,
-      beforeDisplay: formatValue(previous, fieldMeta.format),
-      afterDisplay: formatValue(value, fieldMeta.format),
-    })
-  })
-  return diffs
-}
-
-/**
- * Daftar nilai awal untuk aksi "Dibuat" — berisi field KEY saja (nama / judul /
- * nilai utama) supaya ringkas, tidak membanjiri UI dengan semua kolom.
- */
-export interface CreationHighlight {
-  label: string
-  display: string
-}
-
-/** Field prioritas yang ditampilkan di ringkasan "Dibuat" per entity. */
-const CREATION_HIGHLIGHT_FIELDS: Record<ActivityLogEntity, string[]> = {
-  contacts: ['first_name', 'last_name', 'email', 'phone', 'company_id'],
-  companies: ['company_name', 'city', 'province', 'phone'],
-  m_projects: ['projects_name', 'company_id', 'amount_value', 'expected_close_date'],
-  tasks: ['task_subject', 'due_date', 'assigned_to', 'priority', 'status'],
-  master_information_cards: ['name'],
-}
-
-export function creationHighlights(
-  entity: ActivityLogEntity,
-  details: ActivityLogDetails,
-): CreationHighlight[] {
-  const after = details.after
-  if (!after || typeof after !== 'object') return []
-  const meta = FIELD_META[entity] ?? {}
-  const fields = CREATION_HIGHLIGHT_FIELDS[entity] ?? []
-  const payload = after as Record<string, unknown>
-
-  const highlights: CreationHighlight[] = []
-  fields.forEach((key) => {
-    const value = payload[key]
-    if (value === null || value === undefined || value === '') return
-    const fieldMeta = meta[key]
-    if (!fieldMeta) return
-    highlights.push({
-      label: fieldMeta.label,
-      display: formatValue(value, fieldMeta.format),
-    })
-  })
-  return highlights
+export function formatTimelineDate(value: string): string {
+  if (!value) return '-'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(date)
 }

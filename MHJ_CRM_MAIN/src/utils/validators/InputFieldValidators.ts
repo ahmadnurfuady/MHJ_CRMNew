@@ -5,7 +5,7 @@ export function validateEmail(value: string) {
   }
   if (String(value).length == 0) {
     result.valid = false
-    result.errorMessage = 'Email is required'
+    result.errorMessage = 'Email wajib diisi'
   } else if (
     String(value)
       .toLowerCase()
@@ -17,7 +17,7 @@ export function validateEmail(value: string) {
     result.errorMessage = ''
   } else {
     result.valid = false
-    result.errorMessage = 'Invalid Email'
+    result.errorMessage = 'Format email tidak valid. Contoh: nama@domain.com'
   }
   return result
 }
