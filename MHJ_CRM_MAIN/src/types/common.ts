@@ -312,7 +312,7 @@ export interface InputProps {
   showLengthBadge?: boolean
   formatValue?: boolean
   formatFunction?: ((value: string) => string) | null
-  validator?: ((value: string) => string) | null
+  validator?: ((value: string) => string | { valid: boolean; errorMessage: string }) | null
   minDate?: Date
   maxDate?: Date
 }
