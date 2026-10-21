@@ -1376,6 +1376,19 @@ async function hydrateForm(task: TaskDetails) {
   form.longitude = task.longitude || 0;
   form.locationAccuracy = task.locationAccuracy || 0;
   form.locationAddress = task.locationAddress || "";
+  // Backend menyimpan koordinat (gps_coordinates) tapi tidak selalu menyimpan
+  // teks alamat. Saat buka form update, kalau alamat kosong padahal lat/long
+  // tersedia, lakukan reverse-geocode supaya textarea alamat ikut terisi dan
+  // user tidak perlu menulis ulang manual.
+  if (
+    !form.locationAddress &&
+    Number.isFinite(form.latitude) &&
+    Number.isFinite(form.longitude) &&
+    form.latitude !== 0 &&
+    form.longitude !== 0
+  ) {
+    void resolveLocationAddress(form.latitude, form.longitude);
+  }
   form.serialNumber = task.serialNumber || "";
   form.photo = null;
   const savedTaskName = task.title?.trim() || "";

@@ -44,6 +44,27 @@ const client = axios.create({
   },
 })
 
+/**
+ * Status sesi: `true` setelah ada response sukses pertama kali.
+ * Dipakai untuk membedakan "token stale sejak boot" (user tutup tab tanpa logout
+ * lalu buka lagi besoknya — langsung redirect ke login) vs "token expired saat
+ * user sedang pakai aplikasi" (tampilkan modal "Sesi Telah Berakhir").
+ */
+let sessionActive = false
+
+function clearSessionStorage() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+  localStorage.removeItem('menuuser')
+  localStorage.removeItem('raw_user_menus')
+}
+
+function redirectToLogin() {
+  if (window.location.pathname.includes('/auth/login')) return
+  const baseUrl = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '')
+  window.location.replace(`${baseUrl}/auth/login`)
+}
+
 // Request Interceptor: Menempelkan Bearer token otomatis jika ada
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -55,7 +76,13 @@ client.interceptors.request.use((config) => {
 
 // Response Interceptor: Menangani error token expired (401 atau 599 khas backend ini)
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Response sukses pertama menandai sesi aktif — mulai sekarang, 401
+    // berikutnya artinya token benar-benar baru saja expired saat dipakai,
+    // bukan sekadar stale sejak page load.
+    sessionActive = true
+    return response
+  },
   (error) => {
     const status = error.response?.status
     const message = error.response?.data?.message
@@ -72,15 +99,18 @@ client.interceptors.response.use(
         message === 'token_invalid' ||
         message === 'token_absent'
       ) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        localStorage.removeItem('menuuser')
-        localStorage.removeItem('raw_user_menus')
+        clearSessionStorage()
 
-        // Tampilkan popup penjelasan sebelum redirect ke login.
-        // Hanya aktifkan jika pengguna sedang di halaman terproteksi (bukan halaman login).
         if (!window.location.pathname.includes('/auth/login')) {
-          triggerSessionExpired()
+          if (sessionActive) {
+            // Sesi tadinya aktif → user sedang pakai aplikasi, kasih modal.
+            triggerSessionExpired()
+          } else {
+            // Token sudah stale sejak page load (user tutup tab lama, buka
+            // lagi, token sudah expired) → langsung ke login, jangan tampilkan
+            // modal "token habis" yang menyesatkan.
+            redirectToLogin()
+          }
         }
       } else if (status === 403) {
         import('@/services/permissionWatcher').then((m) => {
