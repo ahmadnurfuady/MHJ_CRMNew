@@ -5,21 +5,34 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-import { useWindowScroll } from '@vueuse/core'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+
+const props = defineProps<{
+  targetId?: string
+}>()
 
 const show = ref(false)
-const { y } = useWindowScroll()
+let scrollTarget: HTMLElement | Window = window
 
-function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+function getScrollTop(): number {
+  return scrollTarget instanceof Window ? window.scrollY : scrollTarget.scrollTop
 }
 
-watch(
-  y,
-  (pos) => {
-    show.value = pos > 300
-  },
-  { immediate: true }
-)
+function updateVisibility() {
+  show.value = getScrollTop() > 300
+}
+
+function scrollToTop() {
+  scrollTarget.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+onMounted(() => {
+  scrollTarget = (props.targetId && document.getElementById(props.targetId)) || window
+  scrollTarget.addEventListener('scroll', updateVisibility, { passive: true })
+  updateVisibility()
+})
+
+onBeforeUnmount(() => {
+  scrollTarget.removeEventListener('scroll', updateVisibility)
+})
 </script>

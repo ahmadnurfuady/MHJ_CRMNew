@@ -39,12 +39,12 @@ const router = createRouter({
         {
           path: routes.Dashboards.Default,
           name: 'Default',
-          component: () => import('@/pages/dashboard/Default.vue'),
+          component: () => import('@/pages/dashboard/ManagerDashboard.vue'),
           alias: ['/dashboards/dashboard_default', '/dashboards/default'],
           meta: {
             mainTitle: 'Dashboard',
             title: 'Dashboard | MHJ CRM',
-            breadcrumb: [{ text: 'Dashboard', subText: 'Default' }],
+            breadcrumb: [{ text: 'Dashboard' }],
           },
         },
         {

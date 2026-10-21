@@ -284,7 +284,7 @@ async function submit() {
       title: 'Data Belum Lengkap',
       message: validationError,
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    scrollPageToTop()
     return
   }
 
@@ -300,10 +300,19 @@ async function submit() {
   } catch (error) {
     console.error('Gagal menyimpan pengguna:', error)
     parsedError.value = parseBackendError(error, 'Gagal Menyimpan Pengguna')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    scrollPageToTop()
   } finally {
     saving.value = false
   }
+}
+
+function scrollPageToTop() {
+  const pageContent = document.getElementById('page-content-scroll')
+  if (pageContent) {
+    pageContent.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 async function prefill(id: number) {
