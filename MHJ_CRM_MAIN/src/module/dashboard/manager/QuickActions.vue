@@ -8,7 +8,7 @@
           class="quick-actions__item"
         >
           <span class="quick-actions__icon" aria-hidden="true">
-            <SolarIcon :name="action.icon" :size="22" />
+            <MhjIcon :name="resolveQuickActionIcon(action.id)" :size="24" />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
         </router-link>
@@ -18,7 +18,7 @@
           :title="action.comingSoon ? 'Segera hadir' : undefined"
         >
           <span class="quick-actions__icon" aria-hidden="true">
-            <SolarIcon :name="action.icon" :size="22" />
+            <MhjIcon :name="resolveQuickActionIcon(action.id)" :size="24" />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
           <span v-if="action.comingSoon" class="quick-actions__badge">Segera hadir</span>
@@ -30,10 +30,22 @@
 
 <script setup lang="ts">
 import type { ManagerQuickAction } from '@/types/dashboard/manager'
+import type { MhjIconName } from '@/utils/mhjIcons'
 
 defineProps<{
   actions: ManagerQuickAction[]
 }>()
+
+const QUICK_ACTION_ICONS: Record<string, MhjIconName> = {
+  'materi-dokumen': 'action_folder',
+  'kalender-tugas': 'action_calendar_tugas',
+  promo: 'action_promo_ticket',
+  'form-survey': 'action_form_survey',
+}
+
+function resolveQuickActionIcon(id: string): MhjIconName {
+  return QUICK_ACTION_ICONS[id] ?? 'action_add'
+}
 </script>
 
 <style scoped>
@@ -75,7 +87,7 @@ a.quick-actions__item:focus-visible {
   place-items: center;
   width: 48px;
   height: 48px;
-  border-radius: 14px;
+  border-radius: 50%;
   color: var(--app-primary, #18a6e4);
   background: var(--app-primary-wash, #e5f5fc);
 }

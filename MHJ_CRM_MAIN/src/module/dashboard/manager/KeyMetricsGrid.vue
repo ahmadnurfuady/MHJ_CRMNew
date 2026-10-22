@@ -7,7 +7,7 @@
     <div class="key-metrics-grid">
       <article v-for="kpi in kpis" :key="kpi.id" class="kpi-card" :class="`is-${kpi.accent}`">
         <div class="kpi-card__icon" aria-hidden="true">
-          <SolarIcon :name="kpi.icon" :size="22" />
+          <MhjIcon :name="resolveKpiIcon(kpi.id)" :size="24" />
         </div>
         <strong class="kpi-card__value">{{ kpi.value }}</strong>
         <span class="kpi-card__label">{{ kpi.label }}</span>
@@ -22,10 +22,22 @@
 
 <script setup lang="ts">
 import type { ManagerKpiCard } from '@/types/dashboard/manager'
+import type { MhjIconName } from '@/utils/mhjIcons'
 
 defineProps<{
   kpis: ManagerKpiCard[]
 }>()
+
+const KPI_ICONS: Record<string, MhjIconName> = {
+  'target-omset': 'kpi_cart_large_2',
+  'win-rate': 'kpi_graph',
+  'cakupan-pasar': 'kpi_medal_ribbons_star',
+  'funnel-aktif': 'kpi_pin_list',
+}
+
+function resolveKpiIcon(id: string): MhjIconName {
+  return KPI_ICONS[id] ?? 'kpi_graph'
+}
 
 function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, value))
