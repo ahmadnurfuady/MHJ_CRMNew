@@ -7,9 +7,15 @@ import { isAxiosError } from 'axios'
 
 // ── Tipe data sesuai kontrak API backend ──────────────────────────────────────
 export interface AuthUser {
-  id: number
+  id: string | number
   name: string
   email: string
+  role?: string
+  branch_id?: string
+  branch_name?: string
+  division_id?: string
+  division_name?: string
+  phone_number?: string
   firstname?: string
   lastname?: string
   no_handphone?: string
@@ -47,6 +53,11 @@ export interface AuthActionResult {
 
 interface AuthResponseData {
   token?: string
+  access_token?: string
+  refresh_token?: string
+  token_type?: string
+  expires_in?: number
+  status?: string
   user?: AuthUser
   success?: boolean
   message?: string | string[]
@@ -128,11 +139,15 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await api.post<AuthResponseData>('/login', credentials)
         const data = response.data
+        const token = data.access_token || data.token
 
-        if (data.token) {
-          this.token = data.token
+        if (token) {
+          this.token = token
           this.user = data.user || null
-          localStorage.setItem('token', data.token)
+          localStorage.setItem('token', token)
+          if (data.refresh_token) {
+            localStorage.setItem('refresh_token', data.refresh_token)
+          }
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user))
           }
@@ -237,6 +252,7 @@ export const useAuthStore = defineStore('auth', {
         this.menuuser = []
         this.error = null
         localStorage.removeItem('token')
+        localStorage.removeItem('refresh_token')
         localStorage.removeItem('user')
         localStorage.removeItem('menuuser')
 

@@ -54,6 +54,7 @@ let sessionActive = false
 
 function clearSessionStorage() {
   localStorage.removeItem('token')
+  localStorage.removeItem('refresh_token')
   localStorage.removeItem('user')
   localStorage.removeItem('menuuser')
   localStorage.removeItem('raw_user_menus')

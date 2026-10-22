@@ -138,7 +138,10 @@ async function fetchCompanyAddress(companyId: string): Promise<CompanyAddress | 
 
   const request = (async () => {
     try {
-      const response = await api.getbydata("company/fetchcompanybyid", { id: companyId });
+      // nolog=1 → background lookup untuk list/form, bukan "buka detail" oleh user.
+      // Mencegah activity_logs penuh baris 'read' karena setiap pembukaan list/form
+      // yang menampilkan alamat RS akan memanggil endpoint ini per baris.
+      const response = await api.getbydata("company/fetchcompanybyid", { id: companyId, nolog: 1 });
       const raw = findCompanyRecord(response.data);
       if (!raw) {
         addressCache.set(companyId, null);
