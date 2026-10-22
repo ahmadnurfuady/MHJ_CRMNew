@@ -3,7 +3,9 @@
     <div class="benchmark-card__head">
       <div>
         <p class="benchmark-card__eyebrow">Performa periode berjalan</p>
-        <h2 id="benchmark-title" class="section-title">Ringkasan Target &amp; Benchmark</h2>
+        <div class="benchmark-card__title-row">
+          <h2 id="benchmark-title" class="section-title">Ringkasan Target &amp; Benchmark</h2>
+        </div>
       </div>
       <span class="benchmark-card__status" :class="`is-${benchmarkStatus.tone}`">
         {{ benchmarkStatus.label }}
@@ -136,6 +138,13 @@ function shortProgressLabel(label: string): string {
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+}
+
+.benchmark-card__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
 .section-title {

@@ -1,6 +1,8 @@
 <template>
   <article class="coverage-card" aria-labelledby="coverage-title">
-    <h2 id="coverage-title" class="section-title">Jangkauan Area &amp; Pasar</h2>
+    <div class="coverage-card__head">
+      <h2 id="coverage-title" class="section-title">Jangkauan Area &amp; Pasar</h2>
+    </div>
 
     <div class="coverage-grid">
       <div v-for="stat in coverage.stats" :key="stat.id" class="coverage-tile">
@@ -62,6 +64,13 @@ function formatPercent(value: number): string {
   padding: 20px;
   background: #fff;
   box-shadow: 0 6px 20px rgba(27, 43, 65, 0.04);
+}
+
+.coverage-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
 .section-title {

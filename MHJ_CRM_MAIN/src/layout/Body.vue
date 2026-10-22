@@ -124,6 +124,9 @@ onBeforeUnmount(() => {
   height: calc(100vh - 136px);
   height: calc(100dvh - 136px);
   min-height: 0;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 0 !important;
   overflow: hidden;
 }
 
@@ -138,6 +141,8 @@ onBeforeUnmount(() => {
 }
 
 .page-content-scroll {
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
   overflow-x: hidden;
@@ -148,6 +153,7 @@ onBeforeUnmount(() => {
 
 .page-content-scroll :deep(.footer) {
   width: 100%;
+  margin-top: auto;
   margin-right: 0 !important;
   margin-left: 0 !important;
 }
@@ -155,6 +161,8 @@ onBeforeUnmount(() => {
 .app-shell.compact-wrapper :deep(.sidebar-wrapper) {
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 

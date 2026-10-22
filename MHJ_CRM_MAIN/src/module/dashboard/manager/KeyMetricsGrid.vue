@@ -1,6 +1,8 @@
 <template>
   <section class="key-metrics" aria-labelledby="key-metrics-title">
-    <h2 id="key-metrics-title" class="section-title">Kinerja Utama</h2>
+    <div class="key-metrics__head">
+      <h2 id="key-metrics-title" class="section-title">Kinerja Utama</h2>
+    </div>
 
     <div class="key-metrics-grid">
       <article v-for="kpi in kpis" :key="kpi.id" class="kpi-card" :class="`is-${kpi.accent}`">
@@ -34,6 +36,13 @@ function clampProgress(value: number): number {
 .key-metrics {
   display: grid;
   gap: 14px;
+}
+
+.key-metrics__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
 }
 
 .section-title {
