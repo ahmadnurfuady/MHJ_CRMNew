@@ -12,93 +12,95 @@
       <span class="promo-catalog__total">{{ publishedItems.length }} promo</span>
     </section>
 
-    <section class="promo-catalog__toolbar" aria-label="Pencarian dan filter promo">
-      <label class="promo-search">
-        <span class="visually-hidden">Cari promo</span>
-        <SolarIcon
-          name="magnifier"
-          :size="19"
-          color="#032A4E"
-          secondary-color="#18A6E4"
-          :secondary-opacity="0.75"
-          aria-hidden="true"
-        />
-        <input v-model.trim="search" type="search" placeholder="Cari judul atau isi promo..." />
-        <button v-if="search" type="button" aria-label="Hapus pencarian" @click="search = ''">
-          <SolarIcon name="close" :size="16" />
-        </button>
-      </label>
-
-      <div class="promo-filters" role="group" aria-label="Filter periode promo">
-        <button
-          v-for="option in filterOptions"
-          :key="option.value"
-          type="button"
-          :class="{ active: filter === option.value }"
-          @click="filter = option.value"
-        >
-          {{ option.label }}
-          <span>{{ countFor(option.value) }}</span>
-        </button>
-      </div>
-    </section>
-
-    <div v-if="loading && !loaded" class="promo-grid" aria-label="Memuat promo">
-      <div v-for="index in 6" :key="index" class="promo-skeleton">
-        <span></span><i></i><i></i><i></i>
-      </div>
-    </div>
-
-    <section v-else-if="error" class="promo-state" role="alert">
-      <span class="promo-state__icon"><SolarIcon name="danger-circle" :size="30" /></span>
-      <h2>Promo gagal dimuat</h2>
-      <p>{{ error }}</p>
-      <button type="button" @click="loadPromos(true)">Coba Lagi</button>
-    </section>
-
-    <section v-else-if="filteredPromos.length" class="promo-grid" aria-label="Daftar promo">
-      <router-link
-        v-for="promo in filteredPromos"
-        :key="promo.id"
-        :to="{ name: 'PromoCatalogDetail', params: { id: promo.id } }"
-        class="promo-card"
-      >
-        <div class="promo-card__media">
-          <img
-            v-if="hasImage(promo)"
-            :src="promo.imageUrl"
-            :alt="`Banner ${promo.title}`"
-            loading="lazy"
-            @error="markImageFailed(promo.id)"
+    <section class="promo-catalog__content-card">
+      <section class="promo-catalog__toolbar" aria-label="Pencarian dan filter promo">
+        <label class="promo-search">
+          <span class="visually-hidden">Cari promo</span>
+          <SolarIcon
+            name="magnifier"
+            :size="19"
+            color="#032A4E"
+            secondary-color="#18A6E4"
+            :secondary-opacity="0.75"
+            aria-hidden="true"
           />
-          <div v-else class="promo-card__fallback" aria-hidden="true">
-            <span></span><span></span>
-            <MhjIcon name="action_promo_ticket" :size="42" />
+          <input v-model.trim="search" type="search" placeholder="Cari judul atau isi promo..." />
+          <button v-if="search" type="button" aria-label="Hapus pencarian" @click="search = ''">
+            <SolarIcon name="close" :size="16" />
+          </button>
+        </label>
+
+        <div class="promo-filters" role="group" aria-label="Filter periode promo">
+          <button
+            v-for="option in filterOptions"
+            :key="option.value"
+            type="button"
+            :class="{ active: filter === option.value }"
+            @click="filter = option.value"
+          >
+            {{ option.label }}
+            <span>{{ countFor(option.value) }}</span>
+          </button>
+        </div>
+      </section>
+
+      <div v-if="loading && !loaded" class="promo-grid" aria-label="Memuat promo">
+        <div v-for="index in 6" :key="index" class="promo-skeleton">
+          <span></span><i></i><i></i><i></i>
+        </div>
+      </div>
+
+      <section v-else-if="error" class="promo-state" role="alert">
+        <span class="promo-state__icon"><SolarIcon name="danger-circle" :size="30" /></span>
+        <h2>Promo gagal dimuat</h2>
+        <p>{{ error }}</p>
+        <button type="button" @click="loadPromos(true)">Coba Lagi</button>
+      </section>
+
+      <section v-else-if="filteredPromos.length" class="promo-grid" aria-label="Daftar promo">
+        <router-link
+          v-for="promo in filteredPromos"
+          :key="promo.id"
+          :to="{ name: 'PromoCatalogDetail', params: { id: promo.id } }"
+          class="promo-card"
+        >
+          <div class="promo-card__media">
+            <img
+              v-if="hasImage(promo)"
+              :src="promo.imageUrl"
+              :alt="`Banner ${promo.title}`"
+              loading="lazy"
+              @error="markImageFailed(promo.id)"
+            />
+            <div v-else class="promo-card__fallback" aria-hidden="true">
+              <span></span><span></span>
+              <MhjIcon name="action_promo_ticket" :size="42" />
+            </div>
+            <span class="promo-card__status" :class="`is-${promoPeriodStatus(promo)}`">
+              <i></i>{{ promoStatusLabel(promoPeriodStatus(promo)) }}
+            </span>
           </div>
-          <span class="promo-card__status" :class="`is-${promoPeriodStatus(promo)}`">
-            <i></i>{{ promoStatusLabel(promoPeriodStatus(promo)) }}
-          </span>
-        </div>
 
-        <div class="promo-card__body">
-          <span class="promo-card__date">
-            <SolarIcon name="calendar" :size="16" />
-            {{ formatPromoPeriod(promo) }}
-          </span>
-          <h2>{{ promo.title }}</h2>
-          <p>{{ promo.content || 'Informasi lengkap promo tersedia di halaman detail.' }}</p>
-          <span class="promo-card__link">
-            Lihat Detail <SolarIcon name="alt-arrow-right" :size="17" />
-          </span>
-        </div>
-      </router-link>
-    </section>
+          <div class="promo-card__body">
+            <span class="promo-card__date">
+              <SolarIcon name="calendar" :size="16" />
+              {{ formatPromoPeriod(promo) }}
+            </span>
+            <h2>{{ promo.title }}</h2>
+            <p>{{ promo.content || 'Informasi lengkap promo tersedia di halaman detail.' }}</p>
+            <span class="promo-card__link">
+              Lihat Detail <SolarIcon name="alt-arrow-right" :size="17" />
+            </span>
+          </div>
+        </router-link>
+      </section>
 
-    <section v-else class="promo-state">
-      <span class="promo-state__icon"><MhjIcon name="action_promo_ticket" :size="32" /></span>
-      <h2>{{ search ? 'Promo tidak ditemukan' : 'Belum ada promo' }}</h2>
-      <p>{{ search ? 'Coba gunakan kata kunci atau filter yang berbeda.' : 'Promo terbaru akan muncul di halaman ini.' }}</p>
-      <button v-if="search || filter !== 'all'" type="button" @click="resetFilter">Reset Filter</button>
+      <section v-else class="promo-state">
+        <span class="promo-state__icon"><MhjIcon name="action_promo_ticket" :size="32" /></span>
+        <h2>{{ search ? 'Promo tidak ditemukan' : 'Belum ada promo' }}</h2>
+        <p>{{ search ? 'Coba gunakan kata kunci atau filter yang berbeda.' : 'Promo terbaru akan muncul di halaman ini.' }}</p>
+        <button v-if="search || filter !== 'all'" type="button" @click="resetFilter">Reset Filter</button>
+      </section>
     </section>
   </div>
 </template>
@@ -158,7 +160,7 @@ function resetFilter(): void {
   filter.value = 'all'
 }
 
-onMounted(() => void loadPromos())
+onMounted(() => void loadPromos(true))
 </script>
 
 <style scoped>
@@ -170,6 +172,7 @@ onMounted(() => void loadPromos())
 .promo-catalog__hero h1 { margin: 0; color: var(--promo-ink); font-size: 22px; font-weight: 750; }
 .promo-catalog__hero p { margin: 5px 0 0; color: #748391; font-size: 12px; }
 .promo-catalog__total { position: relative; z-index: 1; border-radius: 999px; padding: 8px 12px; color: #087fad; background: #fff; box-shadow: 0 3px 12px rgba(34,96,128,.1); font-size: 11px; font-weight: 700; }
+.promo-catalog__content-card { border: 1px solid #e2e8ed; border-radius: 18px; padding: 20px; background: #fff; box-shadow: 0 7px 24px rgba(30,75,105,.07); }
 .promo-catalog__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .promo-search { display: flex; align-items: center; gap: 9px; width: min(380px, 100%); height: 42px; border: 1px solid #dfe7ec; border-radius: 12px; padding: 0 10px 0 13px; background: #fff; box-shadow: 0 3px 12px rgba(31,41,55,.05); }
 .promo-search:focus-within { border-color: #66c4eb; box-shadow: 0 0 0 3px rgba(24,166,228,.1); }
@@ -211,5 +214,5 @@ onMounted(() => void loadPromos())
 .promo-skeleton i:nth-child(4) { width: 38%; margin-top: 26px; }
 @keyframes promo-shimmer { to { background-position-x: -200%; } }
 @media (max-width: 1100px) { .promo-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .promo-catalog__toolbar { align-items: stretch; flex-direction: column; } .promo-filters { justify-content: flex-start; } }
-@media (max-width: 640px) { .promo-catalog__hero { grid-template-columns: auto 1fr; padding: 18px; } .promo-catalog__hero-icon { width: 52px; height: 52px; } .promo-catalog__total { display: none; } .promo-catalog__hero h1 { font-size: 19px; } .promo-grid { grid-template-columns: 1fr; } .promo-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; } .promo-filters button { flex: 0 0 auto; } }
+@media (max-width: 640px) { .promo-catalog__hero { grid-template-columns: auto 1fr; padding: 18px; } .promo-catalog__hero-icon { width: 52px; height: 52px; } .promo-catalog__total { display: none; } .promo-catalog__hero h1 { font-size: 19px; } .promo-catalog__content-card { border-radius: 15px; padding: 14px; } .promo-grid { grid-template-columns: 1fr; } .promo-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 3px; } .promo-filters button { flex: 0 0 auto; } }
 </style>

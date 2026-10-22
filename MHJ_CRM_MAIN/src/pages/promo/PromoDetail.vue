@@ -98,7 +98,7 @@ const promo = computed(() => publishedItems.value.find((item) => item.id === pro
 const status = computed(() => promo.value ? promoPeriodStatus(promo.value) : 'active')
 
 watch(promoId, () => { imageFailed.value = false })
-onMounted(() => void loadPromos())
+onMounted(() => void loadPromos(true))
 </script>
 
 <style scoped>

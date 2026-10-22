@@ -18,8 +18,10 @@
       </div>
       <div class="page-body">
         <div id="page-content-scroll" ref="pageScrollRef" class="page-content-scroll">
-          <BreadCrumbs />
-          <router-view></router-view>
+          <BreadCrumbs :refreshing="refreshingPage" @refresh="refreshCurrentPage" />
+          <router-view v-slot="{ Component }">
+            <component :is="Component" :key="`${route.fullPath}:${pageRefreshKey}`" />
+          </router-view>
           <Footer />
         </div>
       </div>
@@ -56,6 +58,9 @@ const ProjectCreateModal = defineAsyncComponent(
 const display = ref(false)
 const layout = ref({})
 const pageScrollRef = ref<HTMLElement | null>(null)
+const pageRefreshKey = ref(0)
+const refreshingPage = ref(false)
+let refreshIndicatorTimer: number | undefined
 const route = useRoute()
 const storeLayout = useLayout()
 const { layoutState } = storeToRefs(storeLayout)
@@ -63,6 +68,19 @@ const store = useMenu()
 const projectStore = useProjectStore()
 const { uiState } = storeToRefs(store)
 const { width } = useWindowSize()
+
+async function refreshCurrentPage() {
+  if (refreshingPage.value) return
+
+  refreshingPage.value = true
+  pageRefreshKey.value += 1
+  await nextTick()
+
+  if (refreshIndicatorTimer) window.clearTimeout(refreshIndicatorTimer)
+  refreshIndicatorTimer = window.setTimeout(() => {
+    refreshingPage.value = false
+  }, 700)
+}
 
 watch(
   () => layoutState.value.layouts.settings.sidebarSetting,
@@ -102,6 +120,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  if (refreshIndicatorTimer) window.clearTimeout(refreshIndicatorTimer)
   stopPermissionWatcher()
   useNotificationStore().stop()
 })
