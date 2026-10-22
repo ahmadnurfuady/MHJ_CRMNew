@@ -8,7 +8,7 @@
       <div v-for="stat in coverage.stats" :key="stat.id" class="coverage-tile">
         <div class="coverage-tile__head">
           <span class="coverage-tile__icon" aria-hidden="true">
-            <SolarIcon :name="stat.icon" :size="18" />
+            <MhjIcon :name="stat.id === 'area-coverage' ? 'coverage_point_on_map' : 'kpi_pin_list'" :size="20" />
           </span>
           <strong>{{ stat.value }}</strong>
           <span class="coverage-tile__unit">RS</span>
@@ -21,24 +21,15 @@
       </div>
     </div>
 
-    <div class="coverage-map">
-      <LMap
-        :use-global-leaflet="false"
-        :zoom="coverage.highlight.zoom ?? 11"
-        :center="[coverage.highlight.lat, coverage.highlight.lng]"
-        :options="{ scrollWheelZoom: false }"
-      >
-        <LTileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        <LMarker :lat-lng="[coverage.highlight.lat, coverage.highlight.lng]" :title="coverage.highlight.label">
-          <LPopup :content="`Di lokasi: ${coverage.highlight.label}`" />
-        </LMarker>
-      </LMap>
-    </div>
+    <HospitalCoverageMap
+      :initial-center="[coverage.highlight.lat, coverage.highlight.lng]"
+      :initial-zoom="coverage.highlight.zoom ?? 11"
+    />
   </article>
 </template>
 
 <script setup lang="ts">
-import { LMap, LMarker, LPopup, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import HospitalCoverageMap from '@/module/dashboard/manager/HospitalCoverageMap.vue'
 
 import type { ManagerAreaCoverage } from '@/types/dashboard/manager'
 
@@ -148,18 +139,6 @@ function formatPercent(value: number): string {
 .coverage-tile__hint {
   color: #93a0aa;
   font-size: 10.5px;
-}
-
-.coverage-map {
-  overflow: hidden;
-  height: 240px;
-  border: 1px solid #edf1f4;
-  border-radius: 14px;
-}
-
-.coverage-map :deep(.leaflet-container) {
-  width: 100%;
-  height: 100%;
 }
 
 @media (max-width: 420px) {

@@ -1,9 +1,7 @@
 import { fetchRecentActivities } from '@/services/managerDashboardService'
 import {
   fetchDashboardMetrics,
-  fetchHospitalMap,
   type DashboardMetricsRaw,
-  type HospitalMapPoint,
 } from '@/services/analyticsService'
 import type {
   ManagerDashboardData,
@@ -17,7 +15,7 @@ import type {
  * Data base untuk Dashboard Manager. Nilai di sini dipakai sebagai fallback
  * jika endpoint di BE belum tersedia atau gagal diambil.
  * - KPI/benchmark/coverage → di-override oleh `fetchDashboardMetrics()` (GET /api/dashboard/metrics)
- * - Peta cakupan → di-override oleh `fetchHospitalMap()` (GET /api/dashboard/hospital-map)
+ * - Peta cakupan mengambil daftar RS langsung dari store Company/Hospital di komponen peta.
  * - Aktivitas → di-override oleh `fetchRecentActivities()` (GET /api/dashboard/systemactivity)
  */
 const managerDashboardData: ManagerDashboardData = {
@@ -63,7 +61,7 @@ const managerDashboardData: ManagerDashboardData = {
   quickActions: [
     { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
     { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
-    { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/settings/promo' },
+    { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/promos' },
     { id: 'form-survey', label: 'Form Survey', icon: 'clipboard', comingSoon: true },
   ],
   benchmark: {
@@ -281,28 +279,13 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
   }
 }
 
-function pickMapHighlight(points: HospitalMapPoint[], fallback: MapHighlight): MapHighlight {
-  if (!points.length) return fallback
-  const top = [...points].sort((a, b) => b.metric_value - a.metric_value)[0]
-  if (!top || !Number.isFinite(top.coordinates?.lat) || !Number.isFinite(top.coordinates?.lng)) {
-    return fallback
-  }
-  return {
-    lat: top.coordinates.lat,
-    lng: top.coordinates.lng,
-    label: top.name || fallback.label,
-    zoom: fallback.zoom,
-  }
-}
-
 /**
  * Mengambil data Dashboard Manager. Setiap section di-override dengan data
  * backend kalau endpoint-nya sukses; kalau gagal, pakai dummy di atas.
  */
 export async function fetchManagerDashboardData(): Promise<ManagerDashboardData> {
-  const [metrics, hospitals, activities] = await Promise.all([
+  const [metrics, activities] = await Promise.all([
     fetchDashboardMetrics(),
-    fetchHospitalMap('visit'),
     fetchRecentActivities(5).catch((error) => {
       console.error('Gagal memuat aktivitas terbaru dari backend.', error)
       return [] as ManagerDashboardData['activities']
@@ -311,7 +294,7 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
 
   const kpis = metrics ? buildKpis(metrics) : managerDashboardData.kpis
   const benchmark = metrics ? buildBenchmark(metrics) : managerDashboardData.benchmark
-  const highlight = pickMapHighlight(hospitals, managerDashboardData.coverage.highlight)
+  const highlight = managerDashboardData.coverage.highlight
   const coverage = metrics
     ? buildCoverage(metrics, highlight)
     : { ...managerDashboardData.coverage, highlight }

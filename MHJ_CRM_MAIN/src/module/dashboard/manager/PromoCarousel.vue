@@ -2,13 +2,13 @@
   <section class="promo-carousel" aria-labelledby="promo-title">
     <div class="promo-carousel__head">
       <h2 id="promo-title" class="section-title">Promo</h2>
-      <router-link to="/crmAdmin/settings/promo" class="promo-carousel__link">Lihat Semua</router-link>
+      <router-link :to="routes.Promo.List" class="promo-carousel__link">Lihat Semua</router-link>
     </div>
 
     <div v-if="loading" class="promo-carousel__placeholder">Memuat promo...</div>
 
     <div v-else-if="slides.length === 0" class="promo-carousel__empty">
-      <SolarIcon name="tag" :size="26" />
+      <MhjIcon name="action_promo_ticket" :size="28" />
       <span>Belum ada promo aktif saat ini.</span>
     </div>
 
@@ -34,7 +34,7 @@
           <div class="promo-slide__decoration" aria-hidden="true">
             <span class="promo-slide__orb promo-slide__orb--large"></span>
             <span class="promo-slide__orb promo-slide__orb--small"></span>
-            <SolarIcon name="tag" :size="34" color="#ffffff" secondary-color="#ffffff" />
+            <MhjIcon name="action_promo_ticket" :size="34" />
           </div>
           <span class="promo-slide__overlay" aria-hidden="true"></span>
           <div class="promo-slide__caption">
@@ -53,6 +53,7 @@
 import { Autoplay, Pagination } from 'swiper/modules'
 import { ref } from 'vue'
 
+import { routes } from '@/router/routes'
 import type { PromoSlide } from '@/types/dashboard/manager'
 
 defineProps<{

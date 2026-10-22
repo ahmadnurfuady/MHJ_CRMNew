@@ -73,6 +73,7 @@ import { HomeIcon } from "@solar-icons/vue/bold-duotone/home";
 import { HospitalIcon } from "@solar-icons/vue/bold-duotone/hospital";
 import { InfoCircleIcon } from "@solar-icons/vue/bold-duotone/info-circle";
 import { LayersIcon } from "@solar-icons/vue/bold-duotone/layers";
+import { MapIcon } from "@solar-icons/vue/bold-duotone/map";
 import { LetterIcon } from "@solar-icons/vue/bold-duotone/letter";
 import { LinkIcon } from "@solar-icons/vue/bold-duotone/link";
 import { ListIcon } from "@solar-icons/vue/bold-duotone/list";
@@ -84,6 +85,7 @@ import { MagnifierZoomInIcon } from "@solar-icons/vue/bold-duotone/magnifier-zoo
 import { MagnifierZoomOutIcon } from "@solar-icons/vue/bold-duotone/magnifier-zoom-out";
 import { MapPointIcon } from "@solar-icons/vue/bold-duotone/map-point";
 import { MaximizeIcon } from "@solar-icons/vue/bold-duotone/maximize";
+import { MinimizeIcon } from "@solar-icons/vue/bold-duotone/minimize";
 import { MedicalKitIcon } from "@solar-icons/vue/bold-duotone/medical-kit";
 import { MenuDotsIcon } from "@solar-icons/vue/bold-duotone/menu-dots";
 import { MicrophoneIcon } from "@solar-icons/vue/bold-duotone/microphone";
@@ -100,6 +102,7 @@ import { ReplyIcon } from "@solar-icons/vue/bold-duotone/reply";
 import { RocketIcon } from "@solar-icons/vue/bold-duotone/rocket";
 import { SendSquareIcon } from "@solar-icons/vue/bold-duotone/send-square";
 import { SettingsIcon } from "@solar-icons/vue/bold-duotone/settings";
+import { SatelliteIcon } from "@solar-icons/vue/bold-duotone/satellite";
 import { ShareIcon } from "@solar-icons/vue/bold-duotone/share";
 import { ShieldCheckIcon } from "@solar-icons/vue/bold-duotone/shield-check";
 import { ShieldWarningIcon } from "@solar-icons/vue/bold-duotone/shield-warning";
@@ -119,6 +122,7 @@ import { UserPlusIcon } from "@solar-icons/vue/bold-duotone/user-plus";
 import { UsersGroupRoundedIcon } from "@solar-icons/vue/bold-duotone/users-group-rounded";
 import { WalletIcon } from "@solar-icons/vue/bold-duotone/wallet";
 import { WidgetIcon } from "@solar-icons/vue/bold-duotone/widget";
+import { GpsIcon } from "@solar-icons/vue/line-duotone/gps";
 
 defineOptions({ inheritAttrs: false });
 
@@ -200,6 +204,7 @@ const icons: Record<string, Component> = {
   hospital: HospitalIcon,
   info: InfoCircleIcon,
   layers: LayersIcon,
+  map: MapIcon,
   letter: LetterIcon,
   link: LinkIcon,
   list: ListIcon,
@@ -211,6 +216,7 @@ const icons: Record<string, Component> = {
   "magnifier-zoom-out": MagnifierZoomOutIcon,
   "map-point": MapPointIcon,
   maximize: MaximizeIcon,
+  minimize: MinimizeIcon,
   medical: MedicalKitIcon,
   more: MenuDotsIcon,
   microphone: MicrophoneIcon,
@@ -227,6 +233,7 @@ const icons: Record<string, Component> = {
   rocket: RocketIcon,
   send: SendSquareIcon,
   settings: SettingsIcon,
+  satellite: SatelliteIcon,
   share: ShareIcon,
   "shield-check": ShieldCheckIcon,
   "shield-warning": ShieldWarningIcon,
@@ -246,6 +253,7 @@ const icons: Record<string, Component> = {
   users: UsersGroupRoundedIcon,
   wallet: WalletIcon,
   widget: WidgetIcon,
+  gps: GpsIcon,
 };
 
 const aliases: Record<string, string> = {

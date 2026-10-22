@@ -23,6 +23,10 @@ export const routes = {
     Settings: '/crmAdmin/settings',
     Promo: '/crmAdmin/settings/promo',
   },
+  Promo: {
+    List: '/crmAdmin/promos',
+    Detail: '/crmAdmin/promos/:id',
+  },
   Master: {
     Root: '/crmAdmin/master',
     Jabatan: '/crmAdmin/master/jabatan',

@@ -8,7 +8,7 @@
     <ul v-if="activities.length" class="activity-list">
       <li v-for="activity in activities" :key="activity.id" class="activity-item">
         <span class="activity-item__icon" :class="`is-${activity.type}`" aria-hidden="true">
-          <SolarIcon :name="activity.icon" :size="18" />
+          <MhjIcon :name="activityIcon(activity.type)" :size="20" />
         </span>
         <div class="activity-item__body">
           <strong>{{ activity.title }}</strong>
@@ -23,11 +23,24 @@
 </template>
 
 <script setup lang="ts">
-import type { ActivityItem } from '@/types/dashboard/manager'
+import type { ActivityItem, ActivityType } from '@/types/dashboard/manager'
+import type { MhjIconName } from '@/utils/mhjIcons'
 
 defineProps<{
   activities: ActivityItem[]
 }>()
+
+const ACTIVITY_ICONS: Record<ActivityType, MhjIconName> = {
+  call: 'action_call',
+  email: 'action_email',
+  meeting: 'action_calendar_tugas',
+  note: 'action_checklist',
+  task: 'action_check',
+}
+
+function activityIcon(type: ActivityType): MhjIconName {
+  return ACTIVITY_ICONS[type]
+}
 </script>
 
 <style scoped>

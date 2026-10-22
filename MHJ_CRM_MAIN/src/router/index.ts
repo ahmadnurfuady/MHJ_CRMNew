@@ -58,6 +58,26 @@ const router = createRouter({
           },
         },
         {
+          path: routes.Promo.List,
+          name: 'PromoCatalog',
+          component: () => import('@/pages/promo/PromoList.vue'),
+          meta: {
+            mainTitle: 'Promo',
+            title: 'Daftar Promo | MHJ CRM',
+            breadcrumb: [{ text: 'Promo' }],
+          },
+        },
+        {
+          path: routes.Promo.Detail,
+          name: 'PromoCatalogDetail',
+          component: () => import('@/pages/promo/PromoDetail.vue'),
+          meta: {
+            mainTitle: 'Detail Promo',
+            title: 'Detail Promo | MHJ CRM',
+            breadcrumb: [{ text: 'Promo', subText: 'Detail' }],
+          },
+        },
+        {
           path: '/crmAdmin/Projects',
           redirect: '/crmAdmin/Projects/list',
         },

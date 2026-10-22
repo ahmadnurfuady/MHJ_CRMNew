@@ -29,8 +29,26 @@ function pickOptionalNumber(raw: Dict, ...keys: string[]): number | undefined {
   const value = pick(raw, ...keys)
   if (value === undefined || value === '') return undefined
 
-  const normalized = Number(value)
+  const normalized = Number(typeof value === 'string' ? value.trim().replace(',', '.') : value)
   return Number.isFinite(normalized) ? normalized : undefined
+}
+
+/** Mendukung koordinat langsung maupun object bersarang seperti coordinates/location. */
+function pickCoordinate(raw: Dict, axis: 'latitude' | 'longitude'): number | undefined {
+  const directKeys = axis === 'latitude'
+    ? ['Latitude', 'latitude', 'lat', 'Lat', 'LAT', 'coordinate_lat', 'coordinate_latitude']
+    : ['Longitude', 'longitude', 'lng', 'Lng', 'LNG', 'lon', 'long', 'coordinate_lng', 'coordinate_longitude']
+  const direct = pickOptionalNumber(raw, ...directKeys)
+  if (direct !== undefined) return direct
+
+  for (const containerKey of ['coordinates', 'coordinate', 'location', 'map_location']) {
+    const container = raw[containerKey]
+    if (isRecord(container)) {
+      const nested = pickOptionalNumber(container, ...directKeys)
+      if (nested !== undefined) return nested
+    }
+  }
+  return undefined
 }
 
 /** Menemukan satu row company pada response detail yang mungkin dibungkus data/company. */
@@ -142,8 +160,8 @@ export function normalizeHospital(raw: Dict): Hospital {
       'tipeMarketingGo500',
     ),
     sirs: pickString(raw, 'SIRS', 'sirs'),
-    latitude: pickOptionalNumber(raw, 'Latitude', 'latitude'),
-    longitude: pickOptionalNumber(raw, 'Longitude', 'longitude'),
+    latitude: pickCoordinate(raw, 'latitude'),
+    longitude: pickCoordinate(raw, 'longitude'),
     totalContacts: pickOptionalNumber(
       raw,
       'Total Contacts',
@@ -192,8 +210,8 @@ function normalizeContactAssociation(raw: Dict): HospitalContactAssociation {
     gender: pickString(raw, 'gender', 'Gender'),
     projectName: pickString(raw, 'project_name', 'projects_name'),
     projectId: pickOptionalNumber(raw, 'project_id'),
-    latitude: pickOptionalNumber(raw, 'latitude'),
-    longitude: pickOptionalNumber(raw, 'longitude'),
+    latitude: pickCoordinate(raw, 'latitude'),
+    longitude: pickCoordinate(raw, 'longitude'),
   }
 }
 
@@ -264,10 +282,29 @@ export const useHospitalStore = defineStore('hospital', () => {
         const response = await api.getbydata(`${ENDPOINT}/fetchcompanybyid`, { id })
         const raw = findCompanyRecord(response.data)
         const { items: rawContacts } = extractList(response.data, ['contactassoc'])
-        contactAssociations.value = rawContacts
+        const normalizedContacts = rawContacts
           .filter(isRecord)
           .map(normalizeContactAssociation)
+        contactAssociations.value = normalizedContacts
         selectedItem.value = raw ? normalizeHospital(raw) : null
+
+        // Sebagian response detail menyimpan koordinat hanya pada contactassoc.
+        // Gunakan koordinat asosiasi sebagai fallback yang sama seperti halaman detail RS.
+        if (
+          selectedItem.value
+          && (selectedItem.value.latitude === undefined || selectedItem.value.longitude === undefined)
+        ) {
+          const locationFallback = normalizedContacts.find(
+            (contact) => contact.latitude !== undefined && contact.longitude !== undefined,
+          )
+          if (locationFallback) {
+            selectedItem.value = {
+              ...selectedItem.value,
+              latitude: locationFallback.latitude,
+              longitude: locationFallback.longitude,
+            }
+          }
+        }
         if (selectedItem.value) {
           items.value = items.value.map((item) =>
             item.id === id ? selectedItem.value as Hospital : item,
