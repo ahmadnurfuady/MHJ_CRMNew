@@ -20,6 +20,7 @@ const firebaseConfig: FirebaseOptions = {
 }
 
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY?.trim()
+const PERMISSION_PROMPT_TIMEOUT = 12_000
 
 let app: FirebaseApp | null = null
 let messagingInstance: Messaging | null = null
@@ -72,6 +73,30 @@ async function registerMessagingServiceWorker(): Promise<ServiceWorkerRegistrati
   return registration
 }
 
+/**
+ * Beberapa browser berbasis Chromium dapat menahan quiet permission prompt tanpa
+ * menyelesaikan promise. Timeout mencegah tombol UI terus berstatus loading.
+ */
+function requestNotificationPermission(): Promise<NotificationPermission> {
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new Error(
+        'Popup izin tidak muncul. Aktifkan "Sites can ask to send notifications" pada pengaturan browser.',
+      ))
+    }, PERMISSION_PROMPT_TIMEOUT)
+
+    Notification.requestPermission()
+      .then((permission) => {
+        window.clearTimeout(timer)
+        resolve(permission)
+      })
+      .catch((error) => {
+        window.clearTimeout(timer)
+        reject(error)
+      })
+  })
+}
+
 /** Meminta izin browser dan menghasilkan registration token untuk backend FCM. */
 export async function requestFcmToken(): Promise<string | null> {
   if (
@@ -81,6 +106,9 @@ export async function requestFcmToken(): Promise<string | null> {
   ) {
     return null
   }
+  if (!window.isSecureContext) {
+    throw new Error('Push notification memerlukan HTTPS atau localhost yang dianggap aman oleh browser.')
+  }
 
   // Browser mengharuskan prompt permission dipanggil langsung dari user gesture.
   // Jangan menaruh await lain sebelum baris ini karena konteks klik dapat hilang
@@ -88,7 +116,7 @@ export async function requestFcmToken(): Promise<string | null> {
   const permission =
     Notification.permission === 'granted'
       ? Notification.permission
-      : await Notification.requestPermission()
+      : await requestNotificationPermission()
   if (permission !== 'granted') return null
 
   const instance = await getMessagingInstance()

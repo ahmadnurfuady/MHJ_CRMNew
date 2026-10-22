@@ -194,9 +194,17 @@
     </LMap>
 
     <div class="hospital-map__controls" aria-label="Kontrol peta">
-      <button type="button" :class="{ locating }" aria-label="Lokasi saya" title="Lokasi saya" @click="locateUser">
+      <button
+        type="button"
+        class="location-control"
+        :class="{ locating }"
+        :disabled="locating"
+        :aria-label="locationControlLabel"
+        @click="locateUser"
+      >
         <MhjIcon name="action_location" :size="22" />
         <i v-if="userLocation"></i>
+        <span class="map-control-tooltip" role="tooltip">{{ locationControlLabel }}</span>
       </button>
       <button
         type="button"
@@ -361,7 +369,7 @@ type EquipmentFilter = 'all' | 'mhj' | 'none'
 interface LeafletMapInstance {
   invalidateSize: (options?: { animate?: boolean }) => void
   fitBounds: (bounds: [number, number][], options?: { padding?: [number, number]; maxZoom?: number }) => void
-  setView: (center: [number, number], zoom: number) => void
+  setView: (center: [number, number], zoom: number, options?: { animate?: boolean }) => void
   zoomIn: () => void
   zoomOut: () => void
 }
@@ -467,6 +475,10 @@ const activeFilterCount = computed(() => [
 const selectedCoordinates = computed(() => {
   if (!selectedHospital.value || !hasCoordinates(selectedHospital.value)) return 'Koordinat belum tersedia'
   return `${selectedHospital.value.latitude!.toFixed(5)}, ${selectedHospital.value.longitude!.toFixed(5)}`
+})
+const locationControlLabel = computed(() => {
+  if (locating.value) return 'Mencari lokasi...'
+  return userLocation.value ? 'Kembali ke lokasi saya' : 'Tampilkan lokasi saya'
 })
 
 function refreshMapSize(): void {
@@ -589,24 +601,76 @@ function showMapMessage(message: string): void {
   messageTimer = window.setTimeout(() => { mapMessage.value = '' }, 3500)
 }
 
-function locateUser(): void {
+function requestCurrentPosition(options: PositionOptions): Promise<GeolocationPosition> {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, options)
+  })
+}
+
+function focusUserLocation(position: GeolocationPosition): void {
+  const { latitude, longitude } = position.coords
+  userLocation.value = [latitude, longitude]
+  mapInstance.value?.setView(userLocation.value, 16, { animate: true })
+  showMapMessage('Lokasi kamu berhasil ditemukan.')
+}
+
+function showLocationError(error: GeolocationPositionError): void {
+  if (error.code === error.PERMISSION_DENIED) {
+    showMapMessage('Izin lokasi diblokir. Buka Site settings lalu izinkan Location.')
+  } else if (error.code === error.TIMEOUT) {
+    showMapMessage('Lokasi belum ditemukan. Aktifkan Location Services Windows lalu coba lagi.')
+  } else {
+    showMapMessage('Lokasi tidak tersedia. Periksa Location Services pada perangkat.')
+  }
+}
+
+async function locateUser(): Promise<void> {
   if (!navigator.geolocation) {
     showMapMessage('Browser ini tidak mendukung pencarian lokasi.')
     return
   }
+  if (!window.isSecureContext) {
+    showMapMessage('Akses lokasi memerlukan HTTPS atau localhost yang aman.')
+    return
+  }
+
   locating.value = true
-  navigator.geolocation.getCurrentPosition(
-    ({ coords }) => {
-      userLocation.value = [coords.latitude, coords.longitude]
-      mapInstance.value?.setView(userLocation.value, 14)
-      locating.value = false
-    },
-    () => {
-      locating.value = false
-      showMapMessage('Lokasi tidak dapat diakses. Periksa izin lokasi browser.')
-    },
-    { enableHighAccuracy: true, timeout: 10_000 },
-  )
+  showLayers.value = false
+  showFilter.value = false
+  showSearch.value = false
+  selectedHospital.value = null
+  showMapMessage('Menunggu izin lokasi dari browser...')
+
+  try {
+    // Panggil geolocation langsung dari event klik agar prompt izin native
+    // tetap dianggap sebagai tindakan pengguna oleh semua browser.
+    const networkPosition = await requestCurrentPosition({
+      enableHighAccuracy: false,
+      timeout: 15_000,
+      maximumAge: 300_000,
+    })
+    focusUserLocation(networkPosition)
+  } catch (networkError) {
+    const error = networkError as GeolocationPositionError
+    if (error.code === error.PERMISSION_DENIED) {
+      showLocationError(error)
+      return
+    }
+
+    showMapMessage('Mencoba pencarian lokasi yang lebih akurat...')
+    try {
+      const precisePosition = await requestCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 12_000,
+        maximumAge: 30_000,
+      })
+      focusUserLocation(precisePosition)
+    } catch (preciseError) {
+      showLocationError(preciseError as GeolocationPositionError)
+    }
+  } finally {
+    locating.value = false
+  }
 }
 
 async function loadHospitals(): Promise<void> {
@@ -813,11 +877,15 @@ onBeforeUnmount(() => {
 .hospital-map__controls { position: absolute; right: 12px; bottom: 12px; z-index: 500; display: grid; gap: 7px; }
 .hospital-map__controls button { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; padding: 0; }
 .hospital-map__controls button:hover { color: var(--app-primary, #18a6e4); }
+.hospital-map__controls button:disabled { cursor: wait; opacity: .82; }
 .hospital-map__controls button.primary { border-color: var(--app-primary, #18a6e4); color: #fff; background: var(--app-primary, #18a6e4); }
 .map-zoom-icon { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 3.4; stroke-linecap: round; }
 .map-expand-icon { width: 22px; height: 22px; fill: none; stroke: #087fad; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .hospital-map__controls button.locating :deep(svg) { animation: map-spin 1s linear infinite; }
 .hospital-map__controls button i { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border: 2px solid #fff; border-radius: 50%; background: #14b88a; }
+.map-control-tooltip { position: absolute; top: 50%; right: calc(100% + 10px); z-index: 3; width: max-content; max-width: 160px; border-radius: 7px; padding: 6px 9px; color: #fff; background: rgba(31, 49, 64, .94); box-shadow: 0 4px 12px rgba(15,23,42,.18); font-size: 9.5px; font-weight: 650; line-height: 1.25; opacity: 0; pointer-events: none; transform: translate(5px,-50%); transition: opacity .16s ease, transform .16s ease; }
+.map-control-tooltip::after { position: absolute; top: 50%; left: 100%; border-width: 5px 0 5px 5px; border-style: solid; border-color: transparent transparent transparent rgba(31,49,64,.94); content: ''; transform: translateY(-50%); }
+.location-control:hover .map-control-tooltip,.location-control:focus-visible .map-control-tooltip { opacity: 1; transform: translate(0,-50%); }
 .hospital-map:not(.hospital-map--expanded) .hospital-map__controls button:nth-child(n + 3) { display: none; }
 
 .hospital-marker { display: grid; place-items: center; width: 42px; height: 42px; border: 4px solid #fff; border-radius: 50%; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); }

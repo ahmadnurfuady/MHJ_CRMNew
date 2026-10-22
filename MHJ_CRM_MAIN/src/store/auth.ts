@@ -54,6 +54,8 @@ export interface AuthActionResult {
 interface AuthResponseData {
   token?: string
   access_token?: string
+  accessToken?: string
+  jwt?: string
   refresh_token?: string
   token_type?: string
   expires_in?: number
@@ -63,6 +65,40 @@ interface AuthResponseData {
   message?: string | string[]
   msg?: string | string[]
   error?: string
+}
+
+function normalizeAuthResponse(payload: unknown): AuthResponseData {
+  let value = payload
+
+  if (typeof value === 'string') {
+    try {
+      value = JSON.parse(value)
+    } catch {
+      return {}
+    }
+  }
+
+  if (!value || typeof value !== 'object') return {}
+
+  const root = value as Record<string, unknown>
+  const nested = root.data ?? root.result
+  if (
+    !root.access_token &&
+    !root.accessToken &&
+    !root.token &&
+    !root.jwt &&
+    nested &&
+    typeof nested === 'object'
+  ) {
+    return normalizeAuthResponse(nested)
+  }
+
+  return root as unknown as AuthResponseData
+}
+
+function resolveAccessToken(data: AuthResponseData): string | null {
+  const candidate = data.access_token ?? data.accessToken ?? data.token ?? data.jwt
+  return typeof candidate === 'string' && candidate.trim() ? candidate.trim() : null
 }
 
 function extractErrorMessage(err: unknown, fallback: string): string {
@@ -138,8 +174,8 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
       try {
         const response = await api.post<AuthResponseData>('/login', credentials)
-        const data = response.data
-        const token = data.access_token || data.token
+        const data = normalizeAuthResponse(response.data)
+        const token = resolveAccessToken(data)
 
         if (token) {
           this.token = token
@@ -164,7 +200,10 @@ export const useAuthStore = defineStore('auth', {
           return { success: true, message: data.message || data.msg || 'Login Berhasil' }
         }
 
-        return { success: false, message: 'Respon server tidak valid' }
+        return {
+          success: false,
+          message: 'Login berhasil diterima server, tetapi token akses tidak ditemukan pada respons.',
+        }
       } catch (err: unknown) {
         let errorMsg = 'Login gagal. Periksa koneksi ke server.'
         const resData = isAxiosError<AuthResponseData>(err) ? err.response?.data : undefined

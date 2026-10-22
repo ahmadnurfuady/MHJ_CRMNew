@@ -25,11 +25,14 @@
           </template>
           <template v-else-if="pushStatus === 'denied'">
             <strong>Notifikasi diblokir.</strong>
-            <span>Izinkan notifikasi melalui Site settings pada browser.</span>
+            <span>Izinkan notifikasi melalui Site settings, lalu muat ulang halaman.</span>
           </template>
           <template v-else-if="pushStatus === 'error'">
             <strong>Push notification belum aktif.</strong>
             <span>{{ pushError || 'Terjadi kesalahan saat menghubungkan Firebase.' }}</span>
+            <small class="push-status__hint">
+              Opera: Settings → Privacy &amp; security → Site settings → Notifications.
+            </small>
             <button class="btn btn-sm btn-primary mt-2" type="button" @click="notificationStore.enablePush()">
               Coba lagi
             </button>
@@ -154,6 +157,14 @@ function handleItemClick(item: PushNotificationEntry) {
 .push-status span {
   display: block;
   margin-top: 2px;
+}
+
+.push-status__hint {
+  display: block;
+  margin-top: 7px;
+  color: #657784;
+  font-size: 10px;
+  line-height: 1.45;
 }
 
 .notif-list {
