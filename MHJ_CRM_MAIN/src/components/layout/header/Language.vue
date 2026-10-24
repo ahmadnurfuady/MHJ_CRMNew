@@ -6,7 +6,13 @@
       @click.stop="openDropDown"
     >
       <span class="language-menu-icon">
-        <vue-feather type="globe" aria-hidden="true" />
+        <SolarIcon
+          name="global-linear"
+          :size="22"
+          color="#1599CF"
+          :stroke-width="2"
+          aria-hidden="true"
+        />
       </span>
       <span class="language-menu-copy">
         <strong>Bahasa</strong>
@@ -136,11 +142,14 @@ onClickOutside(dropdownRef, () => {
   height: 22px !important;
   margin: 0 !important;
   padding: 0 !important;
+}
+
+.language-menu-icon svg:not(.solar-icon) {
   fill: none !important;
   stroke: currentColor !important;
 }
 
-.language-menu-icon svg *,
+.language-menu-icon svg:not(.solar-icon) *,
 .language-menu-chevron *,
 .language-option svg * {
   fill: none !important;

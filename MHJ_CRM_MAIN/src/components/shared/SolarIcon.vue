@@ -65,6 +65,7 @@ import { GalleryIcon } from "@solar-icons/vue/bold-duotone/gallery";
 import { GiftIcon } from "@solar-icons/vue/bold-duotone/gift";
 import { GitForkIcon } from "@solar-icons/vue/bold-duotone/git-fork";
 import { GlobalIcon } from "@solar-icons/vue/bold-duotone/global";
+import { GlobalIcon as GlobalLinearIcon } from "@solar-icons/vue/linear/global";
 import { GraphUpIcon } from "@solar-icons/vue/bold-duotone/graph-up";
 import { HamburgerMenuIcon } from "@solar-icons/vue/bold-duotone/hamburger-menu";
 import { HashtagIcon } from "@solar-icons/vue/bold-duotone/hashtag";
@@ -199,6 +200,7 @@ const icons: Record<string, Component> = {
   gift: GiftIcon,
   "git-fork": GitForkIcon,
   global: GlobalIcon,
+  "global-linear": GlobalLinearIcon,
   graph: GraphUpIcon,
   menu: HamburgerMenuIcon,
   hashtag: HashtagIcon,
