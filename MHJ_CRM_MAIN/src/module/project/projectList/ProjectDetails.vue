@@ -34,9 +34,25 @@
 
     <div class="opp-card__owner">
       <span class="opp-avatar opp-avatar--owner" aria-hidden="true">{{ initials(project.ownerName) }}</span>
-      <div>
+      <div class="opp-owner-copy">
         <small>Owner</small>
         <strong>{{ project.ownerName || 'Belum ditentukan' }}</strong>
+
+        <!-- List: dua baris vertikal "Dibuat oleh" + "Diperbarui oleh" di
+             bawah Owner. Board menampilkannya di dalam .opp-card__timing. -->
+        <div
+          v-if="viewMode === 'list'"
+          class="opp-owner-audit opp-owner-audit--list"
+        >
+          <span class="opp-owner-audit__item">
+            <small>Dibuat oleh</small>
+            <strong>{{ createdByName }}</strong>
+          </span>
+          <span class="opp-owner-audit__item">
+            <small>Diperbarui oleh</small>
+            <strong>{{ updatedByName }}</strong>
+          </span>
+        </div>
       </div>
     </div>
 
@@ -46,6 +62,17 @@
       </div>
       <div>
         <span><small>Update terakhir</small><strong>{{ lastUpdated }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Board: Dibuat & Diperbarui ditaruh di baris sendiri DI BAWAH Owner,
+         bentuk pil sama seperti "Di stage ini"/"Update terakhir". -->
+    <div v-if="viewMode === 'board'" class="opp-card__audit">
+      <div>
+        <span><small>Dibuat oleh</small><strong>{{ createdByName }}</strong></span>
+      </div>
+      <div>
+        <span><small>Diperbarui oleh</small><strong>{{ updatedByName }}</strong></span>
       </div>
     </div>
 
@@ -136,6 +163,8 @@ const projectContacts = computed<ProjectContact[]>(() => {
 const remainingContacts = computed(() => projectContacts.value.slice(1))
 const lastUpdated = computed(() => formatRelativeTime(props.project.updatedAt || props.project.createdAt))
 const stageDuration = computed(() => formatDuration(props.project.stageEnteredAt || props.project.updatedAt || props.project.createdAt))
+const createdByName = computed(() => props.project.createdBy || 'Belum tersedia')
+const updatedByName = computed(() => props.project.updatedBy || 'Belum tersedia')
 
 function titleCase(value: string) {
   return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) || 'Tanpa stage'
