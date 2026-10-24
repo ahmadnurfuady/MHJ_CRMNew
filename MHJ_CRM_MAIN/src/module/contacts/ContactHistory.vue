@@ -3,7 +3,7 @@
     entity="contacts"
     :entity-id="entityId"
     :title="`Aktivitas ${contactName}`"
-    heading="Riwayat Kontak"
+    heading="Aktivitas Kontak"
     :created-description="`Kontak ${contactName} ditambahkan.`"
   />
 </template>

@@ -27,10 +27,31 @@
           {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
         </p>
         <div class="contact-profile-meta">
-          <span>
-            <vue-feather type="briefcase" size="14" />
-            {{ companyLabel }}
-          </span>
+          <button
+            class="contact-meta-jump"
+            type="button"
+            :aria-label="`Lihat detail ${faskesCount} faskes`"
+            @click="scrollToDetail('contact-faskes-detail')"
+          >
+            <SolarIcon
+              name="hospital"
+              :size="18"
+              color="#087CAE"
+              secondary-color="#18A6E4"
+              :secondary-opacity="0.45"
+              aria-hidden="true"
+            />
+            Faskes ({{ faskesCount }})
+          </button>
+          <button
+            class="contact-meta-jump"
+            type="button"
+            :aria-label="`Lihat detail ${opportunityCount} peluang`"
+            @click="scrollToDetail('contact-opportunity-detail')"
+          >
+            <MhjIcon name="nav_peluang" :size="18" aria-hidden="true" />
+            Peluang ({{ opportunityCount }})
+          </button>
           <a
             v-if="contactState.activeContact.email"
             :href="`mailto:${contactState.activeContact.email}`"
@@ -49,10 +70,7 @@
           <vue-feather type="edit-2" size="14" />Edit
         </button>
         <button class="profile-action" type="button" @click="showHistory">
-          <vue-feather type="clock" size="14" />History
-        </button>
-        <button class="profile-action" type="button" @click="printContact">
-          <vue-feather type="printer" size="14" />Print
+          <vue-feather type="clock" size="14" />Aktivitas
         </button>
       </div>
     </section>
@@ -157,7 +175,7 @@
       </div>
     </section>
 
-    <section class="company-dashboard">
+    <section id="contact-faskes-detail" class="company-dashboard">
       <div class="company-section-heading mb-3">
         <span class="detail-section-icon" aria-hidden="true">
           <vue-feather type="home" size="19" />
@@ -250,7 +268,7 @@
           </div>
         </div>
 
-        <div class="card border mb-4 opportunity-card">
+        <div id="contact-opportunity-detail" class="card border mb-4 opportunity-card">
           <div class="card-header pb-2">
             <h6 class="mb-0">Peluang Berjalan per Stage</h6>
           </div>
@@ -384,7 +402,7 @@ const authStore = useAuthStore();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
-const { editContact, showHistory, printContact } = contactStore;
+const { editContact, showHistory } = contactStore;
 
 async function deleteContact() {
   const deleted = await contactStore.deleteContact();
@@ -495,6 +513,14 @@ const companyDetail = computed<CompanyDetail | undefined>(() => {
     installedProducts: sample?.installedProducts ?? [],
   };
 });
+const faskesCount = computed(() => (companyDetail.value ? 1 : 0));
+const opportunityCount = computed(() => companyDetail.value?.projects.length ?? 0);
+
+function scrollToDetail(sectionId: string) {
+  const section = document.getElementById(sectionId)
+    || document.getElementById("contact-faskes-detail");
+  section?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 const userRole = computed(() => {
   const user = authStore.user as typeof authStore.user & {
     role?: string;
@@ -765,7 +791,8 @@ async function toggleCompanyEdit() {
 }
 
 .contact-profile-meta span,
-.contact-profile-meta a {
+.contact-profile-meta a,
+.contact-profile-meta button {
   display: inline-flex;
   min-width: 0;
   align-items: center;
@@ -780,10 +807,22 @@ async function toggleCompanyEdit() {
   text-decoration: none;
 }
 
-.contact-profile-meta a:hover {
+.contact-profile-meta button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.contact-profile-meta a:hover,
+.contact-profile-meta button:hover,
+.contact-profile-meta button:focus-visible {
   border-color: rgba(24, 166, 228, 0.34);
   color: var(--theme-default, #18a6e4);
   background: #ffffff;
+}
+
+.contact-profile-meta button:focus-visible {
+  outline: 3px solid rgba(24, 166, 228, 0.16);
+  outline-offset: 2px;
 }
 
 .contact-primary-actions {
@@ -1004,11 +1043,16 @@ async function toggleCompanyEdit() {
 }
 
 .company-dashboard {
+  scroll-margin-top: 96px;
   border: 1px solid #e3ebf0;
   border-radius: 16px;
   padding: 20px;
   background: linear-gradient(180deg, #fafdff 0%, #ffffff 180px);
   box-shadow: 0 8px 24px rgba(31, 52, 73, 0.045);
+}
+
+.opportunity-card {
+  scroll-margin-top: 96px;
 }
 
 .company-dashboard .card {
@@ -1182,7 +1226,8 @@ async function toggleCompanyEdit() {
   }
 
   .contact-profile-meta span,
-  .contact-profile-meta a {
+  .contact-profile-meta a,
+  .contact-profile-meta button {
     max-width: 100%;
   }
 

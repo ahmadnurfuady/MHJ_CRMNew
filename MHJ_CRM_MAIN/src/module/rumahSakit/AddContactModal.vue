@@ -125,7 +125,9 @@
                     <ul
                       v-if="
                         !readOnly &&
-                        (addressSuggestions.length || searchingAddress)
+                        (addressSuggestions.length ||
+                          searchingAddress ||
+                          canSearchOutsideProvince)
                       "
                       class="address-suggestions"
                     >
@@ -140,13 +142,33 @@
                         Mencari lokasi...
                       </li>
                       <li
-                        v-for="suggestion in addressSuggestions"
-                        :key="`${suggestion.latitude}-${suggestion.longitude}`"
+                        v-for="(suggestion, suggestionIndex) in addressSuggestions"
+                        :key="`${suggestion.latitude}-${suggestion.longitude}-${suggestionIndex}`"
                         class="address-suggestion-item"
                         @mousedown.prevent="selectAddressSuggestion(suggestion)"
                       >
                         <SolarIcon name="fa-location-dot" />
-                        <span>{{ suggestion.address }}</span>
+                        <span class="address-suggestion-copy">
+                          <span>{{ suggestion.address }}</span>
+                          <small>
+                            {{ facilityTypeLabel(suggestion) }}
+                            <template v-if="currentSearchArea().province">
+                              · {{ suggestionScopeLabel(suggestion) }}
+                            </template>
+                          </small>
+                        </span>
+                      </li>
+                      <li
+                        v-if="canSearchOutsideProvince && !searchingAddress"
+                        class="address-search-more"
+                      >
+                        <button
+                          type="button"
+                          @mousedown.prevent="searchOutsideActiveProvince"
+                        >
+                          Cari lebih banyak di luar
+                          {{ currentSearchArea().province }}
+                        </button>
                       </li>
                     </ul>
                   </div>
@@ -229,8 +251,16 @@
                   Ketik nama faskes untuk melihat rekomendasi lokasi, atau
                   gunakan GPS.
                 </small>
+                <small v-if="searchOriginLoading" class="text-muted">
+                  Mendeteksi kota dan provinsi dari lokasi Anda...
+                </small>
+                <small v-else-if="searchOrigin" class="location-search-priority">
+                  Prioritas pencarian: {{ searchOrigin.city }},
+                  {{ searchOrigin.province }}.
+                </small>
                 <small v-if="addressSearchNoResult" class="text-muted">
-                  Lokasi tidak ditemukan, coba kata kunci lain.
+                  Fasilitas kesehatan tidak ditemukan, coba nama yang lebih
+                  spesifik.
                 </small>
                 <small v-if="locationError" class="text-danger">{{
                   locationError
@@ -422,6 +452,7 @@ import {
   getCurrentPosition,
   reverseGeocodeLocation,
   searchAddress,
+  searchHealthFacilities,
   type AddressSearchResult,
 } from "@/services/geocoding";
 import { useContact } from "@/store/contact";
@@ -496,6 +527,9 @@ const addressSuggestions = ref<AddressSearchResult[]>([]);
 const searchingAddress = ref(false);
 const addressSearchError = ref("");
 const addressSearchNoResult = ref(false);
+const searchOrigin = ref<{ city: string; province: string } | null>(null);
+const searchOriginLoading = ref(false);
+const includeOutsideProvince = ref(false);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(
   contactState.value.hospitalEditLocation
     ? { ...contactState.value.hospitalEditLocation }
@@ -504,6 +538,8 @@ const selectedLocation = ref<{ lat: number; lng: number } | null>(
 const pinUpdating = ref(false);
 let suppressNextAddressSearch = false;
 let suppressProvinceCityReset = false;
+let searchOriginPromise: Promise<void> | null = null;
+let facilitySearchSequence = 0;
 
 const { provinceOptions, cityOptionsByProvince, loadRegions, resolveRegionSelection } =
   useCompanyRegions();
@@ -523,10 +559,82 @@ const cityOptions = computed(
 );
 
 onMounted(async () => {
+  void ensureSearchOrigin();
   await Promise.all([loadRegions(), loadHospitalLookups()]);
   reconcileLookupSelections();
   await loadStoredLocationPreview();
 });
+
+async function ensureSearchOrigin() {
+  if (searchOrigin.value || searchOriginPromise) return searchOriginPromise;
+
+  searchOriginLoading.value = true;
+  searchOriginPromise = (async () => {
+    try {
+      const position = await getCurrentPosition();
+      const location = await reverseGeocodeLocation(
+        position.coords.latitude,
+        position.coords.longitude,
+      );
+      if (location.city || location.province) {
+        searchOrigin.value = {
+          city: location.city,
+          province: location.province,
+        };
+      }
+    } catch {
+      // Jika izin GPS ditolak, pilihan kota/provinsi pada form menjadi fallback.
+    } finally {
+      searchOriginLoading.value = false;
+    }
+  })();
+
+  return searchOriginPromise;
+}
+
+function currentSearchArea() {
+  return {
+    city:
+      searchOrigin.value?.city ||
+      contactState.value.rumahSakitForm.city.data.trim(),
+    province:
+      searchOrigin.value?.province ||
+      contactState.value.rumahSakitForm.province.data.trim(),
+  };
+}
+
+const canSearchOutsideProvince = computed(
+  () =>
+    Boolean(currentSearchArea().province) &&
+    !includeOutsideProvince.value &&
+    contactState.value.rumahSakitForm.mapAddress.data.trim().length >= 3,
+);
+
+function suggestionScopeLabel(suggestion: AddressSearchResult) {
+  const area = currentSearchArea();
+  if (suggestion.searchScope === "city") return area.city || "Kota aktif";
+  if (suggestion.searchScope === "province")
+    return `${area.province || "Provinsi aktif"} lainnya`;
+  return `Di luar ${area.province || "provinsi aktif"}`;
+}
+
+function facilityTypeLabel(suggestion: AddressSearchResult) {
+  const labels: Record<string, string> = {
+    hospital: "Rumah Sakit",
+    clinic: "Klinik/Puskesmas",
+    pharmacy: "Apotek",
+    doctors: "Praktik Dokter",
+    doctor: "Praktik Dokter",
+    dentist: "Dokter Gigi",
+    laboratory: "Laboratorium",
+    health_post: "Pos Kesehatan",
+    midwife: "Bidan",
+    physiotherapist: "Fisioterapi",
+    optometrist: "Optometri",
+    rehabilitation: "Rehabilitasi",
+  };
+  return labels[suggestion.facilityType ?? ""] || "Fasilitas Kesehatan";
+}
 
 function reconcileSelectField(field: SelectField, options: SelectOption[]) {
   const current = String(field.data ?? "").trim().toLowerCase();
@@ -606,7 +714,7 @@ function applyRegionFromGeocode(provinceName: string, cityName: string) {
   }
 }
 
-const runAddressSearch = useDebounceFn(async (query: string) => {
+async function executeFacilitySearch(query: string, searchOutside = false) {
   const trimmed = query.trim();
   if (trimmed.length < 3) {
     addressSuggestions.value = [];
@@ -614,20 +722,39 @@ const runAddressSearch = useDebounceFn(async (query: string) => {
     return;
   }
 
+  const sequence = ++facilitySearchSequence;
   searchingAddress.value = true;
   addressSearchError.value = "";
   addressSearchNoResult.value = false;
   try {
-    const results = await searchAddress(trimmed);
+    await ensureSearchOrigin();
+    const results = await searchHealthFacilities(trimmed, {
+      ...currentSearchArea(),
+      includeOutsideProvince: searchOutside,
+    });
+    if (sequence !== facilitySearchSequence) return;
     addressSuggestions.value = results;
     addressSearchNoResult.value = results.length === 0;
   } catch {
+    if (sequence !== facilitySearchSequence) return;
     addressSuggestions.value = [];
     addressSearchError.value = "Pencarian lokasi gagal. Coba lagi.";
   } finally {
-    searchingAddress.value = false;
+    if (sequence === facilitySearchSequence) searchingAddress.value = false;
   }
+}
+
+const runAddressSearch = useDebounceFn(async (query: string) => {
+  await executeFacilitySearch(query, false);
 }, 500);
+
+function searchOutsideActiveProvince() {
+  includeOutsideProvince.value = true;
+  void executeFacilitySearch(
+    contactState.value.rumahSakitForm.mapAddress.data,
+    true,
+  );
+}
 
 watch(
   () => contactState.value.rumahSakitForm.mapAddress.data,
@@ -639,6 +766,7 @@ watch(
     }
     // Teks diketik ulang secara manual: pin peta sebelumnya tidak lagi mewakili teks ini.
     selectedLocation.value = null;
+    includeOutsideProvince.value = false;
     void runAddressSearch(String(value ?? ""));
   },
 );
@@ -754,9 +882,14 @@ async function searchTypedAddress(query: string) {
   addressSearchNoResult.value = false;
 
   try {
-    const [best] = await searchAddress(query);
+    await ensureSearchOrigin();
+    const [best] = await searchHealthFacilities(query, {
+      ...currentSearchArea(),
+      includeOutsideProvince: includeOutsideProvince.value,
+    });
     if (!best) {
-      locationError.value = "Lokasi tidak ditemukan. Coba kata kunci lain.";
+      locationError.value =
+        "Fasilitas kesehatan tidak ditemukan. Coba nama yang lebih spesifik.";
       return;
     }
     selectAddressSuggestion(best);
@@ -978,6 +1111,44 @@ function clearCurrentAddress() {
 
 .address-suggestion-item:hover {
   background: #f3fbfe;
+}
+
+.address-suggestion-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.address-suggestion-copy small {
+  color: var(--theme-default, #18a6e4);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.address-search-more {
+  padding: 6px;
+  border-top: 1px solid #e3e8eb;
+}
+
+.address-search-more button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #eef9fd;
+  color: var(--theme-default, #18a6e4);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.address-search-more button:hover {
+  background: #def3fb;
+}
+
+.location-search-priority {
+  display: block;
+  color: var(--theme-default, #18a6e4);
 }
 
 .location-preview {

@@ -7,6 +7,7 @@ import {
   createAppearancePalette,
   defaultAppearance,
   getFontOption,
+  normalizeFontSizeOffset,
 } from '@/config/appearance'
 
 export const useLayout = defineStore('layout', () => {
@@ -31,6 +32,9 @@ export const useLayout = defineStore('layout', () => {
     fontFamily: getFontOption(
       localStorage.getItem(appearanceStorageKeys.fontFamily) || layout.color.fontFamily
     ).value,
+    fontSizeOffset: normalizeFontSizeOffset(
+      localStorage.getItem(appearanceStorageKeys.fontSizeOffset)
+    ),
     layoutVersion: localStorage.getItem('layoutVersion') || layout.color.layoutVersion,
   })
 
@@ -66,6 +70,7 @@ export const useLayout = defineStore('layout', () => {
             --app-secondary: ${appearancePalette.value.secondary};
             --app-secondary-rgb: ${appearancePalette.value.secondaryRgb};
             --app-font-family: ${selectedFont.value.cssFamily};
+            --app-font-size-offset: ${layoutState.fontSizeOffset}px;
             --theme-default: var(--app-primary);
             --theme-secondary: var(--app-secondary);
             --color-primary: var(--app-primary);
@@ -145,13 +150,21 @@ export const useLayout = defineStore('layout', () => {
     localStorage.setItem(appearanceStorageKeys.fontFamily, selected.value)
   }
 
+  function setFontSizeOffset(fontSizeOffset: number) {
+    const normalizedOffset = normalizeFontSizeOffset(fontSizeOffset)
+    layoutState.fontSizeOffset = normalizedOffset
+    localStorage.setItem(appearanceStorageKeys.fontSizeOffset, String(normalizedOffset))
+  }
+
   function setAppearance(appearance: {
     primary: string
     secondary: string
     fontFamily: string
+    fontSizeOffset: number
   }) {
     addStyle(appearance.primary, appearance.secondary)
     setFontFamily(appearance.fontFamily)
+    setFontSizeOffset(appearance.fontSizeOffset)
     layoutState.layoutVersion = 'light'
     localStorage.setItem('layoutVersion', 'light')
   }
@@ -161,6 +174,7 @@ export const useLayout = defineStore('layout', () => {
       primary: defaultAppearance.primaryColor,
       secondary: defaultAppearance.secondaryColor,
       fontFamily: defaultAppearance.fontFamily,
+      fontSizeOffset: defaultAppearance.fontSizeOffset,
     })
   }
 
@@ -181,6 +195,7 @@ export const useLayout = defineStore('layout', () => {
     setColorScheme,
     addStyle,
     setFontFamily,
+    setFontSizeOffset,
     setAppearance,
     resetAppearance,
   }

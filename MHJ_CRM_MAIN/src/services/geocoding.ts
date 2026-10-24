@@ -22,8 +22,12 @@ interface BigDataCloudReverseResult {
 
 interface NominatimSearchResult {
   display_name?: string
+  name?: string
   lat?: string
   lon?: string
+  category?: string
+  type?: string
+  extratags?: Record<string, string | undefined>
   address?: NominatimReverseResult['address']
 }
 
@@ -38,6 +42,14 @@ export interface ReverseGeocodeLocation {
 export interface AddressSearchResult extends ReverseGeocodeLocation {
   latitude: number
   longitude: number
+  facilityType?: string
+  searchScope?: 'city' | 'province' | 'outside'
+}
+
+export interface HealthFacilitySearchOptions {
+  city?: string
+  province?: string
+  includeOutsideProvince?: boolean
 }
 
 function uniqueAddressParts(parts: Array<string | undefined>): string {
@@ -175,6 +187,160 @@ async function fetchNominatimSearch(query: string): Promise<NominatimSearchResul
   })
   if (!response.ok) throw new Error('Pencarian lokasi gagal.')
   return (await response.json()) as NominatimSearchResult[]
+}
+
+const HEALTH_AMENITY_TYPES = new Set([
+  'hospital',
+  'clinic',
+  'doctors',
+  'dentist',
+  'pharmacy',
+  'laboratory'
+])
+
+const HEALTHCARE_SEARCH_TERMS = [
+  '',
+  'hospital',
+  'clinic',
+  'pharmacy',
+  'dentist',
+  'laboratory',
+  'doctor',
+  'health centre'
+]
+
+function isNominatimHealthFacility(result: NominatimSearchResult): boolean {
+  const category = result.category?.toLocaleLowerCase('id-ID') ?? ''
+  const type = result.type?.toLocaleLowerCase('id-ID') ?? ''
+  const amenity = result.extratags?.amenity?.toLocaleLowerCase('id-ID') ?? ''
+  const healthcare = result.extratags?.healthcare?.toLocaleLowerCase('id-ID') ?? ''
+
+  return (
+    category === 'healthcare' ||
+    Boolean(healthcare) ||
+    (category === 'amenity' && HEALTH_AMENITY_TYPES.has(type)) ||
+    HEALTH_AMENITY_TYPES.has(amenity)
+  )
+}
+
+function facilityNameContains(result: NominatimSearchResult, query: string): boolean {
+  const facilityName = (result.name || result.display_name?.split(',')[0] || '')
+    .trim()
+    .toLocaleLowerCase('id-ID')
+  return facilityName.includes(query.trim().toLocaleLowerCase('id-ID'))
+}
+
+function normalizeAreaName(value: string | undefined): string {
+  return (value ?? '')
+    .toLocaleLowerCase('id-ID')
+    .replace(/\b(kota|kabupaten|kab\.?|provinsi)\b/g, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+function sameArea(left: string | undefined, right: string | undefined): boolean {
+  const normalizedLeft = normalizeAreaName(left)
+  const normalizedRight = normalizeAreaName(right)
+  if (!normalizedLeft || !normalizedRight) return false
+  return normalizedLeft === normalizedRight ||
+    normalizedLeft.includes(normalizedRight) ||
+    normalizedRight.includes(normalizedLeft)
+}
+
+function resultScope(
+  result: NominatimSearchResult,
+  options: HealthFacilitySearchOptions
+): 'city' | 'province' | 'outside' {
+  const address = result.address
+  const resultCity = address?.city || address?.town || address?.municipality || address?.county
+  if (sameArea(resultCity, options.city)) return 'city'
+  if (sameArea(address?.state, options.province)) return 'province'
+  return 'outside'
+}
+
+async function fetchNominatimFacilityGroup(
+  query: string,
+  facilityTerm: string,
+  options: HealthFacilitySearchOptions
+): Promise<NominatimSearchResult[]> {
+  const area = options.includeOutsideProvince ? '' : options.province?.trim() ?? ''
+  const params = new URLSearchParams({
+    format: 'jsonv2',
+    q: [facilityTerm, query, area, 'Indonesia'].filter(Boolean).join(' '),
+    addressdetails: '1',
+    extratags: '1',
+    namedetails: '1',
+    limit: '40',
+    countrycodes: 'id',
+    'accept-language': 'id'
+  })
+  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+    headers: { Accept: 'application/json' }
+  })
+  if (!response.ok) throw new Error('Pencarian fasilitas kesehatan gagal.')
+  return (await response.json()) as NominatimSearchResult[]
+}
+
+async function fetchNominatimHealthFacilities(
+  query: string,
+  options: HealthFacilitySearchOptions
+): Promise<AddressSearchResult[]> {
+  const responses = await Promise.allSettled(
+    HEALTHCARE_SEARCH_TERMS.map((term) => fetchNominatimFacilityGroup(query, term, options))
+  )
+  const successfulResponses = responses.filter(
+    (response): response is PromiseFulfilledResult<NominatimSearchResult[]> =>
+      response.status === 'fulfilled'
+  )
+  if (!successfulResponses.length) throw new Error('Pencarian fasilitas kesehatan gagal.')
+
+  return successfulResponses
+    .flatMap((response) => response.value)
+    .filter((result) => isNominatimHealthFacility(result))
+    .filter((result) => facilityNameContains(result, query))
+    .filter((result) => result.lat && result.lon && result.display_name)
+    .map((result) => {
+      const address = result.address
+      const latitude = Number(result.lat)
+      const longitude = Number(result.lon)
+      return {
+        address: result.display_name?.trim() ?? result.name?.trim() ?? '',
+        latitude,
+        longitude,
+        country: address?.country?.trim() ?? 'Indonesia',
+        province: address?.state?.trim() ?? '',
+        city: (
+          address?.city ||
+          address?.town ||
+          address?.municipality ||
+          address?.county ||
+          address?.village ||
+          ''
+        ).trim(),
+        posCode: address?.postcode?.trim() ?? '',
+        facilityType: (result.extratags?.healthcare || result.extratags?.amenity || result.type || '')
+          .trim(),
+        searchScope: resultScope(result, options)
+      }
+    })
+    .filter(
+      (result) =>
+        options.includeOutsideProvince || !options.province || result.searchScope !== 'outside'
+    )
+    .sort((left, right) => {
+      const rank = { city: 0, province: 1, outside: 2 }
+      return rank[left.searchScope ?? 'outside'] - rank[right.searchScope ?? 'outside']
+    })
+}
+
+/** Mencari seluruh kategori Faskes, dengan kota/provinsi pengguna sebagai prioritas. */
+export async function searchHealthFacilities(
+  query: string,
+  options: HealthFacilitySearchOptions = {}
+): Promise<AddressSearchResult[]> {
+  const trimmed = query.trim()
+  if (!trimmed) return []
+  return fetchNominatimHealthFacilities(trimmed, options)
 }
 
 /** Mencari kandidat lokasi (nama faskes/alamat) lengkap dengan koordinatnya lewat OpenStreetMap. */

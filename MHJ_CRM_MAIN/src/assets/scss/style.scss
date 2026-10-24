@@ -118,6 +118,8 @@
   // Global appearance defaults, diambil dari palette brand di utils/_variables.scss.
   // The layout store overrides these at runtime.
   --app-primary: #{$brand-primary};
+  // Default seluruh teks +2px; dapat diubah dari Preview Settings.
+  --app-font-size-offset: 2px;
   --app-primary-rgb: #{red($brand-primary)}, #{green($brand-primary)}, #{blue($brand-primary)};
   --app-primary-hover: #{$brand-primary-hover};
   --app-primary-dark: #{$brand-primary-dark};

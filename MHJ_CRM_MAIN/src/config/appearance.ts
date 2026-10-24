@@ -8,7 +8,12 @@ export interface AppearanceSettings {
   primaryColor: string
   secondaryColor: string
   fontFamily: string
+  fontSizeOffset: number
 }
+
+export const MIN_FONT_SIZE_OFFSET = -2
+export const MAX_FONT_SIZE_OFFSET = 6
+export const FONT_SIZE_STEP = 2
 
 export const fontOptions: FontOption[] = [
   { label: 'Montserrat', value: 'Montserrat', cssFamily: "'Montserrat', sans-serif" },
@@ -21,13 +26,26 @@ export const defaultAppearance: AppearanceSettings = {
   primaryColor: '#18A6E4',
   secondaryColor: '#84D7EB',
   fontFamily: 'Montserrat',
+  fontSizeOffset: 2,
 }
 
 export const appearanceStorageKeys = {
   primaryColor: 'primary_color',
   secondaryColor: 'secondary_color',
   fontFamily: 'font_family',
+  fontSizeOffset: 'font_size_offset',
 } as const
+
+export function normalizeFontSizeOffset(value: unknown): number {
+  if (value === null || value === undefined || value === '') {
+    return defaultAppearance.fontSizeOffset
+  }
+  const parsed = Number(value)
+  if (!Number.isFinite(parsed)) return defaultAppearance.fontSizeOffset
+
+  const stepped = Math.round(parsed / FONT_SIZE_STEP) * FONT_SIZE_STEP
+  return Math.min(MAX_FONT_SIZE_OFFSET, Math.max(MIN_FONT_SIZE_OFFSET, stepped))
+}
 
 function normalizeHex(color: string): string {
   const value = color.trim().replace('#', '')
@@ -86,6 +104,9 @@ export function getStoredAppearance(): AppearanceSettings {
     secondaryColor:
       localStorage.getItem(appearanceStorageKeys.secondaryColor) ?? defaultAppearance.secondaryColor,
     fontFamily: getFontOption(storedFont || defaultAppearance.fontFamily).value,
+    fontSizeOffset: normalizeFontSizeOffset(
+      localStorage.getItem(appearanceStorageKeys.fontSizeOffset)
+    ),
   }
 }
 
