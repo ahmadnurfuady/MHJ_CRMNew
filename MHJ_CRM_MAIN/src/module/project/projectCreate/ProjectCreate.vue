@@ -80,12 +80,23 @@
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Owner otomatis dari user login...'"
+                    :placeholder="
+                      isEditMode
+                        ? 'Owner tidak dapat diubah'
+                        : 'Pilih diri sendiri atau atasan Anda'
+                    "
                     v-model="projectForm.owner"
                     :options="ownerOptions"
                     :formSubmitted="formSubmitted"
-                    :disabled="true"
+                    :disabled="isEditMode"
                   />
+                  <small class="d-block text-muted mt-1">
+                    {{
+                      isEditMode
+                        ? 'Owner peluang bersifat tetap dan tidak dapat diubah saat edit.'
+                        : 'Dapat diisi diri sendiri atau atasan Anda bila peluang dibuatkan atas nama atasan.'
+                    }}
+                  </small>
                 </InputWrapper>
               </div>
 
@@ -562,7 +573,17 @@ const contactOptions = computed<DealOption[]>(() => {
   return (hasCompanyRelations ? relatedContacts : contacts).map(toContactOption)
 })
 
-const ownerOptions = computed<DealOption[]>(() => projectStore.lookups.owner)
+/**
+ * Saat membuat peluang, owner dibatasi ke user login + atasannya
+ * (GET /api/project/ownercandidates). Saat edit, field terkunci sehingga
+ * daftar lengkap dipakai agar nama owner lama tetap tampil walaupun berada
+ * di luar hirarki user yang sedang membuka form.
+ */
+const ownerOptions = computed<DealOption[]>(() => {
+  if (isEditMode.value) return projectStore.lookups.owner
+  const candidates = projectStore.lookups.ownerCandidates
+  return candidates.length ? candidates : projectStore.lookups.owner
+})
 const selectedProducts = computed(() => projectForm.value.products.selectedItems as BarangOption[])
 const productOptions = computed(() =>
   projectStore.lookups.barang.filter(
@@ -1045,7 +1066,7 @@ async function handleSubmit() {
   const contactIds = contacts
     .map((contact) => numericId(contact.value))
     .filter((id): id is number => id !== undefined)
-  const ownerId = findLookupId(projectStore.lookups.owner, owner)
+  const ownerId = findLookupId(ownerOptions.value, owner)
   const stageId = numericId(selectedStage.value?.value)
 
   if (!companyId || contactIds.length !== contacts.length || !ownerId || !stageId) {
@@ -1089,7 +1110,10 @@ async function handleSubmit() {
     probability: selectedStage.value?.probability ?? 0,
     aktif: 1,
     idold: null,
-    created_by: numericId(authStore.user?.id) ?? null,
+    // created_by diisi BE dari user login saat insert; updated_by menandai
+    // siapa yang mengubah saat edit (bisa berbeda dari pembuat peluang).
+    created_by: isEditMode.value ? null : (numericId(authStore.user?.id) ?? null),
+    updated_by: isEditMode.value ? (numericId(authStore.user?.id) ?? null) : null,
     division_code: selectedOf(form.division)?.code ?? null,
     product_names: selectedProducts.value.map((product) => product.label),
     product_details: productLines.value.map((line) => ({

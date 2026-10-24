@@ -57,6 +57,7 @@ export interface ProjectPayload {
   aktif: number
   idold: number | null
   created_by: number | null
+  updated_by?: number | null
   division_code: string | null
   product_names: string[]
   product_details: ProjectProductPayload[]
@@ -353,12 +354,15 @@ export const useProjectStore = defineStore('project', () => {
   // Data pendukung yang dipakai form project.
   const lookups = reactive<{
     owner: Select[]
+    /** Kandidat owner peluang: user login + atasannya (hirarki ke atas). */
+    ownerCandidates: Select[]
     competitor: Select[]
     sumberdana: Select[]
     divisi: DivisiOption[]
     barang: BarangOption[]
   }>({
     owner: [],
+    ownerCandidates: [],
     competitor: [],
     sumberdana: [],
     divisi: [],
@@ -551,6 +555,21 @@ export const useProjectStore = defineStore('project', () => {
     return lookups.owner
   }
 
+  /**
+   * GET /api/project/ownercandidates. Daftar akun yang boleh dijadikan Owner
+   * peluang: user yang sedang login + seluruh atasannya pada rantai jabatan.
+   */
+  async function fetchOwnerCandidates() {
+    const response = await api.get(`${ENDPOINT}/ownercandidates`)
+    lookups.ownerCandidates = normalizeOptions(response.data, [
+      'candidates',
+      'leaders',
+      'leader',
+      'users'
+    ]).filter((option) => option.value && option.label)
+    return lookups.ownerCandidates
+  }
+
   /** GET /api/project/leader, /api/master-data/competitor, /api/master-data/sumberdana. */
   function fetchProjectLookups() {
     return runApiAction({
@@ -559,6 +578,14 @@ export const useProjectStore = defineStore('project', () => {
       fallbackMessage: 'Gagal memuat data pendukung peluang.',
       task: async () => {
         await fetchProjectLeaders()
+
+        // Kandidat owner tidak boleh menggagalkan pemuatan lookup lain.
+        try {
+          await fetchOwnerCandidates()
+        } catch (ownerError) {
+          console.warn('Endpoint kandidat owner tidak tersedia.', ownerError)
+          lookups.ownerCandidates = []
+        }
 
         try {
           const competitorResponse = await api.get('master-data/competitor')
@@ -700,6 +727,7 @@ export const useProjectStore = defineStore('project', () => {
     fetchProjects,
     fetchProjectSummary,
     fetchProjectLeaders,
+    fetchOwnerCandidates,
     fetchProjectById,
     createProject,
     updateProject,
