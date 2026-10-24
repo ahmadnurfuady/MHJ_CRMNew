@@ -143,6 +143,14 @@
                 </strong>
               </div>
               <div class="detail-row">
+                <span><SolarIcon name="fa-user-plus" />Dibuat oleh</span>
+                <strong>{{ createdByName }}</strong>
+              </div>
+              <div class="detail-row">
+                <span><SolarIcon name="fa-user-pen" />Diperbarui oleh</span>
+                <strong>{{ updatedByName }}</strong>
+              </div>
+              <div class="detail-row">
                 <span><SolarIcon name="fa-layer-group" />Divisi</span>
                 <strong>{{ project.divisionCode || 'Belum ditentukan' }}</strong>
               </div>
@@ -413,6 +421,16 @@ const stageDuration = computed(() => formatDuration(
   project.value?.stageEnteredAt || project.value?.updatedAt || project.value?.createdAt
 ))
 const lastUpdated = computed(() => formatRelativeTime(project.value?.updatedAt || project.value?.createdAt))
+const createdByName = computed(() =>
+  project.value?.createdBy ||
+  String(firstValue(['created_by_name', 'createdby_name', 'created_user_name']) ?? '') ||
+  'Belum tersedia'
+)
+const updatedByName = computed(() =>
+  project.value?.updatedBy ||
+  String(firstValue(['updated_by_name', 'updatedby_name', 'updated_user_name']) ?? '') ||
+  'Belum tersedia'
+)
 
 const activities = computed<ActivityInfo[]>(() => {
   const fromApi = detailRows.value

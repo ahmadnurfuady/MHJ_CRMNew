@@ -44,5 +44,6 @@ export const completeProjectDemo: Projects = {
   quantity: 5,
   unitPrice: 257_000_000,
   notes: 'Menunggu persetujuan final direktur. Jadwalkan follow-up penawaran pada minggu ini.',
-  createdBy: 'Admin CRM'
+  createdBy: 'Admin CRM',
+  updatedBy: 'Andi Pratama'
 }

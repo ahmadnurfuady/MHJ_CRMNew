@@ -307,6 +307,7 @@ export function normalizeProject(raw: Dict): Projects {
     lostReasons: pickString(raw, 'lost_reasons'),
     teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
     createdBy: pickString(raw, 'created_by'),
+    updatedBy: pickString(raw, 'updated_by'),
     createdAt,
     updatedAt: updatedAt || createdAt,
     stageEnteredAt: stageEnteredAt || updatedAt || createdAt,

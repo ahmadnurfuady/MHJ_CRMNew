@@ -322,6 +322,7 @@ export interface Projects {
   productDetails?: ProjectProductDetail[]
   lostReasons?: string
   createdBy?: string
+  updatedBy?: string
   createdAt?: string
   updatedAt?: string
   /** Waktu peluang terakhir kali masuk/pindah ke stage yang aktif. */
