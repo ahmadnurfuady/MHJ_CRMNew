@@ -1113,8 +1113,6 @@ export const useContact = defineStore("contact", () => {
 
     const requiredLabels: Record<string, string> = {
       firstName: "Nama Depan",
-      // Backend ContactController@input memvalidasi email sebagai required|email.
-      email: "Email",
       mapAddress: "Alamat Google Maps",
       province: "Provinsi",
       city: "Kota/Kabupaten",
@@ -1126,7 +1124,11 @@ export const useContact = defineStore("contact", () => {
       if (field?.errorMessage) field.errorMessage = `${label} wajib diisi.`;
     });
 
-    if (!validation.isValid) return;
+    const firstPhone = phoneNumbers[0]?.data?.trim() ?? "";
+    if (!firstPhone) {
+      phoneNumbers[0].errorMessage = "Nomor telepon wajib diisi.";
+    }
+    if (!validation.isValid || !firstPhone) return;
 
     const formData = validation.formData;
     const selectedGender = contactState.contactForm.gender.selected;

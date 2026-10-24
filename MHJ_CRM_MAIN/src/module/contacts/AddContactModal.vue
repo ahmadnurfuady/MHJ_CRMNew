@@ -41,7 +41,7 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper :title="t('contacts.email')" required>
+            <InputWrapper :title="t('contacts.email')">
               <InputField
                 v-model:modelValue="contactState.contactForm.email"
                 :formSubmitted="contactState.formSubmitted"
@@ -53,7 +53,7 @@
           </div>
 
           <div class="col-12">
-            <InputWrapper :title="t('contacts.phone')">
+            <InputWrapper :title="t('contacts.phone')" required>
               <div
                 v-for="(phone, index) in contactState.contactForm.phoneNumbers"
                 :key="index"
@@ -74,7 +74,7 @@
                         ? 'Contoh: 021-1234567 / 08123456789'
                         : 'Nomor telepon tambahan'
                     "
-                    :required="false"
+                    :required="index === 0"
                   />
                 </div>
                 <button

@@ -51,7 +51,7 @@
       </div>
 
       <div class="col-12">
-        <InputWrapper title="Email" required>
+        <InputWrapper title="Email">
           <InputField
             v-model:modelValue="form.email"
             :formSubmitted="formSubmitted"
@@ -646,9 +646,7 @@ async function save() {
   form.value.lastName.errorMessage = form.value.lastName.data.trim()
     ? ""
     : "Nama belakang wajib diisi.";
-  form.value.email.errorMessage = form.value.email.data.trim()
-    ? ""
-    : "Email wajib diisi.";
+  form.value.email.errorMessage = "";
 
   let phoneNumbersValid = true;
   form.value.phoneNumbers.forEach((phone, index) => {
@@ -660,7 +658,6 @@ async function save() {
   if (
     form.value.firstName.errorMessage ||
     form.value.lastName.errorMessage ||
-    form.value.email.errorMessage ||
     !phoneNumbersValid ||
     form.value.status.errorMessage
   ) {
