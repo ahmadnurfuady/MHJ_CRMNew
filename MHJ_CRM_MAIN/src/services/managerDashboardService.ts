@@ -103,10 +103,10 @@ function mapRow(row: SystemActivityRow, action: MeaningfulAction): MappedActivit
       return {
         title: name
           ? action === 'i'
-            ? `RS baru: ${name}`
-            : `RS diperbarui: ${name}`
-          : 'Rumah sakit diperbarui',
-        subtitle: pickString(after, ['tipemarketing', 'city']) || 'Rumah sakit',
+            ? `Faskes baru: ${name}`
+            : `Faskes diperbarui: ${name}`
+          : 'Faskes diperbarui',
+        subtitle: pickString(after, ['tipemarketing', 'city']) || 'Faskes',
         type: 'meeting',
         icon: 'camera',
       }

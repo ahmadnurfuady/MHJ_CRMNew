@@ -587,7 +587,7 @@ export const useContact = defineStore("contact", () => {
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
-      notifyError(hospitalStore.error ?? "Gagal memuat halaman Rumah Sakit.");
+      notifyError(hospitalStore.error ?? "Gagal memuat halaman Faskes.");
     }
   }
 
@@ -633,7 +633,7 @@ export const useContact = defineStore("contact", () => {
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
-      notifyError(hospitalStore.error ?? "Gagal mencari Rumah Sakit.");
+      notifyError(hospitalStore.error ?? "Gagal mencari Faskes.");
     }
   }
 
@@ -913,7 +913,7 @@ export const useContact = defineStore("contact", () => {
       return detailedContact;
     } catch {
       if (notifyOnError) {
-        notifyError(hospitalStore.error ?? "Gagal memuat detail Rumah Sakit.");
+        notifyError(hospitalStore.error ?? "Gagal memuat detail Faskes.");
       }
     }
   }
@@ -1192,7 +1192,7 @@ export const useContact = defineStore("contact", () => {
     });
 
     const requiredLabels: Record<string, string> = {
-      name: "Nama Rumah Sakit",
+      name: "Nama Faskes",
       email: "Email Faskes",
       mapAddress: "Alamat Google Maps",
       address: "Alamat",
@@ -1288,11 +1288,11 @@ export const useContact = defineStore("contact", () => {
       Swal.fire({
         icon: "success",
         title: editId
-          ? "Rumah Sakit berhasil diperbarui"
-          : "Rumah Sakit berhasil ditambahkan",
+          ? "Faskes berhasil diperbarui"
+          : "Faskes berhasil ditambahkan",
         text: editId
-          ? "Perubahan data Rumah Sakit sudah tersimpan."
-          : "Data Rumah Sakit baru sudah masuk ke daftar.",
+          ? "Perubahan data Faskes sudah tersimpan."
+          : "Data Faskes baru sudah masuk ke daftar.",
         confirmButtonColor: "var(--theme-default)",
         timer: 2000,
         showConfirmButton: false,
@@ -1300,7 +1300,7 @@ export const useContact = defineStore("contact", () => {
 
       return true;
     } catch {
-      notifyError(hospitalStore.error ?? "Gagal menyimpan Rumah Sakit.");
+      notifyError(hospitalStore.error ?? "Gagal menyimpan Faskes.");
       return false;
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="md-sidebar">
     <a class="btn btn-primary md-sidebar-toggle" href="#" @click.prevent="toggleFilter()"
-      >filter rumah sakit</a
+      >filter faskes</a
     >
     <div class="md-sidebar-aside job-left-aside" :class="{ open: sidebarOpen }">
       <div class="email-left-aside">

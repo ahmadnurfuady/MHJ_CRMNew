@@ -43,17 +43,17 @@
             <div class="col-xxl-6">
               <InputField
                 :formSubmitted="formSubmitted"
-                :errorMessage="'Nomor telepon RS wajib diisi.'"
+                :errorMessage="'Nomor telepon faskes wajib diisi.'"
                 v-model:modelValue="contactForm.contactNumber"
                 :inputId="'contact-number'"
-                :placeholder="'Masukkan nomor telepon RS'"
+                :placeholder="'Masukkan nomor telepon faskes'"
               />
             </div>
             <div class="col-xxl-6">
               <Select
                 getValueKey="label"
                 display-key="label"
-                :placeholder="'Pilih tipe RS'"
+                :placeholder="'Pilih tipe faskes'"
                 v-model="contactForm.contactType"
                 :options="contactTypes"
                 :formSubmitted="formSubmitted"

@@ -36,8 +36,9 @@
   "Contacts": "Kontak",
   "Contact": "Kontak",
   "联系人": "Kontak",
-  "Hospital": "Rumah Sakit",
-  "Rumah Sakit": "Rumah Sakit",
+  "Hospital": "Faskes",
+  "Rumah Sakit": "Faskes",
+  "Faskes": "Faskes",
   "Tasks": "Tugas",
   "Task": "Tugas",
   "任务": "Tugas",
@@ -108,7 +109,7 @@
     "city": "Kota/Kabupaten",
     "source": "Source",
     "gender": "Jenis Kelamin",
-    "company": "Rumah Sakit/Fasilitas Kesehatan",
+    "company": "Faskes",
     "project": "Proyek",
     "save": "Simpan",
     "addPhone": "Tambah nomor telepon",
@@ -128,7 +129,7 @@
       "selectProvinceFirst": "Pilih provinsi dahulu",
       "source": "Pilih Source",
       "gender": "Pilih Jenis Kelamin",
-      "company": "Ketik manual / pilih dari daftar Rumah Sakit",
+      "company": "Ketik manual / pilih dari daftar Faskes",
       "project": "Pilih proyek dari database live"
     }
   }

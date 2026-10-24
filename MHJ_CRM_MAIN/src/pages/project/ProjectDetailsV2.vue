@@ -534,7 +534,7 @@ async function loadProject() {
         {
           activity: 'Negosiasi harga dan termin pembayaran',
           activity_date: '2026-10-14T15:20:00+07:00',
-          activity_description: 'Penawaran revisi telah dikirim ke tim pengadaan rumah sakit.'
+          activity_description: 'Penawaran revisi telah dikirim ke tim pengadaan faskes.'
         },
         {
           activity: 'Presentasi produk',

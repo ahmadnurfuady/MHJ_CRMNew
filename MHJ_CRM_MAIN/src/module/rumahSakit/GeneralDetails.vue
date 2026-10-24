@@ -6,7 +6,13 @@
         :style="avatarColorStyle(contactState.activeContact.firstName || contactState.activeContact.id)"
         aria-hidden="true"
       >
-        <MhjIcon name="hospital_profile" :size="40" />
+        <SolarIcon
+          name="hospital"
+          :size="40"
+          color="currentColor"
+          secondary-color="currentColor"
+          :secondary-opacity="0.45"
+        />
       </div>
       <div class="hospital-identity">
         <h5 class="mb-0">{{ displayValue(contactState.activeContact.firstName) }}</h5>
@@ -33,17 +39,17 @@
 
     <div class="email-general">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <h6 class="mb-0">Informasi Rumah Sakit</h6>
+        <h6 class="mb-0">Informasi Faskes</h6>
         <span v-if="hospitalLoading" class="text-muted f-12">Memuat detail...</span>
       </div>
 
       <div class="company-detail-grid">
         <div class="company-detail-item">
-          <span class="detail-label">Nama Rumah Sakit</span>
+          <span class="detail-label">Nama Faskes</span>
           <span class="detail-value">{{ displayValue(contactState.activeContact.firstName) }}</span>
         </div>
         <div class="company-detail-item">
-          <span class="detail-label">Pemilik Rumah Sakit</span>
+          <span class="detail-label">Pemilik Faskes</span>
           <span class="detail-value">{{ displayValue(contactState.activeContact.owner) }}</span>
         </div>
         <div class="company-detail-item">
@@ -110,11 +116,11 @@
 
     <div class="hospital-danger-zone mt-4">
       <div>
-        <strong>Hapus rumah sakit</strong>
-        <p class="mb-0">Data rumah sakit yang dihapus tidak dapat dikembalikan.</p>
+        <strong>Hapus faskes</strong>
+        <p class="mb-0">Data faskes yang dihapus tidak dapat dikembalikan.</p>
       </div>
       <button class="btn btn-outline-danger btn-sm" type="button" @click="deleteContact">
-        <vue-feather type="trash-2" size="14" />Hapus Rumah Sakit
+        <vue-feather type="trash-2" size="14" />Hapus Faskes
       </button>
     </div>
   </template>

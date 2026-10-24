@@ -235,7 +235,7 @@ export const useHospitalStore = defineStore('hospital', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data Rumah Sakit.',
+      fallbackMessage: 'Gagal memuat data Faskes.',
       task: async () => {
         const response = await api.getbydata(ENDPOINT, { ...params })
         const { items: rawItems, meta } = extractList(response.data, ['companies'])
@@ -271,7 +271,7 @@ export const useHospitalStore = defineStore('hospital', () => {
     return runApiAction({
       flag: detailLoading,
       error,
-      fallbackMessage: 'Gagal memuat detail Rumah Sakit.',
+      fallbackMessage: 'Gagal memuat detail Faskes.',
       task: async () => {
         if (isDemoHospitalId(id)) {
           contactAssociations.value = []
@@ -320,7 +320,7 @@ export const useHospitalStore = defineStore('hospital', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menyimpan Rumah Sakit.',
+      fallbackMessage: 'Gagal menyimpan Faskes.',
       task: async () => {
         const response = await api.post(`${ENDPOINT}/input`, { choice: 'i', ...payload })
         const raw = findCompanyRecord(response.data)
@@ -342,7 +342,7 @@ export const useHospitalStore = defineStore('hospital', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal memperbarui Rumah Sakit.',
+      fallbackMessage: 'Gagal memperbarui Faskes.',
       task: async () => {
         if (isDemoHospitalId(id)) {
           throw new Error('Data demo lokal tidak dapat disimpan ke API.')
@@ -369,7 +369,7 @@ export const useHospitalStore = defineStore('hospital', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menghapus Rumah Sakit.',
+      fallbackMessage: 'Gagal menghapus Faskes.',
       task: async () => {
         if (isDemoHospitalId(id)) {
           throw new Error('Data demo lokal tidak dapat dihapus melalui API.')

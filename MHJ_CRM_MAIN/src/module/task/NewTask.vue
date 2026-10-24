@@ -235,12 +235,12 @@
                 <template v-if="showContextFields">
                   <div class="col-12">
                     <label class="form-label"
-                      >Rumah Sakit <span class="txt-danger">*</span></label
+                      >Faskes <span class="txt-danger">*</span></label
                     >
                     <Select
                       v-model="form.hospital"
                       :options="hospitalOptions"
-                      placeholder="Cari dan pilih rumah sakit"
+                      placeholder="Cari dan pilih faskes"
                       display-key="label"
                       get-value-key="value"
                       :form-submitted="formSubmitted"
@@ -248,7 +248,7 @@
                       :disable-clear-button="form.hasProject"
                     />
                     <small v-if="form.hasProject" class="text-muted"
-                      >Rumah sakit mengikuti peluang yang dipilih.</small
+                      >Faskes mengikuti peluang yang dipilih.</small
                     >
                   </div>
 
@@ -1490,7 +1490,7 @@ function projectConfirmationSummary(project: ProjectOption) {
   const rows = [
     ["Serial Number", project.serialNumber],
     ["Peluang Sales", project.label],
-    ["Rumah Sakit", project.hospital?.label || "-"],
+    ["Faskes", project.hospital?.label || "-"],
     [
       "Kontak",
       project.contacts.map((contact) => contact.label).join(", ") || "-",
@@ -1962,7 +1962,7 @@ function validateForm() {
     ? "Pipeline peluang wajib dipilih."
     : "";
   form.hospital.errorMessage = hospitalMissing
-    ? "Rumah sakit wajib dipilih."
+    ? "Faskes wajib dipilih."
     : "";
 
   if (categoryMissing) errors.push("Kategori wajib dipilih.");
@@ -1976,7 +1976,7 @@ function validateForm() {
         ? "Serial number wajib dipilih."
         : "Peluang wajib dipilih.",
     );
-  if (hospitalMissing) errors.push("Rumah sakit wajib dipilih.");
+  if (hospitalMissing) errors.push("Faskes wajib dipilih.");
   if (contactMissing) errors.push("Kontak wajib dipilih.");
   if (!form.scheduledAt)
     errors.push("Tanggal dan waktu kunjungan wajib diisi.");

@@ -21,6 +21,7 @@ export const MHJ_ICON_PATHS = {
   action_survey: '/icons/mhj/duotone/action_survey.svg',
   action_wallet: '/icons/mhj/duotone/action_wallet.svg',
   coverage_point_on_map: '/icons/mhj/duotone/coverage_point_on_map.svg',
+  contact_card: '/icons/mhj/contact-menu/contact_card.svg',
   hospital_activity: '/icons/mhj/duotone/hospital_activity.svg',
   hospital_installed: '/icons/mhj/duotone/hospital_installed.svg',
   hospital_profile: '/icons/mhj/duotone/hospital_profile.svg',
@@ -32,7 +33,6 @@ export const MHJ_ICON_PATHS = {
   letter_unread: '/icons/mhj/duotone/letter_unread.svg',
   nav_contact: '/icons/mhj/duotone/nav_contact.svg',
   nav_home: '/icons/mhj/duotone/nav_home.svg',
-  nav_hospital: '/icons/mhj/duotone/nav_hospital.svg',
   nav_peluang: '/icons/mhj/duotone/nav_peluang.svg',
   nav_profile: '/icons/mhj/duotone/nav_profile.svg',
   nav_task: '/icons/mhj/duotone/nav_task.svg',
@@ -51,14 +51,19 @@ interface NavigationIconSource {
   icon?: string
 }
 
+/** Identify every legacy label/path that represents the Faskes menu. */
+export function isFaskesNavigationItem(item: NavigationIconSource): boolean {
+  const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
+  return /faskes|rumah\s*sakit|hospital|compan(?:y|ies)|(?:^|\s)rs(?:\s|$)/.test(value)
+}
+
 /** Resolve both static and backend-provided root menus to the official MHJ navigation set. */
 export function resolveMhjNavigationIcon(
   item: NavigationIconSource,
 ): MhjIconName | undefined {
   const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
 
-  if (/rumah\s*sakit|hospital|compan(?:y|ies)/.test(value)) return 'nav_hospital'
-  if (/kontak|contact/.test(value)) return 'nav_contact'
+  if (/kontak|contact/.test(value)) return 'contact_card'
   if (/peluang|project|proyek|projek|deal/.test(value)) return 'nav_peluang'
   if (/tugas|task|checklist/.test(value)) return 'nav_task'
   if (/profil|profile|akun|users?/.test(value)) return 'nav_profile'

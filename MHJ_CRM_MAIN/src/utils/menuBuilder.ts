@@ -60,13 +60,13 @@ function resolveIcon(raw?: string): string {
 /**
  * Backend lama masih dapat mengirim nama menu Project/Proyek/Projek/Deal(s)
  * atau Company/Companies. Istilah project ditampilkan sebagai Peluang, sedangkan
- * company ditampilkan sebagai Rumah Sakit.
+ * company ditampilkan sebagai Faskes.
  */
 function resolveMenuTitle(rawTitle: string, fallback: string): string {
   const title = rawTitle.trim() || fallback
   return title
     .replace(/^Settings$/i, 'Setting')
-    .replace(/\b(?:compan(?:y|ies)|hospitals?)\b/gi, 'Rumah Sakit')
+    .replace(/\brumah\s+sakit\b|\b(?:compan(?:y|ies)|hospitals?|rs)\b/gi, 'Faskes')
     .replace(/\bcontacts?\b/gi, 'Kontak')
     .replace(/\b(?:projects?|pro(?:y|j)ek|peluang|deals?)\b/gi, 'Peluang')
     .replace(/^Peluang\s+Details?$/i, 'Detail Peluang')
@@ -74,7 +74,7 @@ function resolveMenuTitle(rawTitle: string, fallback: string): string {
     .replace(/^Peluang\s+Detail\s+Ver2$/i, 'Detail Peluang V2')
 }
 
-/** Arahkan path menu Rumah Sakit yang lama ke URL kanonis. */
+/** Arahkan path menu Faskes yang lama ke URL kanonis. */
 function resolveMenuPath(rawPath?: string): string {
   const path = (rawPath || '').trim()
   return /^\/crmadmin\/(?:companies|hospital|peluang)\/?$/i.test(path)

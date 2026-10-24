@@ -253,7 +253,7 @@ const exportColumns: Array<{
   { label: 'Judul', value: (e) => e.title },
   { label: 'Status / Tahap', value: (e) => e.statusLabel },
   { label: 'Tanggal', value: (e) => formatExportDate(e.date) },
-  { label: 'Rumah Sakit', value: (e) => e.subtitle },
+  { label: 'Faskes', value: (e) => e.subtitle },
   {
     label: 'Owner',
     value: (e) =>

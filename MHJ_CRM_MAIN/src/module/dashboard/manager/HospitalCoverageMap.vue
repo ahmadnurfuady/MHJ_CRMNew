@@ -9,7 +9,7 @@
   <section
     class="hospital-map"
     :class="{ 'hospital-map--expanded': isExpanded }"
-    aria-label="Peta cakupan rumah sakit"
+    aria-label="Peta cakupan faskes"
   >
     <div class="hospital-map__legend">
       <strong>Urgensi Kunjungan</strong>
@@ -23,8 +23,8 @@
       <button
         type="button"
         class="map-action map-action--square"
-        aria-label="Cari rumah sakit atau wilayah"
-        title="Cari rumah sakit atau wilayah"
+        aria-label="Cari faskes atau wilayah"
+        title="Cari faskes atau wilayah"
         :aria-expanded="showSearch"
         @click="toggleSearch"
       >
@@ -64,7 +64,7 @@
       <button
         type="button"
         class="map-action map-action--square"
-        aria-label="Filter peta rumah sakit"
+        aria-label="Filter peta faskes"
         title="Filter peta"
         @click="openFilter"
       >
@@ -84,10 +84,10 @@
       <input
         v-model.trim="searchQuery"
         type="search"
-        placeholder="Cari nama RS, kota, atau provinsi..."
-        aria-label="Cari nama rumah sakit, kota, atau provinsi"
+        placeholder="Cari nama faskes, kota, atau provinsi..."
+        aria-label="Cari nama faskes, kota, atau provinsi"
       />
-      <span>{{ filteredPoints.length }} RS</span>
+      <span>{{ filteredPoints.length }} faskes</span>
       <button type="button" aria-label="Tutup pencarian" @click="closeSearch">
         <SolarIcon name="close" :size="18" />
       </button>
@@ -135,10 +135,10 @@
 
     <div v-if="mapLoading && !hospitalPoints.length" class="hospital-map__state" role="status">
       <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      Memuat data dan koordinat rumah sakit...
+      Memuat data dan koordinat faskes...
     </div>
     <div v-else-if="!hospitalPoints.length" class="hospital-map__state">
-      Belum ada rumah sakit dengan koordinat yang dapat ditampilkan.
+      Belum ada faskes dengan koordinat yang dapat ditampilkan.
     </div>
 
     <LMap
@@ -220,7 +220,7 @@
           <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" />
         </svg>
       </button>
-      <button type="button" aria-label="Tampilkan semua rumah sakit" title="Tampilkan semua RS" @click="fitHospitals">
+      <button type="button" aria-label="Tampilkan semua faskes" title="Tampilkan semua faskes" @click="fitHospitals">
         <SolarIcon name="map" :size="21" />
       </button>
       <button type="button" class="primary" aria-label="Perbesar zoom" title="Perbesar zoom" @click="zoomIn">
@@ -237,11 +237,11 @@
 
     <div v-if="mapMessage" class="hospital-map__message" role="status">{{ mapMessage }}</div>
 
-    <aside v-if="showFilter" class="hospital-map__filter" aria-label="Filter peta rumah sakit">
+    <aside v-if="showFilter" class="hospital-map__filter" aria-label="Filter peta faskes">
       <header>
         <div>
           <small>FILTER PETA</small>
-          <strong>Peta Cakupan RS</strong>
+          <strong>Peta Cakupan Faskes</strong>
         </div>
         <button type="button" class="filter-reset" @click="resetFilters">Reset</button>
         <button type="button" class="filter-close" aria-label="Tutup filter" @click="showFilter = false">
@@ -290,7 +290,7 @@
         </fieldset>
 
         <fieldset v-if="typeOptions.length">
-          <legend>Tipe Rumah Sakit</legend>
+          <legend>Tipe Faskes</legend>
           <div class="filter-chips">
             <button type="button" :class="{ active: typeFilter === 'all' }" @click="typeFilter = 'all'">Semua</button>
             <button
@@ -305,7 +305,7 @@
       </div>
 
       <footer>
-        <button type="button" @click="applyFilters">Terapkan Filter ({{ filteredPoints.length }} RS)</button>
+        <button type="button" @click="applyFilters">Terapkan Filter ({{ filteredPoints.length }} faskes)</button>
       </footer>
     </aside>
 
@@ -346,7 +346,7 @@
     </aside>
 
     <span v-if="missingCoordinateCount" class="hospital-map__coordinate-note">
-      {{ missingCoordinateCount }} RS belum memiliki koordinat
+      {{ missingCoordinateCount }} faskes belum memiliki koordinat
     </span>
   </section>
 </template>
@@ -586,7 +586,7 @@ function applySearch(): void {
 
 function openRoute(): void {
   if (!selectedHospital.value || !hasCoordinates(selectedHospital.value)) {
-    showMapMessage('Koordinat rumah sakit belum tersedia.')
+    showMapMessage('Koordinat faskes belum tersedia.')
     return
   }
   const destination = `${selectedHospital.value.latitude},${selectedHospital.value.longitude}`
@@ -689,7 +689,7 @@ async function loadHospitals(): Promise<void> {
     await nextTick()
     fitHospitals()
   } catch {
-    showMapMessage(hospitalStore.error || 'Data rumah sakit gagal dimuat.')
+    showMapMessage(hospitalStore.error || 'Data faskes gagal dimuat.')
   } finally {
     mapLoading.value = false
   }

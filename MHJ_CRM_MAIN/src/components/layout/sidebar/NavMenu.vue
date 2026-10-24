@@ -45,10 +45,21 @@
       ]"
       @click.prevent="onMenuClick(menuItem)"
     >
+      <SolarIcon
+        v-if="isFaskesNavigationItem(menuItem)"
+        name="hospital"
+        class="sidebar-mhj-icon sidebar-faskes-icon"
+        :size="18"
+        color="#ffffff"
+        secondary-color="#ffffff"
+        :secondary-opacity="0.45"
+        aria-hidden="true"
+      />
       <MhjIcon
-        v-if="resolveMhjNavigationIcon(menuItem)"
+        v-else-if="resolveMhjNavigationIcon(menuItem)"
         :name="resolveMhjNavigationIcon(menuItem)!"
         class="sidebar-mhj-icon"
+        :size="18"
       />
       <template v-else>
         <SvgIcon
@@ -98,7 +109,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useLayout } from '@/store/layout'
 import { MenuItem } from '@/types/menu'
-import { resolveMhjNavigationIcon } from '@/utils/mhjIcons'
+import { isFaskesNavigationItem, resolveMhjNavigationIcon } from '@/utils/mhjIcons'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 
@@ -126,3 +137,14 @@ const onMenuClick = (menuItem: MenuItem) => {
   }
 }
 </script>
+
+<style scoped>
+.sidebar-faskes-icon,
+.sidebar-link:hover > .sidebar-faskes-icon {
+  fill: none !important;
+  stroke: none !important;
+  pointer-events: none;
+  transform: none !important;
+  transition: none !important;
+}
+</style>

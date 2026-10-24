@@ -20,7 +20,7 @@
                     <InputField
                       :modelValue="projectNameField"
                       :inputId="'project-name'"
-                      :placeholder="'EKAT/PRVT_Nama Rumah Sakit_Nama Produk'"
+                      :placeholder="'EKAT/PRVT_Nama Faskes_Nama Produk'"
                       :disabled="!isProjectNameEditing"
                       @update:modelValue="updateProjectName"
                     />
@@ -39,11 +39,11 @@
               </div>
 
               <div class="col-md-6">
-                <InputWrapper :title="'Rumah Sakit'" required>
+                <InputWrapper :title="'Faskes'" required>
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Cari nama rumah sakit di database...'"
+                    :placeholder="'Cari nama faskes di database...'"
                     v-model="projectForm.company"
                     :options="companyOptions"
                     :formSubmitted="formSubmitted"
@@ -239,7 +239,7 @@
                   <InputField
                     v-model:modelValue="projectForm.notes"
                     :inputId="'project-notes'"
-                    :placeholder="'Tambahkan konteks peluang, kebutuhan RS, spesifikasi alkes, dll.'"
+                    :placeholder="'Tambahkan konteks peluang, kebutuhan faskes, spesifikasi alkes, dll.'"
                     :inputType="'textarea'"
                     :rows="3"
                     :required="false"
@@ -987,7 +987,7 @@ async function handleSubmit() {
   formSubmitted.value = true
   const form = projectForm.value
   const requiredFields: [string, { data: unknown; errorMessage?: string }][] = [
-    ['Rumah Sakit', form.company],
+    ['Faskes', form.company],
     ['Kontak PIC', form.contact],
     ['Stage', form.stage],
     ['Owner (Pemilik Peluang)', form.owner],
@@ -1050,7 +1050,7 @@ async function handleSubmit() {
 
   if (!companyId || contactIds.length !== contacts.length || !ownerId || !stageId) {
     const missing = [
-      !companyId && 'Rumah Sakit',
+      !companyId && 'Faskes',
       contactIds.length !== contacts.length && 'Kontak PIC',
       !ownerId && 'Owner (Pemilik Peluang)',
       !stageId && `Stage "${selectedStage.value?.label ?? ''}"`,

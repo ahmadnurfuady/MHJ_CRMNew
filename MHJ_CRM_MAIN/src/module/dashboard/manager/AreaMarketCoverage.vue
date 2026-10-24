@@ -11,7 +11,7 @@
             <MhjIcon :name="stat.id === 'area-coverage' ? 'coverage_point_on_map' : 'kpi_pin_list'" :size="20" />
           </span>
           <strong>{{ stat.value }}</strong>
-          <span class="coverage-tile__unit">RS</span>
+          <span class="coverage-tile__unit">Faskes</span>
         </div>
         <span class="coverage-tile__label">{{ stat.label }}</span>
         <div class="coverage-tile__bar">
