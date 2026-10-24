@@ -352,7 +352,8 @@ const {
 } = storeToRefs(projectStore);
 const searchQuery = ref("");
 const ownerFilter = ref("all");
-const viewMode = ref<"board" | "list">("board");
+// Default tampilan peluang: list. User bisa pindah ke board via toggle di toolbar.
+const viewMode = ref<"board" | "list">("list");
 const projectPageSize = ref(10);
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 let resizeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -1150,8 +1151,9 @@ onBeforeUnmount(() => {
     "main main"
     "contact contact"
     "timing timing"
-    "owner value";
-  grid-template-rows: auto minmax(76px, auto) auto auto auto;
+    "owner value"
+    "audit audit";
+  grid-template-rows: auto minmax(76px, auto) auto auto auto auto;
   padding: 21px 20px 18px;
 }
 
@@ -1317,6 +1319,83 @@ onBeforeUnmount(() => {
 :deep(.opp-card__owner strong),
 :deep(.opp-contact-name strong),
 :deep(.opp-contact-empty strong) {
+  display: block;
+  overflow: hidden;
+  color: #2d3748;
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ───── Dibuat / Diperbarui oleh di bawah Owner ─────────────────────
+ * Dua varian:
+ *   - .opp-owner-audit--board : sejajar (grid 2 kolom) di kartu board
+ *   - .opp-owner-audit--list  : vertikal (kebawah) di kartu list, ukuran
+ *                               label lebih kecil dari "Owner"
+ */
+:deep(.opp-owner-audit) {
+  margin-top: 8px;
+  min-width: 0;
+}
+:deep(.opp-owner-audit__item) {
+  display: block;
+  min-width: 0;
+}
+:deep(.opp-owner-audit__item small) {
+  display: block;
+  margin-bottom: 2px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+}
+:deep(.opp-owner-audit__item strong) {
+  display: block;
+  overflow: hidden;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* List: menumpuk ke bawah, label lebih kecil dari "Owner". */
+:deep(.opp-owner-audit--list) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Board: section "Dibuat oleh" + "Diperbarui oleh" di baris paling bawah
+ * (grid-area: audit), bentuk pil sama persis dengan .opp-card__timing. */
+:deep(.opp-card__audit) {
+  grid-area: audit;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  gap: 9px;
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid #edf1f5;
+}
+:deep(.opp-card__audit > div) {
+  display: block;
+  min-width: 0;
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: #f7f9fb;
+}
+:deep(.opp-card__audit small) {
+  display: block;
+  margin-bottom: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+:deep(.opp-card__audit strong) {
   display: block;
   overflow: hidden;
   color: #2d3748;
@@ -1774,7 +1853,8 @@ onBeforeUnmount(() => {
       "main main"
       "contact contact"
       "timing timing"
-      "owner value";
+      "owner value"
+      "audit audit";
     grid-template-rows: auto;
     gap: 0;
     min-height: 0;

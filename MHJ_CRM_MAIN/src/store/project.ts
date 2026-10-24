@@ -605,11 +605,11 @@ export const useProjectStore = defineStore('project', () => {
       })
     }
 
-    lookups.ownerCandidates = base
+    const enriched: Select[] = base
       .filter((option) => option.value && option.label)
       .map((option) => {
         const meta = metaByValue.get(String(option.value))
-        if (!meta) return option
+        if (!meta) return option as Select
         // Komponen Select hanya merender `option[displayKey]` sebagai teks
         // tunggal, jadi info alias + level dirangkai ke dalam label itu
         // sendiri agar langsung tampil di dropdown.
@@ -617,8 +617,19 @@ export const useProjectStore = defineStore('project', () => {
         if (meta.alias) chips.push(meta.alias)
         if (meta.level !== null && meta.level !== undefined) chips.push(`L${meta.level}`)
         const label = chips.length ? `${option.label} (${chips.join(' · ')})` : option.label
-        return { ...option, label, ...meta }
+        return { ...option, label, ...meta } satisfies Select
       })
+
+    // Urutkan dari level jabatan paling atas (root = L0) ke paling bawah;
+    // dalam level yang sama, tetap alfabetis berdasarkan label.
+    enriched.sort((a, b) => {
+      const la = a.level ?? Number.MAX_SAFE_INTEGER
+      const lb = b.level ?? Number.MAX_SAFE_INTEGER
+      if (la !== lb) return la - lb
+      return a.label.localeCompare(b.label, 'id')
+    })
+
+    lookups.ownerCandidates = enriched
     return lookups.ownerCandidates
   }
 
