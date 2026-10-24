@@ -282,6 +282,12 @@ export interface Select {
   serialNumber?: string
   profile?: string
   data?: Select[]
+  // Metadata khusus kandidat owner peluang: alias jabatan (DBD, BDM, dst)
+  // dan level kedalaman jabatan (0 = root/paling atas). Dipakai agar
+  // dropdown owner bisa menampilkan "Nama (DBD · L0)".
+  alias?: string | null
+  level?: number | null
+  jabatan?: string | null
 }
 
 export interface InputField {
