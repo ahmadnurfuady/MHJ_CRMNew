@@ -46,10 +46,13 @@
           type="button"
           @click="openContactModal"
         >
-          <MhjIcon
-            name="contact_card"
+          <SolarIcon
+            name="add"
             class="add-contact-header-button__icon"
             :size="18"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="0.45"
             aria-hidden="true"
           />
           <span>Tambah Kontak Baru</span>

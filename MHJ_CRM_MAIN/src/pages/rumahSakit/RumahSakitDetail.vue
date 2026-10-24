@@ -1,24 +1,5 @@
 <template>
   <div class="hospital-detail-page">
-    <div class="page-toolbar">
-      <router-link
-        :to="routes.App.RumahSakit"
-        class="back-button"
-        aria-label="Kembali ke daftar faskes"
-      >
-        <SolarIcon
-          name="arrow-left-linear"
-          :size="26"
-          color="#087cae"
-          :stroke-width="2.5"
-        />
-      </router-link>
-      <div>
-        <p>Faskes</p>
-        <h3>Detail Faskes</h3>
-      </div>
-    </div>
-
     <div v-if="loading && !hospital" class="detail-state card">
       <span class="spinner-border text-primary" aria-hidden="true"></span>
       <strong>Memuat detail faskes...</strong>
@@ -641,6 +622,62 @@
       v-if="contactStore.contactState.openAddContactModal"
       @saved="handleContactCreated"
     />
+
+    <Modal
+      :modalOpen="purchaseHistoryModalOpen"
+      :modalCentered="true"
+      sizeClass="modal-md"
+      dialogClass="purchase-history-modal"
+      @closeModal="closePurchaseHistory"
+    >
+      <div class="modal-header purchase-history-header">
+        <div>
+          <h5 class="modal-title">Riwayat Pembelian</h5>
+          <small class="purchase-history-subtitle">
+            {{ purchaseTotal }} transaksi
+          </small>
+        </div>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Tutup"
+          @click="closePurchaseHistory"
+        ></button>
+      </div>
+      <div class="modal-body purchase-history-body">
+        <ol v-if="purchaseTimeline.length" class="purchase-history-list">
+          <li
+            v-for="(purchase, index) in purchaseTimeline"
+            :key="purchase.id"
+            class="purchase-history-item"
+          >
+            <span class="purchase-history-marker" aria-hidden="true">
+              <span class="purchase-history-dot"></span>
+              <span
+                v-if="index < purchaseTimeline.length - 1"
+                class="purchase-history-line"
+              ></span>
+            </span>
+            <div class="purchase-history-content">
+              <strong class="purchase-history-title">
+                Pembelian {{ index + 1 }}
+              </strong>
+              <span class="purchase-history-date">{{ purchase.dateLabel }}</span>
+            </div>
+            <span class="purchase-history-amount">
+              {{
+                purchase.amount
+                  ? formatCompactCurrency(purchase.amount)
+                  : "—"
+              }}
+            </span>
+          </li>
+        </ol>
+        <div v-else class="purchase-history-empty">
+          Belum ada riwayat pembelian.
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -679,8 +716,13 @@ import { fetchUnifiedTimeline } from "@/services/activityLogService";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
 import HospitalForm from "@/module/rumahSakit/AddContactModal.vue";
+import {
+  usePageBackRoute,
+  usePageTitle,
+} from "@/composable/usePageHeader";
 import ContactFormModal from "@/module/contacts/AddContactModal.vue";
 import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
+import Modal from "@/components/shared/Modal.vue";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
 
 type DetailTab =
@@ -704,11 +746,15 @@ interface PurchaseTimelineItem {
   title: string;
   date: Date | null;
   dateLabel: string;
+  amount: number;
 }
 
 const props = defineProps<{ hospitalId: number }>();
 const route = useRoute();
 const router = useRouter();
+// Tampilkan "Detail Faskes" + tombol kembali di baris BreadCrumbs global.
+usePageTitle("Detail Faskes");
+usePageBackRoute(routes.App.RumahSakit);
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const contactStore = useContact();
@@ -813,6 +859,7 @@ const wonProjectPurchases = computed<PurchaseTimelineItem[]>(() =>
         title: project.projectName || `Pembelian #${project.id}`,
         date,
         dateLabel: date ? formatPurchaseDate(date) : "Tanggal belum tersedia",
+        amount: project.amountValue ?? project.projectValue ?? 0,
       };
     }),
 );
@@ -825,6 +872,7 @@ const installedProductPurchases = computed<PurchaseTimelineItem[]>(() =>
       title: product.product || `Pembelian ${index + 1}`,
       date,
       dateLabel: date ? formatPurchaseDate(date) : "Tanggal belum tersedia",
+      amount: 0,
     };
   }),
 );
@@ -855,6 +903,7 @@ const purchaseTimeline = computed<PurchaseTimelineItem[]>(() => {
     title: `Pembelian ${index + 1}`,
     date: null,
     dateLabel: "Tanggal belum tersedia",
+    amount: 0,
   }));
 });
 
@@ -1039,14 +1088,15 @@ function createHospitalContact() {
   });
 }
 
+const purchaseHistoryModalOpen = ref(false);
+
 function openPurchaseHistory() {
   if (!purchaseTotal.value) return;
-  if (wonProjectPurchases.value.length) {
-    expandedStage.value = "closed_won";
-    activeTab.value = "projects";
-    return;
-  }
-  activeTab.value = "installed";
+  purchaseHistoryModalOpen.value = true;
+}
+
+function closePurchaseHistory() {
+  purchaseHistoryModalOpen.value = false;
 }
 
 async function handleContactCreated() {
@@ -2905,5 +2955,111 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   .close-profile {
     padding: 7px 9px;
   }
+}
+
+/* ===== Modal Riwayat Pembelian ===== */
+:deep(.purchase-history-modal) {
+  max-width: 440px;
+}
+:deep(.purchase-history-modal .modal-content) {
+  border: 0;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.purchase-history-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid #eef1f4;
+}
+.purchase-history-header .modal-title {
+  margin: 0;
+  color: #17212b;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.purchase-history-subtitle {
+  display: block;
+  margin-top: 3px;
+  color: #8a97a1;
+  font-size: 12px;
+  font-weight: 500;
+}
+.purchase-history-body {
+  max-height: min(60vh, 520px);
+  padding: 14px 22px 22px;
+  overflow-y: auto;
+}
+.purchase-history-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 0 0;
+  list-style: none;
+}
+.purchase-history-item {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+.purchase-history-marker {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: 22px;
+  height: 100%;
+}
+.purchase-history-dot {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--app-primary, #18a6e4);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.08);
+}
+.purchase-history-line {
+  position: absolute;
+  top: 20px;
+  bottom: -14px;
+  width: 2px;
+  background: #e4e9ec;
+}
+.purchase-history-content {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.purchase-history-title {
+  overflow: hidden;
+  color: #1c2a36;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.purchase-history-date {
+  color: #8a97a1;
+  font-size: 11.5px;
+}
+.purchase-history-amount {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: #1c2a36;
+  background: #f1f4f7;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.purchase-history-empty {
+  padding: 40px 10px;
+  color: #93a0aa;
+  font-size: 13px;
+  text-align: center;
 }
 </style>

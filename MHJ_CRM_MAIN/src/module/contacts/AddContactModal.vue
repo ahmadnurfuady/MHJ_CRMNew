@@ -67,6 +67,7 @@
                     :formSubmitted="contactState.formSubmitted"
                     :inputId="`contact-phone-${index}`"
                     inputType="tel"
+                    :maxLength="15"
                     :formatValue="true"
                     :formatFunction="sanitizeIndonesianPhoneInput"
                     :placeholder="

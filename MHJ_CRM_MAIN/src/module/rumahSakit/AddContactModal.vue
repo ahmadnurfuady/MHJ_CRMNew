@@ -39,6 +39,7 @@
                     :formSubmitted="contactState.formSubmitted"
                     :inputId="`rs-phone-${index}`"
                     inputType="tel"
+                    :maxLength="15"
                     :formatValue="true"
                     :formatFunction="sanitizeIndonesianPhoneInput"
                     :placeholder="

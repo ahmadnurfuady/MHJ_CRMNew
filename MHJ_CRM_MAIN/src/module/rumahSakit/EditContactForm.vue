@@ -46,6 +46,8 @@
                 :errorMessage="'Nomor telepon faskes wajib diisi.'"
                 v-model:modelValue="contactForm.contactNumber"
                 :inputId="'contact-number'"
+                inputType="tel"
+                :maxLength="15"
                 :placeholder="'Masukkan nomor telepon faskes'"
               />
             </div>

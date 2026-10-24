@@ -47,7 +47,7 @@
           @click="openContactModal"
         >
           <SolarIcon
-            name="hospital"
+            name="add"
             class="add-hospital-header-button__icon"
             :size="19"
             color="currentColor"

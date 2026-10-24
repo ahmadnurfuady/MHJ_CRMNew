@@ -3,7 +3,22 @@
     <div class="page-title">
       <div class="row">
         <div class="col-6">
-          <h4>{{ pageTitle }}</h4>
+          <div class="page-title__heading">
+            <router-link
+              v-if="backRoute"
+              :to="backRoute"
+              class="page-title__back"
+              aria-label="Kembali ke halaman sebelumnya"
+            >
+              <SolarIcon
+                name="arrow-left-linear"
+                :size="22"
+                color="#087cae"
+                :stroke-width="2.5"
+              />
+            </router-link>
+            <h4>{{ pageTitle }}</h4>
+          </div>
         </div>
         <div class="col-6 p-0 page-title__action">
           <button
@@ -27,16 +42,55 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
+import SolarIcon from '@/components/shared/SolarIcon.vue'
+import { pageBackRoute, pageTitleOverride } from '@/composable/usePageHeader'
+
 const props = withDefaults(defineProps<{ refreshing?: boolean }>(), {
   refreshing: false,
 })
 const emit = defineEmits<{ refresh: [] }>()
 
 const route = useRoute()
-const pageTitle = computed(() => (route.meta.mainTitle as string) || '')
+// Jika sebuah halaman memanggil `usePageTitle(...)`, nilainya menimpa
+// `route.meta.mainTitle` sementara halaman itu aktif.
+const pageTitle = computed(
+  () => pageTitleOverride.value ?? (route.meta.mainTitle as string) ?? '',
+)
+// Rute untuk tombol kembali opsional di sebelah kiri judul (jika di-set
+// halaman via usePageBackRoute).
+const backRoute = computed(() => pageBackRoute.value)
 </script>
 
 <style scoped>
+.page-title__heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 38px;
+}
+.page-title__heading h4 {
+  margin: 0;
+}
+.page-title__back {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #e6edf1;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(27, 43, 65, 0.04);
+  color: #087cae;
+  text-decoration: none;
+  transition: background .18s ease, border-color .18s ease;
+}
+.page-title__back:hover,
+.page-title__back:focus-visible {
+  background: #eaf7fd;
+  border-color: #badff2;
+  outline: none;
+}
+
 .page-title__action {
   display: flex;
   align-items: center;
