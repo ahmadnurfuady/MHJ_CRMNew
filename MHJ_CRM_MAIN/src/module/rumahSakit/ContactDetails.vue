@@ -2,14 +2,14 @@
   <div class="card mb-0">
     <div class="card-header hospital-list-header">
       <div class="hospital-title-group">
-        <h5 class="mb-1">Rumah Sakit</h5>
+        <h5 class="mb-1">Faskes</h5>
         <p class="hospital-total mb-0">
-          {{ formatTotal(hospitalDisplayTotal) }} total rumah sakit
+          {{ formatTotal(hospitalDisplayTotal) }} total faskes
         </p>
       </div>
       <div class="hospital-header-actions">
         <div class="hospital-search" role="search">
-          <label class="visually-hidden" for="hospital-search-input">Cari rumah sakit</label>
+          <label class="visually-hidden" for="hospital-search-input">Cari faskes</label>
           <SolarIcon
             name="magnifier"
             class="crm-search-icon"
@@ -46,13 +46,16 @@
           type="button"
           @click="openContactModal"
         >
-          <MhjIcon
-            name="nav_hospital"
+          <SolarIcon
+            name="hospital"
             class="add-hospital-header-button__icon"
             :size="19"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="0.45"
             aria-hidden="true"
           />
-          <span>Tambah Rumah Sakit Baru</span>
+          <span>Tambah Faskes Baru</span>
         </button>
       </div>
     </div>
@@ -95,17 +98,17 @@
             <tr v-if="hospitalLoading && !filteredContact.length">
               <td colspan="10" class="hospital-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                Memuat data rumah sakit...
+                Memuat data faskes...
               </td>
             </tr>
             <tr v-for="hospital in filteredContact" :key="hospital.id">
               <td
                 class="entity-detail-cell"
-                data-label="Nama Rumah Sakit"
+                data-label="Nama Faskes"
                 role="link"
                 tabindex="0"
                 :title="`Buka detail ${displayValue(hospital.firstName)}`"
-                :aria-label="`Buka detail rumah sakit ${displayValue(hospital.firstName)}`"
+                :aria-label="`Buka detail faskes ${displayValue(hospital.firstName)}`"
                 @click="openHospitalDetail(hospital)"
                 @keydown.enter="openHospitalDetail(hospital)"
               >
@@ -136,7 +139,7 @@
               <td data-label="Provinsi">{{ displayValue(hospital.province) }}</td>
               <td data-label="Kota">{{ displayValue(hospital.city) }}</td>
               <td data-label="Kelas">{{ displayValue(hospital.hospitalClass) }}</td>
-              <td data-label="Jenis Rumah Sakit">
+              <td data-label="Jenis Faskes">
                 {{ hospitalType(hospital) }}
               </td>
               <td data-label="Total Kontak" class="text-center">
@@ -181,7 +184,7 @@
                 <div class="empty-state-icon">
                   <vue-feather type="home" size="22" />
                 </div>
-                <strong>Rumah sakit tidak ditemukan</strong>
+                <strong>Faskes tidak ditemukan</strong>
                 <span>Coba gunakan kata pencarian lain.</span>
               </td>
             </tr>
@@ -197,7 +200,7 @@
       <span class="text-muted f-14">
         Halaman {{ hospitalPagination.page }} dari {{ hospitalPagination.lastPage }}
       </span>
-      <div class="pagination-actions" role="group" aria-label="Pagination Rumah Sakit">
+      <div class="pagination-actions" role="group" aria-label="Pagination Faskes">
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
@@ -264,11 +267,11 @@ const { changeHospitalPage, openContactModal, searchHospitals } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 const hospitalTableColumns = [
-  { label: "Nama Rumah Sakit", defaultWidth: 280, minWidth: 220, center: false },
+  { label: "Nama Faskes", defaultWidth: 280, minWidth: 220, center: false },
   { label: "Provinsi", defaultWidth: 150, minWidth: 110, center: false },
   { label: "Kota", defaultWidth: 150, minWidth: 110, center: false },
   { label: "Kelas", defaultWidth: 110, minWidth: 90, center: false },
-  { label: "Jenis Rumah Sakit", defaultWidth: 180, minWidth: 130, center: false },
+  { label: "Jenis Faskes", defaultWidth: 180, minWidth: 130, center: false },
   { label: "Total Kontak", defaultWidth: 120, minWidth: 110, center: true },
   { label: "Total Peluang", defaultWidth: 120, minWidth: 110, center: true },
   { label: "Alat Terpasang", defaultWidth: 130, minWidth: 110, center: true },

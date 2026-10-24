@@ -1,7 +1,7 @@
 <template>
   <div class="modal-header p-20">
     <h6 class="modal-title w-100 common-space">
-      Riwayat Rumah Sakit
+      Riwayat Faskes
       <span class="pull-right">
         <a class="close-history" href="#" @click.prevent="closeHistory()">
           <SolarIcon name="icofont-close" class="icofont" />
@@ -14,8 +14,8 @@
       entity="companies"
       :entity-id="entityId"
       :title="`Aktivitas ${hospitalName}`"
-      heading="Riwayat Rumah Sakit"
-      :created-description="`Data rumah sakit ${hospitalName} dibuat.`"
+      heading="Riwayat Faskes"
+      :created-description="`Data faskes ${hospitalName} dibuat.`"
     />
   </div>
 </template>
@@ -35,7 +35,7 @@ const activeContact = computed(() => contactState.value.activeContact)
 // Kontak di modul Rumah Sakit sebenarnya adalah company; remoteId dipakai
 // sebagai entity_id di tabel companies.
 const entityId = computed(() => activeContact.value?.remoteId ?? null)
-const hospitalName = computed(() => activeContact.value?.company || 'Rumah Sakit')
+const hospitalName = computed(() => activeContact.value?.company || 'Faskes')
 
 function closeHistory() {
   contactState.value.historyVisible = false

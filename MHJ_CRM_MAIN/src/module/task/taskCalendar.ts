@@ -63,7 +63,7 @@ export function normalizeCalendarTask(task: TaskDetails): CalendarTask {
     priority: normalizeText(task.priority, 'Normal'),
     assigneeName: normalizeText(task.owner, 'Belum ditugaskan'),
     projectName: normalizeText(task.projectName, 'Tanpa peluang'),
-    hospitalName: normalizeText(task.hospital, 'Tanpa rumah sakit'),
+    hospitalName: normalizeText(task.hospital, 'Tanpa faskes'),
     product: task.unrelatedProduct
       ? 'Tidak terkait produk'
       : normalizeText(task.products?.join(', '), 'Tidak ada produk'),

@@ -224,7 +224,7 @@
                 <input v-model="form.documentDate" class="form-control" type="date" required />
               </label>
               <label class="full-column">
-                <span>Customer / rumah sakit <b>*</b></span>
+                <span>Customer / faskes <b>*</b></span>
                 <input v-model.trim="form.customer" class="form-control" type="text" required />
               </label>
               <label class="full-column">
@@ -629,7 +629,7 @@ function customerPoHtml(): string {
 function salesOrderRows(): string[][] {
   return [
     ['Nomor', form.documentNumber],
-    ['Customer / Rumah Sakit', form.customer],
+    ['Customer / Faskes', form.customer],
     ['Alamat', form.address],
     ['Kontak', form.contact],
     ['Alat yang Dipesan', form.product],

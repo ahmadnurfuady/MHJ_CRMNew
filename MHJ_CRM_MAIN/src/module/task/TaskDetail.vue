@@ -49,7 +49,7 @@
             <strong>{{ task.projectName || '-' }}</strong>
           </div>
           <div class="detail-field">
-            <span>Rumah Sakit</span>
+            <span>Faskes</span>
             <strong>{{ task.hospital || task.subtitle || '-' }}</strong>
           </div>
           <div class="detail-field">

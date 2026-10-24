@@ -4,7 +4,7 @@
       <router-link
         :to="routes.App.RumahSakit"
         class="back-button"
-        aria-label="Kembali ke daftar rumah sakit"
+        aria-label="Kembali ke daftar faskes"
       >
         <SolarIcon
           name="arrow-left-linear"
@@ -14,14 +14,14 @@
         />
       </router-link>
       <div>
-        <p>Rumah Sakit</p>
-        <h3>Detail Rumah Sakit</h3>
+        <p>Faskes</p>
+        <h3>Detail Faskes</h3>
       </div>
     </div>
 
     <div v-if="loading && !hospital" class="detail-state card">
       <span class="spinner-border text-primary" aria-hidden="true"></span>
-      <strong>Memuat detail rumah sakit...</strong>
+      <strong>Memuat detail faskes...</strong>
     </div>
 
     <div v-else-if="loadError || !hospital" class="detail-state card">
@@ -29,7 +29,7 @@
         <SolarIcon name="fa-circle-exclamation" />
       </div>
       <strong>Detail tidak dapat ditampilkan</strong>
-      <p>{{ loadError || "Data rumah sakit tidak ditemukan." }}</p>
+      <p>{{ loadError || "Data faskes tidak ditemukan." }}</p>
       <router-link :to="routes.App.RumahSakit" class="btn btn-primary btn-sm">
         Kembali ke daftar
       </router-link>
@@ -39,7 +39,13 @@
       <section class="hospital-overview card">
         <div class="hospital-main">
           <div class="hospital-symbol">
-            <MhjIcon name="hospital_profile" :size="32" />
+            <SolarIcon
+              name="hospital"
+              :size="32"
+              color="currentColor"
+              secondary-color="currentColor"
+              :secondary-opacity="0.45"
+            />
           </div>
           <div class="hospital-copy">
             <div class="hospital-title-row">
@@ -67,7 +73,7 @@
                 hospital.hospitalClass || "Kelas belum tersedia"
               }}</span>
               <span>{{
-                hospital.hospitalType || hospital.industry || "Rumah Sakit"
+                hospital.hospitalType || hospital.industry || "Faskes"
               }}</span>
             </div>
           </div>
@@ -76,8 +82,13 @@
             type="button"
             @click="openProfile"
           >
-            <MhjIcon name="hospital_profile" />
-            <span>Profil RS</span><SolarIcon name="fa-chevron-right" />
+            <SolarIcon
+              name="hospital"
+              color="currentColor"
+              secondary-color="currentColor"
+              :secondary-opacity="0.45"
+            />
+            <span>Profil Faskes</span><SolarIcon name="fa-chevron-right" />
           </button>
         </div>
 
@@ -180,7 +191,7 @@
         </button>
       </section>
 
-      <nav class="detail-tabs" aria-label="Navigasi detail rumah sakit">
+      <nav class="detail-tabs" aria-label="Navigasi detail faskes">
         <button
           v-for="tab in tabs"
           :key="tab.value"
@@ -198,7 +209,7 @@
         <div class="panel-heading">
           <div>
             <p>Pipeline sales</p>
-            <h5>Peluang Rumah Sakit</h5>
+            <h5>Peluang Faskes</h5>
           </div>
           <div class="panel-heading-actions">
             <div class="project-total">
@@ -315,7 +326,7 @@
           v-else
           icon="fa-solid fa-folder-open"
           title="Belum ada peluang"
-          description="Peluang yang terhubung dengan rumah sakit ini akan tampil di sini."
+          description="Peluang yang terhubung dengan faskes ini akan tampil di sini."
         />
       </section>
 
@@ -323,7 +334,7 @@
         <div class="panel-heading">
           <div>
             <p>Relasi utama</p>
-            <h5>Kontak Rumah Sakit</h5>
+            <h5>Kontak Faskes</h5>
           </div>
           <div class="panel-heading-actions">
             <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
@@ -403,7 +414,7 @@
           v-else
           icon="fa-regular fa-address-book"
           title="Belum ada kontak"
-          description="Kontak yang terhubung dengan rumah sakit ini akan tampil di sini."
+          description="Kontak yang terhubung dengan faskes ini akan tampil di sini."
         />
       </section>
 
@@ -449,7 +460,7 @@
           <ActivityTimeline
             entity="companies"
             :entity-id="hospital?.id ?? null"
-            :title="`Aktivitas ${hospital?.name || 'Rumah Sakit'}`"
+            :title="`Aktivitas ${hospital?.name || 'Faskes'}`"
             heading="Timeline Terbaru"
             @loaded="(n) => (activityTimelineCount = n)"
           />
@@ -459,7 +470,7 @@
           <CommentsPanel
             parent-type="company"
             :parent-id="hospital?.id ?? null"
-            title="Komentar Rumah Sakit"
+            title="Komentar Faskes"
           />
         </article>
       </section>
@@ -472,8 +483,8 @@
       >
         <div class="panel-heading profile-heading">
           <div>
-            <p>Informasi rumah sakit</p>
-            <h5>Profil Rumah Sakit</h5>
+            <p>Informasi faskes</p>
+            <h5>Profil Faskes</h5>
           </div>
           <div class="profile-actions">
             <button
@@ -482,7 +493,7 @@
               type="button"
               @click="editHospital"
             >
-              <SolarIcon name="fa-pen-to-square" />Edit Rumah Sakit
+              <SolarIcon name="fa-pen-to-square" />Edit Faskes
             </button>
             <button
               class="close-profile"
@@ -497,7 +508,7 @@
         <div v-if="!profileEditing" class="hospital-info-view">
           <div class="hospital-info-grid">
             <div class="hospital-info-item">
-              <span>Nama Rumah Sakit</span>
+              <span>Nama Faskes</span>
               <strong>{{ displayValue(hospital.name) }}</strong>
             </div>
             <div class="hospital-info-item">
@@ -610,8 +621,8 @@
               <MhjIcon name="action_location" v-else />
               <span>{{
                 profileMapLoading
-                  ? "Mencari lokasi rumah sakit..."
-                  : "Titik lokasi rumah sakit belum tersedia."
+                  ? "Mencari lokasi faskes..."
+                  : "Titik lokasi faskes belum tersedia."
               }}</span>
             </div>
           </div>
@@ -1332,7 +1343,7 @@ async function loadDetail() {
 
   if (results[0]?.status === "rejected" || !hospitalStore.selectedItem) {
     loadError.value =
-      hospitalStore.error || "Data rumah sakit tidak ditemukan.";
+      hospitalStore.error || "Data faskes tidak ditemukan.";
   }
 
   const firstPopulatedStage = stageGroups.value.find(

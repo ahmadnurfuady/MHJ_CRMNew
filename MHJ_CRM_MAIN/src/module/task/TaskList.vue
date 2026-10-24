@@ -24,7 +24,7 @@
             id="task-search-input"
             v-model="searchQuery"
             type="search"
-            placeholder="Cari tugas, rumah sakit, peluang, atau owner..."
+            placeholder="Cari tugas, faskes, peluang, atau owner..."
             autocomplete="off"
           />
           <span
@@ -187,14 +187,14 @@
                 </button>
               </td>
 
-              <td data-label="Rumah Sakit">
+              <td data-label="Faskes">
                 <div class="task-context">
                   <button
                     v-if="hospitalDetailId(item)"
                     class="task-context-link cell-primary"
                     type="button"
                     :title="item.hospital || item.subtitle || '-'"
-                    :aria-label="`Buka detail rumah sakit ${item.hospital || item.subtitle}`"
+                    :aria-label="`Buka detail faskes ${item.hospital || item.subtitle}`"
                     @click="openHospitalDetail(item)"
                   >
                     {{ item.hospital || item.subtitle || '-' }}
@@ -406,7 +406,7 @@ const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'c
 const paginationEnabled = false
 const taskTableColumns = [
   { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
-  { label: 'Rumah Sakit', defaultWidth: 220, minWidth: 140, center: false },
+  { label: 'Faskes', defaultWidth: 220, minWidth: 140, center: false },
   { label: 'Peluang', defaultWidth: 180, minWidth: 120, center: false },
   { label: 'Jadwal', defaultWidth: 170, minWidth: 140, center: false },
   { label: 'Owner', defaultWidth: 170, minWidth: 130, center: false },
@@ -643,7 +643,7 @@ const exportColumns: Array<{
   { label: 'Nama Task', value: (task) => task.title || '' },
   { label: 'Jenis Task', value: (task) => taskKindLabel(task) },
   { label: 'Kategori', value: (task) => task.category || '' },
-  { label: 'Rumah Sakit', value: (task) => task.hospital || task.subtitle || '' },
+  { label: 'Faskes', value: (task) => task.hospital || task.subtitle || '' },
   { label: 'Kontak', value: (task) => task.contact || '' },
   { label: 'Telepon / WA', value: (task) => task.contactPhone || '' },
   { label: 'Peluang Sales', value: (task) => task.projectName || '' },

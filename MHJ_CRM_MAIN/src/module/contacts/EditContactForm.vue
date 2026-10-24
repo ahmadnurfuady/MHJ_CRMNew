@@ -229,13 +229,13 @@
       </div>
 
       <div class="col-md-6">
-        <InputWrapper title="Rumah Sakit">
+        <InputWrapper title="Faskes">
           <Select
             v-model="form.company"
             :options="companyOptions"
             display-key="label"
             getValueKey="value"
-            placeholder="Cari rumah sakit"
+            placeholder="Cari faskes"
             :required="false"
           />
         </InputWrapper>

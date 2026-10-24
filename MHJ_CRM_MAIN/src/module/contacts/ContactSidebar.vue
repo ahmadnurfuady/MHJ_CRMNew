@@ -35,7 +35,7 @@
                   @click="openContactModal()"
                 >
                   <span class="add-contact-button__icon">
-                    <vue-feather type="user-plus" size="19" />
+                    <MhjIcon name="contact_card" :size="19" aria-hidden="true" />
                   </span>
                   <span>Tambah Kontak Baru</span>
                 </button>
@@ -163,6 +163,12 @@ function categoryModal() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.add-contact-button__icon :deep(.mhj-icon) {
+  width: 19px;
+  height: 19px;
+  filter: brightness(0) invert(1);
 }
 
 .add-contact-button span {

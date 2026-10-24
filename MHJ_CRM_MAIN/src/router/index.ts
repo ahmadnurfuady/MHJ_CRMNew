@@ -595,9 +595,9 @@ const router = createRouter({
           name: 'RumahSakit',
           component: () => import('@/pages/rumahSakit/RumahSakit.vue'),
           meta: {
-            mainTitle: 'Rumah Sakit',
-            title: 'Rumah Sakit | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Rumah Sakit' }],
+            mainTitle: 'Faskes',
+            title: 'Faskes | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Faskes' }],
           },
         },
         {

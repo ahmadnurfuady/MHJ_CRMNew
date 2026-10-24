@@ -27,7 +27,7 @@
         <small>Peluang</small>
         <h5>{{ shortProjectTitle(project.projectName) }}</h5>
         <p>
-          <span>{{ project.companyName || 'Rumah sakit belum ditentukan' }}</span>
+          <span>{{ project.companyName || 'Faskes belum ditentukan' }}</span>
         </p>
       </div>
     </div>

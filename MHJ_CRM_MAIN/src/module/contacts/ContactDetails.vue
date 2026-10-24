@@ -23,7 +23,7 @@
             id="contact-search-input"
             v-model="searchQuery"
             type="search"
-            placeholder="Cari nama, rumah sakit, atau nomor..."
+            placeholder="Cari nama, faskes, atau nomor..."
             autocomplete="off"
           />
           <span
@@ -46,12 +46,10 @@
           type="button"
           @click="openContactModal"
         >
-          <SolarIcon
-            name="users"
+          <MhjIcon
+            name="contact_card"
+            class="add-contact-header-button__icon"
             :size="18"
-            color="#fff"
-            secondary-color="#fff"
-            :secondary-opacity="0.85"
             aria-hidden="true"
           />
           <span>Tambah Kontak Baru</span>
@@ -131,7 +129,7 @@
                   </div>
                 </div>
               </td>
-              <td data-label="Rumah Sakit">
+              <td data-label="Faskes">
                 <span
                   class="cell-primary mhj-cell-ellipsis contact-table__bounded-text"
                   :title="hospitalLabel(contact)"
@@ -283,7 +281,7 @@ const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 const contactTableColumns = [
   { label: "Nama", defaultWidth: 300, minWidth: 220 },
-  { label: "Rumah Sakit", defaultWidth: 220, minWidth: 140 },
+  { label: "Faskes", defaultWidth: 220, minWidth: 140 },
   { label: "Jabatan", defaultWidth: 320, minWidth: 140 },
   { label: "Peluang", defaultWidth: 110, minWidth: 90 },
   { label: "Aktivitas", defaultWidth: 120, minWidth: 100 },
@@ -610,6 +608,13 @@ onBeforeUnmount(() => {
 .add-contact-header-button svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+.add-contact-header-button .add-contact-header-button__icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  filter: brightness(0) invert(1);
 }
 
 .contact-table-wrap {

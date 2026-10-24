@@ -310,8 +310,9 @@
   "Cabang": "Branch",
   "Devisi": "Division",
   "Tipe Marketing": "Marketing Type",
-  "Rumah Sakit": "Hospital",
-  "Hospital": "Hospital",
+  "Rumah Sakit": "Healthcare Facility",
+  "Hospital": "Healthcare Facility",
+  "Faskes": "Healthcare Facility",
   "Task": "Task",
   "Report": "Report",
   "New": "New",
@@ -379,7 +380,7 @@
     "city": "City",
     "source": "Source",
     "gender": "Gender",
-    "company": "Hospital/Healthcare Facility",
+    "company": "Healthcare Facility",
     "project": "Project",
     "save": "Save",
     "addPhone": "Add phone number",
@@ -399,7 +400,7 @@
       "selectProvinceFirst": "Select a province first",
       "source": "Select contact source",
       "gender": "Select M / F",
-      "company": "Search hospital",
+      "company": "Search healthcare facility",
       "project": "Search opportunity name"
     }
   }

@@ -12,12 +12,12 @@
       <div class="modal-body custom-input rumah-sakit-form-body">
         <div class="row g-3">
           <div class="col-12">
-            <InputWrapper title="Nama Rumah Sakit" required>
+            <InputWrapper title="Nama Faskes" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.name"
                 :formSubmitted="contactState.formSubmitted"
                 inputId="rs-name"
-                placeholder="Masukkan nama rumah sakit / faskes..."
+                placeholder="Masukkan nama faskes..."
                 :disabled="readOnly"
               />
             </InputWrapper>
@@ -247,7 +247,7 @@
                 :formSubmitted="contactState.formSubmitted"
                 inputId="rs-address"
                 inputType="textarea"
-                placeholder="Masukkan alamat lengkap rumah sakit..."
+                placeholder="Masukkan alamat lengkap faskes..."
                 :rows="2"
                 :disabled="readOnly"
               />
@@ -474,7 +474,7 @@ const containerProps = computed(() =>
   props.inline
     ? {}
     : {
-        title: isEditing.value ? "Edit Rumah Sakit" : "Tambah Rumah Sakit",
+        title: isEditing.value ? "Edit Faskes" : "Tambah Faskes",
         modalOpen: contactState.value.openAddContactModal,
         sizeClass: "modal-xl",
       },

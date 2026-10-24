@@ -98,7 +98,7 @@ export interface CompanyDetail {
 export const companyDetails: Record<string, CompanyDetail> = {
   "RS Mata Surabaya": {
     name: "RS Mata Surabaya",
-    type: "Rumah Sakit Khusus Mata",
+    type: "Faskes Khusus Mata",
     address: "Jl. Raya Darmo, Surabaya, Jawa Timur",
     phone: "(031) 555-0188",
     website: "https://example.com/rs-mata-surabaya",
@@ -133,7 +133,7 @@ export const companyDetails: Record<string, CompanyDetail> = {
   },
   "RSUD Dr. Soetomo": {
     name: "RSUD Dr. Soetomo",
-    type: "Rumah Sakit Pemerintah",
+    type: "Faskes Pemerintah",
     address: "Jl. Mayjen Prof. Dr. Moestopo, Surabaya, Jawa Timur",
     phone: "(031) 550-1078",
     website: "https://example.com/rsud-dr-soetomo",
@@ -174,7 +174,7 @@ export const companyDetails: Record<string, CompanyDetail> = {
   },
   "RS Siloam Surabaya": {
     name: "RS Siloam Surabaya",
-    type: "Rumah Sakit Swasta",
+    type: "Faskes Swasta",
     address: "Jl. Raya Gubeng, Surabaya, Jawa Timur",
     phone: "(031) 503-1333",
     website: "https://example.com/rs-siloam-surabaya",
