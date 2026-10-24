@@ -93,6 +93,13 @@ function activityIcon(type: ActivityType): MhjIconName {
   gap: 12px;
 }
 
+@media (min-width: 1200px) {
+  .activity-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 28px;
+  }
+}
+
 .activity-item__icon {
   display: grid;
   place-items: center;

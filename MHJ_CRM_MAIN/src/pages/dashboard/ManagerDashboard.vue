@@ -6,16 +6,11 @@
     </div>
 
     <template v-else-if="data">
+      <KeyMetricsGrid :kpis="data.kpis" />
+
       <header class="manager-dashboard__header">
-        <div>
-          <p class="manager-dashboard__eyebrow">Ringkasan kinerja</p>
-          <h1>Selamat datang, {{ data.greetingName }}</h1>
-          <p>Pantau target, peluang, dan aktivitas tim dalam satu tampilan.</p>
-        </div>
         <QuickActions :actions="data.quickActions" />
       </header>
-
-      <KeyMetricsGrid :kpis="data.kpis" />
 
       <div class="manager-dashboard__content">
         <div class="manager-dashboard__row manager-dashboard__row--overview">
@@ -26,6 +21,8 @@
         </div>
         <div class="manager-dashboard__row manager-dashboard__row--details">
           <AreaMarketCoverage :coverage="data.coverage" />
+        </div>
+        <div class="manager-dashboard__row manager-dashboard__row--activity">
           <RecentActivity :activities="data.activities" />
         </div>
       </div>
@@ -79,37 +76,13 @@ onMounted(loadDashboard)
 
 .manager-dashboard__header {
   display: grid;
-  grid-template-columns: minmax(260px, 0.8fr) minmax(420px, 1.2fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 24px;
   border: 1px solid #e9edf1;
   border-radius: 20px;
-  padding: 22px 24px;
+  padding: 18px 24px;
   background: #fff;
   box-shadow: 0 6px 20px rgba(27, 43, 65, 0.04);
-}
-
-.manager-dashboard__eyebrow {
-  margin: 0 0 5px;
-  color: var(--app-primary);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.manager-dashboard__header h1 {
-  margin: 0;
-  color: #17212b;
-  font-size: clamp(22px, 2vw, 30px);
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.manager-dashboard__header p:last-child {
-  margin: 7px 0 0;
-  color: #7d8a94;
-  font-size: 13px;
 }
 
 .manager-dashboard__content {
@@ -125,10 +98,13 @@ onMounted(loadDashboard)
 }
 
 .manager-dashboard__row--overview {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: stretch;
 }
 
-.manager-dashboard__row--details {
+.manager-dashboard__row--details,
+.manager-dashboard__row--activity {
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
 
@@ -162,7 +138,6 @@ onMounted(loadDashboard)
 }
 
 @media (max-width: 1199px) {
-  .manager-dashboard__header,
   .manager-dashboard__row {
     grid-template-columns: 1fr;
   }
@@ -174,8 +149,7 @@ onMounted(loadDashboard)
   }
 
   .manager-dashboard__header {
-    gap: 16px;
-    padding: 18px;
+    padding: 16px 14px;
   }
 
 }

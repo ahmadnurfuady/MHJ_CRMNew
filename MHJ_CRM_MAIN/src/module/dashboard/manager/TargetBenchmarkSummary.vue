@@ -180,9 +180,9 @@ function shortProgressLabel(label: string): string {
 
 .benchmark-visual {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(190px, 0.65fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
-  gap: 24px;
+  gap: 20px;
 }
 
 .benchmark-bars {
@@ -259,11 +259,12 @@ function shortProgressLabel(label: string): string {
 
 .benchmark-score {
   display: grid;
-  align-content: center;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
   justify-items: center;
-  gap: 16px;
-  border-left: 1px solid #edf1f4;
-  padding-left: 24px;
+  gap: 20px;
+  border-top: 1px solid #edf1f4;
+  padding-top: 20px;
 }
 
 .benchmark-score__ring {
@@ -330,16 +331,10 @@ function shortProgressLabel(label: string): string {
     padding: 18px;
   }
 
-  .benchmark-visual {
-    grid-template-columns: 1fr;
-  }
-
   .benchmark-score {
-    grid-template-columns: auto minmax(0, 1fr);
-    border-top: 1px solid #edf1f4;
-    border-left: 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
     padding-top: 18px;
-    padding-left: 0;
   }
 
   .benchmark-score__ring {
