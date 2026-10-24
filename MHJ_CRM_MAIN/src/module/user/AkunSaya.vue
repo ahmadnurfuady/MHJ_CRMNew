@@ -1,18 +1,33 @@
 <template>
   <div class="card">
     <div class="card-header card-no-border d-flex align-items-center gap-3">
-      <router-link :to="routes.Dashboards.Default" class="btn btn-light btn-sm">
+      <button type="button" class="btn btn-light btn-sm" @click="handleBack">
         <vue-feather type="arrow-left" size="15" class="me-1" />
         Kembali
-      </router-link>
+      </button>
       <div>
-        <h4 class="mb-0">Akun Saya</h4>
-        <p class="f-m-light mt-1 mb-0">Informasi akun Anda yang terdaftar di sistem.</p>
+        <h4 class="mb-0">{{ isDetailMode ? 'Detail Pengguna' : 'Akun Saya' }}</h4>
+        <p class="f-m-light mt-1 mb-0">
+          {{
+            isDetailMode
+              ? 'Informasi pengguna yang terdaftar di sistem.'
+              : 'Informasi akun Anda yang terdaftar di sistem.'
+          }}
+        </p>
       </div>
     </div>
 
     <div class="card-body">
-      <div v-if="!user" class="text-center py-5 text-muted f-m-light">
+      <div v-if="detailLoading" class="text-center py-5 text-muted f-m-light">
+        <span class="spinner-border spinner-border-sm text-primary me-2" aria-hidden="true"></span>
+        Memuat detail pengguna...
+      </div>
+
+      <div v-else-if="detailError" class="text-center py-5 text-danger f-m-light">
+        {{ detailError }}
+      </div>
+
+      <div v-else-if="!user" class="text-center py-5 text-muted f-m-light">
         Data pengguna tidak tersedia.
       </div>
 
@@ -23,18 +38,21 @@
             <vue-feather type="user" size="40" />
           </div>
           <div class="fw-bold f-16 mt-2 text-center">{{ fullName }}</div>
-          <div class="akun-role-badge mt-1" :class="user.role === 'MGR' ? 'akun-role--mgr' : 'akun-role--stf'">
-            <vue-feather :type="user.role === 'MGR' ? 'briefcase' : 'user'" size="12" class="me-1" />
-            {{ user.role === 'MGR' ? 'Manager' : 'Karyawan' }}
+          <div
+            class="akun-role-badge mt-1"
+            :class="isManager ? 'akun-role--mgr' : 'akun-role--stf'"
+          >
+            <vue-feather :type="isManager ? 'briefcase' : 'user'" size="12" class="me-1" />
+            {{ roleLabel }}
           </div>
         </div>
 
         <!-- Data fields -->
         <div class="akun-fields">
-          <AkunField icon="user" label="Nama Depan" :value="user.firstname" />
-          <AkunField icon="user" label="Nama Belakang" :value="user.lastname" />
-          <AkunField icon="mail" label="Email" :value="user.email" />
-          <AkunField icon="phone" label="No. Handphone" :value="user.no_handphone" />
+          <AkunField icon="user" label="Nama Depan" :value="user.firstname ?? undefined" />
+          <AkunField icon="user" label="Nama Belakang" :value="user.lastname ?? undefined" />
+          <AkunField icon="mail" label="Email" :value="user.email ?? undefined" />
+          <AkunField icon="phone" label="No. Handphone" :value="phoneNumber" />
           <AkunField icon="credit-card" label="NIK" :value="user.nik ?? undefined" />
 
           <AkunField icon="briefcase" label="Jabatan" :value="jabatanLabel" />
@@ -60,30 +78,42 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { routes } from '@/router/routes'
 import { useAuthStore } from '@/store/auth'
 import { toCodeArray, userService } from '@/services/userService'
-import type { MasterOption, UserMasterOptions } from '@/types/user'
+import type { MasterOption, UserCrmItem, UserMasterOptions } from '@/types/user'
+
+const props = defineProps<{
+  userId?: number
+}>()
 
 const authStore = useAuthStore()
-const user = computed(() => authStore.user as (typeof authStore.user & {
-  firstname?: string | null
-  lastname?: string | null
-  no_handphone?: string | null
-  nik?: string | null
-  role?: string | null
-  idjabatan?: string | null
-  KodeCabang?: unknown
-  KodeDevisi?: unknown
-  KodeTipeMarketing?: unknown
-}) | null)
+const router = useRouter()
+const detailUser = ref<UserCrmItem | null>(null)
+const detailLoading = ref(false)
+const detailError = ref('')
+const isDetailMode = computed(() => Number.isFinite(props.userId) && Number(props.userId) > 0)
+const user = computed<UserCrmItem | null>(() => {
+  if (isDetailMode.value) return detailUser.value
+  return authStore.user as unknown as UserCrmItem | null
+})
 
 const fullName = computed(() => {
   if (!user.value) return ''
   const parts = [user.value.firstname, user.value.lastname].filter(Boolean)
   return parts.length ? parts.join(' ') : (user.value.name ?? '')
 })
+
+const normalizedRole = computed(() => String(user.value?.role ?? '').trim().toUpperCase())
+const isManager = computed(() => ['MGR', 'MANAGER'].includes(normalizedRole.value))
+const roleLabel = computed(() => {
+  if (isManager.value) return 'Manager'
+  if (['STF', 'STAFF'].includes(normalizedRole.value)) return 'Karyawan'
+  return user.value?.role?.trim() || 'Karyawan'
+})
+const phoneNumber = computed(() => user.value?.no_handphone || user.value?.Telephone || '-')
 
 const masterOptions = ref<UserMasterOptions>({
   cabang: [],
@@ -109,6 +139,43 @@ function labelsFor(options: MasterOption[], value: unknown): string {
   if (codes.length === 0) return '-'
   return codes.map((c) => labelFor(options, c)).join(', ')
 }
+
+function handleBack() {
+  if (!isDetailMode.value) {
+    void router.push(routes.Dashboards.Default)
+    return
+  }
+
+  if (window.history.state?.back) {
+    router.back()
+    return
+  }
+  void router.push(routes.User.UserList)
+}
+
+async function loadDetailUser(userId?: number) {
+  detailUser.value = null
+  detailError.value = ''
+  if (!userId || !Number.isFinite(userId) || userId <= 0) return
+
+  detailLoading.value = true
+  try {
+    const selectedUser = await userService.fetchUserById(userId)
+    if (!selectedUser) throw new Error('Data pengguna tidak ditemukan.')
+    detailUser.value = selectedUser
+  } catch (error) {
+    detailError.value =
+      error instanceof Error ? error.message : 'Gagal memuat detail pengguna.'
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+watch(
+  () => props.userId,
+  (userId) => void loadDetailUser(userId),
+  { immediate: true }
+)
 
 onMounted(async () => {
   masterOptions.value = await userService.loadMasterOptions()

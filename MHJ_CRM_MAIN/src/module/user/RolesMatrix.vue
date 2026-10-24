@@ -35,31 +35,56 @@
       <!-- Toolbar Aksi Cepat Izin Menu -->
       <div
         v-if="rows.length > 0 && !loadingRows"
-        class="d-flex flex-wrap gap-2 mb-3 align-items-center bg-light p-2 rounded"
+        class="d-flex flex-wrap gap-2 mb-3 align-items-center p-2 rounded quick-actions-toolbar"
       >
-        <span class="f-w-600 f-13 text-secondary me-1">
-          <SolarIcon name="fa-sliders" class="me-1" /> Aksi Cepat:
+        <span class="f-w-600 f-13 text-secondary me-1 quick-actions-label">
+          <SolarIcon name="fa-sliders" :size="14" />
+          Aksi Cepat:
         </span>
         <button
           type="button"
-          class="btn btn-xs btn-outline-primary"
+          class="btn btn-outline-primary quick-action-btn"
           @click="setAllPermissions(true)"
         >
-          <SolarIcon name="fa-check-double" class="me-1" /> Beri Semua Hak Akses
+          <SolarIcon
+            name="fa-check-double"
+            :size="16"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="0.45"
+            class="quick-action-btn__icon"
+          />
+          Beri Semua Hak Akses
         </button>
         <button
           type="button"
-          class="btn btn-xs btn-outline-info"
+          class="btn btn-outline-info quick-action-btn"
           @click="setReadOnlyAccess()"
         >
-          <SolarIcon name="fa-eye" class="me-1" /> Hanya Akses Baca (View)
+          <SolarIcon
+            name="fa-eye"
+            :size="16"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="0.45"
+            class="quick-action-btn__icon"
+          />
+          Hanya Akses Baca (View)
         </button>
         <button
           type="button"
-          class="btn btn-xs btn-outline-secondary"
+          class="btn btn-outline-secondary quick-action-btn"
           @click="setAllPermissions(false)"
         >
-          <SolarIcon name="fa-ban" class="me-1" /> Kosongkan Semua
+          <SolarIcon
+            name="fa-ban"
+            :size="16"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="0.45"
+            class="quick-action-btn__icon"
+          />
+          Kosongkan Semua
         </button>
       </div>
 
@@ -475,6 +500,98 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ─── Toolbar Aksi Cepat: ikon & teks sejajar tengah, hover lebih kontras ── */
+.quick-actions-toolbar {
+  row-gap: 0.5rem;
+  background-color: #ffffff !important;
+  border: 1px solid #e6e9eb;
+}
+
+.quick-actions-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+  padding: 0.5rem 1rem;
+  font-size: 13px;
+  border-radius: 6px;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.quick-action-btn__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+/*
+ * Tampilan diam (bukan hover) didefinisikan eksplisit di sini, bukan
+ * mengandalkan warna outline tema global (sebagian pucat/rendah kontras).
+ * Hanya :hover sungguhan yang memicu isian warna gelap; klik/tab/hover
+ * di area kosong card abu-abu di sekitarnya tidak mengubah apa pun.
+ */
+.quick-action-btn,
+.quick-action-btn:focus,
+.quick-action-btn:active {
+  box-shadow: none !important;
+}
+
+.quick-action-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.quick-action-btn.btn-outline-primary,
+.quick-action-btn.btn-outline-primary:focus,
+.quick-action-btn.btn-outline-primary:active {
+  background-color: rgba(24, 166, 228, 0.08) !important;
+  border-color: rgba(24, 166, 228, 0.4) !important;
+  color: #0369a1 !important;
+}
+
+.quick-action-btn.btn-outline-info,
+.quick-action-btn.btn-outline-info:focus,
+.quick-action-btn.btn-outline-info:active {
+  background-color: rgba(14, 116, 144, 0.08) !important;
+  border-color: rgba(14, 116, 144, 0.4) !important;
+  color: #0b5a70 !important;
+}
+
+.quick-action-btn.btn-outline-secondary,
+.quick-action-btn.btn-outline-secondary:focus,
+.quick-action-btn.btn-outline-secondary:active {
+  background-color: rgba(71, 85, 105, 0.08) !important;
+  border-color: rgba(71, 85, 105, 0.4) !important;
+  color: #475569 !important;
+}
+
+.quick-action-btn.btn-outline-primary:hover {
+  background-color: #0369a1 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+}
+
+.quick-action-btn.btn-outline-info:hover {
+  background-color: #0b5a70 !important;
+  border-color: #0b5a70 !important;
+  color: #ffffff !important;
+}
+
+.quick-action-btn.btn-outline-secondary:hover {
+  background-color: #475569 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
 /* ─── Sticky table header ───────────────────────────────────────────────── */
 .crm-table-scroll {
   /* Tabel scroll sendiri; header kolom tetap terlihat saat baris panjang di-scroll */

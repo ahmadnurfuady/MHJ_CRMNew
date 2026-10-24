@@ -16,7 +16,7 @@
       name="pin"
       class="sidebar-pin"
       :class="{ 'is-pinned': menuItem.title && menuState.pinedArray.includes(menuItem.title) }"
-      :size="20"
+      :size="24"
       color="#ffffff"
       secondary-color="#ffffff"
       :secondary-opacity="1"

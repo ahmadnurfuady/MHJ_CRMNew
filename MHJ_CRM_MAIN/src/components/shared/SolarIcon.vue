@@ -63,6 +63,7 @@ import { ForbiddenCircleIcon } from "@solar-icons/vue/bold-duotone/forbidden-cir
 import { ForwardIcon } from "@solar-icons/vue/bold-duotone/forward";
 import { GalleryIcon } from "@solar-icons/vue/bold-duotone/gallery";
 import { GiftIcon } from "@solar-icons/vue/bold-duotone/gift";
+import { GitForkIcon } from "@solar-icons/vue/bold-duotone/git-fork";
 import { GlobalIcon } from "@solar-icons/vue/bold-duotone/global";
 import { GraphUpIcon } from "@solar-icons/vue/bold-duotone/graph-up";
 import { HamburgerMenuIcon } from "@solar-icons/vue/bold-duotone/hamburger-menu";
@@ -93,6 +94,7 @@ import { MinusIcon } from "@solar-icons/vue/bold-duotone/minus";
 import { NotesIcon } from "@solar-icons/vue/bold-duotone/notes";
 import { PaperclipIcon } from "@solar-icons/vue/bold-duotone/paperclip";
 import { Pen2Icon } from "@solar-icons/vue/bold-duotone/pen-2";
+import { PenNewSquareIcon } from "@solar-icons/vue/bold-duotone/pen-new-square";
 import { PhoneIcon } from "@solar-icons/vue/bold-duotone/phone";
 import { PinIcon } from "@solar-icons/vue/bold-duotone/pin";
 import { PrinterIcon } from "@solar-icons/vue/bold-duotone/printer";
@@ -105,6 +107,7 @@ import { SettingsIcon } from "@solar-icons/vue/bold-duotone/settings";
 import { SatelliteIcon } from "@solar-icons/vue/bold-duotone/satellite";
 import { ShareIcon } from "@solar-icons/vue/bold-duotone/share";
 import { ShieldCheckIcon } from "@solar-icons/vue/bold-duotone/shield-check";
+import { ShieldUserIcon } from "@solar-icons/vue/bold-duotone/shield-user";
 import { ShieldWarningIcon } from "@solar-icons/vue/bold-duotone/shield-warning";
 import { SmileCircleIcon } from "@solar-icons/vue/bold-duotone/smile-circle";
 import { SortIcon } from "@solar-icons/vue/bold-duotone/sort";
@@ -194,6 +197,7 @@ const icons: Record<string, Component> = {
   forward: ForwardIcon,
   gallery: GalleryIcon,
   gift: GiftIcon,
+  "git-fork": GitForkIcon,
   global: GlobalIcon,
   graph: GraphUpIcon,
   menu: HamburgerMenuIcon,
@@ -224,6 +228,7 @@ const icons: Record<string, Component> = {
   notes: NotesIcon,
   paperclip: PaperclipIcon,
   pen: Pen2Icon,
+  "pen-new-square": PenNewSquareIcon,
   phone: PhoneIcon,
   pin: PinIcon,
   printer: PrinterIcon,
@@ -236,6 +241,7 @@ const icons: Record<string, Component> = {
   satellite: SatelliteIcon,
   share: ShareIcon,
   "shield-check": ShieldCheckIcon,
+  "shield-user": ShieldUserIcon,
   "shield-warning": ShieldWarningIcon,
   smile: SmileCircleIcon,
   sort: SortIcon,

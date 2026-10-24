@@ -13,7 +13,7 @@
           </div>
         </div>
         <button class="btn btn-primary promo-add-button" type="button" @click="openCreate">
-          <vue-feather type="plus" size="18" />
+          <vue-feather type="plus" :size="17" color="#fff" secondary-color="#fff" />
           Tambah Promo
         </button>
       </header>
@@ -949,21 +949,27 @@ onMounted(() => {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  min-height: 42px;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  box-sizing: border-box;
   padding: 0 18px;
   border-color: var(--promo-blue);
   border-radius: 8px;
   color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
   background: var(--promo-blue);
   box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
 }
 
 .promo-add-button:hover,
 .promo-add-button:focus {
-  border-color: #1493cc;
-  color: #fff;
-  background: #1493cc;
+  border-color: #1493cc !important;
+  color: #fff !important;
+  background: #1493cc !important;
 }
 
 .promo-overview__metrics {

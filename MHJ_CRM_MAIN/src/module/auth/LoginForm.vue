@@ -1,16 +1,16 @@
 <template>
-  <form class="theme-form" @submit.prevent="submit()">
-    <h4>Sign in to account</h4>
-    <p>Enter your email &amp; password to login</p>
+  <form class="theme-form login-form" @submit.prevent="submit()">
+    <h4>Masuk ke akun</h4>
+    <p>Masukkan email dan password untuk masuk</p>
     <div class="form-group">
-      <InputWrapper :title="'Email / Username'" :required="true">
+      <InputWrapper :title="'Email'" :required="true">
         <InputField
           :formSubmitted="formSubmitted"
-          :errorMessage="'Email atau Username wajib diisi.'"
+          :errorMessage="'Email wajib diisi.'"
           v-model:modelValue="form.email"
           :inputId="'email'"
-          :placeholder="'email@domain.com atau username'"
-          :inputType="'text'"
+          :placeholder="'nama@domain.com'"
+          :inputType="'email'"
           :browserValidation="props.browserValidation"
         />
       </InputWrapper>
@@ -36,8 +36,14 @@
     </div>
     <div class="form-group mb-0">
       <div class="form-check">
-        <input class="checkbox-primary form-check-input" id="checkbox1" type="checkbox" />
-        <label class="text-muted form-check-label" for="checkbox1">Remember password</label>
+        <input
+          v-model="rememberPassword"
+          class="checkbox-primary form-check-input"
+          id="remember-password"
+          type="checkbox"
+          @change="handleRememberChange"
+        />
+        <label class="text-muted form-check-label" for="remember-password">Ingat password</label>
       </div>
       <router-link class="link" :to="routes.Auth.ForgotPassword">Lupa password?</router-link>
       <div class="text-end">
@@ -52,51 +58,19 @@
             role="status"
             aria-hidden="true"
           ></span>
-          {{ authStore.loading ? 'Signing in...' : 'Sign in' }}
+          {{ authStore.loading ? 'Sedang masuk...' : 'Masuk' }}
         </button>
       </div>
     </div>
-    <h6 class="text-muted mt-4 or">Or Sign in with</h6>
-    <div class="social mt-4">
-      <div class="btn-showcase">
-        <a
-          class="btn btn-light social-disabled"
-          href="javascript:void(0)"
-          role="button"
-          aria-disabled="true"
-          @click.prevent
-        >
-          <vue-feather :type="'linkedin'" class="txt-linkedin"></vue-feather> LinkedIn
-        </a>
-        <a
-          class="btn btn-light social-disabled"
-          href="javascript:void(0)"
-          role="button"
-          aria-disabled="true"
-          @click.prevent
-        >
-          <vue-feather :type="'twitter'" class="txt-twitter"></vue-feather>twitter
-        </a>
-        <a
-          class="btn btn-light social-disabled"
-          href="javascript:void(0)"
-          role="button"
-          aria-disabled="true"
-          @click.prevent
-        >
-          <vue-feather :type="'facebook'" class="txt-fb"></vue-feather> facebook
-        </a>
-      </div>
-    </div>
     <p class="mt-4 mb-0 text-center">
-      Don't have account?
-      <router-link class="ms-2" :to="props.path">Create Account</router-link>
+      Belum punya akun?
+      <router-link class="ms-2" :to="props.path">Buat akun</router-link>
     </p>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, defineAsyncComponent } from 'vue'
+import { ref, reactive, defineAsyncComponent, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 import { useRouter } from 'vue-router'
 import { initInputField } from '@/core/data/common'
@@ -130,13 +104,62 @@ const props = withDefaults(
 const router = useRouter()
 const authStore = useAuthStore()
 
+const REMEMBERED_LOGIN_KEY = 'mhj_remembered_login'
+
 const formSubmitted = ref(false)
 const showPassword = ref(false)
+const rememberPassword = ref(false)
 
 let form = reactive({
   email: initInputField(),
   password: initInputField(),
 })
+
+onMounted(() => {
+  try {
+    const savedLogin = localStorage.getItem(REMEMBERED_LOGIN_KEY)
+    if (!savedLogin) return
+
+    const credentials = JSON.parse(savedLogin) as { email?: unknown; password?: unknown }
+    if (typeof credentials.email !== 'string' || typeof credentials.password !== 'string') {
+      removeRememberedLogin()
+      return
+    }
+
+    form.email.data = credentials.email
+    form.password.data = credentials.password
+    rememberPassword.value = true
+  } catch {
+    removeRememberedLogin()
+  }
+})
+
+function removeRememberedLogin() {
+  try {
+    localStorage.removeItem(REMEMBERED_LOGIN_KEY)
+  } catch {
+    // Abaikan jika browser memblokir penyimpanan lokal.
+  }
+}
+
+function handleRememberChange() {
+  if (!rememberPassword.value) {
+    removeRememberedLogin()
+  }
+}
+
+function saveRememberedLogin(email: string, password: string) {
+  try {
+    if (!rememberPassword.value) {
+      removeRememberedLogin()
+      return
+    }
+
+    localStorage.setItem(REMEMBERED_LOGIN_KEY, JSON.stringify({ email, password }))
+  } catch {
+    // Login tetap dilanjutkan bila browser memblokir penyimpanan lokal.
+  }
+}
 
 function togglePassword() {
   showPassword.value = !showPassword.value
@@ -149,7 +172,7 @@ async function submit() {
   if (isValid) {
     if (props.sweetAlert) {
       // Mode SweetAlert (halaman demo khusus sweetAlert di template Riho)
-      Swal.fire('Success!', `Email: ${formData.email}\nPassword: ${formData.password}`, 'success')
+      Swal.fire('Berhasil!', `Email: ${formData.email}\nPassword: ${formData.password}`, 'success')
     } else {
       // ── Mode utama: Login ke backend API Laravel MHJ CRM ──
       const result = await authStore.login({
@@ -158,6 +181,7 @@ async function submit() {
       })
 
       if (result.success) {
+        saveRememberedLogin(formData.email as string, formData.password as string)
         toast.success(result.message || 'Login Berhasil!')
         router.replace(routes.Dashboards.Default)
       } else {
@@ -168,9 +192,9 @@ async function submit() {
     form = resetForm(form)
     formSubmitted.value = false
   } else if (props.sweetAlert) {
-    Swal.fire('Error!', 'Sorry, looks like some data are not filled, please try again !', 'error')
+    Swal.fire('Gagal!', 'Masih ada data yang belum diisi. Silakan coba lagi.', 'error')
   } else {
-    toast.error('Harap isi email/username dan password dengan benar.')
+    toast.error('Harap isi email dan password dengan benar.')
   }
 }
 </script>

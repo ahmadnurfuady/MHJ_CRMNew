@@ -278,10 +278,19 @@
                       v-model="form.scheduledAt"
                       class="form-control"
                       :class="{
-                        'is-invalid': formSubmitted && !form.scheduledAt,
+                        'is-invalid':
+                          formSubmitted && Boolean(scheduleValidationMessage),
                       }"
                       type="datetime-local"
+                      :min="minimumSchedule"
+                      @focus="refreshMinimumSchedule"
                     />
+                    <div
+                      v-if="formSubmitted && scheduleValidationMessage"
+                      class="invalid-feedback"
+                    >
+                      {{ scheduleValidationMessage }}
+                    </div>
                   </div>
 
                   <div class="col-md-6">
@@ -861,10 +870,19 @@ const stageOptions: DealOption[] = projectTab
   .filter((stage) => stage.value !== "all")
   .map((stage) => ({ value: stage.value, label: stage.title }));
 
-function defaultSchedule() {
-  const date = new Date(Date.now() + 60 * 60 * 1000);
+function toLocalDateTimeValue(date: Date) {
   date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
   return date.toISOString().slice(0, 16);
+}
+
+function currentScheduleMinimum() {
+  const date = new Date();
+  date.setSeconds(0, 0);
+  return toLocalDateTimeValue(date);
+}
+
+function defaultSchedule() {
+  return toLocalDateTimeValue(new Date(Date.now() + 60 * 60 * 1000));
 }
 
 function loggedInOwner() {
@@ -909,6 +927,20 @@ const hasManualTaskName = ref(false);
 const manualTaskName = ref("");
 const formSubmitted = ref(false);
 const validationMessage = ref("");
+const minimumSchedule = ref(currentScheduleMinimum());
+const scheduleValidationMessage = computed(() => {
+  if (!form.scheduledAt) return "Tanggal dan waktu kunjungan wajib diisi.";
+
+  const selectedTime = new Date(form.scheduledAt).getTime();
+  const minimumTime = new Date(minimumSchedule.value).getTime();
+  if (Number.isNaN(selectedTime))
+    return "Tanggal dan waktu kunjungan tidak valid.";
+  if (selectedTime < minimumTime) {
+    return "Tanggal dan waktu kunjungan tidak boleh di masa lalu.";
+  }
+
+  return "";
+});
 const locating = ref(false);
 // Flag khusus untuk fetch GPS yang dipicu capturePhoto (bukan dari tombol
 // "Cari lokasi"). Dipisah supaya UI tombol GPS tidak ikut berubah "Mengambil
@@ -932,6 +964,10 @@ let cameraStream: MediaStream | null = null;
 let addressRequestId = 0;
 let projectConfirmationRequestId = 0;
 let restoringProjectSelection = false;
+
+function refreshMinimumSchedule() {
+  minimumSchedule.value = currentScheduleMinimum();
+}
 
 function normalizeRelation(value: string) {
   return value.trim().toLocaleLowerCase("id-ID");
@@ -1978,8 +2014,8 @@ function validateForm() {
     );
   if (hospitalMissing) errors.push("Faskes wajib dipilih.");
   if (contactMissing) errors.push("Kontak wajib dipilih.");
-  if (!form.scheduledAt)
-    errors.push("Tanggal dan waktu kunjungan wajib diisi.");
+  if (scheduleValidationMessage.value)
+    errors.push(scheduleValidationMessage.value);
   if (divisionMissing) errors.push("Minimal satu divisi wajib dipilih.");
   if (productMissing)
     errors.push(
@@ -1991,6 +2027,7 @@ function validateForm() {
 }
 
 async function submitTask() {
+  refreshMinimumSchedule();
   formSubmitted.value = true;
   validationMessage.value = validateForm();
   if (validationMessage.value) return;
@@ -2123,6 +2160,7 @@ function handleModalHidden() {
 }
 
 function handleModalShow() {
+  refreshMinimumSchedule();
   if (!props.task) return;
   editModalOpen = true;
   allowModalClose = false;

@@ -108,6 +108,39 @@
     background-color: $white;
 
     .theme-form {
+      &.login-form {
+        input.form-control {
+          color: $theme-font-color;
+          font-weight: 400;
+
+          &::placeholder {
+            color: rgba($theme-font-color, 0.42);
+            font-weight: 300;
+            opacity: 1;
+          }
+
+          &::-webkit-input-placeholder {
+            color: rgba($theme-font-color, 0.42);
+            font-weight: 300;
+            opacity: 1;
+          }
+        }
+
+        .form-check-input {
+          border-color: rgba($theme-font-color, 0.55);
+
+          &:checked {
+            background-color: $theme-font-color;
+            border-color: $theme-font-color;
+          }
+
+          &:focus {
+            border-color: $theme-font-color;
+            box-shadow: 0 0 0 3px rgba($theme-font-color, 0.15);
+          }
+        }
+      }
+
       h4 {
         margin-bottom: 5px;
       }

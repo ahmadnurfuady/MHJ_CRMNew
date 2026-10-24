@@ -4,10 +4,12 @@
       <h4 class="mb-0">Master Jabatan</h4>
       <button
         v-if="canMasterJabatan('tambah')"
-        class="btn btn-primary f-w-500"
+        type="button"
+        class="btn btn-primary add-jabatan-button"
         @click="openCreate"
       >
-        <SolarIcon name="fa-plus" class="pe-2" />Tambah Jabatan
+        <SolarIcon name="add" :size="17" color="#fff" secondary-color="#fff" aria-hidden="true" />
+        <span>Tambah Jabatan</span>
       </button>
     </div>
 
@@ -73,24 +75,40 @@
               <td>{{ row.item.keterangan || '-' }}</td>
               <td>{{ formatDate(row.item.created_at) }}</td>
               <td class="text-end text-nowrap">
-                <div class="product-action common-align gap-2 justify-content-end">
+                <div class="user-actions">
                   <a
                     v-if="canMasterJabatan('koreksi')"
-                    class="square-white"
+                    class="user-action-button user-action-button--edit"
                     title="Edit jabatan"
+                    aria-label="Edit jabatan"
                     href="#"
                     @click.prevent="openEdit(row.item)"
                   >
-                    <SvgIcon icon="edit-content" style="width: 25px; height: 25px;" />
+                    <SolarIcon
+                      name="pen-new-square"
+                      class="user-action-icon"
+                      :size="28"
+                      color="var(--theme-default, #18a6e4)"
+                      secondary-color="var(--theme-default, #18a6e4)"
+                      :secondary-opacity="0.4"
+                    />
                   </a>
                   <a
                     v-if="canMasterJabatan('hapus')"
-                    class="square-white"
+                    class="user-action-button user-action-button--delete"
                     title="Hapus jabatan"
+                    aria-label="Hapus jabatan"
                     href="#"
                     @click.prevent="confirmDelete(row.item)"
                   >
-                    <SvgIcon icon="trash1" style="width: 25px; height: 25px;" />
+                    <SolarIcon
+                      name="trash"
+                      class="user-action-icon"
+                      :size="28"
+                      color="var(--theme-default, #18a6e4)"
+                      secondary-color="var(--theme-default, #18a6e4)"
+                      :secondary-opacity="0.4"
+                    />
                   </a>
                 </div>
               </td>
@@ -164,10 +182,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, defineAsyncComponent } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import Swal from 'sweetalert2'
 
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 
 import { masterDataService } from '@/services/masterDataService'
@@ -414,6 +431,40 @@ onMounted(fetchList)
 </script>
 
 <style scoped>
+/* ─── Tombol Tambah Jabatan (disamakan dengan tombol Tambah User) ───────── */
+.add-jabatan-button {
+  display: inline-flex;
+  width: auto;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-color: #18a6e4 !important;
+  border-radius: 8px;
+  margin: 0 !important;
+  padding: 0 18px;
+  background-color: #18a6e4 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+}
+
+.add-jabatan-button:hover,
+.add-jabatan-button:focus {
+  border-color: #1493cc !important;
+  background-color: #1493cc !important;
+}
+
+.add-jabatan-button span,
+.add-jabatan-button svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 .tree-cell {
   display: flex;
   align-items: center;
@@ -446,6 +497,70 @@ button.tree-toggle:hover {
 .tree-leaf i {
   font-size: 5px;
 }
+
+/* ─── Tombol aksi (disamakan dengan User List) ──────────────────────────── */
+.user-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.user-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid
+    color-mix(in srgb, var(--theme-default, #18a6e4) 18%, #edf1f5);
+  border-radius: 8px;
+  background-color: color-mix(
+    in srgb,
+    var(--theme-default, #18a6e4) 5%,
+    #fff
+  );
+  box-shadow: 0 3px 12px
+    color-mix(in srgb, var(--theme-default, #18a6e4) 10%, transparent);
+  line-height: 1;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.user-action-button:hover {
+  border-color: var(--theme-default, #18a6e4);
+  background-color: var(--theme-default, #18a6e4);
+  box-shadow: 0 5px 14px
+    color-mix(in srgb, var(--theme-default, #18a6e4) 28%, transparent);
+  transform: translateY(-1px);
+}
+
+.user-action-button:focus-visible {
+  outline: 2px solid var(--theme-default, #18a6e4);
+  outline-offset: 2px;
+}
+
+.user-action-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.user-action-button:hover :deep(.user-action-icon) {
+  color: #fff !important;
+  --solar-secondary-color: #fff !important;
+  --solar-secondary-opacity: 0.5 !important;
+}
+
+.user-action-button--delete:hover {
+  border-color: var(--bs-danger, #dc3545);
+  background-color: var(--bs-danger, #dc3545);
+  box-shadow: 0 5px 14px
+    color-mix(in srgb, var(--bs-danger, #dc3545) 30%, transparent);
+}
+
 .action-btn {
   display: inline-flex;
   align-items: center;
