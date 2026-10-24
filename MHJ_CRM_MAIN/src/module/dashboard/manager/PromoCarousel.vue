@@ -44,8 +44,13 @@
           </div>
         </div>
       </SwiperSlide>
-      <div class="promo-swiper-pagination"></div>
     </Swiper>
+
+    <div
+      v-if="!loading && slides.length > 1"
+      class="promo-swiper-pagination"
+      aria-label="Navigasi slide promo"
+    ></div>
   </section>
 </template>
 
@@ -76,9 +81,11 @@ function markImageAsFailed(id: PromoSlide['id']) {
 <style scoped>
 .promo-carousel {
   display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 14px;
   width: 100%;
   min-width: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -115,7 +122,7 @@ function markImageAsFailed(id: PromoSlide['id']) {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 160px;
+  min-height: 160px;
   border: 1px dashed #dde4e9;
   border-radius: 16px;
   color: #93a0aa;
@@ -127,15 +134,26 @@ function markImageAsFailed(id: PromoSlide['id']) {
   width: 100%;
   max-width: 100%;
   min-width: 0;
+  height: 100%;
+  min-height: 210px;
   overflow: hidden;
   border-radius: 16px;
+}
+
+.promo-swiper :deep(.swiper-wrapper) {
+  height: 100%;
+}
+
+.promo-swiper :deep(.swiper-slide) {
+  height: auto;
 }
 
 .promo-slide {
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  height: 190px;
+  height: 100%;
+  min-height: 210px;
   border-radius: 16px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%),
@@ -253,14 +271,13 @@ function markImageAsFailed(id: PromoSlide['id']) {
   position: static !important;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   height: 10px;
-  margin-top: 12px;
-  padding-left: 4px;
-  text-align: left;
+  text-align: center;
 }
 
-.promo-swiper :deep(.swiper-pagination-bullet) {
+.promo-swiper-pagination :deep(.swiper-pagination-bullet) {
   width: 7px;
   height: 7px;
   margin: 0 !important;
@@ -269,15 +286,16 @@ function markImageAsFailed(id: PromoSlide['id']) {
   transition: width 0.2s ease, opacity 0.2s ease;
 }
 
-.promo-swiper :deep(.swiper-pagination-bullet-active) {
+.promo-swiper-pagination :deep(.swiper-pagination-bullet-active) {
   width: 18px;
   border-radius: 999px;
   opacity: 1;
 }
 
 @media (max-width: 420px) {
+  .promo-swiper,
   .promo-slide {
-    height: 176px;
+    min-height: 176px;
   }
 
   .promo-slide__caption {
