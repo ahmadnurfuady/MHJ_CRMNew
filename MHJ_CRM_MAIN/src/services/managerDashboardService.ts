@@ -187,3 +187,85 @@ export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> 
   }
   return items
 }
+
+/**
+ * Row mentah dari `GET /api/tasks` (controller: `TaskController@index`).
+ * Hanya kolom yang dipakai untuk card Aktivitas Terbaru.
+ */
+interface TaskListRow {
+  id: number | string
+  task_name?: string | null
+  task_subject?: string | null
+  hospital_name?: string | null
+  company_name?: string | null
+  projects_name?: string | null
+  project_name?: string | null
+  status?: string | null
+  status_name?: string | null
+  due_date?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+}
+
+interface TaskListResponse {
+  tasks?: { data?: TaskListRow[] } | TaskListRow[]
+  data?: TaskListRow[]
+  list?: TaskListRow[]
+}
+
+function pickTaskRows(payload: TaskListResponse | TaskListRow[] | undefined): TaskListRow[] {
+  if (!payload) return []
+  if (Array.isArray(payload)) return payload
+  const t = payload.tasks
+  if (Array.isArray(t)) return t
+  if (t && Array.isArray(t.data)) return t.data
+  if (Array.isArray(payload.data)) return payload.data
+  if (Array.isArray(payload.list)) return payload.list
+  return []
+}
+
+function parseRowDate(row: TaskListRow): number {
+  const raw = row.updated_at || row.created_at || row.due_date || ''
+  if (!raw) return 0
+  const ts = new Date(raw.replace(' ', 'T')).getTime()
+  return Number.isFinite(ts) ? ts : 0
+}
+
+/**
+ * `GET /api/tasks` → ActivityItem[] untuk card Aktivitas Terbaru.
+ * Menampilkan tugas langsung (bukan baris activity_logs), diurutkan
+ * berdasarkan tanggal pembaruan/pembuatan terbaru.
+ */
+export async function fetchRecentTasks(limit = 5): Promise<ActivityItem[]> {
+  const response = await api.get<TaskListResponse>('/tasks')
+  const rows = pickTaskRows(response.data)
+  const sorted = [...rows].sort((a, b) => parseRowDate(b) - parseRowDate(a))
+
+  const items: ActivityItem[] = []
+  for (const row of sorted) {
+    if (items.length >= limit) break
+    const title = (row.task_name || row.task_subject || '').toString().trim()
+    if (!title) continue
+    const subtitle = (
+      row.hospital_name ||
+      row.company_name ||
+      row.projects_name ||
+      row.project_name ||
+      row.status_name ||
+      row.status ||
+      'Tugas CRM'
+    )
+      .toString()
+      .trim()
+    const timeSource = row.updated_at || row.created_at || row.due_date || ''
+    items.push({
+      id: row.id,
+      type: 'task',
+      icon: 'check-square',
+      title,
+      subtitle,
+      time: timeAgo(timeSource),
+    })
+  }
+  return items
+}

@@ -80,7 +80,7 @@ function activityIcon(type: ActivityType): MhjIconName {
 
 .activity-list {
   display: grid;
-  gap: 14px;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -91,13 +91,11 @@ function activityIcon(type: ActivityType): MhjIconName {
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
+  padding: 12px 0;
 }
 
-@media (min-width: 1200px) {
-  .activity-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 28px;
-  }
+.activity-item + .activity-item {
+  border-top: 1px solid #f0f3f5;
 }
 
 .activity-item__icon {

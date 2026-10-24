@@ -740,6 +740,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .hospital-map {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
   height: 430px;
   border: 1px solid #e1e8ed;

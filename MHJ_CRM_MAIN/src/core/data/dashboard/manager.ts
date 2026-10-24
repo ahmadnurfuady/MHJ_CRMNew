@@ -1,4 +1,4 @@
-import { fetchRecentActivities } from '@/services/managerDashboardService'
+import { fetchRecentTasks } from '@/services/managerDashboardService'
 import {
   fetchDashboardMetrics,
   type DashboardMetricsRaw,
@@ -16,7 +16,7 @@ import type {
  * jika endpoint di BE belum tersedia atau gagal diambil.
  * - KPI/benchmark/coverage → di-override oleh `fetchDashboardMetrics()` (GET /api/dashboard/metrics)
  * - Peta cakupan mengambil daftar RS langsung dari store Company/Hospital di komponen peta.
- * - Aktivitas → di-override oleh `fetchRecentActivities()` (GET /api/dashboard/systemactivity)
+ * - Aktivitas → di-override oleh `fetchRecentTasks()` (GET /api/tasks)
  */
 const managerDashboardData: ManagerDashboardData = {
   greetingName: 'Sales',
@@ -286,8 +286,8 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
 export async function fetchManagerDashboardData(): Promise<ManagerDashboardData> {
   const [metrics, activities] = await Promise.all([
     fetchDashboardMetrics(),
-    fetchRecentActivities(5).catch((error) => {
-      console.error('Gagal memuat aktivitas terbaru dari backend.', error)
+    fetchRecentTasks(5).catch((error) => {
+      console.error('Gagal memuat daftar tugas terbaru dari backend.', error)
       return [] as ManagerDashboardData['activities']
     }),
   ])

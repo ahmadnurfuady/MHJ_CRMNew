@@ -48,6 +48,11 @@ function clampProgress(value: number): number {
 .key-metrics {
   display: grid;
   gap: 14px;
+  border: 1px solid #e9edf1;
+  border-radius: 20px;
+  padding: 20px 22px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(27, 43, 65, 0.04);
 }
 
 .key-metrics__head {
@@ -74,11 +79,10 @@ function clampProgress(value: number): number {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border: 1px solid #e9edf1;
-  border-radius: 18px;
-  padding: 18px;
+  border: 1px solid #edf1f4;
+  border-radius: 16px;
+  padding: 16px;
   background: #fff;
-  box-shadow: 0 6px 20px rgba(27, 43, 65, 0.04);
 }
 
 .kpi-card__icon {
