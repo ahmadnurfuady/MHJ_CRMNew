@@ -20,23 +20,14 @@
         <li class="d-md-none d-block">
           <SearchInput />
         </li>
-        <li class="language-nav">
-          <Language />
-        </li>
         <li class="fullscreen-body">
           <FullScreen />
-        </li>
-        <li class="onhover-dropdown bookmark-star">
-          <BookmarkSearch />
-        </li>
-        <li>
-          <Mode />
         </li>
         <li class="onhover-dropdown notification-down">
           <NotificationBox />
         </li>
-        <li class="profile-nav onhover-dropdown">
-          <Profile />
+        <li class="settings-nav onhover-dropdown">
+          <SettingsAction />
         </li>
       </ul>
     </div>
@@ -65,15 +56,18 @@ const SearchBar = defineAsyncComponent(
   () => import('@/components/layout/header/serach/SearchBar.vue')
 )
 const SearchInput = defineAsyncComponent(() => import('@/components/layout/header/SearchInput.vue'))
-const Language = defineAsyncComponent(() => import('@/components/layout/header/Language.vue'))
 const Logo = defineAsyncComponent(() => import('@/components/layout/header/Logo.vue'))
 const FullScreen = defineAsyncComponent(() => import('@/components/layout/header/FullScreen.vue'))
-const BookmarkSearch = defineAsyncComponent(
-  () => import('@/components/layout/header/BookmarkSearch.vue')
-)
-const Mode = defineAsyncComponent(() => import('@/components/layout/header/Mode.vue'))
 const NotificationBox = defineAsyncComponent(
   () => import('@/components/layout/header/NotificationBox.vue')
 )
-const Profile = defineAsyncComponent(() => import('@/components/layout/header/Profile.vue'))
+const SettingsAction = defineAsyncComponent(
+  () => import('@/components/layout/header/SettingsAction.vue')
+)
 </script>
+
+<style scoped>
+.notification-down::before {
+  display: none !important;
+}
+</style>
