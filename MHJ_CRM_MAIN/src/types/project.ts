@@ -303,6 +303,12 @@ export interface Projects {
   contacts?: ProjectContact[]
   ownerId?: number
   ownerName?: string
+  /** Nama jabatan owner (mis. "Direktur Business Development"). */
+  ownerJabatan?: string
+  /** Alias jabatan owner (mis. "DBD", "BDM"). */
+  ownerAlias?: string
+  /** Level kedalaman jabatan owner; 0 = paling atas / root. */
+  ownerJabatanLevel?: number
   stageId?: number
   stageName?: string
   currency?: string

@@ -139,7 +139,12 @@
                 <span><SolarIcon name="fa-user" />Owner</span>
                 <strong class="owner-detail">
                   <i class="owner-avatar">{{ initials(project.ownerName || '') }}</i>
-                  {{ project.ownerName || 'Belum ditentukan' }}
+                  <span class="owner-detail__text">
+                    {{ project.ownerName || 'Belum ditentukan' }}
+                    <small v-if="ownerJabatanLine" class="owner-detail__meta">
+                      {{ ownerJabatanLine }}
+                    </small>
+                  </span>
                 </strong>
               </div>
               <div class="detail-row">
@@ -432,6 +437,22 @@ const updatedByName = computed(() =>
   'Belum tersedia'
 )
 
+/**
+ * Baris sekunder jabatan owner: "Direktur Business Development · DBD · L0".
+ * Hanya tampil ketika salah satu dari jabatan/alias/level tersedia.
+ */
+const ownerJabatanLine = computed(() => {
+  const p = project.value
+  if (!p) return ''
+  const parts: string[] = []
+  if (p.ownerJabatan) parts.push(p.ownerJabatan)
+  if (p.ownerAlias) parts.push(p.ownerAlias)
+  if (p.ownerJabatanLevel !== undefined && p.ownerJabatanLevel !== null) {
+    parts.push(`L${p.ownerJabatanLevel}`)
+  }
+  return parts.join(' · ')
+})
+
 const activities = computed<ActivityInfo[]>(() => {
   const fromApi = detailRows.value
     .map((row) => ({
@@ -643,6 +664,8 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .detail-row strong { color: #242d35; font-size: 13px; font-weight: 600; text-align: right; }
 .owner-detail { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; }
 .owner-avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; background: linear-gradient(145deg, #209de5, #75c4ef); font-size: 9px; font-style: normal; }
+.owner-detail__text { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.3; }
+.owner-detail__meta { color: #7f8992; font-size: 11px; font-weight: 500; margin-top: 2px; }
 .support-section h6 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; color: #65717c; font-size: 12px; font-weight: 600; }
 .support-section h6 i { color: var(--detail-blue); }
 .contact-list { display: grid; gap: 8px; }

@@ -288,6 +288,9 @@ export function normalizeProject(raw: Dict): Projects {
     contacts,
     ownerId,
     ownerName,
+    ownerJabatan: pickString(raw, 'owner_jabatan') || undefined,
+    ownerAlias: pickString(raw, 'owner_alias') || undefined,
+    ownerJabatanLevel: optionalNumber(raw, 'owner_jabatan_level'),
     stageId,
     stageName,
     currency,
@@ -306,8 +309,11 @@ export function normalizeProject(raw: Dict): Projects {
     productDetails,
     lostReasons: pickString(raw, 'lost_reasons'),
     teamMember: ownerName ? [{ name: ownerName } as Profile] : [],
-    createdBy: pickString(raw, 'created_by'),
-    updatedBy: pickString(raw, 'updated_by'),
+    // Nama user pembuat/pengubah dari hasil JOIN BE. Sengaja TIDAK fallback
+    // ke `created_by`/`updated_by` karena isinya hanya id numerik — kalau nama
+    // tidak tersedia, biarkan kosong agar UI menampilkan "Belum tersedia".
+    createdBy: pickString(raw, 'created_by_name', 'createdby_name', 'created_user_name'),
+    updatedBy: pickString(raw, 'updated_by_name', 'updatedby_name', 'updated_user_name'),
     createdAt,
     updatedAt: updatedAt || createdAt,
     stageEnteredAt: stageEnteredAt || updatedAt || createdAt,
@@ -559,15 +565,60 @@ export const useProjectStore = defineStore('project', () => {
   /**
    * GET /api/project/ownercandidates. Daftar akun yang boleh dijadikan Owner
    * peluang: user yang sedang login + seluruh atasannya pada rantai jabatan.
+   * Metadata jabatan (nama, alias, level) ikut dibawa supaya FE bisa
+   * menampilkan "Nama (DBD · L0)" di dropdown.
    */
   async function fetchOwnerCandidates() {
     const response = await api.get(`${ENDPOINT}/ownercandidates`)
-    lookups.ownerCandidates = normalizeOptions(response.data, [
+    const base = normalizeOptions(response.data, [
       'candidates',
       'leaders',
       'leader',
       'users'
-    ]).filter((option) => option.value && option.label)
+    ])
+
+    // Ekstrak raw array untuk mengambil field tambahan (alias, jabatan_level,
+    // nama_jabatan) yang dibuang normalizeOptions.
+    const raw = (response.data as unknown)
+    const list = Array.isArray(raw)
+      ? raw
+      : (Array.isArray((raw as Record<string, unknown>)?.candidates)
+          ? ((raw as Record<string, unknown>).candidates as unknown[])
+          : [])
+    const metaByValue = new Map<string, {
+      alias: string | null
+      level: number | null
+      jabatan: string | null
+    }>()
+    for (const item of list) {
+      if (!item || typeof item !== 'object') continue
+      const r = item as Record<string, unknown>
+      const value = String(r.value ?? r.id ?? '')
+      if (!value) continue
+      const level = r.jabatan_level
+      metaByValue.set(value, {
+        alias: typeof r.jabatan_alias === 'string' ? r.jabatan_alias : null,
+        jabatan: typeof r.nama_jabatan === 'string' ? r.nama_jabatan : null,
+        level: typeof level === 'number'
+          ? level
+          : (level === null || level === undefined ? null : Number(level))
+      })
+    }
+
+    lookups.ownerCandidates = base
+      .filter((option) => option.value && option.label)
+      .map((option) => {
+        const meta = metaByValue.get(String(option.value))
+        if (!meta) return option
+        // Komponen Select hanya merender `option[displayKey]` sebagai teks
+        // tunggal, jadi info alias + level dirangkai ke dalam label itu
+        // sendiri agar langsung tampil di dropdown.
+        const chips: string[] = []
+        if (meta.alias) chips.push(meta.alias)
+        if (meta.level !== null && meta.level !== undefined) chips.push(`L${meta.level}`)
+        const label = chips.length ? `${option.label} (${chips.join(' · ')})` : option.label
+        return { ...option, label, ...meta }
+      })
     return lookups.ownerCandidates
   }
 
