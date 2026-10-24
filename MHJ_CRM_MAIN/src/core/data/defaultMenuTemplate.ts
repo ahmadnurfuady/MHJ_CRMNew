@@ -24,11 +24,13 @@ export const DEFAULT_CRM_MENU_TEMPLATE: FlMenuRawItem[] = [
     TreeLevel: 1,
     ACCESS: '0',
     HASACCESS: 1,
+    // Modul Dashboard: semua izin aktif secara default agar pengguna baru
+    // langsung bisa membuka halaman beranda tanpa perlu pengaturan manual.
     akses: 1,
-    tambah: 0,
+    tambah: 1,
     koreksi: 1,
     hapus: 1,
-    export: 0,
+    export: 1,
     Status: '0',
     FLAGKRM: null,
     ImageIndex: -1,

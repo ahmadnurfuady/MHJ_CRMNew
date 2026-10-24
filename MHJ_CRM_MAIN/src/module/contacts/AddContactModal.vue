@@ -70,10 +70,11 @@
                     :maxLength="15"
                     :formatValue="true"
                     :formatFunction="sanitizeIndonesianPhoneInput"
+                    :validator="index === 0 ? requiredPhoneValidator : optionalPhoneValidator"
                     :placeholder="
                       index === 0
-                        ? 'Contoh: 021-1234567 / 08123456789'
-                        : 'Nomor telepon tambahan'
+                        ? 'Contoh: 081234567890 atau +6281234567890'
+                        : 'Contoh nomor tambahan: 081234567890'
                     "
                     :required="index === 0"
                   />
@@ -352,7 +353,15 @@ import { useContact } from "@/store/contact";
 import { useAuthStore } from "@/store/auth";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
-import { sanitizeIndonesianPhoneInput } from "@/utils/indonesianPhone";
+import {
+  indonesianMobilePhoneError,
+  sanitizeIndonesianPhoneInput,
+} from "@/utils/indonesianPhone";
+
+const requiredPhoneValidator = (value: string) =>
+  indonesianMobilePhoneError(value, true);
+const optionalPhoneValidator = (value: string) =>
+  indonesianMobilePhoneError(value);
 import {
   geolocationErrorMessage,
   getCurrentPosition,

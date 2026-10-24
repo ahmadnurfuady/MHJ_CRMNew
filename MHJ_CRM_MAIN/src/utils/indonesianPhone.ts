@@ -1,4 +1,5 @@
-const INDONESIAN_MOBILE_PATTERN = /^08\d{8,11}$/;
+// Minimal 8 digit total (termasuk prefix). Prefix wajib: 08, 62, atau +62.
+const PHONE_MIN_DIGITS = 8;
 const PHONE_INPUT_PATTERN = /^\+?\d+$/;
 
 /** Hanya izinkan digit dan satu tanda + di awal input. */
@@ -61,16 +62,24 @@ export function indonesianMobilePhoneError(
   const phone = value.trim();
   if (!phone) return required ? "Nomor HP wajib diisi." : "";
 
-  const normalized = normalizeIndonesianMobilePhone(phone);
-  const hasValidPrefix = phone.startsWith("+")
-    ? phone.startsWith("+628")
-    : phone.startsWith("08") || phone.startsWith("628");
-  if (
-    !PHONE_INPUT_PATTERN.test(phone) ||
-    !hasValidPrefix ||
-    !INDONESIAN_MOBILE_PATTERN.test(normalized)
-  ) {
-    return "Gunakan nomor HP Indonesia, contoh 081234567890 atau +6281234567890.";
+  // Hanya izinkan digit atau tanda + di awal.
+  if (!PHONE_INPUT_PATTERN.test(phone)) {
+    return "Nomor telepon hanya boleh berisi angka (dan tanda + di depan).";
+  }
+
+  // Prefix wajib: 08, 62, atau +62.
+  const hasValidPrefix =
+    phone.startsWith("+62") ||
+    phone.startsWith("08") ||
+    phone.startsWith("62");
+  if (!hasValidPrefix) {
+    return "Nomor telepon harus diawali 08, 62, atau +62.";
+  }
+
+  // Minimal 8 digit total (hitungan digit saja, bukan termasuk tanda +).
+  const digitCount = phone.replace(/\D/g, "").length;
+  if (digitCount < PHONE_MIN_DIGITS) {
+    return `Nomor telepon minimal ${PHONE_MIN_DIGITS} digit.`;
   }
 
   return "";

@@ -1,20 +1,5 @@
 <template>
   <div class="contact-detail-page">
-    <div class="detail-toolbar">
-      <button type="button" class="back-button" :aria-label="backButtonLabel" @click="handleBack">
-        <SolarIcon
-          name="arrow-left-linear"
-          :size="26"
-          color="#087cae"
-          :stroke-width="2.5"
-        />
-      </button>
-      <div>
-        <p>Kontak</p>
-        <h3>Detail Kontak</h3>
-      </div>
-    </div>
-
     <div v-if="loading && !activeContact" class="detail-state card">
       <span class="spinner-border text-primary" aria-hidden="true"></span>
       <strong>Memuat detail kontak...</strong>
@@ -62,6 +47,10 @@ import {
   type LocationQueryRaw,
 } from "vue-router";
 import { routes } from "@/router/routes";
+import {
+  usePageBackHandler,
+  usePageTitle,
+} from "@/composable/usePageHeader";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
@@ -80,6 +69,9 @@ const ContactHistory = defineAsyncComponent(
 const props = defineProps<{ contactId: number }>();
 const route = useRoute();
 const router = useRouter();
+// Judul "Detail Kontak" + tombol kembali tampil di baris BreadCrumbs global.
+usePageTitle("Detail Kontak");
+usePageBackHandler(() => handleBack());
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();

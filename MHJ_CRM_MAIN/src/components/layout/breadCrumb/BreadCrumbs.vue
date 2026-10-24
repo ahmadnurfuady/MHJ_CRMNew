@@ -4,8 +4,22 @@
       <div class="row">
         <div class="col-6">
           <div class="page-title__heading">
+            <button
+              v-if="backHandler"
+              type="button"
+              class="page-title__back"
+              aria-label="Kembali ke halaman sebelumnya"
+              @click="handleBackClick"
+            >
+              <SolarIcon
+                name="arrow-left-linear"
+                :size="22"
+                color="#087cae"
+                :stroke-width="2.5"
+              />
+            </button>
             <router-link
-              v-if="backRoute"
+              v-else-if="backRoute"
               :to="backRoute"
               class="page-title__back"
               aria-label="Kembali ke halaman sebelumnya"
@@ -43,7 +57,11 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 import SolarIcon from '@/components/shared/SolarIcon.vue'
-import { pageBackRoute, pageTitleOverride } from '@/composable/usePageHeader'
+import {
+  pageBackHandler,
+  pageBackRoute,
+  pageTitleOverride,
+} from '@/composable/usePageHeader'
 
 const props = withDefaults(defineProps<{ refreshing?: boolean }>(), {
   refreshing: false,
@@ -59,6 +77,11 @@ const pageTitle = computed(
 // Rute untuk tombol kembali opsional di sebelah kiri judul (jika di-set
 // halaman via usePageBackRoute).
 const backRoute = computed(() => pageBackRoute.value)
+const backHandler = computed(() => pageBackHandler.value)
+function handleBackClick() {
+  const handler = backHandler.value
+  if (handler) void handler()
+}
 </script>
 
 <style scoped>
@@ -76,12 +99,14 @@ const backRoute = computed(() => pageBackRoute.value)
   place-items: center;
   width: 38px;
   height: 38px;
+  padding: 0;
   border: 1px solid #e6edf1;
   border-radius: 11px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(27, 43, 65, 0.04);
   color: #087cae;
   text-decoration: none;
+  cursor: pointer;
   transition: background .18s ease, border-color .18s ease;
 }
 .page-title__back:hover,

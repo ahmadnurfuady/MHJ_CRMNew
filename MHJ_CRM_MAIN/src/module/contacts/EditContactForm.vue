@@ -98,7 +98,7 @@
             </button>
           </div>
           <small class="d-block text-muted mb-3">
-            Gunakan nomor HP Indonesia dengan awalan 08, 628, atau +628.
+            Minimal 8 digit, diawali dengan 08, 62, atau +62.
           </small>
           <button
             class="btn btn-outline-primary add-phone-button"

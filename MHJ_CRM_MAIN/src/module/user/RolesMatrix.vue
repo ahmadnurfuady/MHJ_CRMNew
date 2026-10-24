@@ -336,15 +336,47 @@ async function loadPermissions() {
     }
 
     if (raw.length === 0) {
-      rows.value = buildTreeOrder(DEFAULT_CRM_MENU_TEMPLATE.map(toPermissionRow))
+      const templateRows = DEFAULT_CRM_MENU_TEMPLATE.map(toPermissionRow)
+      // Secara default modul Dashboard langsung dicentang semua agar pengguna
+      // baru dapat membuka halaman beranda tanpa pengaturan manual terlebih
+      // dahulu. Baris Dashboard dikenali dari CAPTION/name "Dashboard"
+      // (dicocokkan case-insensitive) atau pathfile "/crmAdmin".
+      templateRows.forEach((row) => {
+        const caption = (row.CAPTION || row.name || '').trim().toLowerCase()
+        const path = (row.pathfile || '').trim().toLowerCase()
+        if (caption === 'dashboard' || path === '/crmadmin') {
+          PERMISSION_COLUMNS.forEach((col) => {
+            row[col] = 1
+          })
+        }
+      })
+      rows.value = buildTreeOrder(templateRows)
       feedback.value = {
         type: 'info',
-        text: 'Pengguna baru belum memiliki baris data hak akses di tabel database. Template menu sistem telah dimuat, silakan atur hak akses lalu klik "Simpan Hak Akses".',
+        text: 'Pengguna baru belum memiliki baris data hak akses di tabel database. Template menu sistem telah dimuat (modul Dashboard sudah tercentang semua), silakan atur hak akses lainnya lalu klik "Simpan Hak Akses".',
       }
       return
     }
 
-    rows.value = buildTreeOrder(raw.map(toPermissionRow))
+    const loadedRows = raw.map(toPermissionRow)
+    // Pastikan modul Dashboard otomatis tercentang semua saat pertama kali
+    // dibuka: jika seluruh izin baris Dashboard masih 0 (nilai awal yang
+    // di-seed sp_users_crud untuk user baru), set semua kolom ke 1. Jika
+    // Admin sudah pernah mengatur (ada salah satu kolom = 1), nilai yang
+    // tersimpan tetap dihormati.
+    loadedRows.forEach((row) => {
+      const caption = (row.CAPTION || row.name || '').trim().toLowerCase()
+      const path = (row.pathfile || '').trim().toLowerCase()
+      const isDashboard = caption === 'dashboard' || path === '/crmadmin'
+      if (!isDashboard) return
+      const allZero = PERMISSION_COLUMNS.every((col) => row[col] === 0)
+      if (allZero) {
+        PERMISSION_COLUMNS.forEach((col) => {
+          row[col] = 1
+        })
+      }
+    })
+    rows.value = buildTreeOrder(loadedRows)
   } catch (error) {
     console.error('Gagal memuat hak akses:', error)
     feedback.value = { type: 'danger', text: 'Gagal memuat hak akses pengguna.' }

@@ -15,6 +15,13 @@ export const pageTitleOverride = ref<string | null>(null)
  */
 export const pageBackRoute = ref<RouteLocationRaw | null>(null)
 
+/**
+ * Callback alternatif untuk tombol "kembali": jika di-set, klik tombol
+ * memicu callback ini dan `pageBackRoute` diabaikan. Berguna saat tombol
+ * kembali punya logika khusus (misal: tutup panel edit/history).
+ */
+export const pageBackHandler = ref<(() => void | Promise<void>) | null>(null)
+
 function resolveValue<T>(source: MaybeRefOrGetter<T>): T {
   if (typeof source === 'function') return (source as () => T)()
   if (isRef(source)) return source.value
@@ -58,5 +65,16 @@ export function usePageBackRoute(target: MaybeRefOrGetter<RouteLocationRaw | nul
 
   onBeforeUnmount(() => {
     pageBackRoute.value = null
+  })
+}
+
+/**
+ * Set callback untuk tombol kembali breadcrumb (lebih diprioritaskan daripada
+ * usePageBackRoute). Dibersihkan saat unmount.
+ */
+export function usePageBackHandler(handler: () => void | Promise<void>) {
+  pageBackHandler.value = handler
+  onBeforeUnmount(() => {
+    pageBackHandler.value = null
   })
 }
