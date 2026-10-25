@@ -158,13 +158,13 @@ defineExpose({ reload: load })
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
 }
 
 .timeline-heading p {
   margin: 0;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
   font-size: 12px;
   font-weight: 600;
 }
@@ -179,8 +179,8 @@ defineExpose({ reload: load })
 .timeline-count {
   padding: 5px 11px;
   border-radius: 999px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #116e96;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary-dark, #116e96);
   font-size: 11px;
   font-weight: 700;
 }
@@ -223,8 +223,8 @@ defineExpose({ reload: load })
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #e0f2fe;
-  color: #116e96;
+  background: var(--app-primary-soft, #e0f2fe);
+  color: var(--app-primary-dark, #116e96);
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px #e2e8f0;
 }
@@ -283,8 +283,8 @@ defineExpose({ reload: load })
 .timeline-item__author {
   padding: 2px 10px;
   border-radius: 999px;
-  background: #e0f2fe;
-  color: #116e96;
+  background: var(--app-primary-soft, #e0f2fe);
+  color: var(--app-primary-dark, #116e96);
   font-weight: 600;
   font-size: 11px;
 }

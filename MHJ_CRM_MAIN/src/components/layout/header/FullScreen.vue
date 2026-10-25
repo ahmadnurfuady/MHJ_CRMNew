@@ -9,8 +9,8 @@
     <SolarIcon
       :name="isFullscreen ? 'minimize' : 'maximize'"
       :size="24"
-      color="#032A4E"
-      secondary-color="#18A6E4"
+      color="var(--app-primary-deep, #032A4E)"
+      secondary-color="var(--app-primary, #18A6E4)"
       :secondary-opacity="0.7"
       aria-hidden="true"
     />

@@ -48,9 +48,9 @@ async function logout() {
   max-width: 440px;
   padding: 2.5rem 2rem;
   border-radius: 1rem;
-  border: 1.5px solid rgba(3, 42, 78, 0.12);
+  border: 1.5px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
   background: #fff;
-  box-shadow: 0 4px 24px rgba(3, 42, 78, 0.07);
+  box-shadow: 0 4px 24px rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
 }
 
 .no-access-icon {
@@ -60,15 +60,15 @@ async function logout() {
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.08);
-  color: #18A6E4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
+  color: var(--app-primary, #18A6E4);
   margin-bottom: 1.25rem;
 }
 
 .no-access-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #032A4E;
+  color: var(--app-primary-deep, #032A4E);
   margin-bottom: 0.6rem;
 }
 

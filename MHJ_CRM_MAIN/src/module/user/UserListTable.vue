@@ -436,21 +436,21 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-color: #18a6e4 !important;
+  border-color: var(--app-primary, #18a6e4) !important;
   border-radius: 8px;
   margin: 0 !important;
   padding: 0 18px;
-  background-color: #18a6e4 !important;
+  background-color: var(--app-primary, #18a6e4) !important;
   color: #ffffff !important;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .add-user-button:hover,
 .add-user-button:focus {
-  border-color: #1493cc !important;
-  background-color: #1493cc !important;
+  border-color: var(--app-primary-hover, #1493cc) !important;
+  background-color: var(--app-primary-hover, #1493cc) !important;
 }
 
 .add-user-button span,
@@ -479,7 +479,7 @@ onMounted(async () => {
 }
 
 .user-detail-name {
-  color: #032a4e;
+  color: var(--app-primary-deep, #032a4e);
   transition: color 0.2s ease;
 }
 
@@ -626,14 +626,14 @@ onMounted(async () => {
 }
 
 .pagination-page-button:hover:not(:disabled) {
-  border-color: #18a6e4;
-  color: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-page-button--active,
 .pagination-page-button--active:disabled {
-  border-color: #18a6e4;
-  background: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
   opacity: 1;
 }

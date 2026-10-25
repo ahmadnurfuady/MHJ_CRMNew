@@ -442,21 +442,21 @@ onMounted(fetchList)
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-color: #18a6e4 !important;
+  border-color: var(--app-primary, #18a6e4) !important;
   border-radius: 8px;
   margin: 0 !important;
   padding: 0 18px;
-  background-color: #18a6e4 !important;
+  background-color: var(--app-primary, #18a6e4) !important;
   color: #ffffff !important;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .add-jabatan-button:hover,
 .add-jabatan-button:focus {
-  border-color: #1493cc !important;
-  background-color: #1493cc !important;
+  border-color: var(--app-primary-hover, #1493cc) !important;
+  background-color: var(--app-primary-hover, #1493cc) !important;
 }
 
 .add-jabatan-button span,

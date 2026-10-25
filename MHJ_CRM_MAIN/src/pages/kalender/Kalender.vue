@@ -431,19 +431,19 @@ onMounted(() => {
 
 .kalender-period-button:hover,
 .kalender-period-button:focus-visible {
-  color: #0284c7;
+  color: var(--app-primary-dark, #0284c7);
 }
 
 .kalender-period-button:focus-visible {
-  outline: 2px solid rgba(24, 166, 228, 0.24);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.24);
   outline-offset: 1px;
 }
 
 .kalender-period-button--active,
 .kalender-period-button--active:hover {
-  background: #18a6e4;
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
-  box-shadow: 0 2px 5px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 2px 5px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .kalender-export-button {

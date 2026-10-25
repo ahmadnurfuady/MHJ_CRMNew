@@ -213,6 +213,11 @@
             placeholder="Pilih sumber kontak"
             :required="false"
           />
+          <DummyDataBadge
+            v-if="contactApi.sourceIsDummy"
+            class="mt-2"
+            label="Sumber: Data Dummy Lokal"
+          />
         </InputWrapper>
       </div>
       <div class="col-md-6">
@@ -276,6 +281,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import Swal from "sweetalert2";
 
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
@@ -803,7 +809,7 @@ onMounted(async () => {
 }
 
 .add-phone-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
 }
 
 .location-field {

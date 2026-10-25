@@ -6,6 +6,13 @@
     </div>
 
     <template v-else-if="data">
+      <div v-if="data.dummySections.length" class="dummy-data-notice" role="note">
+        <DummyDataBadge />
+        <span>
+          Bagian yang masih memakai fallback lokal:
+          {{ data.dummySections.join(', ') }}.
+        </span>
+      </div>
       <KeyMetricsGrid :kpis="data.kpis" />
 
       <header class="manager-dashboard__header">
@@ -41,6 +48,7 @@
 import { onMounted } from 'vue'
 
 import { useManagerDashboard } from '@/composable/useManagerDashboard'
+import DummyDataBadge from '@/components/shared/DummyDataBadge.vue'
 import AreaMarketCoverage from '@/module/dashboard/manager/AreaMarketCoverage.vue'
 import KeyMetricsGrid from '@/module/dashboard/manager/KeyMetricsGrid.vue'
 import PromoCarousel from '@/module/dashboard/manager/PromoCarousel.vue'
@@ -66,12 +74,22 @@ onMounted(loadDashboard)
 
 <style scoped>
 .manager-dashboard {
-  --app-primary: var(--theme-default, #18a6e4);
-  --app-primary-dark: #0e7490;
-  --app-primary-wash: #eaf7fd;
   display: grid;
   gap: 22px;
   padding-bottom: 28px;
+}
+
+.dummy-data-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #f3d488;
+  border-radius: 12px;
+  padding: 10px 13px;
+  color: #70531b;
+  background: #fffbeb;
+  font-size: 12px;
 }
 
 .manager-dashboard__header {

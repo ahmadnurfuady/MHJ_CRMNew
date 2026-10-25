@@ -15,6 +15,12 @@ import {
 import { initInputField, initSelectField } from "@/core/data/common";
 import { contactSidebarList } from "@/core/data/contacts";
 import {
+  CONTACT_DEMO_ENABLED,
+  createDemoContact,
+  demoContactMatchesSearch,
+  isDemoContactId,
+} from "@/core/data/contactDemo";
+import {
   createDemoHospital,
   demoHospitalMatchesSearch,
   HOSPITAL_DEMO_ENABLED,
@@ -407,6 +413,7 @@ export const useContact = defineStore("contact", () => {
     companies: [] as Select[],
     statuses: [] as Select[],
     sources: [] as Select[],
+    sourceIsDummy: false,
     loading: false,
     detailLoading: false,
     submitting: false,
@@ -472,7 +479,14 @@ export const useContact = defineStore("contact", () => {
    * ke daftar yang dibaca UI. Kontak aktif dipertahankan bila masih ada.
    */
   function syncRemoteContacts() {
-    const localContacts = contactState.contactList.filter((contact) => !contact.origin);
+    const localContacts = contactState.contactList.filter(
+      (contact) => !contact.origin && !contact.isDemo,
+    );
+    const showDemoContact =
+      CONTACT_DEMO_ENABLED &&
+      scope.value === "contact" &&
+      contactApi.pagination.page === 1 &&
+      demoContactMatchesSearch(contactApi.search);
     const showDemoHospital =
       HOSPITAL_DEMO_ENABLED &&
       scope.value === "hospital" &&
@@ -482,7 +496,12 @@ export const useContact = defineStore("contact", () => {
       ...(showDemoHospital ? [hospitalToContact(createDemoHospital())] : []),
       ...hospitalStore.items.map(hospitalToContact),
     ];
-    contactState.contactList = [...localContacts, ...hospitalContacts, ...contactApi.items];
+    contactState.contactList = [
+      ...localContacts,
+      ...(showDemoContact ? [createDemoContact()] : []),
+      ...hospitalContacts,
+      ...contactApi.items,
+    ];
 
     const current = contactState.activeContact;
     const stillExists = current
@@ -687,6 +706,13 @@ export const useContact = defineStore("contact", () => {
 
   /** GET /api/contact/fetchcontactbyid?id=<id>. */
   function fetchRemoteContactById(remoteId: number) {
+    if (CONTACT_DEMO_ENABLED && isDemoContactId(remoteId)) {
+      const demoContact = createDemoContact();
+      contactApi.selectedItem = demoContact;
+      syncRemoteContacts();
+      return Promise.resolve(demoContact);
+    }
+
     return runApiAction({
       flag: contactDetailLoading,
       error: contactError,
@@ -773,9 +799,11 @@ export const useContact = defineStore("contact", () => {
           const sources = normalizeOptions(response.data, ["sources", "source"])
             .filter((option) => option.value && option.label);
           contactApi.sources = sources.length ? sources : [...CONTACT_SOURCE_FALLBACK];
+          contactApi.sourceIsDummy = !sources.length;
         } catch (error) {
           console.warn("Endpoint sumber kontak tidak tersedia, memakai lookup lokal.", error);
           contactApi.sources = [...CONTACT_SOURCE_FALLBACK];
+          contactApi.sourceIsDummy = true;
         }
         return contactApi.sources;
       },

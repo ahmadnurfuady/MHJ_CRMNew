@@ -8,7 +8,12 @@
           class="quick-actions__item"
         >
           <span class="quick-actions__icon" aria-hidden="true">
-            <MhjIcon :name="resolveQuickActionIcon(action.id)" :size="24" />
+            <MhjIcon
+              :name="resolveQuickActionIcon(action.id)"
+              :size="24"
+              color="var(--app-primary-dark, #0e7490)"
+              secondary-color="var(--app-secondary, #84d7eb)"
+            />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
         </router-link>
@@ -18,7 +23,12 @@
           :title="action.comingSoon ? 'Segera hadir' : undefined"
         >
           <span class="quick-actions__icon" aria-hidden="true">
-            <MhjIcon :name="resolveQuickActionIcon(action.id)" :size="24" />
+            <MhjIcon
+              :name="resolveQuickActionIcon(action.id)"
+              :size="24"
+              color="var(--app-primary-dark, #0e7490)"
+              secondary-color="var(--app-secondary, #84d7eb)"
+            />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
           <span v-if="action.comingSoon" class="quick-actions__badge">Segera hadir</span>
@@ -74,7 +84,7 @@ function resolveQuickActionIcon(id: string): MhjIconName {
 
 a.quick-actions__item:hover,
 a.quick-actions__item:focus-visible {
-  background: var(--app-primary-wash, #f0f9ff);
+  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.12);
 }
 
 .quick-actions__item.is-disabled {
@@ -89,7 +99,7 @@ a.quick-actions__item:focus-visible {
   height: 48px;
   border-radius: 50%;
   color: var(--app-primary, #18a6e4);
-  background: var(--app-primary-wash, #e5f5fc);
+  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16);
 }
 
 .quick-actions__label {

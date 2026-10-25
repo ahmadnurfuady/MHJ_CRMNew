@@ -33,7 +33,7 @@ defineProps<{
   border-radius: 50%;
   margin-bottom: 12px;
   color: var(--theme-default, #18a6e4);
-  background: #e4f6fd;
+  background: var(--app-primary-wash, #e4f6fd);
   font-size: 19px;
 }
 

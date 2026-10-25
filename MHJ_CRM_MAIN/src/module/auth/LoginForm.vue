@@ -28,9 +28,17 @@
             :browserValidation="props.browserValidation"
           >
           </InputField>
-          <div class="show-hide" @click="togglePassword()">
-            <span :class="{ show: showPassword }"></span>
-          </div>
+          <button
+            class="password-visibility-toggle"
+            type="button"
+            :aria-label="showPassword ? 'Sembunyikan password' : 'Tampilkan password'"
+            :title="showPassword ? 'Sembunyikan password' : 'Tampilkan password'"
+            :aria-pressed="showPassword"
+            @click="togglePassword"
+          >
+            <EyeIcon v-if="showPassword" :size="22" aria-hidden="true" />
+            <EyeClosedIcon v-else :size="22" aria-hidden="true" />
+          </button>
         </div>
       </InputWrapper>
     </div>
@@ -79,6 +87,8 @@ import { toast } from 'vue3-toastify'
 import { validateForm } from '@/utils/validators/formValidators'
 import { routes } from '@/router/routes'
 import { useAuthStore } from '@/store/auth'
+import { EyeIcon } from '@solar-icons/vue/bold-duotone/eye'
+import { EyeClosedIcon } from '@solar-icons/vue/bold-duotone/eye-closed'
 
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
@@ -198,4 +208,39 @@ async function submit() {
   }
 }
 </script>
+
+<style scoped>
+.password-visibility-toggle {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  color: var(--theme-default);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  transform: translateY(-50%);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.password-visibility-toggle:hover {
+  color: var(--app-primary-deep, #032a4e);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+}
+
+.password-visibility-toggle:focus-visible {
+  outline: 2px solid var(--theme-default);
+  outline-offset: 2px;
+}
+
+.form-input :deep(.form-control) {
+  padding-right: 60px;
+}
+</style>
 

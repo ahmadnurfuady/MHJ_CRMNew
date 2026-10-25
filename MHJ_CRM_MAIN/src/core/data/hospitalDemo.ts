@@ -24,7 +24,7 @@ export const DEMO_HOSPITAL: Hospital = {
   website: "https://rsdemosehatsentosa.test",
   industry: "Faskes Umum",
   description:
-    "Data demo lokal untuk memeriksa tampilan CRM. Faskes ini tidak tersimpan di API.",
+    "Data Dummy Lokal untuk memeriksa tampilan CRM. Faskes ini tidak tersimpan di API.",
   address: "Jl. Kesehatan Raya No. 88, Cilandak Barat",
   mapAddress:
     "Jl. Kesehatan Raya No. 88, Cilandak Barat, Jakarta Selatan 12430",
@@ -168,6 +168,7 @@ export const DEMO_HOSPITAL_CONTACTS: Contact[] = [
 export const DEMO_HOSPITAL_PROJECTS: Projects[] = [
   {
     id: DEMO_PROJECT_ID_START + 1,
+    isDemo: true,
     projectName: "Pengadaan MRI 1.5 Tesla",
     projectDescription: "Pengadaan MRI untuk pengembangan layanan radiologi.",
     projectBanner: "",
@@ -192,6 +193,7 @@ export const DEMO_HOSPITAL_PROJECTS: Projects[] = [
   },
   {
     id: DEMO_PROJECT_ID_START + 2,
+    isDemo: true,
     projectName: "Upgrade Cathlab Digital",
     projectDescription: "Modernisasi cathlab dan workstation kardiologi.",
     projectBanner: "",
@@ -215,6 +217,7 @@ export const DEMO_HOSPITAL_PROJECTS: Projects[] = [
   },
   {
     id: DEMO_PROJECT_ID_START + 3,
+    isDemo: true,
     projectName: "USG Premium Obgyn",
     projectDescription: "Penambahan dua unit USG untuk layanan ibu dan anak.",
     projectBanner: "",
@@ -238,6 +241,7 @@ export const DEMO_HOSPITAL_PROJECTS: Projects[] = [
   },
   {
     id: DEMO_PROJECT_ID_START + 4,
+    isDemo: true,
     projectName: "Patient Monitor ICU",
     projectDescription: "Pengadaan patient monitor untuk perluasan ICU.",
     projectBanner: "",
@@ -261,6 +265,7 @@ export const DEMO_HOSPITAL_PROJECTS: Projects[] = [
   },
   {
     id: DEMO_PROJECT_ID_START + 5,
+    isDemo: true,
     projectName: "Ventilator Ruang Isolasi",
     projectDescription: "Rencana pengadaan ventilator ruang isolasi.",
     projectBanner: "",

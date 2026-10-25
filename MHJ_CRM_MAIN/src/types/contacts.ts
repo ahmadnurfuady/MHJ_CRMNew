@@ -48,6 +48,8 @@ export interface Contact {
   financeStatus?: string;
   source?: string;
   company?: string;
+  /** Semua faskes yang berelasi dengan kontak (fixture/UI multi-faskes). */
+  companyNames?: string[];
   project?: string;
   projectId?: string;
   latitude?: number;

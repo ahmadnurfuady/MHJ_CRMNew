@@ -130,13 +130,22 @@
 .customizer-contain {
   direction: ltr;
   position: fixed;
-  height: calc(100vh);
+  height: auto;
   top: 79px;
+  bottom: 0;
   width: 333px;
   right: -335px;
   background-color: $white;
   z-index: 8;
+  overflow: hidden;
   transition: all 0.3s ease;
+
+  > .tab-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
 
   &.open {
     right: 0px;
@@ -167,6 +176,7 @@
   }
 
   .customizer-header {
+    flex: 0 0 auto;
     padding: 15px 25px;
     border-bottom: 1px solid $light-color;
 
@@ -186,9 +196,12 @@
   }
 
   .customizer-body {
+    flex: 1 1 auto;
+    min-height: 0;
     padding: 15px 25px;
-    max-height: calc(100vh - 200px);
-    overflow-y: scroll;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     .fade {
       &:not(.show) {

@@ -553,17 +553,17 @@ onMounted(async () => {
 .quick-action-btn.btn-outline-primary,
 .quick-action-btn.btn-outline-primary:focus,
 .quick-action-btn.btn-outline-primary:active {
-  background-color: rgba(24, 166, 228, 0.08) !important;
-  border-color: rgba(24, 166, 228, 0.4) !important;
-  color: #0369a1 !important;
+  background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08) !important;
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.4) !important;
+  color: var(--app-primary-dark, #0369a1) !important;
 }
 
 .quick-action-btn.btn-outline-info,
 .quick-action-btn.btn-outline-info:focus,
 .quick-action-btn.btn-outline-info:active {
-  background-color: rgba(14, 116, 144, 0.08) !important;
-  border-color: rgba(14, 116, 144, 0.4) !important;
-  color: #0b5a70 !important;
+  background-color: rgba(var(--app-primary-dark-rgb, 14, 116, 144), 0.08) !important;
+  border-color: rgba(var(--app-primary-dark-rgb, 14, 116, 144), 0.4) !important;
+  color: var(--app-primary-dark, #0b5a70) !important;
 }
 
 .quick-action-btn.btn-outline-secondary,
@@ -575,14 +575,14 @@ onMounted(async () => {
 }
 
 .quick-action-btn.btn-outline-primary:hover {
-  background-color: #0369a1 !important;
-  border-color: #0369a1 !important;
+  background-color: var(--app-primary-dark, #0369a1) !important;
+  border-color: var(--app-primary-dark, #0369a1) !important;
   color: #ffffff !important;
 }
 
 .quick-action-btn.btn-outline-info:hover {
-  background-color: #0b5a70 !important;
-  border-color: #0b5a70 !important;
+  background-color: var(--app-primary-dark, #0b5a70) !important;
+  border-color: var(--app-primary-dark, #0b5a70) !important;
   color: #ffffff !important;
 }
 

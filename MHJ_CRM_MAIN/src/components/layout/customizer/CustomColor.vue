@@ -1,24 +1,24 @@
 <template>
-  <h5>Appearance</h5>
+  <h5>Tampilan</h5>
   <div class="appearance-settings">
     <div class="appearance-field">
-      <label for="primaryColor">Primary color</label>
+      <label for="primaryColor">Warna utama</label>
       <div class="color-control">
-        <input id="primaryColor" v-model="primary" type="color" aria-label="Primary color" />
+        <input id="primaryColor" v-model="primary" type="color" aria-label="Warna utama" />
         <code>{{ primary.toUpperCase() }}</code>
       </div>
     </div>
 
     <div class="appearance-field">
-      <label for="secondaryColor">Secondary color</label>
+      <label for="secondaryColor">Warna sekunder</label>
       <div class="color-control">
-        <input id="secondaryColor" v-model="secondary" type="color" aria-label="Secondary color" />
+        <input id="secondaryColor" v-model="secondary" type="color" aria-label="Warna sekunder" />
         <code>{{ secondary.toUpperCase() }}</code>
       </div>
     </div>
 
     <div class="appearance-field">
-      <label for="fontFamily">Global font</label>
+      <label for="fontFamily">Jenis huruf</label>
       <select id="fontFamily" v-model="fontFamily" class="form-select">
         <option v-for="font in fontOptions" :key="font.value" :value="font.value">
           {{ font.label }}
@@ -58,13 +58,13 @@
     </div>
 
     <small class="text-muted">
-      Warna turunan, sidebar, komponen, dan font akan mengikuti pengaturan ini.
+      Warna turunan, menu samping, komponen, dan jenis huruf akan mengikuti pengaturan ini.
     </small>
 
     <div class="appearance-actions">
-      <button type="button" class="btn btn-primary" @click="applyAppearance">Apply</button>
+      <button type="button" class="btn btn-primary" @click="applyAppearance">Terapkan</button>
       <button type="button" class="btn btn-outline-primary" @click="restoreDefaults">
-        Reset
+        Atur ulang
       </button>
     </div>
   </div>

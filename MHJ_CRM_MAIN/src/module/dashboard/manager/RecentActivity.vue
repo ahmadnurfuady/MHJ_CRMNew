@@ -8,7 +8,12 @@
     <ul v-if="activities.length" class="activity-list">
       <li v-for="activity in activities" :key="activity.id" class="activity-item">
         <span class="activity-item__icon" :class="`is-${activity.type}`" aria-hidden="true">
-          <MhjIcon :name="activityIcon(activity.type)" :size="20" />
+          <MhjIcon
+            :name="activityIcon(activity.type)"
+            :size="20"
+            color="var(--app-primary-dark, #0e7490)"
+            secondary-color="var(--app-secondary, #84d7eb)"
+          />
         </span>
         <div class="activity-item__body">
           <strong>{{ activity.title }}</strong>
@@ -105,17 +110,17 @@ function activityIcon(type: ActivityType): MhjIconName {
   height: 38px;
   border-radius: 12px;
   color: var(--app-primary, #18a6e4);
-  background: var(--app-primary-wash, #e5f5fc);
+  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16);
 }
 
 .activity-item__icon.is-meeting {
-  color: #7c3aed;
-  background: #ede9fe;
+  color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.22);
 }
 
 .activity-item__icon.is-email {
-  color: #b45309;
-  background: #fef3c7;
+  color: var(--app-primary, #18a6e4);
+  background: var(--app-primary-wash, #f0f9ff);
 }
 
 .activity-item__body {

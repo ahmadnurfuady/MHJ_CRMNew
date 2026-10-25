@@ -22,6 +22,7 @@
           <vue-feather type="user" size="13" />
           Profil Kontak
         </span>
+        <DummyDataBadge v-if="contactState.activeContact.isDemo" />
         <h4 class="contact-identity__row mb-0">{{ fullName }}</h4>
         <p class="contact-identity__row contact-role mb-0">
           {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
@@ -36,8 +37,8 @@
             <SolarIcon
               name="hospital"
               :size="18"
-              color="#087CAE"
-              secondary-color="#18A6E4"
+              color="var(--app-primary-dark, #087CAE)"
+              secondary-color="var(--app-primary, #18A6E4)"
               :secondary-opacity="0.45"
               aria-hidden="true"
             />
@@ -49,18 +50,39 @@
             :aria-label="`Lihat detail ${opportunityCount} peluang`"
             @click="scrollToDetail('contact-opportunity-detail')"
           >
-            <MhjIcon name="nav_peluang" :size="18" aria-hidden="true" />
+            <SolarIcon
+              name="chart"
+              :size="18"
+              color="var(--app-primary-dark, #087CAE)"
+              secondary-color="var(--app-primary, #18A6E4)"
+              :secondary-opacity="0.45"
+              aria-hidden="true"
+            />
             Peluang ({{ opportunityCount }})
           </button>
           <a
             v-if="contactState.activeContact.email"
             :href="`mailto:${contactState.activeContact.email}`"
           >
-            <MhjIcon name="action_email" :size="14" />
+            <SolarIcon
+              name="letter"
+              :size="16"
+              color="var(--app-primary-dark, #087CAE)"
+              secondary-color="var(--app-primary, #18A6E4)"
+              :secondary-opacity="0.45"
+              aria-hidden="true"
+            />
             {{ contactState.activeContact.email }}
           </a>
           <span v-if="contactLocation.city !== '-'">
-            <MhjIcon name="action_location" :size="14" />
+            <SolarIcon
+              name="map-point"
+              :size="16"
+              color="var(--app-primary-dark, #087CAE)"
+              secondary-color="var(--app-primary, #18A6E4)"
+              :secondary-opacity="0.45"
+              aria-hidden="true"
+            />
             {{ contactLocation.city }}
           </span>
         </div>
@@ -189,13 +211,45 @@
       </div>
 
       <template v-if="companyDetail">
+        <div
+          v-if="companiesForContact.length > 1"
+          class="company-switcher mb-4"
+          role="tablist"
+          aria-label="Pilih faskes kontak"
+        >
+          <button
+            v-for="company in companiesForContact"
+            :key="company.name"
+            class="company-switcher__button"
+            :class="{ 'company-switcher__button--active': company.name === selectedCompanyName }"
+            type="button"
+            role="tab"
+            :aria-selected="company.name === selectedCompanyName"
+            @click="selectedCompanyName = company.name"
+          >
+            <SolarIcon
+              name="hospital"
+              :size="16"
+              color="currentColor"
+              secondary-color="currentColor"
+              :secondary-opacity="0.42"
+              aria-hidden="true"
+            />
+            <span>{{ company.name }}</span>
+            <small>{{ company.projects.length }} peluang</small>
+          </button>
+        </div>
+
         <div class="card border mb-4 company-profile-card">
           <div
             class="card-header d-flex justify-content-between align-items-center pb-2"
           >
-            <h6 class="mb-0">Profil Faskes</h6>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h6 class="mb-0">Profil Faskes</h6>
+              <DummyDataBadge v-if="companyDetail.isDemo" />
+            </div>
             <span
-              v-if="!canEditCompanyProfile"
+              v-if="!canEditSelectedCompanyProfile"
               class="badge badge-light-secondary"
               >Read only</span
             >
@@ -254,13 +308,16 @@
             class="card border mb-0 stage-summary"
           >
             <div class="card-body">
-              <span
-                class="badge stage-badge mb-2"
-                :class="stageBadgeClass(summary.stage)"
-                :title="summary.stage"
-                >{{ summary.stage }}</span
+              <div
+                class="stage-summary-heading"
+                :title="`${summary.stage} (${summary.quantity})`"
               >
-              <h4 class="stage-count mb-1">{{ summary.quantity }} Peluang</h4>
+                <span
+                  class="badge stage-summary-badge"
+                  :class="stageBadgeClass(summary.stage)"
+                >{{ summary.stage }}</span>
+                <span class="stage-summary-count">({{ summary.quantity }})</span>
+              </div>
               <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
                 {{ formatCurrency(summary.value) }}
               </p>
@@ -269,8 +326,9 @@
         </div>
 
         <div id="contact-opportunity-detail" class="card border mb-4 opportunity-card">
-          <div class="card-header pb-2">
+          <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
             <h6 class="mb-0">Peluang Berjalan per Stage</h6>
+            <DummyDataBadge v-if="companyDetail.projectsAreDemo" />
           </div>
           <div class="card-body pt-3">
             <template v-if="groupedProjects.length">
@@ -321,8 +379,9 @@
 
 
          <div class="card border mb-0 installed-product-card">
-          <div class="card-header pb-2">
+          <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
             <h6 class="mb-0">Histori Produk Terinstal</h6>
+            <DummyDataBadge v-if="companyDetail.installedProductsAreDemo" />
           </div>
           <div class="card-body pt-3">
             <div class="table-responsive">
@@ -384,6 +443,7 @@ import { computed, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { companyDetails, type CompanyDetail } from "@/core/data/contactCrm";
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
@@ -422,22 +482,107 @@ const contactPhoneNumbers = computed(() => {
     ...(contact.phoneNumbers || []),
   );
 });
-const liveCompany = computed(() => {
+const associatedCompanyNames = computed(() => {
   const contact = contactState.value.activeContact;
-  if (!contact) return undefined;
-  const companyId = Number(contact.companyId);
-  const normalizedName = (contact.company || "").trim().toLowerCase();
+  if (!contact) return [];
+
+  const names = contact.companyNames?.length
+    ? contact.companyNames
+    : contact.company
+      ? [contact.company]
+      : [];
+
+  return [...new Set(names.map((name) => name.trim()).filter(Boolean))];
+});
+
+const companiesForContact = computed<CompanyDetail[]>(() => {
+  const contact = contactState.value.activeContact;
+  if (!contact) return [];
+
+  const result: CompanyDetail[] = [];
+  associatedCompanyNames.value.forEach((companyName, index) => {
+    const normalizedName = companyName.toLowerCase();
+    const companyId = index === 0 ? Number(contact.companyId) : Number.NaN;
+    const liveCompany = [hospitalStore.selectedItem, ...hospitalStore.items].find((company) => {
+      if (!company) return false;
+      return (
+        (Number.isFinite(companyId) && companyId > 0 && company.id === companyId) ||
+        company.name.trim().toLowerCase() === normalizedName
+      );
+    });
+    const sample = companyDetails[companyName];
+
+    if (!liveCompany) {
+      if (sample) {
+        result.push({
+          ...sample,
+          isDemo: true,
+          projectsAreDemo: Boolean(sample.projects.length),
+          installedProductsAreDemo: Boolean(sample.installedProducts.length),
+        });
+      }
+      return;
+    }
+
+    const projects = projectStore.items
+      .filter(
+        (project) =>
+          project.companyId === liveCompany.id ||
+          project.companyName?.trim().toLowerCase() === normalizedName,
+      )
+      .map((project) => ({
+        id: String(project.id),
+        name: project.projectName,
+        stage: project.stageName || titleCase(project.status),
+        value: project.amountValue ?? project.projectValue ?? 0,
+      }));
+
+    result.push({
+      name: liveCompany.name,
+      type:
+        liveCompany.hospitalType ||
+        liveCompany.hospitalClass ||
+        liveCompany.industry ||
+        "Faskes",
+      address: liveCompany.address || "-",
+      phone: liveCompany.phone || "-",
+      website: liveCompany.website || "",
+      projects: projects.length ? projects : sample?.projects ?? [],
+      projectsAreDemo: !projects.length && Boolean(sample?.projects.length),
+      installedProducts: sample?.installedProducts ?? [],
+      installedProductsAreDemo: Boolean(sample?.installedProducts.length),
+    });
+  });
+
+  return result;
+});
+
+const selectedCompanyName = ref("");
+watch(
+  companiesForContact,
+  (companies) => {
+    if (!companies.some((company) => company.name === selectedCompanyName.value)) {
+      selectedCompanyName.value = companies[0]?.name ?? "";
+    }
+  },
+  { immediate: true },
+);
+
+const companyDetail = computed<CompanyDetail | undefined>(() =>
+  companiesForContact.value.find((company) => company.name === selectedCompanyName.value),
+);
+
+const liveCompany = computed(() => {
+  const normalizedName = selectedCompanyName.value.trim().toLowerCase();
+  if (!normalizedName) return undefined;
 
   return [hospitalStore.selectedItem, ...hospitalStore.items].find((company) => {
-    if (!company) return false;
-    return (
-      (Number.isFinite(companyId) && companyId > 0 && company.id === companyId) ||
-      (normalizedName && company.name.trim().toLowerCase() === normalizedName)
-    );
+    return company?.name.trim().toLowerCase() === normalizedName;
   });
 });
 const companyLabel = computed(() => {
   const contact = contactState.value.activeContact;
+  if (contact?.companyNames?.length) return contact.companyNames.join(", ");
   return (
     liveCompany.value?.name ||
     contact?.company ||
@@ -482,39 +627,10 @@ const contactLocation = computed(() => {
     city: firstDisplayValue(contact?.city, company?.city),
   };
 });
-const companyDetail = computed<CompanyDetail | undefined>(() => {
-  const contact = contactState.value.activeContact;
-  if (!contact) return undefined;
-
-  const sample = companyDetails[contact.company || ""];
-  const company = liveCompany.value;
-  if (!company) return sample;
-
-  const projects = projectStore.items
-    .filter(
-      (project) =>
-        project.companyId === company.id ||
-        project.companyName?.trim().toLowerCase() === company.name.trim().toLowerCase(),
-    )
-    .map((project) => ({
-      id: String(project.id),
-      name: project.projectName,
-      stage: project.stageName || titleCase(project.status),
-      value: project.amountValue ?? project.projectValue ?? 0,
-    }));
-
-  return {
-    name: company.name,
-    type: company.hospitalType || company.hospitalClass || company.industry || "Faskes",
-    address: company.address || "-",
-    phone: company.phone || "-",
-    website: company.website || "",
-    projects: projects.length ? projects : sample?.projects ?? [],
-    installedProducts: sample?.installedProducts ?? [],
-  };
-});
-const faskesCount = computed(() => (companyDetail.value ? 1 : 0));
-const opportunityCount = computed(() => companyDetail.value?.projects.length ?? 0);
+const faskesCount = computed(() => companiesForContact.value.length);
+const opportunityCount = computed(() =>
+  companiesForContact.value.reduce((total, company) => total + company.projects.length, 0),
+);
 
 function scrollToDetail(sectionId: string) {
   const section = document.getElementById(sectionId)
@@ -537,10 +653,16 @@ const canEditCompanyProfile = computed(() =>
     userRole.value,
   ),
 );
+const canEditSelectedCompanyProfile = computed(
+  () =>
+    canEditCompanyProfile.value &&
+    Boolean(liveCompany.value) &&
+    !contactState.value.activeContact?.isDemo,
+);
 const companyEditTitle = computed(() =>
-  canEditCompanyProfile.value
+  canEditSelectedCompanyProfile.value
     ? "Edit profil faskes"
-    : "Profil faskes hanya dapat diedit oleh admin",
+    : "Profil Data Dummy Lokal hanya dapat dilihat",
 );
 const isEditingCompany = ref(false);
 const companyDraft = reactive({ phone: "", website: "", address: "" });
@@ -648,7 +770,7 @@ function stageBadgeClass(stage: string) {
 }
 
 async function toggleCompanyEdit() {
-  if (!canEditCompanyProfile.value || !companyDetail.value) return;
+  if (!canEditSelectedCompanyProfile.value || !companyDetail.value) return;
 
   if (isEditingCompany.value) {
     const company = liveCompany.value;
@@ -690,12 +812,12 @@ async function toggleCompanyEdit() {
   grid-template-columns: 108px minmax(0, 1fr) auto;
   align-items: center;
   gap: 24px;
-  border: 1px solid rgba(24, 166, 228, 0.18);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
   border-radius: 18px;
   padding: 24px;
   background:
-    radial-gradient(circle at 88% 18%, rgba(24, 166, 228, 0.16), transparent 24%),
-    linear-gradient(135deg, #ffffff 0%, #f5fbfe 58%, #eef9fd 100%);
+    radial-gradient(circle at 88% 18%, rgba(var(--app-primary-rgb, 24, 166, 228), 0.16), transparent 24%),
+    linear-gradient(135deg, #ffffff 0%, var(--app-primary-wash, #f5fbfe) 58%, var(--app-primary-wash, #eef9fd) 100%);
   box-shadow: 0 12px 32px rgba(22, 76, 105, 0.08);
 }
 
@@ -706,7 +828,7 @@ async function toggleCompanyEdit() {
   bottom: -74px;
   width: 180px;
   height: 180px;
-  border: 24px solid rgba(24, 166, 228, 0.06);
+  border: 24px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.06);
   border-radius: 50%;
   content: "";
 }
@@ -797,7 +919,7 @@ async function toggleCompanyEdit() {
   min-width: 0;
   align-items: center;
   gap: 6px;
-  border: 1px solid rgba(24, 166, 228, 0.13);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.13);
   border-radius: 999px;
   padding: 6px 10px;
   color: #486581;
@@ -815,13 +937,13 @@ async function toggleCompanyEdit() {
 .contact-profile-meta a:hover,
 .contact-profile-meta button:hover,
 .contact-profile-meta button:focus-visible {
-  border-color: rgba(24, 166, 228, 0.34);
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.34);
   color: var(--theme-default, #18a6e4);
   background: #ffffff;
 }
 
 .contact-profile-meta button:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.16);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
   outline-offset: 2px;
 }
 
@@ -860,7 +982,7 @@ async function toggleCompanyEdit() {
 }
 
 .profile-action:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.16);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
   outline-offset: 2px;
 }
 
@@ -887,7 +1009,7 @@ async function toggleCompanyEdit() {
   gap: 16px;
   border-bottom: 1px solid #e8eef2;
   padding: 18px 20px;
-  background: linear-gradient(90deg, #ffffff 0%, #f8fcfe 100%);
+  background: linear-gradient(90deg, #ffffff 0%, var(--app-primary-wash, #f8fcfe) 100%);
 }
 
 .detail-section-title,
@@ -907,7 +1029,7 @@ async function toggleCompanyEdit() {
   justify-content: center;
   border-radius: 12px;
   color: var(--theme-default, #18a6e4);
-  background: rgba(24, 166, 228, 0.1);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
 }
 
 .detail-section-title h5,
@@ -997,7 +1119,30 @@ async function toggleCompanyEdit() {
 }
 
 .contact-phone-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(36px, 7vw, 96px);
+  row-gap: 12px;
   margin-top: 1px;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+.contact-info-grid > .contact-phone-field {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.contact-phone-field > span {
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+.contact-phone-list > [class*="col-"] {
+  width: 100%;
+  max-width: none;
+  padding-right: 4px;
+  padding-left: 4px;
 }
 
 .contact-phone-item {
@@ -1039,7 +1184,7 @@ async function toggleCompanyEdit() {
 }
 
 .contact-phone-actions a:hover {
-  background: #e9f5fb;
+  background: var(--app-primary-wash, #e9f5fb);
 }
 
 .company-dashboard {
@@ -1047,7 +1192,7 @@ async function toggleCompanyEdit() {
   border: 1px solid #e3ebf0;
   border-radius: 16px;
   padding: 20px;
-  background: linear-gradient(180deg, #fafdff 0%, #ffffff 180px);
+  background: linear-gradient(180deg, var(--app-primary-wash, #fafdff) 0%, #ffffff 180px);
   box-shadow: 0 8px 24px rgba(31, 52, 73, 0.045);
 }
 
@@ -1073,6 +1218,55 @@ async function toggleCompanyEdit() {
   font-weight: 700;
 }
 
+.company-switcher {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.company-switcher__button {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 2px 8px;
+  border: 1px solid #dce7ed;
+  border-radius: 11px;
+  padding: 11px 12px;
+  color: #486581;
+  background: #ffffff;
+  text-align: left;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+.company-switcher__button span {
+  min-width: 0;
+  overflow: hidden;
+  color: #243b53;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.company-switcher__button small {
+  grid-column: 2;
+  color: #829ab1;
+  font-size: 10px;
+}
+
+.company-switcher__button:hover,
+.company-switcher__button:focus-visible,
+.company-switcher__button--active {
+  border-color: var(--theme-default, #18a6e4);
+  color: var(--theme-default, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.06);
+}
+
+.company-switcher__button:focus-visible {
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
+  outline-offset: 2px;
+}
+
 .company-profile-card {
   border-top: 3px solid var(--theme-default, #18a6e4) !important;
 }
@@ -1083,14 +1277,14 @@ async function toggleCompanyEdit() {
   gap: 1rem;
   overflow-x: auto;
   padding: 2px 2px 9px;
-  scrollbar-color: rgba(24, 166, 228, 0.35) transparent;
+  scrollbar-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.35) transparent;
   scrollbar-width: thin;
 }
 .stage-summary {
-  min-width: 165px;
-  flex: 1 0 165px;
+  min-width: 220px;
+  flex: 1 0 220px;
   border-top: 3px solid var(--theme-default, #18a6e4) !important;
-  background: linear-gradient(145deg, #ffffff 0%, #f8fcfe 100%) !important;
+  background: linear-gradient(145deg, #ffffff 0%, var(--app-primary-wash, #f8fcfe) 100%) !important;
   transition: box-shadow 0.18s ease, transform 0.18s ease;
 }
 .stage-summary-grid::-webkit-scrollbar {
@@ -1098,7 +1292,7 @@ async function toggleCompanyEdit() {
 }
 .stage-summary-grid::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(24, 166, 228, 0.35);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.35);
 }
 .stage-summary-grid::-webkit-scrollbar-track {
   background: transparent;
@@ -1110,20 +1304,36 @@ async function toggleCompanyEdit() {
 .stage-summary .card-body {
   padding: 17px;
 }
-.stage-badge {
-  display: inline-flex;
-  max-width: 100%;
+
+.stage-summary-heading {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stage-summary-badge {
+  display: block;
+  min-width: 0;
   overflow: hidden;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.stage-count {
-  color: #102a43;
-  font-size: 1.25rem;
-  white-space: nowrap;
+
+.stage-summary-count {
+  flex: 0 0 auto;
+  color: #52677a;
+  font-size: 13px;
+  font-weight: 700;
 }
 .stage-value {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1139,7 +1349,7 @@ async function toggleCompanyEdit() {
 
 .opportunity-card .list-group-item:hover {
   color: #102a43;
-  background: #f4fbfe;
+  background: var(--app-primary-wash, #f4fbfe);
 }
 
 .opportunity-name {
@@ -1271,6 +1481,14 @@ async function toggleCompanyEdit() {
 
   .contact-info-grid > .col-12 {
     grid-column: auto;
+  }
+
+  .contact-info-grid > .contact-phone-field {
+    grid-column: auto;
+  }
+
+  .contact-phone-list {
+    grid-template-columns: 1fr;
   }
 
   .contact-danger-zone {

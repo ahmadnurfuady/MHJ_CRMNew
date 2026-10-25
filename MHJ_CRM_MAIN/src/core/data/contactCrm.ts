@@ -69,6 +69,8 @@ export const projectOptions: Select[] = [
   { value: "PRJ-2026-002", label: "Upgrade MRI System" },
   { value: "PRJ-2026-003", label: "Pengadaan USG POC" },
   { value: "PRJ-2026-004", label: "Maintenance Cathlab" },
+  { value: "PRJ-2026-005", label: "Modernisasi Operating Microscope" },
+  { value: "PRJ-2026-006", label: "Integrasi Central Monitoring ICU" },
 ];
 
 export interface CompanyProject {
@@ -93,6 +95,9 @@ export interface CompanyDetail {
   website: string;
   projects: CompanyProject[];
   installedProducts: InstalledProduct[];
+  isDemo?: boolean;
+  projectsAreDemo?: boolean;
+  installedProductsAreDemo?: boolean;
 }
 
 export const companyDetails: Record<string, CompanyDetail> = {
@@ -114,6 +119,12 @@ export const companyDetails: Record<string, CompanyDetail> = {
         name: "Pengadaan OCT",
         stage: "Closed Won",
         value: 2500000000,
+      },
+      {
+        id: "PRJ-2026-005",
+        name: "Modernisasi Operating Microscope",
+        stage: "Qualification",
+        value: 3200000000,
       },
     ],
     installedProducts: [
@@ -190,6 +201,12 @@ export const companyDetails: Record<string, CompanyDetail> = {
         name: "Pengadaan Patient Monitor",
         stage: "Closed Won",
         value: 1800000000,
+      },
+      {
+        id: "PRJ-2026-006",
+        name: "Integrasi Central Monitoring ICU",
+        stage: "Negotiation",
+        value: 4750000000,
       },
     ],
     installedProducts: [

@@ -33,6 +33,7 @@
 import {
   computed,
   defineAsyncComponent,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -89,6 +90,26 @@ const backButtonLabel = computed(() =>
     : "Kembali ke halaman sebelumnya",
 );
 
+const CONTACT_SECTION_HASHES = new Set([
+  "#contact-faskes-detail",
+  "#contact-opportunity-detail",
+]);
+
+async function scrollToRequestedSection() {
+  if (!CONTACT_SECTION_HASHES.has(route.hash)) return;
+  await nextTick();
+
+  // GeneralDetails dimuat secara async; beri beberapa frame sampai section tersedia.
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const section = document.querySelector<HTMLElement>(route.hash);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  }
+}
+
 function detailRouteQuery() {
   const query = { ...route.query, detail: String(props.contactId) } as LocationQueryRaw & {
     edit?: unknown;
@@ -141,7 +162,7 @@ async function loadContact() {
       projectStore.fetchProjects({ per_page: 100 }),
       projectStore.fetchProjectLeaders(),
     ];
-    if (Number.isFinite(companyId) && companyId > 0) {
+    if (!contact.isDemo && Number.isFinite(companyId) && companyId > 0) {
       requests.push(hospitalStore.fetchHospitalById(companyId));
     }
     await Promise.allSettled(requests);
@@ -167,6 +188,7 @@ async function loadContact() {
       (leader) => String(leader.value) === String(contact.createdById),
     );
     if (contactLeader?.label) contact.owner = contactLeader.label;
+    await scrollToRequestedSection();
   } catch (error) {
     loadError.value =
       error instanceof Error ? error.message : contactApi.value.error || "Gagal memuat detail kontak.";
@@ -174,6 +196,7 @@ async function loadContact() {
 }
 
 watch(() => props.contactId, loadContact, { immediate: true });
+watch(() => route.hash, scrollToRequestedSection);
 
 watch(
   () => contactState.value.isEditContact,
@@ -261,7 +284,7 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnloa
   width: 50px;
   height: 50px;
   box-sizing: border-box;
-  border: 1px solid rgba(24, 166, 228, 0.28);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.28);
   border-radius: 12px;
   padding: 0;
   background: #fff;
@@ -288,11 +311,11 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnloa
 .back-button:focus-visible {
   border-color: var(--contact-primary);
   background: var(--contact-primary);
-  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .back-button:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   outline-offset: 2px;
 }
 

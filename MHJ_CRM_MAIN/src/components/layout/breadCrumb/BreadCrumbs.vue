@@ -14,7 +14,7 @@
               <SolarIcon
                 name="arrow-left-linear"
                 :size="22"
-                color="#087cae"
+                color="var(--app-primary-dark, #087cae)"
                 :stroke-width="2.5"
               />
             </button>
@@ -27,7 +27,7 @@
               <SolarIcon
                 name="arrow-left-linear"
                 :size="22"
-                color="#087cae"
+                color="var(--app-primary-dark, #087cae)"
                 :stroke-width="2.5"
               />
             </router-link>
@@ -104,15 +104,15 @@ function handleBackClick() {
   border-radius: 11px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(27, 43, 65, 0.04);
-  color: #087cae;
+  color: var(--app-primary-dark, #087cae);
   text-decoration: none;
   cursor: pointer;
   transition: background .18s ease, border-color .18s ease;
 }
 .page-title__back:hover,
 .page-title__back:focus-visible {
-  background: #eaf7fd;
-  border-color: #badff2;
+  background: var(--app-primary-wash, #eaf7fd);
+  border-color: var(--app-primary-border, #badff2);
   outline: none;
 }
 
@@ -142,14 +142,14 @@ function handleBackClick() {
 
 .page-refresh-button:hover:not(:disabled),
 .page-refresh-button:focus-visible {
-  border-color: #70c8ed;
-  color: #0788bd;
-  background: #f2fbff;
-  box-shadow: 0 4px 13px rgba(24, 166, 228, 0.13);
+  border-color: var(--app-secondary, #70c8ed);
+  color: var(--app-primary-dark, #0788bd);
+  background: var(--app-primary-wash, #f2fbff);
+  box-shadow: 0 4px 13px rgba(var(--app-primary-rgb, 24, 166, 228), 0.13);
 }
 
 .page-refresh-button:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.14);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
   outline-offset: 2px;
 }
 

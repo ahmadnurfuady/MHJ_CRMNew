@@ -8,7 +8,12 @@
     <div v-if="loading" class="promo-carousel__placeholder">Memuat promo...</div>
 
     <div v-else-if="slides.length === 0" class="promo-carousel__empty">
-      <MhjIcon name="action_promo_ticket" :size="28" />
+      <MhjIcon
+        name="action_promo_ticket"
+        :size="28"
+        color="var(--app-primary-dark, #0e7490)"
+        secondary-color="var(--app-secondary, #84d7eb)"
+      />
       <span>Belum ada promo aktif saat ini.</span>
     </div>
 
@@ -34,7 +39,12 @@
           <div class="promo-slide__decoration" aria-hidden="true">
             <span class="promo-slide__orb promo-slide__orb--large"></span>
             <span class="promo-slide__orb promo-slide__orb--small"></span>
-            <MhjIcon name="action_promo_ticket" :size="34" />
+            <MhjIcon
+              name="action_promo_ticket"
+              :size="34"
+              color="#fff"
+              secondary-color="#fff"
+            />
           </div>
           <span class="promo-slide__overlay" aria-hidden="true"></span>
           <div class="promo-slide__caption">
@@ -157,7 +167,7 @@ function markImageAsFailed(id: PromoSlide['id']) {
   border-radius: 16px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%),
-    linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-primary-dark, #0e7490));
+    linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #84d7eb));
 }
 
 .promo-slide img {
@@ -289,6 +299,7 @@ function markImageAsFailed(id: PromoSlide['id']) {
 .promo-swiper-pagination :deep(.swiper-pagination-bullet-active) {
   width: 18px;
   border-radius: 999px;
+  background: var(--app-secondary, #84d7eb);
   opacity: 1;
 }
 

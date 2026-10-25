@@ -10,14 +10,14 @@
 a,
 .green {
   text-decoration: none;
-  color: #0284c7;
+  color: var(--app-primary-dark, #0284c7);
   transition: 0.4s;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: rgba(24, 166, 228, 0.2);
+    background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <h5>Light layout</h5>
+  <h5>Tata letak terang</h5>
   <ul class="layout-grid customizer-color">
     <li
       class="color-layout"
@@ -45,7 +45,7 @@
     </li>
   </ul>
 
-  <h5>Dark Layout</h5>
+  <h5>Tata letak gelap</h5>
   <ul class="layout-grid customizer-color dark">
     <li
       class="color-layout"

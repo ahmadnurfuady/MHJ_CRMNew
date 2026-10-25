@@ -35,7 +35,7 @@
                 :class="['status-badge', { unrated: !hospital.financeStatus }]"
                 type="button"
                 :disabled="hospital.isDemo"
-                :title="hospital.isDemo ? 'Status data demo tidak dapat diubah' : 'Perbarui grading/status Finance'"
+                :title="hospital.isDemo ? 'Status Data Dummy Lokal tidak dapat diubah' : 'Perbarui grading/status Finance'"
                 @click="editHospitalStatus"
               >
                 <SolarIcon name="fa-circle" />
@@ -47,9 +47,7 @@
               {{ locationLabel }}
             </p>
             <div class="hospital-tags">
-              <span v-if="hospital.isDemo" class="demo-data-badge">
-                <SolarIcon name="fa-flask" /> Data demo lokal
-              </span>
+              <DummyDataBadge v-if="hospital.isDemo" />
               <span>{{
                 hospital.hospitalClass || "Kelas belum tersedia"
               }}</span>
@@ -114,6 +112,7 @@
         <div class="purchase-cycle-heading">
           <div>
             <h5 id="purchase-cycle-title">Purchase Cycle</h5>
+            <DummyDataBadge v-if="purchaseRecordsAreDemo" />
             <p>Siklus pembelian alat</p>
           </div>
           <span class="purchase-average">
@@ -191,6 +190,7 @@
           <div>
             <p>Pipeline sales</p>
             <h5>Peluang Faskes</h5>
+            <DummyDataBadge v-if="hospital.isDemo" />
           </div>
           <div class="panel-heading-actions">
             <div class="project-total">
@@ -201,7 +201,7 @@
               type="button"
               class="panel-add-button"
               :disabled="hospital.isDemo"
-              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah peluang'"
+              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk Data Dummy Lokal' : 'Tambah peluang'"
               @click="createOpportunity"
             >
               <SolarIcon name="add" color="#fff" secondary-color="#fff" aria-hidden="true" />
@@ -279,7 +279,7 @@
               >
                 <span class="project-name">
                   <strong>{{ project.projectName }}</strong>
-                  <small>{{ hospital.isDemo ? "Peluang demo lokal" : "Klik untuk melihat detail peluang" }}</small>
+                  <small>{{ hospital.isDemo ? "Peluang Data Dummy Lokal" : "Klik untuk melihat detail peluang" }}</small>
                 </span>
                 <span class="project-owner">
                   <SolarIcon name="fa-user" />
@@ -316,6 +316,7 @@
           <div>
             <p>Relasi utama</p>
             <h5>Kontak Faskes</h5>
+            <DummyDataBadge v-if="hospital.isDemo" />
           </div>
           <div class="panel-heading-actions">
             <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
@@ -323,7 +324,7 @@
               type="button"
               class="panel-add-button"
               :disabled="hospital.isDemo"
-              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk data demo' : 'Tambah kontak'"
+              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk Data Dummy Lokal' : 'Tambah kontak'"
               @click="createHospitalContact"
             >
               <SolarIcon name="add" color="#fff" secondary-color="#fff" aria-hidden="true" />
@@ -404,6 +405,7 @@
           <div>
             <p>Installed base</p>
             <h5>Alat Terpasang</h5>
+            <DummyDataBadge v-if="installedProductsAreDemo" />
           </div>
           <span class="panel-count">{{ installedProducts.length }} alat</span>
         </div>
@@ -466,6 +468,7 @@
           <div>
             <p>Informasi faskes</p>
             <h5>Profil Faskes</h5>
+            <DummyDataBadge v-if="hospital.isDemo" />
           </div>
           <div class="profile-actions">
             <button
@@ -633,6 +636,7 @@
       <div class="modal-header purchase-history-header">
         <div>
           <h5 class="modal-title">Riwayat Pembelian</h5>
+          <DummyDataBadge v-if="purchaseRecordsAreDemo" />
           <small class="purchase-history-subtitle">
             {{ purchaseTotal }} transaksi
           </small>
@@ -693,6 +697,7 @@ import {
 import { storeToRefs } from "pinia";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 import { companyDetails, type InstalledProduct } from "@/core/data/contactCrm";
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import {
   DEMO_HOSPITAL_CONTACTS,
   DEMO_HOSPITAL_INSTALLED_PRODUCTS,
@@ -815,6 +820,11 @@ const installedProducts = computed<InstalledProduct[]>(
         ? companyDetails[hospital.value.name]?.installedProducts
         : []) ?? [],
 );
+const installedProductsAreDemo = computed(() => {
+  if (hospital.value?.isDemo) return true;
+  if (!hospital.value) return false;
+  return Boolean(companyDetails[hospital.value.name]?.installedProducts.length);
+});
 
 const totalProjectValue = computed(() =>
   hospitalProjects.value.reduce(
@@ -888,6 +898,9 @@ const purchaseRecords = computed<PurchaseTimelineItem[]>(() => {
     return left.date.getTime() - right.date.getTime();
   });
 });
+const purchaseRecordsAreDemo = computed(
+  () => !wonProjectPurchases.value.length && installedProductsAreDemo.value,
+);
 
 const purchaseTotal = computed(() =>
   Math.max(
@@ -1437,7 +1450,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   width: 50px;
   height: 50px;
   box-sizing: border-box;
-  border: 1px solid rgba(24, 166, 228, 0.28);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.28);
   border-radius: 12px;
   padding: 0;
   background: #fff;
@@ -1464,11 +1477,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .back-button:focus-visible {
   border-color: var(--primary);
   background: var(--primary);
-  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .back-button:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   outline-offset: 2px;
 }
 .card {
@@ -1543,7 +1556,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .status-badge:hover,
 .status-badge:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
 }
 .status-badge:disabled {
   cursor: default;
@@ -1571,8 +1584,8 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   padding: 5px 10px;
   border: 1px solid #dce9ef;
   border-radius: 999px;
-  color: #37718b;
-  background: #f4fbfe;
+  color: var(--app-primary-dark, #37718b);
+  background: var(--app-primary-wash, #f4fbfe);
   font-size: 10px;
   font-weight: 600;
 }
@@ -1580,9 +1593,9 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border-color: #bae6fd;
-  color: #0369a1;
-  background: #f0f9ff;
+  border-color: var(--app-primary-border, #bae6fd);
+  color: var(--app-primary-dark, #0369a1);
+  background: var(--app-primary-wash, #f0f9ff);
   font-weight: 700;
 }
 .profile-link {
@@ -1592,9 +1605,9 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   border: 1px solid color-mix(in srgb, var(--primary) 55%, #d8e3e9);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #167fac !important;
-  background: #f3fbfe;
-  box-shadow: 0 4px 14px rgba(24, 166, 228, 0.12);
+  color: var(--app-primary-dark, #167fac) !important;
+  background: var(--app-primary-wash, #f3fbfe);
+  box-shadow: 0 4px 14px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -1605,7 +1618,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
     transform 0.2s ease;
 }
 .profile-link i {
-  color: #167ac0 !important;
+  color: var(--app-primary-dark, #167ac0) !important;
   transition: transform 0.2s ease;
 }
 .profile-link > span {
@@ -1627,7 +1640,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   transform: translateX(2px);
 }
 .profile-link:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   outline-offset: 2px;
 }
 .overview-metrics {
@@ -1655,8 +1668,8 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   border-radius: 11px;
 }
 .metric-icon.blue {
-  color: #178bc0;
-  background: #e1f4fc;
+  color: var(--app-primary, #178bc0);
+  background: var(--app-primary-soft, #e1f4fc);
 }
 .metric-icon.violet {
   color: #8057d7;
@@ -1713,8 +1726,8 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   flex: 0 0 auto;
   border-radius: 9px;
   padding: 7px 11px;
-  color: #078ac3;
-  background: #e7f7fd;
+  color: var(--app-primary-dark, #078ac3);
+  background: var(--app-primary-wash, #e7f7fd);
   font-size: 11px;
   font-weight: 700;
 }
@@ -1757,7 +1770,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   overflow-x: auto;
   margin-top: 18px;
   padding: 2px 4px 7px;
-  scrollbar-color: #bae8f8 transparent;
+  scrollbar-color: var(--app-primary-border, #bae8f8) transparent;
   scrollbar-width: thin;
 }
 .purchase-timeline {
@@ -1783,7 +1796,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   width: 100%;
   height: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #75d1ef, #23aee1);
+  background: linear-gradient(90deg, var(--app-secondary, #75d1ef), var(--app-primary, #23aee1));
   content: "";
 }
 .purchase-dot {
@@ -1802,7 +1815,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   width: 16px;
   height: 16px;
   border-color: color-mix(in srgb, var(--primary) 24%, #fff);
-  background: color-mix(in srgb, var(--primary) 82%, #032a4e);
+  background: color-mix(in srgb, var(--primary) 82%, var(--app-primary-deep, #032a4e));
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
 }
 .purchase-step strong {
@@ -1815,7 +1828,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   white-space: nowrap;
 }
 .purchase-step.latest strong {
-  color: #078ac3;
+  color: var(--app-primary-dark, #078ac3);
 }
 .purchase-step small {
   overflow: hidden;
@@ -1919,24 +1932,24 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .detail-tabs button:not(.active):hover,
 .detail-tabs button:not(.active):focus-visible {
-  color: #087bad;
-  background: #eaf8fd;
-  box-shadow: 0 3px 10px rgba(24, 166, 228, 0.12);
+  color: var(--app-primary-dark, #087bad);
+  background: var(--app-primary-wash, #eaf8fd);
+  box-shadow: 0 3px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
   transform: translateY(-1px);
 }
 .detail-tabs button:not(.active):hover > i,
 .detail-tabs button:not(.active):hover > span,
 .detail-tabs button:not(.active):focus-visible > i,
 .detail-tabs button:not(.active):focus-visible > span {
-  color: #087bad !important;
+  color: var(--app-primary-dark, #087bad) !important;
 }
 .detail-tabs button:not(.active):hover em,
 .detail-tabs button:not(.active):focus-visible em {
-  color: #087bad;
+  color: var(--app-primary-dark, #087bad);
   background: #fff;
 }
 .detail-tabs button:focus-visible {
-  outline: 2px solid rgba(24, 166, 228, 0.35);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.35);
   outline-offset: -2px;
 }
 .detail-tabs button i {
@@ -1953,7 +1966,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .detail-tabs button.active {
   color: #fff;
   background: var(--primary);
-  box-shadow: 0 5px 13px rgba(24, 166, 228, 0.22);
+  box-shadow: 0 5px 13px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22);
 }
 .detail-tabs button.active > i,
 .detail-tabs button.active > span {
@@ -2031,7 +2044,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .panel-add-button:focus-visible {
   color: var(--primary);
   background: #fff;
-  box-shadow: 0 5px 14px rgba(24, 166, 228, 0.16);
+  box-shadow: 0 5px 14px rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
   transform: translateY(-1px);
 }
 .panel-add-button:focus-visible {
@@ -2322,7 +2335,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .contact-card:hover,
 .contact-card:focus-visible {
   border-color: color-mix(in srgb, var(--primary) 45%, #e2e7eb);
-  box-shadow: 0 8px 22px rgb(24 166 228 / 10%);
+  box-shadow: 0 8px 22px rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
   transform: translateY(-1px);
   outline: none;
 }
@@ -2339,7 +2352,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   height: 46px;
   border-radius: 50%;
   color: #fff;
-  background: linear-gradient(145deg, #2299f5, #8dc8ff);
+  background: linear-gradient(145deg, var(--app-primary, #2299f5), var(--app-secondary, #8dc8ff));
   font-weight: 700;
 }
 .contact-identity {
@@ -2368,7 +2381,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   height: 34px;
   border-radius: 10px;
   color: var(--primary);
-  background: #e5f6fd;
+  background: var(--app-primary-wash, #e5f6fd);
 }
 .contact-activity {
   display: grid;
@@ -2430,8 +2443,8 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   background: #fff0d2;
 }
 .equipment-icon.cyan {
-  color: #1595c9;
-  background: #ddf4fd;
+  color: var(--app-primary-dark, #1595c9);
+  background: var(--app-primary-soft, #ddf4fd);
 }
 .installed-card strong,
 .installed-card span {
@@ -2584,7 +2597,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .comment-form button {
   border: 0;
-  color: #236184;
+  color: var(--app-primary-dark, #236184);
   background: transparent;
   font-size: 10px;
   font-weight: 700;
@@ -2615,7 +2628,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .edit-profile {
   border-color: var(--primary);
-  color: #087bad;
+  color: var(--app-primary-dark, #087bad);
   font-weight: 700;
 }
 .edit-profile:hover,
@@ -2625,7 +2638,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .edit-profile:focus-visible,
 .close-profile:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   outline-offset: 2px;
 }
 .hospital-info-view {
@@ -2698,10 +2711,10 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .hospital-phone-actions a:hover,
 .hospital-phone-actions a:focus-visible {
-  background: #e9f5fb;
+  background: var(--app-primary-wash, #e9f5fb);
 }
 .hospital-phone-actions a:focus-visible {
-  outline: 2px solid rgba(24, 166, 228, 0.28);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.28);
   outline-offset: 1px;
 }
 .hospital-map-section {
@@ -2741,7 +2754,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   border-radius: 50%;
   margin-bottom: 12px;
   color: var(--primary);
-  background: #e4f6fd;
+  background: var(--app-primary-wash, #e4f6fd);
   font-size: 19px;
 }
 .detail-state {
@@ -2830,7 +2843,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
     justify-content: center;
     border: 1px solid color-mix(in srgb, var(--primary) 55%, #d8e3e9);
     border-radius: 10px;
-    box-shadow: 0 4px 14px rgba(24, 166, 228, 0.12);
+    box-shadow: 0 4px 14px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
   }
   .overview-metric {
     padding: 13px;
@@ -3020,7 +3033,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   border: 2px solid var(--app-primary, #18a6e4);
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.08);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
 }
 .purchase-history-line {
   position: absolute;

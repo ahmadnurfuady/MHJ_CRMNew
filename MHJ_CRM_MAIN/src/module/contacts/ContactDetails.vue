@@ -4,7 +4,7 @@
       <div class="contact-title-group">
         <h5 class="mb-1">Kontak</h5>
         <p class="contact-total mb-0">
-          {{ formatContactTotal(contactApi.pagination.total || filteredContact.length) }} total kontak
+          {{ formatContactTotal(contactTotal) }} total kontak
         </p>
       </div>
       <div class="contact-header-actions">
@@ -14,8 +14,8 @@
             name="magnifier"
             class="crm-search-icon"
             :size="18"
-            color="#032A4E"
-            secondary-color="#18A6E4"
+            color="var(--app-primary-deep, #032A4E)"
+            secondary-color="var(--app-primary, #18A6E4)"
             :secondary-opacity="0.75"
             aria-hidden="true"
           />
@@ -123,6 +123,7 @@
                     <strong class="entity-detail-name mhj-cell-ellipsis">
                       {{ fullName(contact) }}
                     </strong>
+                    <DummyDataBadge v-if="contact.isDemo" />
                     <span
                       class="mhj-cell-ellipsis"
                       :title="contact.email || 'Email belum tersedia'"
@@ -133,12 +134,15 @@
                 </div>
               </td>
               <td data-label="Faskes">
-                <span
-                  class="cell-primary mhj-cell-ellipsis contact-table__bounded-text"
+                <button
+                  class="cell-primary cell-navigation-link mhj-cell-ellipsis contact-table__bounded-text"
+                  type="button"
                   :title="hospitalLabel(contact)"
+                  :aria-label="`Lihat detail faskes ${hospitalLabel(contact)}`"
+                  @click="openContactSection(contact, '#contact-faskes-detail')"
                 >
                   {{ hospitalLabel(contact) }}
-                </span>
+                </button>
               </td>
               <td data-label="Jabatan">
                 <span
@@ -149,13 +153,16 @@
                 </span>
               </td>
               <td data-label="Peluang">
-                <span
+                <button
                   v-if="contactPeluang(contact).length"
-                  class="project-badge mhj-cell-ellipsis"
+                  class="project-badge project-navigation-link mhj-cell-ellipsis"
+                  type="button"
                   :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
+                  :aria-label="`Lihat ${contactPeluang(contact).length} peluang ${fullName(contact)}`"
+                  @click="openContactSection(contact, '#contact-opportunity-detail')"
                 >
                   {{ contactPeluang(contact).length }} Peluang
-                </span>
+                </button>
                 <span v-else class="empty-value">Belum ada peluang</span>
               </td>
               <td data-label="Aktivitas">
@@ -176,7 +183,7 @@
                 </div>
                 <span v-else class="empty-value">Belum pernah</span>
               </td>
-              <td data-label="Detail" class="text-center">
+              <td data-label="Detail" class="text-center contact-detail-cell">
                 <button
                   class="btn btn-outline-primary btn-sm detail-button"
                   type="button"
@@ -267,6 +274,8 @@ import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch 
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
+import { companyDetails } from "@/core/data/contactCrm";
 import { useContact } from "@/store/contact";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
@@ -286,16 +295,23 @@ const contactTableColumns = [
   { label: "Nama", defaultWidth: 300, minWidth: 220 },
   { label: "Faskes", defaultWidth: 220, minWidth: 140 },
   { label: "Jabatan", defaultWidth: 320, minWidth: 140 },
-  { label: "Peluang", defaultWidth: 110, minWidth: 90 },
-  { label: "Aktivitas", defaultWidth: 120, minWidth: 100 },
-  { label: "Terakhir Dihubungi", defaultWidth: 210, minWidth: 160 },
-  { label: "Detail", defaultWidth: 140, minWidth: 120 },
+  { label: "Peluang", defaultWidth: 130, minWidth: 110 },
+  { label: "Aktivitas", defaultWidth: 230, minWidth: 170 },
+  { label: "Terakhir Dihubungi", defaultWidth: 220, minWidth: 180 },
+  { label: "Detail", defaultWidth: 180, minWidth: 160 },
 ] as const;
 const contactColumnWidths = ref<number[]>(
   contactTableColumns.map((column) => column.defaultWidth),
 );
 const contactTableWidth = computed(() =>
   contactColumnWidths.value.reduce((total, width) => total + width, 0),
+);
+const contactTotal = computed(() =>
+  Math.max(
+    filteredContact.value.length,
+    contactApi.value.pagination.total +
+      (filteredContact.value.some((contact) => contact.isDemo) ? 1 : 0),
+  ),
 );
 const visibleContactPages = computed<Array<number | string>>(() => {
   const totalPages = Math.max(1, contactApi.value.pagination.lastPage);
@@ -399,7 +415,9 @@ function formatContactTotal(total: number) {
 }
 
 function hospitalLabel(contact: Contact) {
-  return contact.company || "-";
+  return contact.companyNames?.length
+    ? contact.companyNames.join(", ")
+    : contact.company || "-";
 }
 
 /** Peluang terkait rumah sakit kontak, sama seperti ringkasan di halaman detail kontak. */
@@ -420,7 +438,15 @@ const projectsByCompany = computed(() => {
   return map;
 });
 
-function contactPeluang(contact: Contact): Projects[] {
+function contactPeluang(contact: Contact): Array<{ projectName: string }> {
+  if (contact.companyNames?.length) {
+    return contact.companyNames.flatMap((companyName) =>
+      (companyDetails[companyName]?.projects ?? []).map((project) => ({
+        projectName: project.name,
+      })),
+    );
+  }
+
   const companyId = Number(contact.companyId);
   if (Number.isFinite(companyId) && companyId > 0) {
     const byId = projectsByCompany.value.get(`id:${companyId}`);
@@ -465,6 +491,15 @@ function relativeContactDate(value: string) {
 function openContactDetail(contact: Contact) {
   const id = contact.remoteId ?? contact.id;
   void router.push({ path: routes.App.Contacts, query: { detail: String(id) } });
+}
+
+function openContactSection(contact: Contact, hash: string) {
+  const id = contact.remoteId ?? contact.id;
+  void router.push({
+    path: routes.App.Contacts,
+    query: { detail: String(id) },
+    hash,
+  });
 }
 
 onMounted(() => {
@@ -540,8 +575,8 @@ onBeforeUnmount(() => {
 }
 
 .contact-search:focus-within {
-  border-color: #18a6e4;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+  border-color: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
 }
 
 .contact-search input {
@@ -562,7 +597,7 @@ onBeforeUnmount(() => {
   width: 15px;
   height: 15px;
   flex: 0 0 15px;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
 }
 
 .contact-search__clear {
@@ -589,21 +624,21 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-color: #18a6e4 !important;
+  border-color: var(--app-primary, #18a6e4) !important;
   border-radius: 8px;
   margin: 0 !important;
   padding: 0 18px;
-  background-color: #18a6e4 !important;
+  background-color: var(--app-primary, #18a6e4) !important;
   color: #ffffff !important;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .add-contact-header-button:hover,
 .add-contact-header-button:focus {
-  border-color: #1493cc !important;
-  background-color: #1493cc !important;
+  border-color: var(--app-primary-hover, #1493cc) !important;
+  background-color: var(--app-primary-hover, #1493cc) !important;
   color: #ffffff !important;
 }
 
@@ -642,6 +677,11 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
+.contact-table thead th:last-child {
+  padding-right: 28px;
+  padding-left: 20px;
+}
+
 .contact-table__resizable-header {
   position: relative;
   padding-right: 18px !important;
@@ -675,7 +715,7 @@ onBeforeUnmount(() => {
 
 .contact-table__resize-handle:hover::after,
 .contact-table__resize-handle:focus-visible::after {
-  background: #18a6e4;
+  background: var(--app-primary, #18a6e4);
 }
 
 .contact-table tbody td {
@@ -691,7 +731,7 @@ onBeforeUnmount(() => {
 }
 
 .contact-table tbody tr:hover {
-  background: rgba(24, 166, 228, 0.035);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.035);
 }
 
 .contact-person {
@@ -741,7 +781,7 @@ onBeforeUnmount(() => {
 }
 
 .entity-detail-cell:focus-visible {
-  outline: 2px solid rgba(24, 166, 228, 0.22);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.22);
   outline-offset: -2px;
 }
 
@@ -754,6 +794,17 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
+.contact-person__identity .dummy-data-badge {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  margin: 3px 0;
+  overflow: visible;
+  color: #8a5a00;
+  font-size: 10px;
+  text-overflow: clip;
+}
+
 /* Nama Rumah Sakit dan Jabatan memakai batas teks yang sama. */
 .contact-table__bounded-text {
   max-width: 100%;
@@ -763,23 +814,59 @@ onBeforeUnmount(() => {
   max-width: 100%;
 }
 
+.cell-navigation-link {
+  display: block;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.cell-navigation-link:hover,
+.cell-navigation-link:focus-visible {
+  color: var(--theme-default, #18a6e4);
+}
+
+.cell-navigation-link:focus-visible,
+.project-navigation-link:focus-visible {
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
+  outline-offset: 3px;
+}
+
 .project-badge {
   display: inline-block;
-  max-width: 170px;
+  max-width: 100%;
   overflow: hidden;
   border-radius: 6px;
   padding: 5px 8px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #0369a1;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary-dark, #0369a1);
   font-size: 11px;
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.project-navigation-link {
+  border: 0;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.project-navigation-link:hover,
+.project-navigation-link:focus-visible {
+  color: var(--app-primary-dark, #075985);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
+}
+
 .activity-label {
   display: inline-flex;
-  max-width: 170px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   align-items: center;
   gap: 7px;
   color: #334155;
@@ -797,8 +884,8 @@ onBeforeUnmount(() => {
   height: 7px;
   flex: 0 0 7px;
   border-radius: 50%;
-  background: #18a6e4;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.12);
+  background: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
 }
 
 .empty-value {
@@ -809,6 +896,15 @@ onBeforeUnmount(() => {
 .last-contacted span,
 .last-contacted small {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.last-contacted {
+  width: 100%;
+  min-width: 0;
+  line-height: 1.35;
 }
 
 .last-contacted span {
@@ -836,6 +932,11 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
+.contact-detail-cell {
+  padding-right: 28px !important;
+  padding-left: 20px !important;
+}
+
 .detail-button > span,
 .detail-button :deep(.solar-icon) {
   color: inherit !important;
@@ -855,7 +956,7 @@ onBeforeUnmount(() => {
 }
 
 .detail-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
 }
 
 .contact-table-state {
@@ -877,8 +978,8 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-actions {
@@ -919,14 +1020,14 @@ onBeforeUnmount(() => {
 }
 
 .pagination-page-button:hover:not(:disabled) {
-  border-color: #18a6e4;
-  color: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-page-button--active,
 .pagination-page-button--active:disabled {
-  border-color: #18a6e4;
-  background: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
   opacity: 1;
 }

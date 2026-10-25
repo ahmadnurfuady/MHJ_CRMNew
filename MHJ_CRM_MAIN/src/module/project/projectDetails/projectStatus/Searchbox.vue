@@ -9,8 +9,8 @@
                 name="magnifier"
                 class="search-icon"
                 :size="18"
-                color="#032A4E"
-                secondary-color="#18A6E4"
+                color="var(--app-primary-deep, #032A4E)"
+                secondary-color="var(--app-primary, #18A6E4)"
                 :secondary-opacity="0.75"
                 aria-hidden="true"
               />

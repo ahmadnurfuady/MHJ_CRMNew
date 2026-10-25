@@ -1,5 +1,5 @@
 <template>
-  <h5>Mix Layout</h5>
+  <h5>Kombinasi tata letak</h5>
   <ul class="layout-grid customizer-mix">
     <li
       class="color-layout"

@@ -3,6 +3,7 @@ import type { Projects } from '@/types/project'
 /** Preview lokal untuk memastikan seluruh elemen kartu/detail peluang dapat ditinjau saat development. */
 export const completeProjectDemo: Projects = {
   id: -1001,
+  isDemo: true,
   projectName: 'Pengadaan Patient Monitor ICU 2026',
   projectDescription: 'RS Harapan Sehat Jakarta',
   projectBanner: '',

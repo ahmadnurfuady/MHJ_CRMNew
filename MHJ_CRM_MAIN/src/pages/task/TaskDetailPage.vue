@@ -5,7 +5,7 @@
         <SolarIcon
           name="arrow-left-linear"
           :size="26"
-          color="#087cae"
+          color="var(--app-primary-dark, #087cae)"
           :stroke-width="2.5"
         />
       </router-link>
@@ -150,7 +150,7 @@ watch(() => props.taskId, loadTask, { immediate: true })
   height: 50px;
   place-items: center;
   box-sizing: border-box;
-  border: 1px solid rgba(24, 166, 228, 0.28);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.28);
   border-radius: 12px;
   padding: 0;
   background: #fff;
@@ -177,11 +177,11 @@ watch(() => props.taskId, loadTask, { immediate: true })
 .back-button:focus-visible {
   border-color: var(--task-primary);
   background: var(--task-primary);
-  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .back-button:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.2);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   outline-offset: 2px;
 }
 
@@ -194,7 +194,7 @@ watch(() => props.taskId, loadTask, { immediate: true })
   margin-left: auto;
   padding: 9px 18px;
   border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .task-detail-state {

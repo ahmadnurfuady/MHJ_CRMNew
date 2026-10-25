@@ -5,9 +5,15 @@
     </div>
 
     <div class="key-metrics-grid">
-      <article v-for="kpi in kpis" :key="kpi.id" class="kpi-card" :class="`is-${kpi.accent}`">
+      <article v-for="kpi in kpis" :key="kpi.id" class="kpi-card">
         <div class="kpi-card__icon" aria-hidden="true">
-          <MhjIcon :name="resolveKpiIcon(kpi.id)" :size="24" />
+          <SolarIcon
+            :name="resolveKpiIcon(kpi.id)"
+            :size="24"
+            :color="kpi.id === 'win-rate' ? '#fff' : 'var(--app-primary-dark, #0e7490)'"
+            secondary-color="var(--app-primary, #18a6e4)"
+            :secondary-opacity="kpi.id === 'win-rate' ? 1 : 0.85"
+          />
         </div>
         <strong class="kpi-card__value">{{ kpi.value }}</strong>
         <span class="kpi-card__label">{{ kpi.label }}</span>
@@ -22,21 +28,19 @@
 
 <script setup lang="ts">
 import type { ManagerKpiCard } from '@/types/dashboard/manager'
-import type { MhjIconName } from '@/utils/mhjIcons'
-
 defineProps<{
   kpis: ManagerKpiCard[]
 }>()
 
-const KPI_ICONS: Record<string, MhjIconName> = {
-  'target-omset': 'kpi_cart_large_2',
-  'win-rate': 'kpi_graph',
-  'cakupan-pasar': 'kpi_medal_ribbons_star',
-  'funnel-aktif': 'kpi_pin_list',
+const KPI_ICONS: Record<string, string> = {
+  'target-omset': 'cart',
+  'win-rate': 'graph',
+  'cakupan-pasar': 'star',
+  'funnel-aktif': 'pin',
 }
 
-function resolveKpiIcon(id: string): MhjIconName {
-  return KPI_ICONS[id] ?? 'kpi_graph'
+function resolveKpiIcon(id: string): string {
+  return KPI_ICONS[id] ?? 'graph'
 }
 
 function clampProgress(value: number): number {
@@ -76,6 +80,8 @@ function clampProgress(value: number): number {
 }
 
 .kpi-card {
+  --kpi-accent: var(--app-primary, #18a6e4);
+  --kpi-accent-soft: var(--app-primary-wash, #f0f9ff);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -129,26 +135,6 @@ function clampProgress(value: number): number {
 .kpi-card__sublabel {
   color: #93a0aa;
   font-size: 11px;
-}
-
-.kpi-card.is-blue {
-  --kpi-accent: var(--app-primary, #18a6e4);
-  --kpi-accent-soft: var(--app-primary-wash, #e5f5fc);
-}
-
-.kpi-card.is-amber {
-  --kpi-accent: #b45309;
-  --kpi-accent-soft: #fef3c7;
-}
-
-.kpi-card.is-green {
-  --kpi-accent: #15803d;
-  --kpi-accent-soft: #dcfce7;
-}
-
-.kpi-card.is-violet {
-  --kpi-accent: #7c3aed;
-  --kpi-accent-soft: #ede9fe;
 }
 
 @media (min-width: 992px) {

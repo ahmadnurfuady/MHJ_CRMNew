@@ -24,12 +24,15 @@ import Swal from 'sweetalert2'
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 
 function open() {
+  const primaryColor =
+    getComputedStyle(document.documentElement).getPropertyValue('--app-primary').trim() || '#16C7F9'
+
   Swal.fire({
     title: 'Are you sure?',
     text: "You won't be able to revert this!",
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#16C7F9',
+    confirmButtonColor: primaryColor,
     cancelButtonColor: '#FC4438',
     confirmButtonText: 'Yes, delete it!',
   }).then((result) => {

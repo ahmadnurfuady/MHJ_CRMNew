@@ -347,8 +347,8 @@ function documentAttachments(comment: Comment): CommentAttachment[] {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
 }
 
 .comments-header h5 {
@@ -367,8 +367,8 @@ function documentAttachments(comment: Comment): CommentAttachment[] {
 .comments-count {
   padding: 5px 11px;
   border-radius: 999px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #116e96;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary-dark, #116e96);
   font-size: 11px;
   font-weight: 700;
 }
@@ -414,7 +414,7 @@ function documentAttachments(comment: Comment): CommentAttachment[] {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #18a6e4, #116e96);
+  background: linear-gradient(135deg, var(--app-primary, #18a6e4), var(--app-primary-dark, #116e96));
   color: #fff;
   display: inline-flex;
   align-items: center;
@@ -496,8 +496,8 @@ function documentAttachments(comment: Comment): CommentAttachment[] {
   border: 1px solid #e2e8f0;
   border-radius: 999px;
   font-size: 12px;
-  color: #116e96;
-  background: rgba(24, 166, 228, 0.06);
+  color: var(--app-primary-dark, #116e96);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.06);
   text-decoration: none;
   max-width: 240px;
 }

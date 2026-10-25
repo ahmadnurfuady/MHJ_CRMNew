@@ -120,8 +120,8 @@ async function openTaskForm(type: TaskKind) {
 }
 
 .task-type-card--specialist {
-  border-color: rgba(24, 166, 228, 0.24);
-  background: linear-gradient(145deg, rgba(24, 166, 228, 0.065), #fff 72%);
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.24);
+  background: linear-gradient(145deg, rgba(var(--app-primary-rgb, 24, 166, 228), 0.065), #fff 72%);
 }
 
 .task-type-card:hover,
@@ -143,8 +143,8 @@ async function openTaskForm(type: TaskKind) {
 }
 
 .task-type-card--specialist .task-type-icon {
-  color: #169bd5;
-  background: rgba(24, 166, 228, 0.12);
+  color: var(--app-primary, #169bd5);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
 }
 
 .task-type-copy {

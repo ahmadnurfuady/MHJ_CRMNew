@@ -1013,7 +1013,7 @@ function clearCurrentAddress() {
 }
 
 .add-phone-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
 }
 
 .location-field {
@@ -1110,7 +1110,7 @@ function clearCurrentAddress() {
 }
 
 .address-suggestion-item:hover {
-  background: #f3fbfe;
+  background: var(--app-primary-wash, #f3fbfe);
 }
 
 .address-suggestion-copy {
@@ -1135,7 +1135,7 @@ function clearCurrentAddress() {
   border: 0;
   border-radius: 8px;
   padding: 9px 10px;
-  background: #eef9fd;
+  background: var(--app-primary-wash, #eef9fd);
   color: var(--theme-default, #18a6e4);
   font-size: 12px;
   font-weight: 600;
@@ -1143,7 +1143,7 @@ function clearCurrentAddress() {
 }
 
 .address-search-more button:hover {
-  background: #def3fb;
+  background: var(--app-primary-soft, #def3fb);
 }
 
 .location-search-priority {

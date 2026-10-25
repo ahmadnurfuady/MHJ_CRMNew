@@ -1,10 +1,10 @@
 :root {
-  --mhj-primary: #18a6e4;
-  --mhj-navy: #032a4e;
-  --mhj-soft: #ddf2fb;
+  --mhj-primary: var(--app-primary, #18a6e4);
+  --mhj-navy: var(--app-primary-deep, #032a4e);
+  --mhj-soft: var(--app-primary-soft, #ddf2fb);
   --mhj-danger: #ef4444;
   --mhj-surface: #ffffff;
-  --mhj-text: #032a4e;
+  --mhj-text: var(--app-primary-deep, #032a4e);
   --mhj-muted: #64748b;
   --mhj-track: #e2e8f0;
   --mhj-radius-card: 20px;

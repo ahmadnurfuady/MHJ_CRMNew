@@ -210,7 +210,7 @@ const fileSize = computed(() => {
 .status-card { border: 1px solid #e2e9ee; border-radius: 16px; padding: 22px; background: #fff; box-shadow: 0 6px 20px rgba(27, 43, 65, .04); }
 .status-summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 16px; border-color: #cdebdc; background: linear-gradient(105deg, #f4fcf7, #fff 64%); }
 .status-summary__icon { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 16px; color: #16884d; background: #dff6e9; }
-.status-eyebrow { display: block; margin-bottom: 4px; color: #159ed8; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.status-eyebrow { display: block; margin-bottom: 4px; color: var(--app-primary, #159ed8); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .status-summary h5, .status-heading h5 { margin: 0; color: #17212b; font-size: 18px; }
 .status-summary p { margin: 6px 0 0; color: #77838e; font-size: 12px; }
 .status-badge { display: inline-flex; align-items: center; gap: 7px; border-radius: 999px; padding: 8px 12px; color: #5f6972; background: #e8ebee; font-size: 11px; font-weight: 700; white-space: nowrap; }
@@ -238,15 +238,15 @@ const fileSize = computed(() => {
 .order-details { margin: 0; }
 .order-details > div { display: grid; grid-template-columns: minmax(130px, .8fr) minmax(0, 1fr); align-items: center; gap: 14px; border-bottom: 1px solid #edf1f4; padding: 12px 0; }
 .order-details dt { display: inline-flex; align-items: center; gap: 8px; color: #89949d; font-size: 11px; font-weight: 500; }
-.order-details dt :deep(.solar-icon) { color: #159ed8; }
+.order-details dt :deep(.solar-icon) { color: var(--app-primary, #159ed8); }
 .order-details dd { overflow-wrap: anywhere; margin: 0; color: #29343d; font-size: 12px; font-weight: 700; text-align: right; }
 .order-document { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; margin-top: 18px; border: 1px solid #dfeaf0; border-radius: 12px; padding: 11px; background: #f7fbfd; }
-.order-document__icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; color: #159ed8; background: #e5f5fc; }
+.order-document__icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; color: var(--app-primary, #159ed8); background: var(--app-primary-wash, #e5f5fc); }
 .order-document strong, .order-document small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .order-document strong { color: #33414c; font-size: 11px; }
 .order-document small { margin-top: 3px; color: #93a0aa; font-size: 9px; }
-.order-document button { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 9px; color: #087fae; background: #e4f4fb; }
-.order-document button:hover { background: #d3edf8; }
+.order-document button { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 9px; color: var(--app-primary-dark, #087fae); background: var(--app-primary-wash, #e4f4fb); }
+.order-document button:hover { background: var(--app-primary-soft, #d3edf8); }
 
 @media (max-width: 767.98px) {
   .status-card { padding: 16px; }

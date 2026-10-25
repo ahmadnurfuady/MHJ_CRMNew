@@ -36,6 +36,6 @@ const projectStore = useProjectStore()
   height: 36px;
   place-items: center;
   border-radius: 50%;
-  background: var(--mhj-soft, #ddf2fb);
+  background: var(--mhj-soft, var(--app-primary-wash, #ddf2fb));
 }
 </style>

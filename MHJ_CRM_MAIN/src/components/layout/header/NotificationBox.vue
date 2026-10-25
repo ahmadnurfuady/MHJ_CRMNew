@@ -142,7 +142,7 @@ function handleItemClick(item: PushNotificationEntry) {
   align-items: flex-start;
   padding: 10px 12px;
   border-radius: 8px;
-  background: rgba(24, 166, 228, 0.08);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
   font-size: 12px;
 }
 
@@ -179,8 +179,8 @@ function handleItemClick(item: PushNotificationEntry) {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
   margin-right: 10px;
 }
 
@@ -200,6 +200,6 @@ function handleItemClick(item: PushNotificationEntry) {
 }
 
 .first-product.is-unread {
-  background-color: rgba(24, 166, 228, 0.06);
+  background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.06);
 }
 </style>

@@ -15,8 +15,8 @@
             name="magnifier"
             class="crm-search-icon"
             :size="18"
-            color="#032A4E"
-            secondary-color="#18A6E4"
+            color="var(--app-primary-deep, #032A4E)"
+            secondary-color="var(--app-primary, #18A6E4)"
             :secondary-opacity="0.75"
             aria-hidden="true"
           />
@@ -929,19 +929,19 @@ onBeforeUnmount(() => {
 
 .task-period-button:hover,
 .task-period-button:focus-visible {
-  color: #0284c7;
+  color: var(--app-primary-dark, #0284c7);
 }
 
 .task-period-button:focus-visible {
-  outline: 2px solid rgba(24, 166, 228, 0.24);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.24);
   outline-offset: 1px;
 }
 
 .task-period-button--active,
 .task-period-button--active:hover {
-  background: #18a6e4;
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
-  box-shadow: 0 2px 5px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 2px 5px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .task-export-button {
@@ -985,7 +985,7 @@ onBeforeUnmount(() => {
 
 .task-view-switch .task-view-switch__button--active {
   background: #ffffff;
-  color: #0284c7;
+  color: var(--app-primary-dark, #0284c7);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
 }
 
@@ -1012,8 +1012,8 @@ onBeforeUnmount(() => {
 }
 
 .task-search:focus-within {
-  border-color: #18a6e4;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+  border-color: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
 }
 
 .task-search input {
@@ -1034,7 +1034,7 @@ onBeforeUnmount(() => {
   width: 15px;
   height: 15px;
   flex: 0 0 15px;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
 }
 
 .task-search__clear {
@@ -1061,15 +1061,15 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-color: #18a6e4 !important;
+  border-color: var(--app-primary, #18a6e4) !important;
   border-radius: 8px;
   margin: 0 !important;
   padding: 0 18px;
-  background-color: #18a6e4 !important;
+  background-color: var(--app-primary, #18a6e4) !important;
   color: #ffffff !important;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .add-task-header-button span,
@@ -1080,8 +1080,8 @@ onBeforeUnmount(() => {
 
 .add-task-header-button:hover,
 .add-task-header-button:focus {
-  border-color: #1493cc !important;
-  background-color: #1493cc !important;
+  border-color: var(--app-primary-hover, #1493cc) !important;
+  background-color: var(--app-primary-hover, #1493cc) !important;
 }
 
 .task-table-wrap {
@@ -1139,7 +1139,7 @@ onBeforeUnmount(() => {
 
 .task-table__resize-handle:hover::after,
 .task-table__resize-handle:focus-visible::after {
-  background: #18a6e4;
+  background: var(--app-primary, #18a6e4);
 }
 
 .task-table tbody td {
@@ -1157,7 +1157,7 @@ onBeforeUnmount(() => {
 }
 
 .task-table tbody tr:hover {
-  background: rgba(24, 166, 228, 0.035);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.035);
 }
 
 .task-identity {
@@ -1177,12 +1177,12 @@ onBeforeUnmount(() => {
 
 .task-identity-button:hover .task-identity__text strong,
 .task-identity-button:focus-visible .task-identity__text strong {
-  color: #0284c7;
+  color: var(--app-primary-dark, #0284c7);
 }
 
 .task-identity-button:focus-visible {
   border-radius: 8px;
-  outline: 3px solid rgba(24, 166, 228, 0.18);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
 }
 
 .task-detail-indicator {
@@ -1199,8 +1199,8 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 9px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
 }
 
 .task-identity__text,
@@ -1245,12 +1245,12 @@ onBeforeUnmount(() => {
 
 .task-context-link:hover,
 .task-context-link:focus-visible {
-  color: #0284c7;
+  color: var(--app-primary-dark, #0284c7);
 }
 
 .task-context-link:focus-visible {
   border-radius: 3px;
-  outline: 2px solid rgba(24, 166, 228, 0.22);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.22);
   outline-offset: 2px;
 }
 
@@ -1288,8 +1288,8 @@ onBeforeUnmount(() => {
   overflow: hidden;
   border-radius: 6px;
   padding: 5px 8px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #0369a1;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary-dark, #0369a1);
   font-size: 11px;
   font-weight: 600;
   text-overflow: ellipsis;
@@ -1373,7 +1373,7 @@ onBeforeUnmount(() => {
 }
 
 .task-detail-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
 }
 
 .task-delete-button {
@@ -1432,8 +1432,8 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-actions {
@@ -1474,14 +1474,14 @@ onBeforeUnmount(() => {
 }
 
 .pagination-page-button:hover:not(:disabled) {
-  border-color: #18a6e4;
-  color: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-page-button--active,
 .pagination-page-button--active:disabled {
-  border-color: #18a6e4;
-  background: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
   opacity: 1;
 }

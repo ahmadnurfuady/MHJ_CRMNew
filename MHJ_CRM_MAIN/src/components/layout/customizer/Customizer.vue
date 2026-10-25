@@ -7,9 +7,7 @@
       aria-orientation="vertical"
     >
       <CustomizerSetting />
-      <CustomizerSupport />
       <CheckFeatures />
-      <BuyNow />
     </div>
   </div>
   <div class="customizer-contain" :class="{ open: layoutState.customizer }">
@@ -34,11 +32,6 @@ const ConfigurationView = defineAsyncComponent(
 const CustomSetting = defineAsyncComponent(
   () => import('@/components/layout/customizer/CustomSetting.vue')
 )
-const CustomizerSupport = defineAsyncComponent(
-  () => import('@/components/layout/customizer/CustomizerSupport.vue')
-)
-const BuyNow = defineAsyncComponent(() => import('@/components/layout/customizer/BuyNow.vue'))
-
 const store = useLayout()
 const { layoutState } = storeToRefs(store)
 </script>

@@ -62,8 +62,8 @@ const pageTitle = computed(() => {
   max-width: 460px;
   padding: 2.5rem 2rem;
   border-radius: 1rem;
-  border: 1.5px dashed rgba(24, 166, 228, 0.4);
-  background: rgba(24, 166, 228, 0.03);
+  border: 1.5px dashed rgba(var(--app-primary-rgb, 24, 166, 228), 0.4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.03);
 }
 
 .in-dev-icon {
@@ -73,22 +73,22 @@ const pageTitle = computed(() => {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18A6E4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18A6E4);
   margin-bottom: 1.25rem;
   /* efek nadi */
   animation: pulse 2.4s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(24,166,228,0.25); }
-  50% { box-shadow: 0 0 0 14px rgba(24,166,228,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--app-primary-rgb, 24, 166, 228), 0.25); }
+  50% { box-shadow: 0 0 0 14px rgba(var(--app-primary-rgb, 24, 166, 228), 0); }
 }
 
 .in-dev-title {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #032A4E;
+  color: var(--app-primary-deep, #032A4E);
   margin-bottom: 0.6rem;
 }
 
@@ -102,9 +102,9 @@ const pageTitle = computed(() => {
 .in-dev-badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18A6E4;
-  border: 1px solid rgba(24, 166, 228, 0.3);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18A6E4);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
   border-radius: 999px;
   padding: 0.3rem 0.85rem;
   font-size: 0.78rem;

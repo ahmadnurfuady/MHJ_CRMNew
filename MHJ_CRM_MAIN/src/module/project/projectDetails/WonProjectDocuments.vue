@@ -911,12 +911,12 @@ onMounted(loadDocuments)
 <style scoped>
 .won-document-actions { display: grid; grid-template-columns: minmax(260px, 1fr) auto; align-items: center; gap: 14px 22px; margin-top: 14px; border: 1px solid #e2ebf0; border-radius: 15px; padding: 15px 18px; background: #fff; box-shadow: 0 5px 18px rgba(27, 43, 65, .04); }
 .document-intro { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.document-icon { display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: #159ed8; background: #eaf7fd; }
+.document-icon { display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: var(--app-primary, #159ed8); background: var(--app-primary-wash, #eaf7fd); }
 .document-intro h5 { margin: 0 0 3px; color: #243448; font-size: 14px; font-weight: 600; }
 .document-intro p { margin: 0; color: #7e8b97; font-size: 11px; }
 .document-buttons { display: flex; gap: 10px; }
 .document-menu { position: relative; }
-.document-menu summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-width: 190px; border: 1px solid #cde8f4; border-radius: 10px; padding: 10px 13px; color: #087fae; background: #f1faff; cursor: pointer; font-size: 12px; font-weight: 600; list-style: none; user-select: none; }
+.document-menu summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-width: 190px; border: 1px solid var(--app-primary-border, #cde8f4); border-radius: 10px; padding: 10px 13px; color: var(--app-primary-dark, #087fae); background: var(--app-primary-wash, #f1faff); cursor: pointer; font-size: 12px; font-weight: 600; list-style: none; user-select: none; }
 .document-menu summary::-webkit-details-marker { display: none; }
 .document-menu summary > span { display: inline-flex; align-items: center; gap: 8px; }
 .menu-chevron { font-size: 9px; transition: transform .18s ease; }
@@ -924,14 +924,14 @@ onMounted(loadDocuments)
 .document-menu__panel { position: absolute; z-index: 40; top: calc(100% + 7px); left: 0; width: 270px; overflow: hidden; border: 1px solid #dfe8ed; border-radius: 12px; padding: 6px; background: #fff; box-shadow: 0 14px 34px rgba(27, 51, 69, .16); }
 .document-menu__panel--right { right: 0; left: auto; }
 .document-menu__panel button { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 8px; padding: 9px; color: #334352; background: transparent; text-align: left; }
-.document-menu__panel button:hover { background: #f1f8fb; }
-.document-menu__panel button > i { color: #159ed8; text-align: center; }
+.document-menu__panel button:hover { background: var(--app-primary-wash, #f1f8fb); }
+.document-menu__panel button > i { color: var(--app-primary, #159ed8); text-align: center; }
 .document-menu__panel strong, .document-menu__panel small { display: block; overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .document-menu__panel strong { font-size: 11px; }
 .document-menu__panel small { margin-top: 2px; color: #89949e; font-size: 9px; font-weight: 400; }
 .document-menu__panel .latest-document { margin-top: 4px; border-top: 1px solid #edf1f4; border-radius: 0 0 8px 8px; }
 .local-storage-note { grid-column: 1 / -1; margin: -3px 0 0 54px; color: #98a1aa; font-size: 9px; }
-.local-storage-note i { margin-right: 4px; color: #77b9d5; }
+.local-storage-note i { margin-right: 4px; color: var(--app-secondary, #77b9d5); }
 :deep(.won-document-dialog) { min-height: 0; }
 :deep(.won-document-modal) { max-height: calc(100vh - 2rem); overflow: hidden; border: 0; border-radius: 18px; }
 .document-form { display: flex; min-height: 0; flex: 1 1 auto; flex-direction: column; overflow: hidden; }
@@ -943,15 +943,15 @@ onMounted(loadDocuments)
 .form-grid .full-column { grid-column: 1 / -1; }
 .form-grid .form-control { min-height: 44px; border-color: #d9dee5; border-radius: 5px; padding: 10px 12px; color: #2f3337; font-size: 14px; font-weight: 400; }
 .form-grid textarea.form-control { min-height: 82px; resize: vertical; }
-.form-grid .form-control:focus { border-color: #25a9e0; box-shadow: 0 0 0 3px rgba(37, 169, 224, .1); }
+.form-grid .form-control:focus { border-color: var(--app-primary, #25a9e0); box-shadow: 0 0 0 3px rgba(37, 169, 224, .1); }
 .option-group { min-width: 0; margin: 0; border: 1px solid #d9dee5; border-radius: 8px; padding: 12px 14px; }
 .option-group legend { float: none; width: auto; margin: 0 0 8px; color: #2f3337; font-size: 14px; font-weight: 500; }
 .option-group label { display: flex; align-items: center; gap: 8px; margin: 7px 0; color: #4b5563; font-size: 14px; }
 .option-group input { width: 16px; height: 16px; }
-.option-group input { accent-color: #25a9e0; }
+.option-group input { accent-color: var(--app-primary, #25a9e0); }
 .option-group--inline { display: flex; flex-wrap: wrap; gap: 5px 24px; }
 .option-group--inline legend { flex: 0 0 100%; }
-.form-section-title { margin: 8px 0 0; border-bottom: 1px solid #e5ebef; padding-bottom: 9px; color: #168fca; font-size: 14px; font-weight: 600; }
+.form-section-title { margin: 8px 0 0; border-bottom: 1px solid #e5ebef; padding-bottom: 9px; color: var(--app-primary, #168fca); font-size: 14px; font-weight: 600; }
 .document-form .modal-footer { flex: 0 0 auto; padding: 14px 24px; background: #fff; }
 .document-form .btn { min-width: 100px; font-size: 14px; font-weight: 500; }
 .export-menu { position: relative; }
@@ -962,8 +962,8 @@ onMounted(loadDocuments)
 .export-menu[open] .export-chevron { transform: rotate(180deg); }
 .export-menu__panel { position: absolute; z-index: 60; right: 0; bottom: calc(100% + 8px); width: 265px; overflow: hidden; border: 1px solid #dfe7ec; border-radius: 11px; padding: 6px; background: #fff; box-shadow: 0 13px 32px rgba(27, 51, 69, .18); }
 .export-menu__panel button { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 8px; padding: 10px; color: #334352; background: transparent; text-align: left; }
-.export-menu__panel button:hover { background: #f1f8fb; }
-.export-menu__panel button > i { color: #159ed8; font-size: 16px; text-align: center; }
+.export-menu__panel button:hover { background: var(--app-primary-wash, #f1f8fb); }
+.export-menu__panel button > i { color: var(--app-primary, #159ed8); font-size: 16px; text-align: center; }
 .export-menu__panel strong, .export-menu__panel small { display: block; }
 .export-menu__panel strong { font-size: 13px; font-weight: 600; }
 .export-menu__panel small { margin-top: 2px; color: #89949e; font-size: 11px; }

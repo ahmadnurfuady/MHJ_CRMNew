@@ -164,18 +164,18 @@ function shortProgressLabel(label: string): string {
 }
 
 .benchmark-card__status.is-positive {
-  color: #087443;
-  background: #e7f8ef;
+  color: var(--app-primary-dark, #0e7490);
+  background: var(--app-primary-wash, #f0f9ff);
 }
 
 .benchmark-card__status.is-warning {
-  color: #9a5b08;
-  background: #fff3d6;
+  color: var(--app-primary-dark, #0e7490);
+  background: var(--app-primary-wash, #f0f9ff);
 }
 
 .benchmark-card__status.is-danger {
-  color: #a83b3b;
-  background: #fdeaea;
+  color: var(--app-primary-dark, #0e7490);
+  background: var(--app-primary-wash, #f0f9ff);
 }
 
 .benchmark-visual {
@@ -239,15 +239,15 @@ function shortProgressLabel(label: string): string {
 }
 
 .benchmark-bar__fill--2 {
-  background: linear-gradient(90deg, #18a6e4, #4bc1ed);
+  background: var(--app-primary, #18a6e4);
 }
 
 .benchmark-bar__fill--3 {
-  background: #6cc4a1;
+  background: var(--app-primary, #18a6e4);
 }
 
 .benchmark-bar__fill--4 {
-  background: #f1b75a;
+  background: var(--app-primary, #18a6e4);
 }
 
 .benchmark-bar__hint {
@@ -276,8 +276,11 @@ function shortProgressLabel(label: string): string {
 }
 
 .benchmark-score__center {
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 96px;
   height: 96px;
   border-radius: 50%;

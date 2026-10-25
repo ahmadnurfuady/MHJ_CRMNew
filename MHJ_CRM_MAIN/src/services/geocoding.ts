@@ -1,3 +1,5 @@
+import { api } from '@/services/api'
+
 interface NominatimReverseResult {
   display_name?: string
   address?: {
@@ -189,6 +191,13 @@ async function fetchNominatimSearch(query: string): Promise<NominatimSearchResul
   return (await response.json()) as NominatimSearchResult[]
 }
 
+/*
+ * NONAKTIF — diganti pencarian lewat backend (lihat `searchHealthFacilities` di bawah)
+ * yang memanggil endpoint `GET /geocoding/health-facilities` (HealthFacilitySearchController
+ * di siapcrmapi). Logika filtering/scope kota-provinsi di bawah ini sudah dipindahkan &
+ * direplikasi di backend (HealthFacilityResultMapper). Dipertahankan sebagai referensi/
+ * fallback, jangan dihapus.
+ *
 const HEALTH_AMENITY_TYPES = new Set([
   'hospital',
   'clinic',
@@ -332,15 +341,71 @@ async function fetchNominatimHealthFacilities(
       return rank[left.searchScope ?? 'outside'] - rank[right.searchScope ?? 'outside']
     })
 }
+*/
 
-/** Mencari seluruh kategori Faskes, dengan kota/provinsi pengguna sebagai prioritas. */
+interface HealthFacilityApiResult {
+  name: string
+  display_address: string
+  latitude: number
+  longitude: number
+  country: string
+  province: string | null
+  city: string | null
+  postal_code: string | null
+  facility_type: string
+  facility_type_label: string
+  scope: 'city' | 'province' | 'outside'
+  scope_label: string
+  provider: string
+}
+
+interface HealthFacilitySearchApiResponse {
+  success: boolean
+  message: string
+  data: {
+    query: string
+    origin: Record<string, unknown>
+    include_outside_province: boolean
+    total: number
+    results: HealthFacilityApiResult[]
+  } | null
+}
+
+/**
+ * Mencari seluruh kategori Faskes lewat endpoint backend `GET /geocoding/health-facilities`
+ * (siapcrmapi: `App\Http\Controllers\HealthFacilitySearchController`). Kota/provinsi
+ * pengguna (hasil GPS atau isian form) dikirim sebagai prioritas; backend yang menangani
+ * panggilan ke provider OSM, cache, rate-limit, dan filtering scope kota/provinsi.
+ */
 export async function searchHealthFacilities(
   query: string,
   options: HealthFacilitySearchOptions = {}
 ): Promise<AddressSearchResult[]> {
   const trimmed = query.trim()
   if (!trimmed) return []
-  return fetchNominatimHealthFacilities(trimmed, options)
+
+  const params: Record<string, string> = { q: trimmed }
+  if (options.city?.trim()) params.city = options.city.trim()
+  if (options.province?.trim()) params.province = options.province.trim()
+  if (options.includeOutsideProvince) params.include_outside_province = '1'
+
+  const response = await api.getbydata<HealthFacilitySearchApiResponse>(
+    'geocoding/health-facilities',
+    params
+  )
+  const results = response.data.data?.results ?? []
+
+  return results.map((result) => ({
+    address: result.display_address?.trim() || result.name?.trim() || '',
+    latitude: result.latitude,
+    longitude: result.longitude,
+    country: result.country?.trim() || 'Indonesia',
+    province: result.province?.trim() ?? '',
+    city: result.city?.trim() ?? '',
+    posCode: result.postal_code?.trim() ?? '',
+    facilityType: result.facility_type,
+    searchScope: result.scope
+  }))
 }
 
 /** Mencari kandidat lokasi (nama faskes/alamat) lengkap dengan koordinatnya lewat OpenStreetMap. */

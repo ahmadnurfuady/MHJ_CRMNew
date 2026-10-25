@@ -426,11 +426,11 @@ function preventUnavailableContact(event: MouseEvent) {
   grid-template-columns: 58px minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
-  border-color: rgba(24, 166, 228, 0.18);
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
   padding: 22px 24px;
   background:
-    radial-gradient(circle at 92% 15%, rgba(24, 166, 228, 0.14), transparent 24%),
-    linear-gradient(135deg, #ffffff 0%, #f5fbfe 62%, #eef9fd 100%);
+    radial-gradient(circle at 92% 15%, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14), transparent 24%),
+    linear-gradient(135deg, #ffffff 0%, var(--app-primary-wash, #f5fbfe) 62%, var(--app-primary-wash, #eef9fd) 100%);
 }
 
 .task-name-card::after {
@@ -440,7 +440,7 @@ function preventUnavailableContact(event: MouseEvent) {
   bottom: -70px;
   width: 150px;
   height: 150px;
-  border: 22px solid rgba(24, 166, 228, 0.055);
+  border: 22px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.055);
   border-radius: 50%;
   content: '';
 }
@@ -451,7 +451,7 @@ function preventUnavailableContact(event: MouseEvent) {
   align-items: center;
   justify-content: center;
   color: var(--theme-default, #18a6e4);
-  background: rgba(24, 166, 228, 0.1);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
 }
 
 .task-name-card__icon {
@@ -501,10 +501,10 @@ function preventUnavailableContact(event: MouseEvent) {
 
 .task-type-badge {
   align-self: start;
-  border: 1px solid rgba(24, 166, 228, 0.2);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   border-radius: 999px;
   padding: 6px 11px;
-  color: #087cae;
+  color: var(--app-primary-dark, #087cae);
   background: rgba(255, 255, 255, 0.82);
   font-size: 11px;
   font-weight: 700;
@@ -593,7 +593,7 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 .pipeline-text {
-  color: #075985 !important;
+  color: var(--app-primary-dark, #075985) !important;
 }
 
 .detail-tags {
@@ -618,7 +618,7 @@ function preventUnavailableContact(event: MouseEvent) {
 .detail-notes div {
   min-height: 0;
   border: 0;
-  border-left: 3px solid rgba(24, 166, 228, 0.42);
+  border-left: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.42);
   padding: 6px 0 6px 14px;
   color: #243b53;
   font-size: 14px;
@@ -670,7 +670,7 @@ function preventUnavailableContact(event: MouseEvent) {
   overflow: hidden;
   border: 1px solid #dbe2ea;
   border-radius: 12px;
-  background: linear-gradient(145deg, #f8fbfd, #f3f8fb);
+  background: linear-gradient(145deg, #f8fbfd, var(--app-primary-wash, #f3f8fb));
 }
 
 .evidence-preview img,
@@ -700,7 +700,7 @@ function preventUnavailableContact(event: MouseEvent) {
   border-radius: 6px;
   padding: 5px 8px;
   background: rgba(255, 255, 255, 0.94);
-  color: #0369a1;
+  color: var(--app-primary-dark, #0369a1);
   font-size: 11px;
   font-weight: 600;
 }
@@ -718,7 +718,7 @@ function preventUnavailableContact(event: MouseEvent) {
 .location-address svg {
   flex: 0 0 15px;
   margin-top: 1px;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
 }
 
 .comment-list {
@@ -743,8 +743,8 @@ function preventUnavailableContact(event: MouseEvent) {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--app-primary-soft, #dbeafe);
+  color: var(--app-primary-dark, #1d4ed8);
   font-size: 11px;
   font-weight: 700;
 }
@@ -841,15 +841,15 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 .comment-form input:focus {
-  border-color: #18a6e4;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.12);
+  border-color: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
 }
 
 .comment-form button {
   border: 0;
   padding: 7px 4px;
   background: transparent;
-  color: #0369a1;
+  color: var(--app-primary-dark, #0369a1);
   font-size: 12px;
   font-weight: 600;
 }

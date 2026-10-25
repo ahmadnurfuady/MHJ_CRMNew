@@ -1573,7 +1573,7 @@
         border-radius: 4px;
         opacity: 1;
         z-index: 9999;
-        filter: drop-shadow(0 1px 1px rgba(3, 42, 78, 0.45));
+        filter: drop-shadow(0 1px 1px rgba(var(--app-primary-dark-rgb, 3, 42, 78), 0.45));
         transform: translateY(-50%);
         transition: transform 0.2s ease;
 
@@ -1803,8 +1803,11 @@
                       padding: 12px 15px;
                       transition: all 0.3s ease;
 
+                      // !important diperlukan: punya specificity yang sama dengan
+                      // rule "a span:not(.mhj-icon) { display: none }" di bawah,
+                      // dan tanpa ini urutan source membuat rule itu menang saat hover.
                       span {
-                        display: inline-block;
+                        display: inline-block !important;
                       }
                     }
                   }
@@ -1855,7 +1858,9 @@
                   }
 
                   a {
-                    span {
+                    // Sembunyikan hanya label teks menu, bukan span pembungkus
+                    // icon MHJ (MhjIcon merender svg di dalam span karena v-html).
+                    span:not(.mhj-icon) {
                       display: none;
                     }
                   }
@@ -2458,7 +2463,7 @@
           color: $white !important;
           opacity: 1 !important;
           vertical-align: middle;
-          filter: drop-shadow(0 1px 1px rgba(3, 42, 78, 0.45));
+          filter: drop-shadow(0 1px 1px rgba(var(--app-primary-dark-rgb, 3, 42, 78), 0.45));
 
           path {
             color: $white !important;

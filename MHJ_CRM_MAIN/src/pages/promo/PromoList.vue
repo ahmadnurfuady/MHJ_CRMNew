@@ -19,8 +19,8 @@
           <SolarIcon
             name="magnifier"
             :size="19"
-            color="#032A4E"
-            secondary-color="#18A6E4"
+            color="var(--app-primary-deep, #032A4E)"
+            secondary-color="var(--app-primary, #18A6E4)"
             :secondary-opacity="0.75"
             aria-hidden="true"
           />
@@ -165,33 +165,33 @@ onMounted(() => void loadPromos(true))
 
 <style scoped>
 .promo-catalog { --promo-blue: var(--app-primary, #18a6e4); --promo-ink: #243240; padding-bottom: 34px; }
-.promo-catalog__hero { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; overflow: hidden; margin-bottom: 18px; border: 1px solid #dcecf4; border-radius: 18px; padding: 22px 24px; background: linear-gradient(120deg, #fff 15%, #f1faff 100%); box-shadow: 0 7px 24px rgba(30, 75, 105, .07); }
-.promo-catalog__hero::after { position: absolute; top: -72px; right: 90px; width: 180px; height: 180px; border: 34px solid rgba(24,166,228,.06); border-radius: 50%; content: ''; }
-.promo-catalog__hero-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 18px; background: #dff4fc; }
-.promo-catalog__eyebrow { display: block; margin-bottom: 4px; color: #1193c9; font-size: 9.5px; font-weight: 800; letter-spacing: .11em; }
+.promo-catalog__hero { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; overflow: hidden; margin-bottom: 18px; border: 1px solid var(--app-primary-border, #dcecf4); border-radius: 18px; padding: 22px 24px; background: linear-gradient(120deg, #fff 15%, var(--app-primary-wash, #f1faff) 100%); box-shadow: 0 7px 24px rgba(30, 75, 105, .07); }
+.promo-catalog__hero::after { position: absolute; top: -72px; right: 90px; width: 180px; height: 180px; border: 34px solid rgba(var(--app-primary-rgb, 24, 166, 228), .06); border-radius: 50%; content: ''; }
+.promo-catalog__hero-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 62px; height: 62px; border-radius: 18px; background: var(--app-primary-soft, #dff4fc); }
+.promo-catalog__eyebrow { display: block; margin-bottom: 4px; color: var(--app-primary-dark, #1193c9); font-size: 9.5px; font-weight: 800; letter-spacing: .11em; }
 .promo-catalog__hero h1 { margin: 0; color: var(--promo-ink); font-size: 22px; font-weight: 750; }
 .promo-catalog__hero p { margin: 5px 0 0; color: #748391; font-size: 12px; }
-.promo-catalog__total { position: relative; z-index: 1; border-radius: 999px; padding: 8px 12px; color: #087fad; background: #fff; box-shadow: 0 3px 12px rgba(34,96,128,.1); font-size: 11px; font-weight: 700; }
+.promo-catalog__total { position: relative; z-index: 1; border-radius: 999px; padding: 8px 12px; color: var(--app-primary-dark, #087fad); background: #fff; box-shadow: 0 3px 12px rgba(34,96,128,.1); font-size: 11px; font-weight: 700; }
 .promo-catalog__content-card { border: 1px solid #e2e8ed; border-radius: 18px; padding: 20px; background: #fff; box-shadow: 0 7px 24px rgba(30,75,105,.07); }
 .promo-catalog__toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .promo-search { display: flex; align-items: center; gap: 9px; width: min(380px, 100%); height: 42px; border: 1px solid #dfe7ec; border-radius: 12px; padding: 0 10px 0 13px; background: #fff; box-shadow: 0 3px 12px rgba(31,41,55,.05); }
-.promo-search:focus-within { border-color: #66c4eb; box-shadow: 0 0 0 3px rgba(24,166,228,.1); }
+.promo-search:focus-within { border-color: var(--app-primary-border, #66c4eb); box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), .1); }
 .promo-search input { flex: 1; min-width: 0; border: 0; outline: 0; color: var(--promo-ink); background: transparent; font-size: 12px; }
 .promo-search input::placeholder { color: #9aa6af; }
 .promo-search button { display: grid; place-items: center; width: 27px; height: 27px; border: 0; border-radius: 7px; padding: 0; color: #82909c; background: #f3f6f8; }
 .promo-filters { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
 .promo-filters button { display: inline-flex; align-items: center; gap: 7px; min-height: 34px; border: 1px solid #dfe7ec; border-radius: 999px; padding: 6px 10px 6px 12px; color: #647482; background: #fff; font-size: 10.5px; font-weight: 600; }
 .promo-filters button span { display: grid; place-items: center; min-width: 19px; height: 19px; border-radius: 10px; padding: 0 5px; background: #eef2f5; font-size: 9px; }
-.promo-filters button.active { border-color: #56bce7; color: #087fad; background: #eaf8fd; }
+.promo-filters button.active { border-color: var(--app-primary-border, #56bce7); color: var(--app-primary-dark, #087fad); background: var(--app-primary-wash, #eaf8fd); }
 .promo-filters button.active span { color: #fff; background: var(--promo-blue); }
 .promo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .promo-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid #e2e8ed; border-radius: 16px; color: inherit; background: #fff; box-shadow: 0 5px 18px rgba(31,55,75,.07); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-.promo-card:hover { border-color: #b9dfef; color: inherit; transform: translateY(-3px); box-shadow: 0 12px 28px rgba(31,75,105,.12); }
-.promo-card__media { position: relative; overflow: hidden; height: 170px; background: #eaf7fc; }
+.promo-card:hover { border-color: var(--app-primary-border, #b9dfef); color: inherit; transform: translateY(-3px); box-shadow: 0 12px 28px rgba(31,75,105,.12); }
+.promo-card__media { position: relative; overflow: hidden; height: 170px; background: var(--app-primary-wash, #eaf7fc); }
 .promo-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
 .promo-card:hover .promo-card__media img { transform: scale(1.025); }
-.promo-card__fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #0f96ca; background: linear-gradient(140deg, #dff4fc, #f6fcff); }
-.promo-card__fallback span { position: absolute; border: 18px solid rgba(24,166,228,.09); border-radius: 50%; }
+.promo-card__fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--app-primary, #0f96ca); background: linear-gradient(140deg, var(--app-primary-soft, #dff4fc), var(--app-primary-wash, #f6fcff)); }
+.promo-card__fallback span { position: absolute; border: 18px solid rgba(var(--app-primary-rgb, 24, 166, 228), .09); border-radius: 50%; }
 .promo-card__fallback span:first-child { top: -55px; right: -35px; width: 140px; height: 140px; }
 .promo-card__fallback span:nth-child(2) { bottom: -35px; left: -20px; width: 92px; height: 92px; }
 .promo-card__status { position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 9px; color: #536472; background: rgba(255,255,255,.94); box-shadow: 0 3px 10px rgba(15,23,42,.12); font-size: 9.5px; font-weight: 700; backdrop-filter: blur(5px); }
@@ -202,9 +202,9 @@ onMounted(() => void loadPromos(true))
 .promo-card__date { display: flex; align-items: center; gap: 6px; margin-bottom: 9px; color: #84919c; font-size: 9.5px; font-weight: 600; }
 .promo-card__body h2 { display: -webkit-box; overflow: hidden; margin: 0; color: var(--promo-ink); font-size: 15px; font-weight: 750; line-height: 1.35; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .promo-card__body p { display: -webkit-box; overflow: hidden; min-height: 38px; margin: 8px 0 16px; color: #748391; font-size: 11px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.promo-card__link { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; color: #0788bd; font-size: 10.5px; font-weight: 700; }
+.promo-card__link { display: inline-flex; align-items: center; gap: 4px; margin-top: auto; color: var(--app-primary-dark, #0788bd); font-size: 10.5px; font-weight: 700; }
 .promo-state { display: flex; min-height: 290px; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #d9e3e9; border-radius: 17px; padding: 30px; background: #fff; text-align: center; }
-.promo-state__icon { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 12px; border-radius: 16px; color: #1599cf; background: #e5f6fd; }
+.promo-state__icon { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 12px; border-radius: 16px; color: var(--app-primary, #1599cf); background: var(--app-primary-wash, #e5f6fd); }
 .promo-state h2 { margin: 0; color: var(--promo-ink); font-size: 16px; }
 .promo-state p { margin: 7px 0 15px; color: #7d8b96; font-size: 11.5px; }
 .promo-state button { border: 0; border-radius: 10px; padding: 9px 16px; color: #fff; background: var(--promo-blue); font-size: 11px; font-weight: 700; }

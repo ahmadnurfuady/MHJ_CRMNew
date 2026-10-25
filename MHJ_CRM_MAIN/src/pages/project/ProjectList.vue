@@ -96,8 +96,8 @@
                   name="magnifier"
                   class="crm-search-icon"
                   :size="18"
-                  color="#032A4E"
-                  secondary-color="#18A6E4"
+                  color="var(--app-primary-deep, #032A4E)"
+                  secondary-color="var(--app-primary, #18A6E4)"
                   :secondary-opacity="0.75"
                   aria-hidden="true"
                 />
@@ -700,10 +700,10 @@ onBeforeUnmount(() => {
   border-radius: 13px;
   padding: 6px 16px 6px 7px;
   color: #ffffff;
-  background: linear-gradient(135deg, #1ba5d5, #18a6e4);
+  background: linear-gradient(135deg, var(--app-secondary, #1ba5d5), var(--app-primary, #18a6e4));
   box-shadow:
-    0 5px 0 #a9e5f6,
-    0 10px 22px rgba(24, 166, 228, 0.14);
+    0 5px 0 var(--app-primary-border, #a9e5f6),
+    0 10px 22px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
   font-size: 12px;
   font-weight: 700;
   transition:
@@ -718,7 +718,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: rgba(4, 111, 156, 0.22);
+  background: rgba(var(--app-primary-dark-rgb, 4, 111, 156), 0.22);
 }
 
 .add-project-button > span,
@@ -731,13 +731,13 @@ onBeforeUnmount(() => {
 .add-project-button:focus-visible {
   color: #ffffff;
   box-shadow:
-    0 4px 0 #a9e5f6,
-    0 12px 25px rgba(24, 166, 228, 0.2);
+    0 4px 0 var(--app-primary-border, #a9e5f6),
+    0 12px 25px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   transform: translateY(-1px);
 }
 
 .add-project-button:focus-visible {
-  outline: 3px solid rgba(24, 166, 228, 0.18);
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
   outline-offset: 3px;
 }
 
@@ -775,7 +775,7 @@ onBeforeUnmount(() => {
 .overview-label {
   display: block;
   margin-bottom: 13px;
-  color: #0284b8;
+  color: var(--app-primary-dark, #0284b8);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -846,7 +846,7 @@ onBeforeUnmount(() => {
 }
 
 .composition-legend span:nth-child(2) {
-  color: #0795c9;
+  color: var(--app-primary, #0795c9);
   text-align: center;
 }
 
@@ -905,7 +905,7 @@ onBeforeUnmount(() => {
 
 .owner-filter:focus {
   border-color: var(--pipeline-blue);
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.12);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
 }
 
 .view-switcher {
@@ -940,7 +940,7 @@ onBeforeUnmount(() => {
 
 .stage-card {
   --stage-color: var(--pipeline-blue);
-  --stage-soft: rgba(24, 166, 228, 0.08);
+  --stage-soft: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
   min-width: 0;
   min-height: 102px;
   border: 1px solid #dfe7ec;
@@ -1056,8 +1056,8 @@ onBeforeUnmount(() => {
 }
 
 .project-search:focus-within {
-  border-color: #18a6e4;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+  border-color: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
 }
 
 .project-search input {
@@ -1078,7 +1078,7 @@ onBeforeUnmount(() => {
   width: 15px;
   height: 15px;
   flex: 0 0 15px;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
 }
 
 .project-search__clear {
@@ -1110,10 +1110,10 @@ onBeforeUnmount(() => {
 /* Kartu peluang memakai class khusus agar tidak bertabrakan dengan style card template. */
 :deep(.opp-card) {
   --opp-stage: #475569;
-  --opp-blue: #18a6e4;
-  --opp-blue-soft: #eef9fd;
-  --opp-blue-border: #bde9f7;
-  --opp-blue-glow: rgba(24, 166, 228, 0.15);
+  --opp-blue: var(--app-primary, #18a6e4);
+  --opp-blue-soft: var(--app-primary-wash, #eef9fd);
+  --opp-blue-border: var(--app-primary-border, #bde9f7);
+  --opp-blue-glow: rgba(var(--app-primary-rgb, 24, 166, 228), 0.15);
   position: relative;
   isolation: isolate;
   display: grid;
@@ -1282,7 +1282,7 @@ onBeforeUnmount(() => {
   border: 2px solid #ffffff;
   border-radius: 50%;
   color: #ffffff;
-  background: linear-gradient(145deg, #18a6e4, #087eaf);
+  background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-primary-dark, #087eaf));
   box-shadow: 0 0 0 1px var(--opp-blue-border);
   font-size: 11px;
   font-style: normal;
@@ -1673,7 +1673,7 @@ onBeforeUnmount(() => {
 }
 
 .project-empty-state svg {
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
 }
 
 .project-pagination-card__body {
@@ -1729,14 +1729,14 @@ onBeforeUnmount(() => {
 }
 
 .pagination-page-button:hover:not(:disabled) {
-  border-color: #18a6e4;
-  color: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-page-button--active,
 .pagination-page-button--active:disabled {
-  border-color: #18a6e4;
-  background: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
   opacity: 1;
 }

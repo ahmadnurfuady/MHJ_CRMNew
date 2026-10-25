@@ -1,5 +1,5 @@
 <template>
-  <h5>Layout Type</h5>
+  <h5>Tipe tata letak</h5>
   <ul class="main-layout d-flex align-items-center layout-grid">
     <li
       data-attr="ltr"
@@ -23,27 +23,6 @@
       </div>
     </li>
     <li
-      data-attr="rtl"
-      :class="{ active: layoutType == 'rtl' }"
-      @click="customizeLayoutType('rtl')"
-    >
-      <div class="header bg-light">
-        <ul>
-          <li></li>
-          <li></li>
-          <li></li>
-        </ul>
-      </div>
-      <div class="body">
-        <ul>
-          <li class="bg-light body">
-            <span class="badge badge-primary">RTL</span>
-          </li>
-          <li class="bg-light sidebar"></li>
-        </ul>
-      </div>
-    </li>
-    <li
       v-bind:style="layoutState.boxLayout ? '' : 'display: none;'"
       data-attr="box"
       :class="{ active: layoutType == 'box-layout' }"
@@ -61,7 +40,7 @@
         <ul>
           <li class="bg-light sidebar"></li>
           <li class="bg-light body">
-            <span class="badge badge-primary">Box</span>
+            <span class="badge badge-primary">Kotak</span>
           </li>
         </ul>
       </div>

@@ -9,7 +9,7 @@
         <SolarIcon
           name="global-linear"
           :size="22"
-          color="#1599CF"
+          color="var(--app-primary, #1599CF)"
           :stroke-width="2"
           aria-hidden="true"
         />
@@ -130,8 +130,8 @@ onClickOutside(dropdownRef, () => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #1599cf;
-  background: #eaf7fd;
+  color: var(--app-primary, #1599cf);
+  background: var(--app-primary-wash, #eaf7fd);
   line-height: 0;
 }
 
@@ -221,7 +221,7 @@ onClickOutside(dropdownRef, () => {
 .language-option:hover,
 .language-option.selected {
   color: var(--theme-default);
-  background: #eaf7fd;
+  background: var(--app-primary-wash, #eaf7fd);
 }
 
 .language-option span {

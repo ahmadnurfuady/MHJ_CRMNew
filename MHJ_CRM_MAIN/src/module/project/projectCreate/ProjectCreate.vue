@@ -14,6 +14,15 @@
               <span class="spinner-border text-primary" role="status"></span>
             </div>
             <form v-else class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
+              <div v-if="dummyLookupLabels.length" class="col-12">
+                <div class="dummy-source-notice" role="note">
+                  <DummyDataBadge />
+                  <span>
+                    Master lokal sedang dipakai untuk:
+                    {{ dummyLookupLabels.join(', ') }}.
+                  </span>
+                </div>
+              </div>
               <div class="col-12">
                 <InputWrapper :title="'Nama Peluang'" required>
                   <div class="input-group project-name-input">
@@ -376,6 +385,7 @@ import type { Contact } from '@/types/contacts'
 import type { InputField as InputFieldState } from '@/types/common'
 import type { Projects } from '@/types/project'
 import { shortProjectTitle } from '@/utils/index'
+import DummyDataBadge from '@/components/shared/DummyDataBadge.vue'
 
 interface PipelineStageOption extends DealOption {
   code: string
@@ -490,6 +500,14 @@ const authStore = useAuthStore()
 const hospitalStore = useHospitalStore()
 const contactStore = useContact()
 const projectStore = useProjectStore()
+const dummyLookupLabels = computed(() => {
+  const labels: string[] = ['Alasan Kalah/Batal']
+  if (projectStore.lookupSources.divisi === 'local-dummy') labels.push('Divisi')
+  if (projectStore.lookupSources.barang === 'local-dummy') labels.push('Produk')
+  if (projectStore.lookupSources.competitor === 'local-dummy') labels.push('Kompetitor')
+  if (projectStore.lookupSources.sumberdana === 'local-dummy') labels.push('Sumber Pendanaan')
+  return labels
+})
 
 const editingId = computed<number | null>(() => {
   const explicitId = Number(props.editProjectId)
@@ -1192,6 +1210,19 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnBeforeUnloa
 </script>
 
 <style scoped>
+.dummy-source-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #f3d488;
+  border-radius: 10px;
+  padding: 9px 11px;
+  color: #70531b;
+  background: #fffbeb;
+  font-size: 12px;
+}
+
 .project-name-input :deep(.form-control) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;

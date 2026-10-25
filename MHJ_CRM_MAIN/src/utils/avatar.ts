@@ -1,5 +1,5 @@
 const avatarPalette = [
-  { background: "#eff8ff", color: "#0284c7" },
+  { background: "var(--app-primary-wash, #eff8ff)", color: "var(--app-primary-dark, #0284c7)" },
   { background: "#f7f3ff", color: "#7c3aed" },
   { background: "#fff3f8", color: "#db2777" },
   { background: "#f1fcf5", color: "#16a34a" },

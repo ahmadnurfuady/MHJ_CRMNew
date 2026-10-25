@@ -54,6 +54,14 @@
                 </div>
               </div>
 
+              <div v-if="dummyContextSources.length" class="dummy-source-notice" role="note">
+                <DummyDataBadge />
+                <span>
+                  Sumber lokal sedang dipakai untuk:
+                  {{ dummyContextSources.join(', ') }}.
+                </span>
+              </div>
+
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label" :for="`${modalId}-task-name`"
@@ -227,8 +235,7 @@
                     "
                     class="d-block text-warning mt-1"
                   >
-                    Data dummy aktif karena serial number dari backend belum
-                    tersedia.
+                    Serial number menggunakan Data Dummy Lokal karena data backend belum tersedia.
                   </small>
                 </div>
 
@@ -728,6 +735,7 @@ import type { Contact } from "@/types/contacts";
 import type { TaskDetails, TaskKind, TaskPayload } from "@/types/tasks";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 
 interface ProjectOption extends DealOption {
   id: number;
@@ -1000,6 +1008,17 @@ const hospitalOptions = computed<DealOption[]>(() =>
       }))
     : fallbackHospitals,
 );
+const dummyContextSources = computed(() => {
+  const sources: string[] = ["Kategori"];
+  if (!hospitalStore.items.length) sources.push("Faskes");
+  if (!apiContactOptions.value.length) sources.push("Kontak");
+  if (projectStore.lookupSources.divisi === "local-dummy") sources.push("Divisi");
+  if (projectStore.lookupSources.barang === "local-dummy") sources.push("Produk");
+  if (taskType.value === "app-specialist" && usingDummySerialProjects.value) {
+    sources.push("Serial Number");
+  }
+  return [...new Set(sources)];
+});
 
 function contactsForProject(projectName: string) {
   const normalizedProject = normalizeRelation(projectName);
@@ -1760,13 +1779,18 @@ function drawPhotoWatermark(
     padding * 2 + titleLineHeight + metadataLines.length * metaLineHeight,
   );
   const overlayTop = height - overlayHeight;
+  const rootStyles = getComputedStyle(document.documentElement);
+  const watermarkPrimary =
+    rootStyles.getPropertyValue("--app-primary").trim() || "#16b9e8";
+  const watermarkSecondary =
+    rootStyles.getPropertyValue("--app-secondary").trim() || "#25b9e6";
   const gradient = context.createLinearGradient(0, overlayTop, 0, height);
   gradient.addColorStop(0, "rgba(5, 18, 32, 0.72)");
   gradient.addColorStop(1, "rgba(5, 18, 32, 0.96)");
   context.fillStyle = gradient;
   context.fillRect(0, overlayTop, width, overlayHeight);
 
-  context.fillStyle = "#16b9e8";
+  context.fillStyle = watermarkPrimary;
   context.fillRect(
     0,
     overlayTop,
@@ -1777,7 +1801,7 @@ function drawPhotoWatermark(
   let cursorY = overlayTop + padding + titleSize;
   const brandText = "SIAPCRM MHJ";
   context.font = `700 ${titleSize}px Inter, Arial, sans-serif`;
-  context.fillStyle = "#25b9e6";
+  context.fillStyle = watermarkSecondary;
   context.fillText(brandText, padding, cursorY);
 
   const brandWidth = context.measureText(brandText).width;
@@ -2300,6 +2324,20 @@ onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
 </script>
 
 <style scoped>
+.dummy-source-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  border: 1px solid #f3d488;
+  border-radius: 10px;
+  padding: 9px 11px;
+  color: #70531b;
+  background: #fffbeb;
+  font-size: 12px;
+}
+
 .task-form-modal {
   max-height: calc(100vh - 2rem);
   overflow: hidden;

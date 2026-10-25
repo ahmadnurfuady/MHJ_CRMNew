@@ -60,8 +60,8 @@ const calendarConfig = ref({
       start: args.start,
       end: args.end,
       text: `${args.start.toString('HH:mm')} | ${modal.result}`,
-      backColor: '#6fa8dcaa',
-      borderColor: '#3d85c6',
+      backColor: 'rgba(var(--app-primary-rgb, 24, 166, 228), 0.67)',
+      borderColor: 'var(--app-primary, #3d85c6)',
     }
 
     events.value.push(newEvent)
@@ -75,8 +75,8 @@ onMounted(() => {
     start: '2026-02-25T13:00:00',
     end: '2026-02-25T14:00:00',
     text: '15:00 - 16:00 | JavaScript Intro',
-    backColor: '#a4c2f4aa',
-    borderColor: '#6d9eeb',
+    backColor: 'rgba(var(--app-secondary-rgb, 132, 215, 235), 0.67)',
+    borderColor: 'var(--app-secondary, #6d9eeb)',
   })
   if (calendarRef.value) {
     calendarRef.value.control.update({

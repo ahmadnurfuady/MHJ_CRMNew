@@ -7,7 +7,6 @@
   >
     <LayoutType />
     <SidebarType />
-    <SidebarIcon />
     <CustomColor />
     <ColorLayout />
     <MixLayout />
@@ -21,9 +20,6 @@ const LayoutType = defineAsyncComponent(
 )
 const SidebarType = defineAsyncComponent(
   () => import('@/components/layout/customizer/SidebarType.vue')
-)
-const SidebarIcon = defineAsyncComponent(
-  () => import('@/components/layout/customizer/SidebarIcon.vue')
 )
 const CustomColor = defineAsyncComponent(
   () => import('@/components/layout/customizer/CustomColor.vue')

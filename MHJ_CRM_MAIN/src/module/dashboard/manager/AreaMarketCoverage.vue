@@ -8,7 +8,12 @@
       <div v-for="stat in coverage.stats" :key="stat.id" class="coverage-tile">
         <div class="coverage-tile__head">
           <span class="coverage-tile__icon" aria-hidden="true">
-            <MhjIcon :name="stat.id === 'area-coverage' ? 'coverage_point_on_map' : 'kpi_pin_list'" :size="20" />
+            <MhjIcon
+              :name="stat.id === 'area-coverage' ? 'coverage_point_on_map' : 'kpi_pin_list'"
+              :size="20"
+              color="var(--app-primary-dark, #0e7490)"
+              secondary-color="var(--app-secondary, #84d7eb)"
+            />
           </span>
           <strong>{{ stat.value }}</strong>
           <span class="coverage-tile__unit">Faskes</span>
@@ -84,7 +89,7 @@ function formatPercent(value: number): string {
   border: 1px solid #edf1f4;
   border-radius: 14px;
   padding: 14px;
-  background: #f9fbfc;
+  background: #fff;
 }
 
 .coverage-tile__head {
@@ -100,7 +105,7 @@ function formatPercent(value: number): string {
   height: 30px;
   border-radius: 9px;
   color: var(--app-primary, #18a6e4);
-  background: var(--app-primary-wash, #e5f5fc);
+  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16);
 }
 
 .coverage-tile__head strong {

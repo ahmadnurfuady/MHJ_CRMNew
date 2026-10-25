@@ -345,7 +345,7 @@ export const useHospitalStore = defineStore('hospital', () => {
       fallbackMessage: 'Gagal memperbarui Faskes.',
       task: async () => {
         if (isDemoHospitalId(id)) {
-          throw new Error('Data demo lokal tidak dapat disimpan ke API.')
+          throw new Error('Data Dummy Lokal tidak dapat disimpan ke API.')
         }
 
         const response = await api.post(`${ENDPOINT}/input`, { choice: 'u', id, ...payload })
@@ -372,7 +372,7 @@ export const useHospitalStore = defineStore('hospital', () => {
       fallbackMessage: 'Gagal menghapus Faskes.',
       task: async () => {
         if (isDemoHospitalId(id)) {
-          throw new Error('Data demo lokal tidak dapat dihapus melalui API.')
+          throw new Error('Data Dummy Lokal tidak dapat dihapus melalui API.')
         }
 
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })

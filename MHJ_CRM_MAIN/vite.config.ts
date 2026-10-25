@@ -1,4 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
+import { readdirSync, readFileSync } from "node:fs";
+import { join, relative } from "node:path";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -12,6 +14,39 @@ type PostCssDeclaration = {
 
 const iconSelectorPattern =
   /(?:\.|#)(?:fa\b|fa-|fas\b|far\b|fab\b|icon\b|icon-|icofont\b|icofont-|solar-icon\b|mhj-icon\b|spinner\b|loader\b)|::?(?:before|after)|\bsvg\b/i;
+
+const mhjIconVirtualId = "virtual:mhj-icon-markup";
+const resolvedMhjIconVirtualId = `\0${mhjIconVirtualId}`;
+const mhjIconRoot = fileURLToPath(new URL("./public/icons/mhj", import.meta.url));
+
+function collectMhjIconMarkup(directory: string): Record<string, string> {
+  const icons: Record<string, string> = {};
+
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const absolutePath = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      Object.assign(icons, collectMhjIconMarkup(absolutePath));
+      continue;
+    }
+    if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".svg")) continue;
+
+    const publicPath = `/icons/mhj/${relative(mhjIconRoot, absolutePath).replaceAll("\\", "/")}`;
+    icons[publicPath] = readFileSync(absolutePath, "utf8");
+  }
+
+  return icons;
+}
+
+const inlineMhjIconsPlugin = {
+  name: "mhj-inline-icons",
+  resolveId(id: string) {
+    return id === mhjIconVirtualId ? resolvedMhjIconVirtualId : undefined;
+  },
+  load(id: string) {
+    if (id !== resolvedMhjIconVirtualId) return undefined;
+    return `export default ${JSON.stringify(collectMhjIconMarkup(mhjIconRoot))};`;
+  },
+};
 
 /** Menambahkan offset aksesibilitas pada setiap deklarasi ukuran teks hasil build. */
 const globalFontSizeOffsetPlugin = {
@@ -40,7 +75,7 @@ const globalFontSizeOffsetPlugin = {
 export default defineConfig(({ command }) => ({
   base: "/",
   // devtools hanya saat dev, tidak ikut build production
-  plugins: [vue(), ...(command === "serve" ? [vueDevTools()] : [])],
+  plugins: [inlineMhjIconsPlugin, vue(), ...(command === "serve" ? [vueDevTools()] : [])],
   resolve: {
     extensions: ['.ts', '.vue', '.js', '.mjs', '.tsx', '.jsx', '.json'],
     alias: {

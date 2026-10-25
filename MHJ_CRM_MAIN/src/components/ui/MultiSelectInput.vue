@@ -191,7 +191,7 @@ onBeforeUnmount(() => {
 }
 
 .multiselect-control:focus-visible {
-  outline: 2px solid #18A6E4;
+  outline: 2px solid var(--app-primary, #18A6E4);
   outline-offset: 1px;
 }
 
@@ -202,8 +202,8 @@ onBeforeUnmount(() => {
   max-width: 100%;
   padding: 0.1rem 0.25rem 0.1rem 0.5rem;
   border-radius: 0.25rem;
-  background-color: rgba(24, 166, 228, 0.12);
-  color: #127CAB;
+  background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+  color: var(--app-primary-dark, #127CAB);
   font-size: 0.75rem;
   line-height: 1.6;
 }
@@ -285,14 +285,14 @@ onBeforeUnmount(() => {
 /* Hover: latar biru pucat, teks tetap gelap (belum dipilih) */
 .select-item:hover,
 .select-item:focus {
-  background-color: rgba(24, 166, 228, 0.12);
+  background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
   color: inherit;
   outline: none;
 }
 
 /* Selected: latar biru solid primary, teks putih */
 .select-item.active {
-  background-color: #18A6E4;
+  background-color: var(--app-primary, #18A6E4);
   color: #fff;
 }
 
@@ -320,6 +320,6 @@ onBeforeUnmount(() => {
 }
 
 .select-search-input:focus {
-  border-color: #18A6E4;
+  border-color: var(--app-primary, #18A6E4);
 }
 </style>

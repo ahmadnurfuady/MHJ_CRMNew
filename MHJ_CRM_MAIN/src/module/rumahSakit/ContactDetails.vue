@@ -14,8 +14,8 @@
             name="magnifier"
             class="crm-search-icon"
             :size="18"
-            color="#032A4E"
-            secondary-color="#18A6E4"
+            color="var(--app-primary-deep, #032A4E)"
+            secondary-color="var(--app-primary, #18A6E4)"
             :secondary-opacity="0.75"
             aria-hidden="true"
           />
@@ -129,9 +129,7 @@
                     <strong class="entity-detail-name">
                       {{ displayValue(hospital.firstName) }}
                     </strong>
-                    <span v-if="hospital.isDemo" class="demo-list-badge">
-                      Demo lokal
-                    </span>
+                    <DummyDataBadge v-if="hospital.isDemo" />
                     <span>{{ hospital.email || "Email belum tersedia" }}</span>
                   </div>
                 </div>
@@ -250,6 +248,7 @@ import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch 
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { companyDetails } from "@/core/data/contactCrm";
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
@@ -509,8 +508,8 @@ onBeforeUnmount(() => {
 }
 
 .hospital-search:focus-within {
-  border-color: #18a6e4;
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.14);
+  border-color: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
 }
 
 .hospital-search input {
@@ -531,7 +530,7 @@ onBeforeUnmount(() => {
   width: 15px;
   height: 15px;
   flex: 0 0 15px;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
 }
 
 .hospital-search__clear {
@@ -558,21 +557,21 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-color: #18a6e4 !important;
+  border-color: var(--app-primary, #18a6e4) !important;
   border-radius: 8px;
   margin: 0 !important;
   padding: 0 18px;
-  background-color: #18a6e4 !important;
+  background-color: var(--app-primary, #18a6e4) !important;
   color: #ffffff !important;
   font-weight: 700;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .add-hospital-header-button:hover,
 .add-hospital-header-button:focus {
-  border-color: #1493cc !important;
-  background-color: #1493cc !important;
+  border-color: var(--app-primary-hover, #1493cc) !important;
+  background-color: var(--app-primary-hover, #1493cc) !important;
   color: #ffffff !important;
 }
 
@@ -642,7 +641,7 @@ onBeforeUnmount(() => {
 
 .hospital-table__resize-handle:hover::after,
 .hospital-table__resize-handle:focus-visible::after {
-  background: #18a6e4;
+  background: var(--app-primary, #18a6e4);
 }
 
 .hospital-table tbody td {
@@ -658,7 +657,7 @@ onBeforeUnmount(() => {
 }
 
 .hospital-table tbody tr:hover {
-  background: rgba(24, 166, 228, 0.035);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.035);
 }
 
 .hospital-identity {
@@ -707,7 +706,7 @@ onBeforeUnmount(() => {
 }
 
 .entity-detail-cell:focus-visible {
-  outline: 2px solid rgba(24, 166, 228, 0.22);
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.22);
   outline-offset: -2px;
 }
 
@@ -720,19 +719,16 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-.hospital-identity__text .demo-list-badge {
+.hospital-identity__text .dummy-data-badge {
   display: inline-flex;
   width: fit-content;
+  max-width: 100%;
   margin: 3px 0;
-  padding: 2px 7px;
-  border: 1px solid #bae6fd;
-  border-radius: 999px;
-  color: #0369a1;
-  background: #f0f9ff;
-  font-size: 9px;
+  overflow: visible;
+  color: #8a5a00;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  text-overflow: clip;
 }
 
 .last-visit small {
@@ -748,8 +744,8 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 999px;
   padding: 5px 10px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #0369a1;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary-dark, #0369a1);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -793,7 +789,7 @@ onBeforeUnmount(() => {
 }
 
 .detail-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
 }
 
 .hospital-table-state {
@@ -815,8 +811,8 @@ onBeforeUnmount(() => {
   justify-content: center;
   border-radius: 50%;
   margin-bottom: 10px;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18a6e4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-actions {
@@ -857,14 +853,14 @@ onBeforeUnmount(() => {
 }
 
 .pagination-page-button:hover:not(:disabled) {
-  border-color: #18a6e4;
-  color: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  color: var(--app-primary, #18a6e4);
 }
 
 .pagination-page-button--active,
 .pagination-page-button--active:disabled {
-  border-color: #18a6e4;
-  background: #18a6e4;
+  border-color: var(--app-primary, #18a6e4);
+  background: var(--app-primary, #18a6e4);
   color: #ffffff;
   opacity: 1;
 }

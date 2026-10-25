@@ -8,8 +8,8 @@
     <SolarIcon
       name="settings"
       :size="24"
-      color="#032A4E"
-      secondary-color="#18A6E4"
+      color="var(--app-primary-deep, #032A4E)"
+      secondary-color="var(--app-primary, #18A6E4)"
       :secondary-opacity="0.75"
       aria-hidden="true"
     />
@@ -159,6 +159,16 @@ async function syncServerData() {
   cursor: pointer;
 }
 
+.header-icon-action :deep(.solar-icon),
+.header-icon-action :deep(.solar-icon path) {
+  stroke: none !important;
+}
+
+.header-icon-action :deep(.solar-icon path:last-child) {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
 .settings-dropdown {
   /* Keep the menu inside the viewport when the settings icon is at the far right. */
   right: 0 !important;
@@ -191,7 +201,7 @@ async function syncServerData() {
 .settings-heading svg {
   width: 22px !important;
   height: 22px !important;
-  color: #18a6e4;
+  color: var(--app-primary, #18a6e4);
   fill: none !important;
   stroke: currentColor !important;
 }
@@ -233,8 +243,8 @@ async function syncServerData() {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #1599cf;
-  background: #eaf7fd;
+  color: var(--app-primary, #1599cf);
+  background: var(--app-primary-wash, #eaf7fd);
   line-height: 0;
 }
 

@@ -962,14 +962,14 @@ onMounted(() => {
   font-weight: 700;
   white-space: nowrap;
   background: var(--promo-blue);
-  box-shadow: 0 4px 10px rgba(24, 166, 228, 0.2);
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
 }
 
 .promo-add-button:hover,
 .promo-add-button:focus {
-  border-color: #1493cc !important;
+  border-color: var(--app-primary-hover, #1493cc) !important;
   color: #fff !important;
-  background: #1493cc !important;
+  background: var(--app-primary-hover, #1493cc) !important;
 }
 
 .promo-overview__metrics {
@@ -1003,7 +1003,7 @@ onMounted(() => {
 .promo-metric__label {
   display: block;
   margin-bottom: 13px;
-  color: #0284b8;
+  color: var(--app-primary-dark, #0284b8);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -1063,7 +1063,7 @@ onMounted(() => {
 
 .promo-search:focus-within {
   border-color: var(--promo-blue);
-  box-shadow: 0 0 0 3px rgba(32, 167, 220, 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 32, 167, 220), 0.1);
 }
 
 .promo-search input {
@@ -1121,7 +1121,7 @@ onMounted(() => {
   position: relative;
   aspect-ratio: 2.15 / 1;
   overflow: hidden;
-  background: #e7f4fb;
+  background: var(--app-primary-wash, #e7f4fb);
 }
 
 .promo-card__media > img {
@@ -1140,7 +1140,7 @@ onMounted(() => {
   height: 100%;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.88);
-  background: linear-gradient(135deg, #176bb2 0%, #229cce 55%, #5bc5dd 100%);
+  background: linear-gradient(135deg, var(--app-primary-dark, #176bb2) 0%, var(--app-primary, #229cce) 55%, var(--app-secondary, #5bc5dd) 100%);
 }
 
 .promo-card__placeholder svg,
@@ -1225,8 +1225,8 @@ onMounted(() => {
 }
 
 .promo-period {
-  color: #34548c;
-  background: #eaf2ff;
+  color: var(--app-primary-dark, #34548c);
+  background: var(--app-primary-wash, #eaf2ff);
 }
 
 .promo-period span {
@@ -1288,8 +1288,8 @@ onMounted(() => {
 
 .promo-icon-button:hover {
   color: var(--promo-blue);
-  border-color: #bcdff0;
-  background: #eef9fd;
+  border-color: var(--app-primary-border, #bcdff0);
+  background: var(--app-primary-wash, #eef9fd);
 }
 .promo-icon-button.is-danger:hover {
   color: #dc3545;
@@ -1314,7 +1314,7 @@ onMounted(() => {
   margin-bottom: 15px;
   border-radius: 50%;
   color: var(--promo-blue);
-  background: #ebf7fc;
+  background: var(--app-primary-wash, #ebf7fc);
 }
 
 .promo-empty h5 {
@@ -1349,7 +1349,7 @@ onMounted(() => {
 .promo-upload:hover,
 .promo-upload:focus {
   border-color: var(--promo-blue);
-  background: #f2faff;
+  background: var(--app-primary-wash, #f2faff);
 }
 
 .promo-upload.has-image {
@@ -1380,7 +1380,7 @@ onMounted(() => {
   margin-bottom: 10px;
   border-radius: 50%;
   color: var(--promo-blue);
-  background: #e4f3fa;
+  background: var(--app-primary-soft, #e4f3fa);
 }
 
 .promo-upload__empty strong {

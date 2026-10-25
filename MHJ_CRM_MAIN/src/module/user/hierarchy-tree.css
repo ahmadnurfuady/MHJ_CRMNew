@@ -28,7 +28,7 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.uh-tree__toolbar-btn:hover { background: #e9f2f9; color: #18A6E4; }
+.uh-tree__toolbar-btn:hover { background: #e9f2f9; color: var(--app-primary, #18A6E4); }
 
 .uh-tree__legend {
   display: flex;
@@ -44,9 +44,9 @@
 }
 .uh-tree__legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .uh-tree__legend-dot  { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
-.uh-tree__legend-dot--atasan  { background: rgba(24, 166, 228, 0.25); border: 1px solid #18A6E4; }
-.uh-tree__legend-dot--current { background: linear-gradient(135deg, #18A6E4, #127CAB); }
-.uh-tree__legend-dot--jabatan { background: rgba(3, 42, 78, 0.08); border: 1px solid #032A4E; }
+.uh-tree__legend-dot--atasan  { background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.25); border: 1px solid var(--app-primary, #18A6E4); }
+.uh-tree__legend-dot--current { background: linear-gradient(135deg, var(--app-primary, #18A6E4), var(--app-primary-dark, #127CAB)); }
+.uh-tree__legend-dot--jabatan { background: rgba(3, 42, 78, 0.08); border: 1px solid var(--app-primary-deep, #032A4E); }
 
 /* Root list */
 .uh-tree__root,
@@ -71,12 +71,12 @@
 .uh-tree__row:hover { background: #f5f8fb; }
 
 .uh-tree__row--current {
-  background: linear-gradient(135deg, #18A6E4 0%, #127CAB 100%);
+  background: linear-gradient(135deg, var(--app-primary, #18A6E4) 0%, var(--app-primary-dark, #127CAB) 100%);
   color: #fff;
   cursor: default;
-  box-shadow: 0 4px 14px rgba(24, 166, 228, 0.25);
+  box-shadow: 0 4px 14px rgba(var(--app-primary-rgb, 24, 166, 228), 0.25);
 }
-.uh-tree__row--current:hover { background: linear-gradient(135deg, #18A6E4 0%, #127CAB 100%); }
+.uh-tree__row--current:hover { background: linear-gradient(135deg, var(--app-primary, #18A6E4) 0%, var(--app-primary-dark, #127CAB) 100%); }
 
 /* Chevron toggle */
 .uh-tree__chev {
@@ -106,10 +106,10 @@
   border-radius: 5px;
   flex-shrink: 0;
 }
-.uh-tree__icon--atasan  { background: rgba(24, 166, 228, 0.15); color: #18A6E4; }
+.uh-tree__icon--atasan  { background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.15); color: var(--app-primary, #18A6E4); }
 .uh-tree__icon--current { background: rgba(255, 255, 255, 0.22); color: #fff; }
-.uh-tree__icon--bawahan { background: rgba(24, 166, 228, 0.15); color: #18A6E4; }
-.uh-tree__icon--jabatan { background: rgba(3, 42, 78, 0.08);    color: #032A4E; }
+.uh-tree__icon--bawahan { background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.15); color: var(--app-primary, #18A6E4); }
+.uh-tree__icon--jabatan { background: rgba(3, 42, 78, 0.08);    color: var(--app-primary-deep, #032A4E); }
 
 /* Judul + sub */
 .uh-tree__title { font-size: 13.5px; font-weight: 600; color: inherit; }
@@ -119,7 +119,7 @@
 .uh-tree__count {
   margin-left: auto;
   background: #e9f2f9;
-  color: #18A6E4;
+  color: var(--app-primary, #18A6E4);
   font-size: 11px;
   font-weight: 700;
   padding: 1px 8px;
@@ -195,7 +195,7 @@
   font-style: italic;
   font-size: 12.5px;
 }
-.uh-tree__leaf--atasan .uh-tree__leaf-text .fw-semibold { color: #032A4E; }
+.uh-tree__leaf--atasan .uh-tree__leaf-text .fw-semibold { color: var(--app-primary-deep, #032A4E); }
 
 .uh-tree__leaf-icon {
   display: inline-flex;
@@ -204,8 +204,8 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18A6E4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18A6E4);
   flex-shrink: 0;
 }
 

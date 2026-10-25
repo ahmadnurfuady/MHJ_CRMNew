@@ -93,6 +93,7 @@ import { MenuDotsIcon } from "@solar-icons/vue/bold-duotone/menu-dots";
 import { MicrophoneIcon } from "@solar-icons/vue/bold-duotone/microphone";
 import { MinusIcon } from "@solar-icons/vue/bold-duotone/minus";
 import { NotesIcon } from "@solar-icons/vue/bold-duotone/notes";
+import { Palette2Icon } from "@solar-icons/vue/bold-duotone/palette-2";
 import { PaperclipIcon } from "@solar-icons/vue/bold-duotone/paperclip";
 import { Pen2Icon } from "@solar-icons/vue/bold-duotone/pen-2";
 import { PenNewSquareIcon } from "@solar-icons/vue/bold-duotone/pen-new-square";
@@ -143,7 +144,7 @@ const props = withDefaults(
     alt?: string;
   }>(),
   {
-    secondaryColor: "#18A6E4",
+    secondaryColor: "var(--app-secondary, #18A6E4)",
     secondaryOpacity: 1,
     strokeWidth: 1.5,
   },
@@ -228,6 +229,7 @@ const icons: Record<string, Component> = {
   microphone: MicrophoneIcon,
   minus: MinusIcon,
   notes: NotesIcon,
+  "palette-2": Palette2Icon,
   paperclip: PaperclipIcon,
   pen: Pen2Icon,
   "pen-new-square": PenNewSquareIcon,
@@ -483,7 +485,7 @@ const legacyClasses = computed(() =>
 
 <style scoped>
 .solar-icon {
-  color: #032a4e;
+  color: var(--app-primary-deep, #032a4e);
   display: inline-block;
   flex: 0 0 auto;
   line-height: 1;

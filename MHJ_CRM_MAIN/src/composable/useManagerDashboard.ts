@@ -17,9 +17,9 @@ const promoSlides = ref<PromoSlide[]>([])
 const promoLoading = ref(false)
 
 /**
- * Data & state untuk Dashboard Manager. KPI/benchmark/coverage/activity masih
- * dummy (lihat `@/core/data/dashboard/manager.ts`), sementara promo sudah
- * dipakaikan ke API sungguhan (`promoService`) karena endpoint-nya sudah ada.
+ * Data & state untuk Dashboard Manager. Sumber tiap bagian dapat berupa API
+ * atau fallback lokal dan dilaporkan lewat `dummySections`; promo selalu
+ * dimuat dari `promoService`.
  */
 export function useManagerDashboard() {
   async function loadManagerDashboard() {
@@ -42,7 +42,9 @@ export function useManagerDashboard() {
           id: promo.id,
           title: promo.title,
           content: promo.content,
-          imageUrl: promo.image_url ?? null,
+          // Fallback ke image_path: sama seperti usePromoCatalog.ts, karena API
+          // tidak selalu mengisi image_url walau gambar (image_path) sudah ada.
+          imageUrl: promo.image_url ?? promo.image_path ?? null,
         }))
     } catch (error) {
       console.error('Gagal memuat promo.', error)

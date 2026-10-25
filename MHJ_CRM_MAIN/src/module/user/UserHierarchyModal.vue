@@ -221,16 +221,16 @@ watch(
 
 /* Atasan: biru muda */
 .hierarchy-card--atasan {
-  border-color: rgba(24, 166, 228, 0.3);
-  background: rgba(24, 166, 228, 0.04);
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.04);
 }
 
 /* Focal point — user yang sedang dilihat */
 .hierarchy-card--current {
-  border-color: #18A6E4;
-  background: linear-gradient(135deg, #18A6E4 0%, #127CAB 100%);
+  border-color: var(--app-primary, #18A6E4);
+  background: linear-gradient(135deg, var(--app-primary, #18A6E4) 0%, var(--app-primary-dark, #127CAB) 100%);
   color: #fff;
-  box-shadow: 0 4px 16px rgba(24, 166, 228, 0.3);
+  box-shadow: 0 4px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
 }
 
 /* Bawahan: abu-abu sangat muda */
@@ -256,18 +256,18 @@ watch(
   gap: 0.25rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #032A4E;
+  color: var(--app-primary-deep, #032A4E);
   text-transform: capitalize;
   letter-spacing: 0.4px;
   padding: 0.2rem 0.5rem;
-  background: rgba(3, 42, 78, 0.06);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.06);
   border-radius: 0.25rem;
-  border-left: 3px solid #18A6E4;
+  border-left: 3px solid var(--app-primary, #18A6E4);
 }
 
 .bawahan-group__count {
   margin-left: auto;
-  background: #18A6E4;
+  background: var(--app-primary, #18A6E4);
   color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
@@ -288,11 +288,11 @@ watch(
 }
 
 .bg-primary-light {
-  background: rgba(24, 166, 228, 0.15);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.15);
 }
 
 .text-primary {
-  color: #18A6E4 !important;
+  color: var(--app-primary, #18A6E4) !important;
 }
 
 /* ─── Connector (garis vertikal + panah) ────────────────────────────────── */
@@ -307,7 +307,7 @@ watch(
 .hierarchy-connector__line {
   width: 2px;
   height: 24px;
-  background: rgba(24, 166, 228, 0.35);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.35);
 }
 
 /* Panah ke bawah (dari atasan ke current) */
@@ -316,12 +316,12 @@ watch(
   height: 0;
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
-  border-top: 6px solid rgba(24, 166, 228, 0.45);
+  border-top: 6px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.45);
 }
 
 /* Panah dari current ke bawahan — arahnya sama (ke bawah) */
 .hierarchy-connector__arrow--down {
-  border-top: 6px solid rgba(24, 166, 228, 0.45);
+  border-top: 6px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.45);
   border-bottom: none;
 }
 </style>

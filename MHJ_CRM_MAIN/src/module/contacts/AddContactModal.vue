@@ -285,6 +285,11 @@
                 :placeholder="t('contacts.placeholders.source')"
                 :formSubmitted="contactState.formSubmitted"
               />
+              <DummyDataBadge
+                v-if="contactApi.sourceIsDummy"
+                class="mt-2"
+                label="Sumber: Data Dummy Lokal"
+              />
             </InputWrapper>
           </div>
           <div class="col-md-6">
@@ -346,6 +351,7 @@ import { useI18n } from "vue-i18n";
 import { useDebounceFn } from "@vueuse/core";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
+import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
@@ -799,7 +805,7 @@ function closeModal() {
 }
 
 .add-phone-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(24, 166, 228, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
 }
 
 .location-field {
@@ -867,7 +873,7 @@ function closeModal() {
 }
 
 .address-suggestion-item:hover {
-  background: #f3fbfe;
+  background: var(--app-primary-wash, #f3fbfe);
 }
 
 .location-clear-button {

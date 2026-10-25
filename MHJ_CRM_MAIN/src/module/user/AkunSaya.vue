@@ -231,12 +231,12 @@ export const AkunField = defineComponent({
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  background: rgba(24, 166, 228, 0.1);
-  color: #18A6E4;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  color: var(--app-primary, #18A6E4);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(24, 166, 228, 0.25);
+  border: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.25);
 }
 
 .akun-role-badge {
@@ -250,15 +250,15 @@ export const AkunField = defineComponent({
 }
 
 .akun-role--mgr {
-  background: rgba(24, 166, 228, 0.12);
-  color: #127CAB;
-  border: 1px solid rgba(24, 166, 228, 0.3);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+  color: var(--app-primary-dark, #127CAB);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
 }
 
 .akun-role--stf {
-  background: rgba(3, 42, 78, 0.07);
-  color: #032A4E;
-  border: 1px solid rgba(3, 42, 78, 0.15);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
+  color: var(--app-primary-deep, #032A4E);
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.15);
 }
 
 /* ─── Fields grid ──────────────────────────────────────────────────────── */
@@ -281,7 +281,7 @@ export const AkunField = defineComponent({
 
 :deep(.akun-field__value) {
   font-size: 0.9rem;
-  color: #032A4E;
+  color: var(--app-primary-deep, #032A4E);
   font-weight: 500;
   border-bottom: 1px solid #f1f3f5;
   padding-bottom: 0.35rem;

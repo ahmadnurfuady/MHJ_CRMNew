@@ -83,8 +83,8 @@ useHead({
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #1599cf;
-  background: #eaf7fd;
+  color: var(--app-primary, #1599cf);
+  background: var(--app-primary-wash, #eaf7fd);
   line-height: 0;
 }
 

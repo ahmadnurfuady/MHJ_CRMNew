@@ -8,8 +8,8 @@
           <div class="se-icon">
             <LockKeyholeMinimalisticIcon
               :size="36"
-              color="#032A4E"
-              secondary-color="#18A6E4"
+              color="var(--app-primary-deep, #032A4E)"
+              secondary-color="var(--app-primary, #18A6E4)"
               :secondary-opacity="0.9"
               aria-hidden="true"
             />
@@ -78,14 +78,14 @@ function goLogin() {
   width: 68px;
   height: 68px;
   border-radius: 50%;
-  background: #DDF2FB;
-  color: #032A4E;
+  background: var(--app-primary-wash, #DDF2FB);
+  color: var(--app-primary-deep, #032A4E);
   margin-bottom: 1.1rem;
 }
 
 .se-title {
   font-weight: 700;
-  color: #032A4E;
+  color: var(--app-primary-deep, #032A4E);
   margin-bottom: 0.5rem;
 }
 

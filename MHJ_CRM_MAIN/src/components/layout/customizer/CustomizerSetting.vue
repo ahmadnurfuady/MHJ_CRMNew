@@ -10,15 +10,20 @@
     aria-controls="c-pills-home"
     aria-selected="false"
   >
-    <div class="settings">
-      <img class="img-fluid" :src="getImages('customizer/1.png')" alt="nft" />
+    <div class="settings quick-option-icon" aria-hidden="true">
+      <SolarIcon
+        name="palette-2"
+        :size="24"
+        color="var(--app-primary-deep, #032A4E)"
+        secondary-color="var(--app-primary, #18A6E4)"
+        :secondary-opacity="0.85"
+      />
     </div>
-    <span>Quick option</span>
+    <span>Opsi cepat</span>
   </a>
 </template>
 <script lang="ts" setup>
 import { useLayout } from '@/store/layout'
-import { getImages } from '@/utils/index'
 import { storeToRefs } from 'pinia'
 
 const store = useLayout()
@@ -28,3 +33,12 @@ function openCustomizerSetting(val: string) {
   layoutState.value.customizer = val
 }
 </script>
+
+<style scoped>
+.quick-option-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+}
+</style>

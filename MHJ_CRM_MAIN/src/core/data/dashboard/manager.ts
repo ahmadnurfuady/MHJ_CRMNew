@@ -20,6 +20,13 @@ import type {
  */
 const managerDashboardData: ManagerDashboardData = {
   greetingName: 'Sales',
+  dummySections: [
+    'KPI kinerja',
+    'Benchmark target',
+    'Ringkasan cakupan',
+    'Titik sorotan peta',
+    'Aktivitas terbaru',
+  ],
   kpis: [
     {
       id: 'target-omset',
@@ -298,9 +305,15 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
   const coverage = metrics
     ? buildCoverage(metrics, highlight)
     : { ...managerDashboardData.coverage, highlight }
+  const dummySections = [
+    ...(!metrics ? ['KPI kinerja', 'Benchmark target', 'Ringkasan cakupan'] : []),
+    'Titik sorotan peta',
+    ...(!activities.length ? ['Aktivitas terbaru'] : []),
+  ]
 
   return {
     ...managerDashboardData,
+    dummySections,
     kpis,
     benchmark,
     coverage,

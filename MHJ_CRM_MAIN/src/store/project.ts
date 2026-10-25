@@ -375,6 +375,12 @@ export const useProjectStore = defineStore('project', () => {
     divisi: [],
     barang: []
   })
+  const lookupSources = reactive({
+    competitor: 'api' as 'api' | 'local-dummy',
+    sumberdana: 'api' as 'api' | 'local-dummy',
+    divisi: 'api' as 'api' | 'local-dummy',
+    barang: 'api' as 'api' | 'local-dummy'
+  })
 
   /** GET /api/project. */
   function fetchProjects(params: ListParams = {}) {
@@ -657,9 +663,11 @@ export const useProjectStore = defineStore('project', () => {
             'competitor'
           ]).filter((option) => option.value && option.label)
           lookups.competitor = competitorOptions.length ? competitorOptions : [...competitorFallback]
+          lookupSources.competitor = competitorOptions.length ? 'api' : 'local-dummy'
         } catch (lookupError) {
           console.warn('Endpoint kompetitor tidak tersedia, memakai lookup lokal.', lookupError)
           lookups.competitor = [...competitorFallback]
+          lookupSources.competitor = 'local-dummy'
         }
 
         try {
@@ -668,9 +676,11 @@ export const useProjectStore = defineStore('project', () => {
             'sumberdana'
           ]).filter((option) => option.value && option.label)
           lookups.sumberdana = sumberdanaOptions.length ? sumberdanaOptions : [...sumberdanaFallback]
+          lookupSources.sumberdana = sumberdanaOptions.length ? 'api' : 'local-dummy'
         } catch (lookupError) {
           console.warn('Endpoint sumber pendanaan tidak tersedia, memakai lookup lokal.', lookupError)
           lookups.sumberdana = [...sumberdanaFallback]
+          lookupSources.sumberdana = 'local-dummy'
         }
       }
     })
@@ -700,6 +710,7 @@ export const useProjectStore = defineStore('project', () => {
                 label: item.label,
                 code: item.code ?? String(item.value)
               }))
+          lookupSources.divisi = divisiOptions.length ? 'api' : 'local-dummy'
         } catch (lookupError) {
           console.warn('Endpoint devisi tidak tersedia, memakai lookup lokal.', lookupError)
           lookups.divisi = divisiFallback.map((item) => ({
@@ -707,6 +718,7 @@ export const useProjectStore = defineStore('project', () => {
             label: item.label,
             code: item.code ?? String(item.value)
           }))
+          lookupSources.divisi = 'local-dummy'
         }
 
         try {
@@ -757,6 +769,7 @@ export const useProjectStore = defineStore('project', () => {
                 divisiCode: item.divisi ?? '',
                 price: item.price ?? 0
               }))
+          lookupSources.barang = barangOptions.length ? 'api' : 'local-dummy'
         } catch (lookupError) {
           console.warn('Endpoint barang tidak tersedia, memakai lookup lokal.', lookupError)
           lookups.barang = barangFallback.map((item) => ({
@@ -766,6 +779,7 @@ export const useProjectStore = defineStore('project', () => {
             divisiCode: item.divisi ?? '',
             price: item.price ?? 0
           }))
+          lookupSources.barang = 'local-dummy'
         }
       }
     })
@@ -785,6 +799,7 @@ export const useProjectStore = defineStore('project', () => {
     pagination,
     loaded,
     lookups,
+    lookupSources,
     openCreateModal,
     closeCreateModal,
     fetchProjects,
