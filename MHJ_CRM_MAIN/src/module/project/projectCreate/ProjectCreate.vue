@@ -14,15 +14,6 @@
               <span class="spinner-border text-primary" role="status"></span>
             </div>
             <form v-else class="row g-3 needs-validation mhj-form" @submit.prevent="handleSubmit">
-              <div v-if="dummyLookupLabels.length" class="col-12">
-                <div class="dummy-source-notice" role="note">
-                  <DummyDataBadge />
-                  <span>
-                    Master lokal sedang dipakai untuk:
-                    {{ dummyLookupLabels.join(', ') }}.
-                  </span>
-                </div>
-              </div>
               <div class="col-12">
                 <InputWrapper :title="'Nama Peluang'" required>
                   <div class="input-group project-name-input">
@@ -52,12 +43,11 @@
                   <Select
                     getValueKey="label"
                     display-key="label"
+                    subtitle-key="address"
                     :placeholder="'Cari nama faskes di database...'"
                     v-model="projectForm.company"
                     :options="companyOptions"
                     :formSubmitted="formSubmitted"
-                    :loading-more="loadingMoreCompanies"
-                    @reach-bottom="loadMoreCompanies"
                   />
                 </InputWrapper>
               </div>
@@ -67,17 +57,19 @@
                   <Select
                     getValueKey="label"
                     display-key="label"
-                    :placeholder="'Cari PIC kontak di database...'"
+                    :placeholder="contactPlaceholder"
                     v-model="projectForm.contact"
                     :options="contactOptions"
                     :multiSelect="true"
                     :removableTags="true"
+                    :disabled="!isCompanySelected"
                     :formSubmitted="formSubmitted"
                   />
                 </InputWrapper>
                 <button
                   class="btn btn-link btn-sm p-0 mt-1"
                   type="button"
+                  :disabled="!isCompanySelected"
                   @click="openContactModal"
                 >
                   <MhjIcon name="action_add" :size="14" class="me-1" />Tambah Kontak Baru
@@ -381,13 +373,11 @@ import { routes } from '@/router/routes'
 import { confirmEditExit } from '@/utils/confirmEditExit'
 import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
-import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore, type BarangOption, type ProjectPayload } from '@/store/project'
 import type { Contact } from '@/types/contacts'
 import type { InputField as InputFieldState } from '@/types/common'
 import type { Projects } from '@/types/project'
 import { shortProjectTitle } from '@/utils/index'
-import DummyDataBadge from '@/components/shared/DummyDataBadge.vue'
 
 interface PipelineStageOption extends DealOption {
   code: string
@@ -499,17 +489,8 @@ const timelineEntries = ref<TimelineEntry[]>([])
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
-const hospitalStore = useHospitalStore()
 const contactStore = useContact()
 const projectStore = useProjectStore()
-const dummyLookupLabels = computed(() => {
-  const labels: string[] = ['Alasan Kalah/Batal']
-  if (projectStore.lookupSources.divisi === 'local-dummy') labels.push('Divisi')
-  if (projectStore.lookupSources.barang === 'local-dummy') labels.push('Produk')
-  if (projectStore.lookupSources.competitor === 'local-dummy') labels.push('Kompetitor')
-  if (projectStore.lookupSources.sumberdana === 'local-dummy') labels.push('Sumber Pendanaan')
-  return labels
-})
 
 const editingId = computed<number | null>(() => {
   const explicitId = Number(props.editProjectId)
@@ -522,7 +503,6 @@ const editingId = computed<number | null>(() => {
 const isEditMode = computed(() => editingId.value !== null)
 let allowEditNavigation = false
 const loadingProject = ref(false)
-const loadingMoreCompanies = ref(false)
 // Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
 const prefilling = ref(false)
 const productLines = ref<ProductLine[]>([])
@@ -539,23 +519,17 @@ function isGovernmentCompany(hospitalType: string, industry: string, name: strin
   return /government|pemerintah|negeri|publik|rsud|rsup|tni|polri/.test(classification)
 }
 
-const companyOptions = computed<CompanyOption[]>(() => {
-  const selectedHospital = hospitalStore.selectedItem
-  const hospitals =
-    selectedHospital && !hospitalStore.items.some((hospital) => hospital.id === selectedHospital.id)
-      ? [selectedHospital, ...hospitalStore.items]
-      : hospitalStore.items
-
-  return hospitals.map((hospital) => ({
-    value: hospital.id,
-    label: hospital.name,
-    type: isGovernmentCompany(hospital.hospitalType, hospital.industry, hospital.name)
+const companyOptions = computed<CompanyOption[]>(() =>
+  projectStore.lookups.faskes.map((faskes) => ({
+    value: faskes.value,
+    label: faskes.label,
+    type: isGovernmentCompany(faskes.hospitalType, faskes.industry, faskes.label)
       ? 'Government'
       : 'Private',
-    address: hospital.address,
-    kdKelurahan: hospital.kdKelurahan,
+    address: faskes.address,
+    kdKelurahan: faskes.kdKelurahan,
   }))
-})
+)
 
 function toContactOption(contact: Contact): DealOption {
   return {
@@ -575,22 +549,43 @@ function toContactOption(contact: Contact): DealOption {
  * bisa tampil sebagai pilihan terpilih.
  */
 const justCreatedContactIds = ref<Set<string>>(new Set())
+/**
+ * Kontak yang baru dibuat lewat modal, difallback dari contactStore jika
+ * endpoint /project/contactsbyfaskes belum sempat mengambil ulang data.
+ */
+const justCreatedContacts = computed<DealOption[]>(() =>
+  contactStore.contactApi.items
+    .filter((contact) =>
+      justCreatedContactIds.value.has(String(contact.remoteId ?? contact.id))
+    )
+    .map(toContactOption)
+)
 
+/**
+ * Daftar kontak PIC untuk faskes yang sedang dipilih. Diambil langsung dari
+ * endpoint /project/contactsbyfaskes supaya filter konsisten dengan BE.
+ * Kontak yang baru dibuat lewat modal ikut digabung agar langsung tampil.
+ */
 const contactOptions = computed<DealOption[]>(() => {
-  const contacts = contactStore.contactApi.items.filter(
-    (contact) =>
-      contact.origin === 'api' && (contact.remoteId !== undefined || contact.id !== undefined)
-  )
-  const companyId = selectedOf(projectForm.value.company)?.value
-  if (companyId === undefined) return contacts.map(toContactOption)
+  const base = projectStore.lookups.contactsByFaskes as DealOption[]
+  if (!justCreatedContacts.value.length) return base
+  const merged: DealOption[] = [...base]
+  for (const contact of justCreatedContacts.value) {
+    if (!merged.some((option) => String(option.value) === String(contact.value))) {
+      merged.push(contact)
+    }
+  }
+  return merged
+})
 
-  const relatedContacts = contacts.filter(
-    (contact) =>
-      justCreatedContactIds.value.has(String(contact.remoteId ?? contact.id)) ||
-      (contact.companyId && String(contact.companyId) === String(companyId))
-  )
-  const hasCompanyRelations = contacts.some((contact) => Boolean(contact.companyId))
-  return (hasCompanyRelations ? relatedContacts : contacts).map(toContactOption)
+const isCompanySelected = computed(() => Boolean(selectedOf(projectForm.value.company)))
+const loadingContactsByFaskes = ref(false)
+const contactPlaceholder = computed(() => {
+  if (!isCompanySelected.value) return 'Pilih Faskes terlebih dahulu'
+  if (loadingContactsByFaskes.value) return 'Memuat kontak...'
+  return contactOptions.value.length
+    ? 'Cari PIC kontak di database...'
+    : 'Belum ada kontak untuk faskes ini'
 })
 
 /**
@@ -659,9 +654,20 @@ const isLostOrCancelled = computed(() =>
 
 watch(
   () => projectForm.value.company.selected,
-  () => {
+  async (selected) => {
     if (prefilling.value) return
     projectForm.value.contact = initSelectField()
+    const companyId = Number((selected as DealOption | null)?.value ?? 0)
+    if (!companyId) {
+      projectStore.lookups.contactsByFaskes = []
+      return
+    }
+    loadingContactsByFaskes.value = true
+    try {
+      await projectStore.fetchContactsByFaskes(companyId)
+    } finally {
+      loadingContactsByFaskes.value = false
+    }
   }
 )
 
@@ -833,13 +839,37 @@ function parseProductNames(raw?: string): string[] {
 async function prefillForm(project: Projects) {
   prefilling.value = true
 
-  const company = findOptionById(companyOptions.value, project.companyId)
-  if (company) projectForm.value.company = selectedField(company)
+  // Faskes peluang existing bisa saja berada di luar daftar faskes user login
+  // (mis. peluang dipindahkan antar tim). Fallback ke data dari project supaya
+  // nama+alamat lama tetap tampil di dropdown.
+  const company =
+    findOptionById(companyOptions.value, project.companyId) ??
+    (project.companyId && project.companyName
+      ? ({
+          value: project.companyId,
+          label: project.companyName,
+          type: isGovernmentCompany('', '', project.companyName) ? 'Government' : 'Private',
+          address: project.address ?? '',
+          kdKelurahan: project.kdKelurahan ?? '',
+        } satisfies CompanyOption)
+      : undefined)
+  if (company) {
+    projectForm.value.company = selectedField(company)
+    // Ambil kontak PIC milik faskes ini supaya dropdown Kontak PIC terisi.
+    if (project.companyId) {
+      try {
+        await projectStore.fetchContactsByFaskes(project.companyId)
+      } catch {
+        projectStore.lookups.contactsByFaskes = []
+      }
+    }
+  }
 
   const contacts = (project.contacts?.length
     ? project.contacts.map((item) =>
         findOptionById(contactOptions.value, item.id) ??
-        findOptionByLabel(contactOptions.value, item.name)
+        findOptionByLabel(contactOptions.value, item.name) ??
+        (item.id && item.name ? { value: item.id, label: item.name } : undefined)
       )
     : [
         findOptionById(contactOptions.value, project.contactId) ??
@@ -916,22 +946,6 @@ async function prefillForm(project: Projects) {
   prefilling.value = false
 }
 
-/** Infinite scroll dropdown Perusahaan: ambil halaman berikutnya dan tambahkan ke daftar yang ada. */
-async function loadMoreCompanies() {
-  if (loadingMoreCompanies.value) return
-  if (hospitalStore.pagination.page >= hospitalStore.pagination.lastPage) return
-
-  loadingMoreCompanies.value = true
-  try {
-    await hospitalStore.fetchHospitals(
-      { page: hospitalStore.pagination.page + 1, per_page: hospitalStore.pagination.perPage },
-      { append: true },
-    )
-  } finally {
-    loadingMoreCompanies.value = false
-  }
-}
-
 function prefillInitialHospital() {
   if (isEditMode.value) return
 
@@ -962,8 +976,7 @@ function prefillInitialHospital() {
 
 onMounted(async () => {
   const tasks: Promise<unknown>[] = [
-    hospitalStore.fetchHospitals({ per_page: 15 }),
-    contactStore.fetchRemoteContacts(),
+    projectStore.fetchFaskes(),
     projectStore.fetchProjectLookups(),
     projectStore.fetchProjectCatalog(),
   ]
@@ -1015,8 +1028,6 @@ onMounted(async () => {
     Swal.fire({
       icon: 'warning',
       text:
-        hospitalStore.error ??
-        contactStore.contactApi.error ??
         projectStore.error ??
         'Sebagian data pendukung peluang gagal dimuat.',
       confirmButtonColor: 'var(--theme-default)',
@@ -1212,19 +1223,6 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnBeforeUnloa
 </script>
 
 <style scoped>
-.dummy-source-notice {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #f3d488;
-  border-radius: 10px;
-  padding: 9px 11px;
-  color: #70531b;
-  background: #fffbeb;
-  font-size: 12px;
-}
-
 .project-name-input :deep(.form-control) {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;

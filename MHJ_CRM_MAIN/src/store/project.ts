@@ -32,6 +32,14 @@ export interface BarangOption extends Select {
   price: number
 }
 
+/** Faskes dari endpoint /project/faskes: nama + alamat (sudah terfilter per user). */
+export interface FaskesOption extends Select {
+  address: string
+  hospitalType: string
+  industry: string
+  kdKelurahan: string
+}
+
 // Gambar placeholder karena tabel projects belum memiliki kolom banner.
 const DEFAULT_BANNER = 'project/list/1.png'
 
@@ -367,13 +375,19 @@ export const useProjectStore = defineStore('project', () => {
     sumberdana: Select[]
     divisi: DivisiOption[]
     barang: BarangOption[]
+    /** Faskes untuk form tambah peluang; difilter hak akses user login. */
+    faskes: FaskesOption[]
+    /** Kontak PIC untuk faskes yang sedang dipilih di form. */
+    contactsByFaskes: Select[]
   }>({
     owner: [],
     ownerCandidates: [],
     competitor: [],
     sumberdana: [],
     divisi: [],
-    barang: []
+    barang: [],
+    faskes: [],
+    contactsByFaskes: []
   })
   const lookupSources = reactive({
     competitor: 'api' as 'api' | 'local-dummy',
@@ -639,6 +653,71 @@ export const useProjectStore = defineStore('project', () => {
     return lookups.ownerCandidates
   }
 
+  /**
+   * GET /api/project/faskes. Mengambil daftar faskes/rumah sakit yang menjadi
+   * tanggung jawab user login (BE memakai sp_view_listhospital_v2) untuk
+   * dropdown Faskes di form tambah peluang.
+   */
+  async function fetchFaskes(params: { search?: string } = {}) {
+    const response = await api.getbydata(`${ENDPOINT}/faskes`, params as Dict)
+    const raw = response.data as unknown
+    const list = Array.isArray(raw)
+      ? raw
+      : Array.isArray((raw as Record<string, unknown>)?.faskes)
+        ? ((raw as Record<string, unknown>).faskes as unknown[])
+        : Array.isArray((raw as Record<string, unknown>)?.list)
+          ? ((raw as Record<string, unknown>).list as unknown[])
+          : []
+    const options: FaskesOption[] = list
+      .filter(isRecord)
+      .map((row) => {
+        const r = row as Record<string, unknown>
+        return {
+          value: Number(r.value ?? r.id ?? 0),
+          label: pickString(r, 'label', 'company_name', 'name') ?? '',
+          address: pickString(r, 'address', 'Address') ?? '',
+          hospitalType: pickString(r, 'hospital_type', 'hospitalType', 'type') ?? '',
+          industry: pickString(r, 'industry', 'Industry') ?? '',
+          kdKelurahan: pickString(r, 'kd_kelurahan', 'kdKelurahan') ?? ''
+        }
+      })
+      .filter((option) => option.value && option.label)
+    lookups.faskes = options
+    return lookups.faskes
+  }
+
+  /**
+   * GET /api/project/contactsbyfaskes?company_id=... Daftar kontak PIC milik
+   * faskes yang sedang dipilih di form tambah peluang.
+   */
+  async function fetchContactsByFaskes(companyId: number | null) {
+    if (!companyId || companyId <= 0) {
+      lookups.contactsByFaskes = []
+      return lookups.contactsByFaskes
+    }
+    const response = await api.getbydata(`${ENDPOINT}/contactsbyfaskes`, { company_id: companyId })
+    const raw = response.data as unknown
+    const list = Array.isArray(raw)
+      ? raw
+      : Array.isArray((raw as Record<string, unknown>)?.contacts)
+        ? ((raw as Record<string, unknown>).contacts as unknown[])
+        : Array.isArray((raw as Record<string, unknown>)?.list)
+          ? ((raw as Record<string, unknown>).list as unknown[])
+          : []
+    const options: Select[] = list
+      .filter(isRecord)
+      .map((row) => {
+        const r = row as Record<string, unknown>
+        return {
+          value: Number(r.value ?? r.id ?? 0),
+          label: pickString(r, 'label', 'full_name', 'name') ?? ''
+        }
+      })
+      .filter((option) => option.value && option.label)
+    lookups.contactsByFaskes = options
+    return lookups.contactsByFaskes
+  }
+
   /** GET /api/project/leader, /api/master-data/competitor, /api/master-data/sumberdana. */
   function fetchProjectLookups() {
     return runApiAction({
@@ -811,6 +890,8 @@ export const useProjectStore = defineStore('project', () => {
     updateProject,
     deleteProject,
     fetchProjectLookups,
-    fetchProjectCatalog
+    fetchProjectCatalog,
+    fetchFaskes,
+    fetchContactsByFaskes
   }
 })

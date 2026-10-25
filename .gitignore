@@ -74,3 +74,6 @@ DOKUMENTASI_INTEGRASI_MASTER.md
 # Firebase Admin SDK private keys (never commit server credentials)
 **/*adminsdk*.json
 **/service-account*.json
+
+
+DOKUMENTASI_INTEGRASI_PELUANG_DROPDOWN.md

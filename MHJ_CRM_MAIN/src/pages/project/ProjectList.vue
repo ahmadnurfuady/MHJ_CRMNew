@@ -104,8 +104,8 @@
                 <input
                   id="project-search-input"
                   v-model="searchQuery"
-                  type="search"
-                  placeholder="Cari peluang..."
+                  type="text"
+                  placeholder="Cari nama peluang, faskes, owner, atau kontak..."
                   autocomplete="off"
                 />
                 <span
@@ -229,7 +229,7 @@
                     <MhjIcon name="action_folder" />
                     <strong>Peluang tidak ditemukan</strong>
                     <span
-                      >Coba gunakan nama peluang atau stage yang berbeda.</span
+                      >Coba gunakan nama peluang, faskes, owner, kontak, atau stage yang berbeda.</span
                     >
                   </div>
                 </div>
@@ -494,7 +494,10 @@ const activeStageLabel = computed(() =>
 );
 
 const usesSummaryData = computed(
-  () => activeTab.value !== "all" || ownerFilter.value !== "all",
+  () =>
+    activeTab.value !== "all" ||
+    ownerFilter.value !== "all" ||
+    searchQuery.value.trim() !== "",
 );
 const filteredProjects = computed(() => {
   const source = usesSummaryData.value
@@ -507,13 +510,24 @@ const filteredProjects = computed(() => {
       activeTab.value === "all" || project.status === activeTab.value;
     const matchesOwner =
       ownerFilter.value === "all" || project.ownerName === ownerFilter.value;
+    const contactNames = (project.contacts ?? [])
+      .map((contact) => contact?.name ?? "")
+      .filter((name) => name.trim() !== "");
+    const primaryContactName = contactNames[0] ?? project.contactName ?? "";
+    const searchableValues: Array<string | number | undefined> = [
+      project.projectName,
+      project.productNames,
+      project.companyName,
+      project.ownerName,
+      primaryContactName,
+      ...contactNames,
+    ];
     const matchesSearch =
       !query ||
-      [project.projectName, project.productNames, project.companyName].some(
-        (value) =>
-          String(value || "")
-            .toLocaleLowerCase("id-ID")
-            .includes(query),
+      searchableValues.some((value) =>
+        String(value || "")
+          .toLocaleLowerCase("id-ID")
+          .includes(query),
       );
     return matchesStage && matchesOwner && matchesSearch;
   });
@@ -1258,6 +1272,29 @@ onBeforeUnmount(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+:deep(.opp-card__address) {
+  margin-top: 4px !important;
+  color: #94a3b8 !important;
+  font-size: 12px !important;
+}
+
+:deep(.opp-card__address svg) {
+  flex: 0 0 13px;
+  color: var(--opp-blue, #18a6e4);
+  stroke: currentColor;
+}
+
+:deep(.opp-card--list .opp-card__address) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+:deep(.opp-card--list .opp-card__address span) {
+  white-space: normal;
+  line-height: 1.35;
 }
 
 :deep(.opp-card__owner) {

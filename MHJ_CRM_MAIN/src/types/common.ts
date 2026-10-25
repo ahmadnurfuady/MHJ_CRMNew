@@ -338,6 +338,8 @@ export interface SelectProps {
   options: Select[]
   placeholder?: string
   displayKey?: keyof Select
+  /** Key opsional untuk baris sekunder (mis. alamat) di dropdown saja. */
+  subtitleKey?: string
   getValueKey?: keyof Select
   multiSelect?: boolean
   required?: boolean
