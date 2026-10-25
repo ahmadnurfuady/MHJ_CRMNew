@@ -91,11 +91,19 @@
                 :class="{
                   highlighted: index === highlightedIndex,
                   selected: isSelected(option),
+                  'has-subtitle': Boolean(subtitleKey && option[subtitleKey]),
                 }"
                 @click="handleSelect(option)"
                 :ref="(el) => setOptionRef(el, index)"
               >
-                {{ option[displayKey] }}
+                <span class="option-label">{{ option[displayKey] }}</span>
+                <small
+                  v-if="subtitleKey && option[subtitleKey]"
+                  class="option-subtitle"
+                  :title="String(option[subtitleKey])"
+                >
+                  {{ option[subtitleKey] }}
+                </small>
               </li>
             </template>
           </template>
@@ -115,7 +123,7 @@
 
 <script setup lang="ts">
 import { OnClickOutside } from '@vueuse/components'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { SelectProps } from '@/types/common'
 
@@ -124,6 +132,7 @@ import { useSmartSelect } from '../../../composable/useSelect'
 const props = withDefaults(defineProps<SelectProps>(), {
   placeholder: 'Select',
   displayKey: 'label',
+  subtitleKey: '',
   getValueKey: 'label',
   multiSelect: false,
   required: true,
@@ -136,6 +145,8 @@ const props = withDefaults(defineProps<SelectProps>(), {
   removableTags: false,
   loadingMore: false,
 })
+
+const subtitleKey = computed(() => props.subtitleKey || '')
 
 const emits = defineEmits(['update:modelValue', 'reach-bottom'])
 
@@ -273,13 +284,60 @@ function toggleWithPlacement(event: Event) {
 
 .selected-tag__remove {
   display: inline-flex;
+  width: 18px;
+  height: 18px;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   padding: 0;
-  color: #ffffff !important;
-  background: transparent;
+  margin-left: 4px;
   border: 0;
+  border-radius: 50%;
+  color: #ffffff !important;
+  background: rgba(0, 0, 0, 0.35);
   line-height: 1;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.selected-tag__remove:hover,
+.selected-tag__remove:focus-visible {
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff !important;
+  outline: 0;
+}
+
+.selected-tag__remove :deep(svg) {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  stroke-width: 2.75;
+}
+
+.dropdown li.has-subtitle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  line-height: 1.3;
+}
+
+.dropdown li.has-subtitle .option-label {
+  color: inherit;
+  font-weight: 500;
+}
+
+.dropdown li.has-subtitle .option-subtitle {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #64748b;
+  font-size: 11.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.dropdown li.has-subtitle.highlighted .option-subtitle,
+.dropdown li.has-subtitle.selected .option-subtitle {
+  color: #cbd5e1;
 }
 </style>

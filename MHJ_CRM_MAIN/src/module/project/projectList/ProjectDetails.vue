@@ -30,6 +30,14 @@
         <p>
           <span>{{ project.companyName || 'Faskes belum ditentukan' }}</span>
         </p>
+        <p
+          v-if="project.address"
+          class="opp-card__address"
+          :title="project.address"
+        >
+          <vue-feather type="map-pin" size="13" />
+          <span>{{ project.address }}</span>
+        </p>
       </div>
     </div>
 
