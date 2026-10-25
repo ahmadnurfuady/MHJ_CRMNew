@@ -1286,15 +1286,10 @@ onBeforeUnmount(() => {
   stroke: currentColor;
 }
 
-:deep(.opp-card--list .opp-card__address) {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
 :deep(.opp-card--list .opp-card__address span) {
-  white-space: normal;
-  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :deep(.opp-card__owner) {
