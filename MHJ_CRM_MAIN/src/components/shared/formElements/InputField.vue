@@ -1,7 +1,7 @@
 <template>
   <input
-    :value="modelValue?.data ? modelValue?.data : ''"
-    :type="inputType"
+    :value="displayValue"
+    :type="resolvedInputType"
     :id="inputId"
     v-bind:placeholder="isPlaceholder ? placeholder || 'Enter Value' : undefined"
     class="form-control"
@@ -17,7 +17,7 @@
     v-if="inputType !== 'textarea' && inputType !== 'file'"
     :required="props?.required && props.browserValidation"
     :disabled="props.disabled"
-    :inputmode="inputType === 'tel' ? 'tel' : undefined"
+    :inputmode="thousandSeparator ? 'numeric' : inputType === 'tel' ? 'tel' : undefined"
     :pattern="inputType === 'tel' ? '[+]?[0-9]*' : undefined"
     :list="props.datalist?.length ? `datalistOptions-${inputId}` : undefined"
     :maxlength="props.maxLength"
@@ -77,8 +77,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useInputField } from '@/composable/useInputField'
 import type { InputProps } from '@/types/common'
+import { formatThousands } from '@/utils/numberFormat'
 
 const props = withDefaults(defineProps<InputProps>(), {
   inputType: 'text',
@@ -95,8 +97,18 @@ const props = withDefaults(defineProps<InputProps>(), {
   showLengthBadge: false,
   formatValue: false,
   formatFunction: null,
+  thousandSeparator: false,
   validator: null,
 })
 const emit = defineEmits(['update:modelValue', 'badgeVisible'])
 const { onInput, onFileChange, showBadge, hideBadge, animationClass } = useInputField(props, emit)
+
+// Input HTML bertipe number tidak mengizinkan titik pemisah ribuan. Saat mode
+// ini aktif, tampilan memakai text + numeric keyboard, sedangkan model tetap angka.
+const resolvedInputType = computed(() => (props.thousandSeparator ? 'text' : props.inputType))
+const displayValue = computed(() => {
+  const value = props.modelValue?.data
+  if (value === '' || value === null || value === undefined) return ''
+  return props.thousandSeparator ? formatThousands(value) : value
+})
 </script>

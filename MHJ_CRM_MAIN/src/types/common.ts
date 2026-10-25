@@ -318,6 +318,8 @@ export interface InputProps {
   showLengthBadge?: boolean
   formatValue?: boolean
   formatFunction?: ((value: string) => string) | null
+  /** Tampilkan input bilangan bulat memakai pemisah ribuan Indonesia (9.000.000). */
+  thousandSeparator?: boolean
   validator?: ((value: string) => string | { valid: boolean; errorMessage: string }) | null
   minDate?: Date
   maxDate?: Date

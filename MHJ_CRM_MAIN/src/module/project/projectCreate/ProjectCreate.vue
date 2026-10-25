@@ -174,6 +174,7 @@
                         :inputId="`project-quantity-${line.key}`"
                         :placeholder="'Qty'"
                         :inputType="'number'"
+                        thousand-separator
                       />
                     </div>
                     <div class="col-md-4">
@@ -184,6 +185,7 @@
                         :inputId="`project-price-${line.key}`"
                         :placeholder="'Masukkan harga satuan'"
                         :inputType="'number'"
+                        thousand-separator
                       />
                     </div>
                   </div>

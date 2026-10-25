@@ -1,6 +1,7 @@
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { InputProps } from '@/types/common'
 import { validateNonEmptyFields, validateEmail } from '@/utils/validators/InputFieldValidators'
+import { formatThousandsInput, parseThousands } from '@/utils/numberFormat'
 
 interface ValidationStatus {
   errorMessage: string
@@ -45,11 +46,17 @@ export function useInputField(
   function onInput(event: Event) {
     const target = event.target as HTMLInputElement | null
     if (!target) return
-    const inputValue =
-      props.formatValue && props.formatFunction
-        ? props.formatFunction(target.value)
-        : target.value
-    if (target.value !== inputValue) target.value = inputValue
+    let inputValue: string | number = target.value
+
+    if (props.thousandSeparator) {
+      const formattedValue = formatThousandsInput(target.value)
+      if (target.value !== formattedValue) target.value = formattedValue
+      inputValue = parseThousands(formattedValue)
+    } else if (props.formatValue && props.formatFunction) {
+      inputValue = props.formatFunction(target.value)
+      if (target.value !== inputValue) target.value = String(inputValue)
+    }
+
     updated(inputValue)
   }
 
@@ -92,7 +99,9 @@ export function useInputField(
 
     let data: string | number | File | null | undefined = inputValue
 
-    if (props.inputType === 'number') {
+    if (props.thousandSeparator) {
+      data = inputValue === '' || inputValue == null ? '' : Number(inputValue)
+    } else if (props.inputType === 'number') {
       data = inputValue === '' || inputValue == null ? '' : Number(inputValue)
     } else if (props.inputType === 'file') {
       data = inputValue instanceof File ? inputValue : null

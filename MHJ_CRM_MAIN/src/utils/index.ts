@@ -16,7 +16,7 @@ export function getImages(path: string) {
   return `${base}images/${path.replace(/^\/+/, '')}`
 }
 export function formatPrice(price: number): string {
-  return `${price.toLocaleString('en-US')}`
+  return `${price.toLocaleString('id-ID')}`
 }
 
  
@@ -88,7 +88,7 @@ export function columnValue(details: TableData, fieldValue: TableDataKey, decima
 }
 
 export const formatNumber = (value: number | string): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(Number(value))
