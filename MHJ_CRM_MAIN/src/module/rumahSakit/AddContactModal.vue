@@ -435,6 +435,68 @@
         </button>
       </div>
     </form>
+
+    <div
+      v-if="showLocationPicker"
+      class="location-picker-backdrop"
+      @click="closeLocationPicker"
+    ></div>
+    <div
+      v-if="showLocationPicker"
+      class="location-picker"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Pilih faskes dari hasil pencarian"
+    >
+      <header class="location-picker__header">
+        <div>
+          <strong>Pilih Faskes</strong>
+          <small>{{ locationPickerResults.length }} hasil ditemukan</small>
+        </div>
+        <button
+          type="button"
+          class="location-picker__close"
+          aria-label="Tutup"
+          @click="closeLocationPicker"
+        >
+          <vue-feather type="x" size="18" />
+        </button>
+      </header>
+      <ul class="location-picker__list">
+        <li
+          v-for="(result, index) in locationPickerResults"
+          :key="`${result.latitude}-${result.longitude}-${index}`"
+          class="location-picker__item"
+          @click="choosePickerResult(result)"
+        >
+          <strong class="location-picker__name">{{ result.name || result.address }}</strong>
+          <span class="location-picker__address">{{ pickerAddressLabel(result) }}</span>
+          <span class="location-picker__meta">
+            <span class="location-picker__type">{{ facilityTypeLabel(result) }}</span>
+            <span class="location-picker__place">
+              <SolarIcon name="fa-location-dot" :size="12" />
+              {{ pickerLocationLabel(result) }}
+            </span>
+          </span>
+        </li>
+        <li
+          v-if="canSearchOutsideProvince"
+          class="address-search-more"
+        >
+          <button
+            type="button"
+            :disabled="pickerSearchingOutside"
+            @click="searchOutsideFromPicker"
+          >
+            {{
+              pickerSearchingOutside
+                ? "Mencari di seluruh Indonesia..."
+                : `Cari lebih banyak di luar ${currentSearchArea().province}`
+            }}
+          </button>
+        </li>
+      </ul>
+    </div>
   </component>
 </template>
 
@@ -530,6 +592,9 @@ const addressSearchNoResult = ref(false);
 const searchOrigin = ref<{ city: string; province: string } | null>(null);
 const searchOriginLoading = ref(false);
 const includeOutsideProvince = ref(false);
+const showLocationPicker = ref(false);
+const locationPickerResults = ref<AddressSearchResult[]>([]);
+const pickerSearchingOutside = ref(false);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(
   contactState.value.hospitalEditLocation
     ? { ...contactState.value.hospitalEditLocation }
@@ -634,6 +699,39 @@ function facilityTypeLabel(suggestion: AddressSearchResult) {
     rehabilitation: "Rehabilitasi",
   };
   return labels[suggestion.facilityType ?? ""] || "Fasilitas Kesehatan";
+}
+
+/**
+ * Khusus popup hasil "Cari lokasi": tampilkan kota/kabupaten asli tiap faskes (mis.
+ * "Waru" atau "Rogojampi"), bukan label generik "Jawa Timur lainnya" yang dipakai
+ * dropdown saat mengetik. Dropdown sengaja tidak diubah.
+ */
+function pickerLocationLabel(result: AddressSearchResult) {
+  return result.city || result.province || "Lokasi tidak diketahui";
+}
+
+/** Alamat lengkap Nominatim biasanya diawali nama faskes itu sendiri — buang supaya tidak diulang di bawah nama pada kartu popup. */
+function pickerAddressLabel(result: AddressSearchResult) {
+  const name = result.name?.trim();
+  if (name && result.address.startsWith(`${name}, `)) {
+    return result.address.slice(name.length + 2);
+  }
+  return result.address;
+}
+
+function openLocationPicker(results: AddressSearchResult[]) {
+  locationPickerResults.value = results;
+  showLocationPicker.value = true;
+}
+
+function closeLocationPicker() {
+  showLocationPicker.value = false;
+  locationPickerResults.value = [];
+}
+
+function choosePickerResult(result: AddressSearchResult) {
+  selectAddressSuggestion(result);
+  closeLocationPicker();
 }
 
 function reconcileSelectField(field: SelectField, options: SelectOption[]) {
@@ -754,6 +852,25 @@ function searchOutsideActiveProvince() {
     contactState.value.rumahSakitForm.mapAddress.data,
     true,
   );
+}
+
+/** Tombol "Cari lebih banyak di luar [provinsi]" versi popup — sama seperti punya dropdown, cuma targetnya locationPickerResults, bukan addressSuggestions. */
+async function searchOutsideFromPicker() {
+  const query = contactState.value.rumahSakitForm.mapAddress.data;
+  includeOutsideProvince.value = true;
+  pickerSearchingOutside.value = true;
+
+  try {
+    const results = await searchHealthFacilities(query, {
+      ...currentSearchArea(),
+      includeOutsideProvince: true,
+    });
+    locationPickerResults.value = results;
+  } catch {
+    locationError.value = "Pencarian lokasi gagal. Coba lagi.";
+  } finally {
+    pickerSearchingOutside.value = false;
+  }
 }
 
 watch(
@@ -883,16 +1000,16 @@ async function searchTypedAddress(query: string) {
 
   try {
     await ensureSearchOrigin();
-    const [best] = await searchHealthFacilities(query, {
+    const results = await searchHealthFacilities(query, {
       ...currentSearchArea(),
       includeOutsideProvince: includeOutsideProvince.value,
     });
-    if (!best) {
+    if (!results.length) {
       locationError.value =
         "Fasilitas kesehatan tidak ditemukan. Coba nama yang lebih spesifik.";
       return;
     }
-    selectAddressSuggestion(best);
+    openLocationPicker(results);
   } catch {
     locationError.value = "Pencarian lokasi gagal. Coba lagi.";
   } finally {
@@ -1219,6 +1336,139 @@ function clearCurrentAddress() {
   .location-button {
     min-width: 132px;
     padding-inline: 10px;
+  }
+}
+
+.location-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1070;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.location-picker {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 1071;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(520px, calc(100vh - 64px));
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+}
+
+.location-picker__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e3e8eb;
+}
+
+.location-picker__header strong {
+  display: block;
+  color: #1d2939;
+  font-size: 15px;
+}
+
+.location-picker__header small {
+  display: block;
+  margin-top: 2px;
+  color: #667085;
+  font-size: 11.5px;
+}
+
+.location-picker__close {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+  color: #667085;
+  background: #f2f4f7;
+  cursor: pointer;
+}
+
+.location-picker__close:hover {
+  background: #e4e7ec;
+  color: #344054;
+}
+
+.location-picker__list {
+  margin: 0;
+  overflow-y: auto;
+  list-style: none;
+  padding: 8px;
+}
+
+.location-picker__item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.location-picker__item:hover {
+  background: var(--app-primary-wash, #f3fbfe);
+}
+
+.location-picker__item + .location-picker__item {
+  margin-top: 2px;
+}
+
+.location-picker__name {
+  color: #1d2939;
+  font-size: 13px;
+}
+
+.location-picker__address {
+  color: #667085;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.location-picker__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.location-picker__type {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 9px;
+  color: var(--theme-default, #18a6e4);
+  background: var(--app-primary-wash, #f3fbfe);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.location-picker__place {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #475467;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+@media (max-width: 575.98px) {
+  .location-picker {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 48px);
   }
 }
 </style>

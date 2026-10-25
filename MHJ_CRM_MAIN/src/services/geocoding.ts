@@ -22,17 +22,6 @@ interface BigDataCloudReverseResult {
   countryName?: string
 }
 
-interface NominatimSearchResult {
-  display_name?: string
-  name?: string
-  lat?: string
-  lon?: string
-  category?: string
-  type?: string
-  extratags?: Record<string, string | undefined>
-  address?: NominatimReverseResult['address']
-}
-
 export interface ReverseGeocodeLocation {
   address: string
   country: string
@@ -44,6 +33,8 @@ export interface ReverseGeocodeLocation {
 export interface AddressSearchResult extends ReverseGeocodeLocation {
   latitude: number
   longitude: number
+  /** Nama tempat terpisah dari `address` (alamat lengkap) — hanya diisi oleh `searchHealthFacilities`. */
+  name?: string
   facilityType?: string
   searchScope?: 'city' | 'province' | 'outside'
 }
@@ -134,62 +125,6 @@ async function reverseWithBigDataCloud(
   }
 }
 
-/**
- * OpenStreetMap tidak mengenali singkatan "RS/RSU/RSUD" sebagai "Rumah Sakit", sehingga
- * pencarian dengan singkatan sering tidak menemukan apa-apa atau malah salah sasaran.
- */
-function expandHospitalAbbreviation(query: string): string | null {
-  const match = query.match(/^(rsud|rsu|rs)\b(.*)$/i)
-  if (!match) return null
-
-  switch (match[1]!.toLowerCase()) {
-    case 'rsud':
-      return `Rumah Sakit Umum Daerah${match[2]}`
-    case 'rsu':
-      return `Rumah Sakit Umum${match[2]}`
-    default:
-      return `Rumah Sakit${match[2]}`
-  }
-}
-
-/**
- * Alamat lengkap ala Indonesia ("Jl. KH. ... No.20, Kec. ..., ... 55122") sering membuat
- * pencarian teks bebas di Nominatim gagal total karena gabungan prefiks jalan, singkatan
- * wilayah administratif, dan kode pos di akhir tanpa koma. Menghapus elemen-elemen itu
- * dan mencoba ulang jauh lebih sering berhasil menemukan jalannya.
- */
-function normalizeAddressForSearch(query: string): string | null {
-  const simplified = query
-    .replace(/^\s*(jl\.?|jalan)\s+/i, '')
-    .replace(/\b(kec\.?|kecamatan)\s+/gi, '')
-    .replace(/\b(kel\.?|kelurahan)\s+/gi, '')
-    .replace(/\b(kab\.?|kabupaten)\s+/gi, '')
-    .replace(/,?\s*\d{5}\s*$/, '')
-    .replace(/\s+,/g, ',')
-    .replace(/,\s*,/g, ',')
-    .replace(/\s{2,}/g, ' ')
-    .replace(/^,\s*/, '')
-    .replace(/,\s*$/, '')
-    .trim()
-
-  return simplified && simplified !== query.trim() ? simplified : null
-}
-
-async function fetchNominatimSearch(query: string): Promise<NominatimSearchResult[]> {
-  const params = new URLSearchParams({
-    format: 'jsonv2',
-    q: query,
-    addressdetails: '1',
-    limit: '5',
-    countrycodes: 'id',
-    'accept-language': 'id'
-  })
-  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-    headers: { Accept: 'application/json' }
-  })
-  if (!response.ok) throw new Error('Pencarian lokasi gagal.')
-  return (await response.json()) as NominatimSearchResult[]
-}
 
 /*
  * NONAKTIF — diganti pencarian lewat backend (lihat `searchHealthFacilities` di bawah)
@@ -399,6 +334,7 @@ export async function searchHealthFacilities(
     address: result.display_address?.trim() || result.name?.trim() || '',
     latitude: result.latitude,
     longitude: result.longitude,
+    name: result.name?.trim() || undefined,
     country: result.country?.trim() || 'Indonesia',
     province: result.province?.trim() ?? '',
     city: result.city?.trim() ?? '',
@@ -408,48 +344,52 @@ export async function searchHealthFacilities(
   }))
 }
 
-/** Mencari kandidat lokasi (nama faskes/alamat) lengkap dengan koordinatnya lewat OpenStreetMap. */
+interface AddressSearchApiResult {
+  display_address: string
+  latitude: number
+  longitude: number
+  country: string | null
+  province: string | null
+  city: string | null
+  postal_code: string | null
+}
+
+interface AddressSearchApiResponse {
+  success: boolean
+  message: string
+  data: {
+    query: string
+    total: number
+    results: AddressSearchApiResult[]
+  } | null
+}
+
+/**
+ * Mencari kandidat lokasi (nama tempat/alamat apa saja, tanpa filter kategori faskes)
+ * lengkap dengan koordinatnya lewat endpoint backend `GET /geocoding/address-search`
+ * (siapcrmapi: `App\Http\Controllers\AddressSearchController`). Dipakai form Kontak dan
+ * form lain yang butuh cari alamat umum. Untuk pencarian yang dibatasi ke faskes
+ * (hospital/clinic/pharmacy/dll) lihat `searchHealthFacilities`.
+ */
 export async function searchAddress(query: string): Promise<AddressSearchResult[]> {
   const trimmed = query.trim()
   if (!trimmed) return []
 
-  const expandedQuery = expandHospitalAbbreviation(trimmed)
-  const primaryQuery = expandedQuery ?? trimmed
+  const response = await api.getbydata<AddressSearchApiResponse>(
+    'geocoding/address-search',
+    { q: trimmed }
+  )
+  const results = response.data.data?.results ?? []
 
-  const candidates = [primaryQuery]
-  if (expandedQuery) candidates.push(trimmed)
-  for (const candidate of [primaryQuery, trimmed]) {
-    const normalized = normalizeAddressForSearch(candidate)
-    if (normalized && !candidates.includes(normalized)) candidates.push(normalized)
-  }
-
-  let results: NominatimSearchResult[] = []
-  for (const candidate of candidates) {
-    results = await fetchNominatimSearch(candidate)
-    if (results.length > 0) break
-  }
-
-  return results
-    .filter((result) => result.lat && result.lon && result.display_name)
-    .map((result) => {
-      const address = result.address
-      return {
-        address: result.display_name?.trim() ?? '',
-        latitude: Number(result.lat),
-        longitude: Number(result.lon),
-        country: address?.country?.trim() ?? '',
-        province: address?.state?.trim() ?? '',
-        city: (
-          address?.city ||
-          address?.town ||
-          address?.municipality ||
-          address?.county ||
-          address?.village ||
-          ''
-        ).trim(),
-        posCode: address?.postcode?.trim() ?? ''
-      }
-    })
+  return results.map((result) => ({
+    address: result.display_address?.trim() || '',
+    latitude: result.latitude,
+    longitude: result.longitude,
+    country: result.country?.trim() || '',
+    province: result.province?.trim() || '',
+    city: result.city?.trim() || '',
+    posCode: result.postal_code?.trim() || ''
+  }))
 }
 
 /** Mengubah koordinat GPS menjadi alamat sekaligus bagian wilayah terstruktur. */
