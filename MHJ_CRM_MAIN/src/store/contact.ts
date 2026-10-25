@@ -1239,7 +1239,24 @@ export const useContact = defineStore("contact", () => {
       if (field?.errorMessage) field.errorMessage = `${label} wajib diisi.`;
     });
 
-    if (!validation.isValid || !hasPhoneNumber) return false;
+    const missingFields = Object.entries(requiredLabels)
+      .filter(([key]) => {
+        const field = formFields[key as keyof typeof formFields];
+        return !String(field?.data ?? "").trim();
+      })
+      .map(([, label]) => label);
+    if (!hasPhoneNumber) missingFields.splice(1, 0, "Nomor Telepon");
+
+    if (!validation.isValid || !hasPhoneNumber) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Data Faskes belum lengkap",
+        text: `Field berikut belum diisi: ${missingFields.join(", ")}.`,
+        confirmButtonText: "Lengkapi Data",
+        confirmButtonColor: "var(--theme-default)",
+      });
+      return false;
+    }
 
     const formData = validation.formData;
     const jenis = textValue(formData.jenis).trim();

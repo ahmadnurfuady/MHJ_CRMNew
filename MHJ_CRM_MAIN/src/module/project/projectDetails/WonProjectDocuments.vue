@@ -62,10 +62,16 @@
       </details>
     </div>
 
-    <p class="local-storage-note">
-      <SolarIcon name="fa-circle-info" />
-      Dokumen disimpan lokal sementara sampai endpoint backend tersedia.
-    </p>
+    <div class="document-notes">
+      <p v-if="!latestSalesOrder" class="order-status-note">
+        <SolarIcon name="fa-circle-exclamation" />
+        Lengkapi atau upload Surat Pesanan untuk menampilkan tab Status Pesanan.
+      </p>
+      <p class="local-storage-note">
+        <SolarIcon name="fa-circle-info" />
+        Dokumen disimpan lokal sementara sampai endpoint backend tersedia.
+      </p>
+    </div>
 
     <input
       ref="customerPoInput"
@@ -930,7 +936,11 @@ onMounted(loadDocuments)
 .document-menu__panel strong { font-size: 11px; }
 .document-menu__panel small { margin-top: 2px; color: #89949e; font-size: 9px; font-weight: 400; }
 .document-menu__panel .latest-document { margin-top: 4px; border-top: 1px solid #edf1f4; border-radius: 0 0 8px 8px; }
-.local-storage-note { grid-column: 1 / -1; margin: -3px 0 0 54px; color: #98a1aa; font-size: 9px; }
+.document-notes { display: grid; grid-column: 1 / -1; gap: 4px; margin: -3px 0 0 54px; }
+.document-notes p { margin: 0; }
+.order-status-note { color: #8a5a00; font-size: 10px; font-weight: 600; }
+.order-status-note i { margin-right: 4px; color: #d89516; }
+.local-storage-note { color: #98a1aa; font-size: 9px; }
 .local-storage-note i { margin-right: 4px; color: var(--app-secondary, #77b9d5); }
 :deep(.won-document-dialog) { min-height: 0; }
 :deep(.won-document-modal) { max-height: calc(100vh - 2rem); overflow: hidden; border: 0; border-radius: 18px; }
@@ -973,7 +983,7 @@ onMounted(loadDocuments)
   .document-buttons { display: grid; grid-template-columns: 1fr 1fr; }
   .document-menu summary { min-width: 0; }
   .document-menu__panel { width: min(270px, calc(100vw - 42px)); }
-  .local-storage-note { margin: -2px 0 0; }
+  .document-notes { margin: -2px 0 0; }
   .form-grid { grid-template-columns: 1fr; }
   .form-grid .full-column { grid-column: auto; }
   :deep(.won-document-dialog) { min-height: calc(100% - 1rem); margin: .5rem; }

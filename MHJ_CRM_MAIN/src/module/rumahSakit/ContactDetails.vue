@@ -141,15 +141,37 @@
                 {{ hospitalType(hospital) }}
               </td>
               <td data-label="Total Kontak" class="text-center">
-                <span class="metric-badge">{{ formatMetric(hospital.totalContacts) }}</span>
+                <button
+                  type="button"
+                  class="metric-badge metric-link"
+                  :aria-label="`Buka daftar kontak ${displayValue(hospital.firstName)}`"
+                  title="Buka kontak faskes"
+                  @click="openHospitalDetail(hospital, 'contacts')"
+                >
+                  {{ formatMetric(hospital.totalContacts) }}
+                </button>
               </td>
               <td data-label="Total Peluang" class="text-center">
-                <span class="metric-badge">{{ formatMetric(projectTotal(hospital)) }}</span>
+                <button
+                  type="button"
+                  class="metric-badge metric-link"
+                  :aria-label="`Buka daftar peluang ${displayValue(hospital.firstName)}`"
+                  title="Buka peluang faskes"
+                  @click="openHospitalDetail(hospital, 'projects')"
+                >
+                  {{ formatMetric(projectTotal(hospital)) }}
+                </button>
               </td>
               <td data-label="Alat Terpasang" class="text-center">
-                <span class="metric-badge">
+                <button
+                  type="button"
+                  class="metric-badge metric-link"
+                  :aria-label="`Buka alat terpasang ${displayValue(hospital.firstName)}`"
+                  title="Buka alat terpasang faskes"
+                  @click="openHospitalDetail(hospital, 'installed')"
+                >
                   {{ formatMetric(installedEquipmentTotal(hospital)) }}
-                </span>
+                </button>
               </td>
               <td data-label="Kunjungan Terakhir">
                 <div v-if="hospital.lastVisitAt" class="last-visit">
@@ -435,9 +457,15 @@ function relativeVisitDate(value: string) {
   return `${Math.floor(diffInMonths / 12)} tahun lalu`;
 }
 
-function openHospitalDetail(hospital: Contact) {
+function openHospitalDetail(
+  hospital: Contact,
+  tab?: "projects" | "contacts" | "installed",
+) {
   const id = hospital.remoteId ?? hospital.id;
-  void router.push({ path: routes.App.RumahSakit, query: { detail: String(id) } });
+  void router.push({
+    path: routes.App.RumahSakit,
+    query: { detail: String(id), ...(tab ? { tab } : {}) },
+  });
 }
 
 onMounted(() => {
@@ -749,6 +777,29 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+}
+
+.metric-link {
+  border: 0;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.metric-link:hover,
+.metric-link:focus-visible {
+  color: #fff;
+  background: var(--theme-default, #18a6e4);
+  box-shadow: 0 4px 12px rgba(var(--app-primary-rgb, 24, 166, 228), 0.25);
+  transform: translateY(-1px);
+}
+
+.metric-link:focus-visible {
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.35);
+  outline-offset: 2px;
 }
 
 .empty-value {

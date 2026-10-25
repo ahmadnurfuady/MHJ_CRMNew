@@ -110,24 +110,27 @@
 
       <section class="purchase-cycle card" aria-labelledby="purchase-cycle-title">
         <div class="purchase-cycle-heading">
-          <div>
-            <h5 id="purchase-cycle-title">Purchase Cycle</h5>
-            <DummyDataBadge v-if="purchaseRecordsAreDemo" />
+          <div class="purchase-cycle-title">
+            <div class="purchase-cycle-title-line">
+              <h5 id="purchase-cycle-title">Purchase Cycle</h5>
+              <DummyDataBadge v-if="purchaseRecordsAreDemo" />
+            </div>
             <p>Siklus pembelian alat</p>
           </div>
-          <span class="purchase-average">
-            Rata-rata {{ averagePurchaseLabel }}
-          </span>
-        </div>
-
-        <div class="purchase-cycle-metrics">
-          <div>
-            <strong>{{ purchaseTotal }}</strong>
-            <span>Total Pembelian</span>
-          </div>
-          <div>
-            <strong>{{ monthsSinceLastPurchaseLabel }}</strong>
-            <span>Sejak terakhir</span>
+          <div class="purchase-cycle-summary">
+            <div class="purchase-cycle-metrics">
+              <div>
+                <strong>{{ purchaseTotal }}</strong>
+                <span>Total Pembelian</span>
+              </div>
+              <div>
+                <strong>{{ monthsSinceLastPurchaseLabel }}</strong>
+                <span>Sejak terakhir</span>
+              </div>
+            </div>
+            <span class="purchase-average">
+              Rata-rata {{ averagePurchaseLabel }}
+            </span>
           </div>
         </div>
 
@@ -155,29 +158,35 @@
           Belum ada riwayat pembelian.
         </div>
 
-        <div class="purchase-last">
-          <SolarIcon name="fa-clock-rotate-left" />
-          <span>{{ lastPurchaseLabel }}</span>
-        </div>
+        <div class="purchase-cycle-footer">
+          <div class="purchase-last">
+            <SolarIcon name="fa-clock-rotate-left" />
+            <span>{{ lastPurchaseLabel }}</span>
+          </div>
 
-        <button
-          class="purchase-history-button"
-          type="button"
-          :disabled="purchaseTotal === 0"
-          @click="openPurchaseHistory"
-        >
-          Lihat {{ purchaseTotal }} riwayat pembelian
-          <SolarIcon name="fa-chevron-right" />
-        </button>
+          <button
+            class="purchase-history-button"
+            type="button"
+            :disabled="purchaseTotal === 0"
+            @click="openPurchaseHistory"
+          >
+            Lihat {{ purchaseTotal }} riwayat pembelian
+            <SolarIcon name="fa-chevron-right" />
+          </button>
+        </div>
       </section>
 
-      <nav class="detail-tabs" aria-label="Navigasi detail faskes">
+      <nav
+        ref="detailTabsRef"
+        class="detail-tabs"
+        aria-label="Navigasi detail faskes"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.value"
           type="button"
           :class="{ active: activeTab === tab.value }"
-          @click="activeTab = tab.value"
+          @click="selectDetailTab(tab.value)"
         >
           <MhjIcon :name="tab.mhjIcon" />
           <span>{{ tab.label }}</span>
@@ -730,12 +739,14 @@ import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
 import Modal from "@/components/shared/Modal.vue";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
 
-type DetailTab =
-  | "projects"
-  | "contacts"
-  | "installed"
-  | "activities"
-  | "profile";
+const navigableDetailTabs = [
+  "projects",
+  "contacts",
+  "installed",
+  "activities",
+] as const;
+type NavigableDetailTab = (typeof navigableDetailTabs)[number];
+type DetailTab = NavigableDetailTab | "profile";
 interface ActivityItem {
   title: string;
   description: string;
@@ -764,7 +775,16 @@ const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const contactStore = useContact();
 const { selectedItem: hospital, detailLoading } = storeToRefs(hospitalStore);
-const activeTab = ref<DetailTab>("projects");
+
+function detailTabFromQuery(value: unknown): NavigableDetailTab {
+  const normalized = String(Array.isArray(value) ? value[0] : value ?? "");
+  return navigableDetailTabs.includes(normalized as NavigableDetailTab)
+    ? (normalized as NavigableDetailTab)
+    : "projects";
+}
+
+const activeTab = ref<DetailTab>(detailTabFromQuery(route.query.tab));
+const detailTabsRef = ref<HTMLElement | null>(null);
 const profileEditing = ref(false);
 const profilePanel = ref<HTMLElement | null>(null);
 let allowEditNavigation = false;
@@ -1069,6 +1089,21 @@ const tabs = computed(() => [
   },
 ]);
 
+function selectDetailTab(tab: NavigableDetailTab) {
+  activeTab.value = tab;
+}
+
+async function scrollToRequestedDetailTab() {
+  const requestedTab = detailTabFromQuery(route.query.tab);
+  if (String(route.query.tab ?? "") !== requestedTab) return;
+
+  await nextTick();
+  detailTabsRef.value?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}
+
 function selectStage(stage: string) {
   expandedStage.value = stage;
 }
@@ -1265,6 +1300,14 @@ watch(
   { immediate: true },
 );
 
+watch(
+  () => route.query.tab,
+  (tab) => {
+    if (String(route.query.edit ?? "") === "1") return;
+    activeTab.value = detailTabFromQuery(tab);
+  },
+);
+
 function displayValue(value: unknown): string {
   const normalized = String(value ?? "").trim();
   return normalized || "-";
@@ -1393,7 +1436,7 @@ function addComment() {
 
 async function loadDetail() {
   loadError.value = "";
-  activeTab.value = "projects";
+  activeTab.value = detailTabFromQuery(route.query.tab);
   hospitalStore.selectedItem = null;
   const detailRequests = isDemoHospitalId(props.hospitalId)
     ? [hospitalStore.fetchHospitalById(props.hospitalId)]
@@ -1413,6 +1456,8 @@ async function loadDetail() {
     (stage) => stage.projects.length,
   );
   if (firstPopulatedStage) expandedStage.value = firstPopulatedStage.value;
+
+  await scrollToRequestedDetailTab();
 }
 
 watch(() => props.hospitalId, loadDetail, { immediate: true });
@@ -1662,26 +1707,21 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .metric-icon {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  border-radius: 11px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
 }
 .metric-icon.blue {
   color: var(--app-primary, #178bc0);
-  background: var(--app-primary-soft, #e1f4fc);
 }
 .metric-icon.violet {
   color: #8057d7;
-  background: #eee9fb;
 }
 .metric-icon.green {
   color: #168b4c;
-  background: #e1f5e9;
 }
 .metric-icon.amber {
   color: #b1760b;
-  background: #fff1d5;
 }
 .overview-metric span,
 .overview-metric strong {
@@ -1702,54 +1742,65 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .purchase-cycle {
   margin-bottom: 18px;
-  border-radius: 16px;
-  padding: 20px 22px;
+  border-radius: 14px;
+  padding: 14px 18px;
   background: #fff;
 }
 .purchase-cycle-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+.purchase-cycle-title {
+  min-width: 160px;
+}
+.purchase-cycle-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
 }
 .purchase-cycle-heading h5 {
   margin: 0;
   color: var(--ink);
-  font-size: 17px;
+  font-size: 15px;
 }
 .purchase-cycle-heading p {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: #94a3b8;
-  font-size: 11px;
+  font-size: 10px;
+}
+.purchase-cycle-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 .purchase-average {
   flex: 0 0 auto;
-  border-radius: 9px;
-  padding: 7px 11px;
+  border-radius: 8px;
+  padding: 6px 10px;
   color: var(--app-primary-dark, #078ac3);
   background: var(--app-primary-wash, #e7f7fd);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 .purchase-cycle-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 14px;
-  border-radius: 12px;
-  background: #f8fafc;
+  display: flex;
+  gap: 8px;
 }
 .purchase-cycle-metrics > div {
   display: flex;
+  min-width: 108px;
+  min-height: 42px;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  min-height: 72px;
-  border-right: 1px solid #e8edf2;
-  padding: 10px;
+  border-radius: 8px;
+  padding: 5px 10px;
+  background: #f8fafc;
   text-align: center;
-}
-.purchase-cycle-metrics > div:last-child {
-  border-right: 0;
 }
 .purchase-cycle-metrics strong,
 .purchase-cycle-metrics span {
@@ -1757,19 +1808,19 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .purchase-cycle-metrics strong {
   color: #101820;
-  font-size: 22px;
+  font-size: 16px;
   line-height: 1;
 }
 .purchase-cycle-metrics span {
-  margin-top: 5px;
+  margin-top: 3px;
   color: #87919b;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
 }
 .purchase-timeline-scroll {
   overflow-x: auto;
-  margin-top: 18px;
-  padding: 2px 4px 7px;
+  margin-top: 12px;
+  padding: 2px 4px 5px;
   scrollbar-color: var(--app-primary-border, #bae8f8) transparent;
   scrollbar-width: thin;
 }
@@ -1780,10 +1831,10 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .purchase-step {
   position: relative;
   display: flex;
-  width: 132px;
-  min-width: 132px;
+  width: 112px;
+  min-width: 112px;
   align-items: center;
-  flex: 1 0 132px;
+  flex: 1 0 112px;
   flex-direction: column;
   color: #73808b;
   text-align: center;
@@ -1821,7 +1872,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .purchase-step strong {
   overflow: hidden;
   width: 100%;
-  margin-top: 9px;
+  margin-top: 6px;
   color: #3f4e59;
   font-size: 10px;
   text-overflow: ellipsis;
@@ -1833,7 +1884,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .purchase-step small {
   overflow: hidden;
   width: 100%;
-  margin-top: 2px;
+  margin-top: 1px;
   color: #98a3ad;
   font-size: 8px;
   text-overflow: ellipsis;
@@ -1841,11 +1892,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .purchase-timeline-empty {
   display: flex;
-  min-height: 72px;
+  min-height: 54px;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 12px;
   border: 1px dashed #d9e4ea;
   border-radius: 11px;
   color: #89959f;
@@ -1855,31 +1906,45 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .purchase-timeline-empty i {
   color: var(--primary);
 }
-.purchase-last {
+.purchase-cycle-footer {
   display: flex;
   align-items: center;
-  gap: 9px;
-  margin-top: 14px;
+  gap: 10px;
+  margin-top: 10px;
+}
+.purchase-last {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 8px;
   border-radius: 10px;
-  padding: 11px 13px;
+  padding: 9px 11px;
   color: #bd633a;
   background: #fff7dd;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
 }
+.purchase-last span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .purchase-last i {
-  font-size: 16px;
+  flex: 0 0 auto;
+  font-size: 14px;
 }
 .purchase-history-button {
   display: flex;
-  width: 100%;
-  min-height: 42px;
+  width: auto;
+  min-height: 36px;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 12px;
   border: 1px solid var(--primary);
-  border-radius: 10px;
+  border-radius: 9px;
+  padding: 0 14px;
   color: var(--primary);
   background: #fff;
   font-size: 11px;
@@ -1904,6 +1969,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   display: flex;
   overflow-x: auto;
   margin-bottom: 18px;
+  scroll-margin-top: 12px;
   border: 1px solid #e4e9ed;
   border-radius: 13px;
   padding: 5px;
@@ -2850,23 +2916,44 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   }
   .purchase-cycle {
     border-radius: 12px;
-    padding: 16px;
+    padding: 14px;
   }
   .purchase-cycle-heading {
-    align-items: flex-start;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .purchase-cycle-summary {
+    justify-content: space-between;
+  }
+  .purchase-cycle-metrics {
+    flex: 1 1 auto;
+  }
+  .purchase-cycle-metrics > div {
+    min-width: 0;
+    flex: 1 1 0;
   }
   .purchase-average {
-    max-width: 145px;
+    display: flex;
+    max-width: 130px;
+    align-items: center;
     padding: 6px 9px;
     text-align: center;
   }
   .purchase-cycle-metrics strong {
-    font-size: 19px;
+    font-size: 16px;
   }
   .purchase-step {
-    width: 112px;
-    min-width: 112px;
-    flex-basis: 112px;
+    width: 104px;
+    min-width: 104px;
+    flex-basis: 104px;
+  }
+  .purchase-cycle-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .purchase-history-button {
+    width: 100%;
   }
   .metric-icon {
     display: none;
