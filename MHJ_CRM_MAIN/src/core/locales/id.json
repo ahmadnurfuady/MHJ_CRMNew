@@ -110,7 +110,7 @@
     "source": "Source",
     "gender": "Jenis Kelamin",
     "company": "Faskes",
-    "project": "Proyek",
+    "project": "Peluang",
     "save": "Simpan",
     "addPhone": "Tambah nomor telepon",
     "deletePhone": "Hapus nomor",
@@ -130,7 +130,7 @@
       "source": "Pilih Source",
       "gender": "Pilih Jenis Kelamin",
       "company": "Ketik manual / pilih dari daftar Faskes",
-      "project": "Pilih proyek dari database live"
+      "project": "Pilih peluang dari database live"
     }
   }
 }

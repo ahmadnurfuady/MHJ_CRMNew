@@ -132,7 +132,6 @@ import { useSmartSelect } from '../../../composable/useSelect'
 const props = withDefaults(defineProps<SelectProps>(), {
   placeholder: 'Select',
   displayKey: 'label',
-  subtitleKey: '',
   getValueKey: 'label',
   multiSelect: false,
   required: true,
@@ -146,7 +145,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
   loadingMore: false,
 })
 
-const subtitleKey = computed(() => props.subtitleKey || '')
+const subtitleKey = computed(() => props.subtitleKey)
 
 const emits = defineEmits(['update:modelValue', 'reach-bottom'])
 
@@ -328,8 +327,9 @@ function toggleWithPlacement(event: Event) {
 .dropdown li.has-subtitle .option-subtitle {
   display: -webkit-box;
   overflow: hidden;
-  color: #64748b;
-  font-size: 11.5px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 400;
   line-height: 1.35;
   text-overflow: ellipsis;
   -webkit-box-orient: vertical;
@@ -338,6 +338,6 @@ function toggleWithPlacement(event: Event) {
 
 .dropdown li.has-subtitle.highlighted .option-subtitle,
 .dropdown li.has-subtitle.selected .option-subtitle {
-  color: #cbd5e1;
+  color: #334155;
 }
 </style>

@@ -311,6 +311,7 @@
                 v-model="contactState.contactForm.company"
                 :options="companyOptions"
                 display-key="label"
+                subtitle-key="address"
                 getValueKey="value"
                 :placeholder="t('contacts.placeholders.company')"
                 :required="false"
@@ -323,6 +324,7 @@
                 v-model="contactState.contactForm.project"
                 :options="projectOptions"
                 display-key="label"
+                subtitle-key="address"
                 getValueKey="label"
                 :placeholder="t('contacts.placeholders.project')"
                 :required="false"
@@ -430,11 +432,30 @@ const companyOptions = computed(() => {
   return hospitals.map((hospital) => ({
     value: hospital.id,
     label: hospital.name,
+    address: hospital.address || hospital.mapAddress || "",
   }));
 });
+/** Dipakai projectOptions: alamat Peluang diambil dari Faskes terkait (companyId), bukan dari data Peluang itu sendiri (tidak punya field alamat). */
+function hospitalAddressByCompanyId(companyId?: number): string {
+  if (!companyId) return "";
+  const hospital =
+    hospitalStore.items.find((item) => item.id === companyId) ??
+    (hospitalStore.selectedItem?.id === companyId
+      ? hospitalStore.selectedItem
+      : undefined);
+  return hospital?.address || hospital?.mapAddress || "";
+}
+
 // GET /api/project (sama dengan daftar di halaman Peluang List).
 const projectOptions = computed(() =>
-  projectStore.items.map((project) => ({ value: project.id, label: project.projectName })),
+  projectStore.items.map((project) => {
+    const address = hospitalAddressByCompanyId(project.companyId);
+    return {
+      value: project.id,
+      label: project.projectName,
+      address: [project.companyName, address].filter(Boolean).join(", "),
+    };
+  }),
 );
 const sourceOptions = computed(() => contactApi.value.sources);
 const statusOptions = computed(() => contactApi.value.statuses);

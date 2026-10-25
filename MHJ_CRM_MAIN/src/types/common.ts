@@ -288,6 +288,9 @@ export interface Select {
   alias?: string | null
   level?: number | null
   jabatan?: string | null
+  // Alamat faskes, ditampilkan sebagai sub-teks di bawah nama pada dropdown
+  // pemilihan Faskes di form Kontak (lihat prop subtitleKey pada Select.vue).
+  address?: string
 }
 
 export interface InputField {
@@ -339,7 +342,7 @@ export interface SelectProps {
   placeholder?: string
   displayKey?: keyof Select
   /** Key opsional untuk baris sekunder (mis. alamat) di dropdown saja. */
-  subtitleKey?: string
+  subtitleKey?: keyof Select
   getValueKey?: keyof Select
   multiSelect?: boolean
   required?: boolean
