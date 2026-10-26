@@ -162,6 +162,32 @@ function handleBackClick() {
   animation: page-refresh-spin 0.7s linear infinite;
 }
 
+:global(body.dark-only .page-title__back),
+:global(body.dark-only .page-refresh-button) {
+  border-color: var(--mhj-dark-border, rgba(var(--app-primary-rgb, 24, 166, 228), 0.3));
+  background: var(--mhj-dark-surface-raised, #233244);
+  color: var(--mhj-dark-text, #f1f5f9);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+:global(body.dark-only .page-refresh-button span) {
+  color: var(--mhj-dark-text, #f1f5f9) !important;
+}
+
+:global(body.dark-only .page-refresh-button .solar-icon),
+:global(body.dark-only .page-title__back .solar-icon) {
+  color: var(--app-primary-soft-light, #b9e8fa);
+}
+
+:global(body.dark-only .page-title__back:hover),
+:global(body.dark-only .page-title__back:focus-visible),
+:global(body.dark-only .page-refresh-button:hover:not(:disabled)),
+:global(body.dark-only .page-refresh-button:focus-visible) {
+  border-color: var(--theme-default, var(--app-primary, #18a6e4));
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
+  color: var(--mhj-dark-text, #f1f5f9);
+}
+
 @keyframes page-refresh-spin {
   to { transform: rotate(360deg); }
 }

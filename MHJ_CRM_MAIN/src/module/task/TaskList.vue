@@ -65,12 +65,12 @@
         </div>
 
         <button
-          class="btn btn-primary add-task-header-button"
+          class="btn btn-primary add-task-header-button mhj-add-button"
           type="button"
           data-bs-toggle="modal"
           data-bs-target="#task-type-selector"
         >
-          <SolarIcon name="add" :size="17" color="#fff" secondary-color="#fff" aria-hidden="true" />
+          <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
           <span>Buat Task Baru</span>
         </button>
       </div>
@@ -102,7 +102,7 @@
           :disabled="!filteredTasks.length"
           @click="exportTasks('csv')"
         >
-          <vue-feather type="file-text" size="15" />
+          <i class="fa-solid fa-file-csv export-format-icon" aria-hidden="true"></i>
           CSV
         </button>
         <button
@@ -111,7 +111,7 @@
           :disabled="!filteredTasks.length"
           @click="exportTasks('excel')"
         >
-          <vue-feather type="grid" size="15" />
+          <i class="fa-solid fa-file-excel export-format-icon" aria-hidden="true"></i>
           Excel
         </button>
       </div>
@@ -955,6 +955,13 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.task-export-button .export-format-icon {
+  width: 16px;
+  flex: 0 0 16px;
+  font-size: 16px;
+  text-align: center;
 }
 
 .task-view-switch {

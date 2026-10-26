@@ -12,17 +12,19 @@
               </p>
             </div>
             <button
-              class="add-project-button"
+              class="add-project-button mhj-add-button"
               type="button"
               @click="projectStore.openCreateModal()"
             >
-              <span aria-hidden="true"
-                ><SolarIcon
-                  name="add"
-                  :size="20"
-                  color="#fff"
-                  secondary-color="#fff"
-              /></span>
+              <SolarIcon
+                name="add"
+                class="add-project-button__icon"
+                :size="19"
+                color="#ffffff"
+                secondary-color="#ffffff"
+                :secondary-opacity="1"
+                aria-hidden="true"
+              />
               Tambah Peluang
             </button>
           </header>
@@ -706,13 +708,16 @@ onBeforeUnmount(() => {
 
 .add-project-button {
   display: inline-flex;
-  min-height: 48px;
+  height: 44px;
+  min-height: 44px;
+  max-height: 44px;
+  box-sizing: border-box;
   flex: 0 0 auto;
   align-items: center;
   gap: 9px;
   border: 0;
   border-radius: 13px;
-  padding: 6px 16px 6px 7px;
+  padding: 6px 16px;
   color: #ffffff;
   background: linear-gradient(135deg, var(--app-secondary, #1ba5d5), var(--app-primary, #18a6e4));
   box-shadow:
@@ -725,20 +730,11 @@ onBeforeUnmount(() => {
     transform 0.18s ease;
 }
 
-.add-project-button > span {
-  display: inline-flex;
-  width: 36px;
-  height: 36px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: rgba(var(--app-primary-dark-rgb, 4, 111, 156), 0.22);
-}
-
-.add-project-button > span,
-.add-project-button > span :deep(svg) {
+.add-project-button .add-project-button__icon {
+  flex: 0 0 19px;
   color: #ffffff !important;
   stroke: #ffffff !important;
+  filter: brightness(0) invert(1);
 }
 
 .add-project-button:hover,
@@ -1719,6 +1715,42 @@ onBeforeUnmount(() => {
 .project-pagination-card {
   border-top: 1px solid #e8eef2;
   background: #fbfdfe;
+}
+
+:global(body.dark-only .project-pagination-card) {
+  border-color: var(--mhj-dark-divider, rgba(255, 255, 255, 0.14));
+  background: var(--mhj-dark-surface-muted, #17212d);
+}
+
+:global(body.dark-only .project-page-summary),
+:global(body.dark-only .pagination-ellipsis) {
+  color: var(--mhj-dark-text-muted, #b6c2d0) !important;
+}
+
+:global(body.dark-only .project-pagination-card .pagination-button) {
+  border-color: var(--mhj-dark-border, rgba(var(--app-primary-rgb, 24, 166, 228), 0.3));
+  color: var(--app-primary-soft-light, #b9e8fa);
+  background: var(--mhj-dark-surface-raised, #233244);
+}
+
+:global(body.dark-only .project-pagination-card .pagination-button:hover:not(:disabled)),
+:global(body.dark-only .project-pagination-card .pagination-button:focus-visible) {
+  border-color: var(--theme-default, var(--app-primary, #18a6e4));
+  color: var(--mhj-dark-text, #f1f5f9);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
+}
+
+:global(body.dark-only .project-pagination-card .pagination-button:disabled) {
+  color: var(--mhj-dark-text-muted, #b6c2d0);
+  opacity: 0.7;
+}
+
+:global(body.dark-only .project-pagination-card .pagination-page-button--active),
+:global(body.dark-only .project-pagination-card .pagination-page-button--active:disabled) {
+  border-color: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  color: #fff !important;
+  background: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  opacity: 1;
 }
 
 .pagination-actions,

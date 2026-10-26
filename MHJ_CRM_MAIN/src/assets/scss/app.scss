@@ -22,3 +22,843 @@
 @import 'leaflet/dist/leaflet.css';
 @import 'md-editor-v3/lib/style.css';
 @import './style.scss';
+
+/* Standar tombol aksi tambah utama di seluruh modul CRM. */
+.mhj-add-button.mhj-add-button.mhj-add-button {
+  display: inline-flex !important;
+  width: auto;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  border-radius: 8px !important;
+  padding: 0 18px !important;
+  background-color: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2) !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button:hover,
+.mhj-add-button.mhj-add-button.mhj-add-button:focus,
+.mhj-add-button.mhj-add-button.mhj-add-button:focus-visible,
+.mhj-add-button.mhj-add-button.mhj-add-button:active {
+  border-color: var(--app-primary-hover, #1493cc) !important;
+  background-color: var(--app-primary-hover, #1493cc) !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 12px rgba(var(--app-primary-rgb, 24, 166, 228), 0.26) !important;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button:focus-visible {
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.22);
+  outline-offset: 2px;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button > .solar-icon {
+  width: 19px !important;
+  height: 19px !important;
+  flex: 0 0 19px;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  filter: brightness(0) invert(1);
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button > .solar-icon path {
+  fill: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button > svg:not(.solar-icon) {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button.mhj-add-button--compact {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px;
+  padding: 0 13px !important;
+  font-size: 11px;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button.mhj-add-button--compact > .solar-icon {
+  width: 17px !important;
+  height: 17px !important;
+  flex-basis: 17px;
+}
+
+.mhj-add-button.mhj-add-button.mhj-add-button:disabled,
+.mhj-add-button.mhj-add-button.mhj-add-button.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none !important;
+}
+
+/* Aksi tambah sekunder di dalam form: tampil sebagai link teks yang ringkas. */
+.mhj-form-add-button.mhj-form-add-button {
+  display: inline-flex;
+  width: auto;
+  min-width: 0;
+  min-height: 24px;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.mhj-form-add-button.mhj-form-add-button:hover,
+.mhj-form-add-button.mhj-form-add-button:focus,
+.mhj-form-add-button.mhj-form-add-button:active {
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--app-primary-hover, #1493cc) !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.mhj-form-add-button.mhj-form-add-button:focus-visible {
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.28);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.mhj-form-add-button.mhj-form-add-button:disabled,
+.mhj-form-add-button.mhj-form-add-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mhj-form-add-button.mhj-form-add-button > .mhj-icon {
+  width: 14px !important;
+  height: 14px !important;
+  flex: 0 0 14px;
+}
+
+/*
+ * Lapisan kontras dark mode CRM.
+ * Border, focus ring, dan hover memakai primary aktif dari Quick Options,
+ * sehingga tetap selaras ketika pengguna mengganti palet warna.
+ */
+body.dark-only {
+  --mhj-dark-canvas: #111821;
+  --mhj-dark-surface: #1b2633;
+  --mhj-dark-surface-raised: #233244;
+  --mhj-dark-surface-muted: #17212d;
+  --mhj-dark-border: rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
+  --mhj-dark-border-strong: rgba(var(--app-primary-rgb, 24, 166, 228), 0.48);
+  --mhj-dark-divider: rgba(255, 255, 255, 0.14);
+  --mhj-dark-text: #f1f5f9;
+  --mhj-dark-text-muted: #b6c2d0;
+
+  --bg-dashboard: var(--mhj-dark-canvas);
+  --bg-card: var(--mhj-dark-surface);
+  --bg-subtle: var(--mhj-dark-surface-muted);
+  --border-card: var(--mhj-dark-border);
+  --border-subtle: var(--mhj-dark-divider);
+  --text-primary: var(--mhj-dark-text);
+  --text-secondary: #d7e0ea;
+  --text-muted: var(--mhj-dark-text-muted);
+  --body-font-color: var(--mhj-dark-text);
+  --bs-body-bg: var(--mhj-dark-canvas);
+  --bs-body-color: var(--mhj-dark-text);
+  --bs-secondary-color: var(--mhj-dark-text-muted);
+  --bs-border-color: var(--mhj-dark-divider);
+  --bs-card-bg: var(--mhj-dark-surface);
+  --bs-card-border-color: var(--mhj-dark-border);
+  --bs-modal-bg: var(--mhj-dark-surface-raised);
+}
+
+body.dark-only,
+body.dark-only .page-wrapper .page-body-wrapper .page-body {
+  background-color: var(--mhj-dark-canvas);
+}
+
+body.dark-only .card {
+  background-color: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-border) !important;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+body.dark-only .card:hover {
+  border-color: var(--mhj-dark-border-strong) !important;
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
+}
+
+body.dark-only .card > .card-header,
+body.dark-only .card > .card-body,
+body.dark-only .card > .card-footer {
+  background-color: transparent;
+}
+
+body.dark-only .card > .card-header:not(.card-no-border),
+body.dark-only .card > .card-footer {
+  border-color: var(--mhj-dark-divider);
+}
+
+body.dark-only :is(.modal-content, .offcanvas, .dropdown-menu, .popover, .swal2-popup) {
+  color: var(--mhj-dark-text);
+  background-color: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-border) !important;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.42);
+}
+
+body.dark-only :is(.modal-header, .modal-footer, .offcanvas-header) {
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only :is(.dropdown-item, .list-group-item, .accordion-button, .accordion-body) {
+  color: var(--mhj-dark-text) !important;
+  background-color: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only :is(.dropdown-item, .list-group-item):hover,
+body.dark-only :is(.dropdown-item, .list-group-item):focus,
+body.dark-only .accordion-button:not(.collapsed) {
+  color: var(--mhj-dark-text) !important;
+  background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16) !important;
+}
+
+body.dark-only :is(.form-control, .form-select, .input-group-text, textarea) {
+  color: var(--mhj-dark-text) !important;
+  background-color: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only :is(.form-control, .form-select, textarea):focus {
+  border-color: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2) !important;
+}
+
+body.dark-only :is(.form-control, textarea)::placeholder {
+  color: var(--mhj-dark-text-muted) !important;
+  opacity: 0.72;
+}
+
+body.dark-only .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--mhj-dark-text);
+  --bs-table-border-color: var(--mhj-dark-divider);
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.025);
+  --bs-table-striped-color: var(--mhj-dark-text);
+  --bs-table-hover-bg: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+  --bs-table-hover-color: var(--mhj-dark-text);
+}
+
+body.dark-only .table > thead > tr > th {
+  color: var(--mhj-dark-text) !important;
+  background-color: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-border) !important;
+}
+
+body.dark-only :is(.text-muted, .form-text, small) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only :is(.customizer-contain, .settings-dropdown, .language-menu-options) {
+  color: var(--mhj-dark-text);
+  background-color: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-border) !important;
+}
+
+/* Pastikan judul dan label yang masih memakai warna terang hardcoded tetap terbaca. */
+body.dark-only :is(.card, .modal-content, .offcanvas, .dropdown-menu)
+  :is(h1, h2, h3, h4, h5, h6, label, legend) {
+  color: var(--mhj-dark-text) !important;
+}
+
+/* Dashboard manager menggunakan card custom, bukan komponen .card Bootstrap. */
+body.dark-only
+  :is(
+    .key-metrics,
+    .manager-dashboard__header,
+    .manager-dashboard__promo-card,
+    .benchmark-card,
+    .activity-card,
+    .coverage-card,
+    .manager-dashboard__loading,
+    .manager-dashboard__empty
+  ) {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-border) !important;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+body.dark-only :is(.kpi-card, .coverage-tile, .benchmark-score__center) {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only
+  :is(
+    .manager-dashboard .section-title,
+    .kpi-card__value,
+    .coverage-tile__head strong,
+    .benchmark-bar__head strong,
+    .benchmark-score__center strong,
+    .progress-row__head strong,
+    .activity-item__body strong,
+    .promo-carousel .section-title
+  ) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only
+  :is(
+    .kpi-card__label,
+    .kpi-card__sublabel,
+    .quick-actions__label,
+    .benchmark-card__eyebrow,
+    .benchmark-bar__head span,
+    .benchmark-bar__hint,
+    .benchmark-score__center span,
+    .progress-row__head span,
+    .coverage-tile__unit,
+    .coverage-tile__label,
+    .coverage-tile__hint,
+    .activity-item__body span,
+    .activity-item__time,
+    .activity-empty
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only :is(.kpi-card__bar, .benchmark-bar__track, .progress-row__track, .coverage-tile__bar) {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-only :is(.activity-item + .activity-item, .benchmark-score) {
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only :is(.promo-carousel__placeholder, .promo-carousel__empty) {
+  color: var(--mhj-dark-text-muted) !important;
+  background: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-border) !important;
+}
+
+body.dark-only .quick-actions__icon,
+body.dark-only .activity-item__icon,
+body.dark-only .coverage-tile__icon,
+body.dark-only .kpi-card__icon {
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18) !important;
+}
+
+body.dark-only a.quick-actions__item:hover,
+body.dark-only a.quick-actions__item:focus-visible {
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.14) !important;
+}
+
+/* Daftar kontak: samakan keterbacaan teks dengan tabel User List. */
+body.dark-only .contact-list-header,
+body.dark-only .contact-table-wrap {
+  background: var(--mhj-dark-surface) !important;
+}
+
+body.dark-only :is(.contact-title-group h5, .contact-search input) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only .contact-search {
+  color: var(--mhj-dark-text-muted) !important;
+  background: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .contact-search input::placeholder {
+  color: var(--mhj-dark-text-muted) !important;
+  opacity: 0.78;
+}
+
+body.dark-only .contact-table tbody td,
+body.dark-only
+  :is(
+    .contact-person__identity strong,
+    .contact-table .cell-primary,
+    .contact-table .activity-label,
+    .contact-table .last-contacted span
+  ) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only
+  :is(
+    .contact-total,
+    .contact-person__identity > span,
+    .contact-table .empty-value,
+    .contact-table .last-contacted small
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only .contact-table tbody tr:hover {
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12) !important;
+}
+
+body.dark-only .contact-table .project-badge {
+  color: var(--app-primary-soft-light, #b9e8fa) !important;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18) !important;
+}
+
+body.dark-only .contact-table .detail-button {
+  color: var(--app-primary-soft-light, #b9e8fa) !important;
+  background: var(--mhj-dark-surface-muted) !important;
+}
+
+/* Kalender: seluruh kanvas dan cell ikut gelap, bukan hanya teksnya. */
+body.dark-only .kalender-toolbar,
+body.dark-only .unified-calendar-shell,
+body.dark-only .calendar-card,
+body.dark-only .calendar-toolbar,
+body.dark-only .unified-calendar-legend,
+body.dark-only .calendar-focus-cell {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .kalender-toolbar {
+  background: var(--mhj-dark-surface-muted) !important;
+}
+
+body.dark-only .kalender-period-options,
+body.dark-only :is(.calendar-icon-button, .calendar-today-button) {
+  color: var(--app-primary-soft-light, #b9e8fa) !important;
+  background: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-border) !important;
+}
+
+body.dark-only .kalender-period-button:not(.kalender-period-button--active) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only .devextreme-calendar :is(.dx-scheduler, .dx-scheduler-work-space),
+body.dark-only .devextreme-calendar .dx-scrollable-content,
+body.dark-only .devextreme-calendar .dx-scheduler-date-table {
+  color: var(--mhj-dark-text) !important;
+  background: var(--mhj-dark-surface) !important;
+}
+
+body.dark-only .devextreme-calendar .dx-scheduler-header-panel-cell {
+  color: var(--mhj-dark-text-muted) !important;
+  background: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .devextreme-calendar .dx-scheduler-date-table-cell {
+  background: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .calendar-data-cell {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface) !important;
+}
+
+body.dark-only :is(.calendar-data-cell--weekend, .calendar-focus-cell.calendar-data-cell--weekend) {
+  background: var(--mhj-dark-surface-raised) !important;
+}
+
+body.dark-only .calendar-data-cell--outside {
+  background: var(--mhj-dark-surface-muted) !important;
+}
+
+body.dark-only
+  :is(
+    .calendar-toolbar__title strong,
+    .calendar-day__number,
+    .calendar-entry__content strong,
+    .unified-calendar-state strong
+  ) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only
+  :is(
+    .kalender-toolbar-label,
+    .kalender-export-hint,
+    .calendar-toolbar__title span,
+    .calendar-day__count,
+    .calendar-entry__content small,
+    .calendar-focus-cell__weekday,
+    .calendar-focus-cell__empty,
+    .unified-calendar-state
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only .calendar-entry {
+  color: var(--mhj-dark-text) !important;
+  background: color-mix(in srgb, var(--entry-accent) 18%, var(--mhj-dark-surface-raised)) !important;
+  border-color: color-mix(in srgb, var(--entry-accent) 55%, var(--mhj-dark-divider)) !important;
+}
+
+body.dark-only .calendar-entry:hover {
+  background: color-mix(in srgb, var(--entry-accent) 28%, var(--mhj-dark-surface-raised)) !important;
+  border-color: var(--entry-accent) !important;
+}
+
+/* Fallback lintas halaman untuk tabel CRM yang masih memiliki warna teks hardcoded. */
+body.dark-only .mhj-data-table thead th {
+  color: var(--mhj-dark-text-muted) !important;
+  background: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-border) !important;
+}
+
+body.dark-only .mhj-data-table tbody td {
+  color: #cbd5e1 !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .mhj-data-table tbody td :is(strong, .fw-bold, .fw-semibold) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only .mhj-data-table tbody td :is(small, .text-secondary) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only .table-hover > tbody > tr:hover {
+  --bs-table-accent-bg: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+}
+
+/* Ikon dashboard membawa warna deep untuk light mode; cerahkan tanpa menghapus duotone. */
+body.dark-only .manager-dashboard
+  :is(.quick-actions__icon, .kpi-card__icon, .coverage-tile__icon, .activity-item__icon)
+  :is(.mhj-icon, .solar-icon) {
+  filter: brightness(1.65) saturate(0.9);
+}
+
+/* Peluang: overview, filter stage, dan kartu hasil. */
+body.dark-only .project-list-page {
+  --opp-blue-soft: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
+  color: var(--mhj-dark-text);
+}
+
+body.dark-only :is(.pipeline-overview, .pipeline-stage-panel) {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-border) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.dark-only
+  :is(
+    .overview-heading,
+    .stage-panel-heading,
+    .project-results-section,
+    .project-pagination-card
+  ) {
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only :is(.overview-card, .stage-card, .opp-card) {
+  color: var(--mhj-dark-text) !important;
+  background: var(--mhj-dark-surface-raised) !important;
+  border-color: var(--mhj-dark-divider) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24) !important;
+}
+
+body.dark-only .stage-card.active {
+  border-color: var(--stage-color) !important;
+  background: color-mix(in srgb, var(--stage-color) 18%, var(--mhj-dark-surface-raised)) !important;
+}
+
+body.dark-only
+  :is(
+    .overview-heading h4,
+    .stage-title h5,
+    .project-list-toolbar h5,
+    .overview-value-row strong,
+    .pipeline-total-value,
+    .overview-card--composition > div:first-child > strong,
+    .stage-card__top strong,
+    .opp-card__copy h5,
+    .opp-card__owner strong,
+    .opp-contact-name strong,
+    .opp-contact-empty strong,
+    .opp-card__audit strong,
+    .opp-card__timing strong,
+    .opp-contact-popover strong
+  ) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only
+  :is(
+    .overview-heading p,
+    .stage-title > span,
+    .project-list-toolbar > div > span,
+    .overview-value-row > span,
+    .overview-card > small,
+    .overview-card--composition small,
+    .composition-legend,
+    .project-result-count,
+    .project-page-summary,
+    .stage-card > span:last-child,
+    .opp-created,
+    .opp-card__copy p,
+    .opp-card__address,
+    .opp-card__owner small,
+    .opp-card__timing small,
+    .opp-contact-name small,
+    .opp-contact-empty small,
+    .opp-card__value small,
+    .opp-owner-audit__item small,
+    .opp-contact-popover > p,
+    .opp-contact-popover small,
+    .project-empty-state
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only
+  :is(
+    .project-search,
+    .owner-filter,
+    .view-switcher button,
+    .opp-card__audit > div,
+    .opp-card__timing > div,
+    .opp-more-contacts > button,
+    .opp-contact-popover,
+    .pagination-page-button
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+  background: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .project-search input {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only .project-search input::placeholder {
+  color: var(--mhj-dark-text-muted) !important;
+  opacity: 0.78;
+}
+
+body.dark-only .view-switcher button.active,
+body.dark-only .pagination-page-button--active {
+  color: #fff !important;
+  background: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  border-color: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+}
+
+body.dark-only
+  :is(
+    .opp-card--board .opp-card__owner,
+    .opp-card--board .opp-card__timing,
+    .opp-card--board .opp-card__contact,
+    .opp-card--board .opp-card__value,
+    .opp-card__audit,
+    .opp-card--list .opp-card__owner,
+    .opp-card--list .opp-card__timing,
+    .opp-card--list .opp-card__value,
+    .opp-contact-popover > p
+  ) {
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .opp-stage-pill {
+  color: var(--opp-stage) !important;
+  background: color-mix(in srgb, var(--opp-stage) 20%, var(--mhj-dark-surface-muted)) !important;
+  border-color: color-mix(in srgb, var(--opp-stage) 62%, var(--mhj-dark-divider)) !important;
+}
+
+/* Tugas: toolbar, tabel, action, dan tampilan kalender. */
+body.dark-only :is(.task-list-header, .task-table-wrap) {
+  background: var(--mhj-dark-surface) !important;
+}
+
+body.dark-only .task-list-toolbar {
+  background: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only
+  :is(.task-search, .task-period-options, .task-view-switch, .pagination-page-button) {
+  color: var(--mhj-dark-text-muted) !important;
+  background: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .task-view-switch .task-view-switch__button--active {
+  color: var(--app-primary-soft-light, #b9e8fa) !important;
+  background: var(--mhj-dark-surface-raised) !important;
+}
+
+body.dark-only
+  :is(
+    .task-title-group h5,
+    .task-search input,
+    .task-table .task-identity__text strong,
+    .task-table .cell-primary,
+    .task-table .task-schedule > span,
+    .task-table .owner-label,
+    .task-table .task-notes
+  ) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only
+  :is(
+    .task-total,
+    .task-toolbar-label,
+    .task-export-hint,
+    .task-period-button:not(.task-period-button--active),
+    .task-view-switch button:not(.task-view-switch__button--active),
+    .task-table .task-identity__text span,
+    .task-table .task-context small,
+    .task-table .task-schedule small,
+    .task-table .pipeline-change small,
+    .task-table .task-products,
+    .task-table .empty-value
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only .task-search input::placeholder {
+  color: var(--mhj-dark-text-muted) !important;
+  opacity: 0.78;
+}
+
+body.dark-only :is(.task-table .project-badge, .task-table .pipeline-badge) {
+  color: var(--app-primary-soft-light, #b9e8fa) !important;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18) !important;
+}
+
+body.dark-only :is(.task-detail-button, .task-delete-button) {
+  background: var(--mhj-dark-surface-muted) !important;
+}
+
+body.dark-only .task-table tbody tr:hover {
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12) !important;
+}
+
+body.dark-only .task-calendar-shell {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface) !important;
+}
+
+body.dark-only .calendar-task {
+  color: var(--mhj-dark-text) !important;
+  background: color-mix(in srgb, var(--task-accent, var(--app-primary)) 18%, var(--mhj-dark-surface-raised)) !important;
+  border-color: color-mix(in srgb, var(--task-accent, var(--app-primary)) 55%, var(--mhj-dark-divider)) !important;
+}
+
+body.dark-only :is(.calendar-task__content strong, .task-calendar-state strong) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only :is(.calendar-task__content small, .task-calendar-notice, .task-calendar-state) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+/* Promo: lengkapi dark mode parsial pada overview, kartu, filter, dan form. */
+body.dark-only .promo-page {
+  --promo-ink: var(--mhj-dark-text);
+  --promo-muted: var(--mhj-dark-text-muted);
+  color: var(--mhj-dark-text);
+}
+
+body.dark-only
+  :is(
+    .promo-overview,
+    .promo-metric,
+    .promo-list-card,
+    .promo-card,
+    .promo-heading__icon
+  ) {
+  color: var(--mhj-dark-text);
+  background: var(--mhj-dark-surface) !important;
+  border-color: var(--mhj-dark-border) !important;
+}
+
+body.dark-only :is(.promo-metric, .promo-card) {
+  background: var(--mhj-dark-surface-raised) !important;
+}
+
+body.dark-only :is(.promo-overview__heading, .promo-actions) {
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only
+  :is(
+    .promo-heading h3,
+    .promo-metric__value,
+    .promo-card__body h5,
+    .promo-search input,
+    .promo-upload__empty strong
+  ) {
+  color: var(--mhj-dark-text) !important;
+}
+
+body.dark-only
+  :is(
+    .promo-heading p,
+    .promo-heading__description,
+    .promo-metric > small,
+    .promo-product,
+    .promo-actions .btn,
+    .promo-empty p,
+    .promo-upload__empty small,
+    .promo-active-setting p
+  ) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only
+  :is(
+    .promo-search,
+    .promo-filters,
+    .promo-filter.active,
+    .promo-icon-button,
+    .promo-upload,
+    .promo-active-setting
+  ) {
+  background: var(--mhj-dark-surface-muted) !important;
+  border-color: var(--mhj-dark-divider) !important;
+}
+
+body.dark-only .promo-filter:not(.active) {
+  color: var(--mhj-dark-text-muted) !important;
+}
+
+body.dark-only .promo-period {
+  color: var(--app-primary-soft-light, #b9e8fa) !important;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16) !important;
+}
+
+body.dark-only .promo-offer {
+  color: #fca5a5 !important;
+  background: rgba(239, 68, 68, 0.14) !important;
+}

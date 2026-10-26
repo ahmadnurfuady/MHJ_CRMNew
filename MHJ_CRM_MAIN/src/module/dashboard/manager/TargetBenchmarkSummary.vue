@@ -178,6 +178,21 @@ function shortProgressLabel(label: string): string {
   background: var(--app-primary-wash, #f0f9ff);
 }
 
+:global(body.dark-only .benchmark-card__status.is-positive) {
+  color: #86efac !important;
+  background: rgba(34, 197, 94, 0.18);
+}
+
+:global(body.dark-only .benchmark-card__status.is-warning) {
+  color: #fcd34d !important;
+  background: rgba(245, 158, 11, 0.2);
+}
+
+:global(body.dark-only .benchmark-card__status.is-danger) {
+  color: #fca5a5 !important;
+  background: rgba(239, 68, 68, 0.18);
+}
+
 .benchmark-visual {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

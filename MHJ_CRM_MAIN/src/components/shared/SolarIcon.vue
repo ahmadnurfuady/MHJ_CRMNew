@@ -30,10 +30,12 @@ import { BoltIcon } from "@solar-icons/vue/bold-duotone/bolt";
 import { BoxIcon } from "@solar-icons/vue/bold-duotone/box";
 import { BuildingsIcon } from "@solar-icons/vue/bold-duotone/buildings";
 import { CalendarIcon } from "@solar-icons/vue/bold-duotone/calendar";
+import { CalendarIcon as CalendarLinearIcon } from "@solar-icons/vue/linear/calendar";
 import { CameraIcon } from "@solar-icons/vue/bold-duotone/camera";
 import { CartLargeIcon } from "@solar-icons/vue/bold-duotone/cart-large";
 import { CaseRoundIcon } from "@solar-icons/vue/bold-duotone/case-round";
 import { ChartSquareIcon } from "@solar-icons/vue/bold-duotone/chart-square";
+import { ChartSquareIcon as ChartSquareLinearIcon } from "@solar-icons/vue/linear/chart-square";
 import { ChatRoundDotsIcon } from "@solar-icons/vue/bold-duotone/chat-round-dots";
 import { CheckCircleIcon } from "@solar-icons/vue/bold-duotone/check-circle";
 import { CheckReadIcon } from "@solar-icons/vue/bold-duotone/check-read";
@@ -56,6 +58,7 @@ import { DoubleAltArrowUpIcon } from "@solar-icons/vue/bold-duotone/double-alt-a
 import { DownloadIcon } from "@solar-icons/vue/bold-duotone/download";
 import { EyeIcon } from "@solar-icons/vue/bold-duotone/eye";
 import { FileTextIcon } from "@solar-icons/vue/bold-duotone/file-text";
+import { FileTextIcon as FileTextLinearIcon } from "@solar-icons/vue/linear/file-text";
 import { FilterIcon } from "@solar-icons/vue/bold-duotone/filter";
 import { FolderIcon } from "@solar-icons/vue/bold-duotone/folder";
 import { FolderOpenIcon } from "@solar-icons/vue/bold-duotone/folder-open";
@@ -106,6 +109,7 @@ import { ReplyIcon } from "@solar-icons/vue/bold-duotone/reply";
 import { RocketIcon } from "@solar-icons/vue/bold-duotone/rocket";
 import { SendSquareIcon } from "@solar-icons/vue/bold-duotone/send-square";
 import { SettingsIcon } from "@solar-icons/vue/bold-duotone/settings";
+import { SettingsIcon as SettingsLinearIcon } from "@solar-icons/vue/linear/settings";
 import { SatelliteIcon } from "@solar-icons/vue/bold-duotone/satellite";
 import { ShareIcon } from "@solar-icons/vue/bold-duotone/share";
 import { ShieldCheckIcon } from "@solar-icons/vue/bold-duotone/shield-check";
@@ -166,10 +170,12 @@ const icons: Record<string, Component> = {
   box: BoxIcon,
   buildings: BuildingsIcon,
   calendar: CalendarIcon,
+  "calendar-linear": CalendarLinearIcon,
   camera: CameraIcon,
   cart: CartLargeIcon,
   case: CaseRoundIcon,
   chart: ChartSquareIcon,
+  "chart-linear": ChartSquareLinearIcon,
   chat: ChatRoundDotsIcon,
   check: CheckReadIcon,
   "check-circle": CheckCircleIcon,
@@ -192,6 +198,7 @@ const icons: Record<string, Component> = {
   download: DownloadIcon,
   eye: EyeIcon,
   file: FileTextIcon,
+  "file-text-linear": FileTextLinearIcon,
   filter: FilterIcon,
   folder: FolderIcon,
   "folder-open": FolderOpenIcon,
@@ -242,6 +249,7 @@ const icons: Record<string, Component> = {
   rocket: RocketIcon,
   send: SendSquareIcon,
   settings: SettingsIcon,
+  "settings-linear": SettingsLinearIcon,
   satellite: SatelliteIcon,
   share: ShareIcon,
   "shield-check": ShieldCheckIcon,

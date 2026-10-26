@@ -24,12 +24,12 @@
                 <ul class="nav main-menu" role="tablist">
                   <li class="nav-item">
                     <button
-                      class="badge-primary btn-block btn-mail w-100"
+                      class="badge-primary btn-block btn-mail mhj-add-button w-100"
                       type="button"
                       data-bs-toggle="modal"
                       data-bs-target="#task-type-selector"
                     >
-                      <vue-feather type="check-circle" class="stroke-primary"></vue-feather>Buat Task
+                      <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />Buat Task
                     </button>
                   </li>
                   <li class="nav-item">

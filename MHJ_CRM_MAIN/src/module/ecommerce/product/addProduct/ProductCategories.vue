@@ -15,9 +15,13 @@
         </div>
         <div class="col-auto">
           <div class="category-btn">
-            <a class="btn button-primary" href="#" @click.prevent="createCategoryModal()">
-              <SolarIcon name="fa-plus" class="me-2" />Create New Category
-            </a>
+            <button
+              class="btn btn-link mhj-form-add-button"
+              type="button"
+              @click="createCategoryModal()"
+            >
+              <MhjIcon name="action_add" :size="14" />Create New Category
+            </button>
           </div>
         </div>
         <div class="col-sm-12 common-tagify">

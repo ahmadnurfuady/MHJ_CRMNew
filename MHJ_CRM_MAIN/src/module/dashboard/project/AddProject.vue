@@ -3,10 +3,8 @@
     <div class="categories"></div>
     <div class="categories-content">
       <span class="text-truncate col-8 f-12 d-block mb-2">Let’s add work to your space</span
-      ><button type="button" class="add-project-button" @click="projectStore.openCreateModal()">
-        <span class="quick-action-icon" aria-hidden="true">
-          <MhjIcon name="action_add" />
-        </span>
+      ><button type="button" class="add-project-button mhj-add-button" @click="projectStore.openCreateModal()">
+        <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
         Tambah Peluang
       </button>
     </div>

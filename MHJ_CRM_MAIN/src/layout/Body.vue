@@ -4,8 +4,9 @@
     class="page-wrapper app-shell"
     id="pageWrapper"
     :class="display ? 'compact-wrapper ' : layout"
+    :style="{ '--app-header-height': `${headerHeight}px` }"
   >
-    <div class="page-header" :class="{ close_icon: !uiState.show }">
+    <div ref="pageHeaderRef" class="page-header" :class="{ close_icon: !uiState.show }">
       <Header />
     </div>
     <div class="page-body-wrapper">
@@ -56,11 +57,14 @@ const ProjectCreateModal = defineAsyncComponent(
 )
 
 const display = ref(false)
-const layout = ref({})
+const layout = ref('')
+const pageHeaderRef = ref<HTMLElement | null>(null)
+const headerHeight = ref(79)
 const pageScrollRef = ref<HTMLElement | null>(null)
 const pageRefreshKey = ref(0)
 const refreshingPage = ref(false)
 let refreshIndicatorTimer: number | undefined
+let headerResizeObserver: ResizeObserver | undefined
 const route = useRoute()
 const storeLayout = useLayout()
 const { layoutState } = storeToRefs(storeLayout)
@@ -115,12 +119,26 @@ onMounted(() => {
   }
 
   layout.value = layoutState.value.layouts.settings.sidebarSetting
+
+  if (pageHeaderRef.value) {
+    const updateHeaderHeight = () => {
+      if (pageHeaderRef.value) {
+        headerHeight.value = Math.ceil(pageHeaderRef.value.getBoundingClientRect().height)
+      }
+    }
+
+    updateHeaderHeight()
+    headerResizeObserver = new ResizeObserver(updateHeaderHeight)
+    headerResizeObserver.observe(pageHeaderRef.value)
+  }
+
   startPermissionWatcher()
   useNotificationStore().init()
 })
 
 onBeforeUnmount(() => {
   if (refreshIndicatorTimer) window.clearTimeout(refreshIndicatorTimer)
+  headerResizeObserver?.disconnect()
   stopPermissionWatcher()
   useNotificationStore().stop()
 })
@@ -130,7 +148,17 @@ onBeforeUnmount(() => {
 .app-shell {
   height: 100vh;
   height: 100dvh;
-  overflow: hidden;
+  overflow: visible;
+}
+
+:global(html),
+:global(body),
+:global(#app) {
+  overflow-x: auto;
+}
+
+:global(body) {
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 .app-shell .page-body-wrapper {
@@ -154,9 +182,85 @@ onBeforeUnmount(() => {
   height: calc(100dvh - 56px);
 }
 
-.app-shell.horizontal-wrapper .page-body {
-  height: calc(100vh - 110px);
-  height: calc(100dvh - 110px);
+.app-shell.horizontal-wrapper .page-body-wrapper > .sidebar-wrapper {
+  top: var(--app-header-height, 79px);
+  border-top-color: rgba(255, 255, 255, 0.18);
+  background-color: var(--theme-default, var(--app-primary, #18a6e4));
+  box-shadow: 0 9px 24px rgba(var(--app-primary-dark-rgb, 3, 42, 78), 0.16);
+}
+
+.app-shell.horizontal-wrapper :deep(.sidebar-main > .left-arrow),
+.app-shell.horizontal-wrapper :deep(.sidebar-main > .right-arrow) {
+  color: #fff;
+  background-color: var(--theme-default, var(--app-primary, #18a6e4));
+}
+
+.app-shell.horizontal-wrapper :deep(.sidebar-main > .left-arrow svg),
+.app-shell.horizontal-wrapper :deep(.sidebar-main > .right-arrow svg) {
+  stroke: #fff;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link) {
+  color: #fff !important;
+  background-color: transparent !important;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link:hover),
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link.active) {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link > span) {
+  color: #fff !important;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link > svg) {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  vertical-align: -2px;
+  float: none;
+  transition: all 0.3s ease;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link > .sidebar-mhj-icon) {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  filter: brightness(0) invert(1);
+  opacity: 1;
+  vertical-align: -2px;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link > .solar-icon) {
+  color: #fff !important;
+  opacity: 1;
+}
+
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link.active > .sidebar-mhj-icon),
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link:hover > .sidebar-mhj-icon),
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link.active > .solar-icon),
+.app-shell.horizontal-wrapper
+  :deep(.sidebar-links > .sidebar-list > .sidebar-link:hover > .solar-icon) {
+  opacity: 1;
+}
+
+.app-shell.horizontal-wrapper .page-body-wrapper > .page-body {
+  height: calc(100vh - var(--app-header-height, 79px) - 54px);
+  height: calc(100dvh - var(--app-header-height, 79px) - 54px);
+  margin-top: calc(var(--app-header-height, 79px) + 54px) !important;
 }
 
 .page-content-scroll {
@@ -166,8 +270,10 @@ onBeforeUnmount(() => {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  overscroll-behavior: contain;
+  overscroll-behavior-x: auto;
+  overscroll-behavior-y: contain;
   scrollbar-gutter: stable;
+  touch-action: pan-x pan-y pinch-zoom;
 }
 
 .page-content-scroll :deep(.footer) {
@@ -214,10 +320,19 @@ onBeforeUnmount(() => {
   padding-bottom: 32px;
   overflow-x: hidden !important;
   overflow-y: auto !important;
-  overscroll-behavior: contain;
+  overscroll-behavior-x: auto;
+  overscroll-behavior-y: contain;
   scrollbar-gutter: stable;
   scrollbar-color: rgba(255, 255, 255, 0.45) transparent;
   scrollbar-width: thin;
+  touch-action: pan-x pan-y pinch-zoom;
+}
+
+.app-shell.compact-wrapper
+  :deep(.sidebar-mhj-icon[data-mhj-icon='nav_task'] svg path) {
+  stroke: #fff !important;
+  stroke-width: 1 !important;
+  stroke-linejoin: round;
 }
 
 .app-shell.compact-wrapper :deep(.sidebar-links::-webkit-scrollbar) {

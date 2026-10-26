@@ -12,8 +12,8 @@
             </span>
           </div>
         </div>
-        <button class="btn btn-primary promo-add-button" type="button" @click="openCreate">
-          <vue-feather type="plus" :size="17" color="#fff" secondary-color="#fff" />
+        <button class="btn btn-primary promo-add-button mhj-add-button" type="button" @click="openCreate">
+          <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
           Tambah Promo
         </button>
       </header>
@@ -152,7 +152,8 @@
                 : 'Tambahkan promo pertama untuk mulai menyusun kalender promo.'
             }}
           </p>
-          <button v-if="!promos.length" class="btn btn-primary" type="button" @click="openCreate">
+          <button v-if="!promos.length" class="btn btn-primary mhj-add-button" type="button" @click="openCreate">
+            <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
             Tambah Promo
           </button>
         </div>

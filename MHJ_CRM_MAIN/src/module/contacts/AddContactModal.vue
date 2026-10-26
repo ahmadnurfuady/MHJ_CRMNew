@@ -90,12 +90,11 @@
                 </button>
               </div>
               <button
-                class="btn btn-outline-primary add-phone-button"
+                class="btn btn-link btn-sm mt-1 mhj-form-add-button"
                 type="button"
                 @click="addPhone"
               >
-                <vue-feather type="plus" size="17" />
-                <span>{{ t('contacts.addPhone') }}</span>
+                <MhjIcon name="action_add" :size="14" />{{ t('contacts.addPhone') }}
               </button>
             </InputWrapper>
           </div>
@@ -782,42 +781,6 @@ function closeModal() {
   overflow-y: auto;
 }
 
-.add-phone-button {
-  display: inline-flex;
-  min-width: 184px;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1;
-  border-color: var(--theme-default, #18a6e4) !important;
-  color: var(--theme-default, #1688bd) !important;
-  background: #fff !important;
-}
-
-.add-phone-button > span,
-.add-phone-button :deep(svg) {
-  color: inherit !important;
-  stroke: currentColor !important;
-}
-
-.add-phone-button:hover,
-.add-phone-button:focus,
-.add-phone-button:focus-visible,
-.add-phone-button:active {
-  border-color: var(--theme-default, #18a6e4) !important;
-  color: #fff !important;
-  background: var(--theme-default, #18a6e4) !important;
-}
-
-.add-phone-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.22) !important;
-}
-
 .location-field {
   display: grid;
   gap: 7px;
@@ -965,10 +928,6 @@ function closeModal() {
 }
 
 @media (max-width: 575.98px) {
-  .add-phone-button {
-    width: 100%;
-  }
-
   .location-input-group {
     grid-template-columns: minmax(0, 1fr) 132px;
   }

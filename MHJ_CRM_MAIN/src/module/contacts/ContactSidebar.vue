@@ -29,14 +29,12 @@
             >
               <li class="nav-item">
                 <button
-                  class="btn btn-primary btn-block btn-mail add-contact-button w-100"
+                  class="btn btn-primary btn-block btn-mail add-contact-button mhj-add-button w-100"
                   type="button"
                   aria-label="Tambah kontak baru"
                   @click="openContactModal()"
                 >
-                  <span class="add-contact-button__icon">
-                    <MhjIcon name="contact_card" :size="19" aria-hidden="true" />
-                  </span>
+                  <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
                   <span>Tambah Kontak Baru</span>
                 </button>
               </li>
@@ -57,11 +55,12 @@
               </li>
               <li class="nav-item">
                 <button
-                  class="btn btn-category"
+                  class="btn btn-category mhj-add-button mhj-add-button--compact"
                   type="button"
                   @click="categoryModal()"
                 >
-                  <span class="title"> + Tambah Kategori</span>
+                  <SolarIcon name="add" :size="17" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
+                  <span class="title">Tambah Kategori</span>
                 </button>
                 <ul>
                   <li

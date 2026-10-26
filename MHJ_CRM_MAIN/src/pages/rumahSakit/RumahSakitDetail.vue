@@ -208,12 +208,12 @@
             </div>
             <button
               type="button"
-              class="panel-add-button"
+              class="panel-add-button mhj-add-button"
               :disabled="hospital.isDemo"
               :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk Data Dummy Lokal' : 'Tambah peluang'"
               @click="createOpportunity"
             >
-              <SolarIcon name="add" color="#fff" secondary-color="#fff" aria-hidden="true" />
+              <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
               Tambah Peluang
             </button>
           </div>
@@ -331,12 +331,12 @@
             <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
             <button
               type="button"
-              class="panel-add-button"
+              class="panel-add-button mhj-add-button"
               :disabled="hospital.isDemo"
               :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk Data Dummy Lokal' : 'Tambah kontak'"
               @click="createHospitalContact"
             >
-              <SolarIcon name="add" color="#fff" secondary-color="#fff" aria-hidden="true" />
+              <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
               Tambah Kontak
             </button>
           </div>

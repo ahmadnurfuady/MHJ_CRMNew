@@ -190,7 +190,7 @@
             <strong>{{ contactLocation.city }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Source</span>
+            <span>Sumber</span>
             <strong>{{ sourceLabel }}</strong>
           </div>
         </div>
@@ -439,7 +439,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { companyDetails, type CompanyDetail } from "@/core/data/contactCrm";
@@ -462,7 +462,11 @@ const authStore = useAuthStore();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
-const { editContact, showHistory } = contactStore;
+const { editContact, fetchContactSources, showHistory } = contactStore;
+
+onMounted(() => {
+  if (!contactApi.value.sources.length) void fetchContactSources();
+});
 
 async function deleteContact() {
   const deleted = await contactStore.deleteContact();
@@ -604,7 +608,10 @@ const ownerLabel = computed(() => {
 });
 const sourceLabel = computed(() => {
   const contact = contactState.value.activeContact;
-  return contact?.source || (contact?.sourceId ? `Source ID ${contact.sourceId}` : "-");
+  const source = contactApi.value.sources.find(
+    (option) => String(option.value) === String(contact?.sourceId),
+  );
+  return source?.label || contact?.source || "-";
 });
 function displayValue(value: unknown) {
   const normalized = String(value ?? "").trim();

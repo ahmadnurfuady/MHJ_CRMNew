@@ -94,6 +94,10 @@ export interface UserCrmItem {
   no_handphone?: string | null
   Telephone?: string | null
   nik?: string | null
+  aktif?: string | number | boolean | null
+  email_verified_at?: string | null
+  created_at?: string | null
+  updated_at?: string | null
   primaryteam?: string | null
   secondaryteam?: string | null
   stafflevel?: string | null

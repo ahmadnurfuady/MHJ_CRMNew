@@ -29,4 +29,10 @@ withDefaults(defineProps<{ label?: string }>(), {
   letter-spacing: 0.01em;
   white-space: nowrap;
 }
+
+:global(body.dark-only .dummy-data-badge) {
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fcd34d !important;
+  background: rgba(245, 158, 11, 0.18);
+}
 </style>

@@ -107,7 +107,7 @@
     "address": "Alamat",
     "province": "Provinsi",
     "city": "Kota/Kabupaten",
-    "source": "Source",
+    "source": "Sumber",
     "gender": "Jenis Kelamin",
     "company": "Faskes",
     "project": "Peluang",
@@ -127,7 +127,7 @@
       "province": "Pilih Provinsi",
       "city": "Pilih Kota/Kabupaten",
       "selectProvinceFirst": "Pilih provinsi dahulu",
-      "source": "Pilih Source",
+      "source": "Pilih sumber",
       "gender": "Pilih Jenis Kelamin",
       "company": "Ketik manual / pilih dari daftar Faskes",
       "project": "Pilih peluang dari database live"

@@ -13,6 +13,11 @@ import {
 export const useLayout = defineStore('layout', () => {
   type LayoutType = 'ltr' | 'rtl' | 'box-layout'
   type MixLayoutType = 'light' | 'dark-sidebar' | 'dark-only'
+  const defaultSidebarType = 'compact-wrapper'
+
+  // Sidebar atas hanya merupakan preview/pilihan sesi dari Quick Options.
+  // Jangan memulihkannya ketika aplikasi dibuka kembali.
+  localStorage.removeItem('SidebarType')
 
   const layoutState = reactive({
     layouts: layout,
@@ -24,7 +29,7 @@ export const useLayout = defineStore('layout', () => {
       (layout.settings.layoutType as LayoutType),
 
     theme: (localStorage.getItem('theme') as MixLayoutType) || 'light',
-    sidebar: localStorage.getItem('SidebarType') || layout.settings.layout,
+    sidebar: defaultSidebarType,
     primaryColor:
       localStorage.getItem(appearanceStorageKeys.primaryColor) || layout.color.primaryColor,
     secondaryColor:
@@ -37,6 +42,9 @@ export const useLayout = defineStore('layout', () => {
     ),
     layoutVersion: localStorage.getItem('layoutVersion') || layout.color.layoutVersion,
   })
+
+  layoutState.layouts.settings.layout = defaultSidebarType
+  layoutState.layouts.settings.sidebarSetting = defaultSidebarType
 
   const appearancePalette = computed(() =>
     createAppearancePalette(layoutState.primaryColor, layoutState.secondaryColor)
@@ -129,9 +137,11 @@ export const useLayout = defineStore('layout', () => {
   }
 
   function setCustomizeSidebarType(val: string) {
-    layoutState.sidebar = val
-    layoutState.layouts.settings.layout = val
-    localStorage.setItem('SidebarType', val)
+    const normalizedSidebarType = val.trim()
+
+    layoutState.sidebar = normalizedSidebarType
+    layoutState.layouts.settings.layout = normalizedSidebarType
+    layoutState.layouts.settings.sidebarSetting = normalizedSidebarType
   }
 
   function addStyle(primary: string, secondary: string) {

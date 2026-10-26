@@ -42,17 +42,17 @@
           </button>
         </div>
         <button
-          class="btn btn-primary add-contact-header-button"
+          class="btn btn-primary add-contact-header-button mhj-add-button"
           type="button"
           @click="openContactModal"
         >
           <SolarIcon
             name="add"
             class="add-contact-header-button__icon"
-            :size="18"
-            color="currentColor"
-            secondary-color="currentColor"
-            :secondary-opacity="0.45"
+            :size="19"
+            color="#ffffff"
+            secondary-color="#ffffff"
+            :secondary-opacity="1"
             aria-hidden="true"
           />
           <span>Tambah Kontak Baru</span>

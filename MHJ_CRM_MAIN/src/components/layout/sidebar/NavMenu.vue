@@ -63,14 +63,16 @@
       />
       <template v-else>
         <SvgIcon
-          :icon="menuItem.icon"
+          :icon="resolveSidebarIcon(menuItem)"
           svgClass="stroke-icon"
+          :stroke-width="resolveSidebarIconStrokeWidth(menuItem)"
           v-if="menuItem.icon && layoutState.svgIcon == 'stroke-svg'"
           type="stroke"
         />
         <SvgIcon
-          :icon="menuItem.icon"
+          :icon="resolveSidebarIcon(menuItem)"
           svgClass="fill-icon"
+          :stroke-width="resolveSidebarIconStrokeWidth(menuItem)"
           v-if="menuItem.icon && layoutState.svgIcon == 'fill-svg'"
           type="fill"
         />
@@ -129,6 +131,22 @@ function isActive(path: string) {
   return path === route.path
 }
 
+function resolveSidebarIcon(item: MenuItem) {
+  const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
+
+  if (/master/.test(value)) return 'file-text-linear'
+  if (/settings?/.test(value)) return 'settings-linear'
+
+  if (/kalender|calendar/.test(value)) return 'calendar-linear'
+  if (/laporan|reports?/.test(value)) return 'chart-linear'
+  return item.icon
+}
+
+function resolveSidebarIconStrokeWidth(item: MenuItem) {
+  const icon = resolveSidebarIcon(item)
+  return icon === 'calendar-linear' || icon === 'chart-linear' ? 1.25 : undefined
+}
+
 const onMenuClick = (menuItem: MenuItem) => {
   if (menuItem.children && menuItem.children.length) {
     toggleMenu(menuItem)
@@ -146,5 +164,45 @@ const onMenuClick = (menuItem: MenuItem) => {
   pointer-events: none;
   transform: none !important;
   transition: none !important;
+}
+
+/* Kontak & Faskes harus identik pada sidebar samping dan sidebar atas. */
+.sidebar-link :deep(.sidebar-mhj-icon[data-mhj-icon='contact_card']),
+.sidebar-link :deep(.sidebar-faskes-icon) {
+  display: inline-block !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+  margin-right: 10px !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+  vertical-align: -2px;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Kalender & Laporan: tanpa bidang fill, dengan outline putih tipis. */
+.sidebar-link :deep(.solar-calendar-linear),
+.sidebar-link :deep(.solar-chart-square-linear),
+.sidebar-link :deep(.solar-file-text-linear),
+.sidebar-link :deep(.solar-settings-linear) {
+  color: #fff !important;
+  fill: none !important;
+}
+
+.sidebar-link :deep(.solar-calendar-linear path:first-of-type),
+.sidebar-link :deep(.solar-chart-square-linear path:last-of-type) {
+  stroke: #fff !important;
+  stroke-width: 1.25 !important;
+}
+
+.sidebar-link :deep(.solar-calendar-linear path:not(:first-of-type)),
+.sidebar-link :deep(.solar-chart-square-linear path:not(:last-of-type)) {
+  stroke: #fff !important;
+  stroke-width: 2 !important;
+}
+
+.sidebar-link :deep(.solar-calendar-linear path:nth-of-type(n + 5)) {
+  stroke-width: 2.5 !important;
 }
 </style>

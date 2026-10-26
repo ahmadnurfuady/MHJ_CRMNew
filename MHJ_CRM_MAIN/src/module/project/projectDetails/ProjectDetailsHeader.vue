@@ -31,11 +31,11 @@
         </li>
       </ul>
       <button
-        class="btn btn-primary"
+        class="btn btn-primary mhj-add-button"
         type="button"
         @click="projectStore.openCreateModal()"
       >
-        <SolarIcon name="fa-plus" />
+        <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
         Tambah Peluang
       </button>
     </div>

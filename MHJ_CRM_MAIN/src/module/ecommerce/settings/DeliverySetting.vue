@@ -73,8 +73,12 @@
               <div id="delivery_fields"></div>
               <div class="col-12">
                 <div class="input-group-btn">
-                  <button class="btn btn-success mb-4" type="button" @click="addSlot">
-                    <span class="fa-solid fa-plus me-1"></span>
+                  <button
+                    class="btn btn-link mb-4 mhj-form-add-button"
+                    type="button"
+                    @click="addSlot"
+                  >
+                    <MhjIcon name="action_add" :size="14" />
                     Add
                   </button>
                 </div>

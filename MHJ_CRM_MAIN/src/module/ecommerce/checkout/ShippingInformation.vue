@@ -3,8 +3,8 @@
     <div class="col-xxl-5 col-md-6 box-col-6">
       <div class="shipping-title">
         <h6>Delivery Address</h6>
-        <button class="btn btn-primary" type="button" @click="openModal()">
-          <SolarIcon name="fa-square-plus" class="f-20" />
+        <button class="btn btn-link mhj-form-add-button" type="button" @click="openModal()">
+          <MhjIcon name="action_add" :size="14" />Add Address
         </button>
       </div>
       <div class="row g-3 mt-0 flex-column">

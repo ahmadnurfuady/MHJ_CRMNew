@@ -17,7 +17,7 @@
             <div class="login-main">
               <!-- Langkah 1: Email -->
               <form v-if="step === 1" class="theme-form" novalidate @submit.prevent="sendOtp()">
-                <h4>Lupa Password</h4>
+                <h4>{{ isProfileChange ? 'Ganti Password' : 'Lupa Password' }}</h4>
                 <p>Langkah 1 dari 3 — masukkan email akun Anda untuk menerima kode OTP.</p>
                 <div v-if="errorMessage" class="alert alert-light-danger mb-3" role="alert">
                   {{ errorMessage }}
@@ -41,8 +41,10 @@
                   {{ loading ? 'Mengirim...' : 'Kirim Kode OTP' }}
                 </button>
                 <p class="mt-4 mb-0 text-center">
-                  Sudah ingat password?
-                  <router-link class="ms-2" :to="LOGIN_PATH">Masuk</router-link>
+                  {{ isProfileChange ? 'Batal mengganti password?' : 'Sudah ingat password?' }}
+                  <router-link class="ms-2" :to="isProfileChange ? routes.User.AkunSaya : LOGIN_PATH">
+                    {{ isProfileChange ? 'Kembali ke profil' : 'Masuk' }}
+                  </router-link>
                 </p>
               </form>
 
@@ -171,11 +173,12 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onUnmounted, reactive, ref, type ComponentPublicInstance } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import { toast } from 'vue3-toastify'
 
 import { useAuthStore } from '@/store/auth'
+import { routes } from '@/router/routes'
 import { getImages } from '@/utils/index'
 
 const LOGIN_PATH = '/auth/login'
@@ -184,10 +187,12 @@ const RESEND_COOLDOWN_SECONDS = 60
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
+const isProfileChange = computed(() => route.query.source === 'profile' && authStore.isAuthenticated)
 
 const step = ref<1 | 2 | 3>(1)
-const email = ref('')
+const email = ref(isProfileChange.value ? authStore.user?.email ?? '' : '')
 const otpDigits = ref<string[]>(Array(OTP_LENGTH).fill(''))
 const otpInputs: (HTMLInputElement | null)[] = []
 const password = ref('')
@@ -350,6 +355,7 @@ async function savePassword() {
     confirmButtonText: 'Ke Halaman Login',
     confirmButtonColor: 'var(--theme-default)',
   })
+  if (isProfileChange.value) await authStore.logout()
   router.replace(LOGIN_PATH)
 }
 

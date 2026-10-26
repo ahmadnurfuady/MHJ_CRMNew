@@ -38,7 +38,7 @@
                 :disabled="!filteredEntries.length"
                 @click="exportEntries('csv')"
               >
-                <vue-feather type="file-text" size="15" />
+                <i class="fa-solid fa-file-csv export-format-icon" aria-hidden="true"></i>
                 CSV
               </button>
               <button
@@ -47,7 +47,7 @@
                 :disabled="!filteredEntries.length"
                 @click="exportEntries('excel')"
               >
-                <vue-feather type="grid" size="15" />
+                <i class="fa-solid fa-file-excel export-format-icon" aria-hidden="true"></i>
                 Excel
               </button>
             </div>
@@ -454,6 +454,13 @@ onMounted(() => {
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
+}
+
+.kalender-export-button .export-format-icon {
+  width: 16px;
+  flex: 0 0 16px;
+  font-size: 16px;
+  text-align: center;
 }
 
 @media (max-width: 767.98px) {

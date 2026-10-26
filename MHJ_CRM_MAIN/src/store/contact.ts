@@ -144,6 +144,7 @@ function pickIdList(raw: Dict, key: string): string[] | undefined {
 /** Pertahankan field terbaru ketika endpoint detail belum mengembalikan kolom tambahan. */
 function applySavedContactPayload(contact: Contact, payload: ContactCrudPayload) {
   contact.createdById = payload.created_by ?? contact.createdById;
+  if (payload.source !== null) contact.sourceId = String(payload.source);
   if (payload.gender) contact.gender = payload.gender;
   if (payload.country) contact.country = payload.country;
   if (payload.province) contact.province = payload.province;
@@ -1273,7 +1274,7 @@ export const useContact = defineStore("contact", () => {
       mapAddress: "Alamat Google Maps",
       province: "Provinsi",
       city: "Kota/Kabupaten",
-      source: "Source",
+      source: "Sumber",
       gender: "Jenis Kelamin",
     };
     Object.entries(requiredLabels).forEach(([key, label]) => {

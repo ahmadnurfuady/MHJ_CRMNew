@@ -4,10 +4,10 @@
       <h4 class="mb-0">Daftar Pengguna CRM</h4>
       <router-link
         v-if="canUser('tambah')"
-        class="btn btn-primary add-user-button"
+        class="btn btn-primary add-user-button mhj-add-button"
         :to="routes.User.AddUser"
       >
-        <SolarIcon name="add" :size="17" color="#fff" secondary-color="#fff" aria-hidden="true" />
+        <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
         <span>Tambah User</span>
       </router-link>
     </div>

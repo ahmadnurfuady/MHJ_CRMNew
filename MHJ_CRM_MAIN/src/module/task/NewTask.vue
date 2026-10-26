@@ -55,14 +55,6 @@
                 </div>
               </div>
 
-              <div v-if="dummyContextSources.length" class="dummy-source-notice" role="note">
-                <DummyDataBadge />
-                <span>
-                  Sumber lokal sedang dipakai untuk:
-                  {{ dummyContextSources.join(', ') }}.
-                </span>
-              </div>
-
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label" :for="`${modalId}-task-name`"
@@ -736,7 +728,6 @@ import type { Contact } from "@/types/contacts";
 import type { TaskDetails, TaskKind, TaskPayload } from "@/types/tasks";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 
 interface ProjectOption extends DealOption {
   id: number;
@@ -1009,17 +1000,6 @@ const hospitalOptions = computed<DealOption[]>(() =>
       }))
     : fallbackHospitals,
 );
-const dummyContextSources = computed(() => {
-  const sources: string[] = ["Kategori"];
-  if (!hospitalStore.items.length) sources.push("Faskes");
-  if (!apiContactOptions.value.length) sources.push("Kontak");
-  if (projectStore.lookupSources.divisi === "local-dummy") sources.push("Divisi");
-  if (projectStore.lookupSources.barang === "local-dummy") sources.push("Produk");
-  if (taskType.value === "app-specialist" && usingDummySerialProjects.value) {
-    sources.push("Serial Number");
-  }
-  return [...new Set(sources)];
-});
 
 function contactsForProject(projectName: string) {
   const normalizedProject = normalizeRelation(projectName);
@@ -2325,20 +2305,6 @@ onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
 </script>
 
 <style scoped>
-.dummy-source-notice {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-  border: 1px solid #f3d488;
-  border-radius: 10px;
-  padding: 9px 11px;
-  color: #70531b;
-  background: #fffbeb;
-  font-size: 12px;
-}
-
 .task-form-modal {
   max-height: calc(100vh - 2rem);
   overflow: hidden;

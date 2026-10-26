@@ -5,10 +5,10 @@
       <button
         v-if="canMasterJabatan('tambah')"
         type="button"
-        class="btn btn-primary add-jabatan-button"
+        class="btn btn-primary add-jabatan-button mhj-add-button"
         @click="openCreate"
       >
-        <SolarIcon name="add" :size="17" color="#fff" secondary-color="#fff" aria-hidden="true" />
+        <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
         <span>Tambah Jabatan</span>
       </button>
     </div>

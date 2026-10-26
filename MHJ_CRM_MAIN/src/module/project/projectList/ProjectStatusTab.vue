@@ -25,11 +25,11 @@
         </template>
       </ul>
       <button
-        class="btn btn-primary flex-shrink-0"
+        class="btn btn-primary flex-shrink-0 mhj-add-button"
         type="button"
         @click="projectStore.openCreateModal()"
       >
-        <SolarIcon name="fa-plus" />
+        <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
         Tambah Peluang
       </button>
     </div>

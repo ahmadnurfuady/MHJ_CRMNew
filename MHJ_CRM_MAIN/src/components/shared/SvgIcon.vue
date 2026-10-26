@@ -1,5 +1,9 @@
 <template>
-  <SolarIcon :name="icon" :class="[svgClass, svgInnerClass]" />
+  <SolarIcon
+    :name="icon"
+    :class="[svgClass, svgInnerClass]"
+    :stroke-width="strokeWidth"
+  />
 </template>
 
 <script setup lang="ts">
@@ -10,6 +14,7 @@ const props = defineProps<{
   svgClass?: string
   svgInnerClass?: string
   type?: 'default' | 'fill' | 'stroke'
+  strokeWidth?: number | string
 }>()
 
 </script>

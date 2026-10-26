@@ -122,6 +122,11 @@ a.quick-actions__item:focus-visible {
   white-space: nowrap;
 }
 
+:global(body.dark-only .quick-actions__badge) {
+  color: #fcd34d !important;
+  background: rgba(245, 158, 11, 0.2);
+}
+
 @media (max-width: 420px) {
   .quick-actions__icon {
     width: 42px;

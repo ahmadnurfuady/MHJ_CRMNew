@@ -67,12 +67,12 @@
                   />
                 </InputWrapper>
                 <button
-                  class="btn btn-link btn-sm p-0 mt-1"
+                  class="btn btn-link btn-sm mt-1 mhj-form-add-button"
                   type="button"
                   :disabled="!isCompanySelected"
                   @click="openContactModal"
                 >
-                  <MhjIcon name="action_add" :size="14" class="me-1" />Tambah Kontak Baru
+                  <MhjIcon name="action_add" :size="14" />Tambah Kontak Baru
                 </button>
               </div>
 
@@ -271,11 +271,11 @@
                       </p>
                     </div>
                     <button
-                      class="btn btn-outline-primary btn-sm"
+                      class="btn btn-link btn-sm mhj-form-add-button"
                       type="button"
                       @click="addTimelineEntry"
                     >
-                      <MhjIcon name="action_add" :size="14" class="me-1" />Tambah aktivitas
+                      <MhjIcon name="action_add" :size="14" />Tambah aktivitas
                     </button>
                   </div>
 

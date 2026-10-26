@@ -42,7 +42,7 @@
           </button>
         </div>
         <button
-          class="btn btn-primary add-hospital-header-button"
+          class="btn btn-primary add-hospital-header-button mhj-add-button"
           type="button"
           @click="openContactModal"
         >
@@ -50,9 +50,9 @@
             name="add"
             class="add-hospital-header-button__icon"
             :size="19"
-            color="currentColor"
-            secondary-color="currentColor"
-            :secondary-opacity="0.45"
+            color="#ffffff"
+            secondary-color="#ffffff"
+            :secondary-opacity="1"
             aria-hidden="true"
           />
           <span>Tambah Faskes Baru</span>

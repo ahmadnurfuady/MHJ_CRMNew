@@ -1015,6 +1015,28 @@ onBeforeUnmount(() => {
 .hospital-map__coordinate-note { position: absolute; left: 12px; bottom: 12px; z-index: 499; border-radius: 8px; padding: 6px 9px; color: #64748b; background: rgba(255,255,255,.92); font-size: 9px; box-shadow: 0 3px 10px rgba(15,23,42,.12); }
 .hospital-map__detail ~ .hospital-map__coordinate-note { display: none; }
 
+/* Overlay peta tetap memakai palet terang, termasuk saat halaman beralih ke dark mode. */
+:global(body.dark-only .hospital-map .hospital-marker--fresh .hospital-marker__plus) { color: #14b88a !important; }
+:global(body.dark-only .hospital-map .hospital-marker--attention .hospital-marker__plus) { color: #f59e0b !important; }
+:global(body.dark-only .hospital-map .hospital-marker--overdue .hospital-marker__plus) { color: #ef4444 !important; }
+:global(body.dark-only .hospital-map .hospital-map__legend span) { color: #52606d !important; }
+:global(body.dark-only .hospital-map .map-action--wide span) { color: #304250 !important; }
+:global(body.dark-only .hospital-map .hospital-map__layer-menu > small) { color: #82909c !important; }
+:global(body.dark-only .hospital-map .hospital-map__layer-menu button > span) { color: inherit !important; }
+:global(body.dark-only .hospital-map .hospital-map__layer-menu button small) { color: #9ba6af !important; }
+:global(body.dark-only .hospital-map .hospital-map__search > span),
+:global(body.dark-only .hospital-map .detail-location span) { color: #71808c !important; }
+:global(body.dark-only .hospital-map .hospital-map__filter header small) { color: var(--app-primary, #18a6e4) !important; }
+:global(body.dark-only .hospital-map .detail-heading > span),
+:global(body.dark-only .hospital-map .detail-route span) { color: var(--app-primary-dark, #0e7490) !important; }
+:global(body.dark-only .hospital-map .detail-heading small) { color: #768591 !important; }
+:global(body.dark-only .hospital-map .detail-badges .grade) { color: #15966e !important; }
+:global(body.dark-only .hospital-map .detail-badges .urgency) { color: #6d7882 !important; }
+:global(body.dark-only .hospital-map .detail-metrics > span) { color: #263442 !important; }
+:global(body.dark-only .hospital-map .detail-metrics small) { color: #667887 !important; }
+:global(body.dark-only .hospital-map .hospital-map__coordinate-note) { color: #64748b !important; }
+:global(body.dark-only .hospital-map .map-control-tooltip) { color: #fff !important; }
+
 @keyframes map-spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 640px) {

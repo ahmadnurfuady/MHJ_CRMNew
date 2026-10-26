@@ -136,6 +136,11 @@ function handleItemClick(item: PushNotificationEntry) {
 </script>
 
 <style scoped>
+.notification-box :deep(.mhj-icon svg),
+.notification-box :deep(.mhj-icon svg path) {
+  stroke: none !important;
+}
+
 .push-status {
   display: flex;
   flex-direction: column;
