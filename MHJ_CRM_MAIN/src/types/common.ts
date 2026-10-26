@@ -359,6 +359,13 @@ export interface SelectProps {
   removableTags?: boolean
   /** Tampilkan indikator "Memuat data lainnya..." di bawah list, dipakai untuk infinite scroll. */
   loadingMore?: boolean
+  /**
+   * Pencarian dilakukan di server: opsi tidak difilter lokal, ketikan dikirim lewat event
+   * `search` dan parent yang memuat ulang `options`.
+   */
+  remoteSearch?: boolean
+  /** Tampilkan indikator "Mencari..." saat parent sedang memuat hasil remoteSearch. */
+  searching?: boolean
 }
 
 export interface CheckboxField {

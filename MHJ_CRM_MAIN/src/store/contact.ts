@@ -432,6 +432,9 @@ export const useContact = defineStore("contact", () => {
     companyLookup: [] as Select[],
     /** Lookup dropdown Peluang form Kontak, langsung dari API (bukan daftar halaman Peluang). */
     projectLookup: [] as Select[],
+    /** Hasil GET /api/contact/project dengan search / company_ids; null = pakai projectLookup penuh. */
+    projectSearchResults: null as Select[] | null,
+    projectSearching: false,
     lookupLoading: false,
     statuses: [] as Select[],
     sources: [] as Select[],
@@ -795,6 +798,67 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
+  function normalizeProjectLookup(payload: unknown, addressByCompanyId?: Map<number, string>) {
+    const addresses =
+      addressByCompanyId ??
+      new Map(contactApi.companyLookup.map((company) => [Number(company.value), company.address ?? ""]));
+
+    return extractList(payload, ["projects", "deals"]).items
+      .filter(isRecord)
+      .map((raw) => {
+        const companyId = pickNumber(raw, "company_id");
+        const companyName = pickString(raw, "company_name", "hospital_name", "customer_name");
+        return {
+          value: pickNumber(raw, "value", "project_id", "id", "ID"),
+          label: pickString(raw, "label", "projects_name", "project_name", "deal_name"),
+          // Peluang tidak punya alamat sendiri; tampilkan Faskes terkait + alamatnya.
+          address: [companyName, pickString(raw, "address") || addresses.get(companyId)]
+            .filter(Boolean)
+            .join(", "),
+          // Dipakai form Kontak untuk memfilter Peluang sesuai Faskes yang dipilih.
+          companyId: companyId > 0 ? companyId : undefined,
+        };
+      })
+      .filter((option) => option.value > 0 && option.label);
+  }
+
+  let projectSearchSeq = 0;
+
+  /**
+   * GET /api/contact/project?search=...&company_ids=1,2 untuk dropdown Peluang form Kontak.
+   * Tanpa search & Faskes, hasil dikosongkan (null) agar dropdown kembali ke projectLookup penuh.
+   * Hanya respons permintaan terakhir yang dipakai, supaya ketikan cepat tidak tertimpa hasil lama.
+   */
+  async function searchContactProjects(params: { search?: string; companyIds?: number[] } = {}) {
+    const search = params.search?.trim() ?? "";
+    const companyIds = params.companyIds ?? [];
+    const seq = ++projectSearchSeq;
+
+    if (!search && !companyIds.length) {
+      contactApi.projectSearchResults = null;
+      contactApi.projectSearching = false;
+      return contactApi.projectLookup;
+    }
+
+    contactApi.projectSearching = true;
+    try {
+      const response = await api.getbydata(`${CONTACT_ENDPOINT}/project`, {
+        ...(search ? { search } : {}),
+        ...(companyIds.length ? { company_ids: companyIds.join(",") } : {}),
+        limit: 100,
+      });
+      if (seq !== projectSearchSeq) return contactApi.projectSearchResults ?? [];
+      contactApi.projectSearchResults = normalizeProjectLookup(response.data);
+      return contactApi.projectSearchResults;
+    } catch {
+      // Gagal mencari di server: tetap pakai lookup penuh yang sudah dimuat.
+      if (seq === projectSearchSeq) contactApi.projectSearchResults = null;
+      return contactApi.projectLookup;
+    } finally {
+      if (seq === projectSearchSeq) contactApi.projectSearching = false;
+    }
+  }
+
   /**
    * Lookup Faskes & Peluang untuk form Buat/Edit Kontak.
    * GET /api/contact/company -> Faskes, GET /api/contact/project -> Peluang.
@@ -824,29 +888,11 @@ export const useContact = defineStore("contact", () => {
           companies.map((company) => [company.value, company.address]),
         );
 
-        const projects = extractList(projectResponse.data, ["projects", "deals"]).items
-          .filter(isRecord)
-          .map((raw) => {
-            const companyId = pickNumber(raw, "company_id");
-            const companyName = pickString(raw, "company_name", "hospital_name", "customer_name");
-            return {
-              value: pickNumber(raw, "value", "project_id", "id", "ID"),
-              label: pickString(raw, "label", "projects_name", "project_name", "deal_name"),
-              // Peluang tidak punya alamat sendiri; tampilkan Faskes terkait + alamatnya.
-              address: [
-                companyName,
-                pickString(raw, "address") || addressByCompanyId.get(companyId),
-              ]
-                .filter(Boolean)
-                .join(", "),
-              // Dipakai form Kontak untuk memfilter Peluang sesuai Faskes yang dipilih.
-              companyId: companyId > 0 ? companyId : undefined,
-            };
-          })
-          .filter((option) => option.value > 0 && option.label);
+        const projects = normalizeProjectLookup(projectResponse.data, addressByCompanyId);
 
         contactApi.companyLookup = companies;
         contactApi.projectLookup = projects;
+        contactApi.projectSearchResults = null;
         if (!contactApi.companies.length) {
           contactApi.companies = companies.map(({ value, label }) => ({ value: String(value), label }));
           resolveContactCompanyNames();
@@ -1482,6 +1528,7 @@ export const useContact = defineStore("contact", () => {
     fetchRemoteContactById,
     fetchContactCompanies,
     fetchContactLookups,
+    searchContactProjects,
     fetchContactStatuses,
     fetchContactSources,
     createRemoteContact,

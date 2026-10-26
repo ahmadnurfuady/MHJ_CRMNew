@@ -107,7 +107,8 @@
               </li>
             </template>
           </template>
-          <li v-if="!filteredOptions.length" class="no-option">No Records Found</li>
+          <li v-if="searching" class="no-option">Mencari...</li>
+          <li v-else-if="!filteredOptions.length" class="no-option">No Records Found</li>
           <li v-else-if="loadingMore" class="no-option">Memuat data lainnya...</li>
         </ul>
       </div>
@@ -143,11 +144,13 @@ const props = withDefaults(defineProps<SelectProps>(), {
   showOptions: false,
   removableTags: false,
   loadingMore: false,
+  remoteSearch: false,
+  searching: false,
 })
 
 const subtitleKey = computed(() => props.subtitleKey)
 
-const emits = defineEmits(['update:modelValue', 'reach-bottom'])
+const emits = defineEmits(['update:modelValue', 'reach-bottom', 'search'])
 
 const dropdownPlacement = ref<'bottom' | 'top'>('bottom')
 

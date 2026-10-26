@@ -12,7 +12,10 @@ import type { Select, SelectProps } from '@/types/common'
 
 export function useSmartSelect(
   props: SelectProps,
-  emits: (event: 'update:modelValue', value: unknown) => void
+  emits: {
+    (event: 'update:modelValue', value: unknown): void
+    (event: 'search', value: string): void
+  }
 ) {
   const showDropdown = ref(false)
   const search = ref('')
@@ -22,6 +25,7 @@ export function useSmartSelect(
   const optionRefs = ref<HTMLElement[]>([])
 
   const filteredOptions = computed(() => {
+    if (props.remoteSearch) return props.options as Select[]
     return (props.options as Select[]).filter((option) => {
       const key = props.displayKey as keyof Select
       const val = option[key]
@@ -196,6 +200,10 @@ export function useSmartSelect(
     () => props.modelValue,
     () => (highlightedIndex.value = 0)
   )
+
+  watch(search, (value) => {
+    if (props.remoteSearch) emits('search', value)
+  })
 
   watch(
     () => [props.formSubmitted, props.modelValue.data],

@@ -254,6 +254,9 @@
           <Select
             v-model="form.project"
             :options="filteredProjectOptions"
+            :remoteSearch="true"
+            :searching="contactApi.projectSearching"
+            @search="onProjectSearch"
             display-key="label"
             subtitle-key="address"
             getValueKey="value"
@@ -329,6 +332,7 @@ const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const {
   fetchContactLookups,
+  searchContactProjects,
   fetchContactSources,
   fetchContactStatuses,
   updateRemoteContact,
@@ -348,12 +352,19 @@ const optionalPhoneValidator = (value: string) =>
 // Lookup langsung dari API (GET /api/contact/company & GET /api/contact/project), lihat fetchContactLookups.
 const companyOptions = computed(() => contactApi.value.companyLookup);
 const projectOptions = computed(() => contactApi.value.projectLookup);
-const { filteredProjectOptions, pruneProjectsForCompanies } = useProjectsByCompany(
+const {
+  filteredProjectOptions,
+  pruneProjectsForCompanies,
+  onProjectSearch,
+  resetProjectSearch,
+} = useProjectsByCompany({
   projectOptions,
-  () => form.value.company,
-  () => form.value.project,
-  (field) => (form.value.project = field),
-);
+  searchResults: computed(() => contactApi.value.projectSearchResults),
+  searchProjects: searchContactProjects,
+  companyField: () => form.value.company,
+  projectField: () => form.value.project,
+  setProjectField: (field) => (form.value.project = field),
+});
 // Snapshot ID relasi saat form diisi; *_ids hanya dikirim bila pilihan berubah,
 // supaya relasi yang belum dikirim API tidak terhapus saat simpan.
 let initialCompanyIds = "";
@@ -808,6 +819,7 @@ onMounted(async () => {
   requests.push(loadRegions());
   await Promise.allSettled(requests);
   fillForm();
+  void resetProjectSearch();
 });
 </script>
 

@@ -326,6 +326,9 @@
               <Select
                 v-model="contactState.contactForm.project"
                 :options="filteredProjectOptions"
+                :remoteSearch="true"
+                :searching="contactApi.projectSearching"
+                @search="onProjectSearch"
                 display-key="label"
                 subtitle-key="address"
                 getValueKey="value"
@@ -417,6 +420,7 @@ const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const {
   fetchContactLookups,
+  searchContactProjects,
   fetchContactSources,
   fetchContactStatuses,
   saveContact,
@@ -428,12 +432,19 @@ const ownerOptions = computed(() => projectStore.lookups.owner);
 // Lookup langsung dari API (GET /api/contact/company & GET /api/contact/project), lihat fetchContactLookups.
 const companyOptions = computed(() => contactApi.value.companyLookup);
 const projectOptions = computed(() => contactApi.value.projectLookup);
-const { filteredProjectOptions, pruneProjectsForCompanies } = useProjectsByCompany(
+const {
+  filteredProjectOptions,
+  pruneProjectsForCompanies,
+  onProjectSearch,
+  resetProjectSearch,
+} = useProjectsByCompany({
   projectOptions,
-  () => contactState.value.contactForm.company,
-  () => contactState.value.contactForm.project,
-  (field) => (contactState.value.contactForm.project = field),
-);
+  searchResults: computed(() => contactApi.value.projectSearchResults),
+  searchProjects: searchContactProjects,
+  companyField: () => contactState.value.contactForm.company,
+  projectField: () => contactState.value.contactForm.project,
+  setProjectField: (field) => (contactState.value.contactForm.project = field),
+});
 const sourceOptions = computed(() => contactApi.value.sources);
 const statusOptions = computed(() => contactApi.value.statuses);
 const locatingAddress = ref(false);
@@ -500,6 +511,8 @@ onMounted(async () => {
   if (!contactApi.value.statuses.length) requests.push(fetchContactStatuses());
   requests.push(loadRegions());
   await Promise.allSettled(requests);
+  // Form bisa dibuka dari halaman Faskes dengan Faskes sudah terpilih.
+  void resetProjectSearch();
   selectLoggedInOwner();
   selectDefaultStatus();
 });
