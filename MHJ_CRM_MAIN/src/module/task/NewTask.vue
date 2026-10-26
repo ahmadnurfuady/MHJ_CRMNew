@@ -2,6 +2,7 @@
   <div
     :id="modalId"
     class="modal fade"
+    data-bs-backdrop="static"
     tabindex="-1"
     :aria-labelledby="`${modalId}-title`"
     aria-hidden="true"

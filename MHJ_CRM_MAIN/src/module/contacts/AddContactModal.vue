@@ -310,10 +310,13 @@
               <Select
                 v-model="contactState.contactForm.company"
                 :options="companyOptions"
+                @update:modelValue="pruneProjectsForCompanies"
                 display-key="label"
                 subtitle-key="address"
                 getValueKey="value"
                 :placeholder="t('contacts.placeholders.company')"
+                :multiSelect="true"
+                :removableTags="true"
                 :required="false"
               />
             </InputWrapper>
@@ -322,11 +325,13 @@
             <InputWrapper :title="t('contacts.project')">
               <Select
                 v-model="contactState.contactForm.project"
-                :options="projectOptions"
+                :options="filteredProjectOptions"
                 display-key="label"
                 subtitle-key="address"
-                getValueKey="label"
+                getValueKey="value"
                 :placeholder="t('contacts.placeholders.project')"
+                :multiSelect="true"
+                :removableTags="true"
                 :required="false"
               />
             </InputWrapper>
@@ -357,9 +362,9 @@ import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
+import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
 import { useContact } from "@/store/contact";
 import { useAuthStore } from "@/store/auth";
-import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
 import {
   indonesianMobilePhoneError,
@@ -409,9 +414,9 @@ const Modal = defineAsyncComponent(
 const contactStore = useContact();
 const authStore = useAuthStore();
 const projectStore = useProjectStore();
-const hospitalStore = useHospitalStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const {
+  fetchContactLookups,
   fetchContactSources,
   fetchContactStatuses,
   saveContact,
@@ -420,42 +425,14 @@ const {
 const { provinceOptions, cityOptionsByProvince, loadRegions } = useCompanyRegions();
 
 const ownerOptions = computed(() => projectStore.lookups.owner);
-// GET /api/company (sama dengan sumber data Rumah Sakit/Perusahaan di form Project & Task).
-const companyOptions = computed(() => {
-  const selectedHospital = hospitalStore.selectedItem;
-  const hospitals =
-    selectedHospital &&
-    !hospitalStore.items.some((hospital) => hospital.id === selectedHospital.id)
-      ? [selectedHospital, ...hospitalStore.items]
-      : hospitalStore.items;
-
-  return hospitals.map((hospital) => ({
-    value: hospital.id,
-    label: hospital.name,
-    address: hospital.address || hospital.mapAddress || "",
-  }));
-});
-/** Dipakai projectOptions: alamat Peluang diambil dari Faskes terkait (companyId), bukan dari data Peluang itu sendiri (tidak punya field alamat). */
-function hospitalAddressByCompanyId(companyId?: number): string {
-  if (!companyId) return "";
-  const hospital =
-    hospitalStore.items.find((item) => item.id === companyId) ??
-    (hospitalStore.selectedItem?.id === companyId
-      ? hospitalStore.selectedItem
-      : undefined);
-  return hospital?.address || hospital?.mapAddress || "";
-}
-
-// GET /api/project (sama dengan daftar di halaman Peluang List).
-const projectOptions = computed(() =>
-  projectStore.items.map((project) => {
-    const address = hospitalAddressByCompanyId(project.companyId);
-    return {
-      value: project.id,
-      label: project.projectName,
-      address: [project.companyName, address].filter(Boolean).join(", "),
-    };
-  }),
+// Lookup langsung dari API (GET /api/contact/company & GET /api/contact/project), lihat fetchContactLookups.
+const companyOptions = computed(() => contactApi.value.companyLookup);
+const projectOptions = computed(() => contactApi.value.projectLookup);
+const { filteredProjectOptions, pruneProjectsForCompanies } = useProjectsByCompany(
+  projectOptions,
+  () => contactState.value.contactForm.company,
+  () => contactState.value.contactForm.project,
+  (field) => (contactState.value.contactForm.project = field),
 );
 const sourceOptions = computed(() => contactApi.value.sources);
 const statusOptions = computed(() => contactApi.value.statuses);
@@ -518,8 +495,7 @@ function selectDefaultStatus() {
 onMounted(async () => {
   const requests: Promise<unknown>[] = [];
   if (!projectStore.lookups.owner.length) requests.push(projectStore.fetchProjectLookups());
-  if (!hospitalStore.items.length) requests.push(hospitalStore.fetchHospitals());
-  if (!projectStore.loaded) requests.push(projectStore.fetchProjects());
+  requests.push(fetchContactLookups());
   if (!contactApi.value.sources.length) requests.push(fetchContactSources());
   if (!contactApi.value.statuses.length) requests.push(fetchContactStatuses());
   requests.push(loadRegions());

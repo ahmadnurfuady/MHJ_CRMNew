@@ -291,6 +291,8 @@ export interface Select {
   // Alamat faskes, ditampilkan sebagai sub-teks di bawah nama pada dropdown
   // pemilihan Faskes di form Kontak (lihat prop subtitleKey pada Select.vue).
   address?: string
+  // Faskes pemilik Peluang; dipakai memfilter dropdown Peluang di form Kontak.
+  companyId?: number
 }
 
 export interface InputField {

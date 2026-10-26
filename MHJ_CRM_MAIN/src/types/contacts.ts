@@ -52,6 +52,10 @@ export interface Contact {
   companyNames?: string[];
   project?: string;
   projectId?: string;
+  /** ID relasi contact_company; undefined bila API belum mengirim daftarnya. */
+  companyIds?: string[];
+  /** ID relasi contact_project; undefined bila API belum mengirim daftarnya. */
+  projectIds?: string[];
   latitude?: number;
   longitude?: number;
   createdAt?: string;

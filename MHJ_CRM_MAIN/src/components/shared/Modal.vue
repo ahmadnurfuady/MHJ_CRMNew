@@ -9,18 +9,15 @@
           { 'modal-dialog-centered': props.modalCentered },
         ]"
       >
-        <OnClickOutside
-          :options="clickOutsideOptions"
-          @trigger="closeModal"
-          class="modal-content"
-          :class="contentClass"
-        >
+        <!-- Klik di luar form sengaja tidak menutup modal agar isian tidak hilang;
+             tutup hanya lewat tombol X / Batal. -->
+        <div class="modal-content" :class="contentClass">
           <div class="modal-header" v-if="props.title">
             <h5 class="modal-title">{{ props.title }}</h5>
             <button class="btn-close" type="button" @click="closeModal"></button>
           </div>
           <slot />
-        </OnClickOutside>
+        </div>
       </div>
     </div>
   </Transition>
@@ -30,8 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { OnClickOutside } from '@vueuse/components'
-
 import { ModalProps } from '@/types/common'
 
 const props = withDefaults(defineProps<ModalProps>(), {
@@ -42,15 +37,7 @@ const props = withDefaults(defineProps<ModalProps>(), {
 
 const emit = defineEmits(['closeModal'])
 
-// SweetAlert dirender di luar elemen modal (langsung di body). Tanpa pengecualian
-// ini, klik tombol popup dianggap sebagai klik di luar dan ikut menutup form.
-const clickOutsideOptions = {
-  ignore: ['.swal2-container'],
-}
-
 function closeModal() {
-  if (!props.staticBackdrop) {
-    emit('closeModal')
-  }
+  emit('closeModal')
 }
 </script>

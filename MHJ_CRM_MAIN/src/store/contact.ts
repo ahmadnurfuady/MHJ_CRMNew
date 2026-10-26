@@ -78,6 +78,10 @@ export interface ContactCrudPayload {
   gender: string | null;
   project_name: string | null;
   project_id: number | null;
+  /** Seluruh Faskes terpilih, disimpan controller ke tabel contact_company. */
+  company_ids?: number[];
+  /** Seluruh Peluang terpilih, disimpan controller ke tabel contact_project. */
+  project_ids?: number[];
   latitude: number | null;
   longitude: number | null;
   /** Nama key mengikuti ContactController, lalu diteruskan ke @source_id pada SP. */
@@ -128,6 +132,15 @@ function assertStoredProcedureSucceeded(payload: unknown) {
   if (message) throw new Error(message);
 }
 
+/** Daftar ID dari kolom CSV / array (mis. company_ids "1,2"); undefined bila key tidak ada di response. */
+function pickIdList(raw: Dict, key: string): string[] | undefined {
+  if (!(key in raw) || raw[key] === null) return undefined;
+  return pickString(raw, key)
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => /^\d+$/.test(id) && Number(id) > 0);
+}
+
 /** Pertahankan field terbaru ketika endpoint detail belum mengembalikan kolom tambahan. */
 function applySavedContactPayload(contact: Contact, payload: ContactCrudPayload) {
   contact.createdById = payload.created_by ?? contact.createdById;
@@ -137,6 +150,8 @@ function applySavedContactPayload(contact: Contact, payload: ContactCrudPayload)
   if (payload.city) contact.city = payload.city;
   if (payload.project_name) contact.project = payload.project_name;
   if (payload.project_id !== null) contact.projectId = String(payload.project_id);
+  if (payload.company_ids) contact.companyIds = payload.company_ids.map(String);
+  if (payload.project_ids) contact.projectIds = payload.project_ids.map(String);
   if (payload.latitude !== null) contact.latitude = payload.latitude;
   if (payload.longitude !== null) contact.longitude = payload.longitude;
 }
@@ -294,6 +309,8 @@ function normalizeApiContact(raw: Dict): Contact {
     company: pickString(raw, "company_name", "Company Name", "company"),
     project: pickString(raw, "projects_name", "project_name", "Project Name", "project"),
     projectId: pickString(raw, "project_id", "Project ID", "projectId"),
+    companyIds: pickIdList(raw, "company_ids"),
+    projectIds: pickIdList(raw, "project_ids"),
     latitude: nullableNumber(pickString(raw, "latitude", "Latitude")) ?? undefined,
     longitude: nullableNumber(pickString(raw, "longitude", "Longitude")) ?? undefined,
     createdAt: pickString(raw, "created_at", "Created At", "createdAt"),
@@ -411,6 +428,11 @@ export const useContact = defineStore("contact", () => {
     items: [] as Contact[],
     selectedItem: undefined as Contact | undefined,
     companies: [] as Select[],
+    /** Lookup dropdown Faskes form Kontak, langsung dari API (bukan daftar halaman Faskes). */
+    companyLookup: [] as Select[],
+    /** Lookup dropdown Peluang form Kontak, langsung dari API (bukan daftar halaman Peluang). */
+    projectLookup: [] as Select[],
+    lookupLoading: false,
     statuses: [] as Select[],
     sources: [] as Select[],
     sourceIsDummy: false,
@@ -773,6 +795,67 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
+  /**
+   * Lookup Faskes & Peluang untuk form Buat/Edit Kontak.
+   * GET /api/contact/company -> Faskes, GET /api/contact/project -> Peluang.
+   * Sengaja tidak memakai items store Faskes/Peluang karena itu hanya berisi halaman aktif.
+   */
+  function fetchContactLookups() {
+    return runApiAction({
+      flag: toRef(contactApi, "lookupLoading"),
+      error: contactError,
+      fallbackMessage: "Gagal memuat daftar Faskes / Peluang.",
+      task: async () => {
+        const [companyResponse, projectResponse] = await Promise.all([
+          api.get(`${CONTACT_ENDPOINT}/company`),
+          // Backend default limit=100; minta lebih banyak agar filter per Faskes di FE tidak kehilangan data.
+          api.getbydata(`${CONTACT_ENDPOINT}/project`, { limit: 1000 }),
+        ]);
+
+        const companies = extractList(companyResponse.data, ["companies"]).items
+          .filter(isRecord)
+          .map((raw) => ({
+            value: pickNumber(raw, "value", "company_id", "id", "ID"),
+            label: pickString(raw, "label", "company_name", "name", "Company Name"),
+            address: pickString(raw, "address", "Address", "map_address", "mapAddress"),
+          }))
+          .filter((option) => option.value > 0 && option.label);
+        const addressByCompanyId = new Map(
+          companies.map((company) => [company.value, company.address]),
+        );
+
+        const projects = extractList(projectResponse.data, ["projects", "deals"]).items
+          .filter(isRecord)
+          .map((raw) => {
+            const companyId = pickNumber(raw, "company_id");
+            const companyName = pickString(raw, "company_name", "hospital_name", "customer_name");
+            return {
+              value: pickNumber(raw, "value", "project_id", "id", "ID"),
+              label: pickString(raw, "label", "projects_name", "project_name", "deal_name"),
+              // Peluang tidak punya alamat sendiri; tampilkan Faskes terkait + alamatnya.
+              address: [
+                companyName,
+                pickString(raw, "address") || addressByCompanyId.get(companyId),
+              ]
+                .filter(Boolean)
+                .join(", "),
+              // Dipakai form Kontak untuk memfilter Peluang sesuai Faskes yang dipilih.
+              companyId: companyId > 0 ? companyId : undefined,
+            };
+          })
+          .filter((option) => option.value > 0 && option.label);
+
+        contactApi.companyLookup = companies;
+        contactApi.projectLookup = projects;
+        if (!contactApi.companies.length) {
+          contactApi.companies = companies.map(({ value, label }) => ({ value: String(value), label }));
+          resolveContactCompanyNames();
+        }
+        return { companies, projects };
+      },
+    });
+  }
+
   /** GET /api/contact/status, lookup status khusus Contact (table_code CT). */
   function fetchContactStatuses() {
     return runApiAction({
@@ -1083,7 +1166,7 @@ export const useContact = defineStore("contact", () => {
       const option = { value: company.id, label: company.name };
       contactState.contactForm.company = {
         ...initSelectField(),
-        selected: option,
+        selectedItems: [option],
         data: String(company.id),
       };
     }
@@ -1160,11 +1243,19 @@ export const useContact = defineStore("contact", () => {
 
     const formData = validation.formData;
     const selectedGender = contactState.contactForm.gender.selected;
-    const selectedProject = contactState.contactForm.project.selected;
+    const selectedCompanies = contactState.contactForm.company.selectedItems ?? [];
+    const selectedProjects = contactState.contactForm.project.selectedItems ?? [];
+    const companyIds = selectedCompanies
+      .map((item) => nullableId(item.value))
+      .filter((id): id is number => id !== null);
+    const projectIds = selectedProjects
+      .map((item) => nullableId(item.value))
+      .filter((id): id is number => id !== null);
     try {
       // Payload mengikuti parameter dbo.sp_contacts_crud secara eksplisit.
       const payload: ContactCrudPayload = {
-        company_id: nullableId(formData.company),
+        // Kolom tunggal di tabel contacts diisi pilihan pertama; seluruh pilihan dikirim via *_ids.
+        company_id: companyIds[0] ?? null,
         first_name: textValue(formData.firstName),
         last_name: textValue(formData.lastName),
         job_title: nullableText(formData.jobTitle),
@@ -1182,8 +1273,10 @@ export const useContact = defineStore("contact", () => {
         pos_code: nullableText(formData.posCode),
         kelurahan: nullableText(formData.kdKelurahan),
         gender: nullableText(selectedGender?.label || formData.gender),
-        project_name: nullableText(selectedProject?.label || formData.project),
-        project_id: nullableId(selectedProject?.value),
+        project_name: nullableText(selectedProjects[0]?.label),
+        project_id: projectIds[0] ?? null,
+        company_ids: companyIds,
+        project_ids: projectIds,
         latitude: nullableNumber(formData.latitude),
         longitude: nullableNumber(formData.longitude),
         source: nullableId(formData.source),
@@ -1388,6 +1481,7 @@ export const useContact = defineStore("contact", () => {
     fetchRemoteContacts,
     fetchRemoteContactById,
     fetchContactCompanies,
+    fetchContactLookups,
     fetchContactStatuses,
     fetchContactSources,
     createRemoteContact,

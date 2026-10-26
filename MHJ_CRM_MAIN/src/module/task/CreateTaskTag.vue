@@ -2,6 +2,7 @@
   <div
     class="modal fade modal-bookmark"
     id="createtag"
+    data-bs-backdrop="static"
     tabindex="-1"
     role="dialog"
     aria-hidden="true"

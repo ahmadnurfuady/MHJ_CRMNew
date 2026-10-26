@@ -2,6 +2,7 @@
   <div
     id="task-type-selector"
     class="modal fade"
+    data-bs-backdrop="static"
     tabindex="-1"
     aria-labelledby="task-type-selector-title"
     aria-hidden="true"

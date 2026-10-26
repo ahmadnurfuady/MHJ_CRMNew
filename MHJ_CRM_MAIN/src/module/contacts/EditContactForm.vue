@@ -238,9 +238,13 @@
           <Select
             v-model="form.company"
             :options="companyOptions"
+            @update:modelValue="pruneProjectsForCompanies"
             display-key="label"
+            subtitle-key="address"
             getValueKey="value"
             placeholder="Cari faskes"
+            :multiSelect="true"
+            :removableTags="true"
             :required="false"
           />
         </InputWrapper>
@@ -249,10 +253,13 @@
         <InputWrapper title="Peluang">
           <Select
             v-model="form.project"
-            :options="projectOptions"
+            :options="filteredProjectOptions"
             display-key="label"
-            getValueKey="label"
+            subtitle-key="address"
+            getValueKey="value"
             placeholder="Cari nama peluang"
+            :multiSelect="true"
+            :removableTags="true"
             :required="false"
           />
         </InputWrapper>
@@ -285,6 +292,7 @@ import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
+import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
 import { useContact, type ContactCrudPayload } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
@@ -320,6 +328,7 @@ const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const {
+  fetchContactLookups,
   fetchContactSources,
   fetchContactStatuses,
   updateRemoteContact,
@@ -336,14 +345,38 @@ const requiredPhoneValidator = (value: string) =>
   indonesianMobilePhoneError(value, true);
 const optionalPhoneValidator = (value: string) =>
   indonesianMobilePhoneError(value);
-// GET /api/company (sama dengan sumber data Rumah Sakit/Perusahaan di form Project & Task).
-const companyOptions = computed(() =>
-  hospitalStore.items.map((hospital) => ({ value: hospital.id, label: hospital.name })),
+// Lookup langsung dari API (GET /api/contact/company & GET /api/contact/project), lihat fetchContactLookups.
+const companyOptions = computed(() => contactApi.value.companyLookup);
+const projectOptions = computed(() => contactApi.value.projectLookup);
+const { filteredProjectOptions, pruneProjectsForCompanies } = useProjectsByCompany(
+  projectOptions,
+  () => form.value.company,
+  () => form.value.project,
+  (field) => (form.value.project = field),
 );
-// GET /api/project (sama dengan daftar di halaman Peluang List).
-const projectOptions = computed(() =>
-  projectStore.items.map((project) => ({ value: project.id, label: project.projectName })),
-);
+// Snapshot ID relasi saat form diisi; *_ids hanya dikirim bila pilihan berubah,
+// supaya relasi yang belum dikirim API tidak terhapus saat simpan.
+let initialCompanyIds = "";
+let initialProjectIds = "";
+
+function selectedIdList(field: { selectedItems?: { value: string | number }[] }): number[] {
+  return (field.selectedItems ?? [])
+    .map((item) => nullableId(item.value))
+    .filter((id): id is number => id !== null);
+}
+
+function idListKey(ids: (string | number)[]): string {
+  return ids.map(String).sort().join(",");
+}
+
+function multiSelectField(options: { value: string | number; label: string }[]) {
+  if (!options.length) return initSelectField();
+  return {
+    ...initSelectField(),
+    selectedItems: options,
+    data: options.map((option) => String(option.value)).join(","),
+  };
+}
 const ownerOptions = computed(() => projectStore.lookups.owner);
 const statusOptions = computed(() => contactApi.value.statuses);
 const sourceOptions = computed(() => contactApi.value.sources);
@@ -575,35 +608,41 @@ function fillForm() {
       }
     : initSelectField();
 
-  const company = companyOptions.value.find(
-    (option) => String(option.value) === String(contact.companyId),
+  // Daftar relasi dari contact_company / contact_project; fallback ke kolom tunggal lama.
+  const companyIds = contact.companyIds ?? (contact.companyId ? [contact.companyId] : []);
+  // ID yang belum ada di daftar opsi (mis. halaman Faskes belum dimuat) tetap dipertahankan.
+  const companies = companyIds.map(
+    (id, index) =>
+      companyOptions.value.find((option) => String(option.value) === String(id)) ?? {
+        value: Number(id),
+        label:
+          contact.companyNames?.[index] ||
+          (String(id) === String(contact.companyId) && contact.company) ||
+          `Faskes #${id}`,
+        address: "",
+      },
   );
-  if (company) {
-    form.value.company = {
-      selected: company,
-      data: String(company.value),
-      selectedItems: [],
-      errorMessage: "",
-      type: "dropdown",
-    };
-  }
+  form.value.company = multiSelectField(companies);
+  initialCompanyIds = idListKey(companies.map((option) => option.value));
 
   const projectName = String(contact.project || "").trim().toLowerCase();
-  const project = projectOptions.value.find(
-    (option) => String(option.value) === String(contact.projectId),
-  ) ?? (projectName
-    ? projectOptions.value.find((option) => option.label.trim().toLowerCase() === projectName) ??
-      projectOptions.value.find((option) => projectName.includes(option.label.trim().toLowerCase()))
-    : undefined);
-  form.value.project = project
-    ? {
-        selected: project,
-        data: project.label,
-        selectedItems: [],
-        errorMessage: "",
-        type: "dropdown",
-      }
-    : initSelectField();
+  const projectIds = contact.projectIds ?? (contact.projectId ? [contact.projectId] : []);
+  let projects = projectIds.map(
+    (id) =>
+      projectOptions.value.find((option) => String(option.value) === String(id)) ?? {
+        value: Number(id),
+        label: (String(id) === String(contact.projectId) && contact.project) || `Peluang #${id}`,
+        address: "",
+      },
+  );
+  if (!projects.length && projectName) {
+    const byName =
+      projectOptions.value.find((option) => option.label.trim().toLowerCase() === projectName) ??
+      projectOptions.value.find((option) => projectName.includes(option.label.trim().toLowerCase()));
+    if (byName) projects = [byName];
+  }
+  form.value.project = multiSelectField(projects);
+  initialProjectIds = idListKey(projects.map((option) => option.value));
 
   const provinceLabel = String(contact.province || companyLocation?.province || "").trim();
   const provinceOption = provinceLabel
@@ -674,10 +713,13 @@ async function save() {
     .map((phone) => normalizeIndonesianMobilePhone(phone.data))
     .filter(Boolean);
   const selectedGender = form.value.gender.selected;
-  const selectedProject = form.value.project.selected;
+  const companyIds = selectedIdList(form.value.company);
+  const projectIds = selectedIdList(form.value.project);
+  const firstProject = form.value.project.selectedItems?.[0];
 
   const payload: ContactCrudPayload = {
-    company_id: nullableId(form.value.company.data || contact.companyId),
+    // Kolom tunggal di tabel contacts diisi pilihan pertama; seluruh pilihan dikirim via *_ids.
+    company_id: companyIds[0] ?? null,
     first_name: form.value.firstName.data.trim(),
     last_name: form.value.lastName.data.trim(),
     job_title: nullableText(form.value.jobTitle.data),
@@ -692,13 +734,15 @@ async function save() {
     pos_code: nullableText(form.value.posCode.data),
     kelurahan: nullableText(form.value.kdKelurahan.data),
     gender: nullableText(selectedGender?.label || form.value.gender.data),
-    project_name: nullableText(selectedProject?.label || form.value.project.data),
-    project_id: nullableId(selectedProject?.value || contact.projectId),
+    project_name: nullableText(firstProject?.label ?? ""),
+    project_id: projectIds[0] ?? null,
     latitude: nullableNumber(form.value.latitude.data),
     longitude: nullableNumber(form.value.longitude.data),
     source: nullableId(form.value.source.data || contact.sourceId),
     created_by: nullableId(form.value.owner.data) ?? contact.createdById ?? null,
   };
+  if (idListKey(companyIds) !== initialCompanyIds) payload.company_ids = companyIds;
+  if (idListKey(projectIds) !== initialProjectIds) payload.project_ids = projectIds;
 
   saveError.value = "";
   try {
@@ -760,7 +804,7 @@ onMounted(async () => {
   if (!contactApi.value.sources.length) requests.push(fetchContactSources());
   if (!contactApi.value.statuses.length) requests.push(fetchContactStatuses());
   if (!projectStore.lookups.owner.length) requests.push(projectStore.fetchProjectLookups());
-  if (!projectStore.loaded) requests.push(projectStore.fetchProjects());
+  requests.push(fetchContactLookups());
   requests.push(loadRegions());
   await Promise.allSettled(requests);
   fillForm();
