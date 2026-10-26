@@ -5,7 +5,7 @@
         class="btn btn-primary md-sidebar-toggle"
         href="#"
         @click.prevent="collapseFilter()"
-        >task filter</a
+      >filter tugas</a
       >
       <div class="md-sidebar-aside job-left-aside custom-scrollbar" :class="filtered ? 'open' : ''">
         <div class="email-left-aside">
@@ -29,7 +29,7 @@
                       data-bs-toggle="modal"
                       data-bs-target="#task-type-selector"
                     >
-                      <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />Buat Task
+            <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />Buat Tugas
                     </button>
                   </li>
                   <li class="nav-item">

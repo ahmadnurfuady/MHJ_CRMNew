@@ -20,13 +20,13 @@
         <vue-feather type="calendar" size="22" />
       </span>
       <strong>{{
-        totalTaskCount ? "Task tidak ditemukan" : "Belum ada task"
+            totalTaskCount ? "Tugas tidak ditemukan" : "Belum ada tugas"
       }}</strong>
       <span>
         {{
           totalTaskCount
-            ? "Tidak ada task yang cocok dengan filter saat ini."
-            : "Task yang memiliki tanggal akan tampil di Calendar."
+              ? "Tidak ada tugas yang cocok dengan filter saat ini."
+              : "Tugas yang memiliki tanggal akan tampil di Calendar."
         }}
       </span>
     </div>
@@ -38,20 +38,20 @@
       <span class="task-calendar-state__icon">
         <vue-feather type="calendar" size="22" />
       </span>
-      <strong>Belum ada task bertanggal</strong>
-      <span>Semua task saat ini belum memiliki jadwal atau deadline.</span>
+        <strong>Belum ada tugas bertanggal</strong>
+        <span>Semua tugas saat ini belum memiliki jadwal atau deadline.</span>
     </div>
 
     <template v-else>
       <div v-if="undatedTaskCount" class="task-calendar-notice" role="status">
         <vue-feather type="info" size="16" />
         <span
-          >{{ undatedTaskCount }} task tidak ditampilkan karena belum memiliki
+        >{{ undatedTaskCount }} tugas tidak ditampilkan karena belum memiliki
           tanggal.</span
         >
       </div>
 
-      <section class="calendar-card" aria-label="Kalender task">
+      <section class="calendar-card" aria-label="Kalender tugas">
         <header class="calendar-toolbar">
           <div class="calendar-toolbar__navigation">
             <button
@@ -73,7 +73,7 @@
           </div>
 
           <div class="calendar-toolbar__title">
-            <span>Kalender Task</span>
+              <span>Kalender Tugas</span>
             <strong>{{ monthLabel }}</strong>
           </div>
 
@@ -128,7 +128,7 @@
                     v-if="calendarCell(data).tasks.length"
                     class="calendar-day__count"
                   >
-                    {{ calendarCell(data).tasks.length }} task
+                  {{ calendarCell(data).tasks.length }} tugas
                   </span>
                 </header>
 
@@ -136,7 +136,7 @@
                   v-if="calendarCell(data).tasks.length"
                   class="calendar-day__tasks"
                   tabindex="0"
-                  aria-label="Daftar task pada tanggal ini"
+                  aria-label="Daftar tugas pada tanggal ini"
                   @wheel="handleTaskListWheel"
                 >
                   <button
@@ -176,7 +176,7 @@
                 <time :datetime="day.key">{{
                   formatAgendaDate(day.date)
                 }}</time>
-                <span>{{ day.tasks.length }} task</span>
+                <span>{{ day.tasks.length }} tugas</span>
               </header>
 
               <button
@@ -203,7 +203,7 @@
 
           <div v-else class="calendar-month-empty">
             <vue-feather type="calendar" size="20" />
-            <span>Tidak ada task pada bulan ini.</span>
+              <span>Tidak ada tugas pada bulan ini.</span>
           </div>
         </div>
       </section>

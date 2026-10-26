@@ -21,7 +21,7 @@
           high-tech in-ear devices that do more than transmit audio. These headphones are usually
           wireless, and they can sync up with your phone, tablet, computer or other
           Bluetooth-enabled device. The main appeal of hearables is convenience, as they allow you
-          to complete common tasks without directly accessing your phone or computer. Smart wireless
+          untuk menyelesaikan tugas umum tanpa langsung mengakses ponsel atau komputer. Perangkat nirkabel pintar
           headphones sync up to other devices using Bluetooth technology, and many of their features
           rely on data from your smartphone or computer.
         </p>

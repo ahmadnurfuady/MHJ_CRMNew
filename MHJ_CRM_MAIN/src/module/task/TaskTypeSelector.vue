@@ -11,8 +11,8 @@
       <div class="modal-content task-type-modal">
         <div class="modal-header border-0">
           <div>
-            <span class="badge badge-light-primary mb-2">Buat Task Baru</span>
-            <h4 id="task-type-selector-title" class="modal-title">Pilih jenis task</h4>
+            <span class="badge badge-light-primary mb-2">Buat Tugas Baru</span>
+            <h4 id="task-type-selector-title" class="modal-title">Pilih jenis tugas</h4>
             <p class="mb-0 text-muted">Pilih form sesuai tim yang akan menjalankan aktivitas.</p>
           </div>
           <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Tutup"></button>
@@ -23,7 +23,7 @@
             <button class="task-type-card" type="button" @click="openTaskForm('sales')">
               <span class="task-type-icon"><vue-feather type="trending-up"></vue-feather></span>
               <span class="task-type-copy">
-                <strong>Task Sales</strong>
+                <strong>Tugas Sales</strong>
                 <small>Aktivitas penjualan, kunjungan, dan pembaruan pipeline peluang.</small>
               </span>
               <vue-feather class="task-type-arrow" type="arrow-right" size="20"></vue-feather>
@@ -32,7 +32,7 @@
             <button class="task-type-card task-type-card--specialist" type="button" @click="openTaskForm('app-specialist')">
               <span class="task-type-icon"><vue-feather type="tool"></vue-feather></span>
               <span class="task-type-copy">
-                <strong>Task Application Specialist</strong>
+                <strong>Tugas Application Specialist</strong>
                 <small>Pendampingan aplikasi, produk, dan perangkat di lapangan.</small>
               </span>
               <vue-feather class="task-type-arrow" type="arrow-right" size="20"></vue-feather>

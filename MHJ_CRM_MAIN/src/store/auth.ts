@@ -4,6 +4,7 @@ import { useMenu } from '@/store/menu'
 import { stopPermissionWatcher } from '@/services/permissionWatcher'
 import { useNotificationStore } from '@/store/notification'
 import { isAxiosError } from 'axios'
+import { getUserErrorMessage } from '@/utils/errorParser'
 
 // ── Tipe data sesuai kontrak API backend ──────────────────────────────────────
 export interface AuthUser {
@@ -112,14 +113,7 @@ function extractErrorMessage(err: unknown, fallback: string): string {
   if (response.status === 404) {
     return 'Fitur lupa password belum tersedia di server. Silakan hubungi administrator.'
   }
-  // Hanya pesan dari controller kita (success: false) yang ditampilkan; pesan bawaan
-  // Laravel seperti "Server Error" atau "The route ... could not be found" tidak ramah pengguna.
-  if (response.data?.success === false) {
-    const message = response.data.message
-    if (Array.isArray(message)) return message.join(', ')
-    if (typeof message === 'string' && message) return message
-  }
-  return fallback
+  return getUserErrorMessage(err, fallback)
 }
 
 function safeParse<T>(key: string, fallback: T): T {
@@ -205,20 +199,10 @@ export const useAuthStore = defineStore('auth', {
           message: 'Login berhasil diterima server, tetapi token akses tidak ditemukan pada respons.',
         }
       } catch (err: unknown) {
-        let errorMsg = 'Login gagal. Periksa koneksi ke server.'
-        const resData = isAxiosError<AuthResponseData>(err) ? err.response?.data : undefined
-
-        if (resData?.message) {
-          errorMsg = Array.isArray(resData.message)
-            ? resData.message.join(', ')
-            : resData.message
-        } else if (resData?.msg) {
-          errorMsg = Array.isArray(resData.msg)
-            ? resData.msg.join(', ')
-            : resData.msg
-        } else if (resData?.error) {
-          errorMsg = resData.error
-        }
+        const status = isAxiosError(err) ? err.response?.status : undefined
+        const errorMsg = status === 401
+          ? 'Email/username atau kata sandi salah. Silakan periksa kembali.'
+          : getUserErrorMessage(err, 'Login gagal. Periksa koneksi Anda lalu coba lagi.')
 
         this.error = errorMsg
         return { success: false, message: errorMsg }

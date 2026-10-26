@@ -87,7 +87,7 @@ export const list: List[] = [
       {
         title: ' Web Designer ',
         description:
-          "By following instructions and adding your own unique twist and style, you may apply your imagination as a web designer. The majority of the tasks you'll be assigned will have a specific due date and work description, but the reason you were employed was because they need a specialist to inject some much-needed creativity.",
+          "Dengan mengikuti petunjuk dan menambahkan gaya unik, Anda dapat menggunakan kreativitas sebagai desainer web. Sebagian besar tugas memiliki tenggat dan deskripsi kerja yang jelas, tetapi kreativitas Anda tetap dibutuhkan untuk menghasilkan solusi terbaik.",
       },
     ],
   },

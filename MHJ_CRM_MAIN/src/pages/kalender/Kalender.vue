@@ -7,7 +7,7 @@
             <div class="kalender-title-group">
               <h5 class="mb-1">Kalender</h5>
               <p class="kalender-subtitle mb-0">
-                Gabungan jadwal task dan peluang. Klik item untuk membuka detailnya.
+        Gabungan jadwal tugas dan peluang. Klik item untuk membuka detailnya.
               </p>
             </div>
           </div>
@@ -198,13 +198,13 @@ async function loadData() {
   // Hanya tampilkan error kalau DUA-DUANYA gagal total. Kalau cuma salah satu,
   // tampilkan data yang berhasil + toast peringatan ringan.
   if (!taskOk && !projectOk) {
-    loadError.value = 'Gagal memuat data task dan peluang.'
+    loadError.value = 'Gagal memuat data tugas dan peluang.'
     Swal.fire({ icon: 'error', text: loadError.value })
     return
   }
 
   const failed: string[] = []
-  if (!taskOk) failed.push('task')
+  if (!taskOk) failed.push('tugas')
   if (!projectOk) failed.push('peluang')
   if (failed.length === 1) {
     Swal.fire({
@@ -248,7 +248,7 @@ const exportColumns: Array<{
   label: string
   value: (entry: CalendarEntry) => string | number
 }> = [
-  { label: 'Jenis', value: (e) => (e.kind === 'task' ? 'Task' : 'Peluang') },
+  { label: 'Jenis', value: (e) => (e.kind === 'task' ? 'Tugas' : 'Peluang') },
   { label: 'ID', value: (e) => e.rawTask?.id ?? e.rawProject?.id ?? '' },
   { label: 'Judul', value: (e) => e.title },
   { label: 'Status / Tahap', value: (e) => e.statusLabel },

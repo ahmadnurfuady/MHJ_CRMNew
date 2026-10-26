@@ -2,7 +2,7 @@ import type { TaskDetails } from '@/types/tasks'
 import type { Projects } from '@/types/project'
 
 /**
- * Entry generik untuk tampilan kalender yang menggabungkan Task dan Peluang.
+ * Entry generik untuk tampilan kalender yang menggabungkan Tugas dan Peluang.
  * `kind` membedakan sumber data agar UI bisa memakai warna/ikon berbeda.
  */
 export interface CalendarEntry {
@@ -64,7 +64,7 @@ export function mapTaskToCalendarEntry(task: TaskDetails): CalendarEntry | null 
   return {
     id: `task-${task.id}`,
     kind: 'task',
-    title: normalizeText(task.title, 'Task tanpa judul'),
+    title: normalizeText(task.title, 'Tugas tanpa judul'),
     subtitle: normalizeText(task.hospital, 'Tanpa faskes'),
     statusLabel: status,
     statusKey: toResourceKey(status),

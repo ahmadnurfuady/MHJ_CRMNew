@@ -115,7 +115,7 @@ export const projectDetails: ProjectDetails = {
               total: {
                 show: true,
                 fontSize: '11px',
-                fontFamily: 'Rubik, sans-serif',
+                fontFamily: 'var(--app-font-family)',
                 fontWeight: 500,
                 label: '80%',
                 formatter: () => 'Completed',
@@ -172,7 +172,7 @@ export const projectDetails: ProjectDetails = {
       {
         id: 3,
         title: 'Track & keep an eye on progress',
-        description: 'Development task',
+        description: 'Tugas pengembangan',
       },
       {
         id: 4,
@@ -271,8 +271,8 @@ export const projectDetails: ProjectDetails = {
       },
     ],
     taskOverviewChart: {
-      title: 'Task Overview',
-      sortDescription: 'All 209 Task Completed',
+      title: 'Ringkasan Tugas',
+      sortDescription: 'Seluruh 209 tugas selesai',
       series: [
         {
           name: 'Incomplete',
@@ -325,7 +325,7 @@ export const projectDetails: ProjectDetails = {
             style: {
               colors: 'var(--chart-text-color)',
               fontSize: '12px',
-              fontFamily: 'Rubik, sans-serif',
+              fontFamily: 'var(--app-font-family)',
               fontWeight: 400,
             },
           },
@@ -358,7 +358,7 @@ export const projectDetails: ProjectDetails = {
             style: {
               colors: 'rgba(82, 82, 108, 0.8)',
               fontSize: '12px',
-              fontFamily: 'Rubik, sans-serif',
+              fontFamily: 'var(--app-font-family)',
               fontWeight: 400,
             },
           },
@@ -1313,14 +1313,14 @@ export const projectDetails: ProjectDetails = {
             dataLabels: {
               name: {
                 fontSize: '12px',
-                fontFamily: 'Rubik, sans-serif',
+                fontFamily: 'var(--app-font-family)',
                 fontWeight: 500,
                 color: 'var(--chart-text-color)',
                 offsetY: 18,
               },
               value: {
                 fontSize: '18px',
-                fontFamily: 'Rubik, sans-serif',
+                fontFamily: 'var(--app-font-family)',
                 fontWeight: 600,
                 color: '#2F2F3B',
                 offsetY: -18,
@@ -1342,7 +1342,7 @@ export const projectDetails: ProjectDetails = {
           horizontalAlign: 'center',
           offsetY: 0,
           fontSize: '14px',
-          fontFamily: 'Rubik, sans-serif',
+          fontFamily: 'var(--app-font-family)',
           fontWeight: 500,
           labels: {
             colors: 'var(--chart-text-color)',
@@ -1612,7 +1612,7 @@ export const projectDetails: ProjectDetails = {
       ],
     },
     {
-      title: `Task has emerged in the 'Miami' template, awaiting your action.`,
+      title: `Tugas baru muncul pada template 'Miami' dan menunggu tindakan Anda.`,
       time: 'At 8:05 PM',
       addedBy: {
         name: 'Jacob Jones',
@@ -1736,7 +1736,7 @@ export const projectCostPerformance: ProjectCostPerformance = {
             total: {
               show: true,
               fontSize: '14px',
-              fontFamily: 'Rubik, sans-serif',
+              fontFamily: 'var(--app-font-family)',
               fontWeight: 500,
               label: 'Actual Cost',
               color: '#363636',

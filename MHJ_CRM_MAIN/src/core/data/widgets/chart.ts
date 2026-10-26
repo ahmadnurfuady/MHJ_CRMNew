@@ -265,7 +265,7 @@ export const widgetsChart4: ApexOptions = {
       text: 'Dollars in thounand',
       style: {
         fontSize: '14px',
-        fontFamily: 'poppins, sans-serif',
+        fontFamily: 'var(--app-font-family)',
         fontWeight: 500,
       },
     },
@@ -340,7 +340,7 @@ export const widgetsChart5: ApexOptions = {
   legend: {
     show: true,
     fontSize: '16px',
-    fontFamily: 'Roboto, sans-serif',
+    fontFamily: 'var(--app-font-family)',
     fontWeight: 500,
     labels: {
       colors: '#2C323F',
@@ -403,7 +403,7 @@ function commonOrderStatusProgress(data: OrderStatusChartOption): OrderStatusCha
       text: data.categories,
       style: {
         fontSize: '18px',
-        fontFamily: 'Roboto, sans-serif',
+        fontFamily: 'var(--app-font-family)',
         fontWeight: 500,
       },
     },
@@ -821,7 +821,7 @@ export const widgetsChart14: ApexOptions = {
     align: 'left',
     style: {
       fontSize: '18px',
-      fontFamily: 'Rubik, sans-serif',
+      fontFamily: 'var(--app-font-family)',
       fontWeight: 500,
     },
   },

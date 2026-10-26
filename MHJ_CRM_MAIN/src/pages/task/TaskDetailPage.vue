@@ -10,7 +10,7 @@
         />
       </router-link>
       <div>
-        <p>Tasks</p>
+        <p>Tugas</p>
         <h3>Detail Tugas</h3>
       </div>
       <button
@@ -21,7 +21,7 @@
         :data-bs-target="editModalTarget"
       >
         <vue-feather type="edit-2" size="17" />
-        <span>Edit Task</span>
+        <span>Edit Tugas</span>
       </button>
     </div>
 
@@ -57,6 +57,7 @@ import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { routes } from '@/router/routes'
 import { useTask } from '@/store/task'
+import { getApiErrorMessage } from '@/api/response'
 import type { TaskDetails } from '@/types/tasks'
 import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
 import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
@@ -105,8 +106,7 @@ async function loadTask() {
   } catch (error) {
     if (!listTask) {
       task.value = null
-      loadError.value =
-        error instanceof Error ? error.message : taskStore.error || 'Gagal memuat detail tugas.'
+      loadError.value = taskStore.error || getApiErrorMessage(error, 'Gagal memuat detail tugas.')
     }
   } finally {
     loading.value = false

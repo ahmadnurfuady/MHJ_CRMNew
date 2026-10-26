@@ -32,7 +32,7 @@ import Loading from 'vue3-loading-overlay'
 import vueChartist from 'vue-chartist'
 import { GChart } from 'vue-google-charts'
 import Lightbox from 'vue-easy-lightbox'
-import { getStoredAppearance } from '@/config/appearance'
+import { getFontOption, getStoredAppearance } from '@/config/appearance'
 
 import English from '@/core/locales/en.json'
 import Indonesia from '@/core/locales/id.json'
@@ -86,9 +86,14 @@ const i18n = createI18n({
 })
 
 document.documentElement.lang = initialLocale === 'Indonesia' ? 'id' : 'en'
+const storedAppearance = getStoredAppearance()
+document.documentElement.style.setProperty(
+  '--app-font-family',
+  getFontOption(storedAppearance.fontFamily).cssFamily
+)
 document.documentElement.style.setProperty(
   '--app-font-size-offset',
-  `${getStoredAppearance().fontSizeOffset}px`
+  `${storedAppearance.fontSizeOffset}px`
 )
 
 const app = createApp(App)

@@ -52,7 +52,7 @@ export function normalizeCalendarTask(task: TaskDetails): CalendarTask {
 
   return {
     id: String(task.id),
-    title: normalizeText(task.title, 'Task tanpa judul'),
+    title: normalizeText(task.title, 'Tugas tanpa judul'),
     scheduledAt: normalizeText(task.scheduledAt) || null,
     dueDate: normalizeText(task.dueDate || task.scheduledAt) || null,
     status,

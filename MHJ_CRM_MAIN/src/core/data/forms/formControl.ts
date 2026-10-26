@@ -854,7 +854,7 @@ export const simpleRadio: SimpleRadio[] = [
     id: 'radioinline1',
   },
   {
-    label: 'Tasks',
+    label: 'Tugas',
     checked: false,
     id: 'radioinline2',
   },

@@ -56,6 +56,7 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
 import { confirmEditExit } from "@/utils/confirmEditExit";
+import { getApiErrorMessage } from "@/api/response";
 
 const GeneralDetails = defineAsyncComponent(
   () => import("@/module/contacts/GeneralDetails.vue"),
@@ -191,7 +192,7 @@ async function loadContact() {
     await scrollToRequestedSection();
   } catch (error) {
     loadError.value =
-      error instanceof Error ? error.message : contactApi.value.error || "Gagal memuat detail kontak.";
+      contactApi.value.error || getApiErrorMessage(error, "Gagal memuat detail kontak.");
   }
 }
 

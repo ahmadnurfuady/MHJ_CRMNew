@@ -86,7 +86,7 @@ export const iconAccordion = [
                               <li>3) Consistent name scheme.</li>
                               <li>4) Don't repeat code.</li>
                               <li>5) Avoid writing long code lines.</li>
-                              <li>6) Break down a big task into smaller chunks.</li>
+                              <li>6) Pecah tugas besar menjadi beberapa bagian kecil.</li>
                               <li>7) Organize your program into smaller files.</li>
                               <li>8) Write clever code that is also readable.</li>
                         </ul>`,

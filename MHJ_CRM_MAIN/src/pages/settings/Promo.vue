@@ -391,13 +391,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import axios from 'axios'
 import Swal from 'sweetalert2'
 
 import Modal from '@/components/shared/Modal.vue'
 import { masterDataService } from '@/services/masterDataService'
 import { promoService, type PromoPayload } from '@/services/promoService'
 import type { MasterCabangItem } from '@/types/master'
+import { parseBackendError } from '@/utils/errorParser'
 
 interface PromoItem {
   id: number
@@ -452,41 +452,13 @@ function toNumberOrNull(value: unknown): number | null {
   return Number.isFinite(number) ? number : null
 }
 
-const MAX_ERROR_DETAIL_LENGTH = 600
-
-/** Ambil pesan error asli dari response backend (Laravel), jatuh balik ke teks umum jika tidak ada. */
-function extractErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as Record<string, unknown> | undefined
-    const raw = data?.message ?? data?.error ?? data?.msg
-    if (raw) {
-      const text = Array.isArray(raw) ? raw.join(', ') : String(raw)
-      if (text.trim()) {
-        return text.length > MAX_ERROR_DETAIL_LENGTH
-          ? `${text.slice(0, MAX_ERROR_DETAIL_LENGTH)}...`
-          : text
-      }
-    }
-  }
-  return fallback
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-/** Tampilkan popup error dengan detail pesan asli dari server (jika ada) dalam blok monospace. */
+/** Tampilkan pesan yang sudah diterjemahkan tanpa membocorkan detail server. */
 function showErrorDetail(title: string, error: unknown, fallback: string) {
-  const detail = extractErrorMessage(error, fallback)
+  const parsed = parseBackendError(error, title)
   return Swal.fire({
     icon: 'error',
-    title,
-    html: `<pre class="promo-error-detail">${escapeHtml(detail)}</pre>`,
+    title: parsed.title === 'Permintaan Gagal' ? title : parsed.title,
+    text: parsed.message || fallback,
     confirmButtonColor: 'var(--theme-default)',
   })
 }
@@ -869,23 +841,6 @@ onMounted(() => {
   --promo-ink: #1f2a37;
   --promo-muted: #758195;
   padding-bottom: 28px;
-}
-
-:global(.promo-error-detail) {
-  max-height: 260px;
-  margin: 0;
-  overflow-y: auto;
-  padding: 12px 14px;
-  border: 1px solid #f1b4ba;
-  border-radius: 8px;
-  color: #7a1f27;
-  background: #fdf1f2;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: left;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 
 .promo-overview {

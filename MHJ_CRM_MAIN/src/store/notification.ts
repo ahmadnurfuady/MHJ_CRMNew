@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { MessagePayload } from 'firebase/messaging'
 import { api } from '@/services/api'
+import { getUserErrorMessage } from '@/utils/errorParser'
 import {
   isFirebaseMessagingConfigured,
   isFirebaseMessagingSupported,
@@ -161,7 +162,7 @@ export const useNotificationStore = defineStore('pushNotification', {
         await this.registerToken(token)
       } catch (error) {
         this.pushStatus = Notification.permission === 'denied' ? 'denied' : 'error'
-        this.pushError = error instanceof Error ? error.message : 'Gagal mengaktifkan push notification.'
+        this.pushError = getUserErrorMessage(error, 'Gagal mengaktifkan notifikasi.')
       }
     },
 
@@ -210,7 +211,7 @@ export const useNotificationStore = defineStore('pushNotification', {
         else this.pushStatus = 'error'
       } catch (error) {
         this.pushStatus = 'error'
-        this.pushError = error instanceof Error ? error.message : 'Gagal memulihkan koneksi FCM.'
+        this.pushError = getUserErrorMessage(error, 'Gagal memulihkan koneksi notifikasi.')
       }
     },
 

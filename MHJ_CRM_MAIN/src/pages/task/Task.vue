@@ -38,7 +38,7 @@ const detailId = computed(() => {
 watch(detailId, (id) => {
   if (id) return
   taskStore.fetchTasks().catch(() => {
-    Swal.fire({ icon: 'error', text: taskStore.error ?? 'Gagal memuat data task.' })
+    Swal.fire({ icon: 'error', text: taskStore.error ?? 'Gagal memuat data tugas.' })
   })
 }, { immediate: true })
 </script>

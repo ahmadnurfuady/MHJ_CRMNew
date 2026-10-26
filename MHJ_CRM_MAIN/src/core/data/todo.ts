@@ -5,7 +5,7 @@ export const todoSidebar: TodoSidebarItem[] = [
     id: 1,
     badgeClass: 'badge-light-primary',
     icon: 'file-plus',
-    title: 'All Task',
+    title: 'Semua Tugas',
   },
   {
     id: 2,

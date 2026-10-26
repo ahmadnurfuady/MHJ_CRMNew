@@ -67,7 +67,7 @@
         <li>
           <hr class="dropdown-divider" />
         </li>
-        <li><a class="dropdown-item" href="#">Tasks</a></li>
+        <li><a class="dropdown-item" href="#">Tugas</a></li>
       </ul>
       <InputField :inputId="'text-field3'" :isPlaceholder="false" :required="false" />
       <button

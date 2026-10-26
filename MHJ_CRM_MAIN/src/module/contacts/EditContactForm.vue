@@ -89,12 +89,13 @@
             </div>
             <button
               v-if="form.phoneNumbers.length > 1"
-              class="btn btn-outline-danger px-3"
+              class="btn btn-outline-danger mhj-phone-remove-button"
               type="button"
               title="Hapus nomor"
+              aria-label="Hapus nomor telepon"
               @click="removePhone(index)"
             >
-              <vue-feather type="trash-2" size="16" />
+              <span class="mhj-phone-remove-symbol" aria-hidden="true">−</span>
             </button>
           </div>
           <small class="d-block text-muted mb-3">
@@ -185,6 +186,7 @@
             display-key="label"
             getValueKey="label"
             placeholder="Cari provinsi"
+            :disabled="regionFieldsLocked"
             :required="false"
           />
         </InputWrapper>
@@ -197,7 +199,7 @@
             display-key="label"
             getValueKey="label"
             :placeholder="form.province.data ? 'Cari kota' : 'Pilih provinsi dahulu'"
-            :disabled="!form.province.data"
+            :disabled="regionFieldsLocked || !form.province.data"
             :required="false"
           />
         </InputWrapper>
@@ -288,14 +290,17 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import Swal from "sweetalert2";
 
 import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
-import { useContact, type ContactCrudPayload } from "@/store/contact";
+import {
+  INDONESIA_COUNTRY,
+  useContact,
+  type ContactCrudPayload,
+} from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { useProjectStore } from "@/store/project";
 import {
@@ -309,6 +314,7 @@ import {
   getCurrentPosition,
   reverseGeocodeLocation,
 } from "@/services/geocoding";
+import { showSaveSuccess } from "@/utils/feedback";
 
 const emit = defineEmits<{
   cancel: [];
@@ -337,11 +343,22 @@ const {
   updateRemoteContact,
 } = contactStore;
 
-const { provinceOptions, cityOptionsByProvince, loadRegions } = useCompanyRegions();
+const { provinceOptions, cityOptionsByProvince, loadRegions, resolveRegionSelection } =
+  useCompanyRegions();
 
 const formSubmitted = ref(false);
 const saveError = ref("");
 const form = ref(createForm());
+const regionFieldsLocked = computed(() => {
+  const latitude = form.value.latitude.data.trim();
+  const longitude = form.value.longitude.data.trim();
+  return (
+    latitude !== "" &&
+    longitude !== "" &&
+    Number.isFinite(Number(latitude)) &&
+    Number.isFinite(Number(longitude))
+  );
+});
 const locatingAddress = ref(false);
 const locationError = ref("");
 const requiredPhoneValidator = (value: string) =>
@@ -460,10 +477,9 @@ function normalizeRegionName(value: string) {
 }
 
 function setLocationRegions(provinceName: string, cityName: string) {
-  const province = provinceOptions.value.find(
-    (option) => normalizeRegionName(option.label) === normalizeRegionName(provinceName),
-  ) ?? (provinceName ? { value: provinceName, label: provinceName } : undefined);
+  const { province, city } = resolveRegionSelection(provinceName, cityName);
 
+  suppressProvinceCityReset = form.value.province.data !== (province?.label ?? "");
   form.value.province = province
     ? {
         selected: province,
@@ -473,11 +489,6 @@ function setLocationRegions(provinceName: string, cityName: string) {
         type: "dropdown",
       }
     : initSelectField();
-
-  const cityPool = province ? cityOptionsByProvince.value[province.label] || [] : [];
-  const city = cityPool.find(
-    (option) => normalizeRegionName(option.label) === normalizeRegionName(cityName),
-  ) ?? (cityName ? { value: cityName, label: cityName } : undefined);
 
   form.value.city = city
     ? {
@@ -504,7 +515,7 @@ async function captureCurrentAddress() {
     form.value.address.data = location.address;
     form.value.latitude.data = String(position.coords.latitude);
     form.value.longitude.data = String(position.coords.longitude);
-    form.value.country.data = location.country;
+    form.value.country.data = INDONESIA_COUNTRY;
     form.value.posCode.data = location.posCode;
     form.value.kdKelurahan.data = "";
     setLocationRegions(location.province, location.city);
@@ -526,8 +537,9 @@ function clearCurrentAddress() {
   locationError.value = "";
 }
 
-// Mencegah watch provinsi mereset kota saat fillForm() sedang mengisi data awal.
+// Mencegah watch provinsi mereset kota saat data awal atau hasil Maps sedang diterapkan.
 let isFilling = false;
+let suppressProvinceCityReset = false;
 
 function fillForm() {
   const contact = contactState.value.activeContact;
@@ -655,37 +667,8 @@ function fillForm() {
   initialProjectIds = idListKey(projects.map((option) => option.value));
 
   const provinceLabel = String(contact.province || companyLocation?.province || "").trim();
-  const provinceOption = provinceLabel
-    ? provinceOptions.value.find(
-        (option) => normalizeRegionName(option.label) === normalizeRegionName(provinceLabel),
-      )
-    : undefined;
-  form.value.province = provinceOption
-    ? {
-        selected: provinceOption,
-        data: provinceOption.label,
-        selectedItems: [],
-        errorMessage: "",
-        type: "dropdown",
-      }
-    : initSelectField();
-
   const cityLabel = String(contact.city || companyLocation?.city || "").trim();
-  const cityPool = provinceOption ? cityOptionsByProvince.value[provinceOption.label] || [] : [];
-  const cityOption = cityLabel
-    ? cityPool.find(
-        (option) => normalizeRegionName(option.label) === normalizeRegionName(cityLabel),
-      )
-    : undefined;
-  form.value.city = cityOption
-    ? {
-        selected: cityOption,
-        data: cityOption.label,
-        selectedItems: [],
-        errorMessage: "",
-        type: "dropdown",
-      }
-    : initSelectField();
+  setLocationRegions(provinceLabel, cityLabel);
 
   isFilling = false;
 }
@@ -738,7 +721,7 @@ async function save() {
     telephone_1: normalizedPhoneNumbers[0] ?? "",
     telephone_2: nullableText(normalizedPhoneNumbers.slice(1).join(", ")),
     address: nullableText(form.value.address.data),
-    country: nullableText(form.value.country.data),
+    country: INDONESIA_COUNTRY,
     province: nullableText(form.value.province.data),
     city: nullableText(form.value.city.data),
     pos_code: nullableText(form.value.posCode.data),
@@ -757,14 +740,7 @@ async function save() {
   saveError.value = "";
   try {
     await updateRemoteContact(contact.remoteId, payload);
-    Swal.fire({
-      icon: "success",
-      title: "Kontak berhasil diperbarui",
-      text: "Perubahan data kontak sudah tersimpan.",
-      confirmButtonColor: "var(--theme-default)",
-      timer: 2000,
-      showConfirmButton: false,
-    });
+    await showSaveSuccess({ entity: "Kontak", action: "updated" });
     emit("saved");
   } catch {
     saveError.value = contactApi.value.error || "Gagal memperbarui kontak.";
@@ -796,6 +772,10 @@ watch(
   () => form.value.province.data,
   (province, previousProvince) => {
     if (isFilling) return;
+    if (suppressProvinceCityReset) {
+      suppressProvinceCityReset = false;
+      return;
+    }
     if (previousProvince && province !== previousProvince) form.value.city = initSelectField();
   },
 );

@@ -1,4 +1,5 @@
 import type { Pagination } from '@/types/api'
+import { getUserErrorMessage } from '@/utils/errorParser'
 
 export type Dict = Record<string, unknown>
 
@@ -151,15 +152,5 @@ export function getApiErrorMessage(
   error: unknown,
   fallback = 'Permintaan gagal. Silakan coba lagi.'
 ): string {
-  const err = error as { response?: { data?: unknown }; message?: string } | undefined
-  const data = err?.response?.data
-
-  if (isRecord(data)) {
-    const message = data.message ?? data.msg ?? data.error
-    if (typeof message === 'string' && message) return message
-    if (Array.isArray(message) && message.length) return message.join(', ')
-  }
-
-  if (err?.message && !err.response) return err.message
-  return fallback
+  return getUserErrorMessage(error, fallback)
 }

@@ -799,7 +799,7 @@ export const radialButtons: ButtonGroup[] = [
     items: [
       { text: 'Icons', class: 'btn btn-primary-gradien' },
       { text: 'Animation', class: 'btn btn-secondary-gradien' },
-      { text: 'Tasks', class: 'btn btn-success-gradien' },
+      { text: 'Tugas', class: 'btn btn-success-gradien' },
       { text: 'Letter box', class: 'btn btn-info-gradien' },
       { text: 'Chat', class: 'btn btn-warning-gradien' },
       { text: 'Blog', class: 'btn btn-danger-gradien' },
@@ -813,7 +813,7 @@ export const radialButtons: ButtonGroup[] = [
     items: [
       { text: 'Icons', class: 'btn btn-square btn-primary-gradien' },
       { text: 'Animation', class: 'btn btn-square btn-secondary-gradien' },
-      { text: 'Tasks', class: 'btn btn-square btn-success-gradien' },
+      { text: 'Tugas', class: 'btn btn-square btn-success-gradien' },
       { text: 'Letter box', class: 'btn btn-square btn-info-gradien' },
       { text: 'Chat', class: 'btn btn-square btn-warning-gradien' },
       { text: 'Blog', class: 'btn btn-square btn-danger-gradien' },
@@ -827,7 +827,7 @@ export const radialButtons: ButtonGroup[] = [
     items: [
       { text: 'Icons', class: 'btn btn-pill btn-air-primary btn-primary-gradien' },
       { text: 'Animation', class: 'btn btn-pill btn-air-secondary btn-secondary-gradien' },
-      { text: 'Tasks', class: 'btn btn-pill btn-air-success btn-success-gradien' },
+      { text: 'Tugas', class: 'btn btn-pill btn-air-success btn-success-gradien' },
       { text: 'Letter box', class: 'btn btn-pill btn-air-info btn-info-gradien' },
       { text: 'Chat', class: 'btn btn-pill btn-air-warning btn-warning-gradien' },
       { text: 'Blog', class: 'btn btn-pill btn-air-danger btn-danger-gradien' },

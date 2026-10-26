@@ -1,4 +1,5 @@
 import { api } from '@/services/api'
+import { getUserErrorMessage } from '@/utils/errorParser'
 
 interface NominatimReverseResult {
   display_name?: string
@@ -449,5 +450,5 @@ export function geolocationErrorMessage(error: unknown): string {
     if (messages[code]) return messages[code]
   }
 
-  return error instanceof Error ? error.message : 'Lokasi gagal diambil.'
+  return getUserErrorMessage(error, 'Lokasi gagal diambil.')
 }

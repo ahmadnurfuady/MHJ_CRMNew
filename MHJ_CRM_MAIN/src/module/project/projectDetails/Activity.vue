@@ -69,7 +69,7 @@
                     <thead class="project-header">
                       <tr>
                         <th scope="col">Peluang</th>
-                        <th scope="col">Task</th>
+                        <th scope="col">Tugas</th>
                         <th scope="col">Assigned To</th>
                         <th scope="col">Status</th>
                         <th scope="col">Due Date</th>

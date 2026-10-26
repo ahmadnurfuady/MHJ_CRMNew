@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { computed } from 'vue'
 import Swal from 'sweetalert2'
+import { showSaveSuccess } from '@/utils/feedback'
 import { api } from '@/api'
 import {
   extractItem,
@@ -223,7 +224,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
     Number.isFinite(projectId) && projectId !== null && projectId > 0
       ? rawTitle.match(/^(.*?)\s*\(([^()]+)\)\s*$/)
       : null
-  const title = embeddedProjectMatch?.[1]?.trim() || rawTitle || 'Task tanpa judul'
+  const title = embeddedProjectMatch?.[1]?.trim() || rawTitle || 'Tugas tanpa judul'
   const projectName = normalizeText(explicitProjectName || embeddedProjectMatch?.[2]?.trim())
   const hospital = pickText(
     raw,
@@ -486,7 +487,7 @@ export const useTask = defineStore('task', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data task.',
+      fallbackMessage: 'Gagal memuat data tugas.',
       task: async () => {
         const requestParams = {
           per_page: 100,
@@ -540,7 +541,7 @@ export const useTask = defineStore('task', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat detail task.',
+      fallbackMessage: 'Gagal memuat detail tugas.',
       task: async () => {
         const response = await api.getbydata('tasks/fetchtaskbyid', { id })
         const raw = extractItem(response.data, ['task', 'result'])
@@ -565,7 +566,7 @@ export const useTask = defineStore('task', () => {
     return runApiAction({
       flag: loading,
       error,
-      fallbackMessage: 'Gagal memuat data pendukung task.',
+      fallbackMessage: 'Gagal memuat data pendukung tugas.',
       task: async () => {
         const [status, priority, assignedTo, project] = await Promise.all([
           api.get('tasks/status'),
@@ -592,7 +593,7 @@ export const useTask = defineStore('task', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menyimpan task.',
+      fallbackMessage: 'Gagal menyimpan tugas.',
       task: async () => {
         const currentUserId = Number(authStore.user?.id)
         const userId = Number.isInteger(currentUserId) && currentUserId > 0 ? currentUserId : null
@@ -684,7 +685,7 @@ export const useTask = defineStore('task', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal memperbarui task.',
+      fallbackMessage: 'Gagal memperbarui tugas.',
       task: async () => {
         const currentUserId = Number(authStore.user?.id)
         const userId = Number.isInteger(currentUserId) && currentUserId > 0 ? currentUserId : null
@@ -717,7 +718,7 @@ export const useTask = defineStore('task', () => {
     if (!taskData.title.trim()) {
       Swal.fire({
         icon: 'error',
-        text: 'Please enter a Task Title.',
+        text: 'Silakan masukkan judul tugas.',
         confirmButtonColor: 'var(--theme-default)',
       })
       return
@@ -726,7 +727,7 @@ export const useTask = defineStore('task', () => {
     if (taskData.title.length < 5) {
       Swal.fire({
         icon: 'error',
-        text: 'Task title must be at least 5 characters long.',
+        text: 'Judul tugas minimal terdiri dari 5 karakter.',
         confirmButtonColor: 'var(--theme-default)',
       })
       return
@@ -735,7 +736,7 @@ export const useTask = defineStore('task', () => {
     if (!taskData.subtitle.trim()) {
       Swal.fire({
         icon: 'error',
-        text: 'Please enter a Sub Task title.',
+        text: 'Silakan masukkan judul sub-tugas.',
         confirmButtonColor: 'var(--theme-default)',
       })
       return
@@ -762,7 +763,7 @@ export const useTask = defineStore('task', () => {
     if (!createdByMeData || !createdByMeData.data) {
       Swal.fire({
         icon: 'error',
-        text: "Could not find 'CreatedByMe' category in task list.",
+        text: "Kategori 'CreatedByMe' tidak ditemukan dalam daftar tugas.",
         confirmButtonColor: 'var(--theme-default)',
       })
       return
@@ -779,15 +780,7 @@ export const useTask = defineStore('task', () => {
     }
     createdByMeData.data.push(newTask)
 
-    Swal.fire({
-      icon: 'success',
-      text: 'Task added successfully!',
-      confirmButtonColor: 'var(--theme-default)',
-      timer: 1500,
-      showConfirmButton: false,
-      position: 'top-end',
-      toast: true,
-    })
+    void showSaveSuccess({ entity: 'Tugas' })
     taskData.title = ''
     taskData.subtitle = ''
     taskData.description = ''
@@ -806,7 +799,7 @@ export const useTask = defineStore('task', () => {
     return runApiAction({
       flag: submitting,
       error,
-      fallbackMessage: 'Gagal menghapus task.',
+      fallbackMessage: 'Gagal menghapus tugas.',
       task: async () => {
         const today = new Date().toISOString().slice(0, 10)
         await api.post('tasks/input', { choice: 'd', id, due_date: today })
@@ -823,7 +816,7 @@ export const useTask = defineStore('task', () => {
 
     const result = await Swal.fire({
       icon: 'warning',
-      title: 'Hapus task ini?',
+      title: 'Hapus tugas ini?',
       text: `"${target.title}" akan dihapus permanen dan tidak bisa dikembalikan.`,
       showCancelButton: true,
       cancelButtonText: 'Batal',
@@ -842,7 +835,7 @@ export const useTask = defineStore('task', () => {
     } catch {
       Swal.fire({
         icon: 'error',
-        text: error.value ?? 'Task gagal dihapus. Silakan coba lagi.',
+        text: error.value ?? 'Tugas gagal dihapus. Silakan coba lagi.',
         confirmButtonColor: 'var(--theme-default)',
       })
       return
@@ -850,7 +843,7 @@ export const useTask = defineStore('task', () => {
 
     Swal.fire({
       icon: 'success',
-      text: 'Task berhasil dihapus.',
+      text: 'Tugas berhasil dihapus.',
       confirmButtonColor: 'var(--theme-default)',
       timer: 1800,
       showConfirmButton: false,

@@ -95,6 +95,26 @@ export function getFontOption(fontFamily: string): FontOption {
   return fontOptions.find((font) => font.value === fontFamily) ?? fontOptions[0]
 }
 
+/**
+ * Font aktif untuk API yang tidak dapat membaca CSS variable secara langsung,
+ * misalnya Canvas, Chart.js, ECharts, dan dokumen yang dibuat di runtime.
+ */
+export function getActiveFontFamily(): string {
+  if (typeof document !== 'undefined') {
+    const cssFont = getComputedStyle(document.documentElement)
+      .getPropertyValue('--app-font-family')
+      .trim()
+    if (cssFont) return cssFont
+  }
+
+  if (typeof localStorage !== 'undefined') {
+    const storedFont = localStorage.getItem(appearanceStorageKeys.fontFamily) ?? ''
+    return getFontOption(storedFont || defaultAppearance.fontFamily).cssFamily
+  }
+
+  return getFontOption(defaultAppearance.fontFamily).cssFamily
+}
+
 export function getStoredAppearance(): AppearanceSettings {
   const storedFont = localStorage.getItem(appearanceStorageKeys.fontFamily) ?? ''
 

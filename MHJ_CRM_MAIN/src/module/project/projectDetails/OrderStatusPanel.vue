@@ -143,7 +143,7 @@ const orderStepDefinitions: OrderStepDefinition[] = [
   },
   {
     title: 'Training & BAST',
-    description: 'Application Specialist membuat task training dan BAST berdasarkan serial number alat.',
+    description: 'Application Specialist membuat tugas training dan BAST berdasarkan serial number alat.',
   },
 ]
 

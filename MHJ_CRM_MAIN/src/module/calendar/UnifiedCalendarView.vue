@@ -12,7 +12,7 @@
       <div class="unified-calendar-legend" aria-label="Legenda kalender">
         <span class="unified-calendar-legend__item">
           <span class="unified-calendar-legend__dot unified-calendar-legend__dot--task" />
-          Task ({{ taskCount }})
+          Tugas ({{ taskCount }})
         </span>
         <span class="unified-calendar-legend__item">
           <span class="unified-calendar-legend__dot unified-calendar-legend__dot--project" />
@@ -44,7 +44,7 @@
           </div>
 
           <div class="calendar-toolbar__title">
-            <span>Kalender Task &amp; Peluang</span>
+            <span>Kalender Tugas &amp; Peluang</span>
             <strong>{{ focusRange ? focusRangeLabel : monthLabel }}</strong>
           </div>
 
@@ -96,7 +96,7 @@
                 class="calendar-entry"
                 :class="`calendar-entry--${entry.kind}`"
                 :style="entryStyle(entry)"
-                :title="`${entry.kind === 'task' ? 'Task' : 'Peluang'}: ${entry.title}`"
+                :title="`${entry.kind === 'task' ? 'Tugas' : 'Peluang'}: ${entry.title}`"
                 @click.stop="openEntry(entry)"
               >
                 <span class="calendar-entry__badge" aria-hidden="true">
@@ -180,7 +180,7 @@
                     class="calendar-entry"
                     :class="`calendar-entry--${entry.kind}`"
                     :style="entryStyle(entry)"
-                    :title="`${entry.kind === 'task' ? 'Task' : 'Peluang'}: ${entry.title}`"
+                    :title="`${entry.kind === 'task' ? 'Tugas' : 'Peluang'}: ${entry.title}`"
                     @click.stop="openEntry(entry)"
                   >
                     <span class="calendar-entry__badge" aria-hidden="true">
@@ -241,7 +241,7 @@
 
           <div v-else class="calendar-month-empty">
             <vue-feather type="calendar" size="20" />
-            <span>Tidak ada task atau peluang pada bulan ini.</span>
+            <span>Tidak ada tugas atau peluang pada bulan ini.</span>
           </div>
         </div>
       </section>

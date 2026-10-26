@@ -81,12 +81,13 @@
                 </div>
                 <button
                   v-if="contactState.contactForm.phoneNumbers.length > 1"
-                  class="btn btn-outline-danger px-3"
+                  class="btn btn-outline-danger mhj-phone-remove-button"
                   type="button"
                   :title="t('contacts.deletePhone')"
+                  :aria-label="t('contacts.deletePhone')"
                   @click="removePhone(index)"
                 >
-                  <vue-feather type="trash-2" size="16" />
+                  <span class="mhj-phone-remove-symbol" aria-hidden="true">−</span>
                 </button>
               </div>
               <button
@@ -254,6 +255,7 @@
                 getValueKey="label"
                 :placeholder="t('contacts.placeholders.province')"
                 :formSubmitted="contactState.formSubmitted"
+                :disabled="regionFieldsLocked"
               />
             </InputWrapper>
           </div>
@@ -269,7 +271,9 @@
                     ? t('contacts.placeholders.city')
                     : t('contacts.placeholders.selectProvinceFirst')
                 "
-                :disabled="!contactState.contactForm.province.data"
+                :disabled="
+                  regionFieldsLocked || !contactState.contactForm.province.data
+                "
                 :formSubmitted="contactState.formSubmitted"
               />
             </InputWrapper>
@@ -365,7 +369,7 @@ import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
-import { useContact } from "@/store/contact";
+import { INDONESIA_COUNTRY, useContact } from "@/store/contact";
 import { useAuthStore } from "@/store/auth";
 import { useProjectStore } from "@/store/project";
 import {
@@ -425,7 +429,8 @@ const {
   saveContact,
 } = contactStore;
 
-const { provinceOptions, cityOptionsByProvince, loadRegions } = useCompanyRegions();
+const { provinceOptions, cityOptionsByProvince, loadRegions, resolveRegionSelection } =
+  useCompanyRegions();
 
 const ownerOptions = computed(() => projectStore.lookups.owner);
 // Lookup langsung dari API (GET /api/contact/company & GET /api/contact/project), lihat fetchContactLookups.
@@ -453,6 +458,7 @@ const searchingAddress = ref(false);
 const addressSearchError = ref("");
 const addressSearchNoResult = ref(false);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
+const regionFieldsLocked = computed(() => selectedLocation.value !== null);
 const selectedLocationCenter = computed<[number, number]>(() =>
   selectedLocation.value
     ? [selectedLocation.value.lat, selectedLocation.value.lng]
@@ -587,19 +593,11 @@ function removePhone(index: number) {
   contactState.value.contactForm.phoneNumbers.splice(index, 1);
 }
 
-function normalizeRegionName(value: string) {
-  return value
-    .trim()
-    .toLocaleLowerCase("id-ID")
-    .replace(/^(kota|kabupaten)\s+/, "");
-}
-
 function setLocationRegions(provinceName: string, cityName: string) {
-  const province = provinceOptions.value.find(
-    (option) => normalizeRegionName(option.label) === normalizeRegionName(provinceName),
-  ) ?? (provinceName ? { value: provinceName, label: provinceName } : undefined);
+  const { province, city } = resolveRegionSelection(provinceName, cityName);
 
-  suppressProvinceCityReset = true;
+  suppressProvinceCityReset =
+    contactState.value.contactForm.province.data !== (province?.label ?? "");
   contactState.value.contactForm.province = province
     ? {
         selected: province,
@@ -609,11 +607,6 @@ function setLocationRegions(provinceName: string, cityName: string) {
         type: "dropdown",
       }
     : initSelectField();
-
-  const cityPool = province ? cityOptionsByProvince.value[province.label] || [] : [];
-  const city = cityPool.find(
-    (option) => normalizeRegionName(option.label) === normalizeRegionName(cityName),
-  ) ?? (cityName ? { value: cityName, label: cityName } : undefined);
 
   contactState.value.contactForm.city = city
     ? {
@@ -651,7 +644,7 @@ function applyLocationFields(
   contactState.value.contactForm.address.errorMessage = "";
   contactState.value.contactForm.latitude.data = String(latitude);
   contactState.value.contactForm.longitude.data = String(longitude);
-  contactState.value.contactForm.country.data = location.country;
+  contactState.value.contactForm.country.data = INDONESIA_COUNTRY;
   contactState.value.contactForm.posCode.data = location.posCode;
   contactState.value.contactForm.kdKelurahan.data = "";
   selectedLocation.value = { lat: latitude, lng: longitude };
@@ -681,10 +674,7 @@ async function applyPickedLocation(latitude: number, longitude: number) {
     const location = await reverseGeocodeLocation(latitude, longitude);
     applyLocationFields(location, latitude, longitude);
   } catch (error) {
-    locationError.value =
-      error instanceof Error
-        ? error.message
-        : "Gagal memuat alamat dari titik ini.";
+    locationError.value = geolocationErrorMessage(error);
   } finally {
     pinUpdating.value = false;
   }

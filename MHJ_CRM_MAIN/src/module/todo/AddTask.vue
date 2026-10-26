@@ -9,10 +9,10 @@
               id="new-task"
               v-on:keyup.enter="addNewTask"
               v-model="task"
-              placeholder="Enter new task here. . ."
+              placeholder="Masukkan tugas baru di sini..."
             />
             <span class="btn btn-primary add-new-task-btn" id="add-task" @click="addNewTask()"
-              >Add Task</span
+              >Tambah Tugas</span
             >
           </div>
         </div>
@@ -39,7 +39,7 @@
                         <span class="task-action-btn">
                           <span
                             class="action-box large delete-btn"
-                            title="Delete Task"
+                            title="Hapus Tugas"
                             @click="remove(index)"
                           >
                             <i class="icon"><SolarIcon name="icon-trash" /></i>
@@ -78,9 +78,9 @@ function addNewTask() {
   if (task.value.trim()) {
     addTodo({ id: 0, title: task.value, delete: false, status: 'pending' })
     task.value = ''
-    toast.success('Task added!')
+    toast.success('Tugas berhasil ditambahkan!')
   } else {
-    toast.error('Please enter a task.')
+    toast.error('Silakan masukkan tugas.')
   }
 }
 
@@ -90,6 +90,6 @@ function taskComplete(id: number) {
 
 function remove(index: number) {
   deleteTask(index)
-  toast.error('Task deleted!')
+  toast.success('Tugas berhasil dihapus!')
 }
 </script>

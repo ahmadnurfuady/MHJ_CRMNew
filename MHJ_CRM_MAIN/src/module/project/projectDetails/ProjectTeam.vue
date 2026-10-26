@@ -13,7 +13,7 @@
             <p class="mb-0">{{ team.position }}</p>
             <div class="pt-3">
               <div class="common-space">
-                <p class="mb-0">Task</p>
+                <p class="mb-0">Tugas</p>
                 <span
                   >{{ team.completedTask }} /<span>&nbsp; {{ team.totalTask }}</span>
                 </span>

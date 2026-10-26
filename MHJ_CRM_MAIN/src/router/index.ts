@@ -606,9 +606,9 @@ const router = createRouter({
           component: () => import('@/pages/task/Task.vue'),
           alias: ['/app/task'],
           meta: {
-            mainTitle: 'Task',
-            title: 'Task | MHJ CRM',
-            breadcrumb: [{ text: 'CRM', subText: 'Task' }],
+            mainTitle: 'Tugas',
+            title: 'Tugas | MHJ CRM',
+            breadcrumb: [{ text: 'CRM', subText: 'Tugas' }],
           },
         },
         {

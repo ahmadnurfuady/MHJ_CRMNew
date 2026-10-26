@@ -371,6 +371,7 @@ import { initInputField, initSelectField } from '@/core/data/common'
 import { lostReasons, type DealOption } from '@/core/data/projectDeal'
 import { routes } from '@/router/routes'
 import { confirmEditExit } from '@/utils/confirmEditExit'
+import { showSaveSuccess } from '@/utils/feedback'
 import { useAuthStore } from '@/store/auth'
 import { useContact } from '@/store/contact'
 import { useProjectStore, type BarangOption, type ProjectPayload } from '@/store/project'
@@ -1173,11 +1174,7 @@ async function handleSubmit() {
   try {
     if (isEditMode.value && editingId.value) {
       await projectStore.updateProject(editingId.value, payload)
-      await Swal.fire({
-        icon: 'success',
-        title: 'Peluang berhasil diperbarui',
-        confirmButtonColor: 'var(--theme-default)',
-      })
+      await showSaveSuccess({ entity: 'Peluang', action: 'updated' })
       allowEditNavigation = true
       router.push({
         path: routes.Project.ProjectDetailsV2,
@@ -1185,11 +1182,7 @@ async function handleSubmit() {
       })
     } else {
       const created = await projectStore.createProject(payload)
-      await Swal.fire({
-        icon: 'success',
-        title: 'Peluang berhasil ditambahkan',
-        confirmButtonColor: 'var(--theme-default)',
-      })
+      await showSaveSuccess({ entity: 'Peluang' })
       if (props.modalMode) {
         emit('saved', created)
       } else {

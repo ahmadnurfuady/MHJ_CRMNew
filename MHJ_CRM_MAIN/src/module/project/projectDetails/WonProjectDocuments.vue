@@ -331,6 +331,8 @@ import {
   type StoredProjectDocument,
 } from '@/services/projectDocumentStorage'
 import type { Projects } from '@/types/project'
+import { getUserErrorMessage } from '@/utils/errorParser'
+import { getActiveFontFamily } from '@/config/appearance'
 
 const props = defineProps<{ project: Projects }>()
 const emit = defineEmits<{
@@ -614,9 +616,10 @@ function customerApprovalRows(): string[][] {
 
 function customerPoHtml(): string {
   const approvals = customerApprovalRows()
+  const fontFamily = getActiveFontFamily()
 
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @page{size:A4;margin:18mm 20mm}body{font-family:Arial,sans-serif;font-size:10.5pt;line-height:1.4;color:#111;margin:0}
+    @page{size:A4;margin:18mm 20mm}body{font-family:${fontFamily};font-size:10.5pt;line-height:1.4;color:#111;margin:0}
     h1{text-align:center;font-size:16pt;margin:0 0 12px;letter-spacing:.4px}.document-date{text-align:right;margin:0 0 18px}
     .document-date span{display:inline-block;min-width:180px;border-bottom:1px solid #555;padding:0 5px 2px}.form-table{width:100%;border-collapse:collapse;margin:0 0 14px}
     .form-table td{border:0;padding:4px 2px;vertical-align:top}.field-label{width:31%;font-weight:600}.colon{width:12px}.field-value{border-bottom:1px solid #aaa!important;white-space:normal}
@@ -652,8 +655,10 @@ function salesOrderRows(): string[][] {
 }
 
 function salesOrderHtml(): string {
+  const fontFamily = getActiveFontFamily()
+
   return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @page{size:A4;margin:22mm 24mm}body{font-family:"Times New Roman",serif;font-size:11pt;line-height:1.55;color:#111;margin:0}
+    @page{size:A4;margin:22mm 24mm}body{font-family:${fontFamily};font-size:11pt;line-height:1.55;color:#111;margin:0}
     h1{text-align:center;font-size:16pt;margin:0;text-decoration:underline;letter-spacing:.5px}.document-number{text-align:center;margin:3px 0 28px}
     .document-date{text-align:right;margin:0 0 18px}.intro{margin:0 0 14px;text-align:justify}.form-table{width:100%;border-collapse:collapse;margin:14px 0 22px}
     .form-table td{border:0;padding:4px 2px;vertical-align:top}.field-label{width:32%;font-weight:600}.colon{width:12px}.field-value{border-bottom:1px dotted #888!important}
@@ -906,7 +911,7 @@ async function generateDocument(): Promise<void> {
 }
 
 async function showStorageError(error: unknown): Promise<void> {
-  const message = error instanceof Error ? error.message : 'Dokumen gagal disimpan di browser.'
+  const message = getUserErrorMessage(error, 'Dokumen gagal disimpan di browser.')
   await Swal.fire('Gagal menyimpan dokumen', message, 'error')
 }
 

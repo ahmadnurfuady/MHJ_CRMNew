@@ -14,7 +14,7 @@
         <div class="customers">
           <GroupItem :items="projectDetailsHeader.customers" :imgClass="'img-40'" />
         </div>
-        <h6>All tasks : {{ projectDetailsHeader.allTask }}</h6>
+        <h6>Semua tugas: {{ projectDetailsHeader.allTask }}</h6>
       </div>
     </div>
     <div class="common-align">

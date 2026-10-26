@@ -342,7 +342,7 @@ html:hover {
       h5 {
         color: $primary-color;
         text-align: center;
-        font-family: Caveat;
+        font-family: var(--app-font-family, 'Montserrat', sans-serif);
         font-weight: 700;
         font-size: $heading_4;
       }
@@ -396,7 +396,7 @@ html:hover {
         transform: translate(10%);
         color: $primary-color;
         text-align: center;
-        font-family: Caveat;
+        font-family: var(--app-font-family, 'Montserrat', sans-serif);
         font-weight: 700;
         font-size: 43px;
       }
@@ -1363,7 +1363,7 @@ html:hover {
 .sub-title {
   font-size: calc(18px + (26 - 18) * ((100vw - 300px) / (1920 - 300)));
   font-weight: 700;
-  font-family: $landing-cursive;
+  font-family: var(--app-font-family, 'Montserrat', sans-serif);
   color: #ffb905;
 }
 

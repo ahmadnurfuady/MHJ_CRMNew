@@ -95,8 +95,8 @@ function daysToMilliseconds(days: number) {
 
 export const ganttChartDataTable = [
   [
-    { type: 'string', label: 'Task ID' },
-    { type: 'string', label: 'Task Name' },
+    { type: 'string', label: 'ID Tugas' },
+    { type: 'string', label: 'Nama Tugas' },
     { type: 'string', label: 'Resource' },
     { type: 'date', label: 'Start Date' },
     { type: 'date', label: 'End Date' },
@@ -291,7 +291,7 @@ export const wordTreeChart = {
 export const pieChart1 = {
   chartType: 'PieChart',
   dataTable: [
-    ['Task', 'Hours per Day'],
+    ['Tugas', 'Jam per Hari'],
     ['Work', 5],
     ['Eat', 10],
     ['Commute', 15],
@@ -310,7 +310,7 @@ export const pieChart1 = {
 export const pieChart2 = {
   chartType: 'PieChart',
   dataTable: [
-    ['Task', 'Hours per Day'],
+    ['Tugas', 'Jam per Hari'],
     ['Work', 2],
     ['Eat', 2],
     ['Commute', 11],
@@ -392,7 +392,7 @@ export const pieChart3 = {
 export const pieChart4 = {
   chartType: 'PieChart',
   dataTable: [
-    ['Task', 'Hours per Day'],
+    ['Tugas', 'Jam per Hari'],
     ['Work', 5],
     ['Eat', 10],
     ['Commute', 15],

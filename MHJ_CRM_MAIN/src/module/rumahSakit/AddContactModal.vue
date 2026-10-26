@@ -57,12 +57,13 @@
                     !readOnly &&
                     contactState.rumahSakitForm.phoneNumbers.length > 1
                   "
-                  class="btn btn-outline-danger px-3"
+                  class="btn btn-outline-danger mhj-phone-remove-button"
                   type="button"
                   title="Hapus nomor"
+                  aria-label="Hapus nomor telepon"
                   @click="removePhone(index)"
                 >
-                  <vue-feather type="trash-2" size="16" />
+                  <span class="mhj-phone-remove-symbol" aria-hidden="true">−</span>
                 </button>
               </div>
               <button
@@ -294,7 +295,7 @@
                 getValueKey="label"
                 placeholder="Pilih Provinsi"
                 :formSubmitted="contactState.formSubmitted"
-                :disabled="readOnly"
+                :disabled="readOnly || regionFieldsLocked"
               />
             </InputWrapper>
           </div>
@@ -311,7 +312,9 @@
                     : 'Pilih Provinsi terlebih dahulu'
                 "
                 :disabled="
-                  readOnly || !contactState.rumahSakitForm.province.data
+                  readOnly ||
+                  regionFieldsLocked ||
+                  !contactState.rumahSakitForm.province.data
                 "
                 :formSubmitted="contactState.formSubmitted"
               />
@@ -599,6 +602,7 @@ const selectedLocation = ref<{ lat: number; lng: number } | null>(
     ? { ...contactState.value.hospitalEditLocation }
     : null,
 );
+const regionFieldsLocked = computed(() => selectedLocation.value !== null);
 const pinUpdating = ref(false);
 let suppressNextAddressSearch = false;
 let suppressProvinceCityReset = false;
@@ -757,7 +761,18 @@ function reconcileLookupSelections() {
 }
 
 async function loadStoredLocationPreview() {
-  if (selectedLocation.value) return;
+  if (selectedLocation.value) {
+    try {
+      const location = await reverseGeocodeLocation(
+        selectedLocation.value.lat,
+        selectedLocation.value.lng,
+      );
+      applyRegionFromGeocode(location.province, location.city);
+    } catch {
+      // Data wilayah tersimpan tetap dipakai jika reverse geocoding tidak tersedia.
+    }
+    return;
+  }
   const query =
     contactState.value.rumahSakitForm.mapAddress.data.trim() ||
     contactState.value.rumahSakitForm.address.data.trim();
@@ -770,6 +785,7 @@ async function loadStoredLocationPreview() {
       lat: best.latitude,
       lng: best.longitude,
     };
+    applyRegionFromGeocode(best.province, best.city);
   } catch {
     // Profil tetap dapat dibuka walaupun layanan pencarian peta sedang gagal.
   }
@@ -792,7 +808,8 @@ function applyRegionFromGeocode(provinceName: string, cityName: string) {
   const { province, city } = resolveRegionSelection(provinceName, cityName);
   if (!province) return;
 
-  suppressProvinceCityReset = true;
+  suppressProvinceCityReset =
+    contactState.value.rumahSakitForm.province.data !== province.label;
   contactState.value.rumahSakitForm.province = {
     selected: province,
     data: province.label,
@@ -949,10 +966,7 @@ async function applyPickedLocation(lat: number, lng: number) {
     contactState.value.rumahSakitForm.address.errorMessage = "";
     applyRegionFromGeocode(location.province, location.city);
   } catch (error) {
-    locationError.value =
-      error instanceof Error
-        ? error.message
-        : "Gagal memuat alamat dari titik ini.";
+    locationError.value = geolocationErrorMessage(error);
   } finally {
     pinUpdating.value = false;
   }

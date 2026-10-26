@@ -6,7 +6,7 @@
           <vue-feather type="clipboard" size="24" />
         </span>
         <div class="task-name-card__content">
-          <span class="task-name-card__eyebrow">Task {{ taskTypeLabel }}</span>
+          <span class="task-name-card__eyebrow">Tugas {{ taskTypeLabel }}</span>
           <h4>{{ task.title || 'Tanpa nama tugas' }}</h4>
           <div class="task-name-card__meta">
             <span><vue-feather type="user" size="14" />{{ task.owner || '-' }}</span>
@@ -21,7 +21,7 @@
           <span class="detail-card-icon"><vue-feather type="briefcase" size="18" /></span>
           <div>
             <span class="detail-card-eyebrow">Informasi Tugas</span>
-            <h5>Detail Task {{ taskTypeLabel }}</h5>
+            <h5>Detail Tugas {{ taskTypeLabel }}</h5>
           </div>
         </div>
 

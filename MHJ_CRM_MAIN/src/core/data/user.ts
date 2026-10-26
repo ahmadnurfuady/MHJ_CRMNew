@@ -253,7 +253,7 @@ export const userDetailsTab: Tabs[] = [
   },
   {
     id: 2,
-    title: 'Tasks',
+    title: 'Tugas',
     value: 'task',
     icon: 'fa-solid fa-list-check',
   },

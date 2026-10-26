@@ -33,7 +33,7 @@
                 <span>{{ parsedError.title }}</span>
                 <span
                   v-if="parsedError.field"
-                  class="badge badge-light-danger text-capitalize font-monospace"
+                  class="badge badge-light-danger text-capitalize"
                   style="font-size: 11px;"
                 >
                   Kolom: {{ parsedError.field }}
@@ -43,27 +43,9 @@
                 {{ parsedError.message }}
               </p>
 
-              <!-- Collapsible Detail Teknis Database / Server -->
-              <div v-if="showTechnical && parsedError.detail" class="mt-3">
-                <div
-                  class="bg-white p-2 rounded border border-danger-subtle font-monospace text-muted f-12"
-                  style="word-break: break-all;"
-                >
-                  <strong>Pesan Asli Server:</strong><br />
-                  {{ parsedError.detail }}
-                </div>
-              </div>
             </div>
 
             <div class="d-flex flex-column gap-1 align-items-end">
-              <button
-                v-if="parsedError.detail"
-                type="button"
-                class="btn btn-xs btn-outline-danger"
-                @click="showTechnical = !showTechnical"
-              >
-                {{ showTechnical ? 'Tutup Detail' : 'Detail Teknis' }}
-              </button>
               <button
                 type="button"
                 class="btn-close position-static p-1"
@@ -206,7 +188,6 @@ const masterOptions = ref<UserMasterOptions>({
 const loadingUser = ref(false)
 const saving = ref(false)
 const parsedError = ref<ParsedError | null>(null)
-const showTechnical = ref(false)
 
 const form = reactive({
   firstname: '',
@@ -277,7 +258,6 @@ function buildPayload(): UserCrudPayload {
 
 async function submit() {
   parsedError.value = null
-  showTechnical.value = false
   const validationError = validate()
   if (validationError) {
     parsedError.value = {

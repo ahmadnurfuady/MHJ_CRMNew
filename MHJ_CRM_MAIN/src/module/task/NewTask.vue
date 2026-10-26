@@ -50,7 +50,7 @@
                   ><vue-feather type="clipboard"></vue-feather
                 ></span>
                 <div>
-                  <h5>Informasi Task</h5>
+                  <h5>Informasi Tugas</h5>
                   <p>Kategori, penanggung jawab, dan jadwal aktivitas.</p>
                 </div>
               </div>
@@ -150,7 +150,7 @@
                 <div>
                   <h5>Konteks Peluang</h5>
                   <p>
-                    Hubungkan task ke peluang untuk mengisi data otomatis dan
+                    Hubungkan tugas ke peluang untuk mengisi data otomatis dan
                     memperbarui pipeline.
                   </p>
                 </div>
@@ -311,7 +311,7 @@
                     />
                     <small v-if="form.hasProject" class="text-muted"
                       >Divisi mengikuti peluang dan tidak dapat diubah dari
-                      task.</small
+                      tugas.</small
                     >
                   </div>
 
@@ -389,7 +389,7 @@
                       </div>
                     </div>
                     <small class="text-muted">
-                      Menyimpan task akan memperbarui stage pada Daftar Peluang.
+                      Menyimpan tugas akan memperbarui stage pada Daftar Peluang.
                     </small>
                   </div>
 
@@ -728,6 +728,7 @@ import type { Contact } from "@/types/contacts";
 import type { TaskDetails, TaskKind, TaskPayload } from "@/types/tasks";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
+import { showSaveSuccess } from "@/utils/feedback";
 
 interface ProjectOption extends DealOption {
   id: number;
@@ -1740,8 +1741,13 @@ function drawPhotoWatermark(
     selectedCompanyLabel.value || selectedCategoryLabel.value || "Aktivitas CRM",
   ].join("  •  ");
 
+  const rootStyles = getComputedStyle(document.documentElement);
+  const watermarkFontFamily =
+    rootStyles.getPropertyValue("--app-font-family").trim() ||
+    "'Montserrat', sans-serif";
+
   context.save();
-  context.font = `500 ${metaSize}px Inter, Arial, sans-serif`;
+  context.font = `500 ${metaSize}px ${watermarkFontFamily}`;
   const timeAndCoordinate = `${timestampText}  |  ${coordinateText}`;
   const detailLines =
     context.measureText(timeAndCoordinate).width <= maxTextWidth
@@ -1760,7 +1766,6 @@ function drawPhotoWatermark(
     padding * 2 + titleLineHeight + metadataLines.length * metaLineHeight,
   );
   const overlayTop = height - overlayHeight;
-  const rootStyles = getComputedStyle(document.documentElement);
   const watermarkPrimary =
     rootStyles.getPropertyValue("--app-primary").trim() || "#16b9e8";
   const watermarkSecondary =
@@ -1781,7 +1786,7 @@ function drawPhotoWatermark(
 
   let cursorY = overlayTop + padding + titleSize;
   const brandText = "SIAPCRM MHJ";
-  context.font = `700 ${titleSize}px Inter, Arial, sans-serif`;
+  context.font = `700 ${titleSize}px ${watermarkFontFamily}`;
   context.fillStyle = watermarkSecondary;
   context.fillText(brandText, padding, cursorY);
 
@@ -1798,7 +1803,7 @@ function drawPhotoWatermark(
   );
   context.fillStyle = gpsVerified ? "#37d99a" : "#f6ad55";
   context.fill();
-  context.font = `700 ${metaSize}px Inter, Arial, sans-serif`;
+  context.font = `700 ${metaSize}px ${watermarkFontFamily}`;
   context.fillStyle = gpsVerified ? "#37d99a" : "#f6ad55";
   context.fillText(
     gpsVerified ? "LIVE GPS VERIFIED" : "GPS TIDAK TERSEDIA",
@@ -1807,7 +1812,7 @@ function drawPhotoWatermark(
   );
 
   cursorY += titleLineHeight;
-  context.font = `500 ${metaSize}px Inter, Arial, sans-serif`;
+  context.font = `500 ${metaSize}px ${watermarkFontFamily}`;
   for (const [index, line] of metadataLines.entries()) {
     context.fillStyle =
       index === metadataLines.length - 1 ? "#cbd5e1" : "#f8fafc";
@@ -2086,15 +2091,15 @@ async function submitTask() {
     validationMessage.value =
       taskStore.error ??
       (isEditing.value
-        ? "Perubahan task gagal disimpan. Silakan coba lagi."
-        : "Task gagal disimpan. Silakan coba lagi.");
+        ? "Perubahan tugas gagal disimpan. Silakan coba lagi."
+        : "Tugas gagal disimpan. Silakan coba lagi.");
     return;
   }
 
   if (!result) {
     validationMessage.value = isEditing.value
-      ? "Perubahan task gagal disimpan. Silakan coba lagi."
-      : "Task gagal disimpan. Silakan coba lagi.";
+      ? "Perubahan tugas gagal disimpan. Silakan coba lagi."
+      : "Tugas gagal disimpan. Silakan coba lagi.";
     return;
   }
 
@@ -2104,17 +2109,12 @@ async function submitTask() {
   allowModalClose = true;
   if (modalElement) Modal.getOrCreateInstance(modalElement).hide();
 
-  await Swal.fire({
-    icon: "success",
-    title: isEditing.value
-      ? `Task ${formMeta.value.shortLabel} berhasil diperbarui`
-      : `Task ${formMeta.value.shortLabel} berhasil disimpan`,
+  await showSaveSuccess({
+    entity: `Tugas ${formMeta.value.shortLabel}`,
+    action: isEditing.value ? "updated" : "created",
     text: stageChanged
-      ? `Stage ${project.label} diperbarui ke ${String(form.pipeline.selected?.label)}.`
-      : isEditing.value
-        ? "Perubahan task sudah tersimpan."
-        : "Aktivitas baru sudah masuk ke daftar task.",
-    confirmButtonColor: "var(--theme-default)",
+      ? `Tugas berhasil disimpan dan stage ${project.label} diperbarui ke ${String(form.pipeline.selected?.label)}.`
+      : undefined,
   });
 
   emit("saved", result);
@@ -2210,7 +2210,7 @@ async function confirmTaskExit(): Promise<boolean> {
 
   const result = await Swal.fire({
     icon: "warning",
-    title: "Batalkan input task baru?",
+    title: "Batalkan input tugas baru?",
     text: "Data yang sudah diisi akan hilang.",
     showCancelButton: true,
     confirmButtonText: "Ya, keluar",

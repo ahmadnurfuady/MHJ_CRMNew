@@ -3,7 +3,7 @@
     <img class="b-r-10" :src="getImages('dashboard/profile.png')" alt="profile" />
     <div class="media-body d-xxl-block d-none box-col-none">
       <span>{{ authStore.user?.name || 'Admin' }}</span>
-      <p class="mb-0 font-roboto">{{ authStore.user?.email || 'Admin' }}</p>
+      <p class="mb-0">{{ authStore.user?.email || 'Admin' }}</p>
     </div>
   </div>
 </template>

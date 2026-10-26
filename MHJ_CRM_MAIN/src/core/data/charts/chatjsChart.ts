@@ -1,10 +1,12 @@
 import { Chart as ChartJS, registerables } from 'chart.js'
 
 import { primaryColor, secondaryColor } from '../common'
+import { getActiveFontFamily } from '@/config/appearance'
 
 import type { ChartData, ChartOptions } from 'chart.js'
 
 ChartJS.register(...registerables)
+ChartJS.defaults.font.family = getActiveFontFamily()
 
 // Bar Chart
 export const barChart = {

@@ -50,7 +50,7 @@ const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vu
 const tableConfig = ref<TableConfigs>({
   columns: [
     { title: 'Id', fieldValue: 'id' },
-    { title: 'Task', fieldValue: 'task' },
+    { title: 'Tugas', fieldValue: 'task' },
     { title: 'Email', fieldValue: 'email' },
     { title: 'Phone', fieldValue: 'phone' },
     { title: 'Assign', fieldValue: 'assign' },

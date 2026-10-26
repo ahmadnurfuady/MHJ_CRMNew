@@ -45,7 +45,7 @@ export const modalContent = [
     content: [
       {
         description:
-          'User research, persona creation, building wireframes and interactive prototypes, and testing ideas are among the common tasks of a UX designer. These duties can differ greatly between organizations.',
+          'Riset pengguna, pembuatan persona, penyusunan wireframe dan prototipe interaktif, serta pengujian ide merupakan tugas umum seorang desainer UX. Tanggung jawab ini dapat berbeda di setiap organisasi.',
       },
       {
         description:

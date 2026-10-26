@@ -1966,7 +1966,7 @@ export const sellerChartOne: ApexOptions = {
     },
     style: {
       fontSize: '12px',
-      fontFamily: 'Rubik, sans-serif',
+      fontFamily: 'var(--app-font-family)',
       fontWeight: 'bold',
       colors: undefined,
     },
@@ -2073,7 +2073,7 @@ export const sellerChartTwo: ApexOptions = {
     enabled: true,
     style: {
       fontSize: '12px',
-      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontFamily: 'var(--app-font-family)',
       fontWeight: 'bold',
       colors: undefined, // or array of colors
     },
@@ -2173,7 +2173,7 @@ export const sellerChartThree: ApexOptions = {
     enabled: true,
     style: {
       fontSize: '12px',
-      fontFamily: 'Helvetica, Arial, sans-serif',
+      fontFamily: 'var(--app-font-family)',
       fontWeight: 'bold',
       colors: undefined,
     },

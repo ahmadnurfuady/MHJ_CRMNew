@@ -99,7 +99,7 @@ export const faqQuestionAnswer: FaqQuestionAnswer[] = [
         id: 13,
         title: 'WordPress site maintenance ?',
         description:
-          'This particular activity, which is the question, may demonstrate your proficiency with using Java code to carry out a task.',
+          'Aktivitas pada pertanyaan ini dapat menunjukkan kemampuan Anda menggunakan kode Java untuk menyelesaikan sebuah tugas.',
       },
       {
         id: 14,

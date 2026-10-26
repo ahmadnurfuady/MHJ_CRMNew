@@ -40,12 +40,15 @@ import {
   splitPhoneNumbers,
 } from "@/utils/indonesianPhone";
 import { validateForm } from "@/utils/validators/formValidators";
+import { getUserErrorMessage } from "@/utils/errorParser";
+import { showSaveSuccess } from "@/utils/feedback";
 
 // ID dari backend diberi offset agar data Contact dan Rumah Sakit tidak saling bentrok.
 const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
 const DEFAULT_CONTACT_STATUS = "1";
+export const INDONESIA_COUNTRY = "Indonesia";
 const CONTACT_SOURCE_FALLBACK: Select[] = [
   { value: "1", label: "Website" },
   { value: "2", label: "Referral" },
@@ -196,7 +199,7 @@ function normalizeGender(value: string): string {
 function notifyError(message: string) {
   Swal.fire({
     icon: "error",
-    text: message,
+    text: getUserErrorMessage(message),
     confirmButtonColor: "var(--theme-default)",
   });
 }
@@ -1314,7 +1317,9 @@ export const useContact = defineStore("contact", () => {
         // Endpoint kontak hanya menyediakan satu kolom alamat. Jika alamat manual
         // kosong, pertahankan hasil Google Maps sebagai alamat kontak.
         address: nullableText(formData.address) ?? nullableText(formData.mapAddress),
-        country: nullableText(formData.country),
+        // Seluruh pencarian Maps dibatasi ke Indonesia; kirim nilai baku agar
+        // backend tidak menerima country kosong/bervariasi dari provider geocoding.
+        country: INDONESIA_COUNTRY,
         province: nullableText(formData.province),
         city: nullableText(formData.city),
         pos_code: nullableText(formData.posCode),
@@ -1334,6 +1339,7 @@ export const useContact = defineStore("contact", () => {
       contactState.openAddContactModal = false;
       contactState.contactForm = createContactForm();
       contactState.formSubmitted = false;
+      await showSaveSuccess({ entity: "Kontak" });
       return created;
     } catch {
       notifyError(contactError.value ?? "Gagal menyimpan kontak.");
@@ -1436,6 +1442,7 @@ export const useContact = defineStore("contact", () => {
       email: textValue(formData.email),
       map_address: textValue(formData.mapAddress),
       address: textValue(formData.address),
+      country: INDONESIA_COUNTRY,
       province: textValue(formData.province),
       city: textValue(formData.city),
       // Pertahankan key form lama dan kirim alias yang dipakai parameter SP.
@@ -1472,17 +1479,9 @@ export const useContact = defineStore("contact", () => {
       }
       if (closeAfterSave) closeRumahSakitModal();
 
-      Swal.fire({
-        icon: "success",
-        title: editId
-          ? "Faskes berhasil diperbarui"
-          : "Faskes berhasil ditambahkan",
-        text: editId
-          ? "Perubahan data Faskes sudah tersimpan."
-          : "Data Faskes baru sudah masuk ke daftar.",
-        confirmButtonColor: "var(--theme-default)",
-        timer: 2000,
-        showConfirmButton: false,
+      await showSaveSuccess({
+        entity: "Faskes",
+        action: editId ? "updated" : "created",
       });
 
       return true;

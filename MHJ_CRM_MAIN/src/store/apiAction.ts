@@ -18,6 +18,7 @@ export async function runApiAction<T>(options: {
     return await options.task()
   } catch (err) {
     options.error.value = getApiErrorMessage(err, options.fallbackMessage)
+    // Error asli tetap dilempar untuk logging; komponen menampilkan state ramah di atas.
     throw err
   } finally {
     options.flag.value = false

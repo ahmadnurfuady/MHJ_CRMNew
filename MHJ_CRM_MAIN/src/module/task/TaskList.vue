@@ -43,7 +43,7 @@
           </button>
         </div>
 
-        <div class="task-view-switch" role="group" aria-label="Mode tampilan task">
+        <div class="task-view-switch" role="group" aria-label="Mode tampilan tugas">
           <button
             type="button"
             :class="{ 'task-view-switch__button--active': activeView === 'list' }"
@@ -71,13 +71,13 @@
           data-bs-target="#task-type-selector"
         >
           <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
-          <span>Buat Task Baru</span>
+          <span>Buat Tugas Baru</span>
         </button>
       </div>
     </div>
 
     <div class="task-list-toolbar">
-      <div class="task-period-filter" aria-label="Filter periode task">
+      <div class="task-period-filter" aria-label="Filter periode tugas">
         <span class="task-toolbar-label">Periode</span>
         <div class="task-period-options" role="group">
           <button
@@ -160,7 +160,7 @@
             </tr>
 
             <tr v-for="(item, index) in filteredTasks" :key="`${item.kind ?? 'task'}-${item.id}-${index}`">
-              <td data-label="Nama Task">
+              <td data-label="Nama Tugas">
                 <button
                   class="task-identity task-identity-button"
                   type="button"
@@ -405,7 +405,7 @@ const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
 const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'calendar' : 'list')
 const paginationEnabled = false
 const taskTableColumns = [
-  { label: 'Nama Task', defaultWidth: 280, minWidth: 220, center: false },
+  { label: 'Nama Tugas', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Faskes', defaultWidth: 220, minWidth: 140, center: false },
   { label: 'Peluang', defaultWidth: 180, minWidth: 120, center: false },
   { label: 'Jadwal', defaultWidth: 170, minWidth: 140, center: false },
@@ -640,8 +640,8 @@ const exportColumns: Array<{
   value: (task: TaskDetails) => string | number
 }> = [
   { label: 'ID', value: (task) => task.id },
-  { label: 'Nama Task', value: (task) => task.title || '' },
-  { label: 'Jenis Task', value: (task) => taskKindLabel(task) },
+  { label: 'Nama Tugas', value: (task) => task.title || '' },
+  { label: 'Jenis Tugas', value: (task) => taskKindLabel(task) },
   { label: 'Kategori', value: (task) => task.category || '' },
   { label: 'Faskes', value: (task) => task.hospital || task.subtitle || '' },
   { label: 'Kontak', value: (task) => task.contact || '' },
@@ -693,7 +693,7 @@ function downloadTaskFile(content: string, mimeType: string, extension: string) 
     String(new Date().getMonth() + 1).padStart(2, '0'),
     String(new Date().getDate()).padStart(2, '0'),
   ].join('-')
-  const filename = `task-${periodFilter.value}-${stamp}.${extension}`
+  const filename = `tugas-${periodFilter.value}-${stamp}.${extension}`
   const url = URL.createObjectURL(new Blob([content], { type: mimeType }))
   const anchor = document.createElement('a')
   anchor.href = url
@@ -734,7 +734,7 @@ function exportTasks(format: ExportFormat) {
   <Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Calibri" ss:Size="11"/></Style>
   <Style ss:ID="Header"><Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1"/><Interior ss:Color="#DDEBF7" ss:Pattern="Solid"/></Style>
  </Styles>
- <Worksheet ss:Name="Tasks"><Table>${tableRows}</Table></Worksheet>
+    <Worksheet ss:Name="Tugas"><Table>${tableRows}</Table></Worksheet>
 </Workbook>`
   downloadTaskFile(`\ufeff${workbook}`, 'application/vnd.ms-excel;charset=utf-8', 'xls')
 }

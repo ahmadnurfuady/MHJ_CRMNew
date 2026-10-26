@@ -6,6 +6,7 @@ import {
   TopProduct,
 } from '@/types/dashboard/default'
 import { ApexOptions } from 'apexcharts'
+import { getActiveFontFamily } from '@/config/appearance'
 
 export const revenueGrowthChartSeries: ApexOptions['series'] = [
   {
@@ -440,7 +441,7 @@ export const activityLogs: ActivityItem[] = [
     id: 5,
     name: 'Theresa Webb',
     time: '12 min ago',
-    message: 'Theresa has complete old task and new one.',
+    message: 'Theresa telah menyelesaikan tugas lama dan tugas baru.',
     image: 'user/53.png',
   },
   {
@@ -578,6 +579,9 @@ export const latestTransactionItem: LatestTransactionItem[] = [
 ]
 
 export const EChartOptions = {
+  textStyle: {
+    fontFamily: getActiveFontFamily(),
+  },
   polar: {
     radius: [30, '80%'],
   },

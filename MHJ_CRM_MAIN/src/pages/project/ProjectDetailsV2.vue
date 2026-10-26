@@ -301,6 +301,7 @@ import { useProjectStore } from '@/store/project'
 import { shortProjectTitle } from '@/utils/index'
 import type { Contact } from '@/types/contacts'
 import type { Projects } from '@/types/project'
+import { getApiErrorMessage } from '@/api/response'
 
 type UnknownRecord = Record<string, unknown>
 interface ContactInfo { id?: number; name: string; phone: string; jobTitle?: string }
@@ -606,7 +607,7 @@ async function loadProject() {
     }
     await Promise.allSettled(supportingRequests)
   } catch (error) {
-    loadError.value = error instanceof Error ? error.message : (store.error ?? 'Gagal memuat detail peluang.')
+    loadError.value = store.error ?? getApiErrorMessage(error, 'Gagal memuat detail peluang.')
   }
 }
 

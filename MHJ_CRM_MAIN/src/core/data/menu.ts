@@ -1,7 +1,7 @@
 import { routes } from '@/router/routes'
 import { MenuItem } from '@/types/menu'
 
-// Sidebar sementara: hanya menu yang dipakai dari template (Dashboards, Project, Users, Contacts, Faskes, Tasks).
+// Sidebar sementara: hanya menu yang dipakai dari template (Dashboards, Project, Users, Contacts, Faskes, Tugas).
 export const menu: MenuItem[] = [
   {
     headTitle: 'General',
@@ -115,7 +115,7 @@ export const menu: MenuItem[] = [
   },
   {
     path: routes.App.Task,
-    title: 'Tasks',
+    title: 'Tugas',
     icon: 'task',
     isPinned: false,
     active: false,

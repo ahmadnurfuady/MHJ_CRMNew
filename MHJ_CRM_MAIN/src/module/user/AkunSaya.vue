@@ -145,6 +145,7 @@ import { useAuthStore } from '@/store/auth'
 import { toCodeArray, userService, userFullName } from '@/services/userService'
 import { deleteProfilePhoto, getProfilePhoto, prepareProfilePhoto, saveProfilePhoto } from '@/services/profilePhotoStorage'
 import { avatarColorStyle } from '@/utils/avatar'
+import { getUserErrorMessage } from '@/utils/errorParser'
 import type { MasterOption, UserCrmItem, UserMasterOptions } from '@/types/user'
 
 const props = defineProps<{ userId?: number }>()
@@ -291,7 +292,7 @@ async function uploadPhoto(event: Event) {
     profilePhoto.value = photo
     photoMessage.value = 'Foto profil berhasil diperbarui.'
   } catch (error) {
-    photoError.value = error instanceof Error ? error.message : 'Foto profil gagal diperbarui.'
+    photoError.value = getUserErrorMessage(error, 'Foto profil gagal diperbarui.')
   } finally {
     photoBusy.value = false
   }
@@ -341,7 +342,7 @@ async function loadUser() {
     fetchedUser.value = result
   } catch (error) {
     if (sequence !== loadSequence) return
-    detailError.value = error instanceof Error ? error.message : 'Gagal memuat detail pengguna.'
+    detailError.value = getUserErrorMessage(error, 'Gagal memuat detail pengguna.')
   } finally {
     if (sequence === loadSequence) detailLoading.value = false
   }
