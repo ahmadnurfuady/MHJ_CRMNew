@@ -203,6 +203,24 @@
                       locatingAddress ? "Mencari..." : "Cari lokasi"
                     }}</span>
                   </button>
+                  <button
+                    v-if="!readOnly && selectedLocation"
+                    class="btn btn-outline-success nearby-faskes-button"
+                    type="button"
+                    :disabled="searchingNearby"
+                    title="Cari faskes di sekitar titik lokasi saat ini"
+                    @click="findNearbyFaskes"
+                  >
+                    <span
+                      v-if="searchingNearby"
+                      class="spinner-border spinner-border-sm"
+                      aria-hidden="true"
+                    ></span>
+                    <MhjIcon v-else name="action_location" :size="16" />
+                    <span>{{
+                      searchingNearby ? "Mencari..." : "Faskes Terdekat"
+                    }}</span>
+                  </button>
                 </div>
 
                 <div
@@ -517,6 +535,7 @@ import {
   reverseGeocodeLocation,
   searchAddress,
   searchHealthFacilities,
+  searchNearbyFaskes,
   type AddressSearchResult,
 } from "@/services/geocoding";
 import { useContact } from "@/store/contact";
@@ -1062,6 +1081,42 @@ function handleLocateClick() {
   }
 }
 
+const searchingNearby = ref(false);
+
+async function findNearbyFaskes() {
+  if (!selectedLocation.value) return;
+  searchingNearby.value = true;
+  locationError.value = "";
+
+  try {
+    const results = await searchNearbyFaskes(
+      selectedLocation.value.lat,
+      selectedLocation.value.lng,
+      { radius: 5000, limit: 30 },
+    );
+    if (!results.length) {
+      locationError.value = "Tidak ditemukan faskes di sekitar lokasi ini.";
+      return;
+    }
+    const mapped: AddressSearchResult[] = results.map((item) => ({
+      address: item.alamat || item.nama || "",
+      latitude: item.lat,
+      longitude: item.lon,
+      name: item.nama || undefined,
+      country: "Indonesia",
+      province: "",
+      city: "",
+      posCode: "",
+      facilityType: item.tipe || "",
+    }));
+    openLocationPicker(mapped);
+  } catch {
+    locationError.value = "Pencarian faskes terdekat gagal. Coba lagi.";
+  } finally {
+    searchingNearby.value = false;
+  }
+}
+
 function clearCurrentAddress() {
   suppressNextAddressSearch = true;
   contactState.value.rumahSakitForm.mapAddress.data = "";
@@ -1123,10 +1178,15 @@ function clearCurrentAddress() {
 }
 
 .location-input-group {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: start;
   gap: 10px;
+}
+
+.location-input-group > .location-address-box {
+  flex: 1 1 0;
+  min-width: 200px;
 }
 
 .location-address-box {
@@ -1301,14 +1361,31 @@ function clearCurrentAddress() {
   flex: 0 0 18px;
 }
 
-@media (max-width: 575.98px) {
-  .location-input-group {
-    grid-template-columns: minmax(0, 1fr) 132px;
-  }
+.nearby-faskes-button {
+  display: inline-flex;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px;
+  box-sizing: border-box;
+  align-items: center;
+  align-self: start;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 !important;
+  padding-inline: 12px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+}
 
+@media (max-width: 575.98px) {
   .location-button {
     min-width: 132px;
     padding-inline: 10px;
+  }
+
+  .nearby-faskes-button {
+    flex: 1 0 auto;
   }
 }
 

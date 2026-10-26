@@ -393,11 +393,119 @@ export async function searchAddress(query: string): Promise<AddressSearchResult[
   }))
 }
 
+// ---------------------------------------------------------------------------
+// Endpoint baru: /api/geo/* (GeoSearchController)
+// ---------------------------------------------------------------------------
+
+export interface GeoReverseResult {
+  alamat: string | null
+  kelurahan: string | null
+  kecamatan: string | null
+  kota: string | null
+  provinsi: string | null
+  kode_pos: string | null
+  negara: string | null
+}
+
+export interface GeoFaskesItem {
+  nama: string | null
+  lat: number
+  lon: number
+  alamat: string | null
+  tipe: string | null
+  telepon: string | null
+  website: string | null
+}
+
+export interface GeoSearchNearbyResult {
+  nama: string | null
+  lat: number
+  lon: number
+  alamat: string | null
+  kota: string | null
+  provinsi: string | null
+}
+
+async function reverseViaBackend(
+  latitude: number,
+  longitude: number
+): Promise<ReverseGeocodeLocation> {
+  const response = await api.getbydata<GeoReverseResult>('geo/reverse', {
+    lat: latitude,
+    lon: longitude
+  })
+  const data = response.data
+  return {
+    address: data.alamat ?? '',
+    country: data.negara ?? 'Indonesia',
+    province: data.provinsi ?? '',
+    city: data.kota ?? '',
+    posCode: data.kode_pos ?? ''
+  }
+}
+
+export async function searchNearbyFaskes(
+  latitude: number,
+  longitude: number,
+  options: { radius?: number; types?: string[]; limit?: number } = {}
+): Promise<GeoFaskesItem[]> {
+  const params: Record<string, string | number> = {
+    lat: latitude,
+    lon: longitude
+  }
+  if (options.radius) params.radius = options.radius
+  if (options.types?.length) params.types = options.types.join(',')
+  if (options.limit) params.limit = options.limit
+
+  const response = await api.getbydata<{
+    lokasi: GeoReverseResult | null
+    radius: number
+    jumlah: number
+    data: GeoFaskesItem[]
+  }>('geo/faskes', params)
+  return response.data.data ?? []
+}
+
+export async function searchNearbyPlaces(
+  latitude: number,
+  longitude: number,
+  query: string,
+  options: { radiusKm?: number; limit?: number } = {}
+): Promise<{ sumber: string; data: GeoSearchNearbyResult[] }> {
+  const params: Record<string, string | number> = {
+    lat: latitude,
+    lon: longitude,
+    q: query
+  }
+  if (options.radiusKm) params.radius_km = options.radiusKm
+  if (options.limit) params.limit = options.limit
+
+  const response = await api.getbydata<{
+    lokasi: GeoReverseResult | null
+    q: string
+    radius_km: number
+    sumber: string
+    jumlah: number
+    data: GeoSearchNearbyResult[]
+  }>('geo/cari', params)
+  return {
+    sumber: response.data.sumber ?? '',
+    data: response.data.data ?? []
+  }
+}
+
 /** Mengubah koordinat GPS menjadi alamat sekaligus bagian wilayah terstruktur. */
 export async function reverseGeocodeLocation(
   latitude: number,
   longitude: number
 ): Promise<ReverseGeocodeLocation> {
+  try {
+    const location = await reverseViaBackend(latitude, longitude)
+    if (location.address) return location
+  } catch {
+    // Backend tidak tersedia — fallback ke provider langsung.
+  }
+
   try {
     const location = await reverseWithOpenStreetMap(latitude, longitude)
     if (location.address) return location
