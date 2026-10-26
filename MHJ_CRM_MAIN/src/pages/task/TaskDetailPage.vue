@@ -9,10 +9,7 @@
           :stroke-width="2.5"
         />
       </router-link>
-      <div>
-        <p>Tugas</p>
-        <h3>Detail Tugas</h3>
-      </div>
+      <h3 class="detail-toolbar__title">Detail Tugas</h3>
       <button
         v-if="task"
         class="btn btn-primary edit-task-header"
@@ -129,16 +126,7 @@ watch(() => props.taskId, loadTask, { immediate: true })
   margin-bottom: 18px;
 }
 
-.detail-toolbar p {
-  margin: 0 0 2px;
-  color: #73808d;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: capitalize;
-}
-
-.detail-toolbar h3 {
+.detail-toolbar__title {
   margin: 0;
   color: #17212b;
   font-size: 23px;
