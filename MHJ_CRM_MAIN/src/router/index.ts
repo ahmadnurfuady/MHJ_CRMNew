@@ -187,7 +187,7 @@ const router = createRouter({
         {
           path: routes.Project.ProjectDetails,
           name: 'Project Details',
-          component: () => import('@/pages/project/ProjectDetails.vue'),
+          component: () => import('@/pages/project/ProjectDetailsV2.vue'),
           alias: ['/crmAdmin/projects/details', '/project/project_details'],
           meta: {
             mainTitle: 'Detail Peluang',

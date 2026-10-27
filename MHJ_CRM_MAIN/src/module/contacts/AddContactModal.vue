@@ -293,11 +293,6 @@
                 :placeholder="t('contacts.placeholders.source')"
                 :formSubmitted="contactState.formSubmitted"
               />
-              <DummyDataBadge
-                v-if="contactApi.sourceIsDummy"
-                class="mt-2"
-                label="Sumber: Data Dummy Lokal"
-              />
             </InputWrapper>
           </div>
           <div class="col-md-6">
@@ -374,7 +369,6 @@ import { useI18n } from "vue-i18n";
 import { useDebounceFn } from "@vueuse/core";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";

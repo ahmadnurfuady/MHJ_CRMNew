@@ -163,7 +163,7 @@ async function loadContact() {
       projectStore.fetchProjects({ per_page: 100 }),
       projectStore.fetchProjectLeaders(),
     ];
-    if (!contact.isDemo && Number.isFinite(companyId) && companyId > 0) {
+    if (Number.isFinite(companyId) && companyId > 0) {
       requests.push(hospitalStore.fetchHospitalById(companyId));
     }
     await Promise.allSettled(requests);

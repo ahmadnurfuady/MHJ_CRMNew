@@ -16,11 +16,6 @@ import type {
   HospitalPayload,
 } from '@/types/hospital'
 import { runApiAction } from '@/store/apiAction'
-import {
-  createDemoHospital,
-  HOSPITAL_DEMO_ENABLED,
-  isDemoHospitalId,
-} from '@/core/data/hospitalDemo'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
 const ENDPOINT = 'company'
@@ -273,12 +268,6 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal memuat detail Faskes.',
       task: async () => {
-        if (isDemoHospitalId(id)) {
-          contactAssociations.value = []
-          selectedItem.value = HOSPITAL_DEMO_ENABLED ? createDemoHospital() : null
-          return selectedItem.value
-        }
-
         const response = await api.getbydata(`${ENDPOINT}/fetchcompanybyid`, { id })
         const raw = findCompanyRecord(response.data)
         const { items: rawContacts } = extractList(response.data, ['contactassoc'])
@@ -344,10 +333,6 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal memperbarui Faskes.',
       task: async () => {
-        if (isDemoHospitalId(id)) {
-          throw new Error('Data Dummy Lokal tidak dapat disimpan ke API.')
-        }
-
         const response = await api.post(`${ENDPOINT}/input`, { choice: 'u', id, ...payload })
         const raw = findCompanyRecord(response.data)
         if (!raw) {
@@ -371,10 +356,6 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal menghapus Faskes.',
       task: async () => {
-        if (isDemoHospitalId(id)) {
-          throw new Error('Data Dummy Lokal tidak dapat dihapus melalui API.')
-        }
-
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
         items.value = items.value.filter((item) => item.id !== id)
         if (selectedItem.value?.id === id) selectedItem.value = null

@@ -219,11 +219,6 @@
             placeholder="Pilih sumber kontak"
             :required="false"
           />
-          <DummyDataBadge
-            v-if="contactApi.sourceIsDummy"
-            class="mt-2"
-            label="Sumber: Data Dummy Lokal"
-          />
         </InputWrapper>
       </div>
       <div class="col-md-6">
@@ -291,7 +286,6 @@
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";

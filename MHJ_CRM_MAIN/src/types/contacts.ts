@@ -8,8 +8,6 @@ export interface ContactSidebarList {
 
 export interface Contact {
   id: number;
-  /** Penanda fixture lokal untuk preview UI; tidak pernah berasal dari API. */
-  isDemo?: boolean;
   /** Penanda asal data dari backend: "hospital" (endpoint Company) atau "api" (endpoint Contact). */
   origin?: "hospital" | "api";
   /** ID asli dari backend, dipakai untuk request update/delete. */
@@ -48,7 +46,7 @@ export interface Contact {
   financeStatus?: string;
   source?: string;
   company?: string;
-  /** Semua faskes yang berelasi dengan kontak (fixture/UI multi-faskes). */
+  /** Semua faskes yang berelasi dengan kontak. */
   companyNames?: string[];
   project?: string;
   projectId?: string;

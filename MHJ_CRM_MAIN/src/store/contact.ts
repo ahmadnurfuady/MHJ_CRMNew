@@ -14,17 +14,6 @@ import {
 } from "@/api/response";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { contactSidebarList } from "@/core/data/contacts";
-import {
-  CONTACT_DEMO_ENABLED,
-  createDemoContact,
-  demoContactMatchesSearch,
-  isDemoContactId,
-} from "@/core/data/contactDemo";
-import {
-  createDemoHospital,
-  demoHospitalMatchesSearch,
-  HOSPITAL_DEMO_ENABLED,
-} from "@/core/data/hospitalDemo";
 import type {
   Contact,
   ContactSidebarList,
@@ -50,17 +39,6 @@ const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
 const DEFAULT_CONTACT_STATUS = "1";
 export const INDONESIA_COUNTRY = "Indonesia";
-const CONTACT_SOURCE_FALLBACK: Select[] = [
-  { value: "1", label: "Website" },
-  { value: "2", label: "Referral" },
-  { value: "3", label: "Social Media" },
-  { value: "4", label: "Email Campaign" },
-  { value: "5", label: "Cold Call" },
-  { value: "6", label: "Trade Show" },
-  { value: "7", label: "Partner" },
-  { value: "8", label: "Advertisement" },
-  { value: "9", label: "Other" },
-];
 
 export interface ContactCrudPayload {
   company_id: number | null;
@@ -242,7 +220,6 @@ function notifyError(message: string) {
 function hospitalToContact(hospital: Hospital): Contact {
   return {
     id: HOSPITAL_ID_OFFSET + hospital.id,
-    isDemo: hospital.isDemo,
     origin: "hospital",
     remoteId: hospital.id,
     firstName: hospital.name,
@@ -480,7 +457,6 @@ export const useContact = defineStore("contact", () => {
     lookupLoading: false,
     statuses: [] as Select[],
     sources: [] as Select[],
-    sourceIsDummy: false,
     loading: false,
     detailLoading: false,
     submitting: false,
@@ -541,31 +517,10 @@ export const useContact = defineStore("contact", () => {
     return [];
   });
 
-  /**
-   * Menggabungkan kontak lokal, Rumah Sakit dari store Hospital, dan Contact dari API
-   * ke daftar yang dibaca UI. Kontak aktif dipertahankan bila masih ada.
-   */
+  /** Menggabungkan Rumah Sakit dan Contact dari API ke daftar yang dibaca UI. */
   function syncRemoteContacts() {
-    const localContacts = contactState.contactList.filter(
-      (contact) => !contact.origin && !contact.isDemo,
-    );
-    const showDemoContact =
-      CONTACT_DEMO_ENABLED &&
-      scope.value === "contact" &&
-      contactApi.pagination.page === 1 &&
-      demoContactMatchesSearch(contactApi.search);
-    const showDemoHospital =
-      HOSPITAL_DEMO_ENABLED &&
-      scope.value === "hospital" &&
-      hospitalStore.pagination.page === 1 &&
-      demoHospitalMatchesSearch(hospitalSearch.value);
-    const hospitalContacts = [
-      ...(showDemoHospital ? [hospitalToContact(createDemoHospital())] : []),
-      ...hospitalStore.items.map(hospitalToContact),
-    ];
+    const hospitalContacts = hospitalStore.items.map(hospitalToContact);
     contactState.contactList = [
-      ...localContacts,
-      ...(showDemoContact ? [createDemoContact()] : []),
       ...hospitalContacts,
       ...contactApi.items,
     ];
@@ -773,13 +728,6 @@ export const useContact = defineStore("contact", () => {
 
   /** GET /api/contact/fetchcontactbyid?id=<id>. */
   function fetchRemoteContactById(remoteId: number) {
-    if (CONTACT_DEMO_ENABLED && isDemoContactId(remoteId)) {
-      const demoContact = createDemoContact();
-      contactApi.selectedItem = demoContact;
-      syncRemoteContacts();
-      return Promise.resolve(demoContact);
-    }
-
     return runApiAction({
       flag: contactDetailLoading,
       error: contactError,
@@ -969,12 +917,10 @@ export const useContact = defineStore("contact", () => {
           const response = await api.get("master-data/sources");
           const sources = normalizeOptions(response.data, ["sources", "source"])
             .filter((option) => option.value && option.label);
-          contactApi.sources = sources.length ? sources : [...CONTACT_SOURCE_FALLBACK];
-          contactApi.sourceIsDummy = !sources.length;
+          contactApi.sources = sources;
         } catch (error) {
-          console.warn("Endpoint sumber kontak tidak tersedia, memakai lookup lokal.", error);
-          contactApi.sources = [...CONTACT_SOURCE_FALLBACK];
-          contactApi.sourceIsDummy = true;
+          console.warn("Endpoint sumber kontak tidak tersedia.", error);
+          contactApi.sources = [];
         }
         return contactApi.sources;
       },

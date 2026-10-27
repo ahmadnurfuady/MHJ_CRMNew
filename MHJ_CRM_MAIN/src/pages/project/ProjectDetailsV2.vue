@@ -46,7 +46,6 @@
         </div>
         <div class="hero-copy">
           <span class="hero-eyebrow">Profil Peluang</span>
-          <DummyDataBadge v-if="project.isDemo" />
           <h4>{{ project.projectName || productTitle }}</h4>
           <p><MhjIcon name="action_location" />{{ project.companyName || 'Lokasi belum tersedia' }}</p>
           <div class="hero-meta">
@@ -290,9 +289,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import ActivityTimeline from '@/components/shared/ActivityTimeline.vue'
-import DummyDataBadge from '@/components/shared/DummyDataBadge.vue'
 import { routes } from '@/router/routes'
-import { completeProjectDemo } from '@/core/data/projectDemo'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
 import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
 import type { StoredProjectDocument } from '@/services/projectDocumentStorage'
@@ -570,22 +567,6 @@ async function loadProject() {
   const requestedId = Number(route.query.id)
   try {
     let id = Number.isFinite(requestedId) && requestedId > 0 ? requestedId : 0
-    if (import.meta.env.DEV && requestedId === completeProjectDemo.id) {
-      store.selectedItem = completeProjectDemo
-      store.selectedDetails = [
-        {
-          activity: 'Negosiasi harga dan termin pembayaran',
-          activity_date: '2026-10-14T15:20:00+07:00',
-          activity_description: 'Penawaran revisi telah dikirim ke tim pengadaan faskes.'
-        },
-        {
-          activity: 'Presentasi produk',
-          activity_date: '2026-10-10T10:00:00+07:00',
-          activity_description: 'Demo Patient Monitor dilakukan bersama tim ICU.'
-        }
-      ]
-      return
-    }
     if (!id) {
       if (!items.value.length) await store.fetchProjects({ per_page: 100 })
       id = items.value[0]?.id ?? 0

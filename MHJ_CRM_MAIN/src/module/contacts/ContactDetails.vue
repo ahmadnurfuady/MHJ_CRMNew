@@ -123,7 +123,6 @@
                     <strong class="entity-detail-name mhj-cell-ellipsis">
                       {{ fullName(contact) }}
                     </strong>
-                    <DummyDataBadge v-if="contact.isDemo" />
                     <span
                       class="mhj-cell-ellipsis"
                       :title="contact.email || 'Email belum tersedia'"
@@ -273,8 +272,6 @@ import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch 
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
-import { companyDetails } from "@/core/data/contactCrm";
 import {
   fetchLatestActivities,
   formatTimelineDate,
@@ -314,8 +311,7 @@ const contactTableWidth = computed(() =>
 const contactTotal = computed(() =>
   Math.max(
     filteredContact.value.length,
-    contactApi.value.pagination.total +
-      (filteredContact.value.some((contact) => contact.isDemo) ? 1 : 0),
+    contactApi.value.pagination.total,
   ),
 );
 const visibleContactPages = computed<Array<number | string>>(() => {
@@ -479,14 +475,7 @@ function contactPeluang(contact: Contact): Array<{ projectName: string }> {
       ?.forEach((project) => projects.set(project.projectName, project));
   });
 
-  if (projects.size) return [...projects.values()];
-
-  // Fixture lokal hanya dipakai bila tidak ada peluang nyata yang cocok.
-  return names.flatMap((companyName) =>
-    (companyDetails[companyName]?.projects ?? []).map((project) => ({
-      projectName: project.name,
-    })),
-  );
+  return [...projects.values()];
 }
 
 /**
@@ -507,7 +496,7 @@ function refreshActivitiesOnFocus() {
 
 async function loadLatestActivities() {
   const remoteIds = filteredContact.value
-    .filter((contact) => contact.origin === "api" && !contact.isDemo)
+    .filter((contact) => contact.origin === "api")
     .map((contact) => Number(contact.remoteId))
     .filter((id) => Number.isSafeInteger(id) && id > 0);
 
@@ -910,17 +899,6 @@ onBeforeUnmount(() => {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.contact-person__identity .dummy-data-badge {
-  display: inline-flex;
-  width: fit-content;
-  max-width: 100%;
-  margin: 3px 0;
-  overflow: visible;
-  color: #8a5a00;
-  font-size: 10px;
-  text-overflow: clip;
 }
 
 /* Nama Rumah Sakit dan Jabatan memakai batas teks yang sama. */

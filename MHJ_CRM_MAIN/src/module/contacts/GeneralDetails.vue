@@ -22,7 +22,6 @@
           <vue-feather type="user" size="13" />
           Profil Kontak
         </span>
-        <DummyDataBadge v-if="contactState.activeContact.isDemo" />
         <h4 class="contact-identity__row mb-0">{{ fullName }}</h4>
         <p class="contact-identity__row contact-role mb-0">
           {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
@@ -246,7 +245,6 @@
           >
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <h6 class="mb-0">Profil Faskes</h6>
-              <DummyDataBadge v-if="companyDetail.isDemo" />
             </div>
             <span
               v-if="!canEditSelectedCompanyProfile"
@@ -328,7 +326,6 @@
         <div id="contact-opportunity-detail" class="card border mb-4 opportunity-card">
           <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
             <h6 class="mb-0">Peluang Berjalan per Stage</h6>
-            <DummyDataBadge v-if="companyDetail.projectsAreDemo" />
           </div>
           <div class="card-body pt-3">
             <template v-if="groupedProjects.length">
@@ -381,7 +378,6 @@
          <div class="card border mb-0 installed-product-card">
           <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
             <h6 class="mb-0">Histori Produk Terinstal</h6>
-            <DummyDataBadge v-if="companyDetail.installedProductsAreDemo" />
           </div>
           <div class="card-body pt-3">
             <div class="table-responsive">
@@ -442,8 +438,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
-import { companyDetails, type CompanyDetail } from "@/core/data/contactCrm";
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
+import type { CompanyDetail } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
@@ -564,21 +559,10 @@ const companiesForContact = computed<CompanyDetail[]>(() =>
   relatedCompanies.value.map(({ id, name }) => {
     const normalizedName = name.toLowerCase();
     const liveCompany = findLiveCompany(id, normalizedName);
-    const sample = companyDetails[name];
     const projects = projectsForCompany(
       liveCompany ? liveCompany.id : id,
       liveCompany ? liveCompany.name.trim().toLowerCase() : normalizedName,
     );
-
-    // Fixture lokal hanya untuk kontak demo yang tidak punya padanan di backend.
-    if (!liveCompany && sample) {
-      return {
-        ...sample,
-        isDemo: true,
-        projectsAreDemo: Boolean(sample.projects.length),
-        installedProductsAreDemo: Boolean(sample.installedProducts.length),
-      };
-    }
 
     // Faskes yang detailnya belum termuat tetap ditampilkan supaya seluruh
     // Faskes kontak terlihat; profil lengkapnya menyusul setelah kartu dipilih.
@@ -590,9 +574,7 @@ const companiesForContact = computed<CompanyDetail[]>(() =>
         phone: "-",
         website: "",
         projects,
-        projectsAreDemo: false,
         installedProducts: [],
-        installedProductsAreDemo: false,
       };
     }
 
@@ -606,10 +588,8 @@ const companiesForContact = computed<CompanyDetail[]>(() =>
       address: liveCompany.address || "-",
       phone: liveCompany.phone || "-",
       website: liveCompany.website || "",
-      projects: projects.length ? projects : sample?.projects ?? [],
-      projectsAreDemo: !projects.length && Boolean(sample?.projects.length),
-      installedProducts: sample?.installedProducts ?? [],
-      installedProductsAreDemo: Boolean(sample?.installedProducts.length),
+      projects,
+      installedProducts: [],
     };
   }),
 );
@@ -734,13 +714,12 @@ const canEditCompanyProfile = computed(() =>
 const canEditSelectedCompanyProfile = computed(
   () =>
     canEditCompanyProfile.value &&
-    Boolean(liveCompany.value) &&
-    !contactState.value.activeContact?.isDemo,
+    Boolean(liveCompany.value),
 );
 const companyEditTitle = computed(() =>
   canEditSelectedCompanyProfile.value
     ? "Edit profil faskes"
-    : "Profil Data Dummy Lokal hanya dapat dilihat",
+    : "Profil faskes hanya dapat dilihat",
 );
 const isEditingCompany = ref(false);
 const companyDraft = reactive({ phone: "", website: "", address: "" });

@@ -129,7 +129,6 @@
                     <strong class="entity-detail-name">
                       {{ displayValue(hospital.firstName) }}
                     </strong>
-                    <DummyDataBadge v-if="hospital.isDemo" />
                     <span>{{ hospital.email || "Email belum tersedia" }}</span>
                   </div>
                 </div>
@@ -269,8 +268,6 @@
 import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
-import { companyDetails } from "@/core/data/contactCrm";
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
@@ -306,11 +303,10 @@ const hospitalTableWidth = computed(() =>
   hospitalColumnWidths.value.reduce((total, width) => total + width, 0),
 );
 const hospitalDisplayTotal = computed(() => {
-  const demoTotal = filteredContact.value.some((hospital) => hospital.isDemo) ? 1 : 0;
   const apiTotal =
     hospitalPagination.value.total ||
-    filteredContact.value.filter((hospital) => !hospital.isDemo).length;
-  return apiTotal + demoTotal;
+    filteredContact.value.length;
+  return apiTotal;
 });
 const visibleHospitalPages = computed<Array<number | string>>(() => {
   const totalPages = Math.max(1, hospitalPagination.value.lastPage);
@@ -414,17 +410,15 @@ function formatMetric(total?: number) {
 }
 
 function hospitalType(hospital: Contact) {
-  return displayValue(hospital.hospitalType || companyDetails[hospital.firstName]?.type);
+  return displayValue(hospital.hospitalType);
 }
 
 function projectTotal(hospital: Contact) {
-  return hospital.totalProjects ?? companyDetails[hospital.firstName]?.projects.length;
+  return hospital.totalProjects;
 }
 
 function installedEquipmentTotal(hospital: Contact) {
-  return (
-    hospital.totalInstalledEquipment ?? companyDetails[hospital.firstName]?.installedProducts.length
-  );
+  return hospital.totalInstalledEquipment;
 }
 
 function parseVisitDate(value: string) {
@@ -755,18 +749,6 @@ onBeforeUnmount(() => {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.hospital-identity__text .dummy-data-badge {
-  display: inline-flex;
-  width: fit-content;
-  max-width: 100%;
-  margin: 3px 0;
-  overflow: visible;
-  color: #8a5a00;
-  font-size: 10px;
-  font-weight: 700;
-  text-overflow: clip;
 }
 
 .last-visit small {

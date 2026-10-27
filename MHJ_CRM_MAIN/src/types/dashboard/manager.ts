@@ -1,7 +1,6 @@
 /**
  * Bentuk data untuk "Dashboard Manager" (ringkasan kinerja sales/marketing).
- * Semua angka berasal dari `fetchManagerDashboardData()`; bagian yang belum
- * tersedia dari API menggunakan fallback lokal dan dicatat di `dummySections`.
+ * Semua angka berasal dari `fetchManagerDashboardData()`.
  */
 
 export type ManagerKpiAccent = 'blue' | 'amber' | 'green' | 'violet'
@@ -85,8 +84,6 @@ export interface PromoSlide {
 
 export interface ManagerDashboardData {
   greetingName: string
-  /** Bagian yang sedang memakai fixture/fallback lokal, kosong jika seluruh data berasal dari API. */
-  dummySections: string[]
   kpis: ManagerKpiCard[]
   quickActions: ManagerQuickAction[]
   benchmark: ManagerBenchmarkSummary

@@ -25,7 +25,6 @@
     <div class="opp-card__main">
       <div class="opp-card__copy">
         <small>Peluang</small>
-        <DummyDataBadge v-if="project.isDemo" />
         <h5>{{ shortProjectTitle(project.projectName) }}</h5>
         <p>
           <span>{{ project.companyName || 'Faskes belum ditentukan' }}</span>
@@ -135,7 +134,6 @@
 import { computed, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
 import { projectTab } from '@/core/data/project'
-import DummyDataBadge from '@/components/shared/DummyDataBadge.vue'
 import { shortProjectTitle } from '@/utils/index'
 import type { ProjectContact, Projects } from '@/types/project'
 

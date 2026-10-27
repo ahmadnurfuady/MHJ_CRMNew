@@ -222,14 +222,6 @@
                     Memilih serial number akan menampilkan konfirmasi ringkasan
                     peluang Sales.
                   </small>
-                  <small
-                    v-if="
-                      taskType === 'app-specialist' && usingDummySerialProjects
-                    "
-                    class="d-block text-warning mt-1"
-                  >
-                    Serial number menggunakan Data Dummy Lokal karena data backend belum tersedia.
-                  </small>
                 </div>
 
                 <template v-if="showContextFields">
@@ -706,10 +698,6 @@ import {
 } from "vue-router";
 import Swal from "sweetalert2";
 import { initSelectField } from "@/core/data/common";
-import {
-  contacts as fallbackContacts,
-  hospitals as fallbackHospitals,
-} from "@/core/data/projectDeal";
 import type { DealOption } from "@/core/data/projectDeal";
 import { projectTab } from "@/core/data/project";
 import { useTask } from "@/store/task";
@@ -797,7 +785,7 @@ const opportunityLabel = computed(() =>
   taskType.value === "sales" ? "Peluang" : "Terkait Peluang Sales?",
 );
 
-const fallbackCategoryOptions: DealOption[] = [
+const activityCategoryOptions: DealOption[] = [
   { value: "prospecting", label: "Prospecting" },
   { value: "pengenalan", label: "Pengenalan" },
   { value: "pendekatan", label: "Pendekatan" },
@@ -807,64 +795,7 @@ const fallbackCategoryOptions: DealOption[] = [
   { value: "lainnya", label: "Lainnya: (Ketik Sendiri)" },
 ];
 
-// Fallback sementara untuk menguji alur serial number sebelum endpoint Sales siap.
-// Otomatis tidak dipakai setelah backend mengembalikan minimal satu peluang berserial.
-const dummySerialProjectOptions: ProjectOption[] = [
-  {
-    id: 990001,
-    value: 990001,
-    label: "Pengadaan USG Radiology RSUD Dr. Soetomo",
-    status: "presentation_demo",
-    hospital: { value: "dummy-rsud-soetomo", label: "RSUD Dr. Soetomo" },
-    contacts: [
-      { value: "dummy-dr-andika", label: "dr. Andika Pratama, Sp.Rad" },
-    ],
-    division: { value: "MHJ USG", label: "MHJ USG", code: "USG" },
-    products: [
-      { value: "dummy-usg-logiq-e10", label: "USG LOGIQ E10" },
-    ],
-    serialNumber: "DUMMY-USG-26001",
-  },
-  {
-    id: 990002,
-    value: 990002,
-    label: "Instalasi CT Scan RS Premier Surabaya",
-    status: "negotiation",
-    hospital: {
-      value: "dummy-rs-premier-surabaya",
-      label: "RS Premier Surabaya",
-    },
-    contacts: [
-      { value: "dummy-siti-rahma", label: "Siti Rahma - Kepala Radiologi" },
-    ],
-    division: { value: "MHJ CT & XR", label: "MHJ CT & XR", code: "DI" },
-    products: [
-      { value: "dummy-ct-revolution", label: "CT Scan Revolution Maxima" },
-    ],
-    serialNumber: "DUMMY-CT-26002",
-  },
-  {
-    id: 990003,
-    value: 990003,
-    label: "Pengadaan MRI RS Siloam Surabaya",
-    status: "closed_won",
-    hospital: {
-      value: "dummy-rs-siloam-surabaya",
-      label: "RS Siloam Surabaya",
-    },
-    contacts: [
-      { value: "dummy-dr-budi", label: "dr. Budi Santoso, Sp.Rad" },
-      { value: "dummy-rina", label: "Rina Kurnia - Purchasing" },
-    ],
-    division: { value: "MHJ MRI", label: "MHJ MRI", code: "MRI" },
-    products: [{ value: "dummy-mri-signa", label: "MRI SIGNA Artist" }],
-    serialNumber: "DUMMY-MRI-26003",
-  },
-];
-
-// Untuk integrasi backend nanti, isi ref ini dengan hasil API dalam format { value, label }.
-// Fallback tetap dipakai jika data kategori dari backend kosong atau gagal dimuat.
-const categoryOptions = ref<DealOption[]>([...fallbackCategoryOptions]);
+const categoryOptions = ref<DealOption[]>([...activityCategoryOptions]);
 
 const stageOptions: DealOption[] = projectTab
   .filter((stage) => stage.value !== "all")
@@ -989,16 +920,12 @@ const apiContactOptions = computed<DealOption[]>(() =>
     .filter((contact) => contact.origin === "api")
     .map(toContactOption),
 );
-const contactOptions = computed<DealOption[]>(() =>
-  apiContactOptions.value.length ? apiContactOptions.value : fallbackContacts,
-);
+const contactOptions = computed<DealOption[]>(() => apiContactOptions.value);
 const hospitalOptions = computed<DealOption[]>(() =>
-  hospitalStore.items.length
-    ? hospitalStore.items.map((hospital) => ({
-        value: hospital.id,
-        label: hospital.name,
-      }))
-    : fallbackHospitals,
+  hospitalStore.items.map((hospital) => ({
+    value: hospital.id,
+    label: hospital.name,
+  })),
 );
 
 function contactsForProject(projectName: string) {
@@ -1117,14 +1044,7 @@ const projectOptions = computed<ProjectOption[]>(() =>
 const backendSerialProjectOptions = computed(() =>
   projectOptions.value.filter((project) => project.serialNumber.trim()),
 );
-const usingDummySerialProjects = computed(
-  () => backendSerialProjectOptions.value.length === 0,
-);
-const serialProjectOptions = computed(() =>
-  usingDummySerialProjects.value
-    ? dummySerialProjectOptions
-    : backendSerialProjectOptions.value,
-);
+const serialProjectOptions = computed(() => backendSerialProjectOptions.value);
 
 const selectedProject = computed(
   () => form.project.selected as ProjectOption | null,

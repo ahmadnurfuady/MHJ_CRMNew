@@ -4,8 +4,6 @@
  */
 export interface Hospital {
   id: number
-  /** Penanda fixture lokal untuk preview UI; tidak pernah berasal dari API. */
-  isDemo?: boolean
   /** company_name */
   name: string
   /** company_owner */

@@ -34,8 +34,7 @@
               <button
                 :class="['status-badge', { unrated: !hospital.financeStatus }]"
                 type="button"
-                :disabled="hospital.isDemo"
-                :title="hospital.isDemo ? 'Status Data Dummy Lokal tidak dapat diubah' : 'Perbarui grading/status Finance'"
+                title="Perbarui grading/status Finance"
                 @click="editHospitalStatus"
               >
                 <SolarIcon name="fa-circle" />
@@ -47,7 +46,6 @@
               {{ locationLabel }}
             </p>
             <div class="hospital-tags">
-              <DummyDataBadge v-if="hospital.isDemo" />
               <span>{{
                 hospital.hospitalClass || "Kelas belum tersedia"
               }}</span>
@@ -113,7 +111,6 @@
           <div class="purchase-cycle-title">
             <div class="purchase-cycle-title-line">
               <h5 id="purchase-cycle-title">Purchase Cycle</h5>
-              <DummyDataBadge v-if="purchaseRecordsAreDemo" />
             </div>
             <p>Siklus pembelian alat</p>
           </div>
@@ -199,7 +196,6 @@
           <div>
             <p>Pipeline sales</p>
             <h5>Peluang Faskes</h5>
-            <DummyDataBadge v-if="hospital.isDemo" />
           </div>
           <div class="panel-heading-actions">
             <div class="project-total">
@@ -209,8 +205,7 @@
             <button
               type="button"
               class="panel-add-button mhj-add-button"
-              :disabled="hospital.isDemo"
-              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk Data Dummy Lokal' : 'Tambah peluang'"
+              title="Tambah peluang"
               @click="createOpportunity"
             >
               <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
@@ -283,12 +278,11 @@
                 :key="project.id"
                 type="button"
                 class="project-row"
-                :disabled="hospital.isDemo"
                 @click="openProject(project.id)"
               >
                 <span class="project-name">
                   <strong>{{ project.projectName }}</strong>
-                  <small>{{ hospital.isDemo ? "Peluang Data Dummy Lokal" : "Klik untuk melihat detail peluang" }}</small>
+                  <small>Klik untuk melihat detail peluang</small>
                 </span>
                 <span class="project-owner">
                   <SolarIcon name="fa-user" />
@@ -325,15 +319,13 @@
           <div>
             <p>Relasi utama</p>
             <h5>Kontak Faskes</h5>
-            <DummyDataBadge v-if="hospital.isDemo" />
           </div>
           <div class="panel-heading-actions">
             <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
             <button
               type="button"
               class="panel-add-button mhj-add-button"
-              :disabled="hospital.isDemo"
-              :title="hospital.isDemo ? 'Aksi dinonaktifkan untuk Data Dummy Lokal' : 'Tambah kontak'"
+              title="Tambah kontak"
               @click="createHospitalContact"
             >
               <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
@@ -346,9 +338,9 @@
             v-for="contact in hospitalContacts"
             :key="contact.id"
             class="contact-card"
-            :role="contact.isDemo ? undefined : 'link'"
-            :tabindex="contact.isDemo ? -1 : 0"
-            :aria-label="contact.isDemo ? undefined : `Buka detail kontak ${fullName(contact)}`"
+            role="link"
+            tabindex="0"
+            :aria-label="`Buka detail kontak ${fullName(contact)}`"
             @click="openContactDetail(contact)"
             @keydown.enter.self="openContactDetail(contact)"
           >
@@ -414,7 +406,6 @@
           <div>
             <p>Installed base</p>
             <h5>Alat Terpasang</h5>
-            <DummyDataBadge v-if="installedProductsAreDemo" />
           </div>
           <span class="panel-count">{{ installedProducts.length }} alat</span>
         </div>
@@ -477,11 +468,10 @@
           <div>
             <p>Informasi faskes</p>
             <h5>Profil Faskes</h5>
-            <DummyDataBadge v-if="hospital.isDemo" />
           </div>
           <div class="profile-actions">
             <button
-              v-if="!profileEditing && !hospital.isDemo"
+              v-if="!profileEditing"
               class="edit-profile"
               type="button"
               @click="editHospital"
@@ -645,7 +635,6 @@
       <div class="modal-header purchase-history-header">
         <div>
           <h5 class="modal-title">Riwayat Pembelian</h5>
-          <DummyDataBadge v-if="purchaseRecordsAreDemo" />
           <small class="purchase-history-subtitle">
             {{ purchaseTotal }} transaksi
           </small>
@@ -705,15 +694,7 @@ import {
 } from "vue-router";
 import { storeToRefs } from "pinia";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
-import { companyDetails, type InstalledProduct } from "@/core/data/contactCrm";
-import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
-import {
-  DEMO_HOSPITAL_CONTACTS,
-  DEMO_HOSPITAL_INSTALLED_PRODUCTS,
-  DEMO_HOSPITAL_PROJECTS,
-  isDemoHospitalId,
-  isDemoProjectId,
-} from "@/core/data/hospitalDemo";
+import type { InstalledProduct } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
 import { searchAddress } from "@/services/geocoding";
@@ -811,7 +792,6 @@ const normalizeName = (value: string) => value.trim().toLowerCase();
 
 const hospitalProjects = computed(() => {
   if (!hospital.value) return [];
-  if (hospital.value.isDemo) return DEMO_HOSPITAL_PROJECTS;
   const name = normalizeName(hospital.value.name);
   return projectStore.items.filter(
     (project) =>
@@ -822,7 +802,6 @@ const hospitalProjects = computed(() => {
 
 const hospitalContacts = computed(() => {
   if (!hospital.value) return [];
-  if (hospital.value.isDemo) return DEMO_HOSPITAL_CONTACTS;
   const companyId = String(hospital.value.id);
   const name = normalizeName(hospital.value.name);
   return contactStore.contactApi.items.filter(
@@ -832,19 +811,7 @@ const hospitalContacts = computed(() => {
   );
 });
 
-const installedProducts = computed<InstalledProduct[]>(
-  () =>
-    (hospital.value?.isDemo
-      ? DEMO_HOSPITAL_INSTALLED_PRODUCTS
-      : hospital.value
-        ? companyDetails[hospital.value.name]?.installedProducts
-        : []) ?? [],
-);
-const installedProductsAreDemo = computed(() => {
-  if (hospital.value?.isDemo) return true;
-  if (!hospital.value) return false;
-  return Boolean(companyDetails[hospital.value.name]?.installedProducts.length);
-});
+const installedProducts = computed<InstalledProduct[]>(() => []);
 
 const totalProjectValue = computed(() =>
   hospitalProjects.value.reduce(
@@ -918,10 +885,6 @@ const purchaseRecords = computed<PurchaseTimelineItem[]>(() => {
     return left.date.getTime() - right.date.getTime();
   });
 });
-const purchaseRecordsAreDemo = computed(
-  () => !wonProjectPurchases.value.length && installedProductsAreDemo.value,
-);
-
 const purchaseTotal = computed(() =>
   Math.max(
     hospital.value?.totalInstalledEquipment ?? 0,
@@ -1109,19 +1072,17 @@ function selectStage(stage: string) {
 }
 
 function openProject(id: number) {
-  if (isDemoProjectId(id)) return;
   void router.push({ name: "Project Details V2", query: { id: String(id) } });
 }
 
 function openContactDetail(contact: Contact) {
-  if (contact.isDemo) return;
   const id = contact.remoteId ?? contact.id;
   if (!Number.isFinite(id) || id <= 0) return;
   void router.push({ path: routes.App.Contacts, query: { detail: String(id) } });
 }
 
 function createOpportunity() {
-  if (!hospital.value || hospital.value.isDemo) return;
+  if (!hospital.value) return;
   projectStore.openCreateModal({
     id: hospital.value.id,
     name: hospital.value.name,
@@ -1129,7 +1090,7 @@ function createOpportunity() {
 }
 
 function createHospitalContact() {
-  if (!hospital.value || hospital.value.isDemo) return;
+  if (!hospital.value) return;
   contactStore.openContactModalForCompany({
     id: hospital.value.id,
     name: hospital.value.name,
@@ -1148,7 +1109,6 @@ function closePurchaseHistory() {
 }
 
 async function handleContactCreated() {
-  if (isDemoHospitalId(props.hospitalId)) return;
   await Promise.allSettled([
     contactStore.fetchRemoteContacts({ per_page: 100 }),
     hospitalStore.fetchHospitalById(props.hospitalId),
@@ -1222,7 +1182,6 @@ function syncHospitalEditRoute() {
 }
 
 function editHospital() {
-  if (hospital.value?.isDemo) return;
   prepareProfileForm();
   profileEditing.value = true;
   allowEditNavigation = false;
@@ -1230,7 +1189,6 @@ function editHospital() {
 }
 
 function editHospitalStatus() {
-  if (hospital.value?.isDemo) return;
   prepareProfileForm();
   activeTab.value = "profile";
   profileEditing.value = true;
@@ -1438,13 +1396,11 @@ async function loadDetail() {
   loadError.value = "";
   activeTab.value = detailTabFromQuery(route.query.tab);
   hospitalStore.selectedItem = null;
-  const detailRequests = isDemoHospitalId(props.hospitalId)
-    ? [hospitalStore.fetchHospitalById(props.hospitalId)]
-    : [
-        hospitalStore.fetchHospitalById(props.hospitalId),
-        projectStore.fetchProjects({ per_page: 100 }),
-        contactStore.fetchRemoteContacts({ per_page: 100 }),
-      ];
+  const detailRequests = [
+    hospitalStore.fetchHospitalById(props.hospitalId),
+    projectStore.fetchProjects({ per_page: 100 }),
+    contactStore.fetchRemoteContacts({ per_page: 100 }),
+  ];
   const results = await Promise.allSettled(detailRequests);
 
   if (results[0]?.status === "rejected" || !hospitalStore.selectedItem) {

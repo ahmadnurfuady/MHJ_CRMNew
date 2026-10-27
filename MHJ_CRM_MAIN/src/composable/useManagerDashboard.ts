@@ -16,11 +16,7 @@ const loading = ref(false)
 const promoSlides = ref<PromoSlide[]>([])
 const promoLoading = ref(false)
 
-/**
- * Data & state untuk Dashboard Manager. Sumber tiap bagian dapat berupa API
- * atau fallback lokal dan dilaporkan lewat `dummySections`; promo selalu
- * dimuat dari `promoService`.
- */
+/** Data Dashboard Manager dan promo dimuat dari service backend. */
 export function useManagerDashboard() {
   async function loadManagerDashboard() {
     loading.value = true

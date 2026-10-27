@@ -339,7 +339,6 @@ import {
 import { storeToRefs } from "pinia";
 import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
-import { completeProjectDemo } from "@/core/data/projectDemo";
 import { useTask } from "@/store/task";
 import { useProjectStore } from "@/store/project";
 import type { Projects } from "@/types/project";
@@ -406,14 +405,9 @@ function parseProjectAmount(project: Projects) {
   return Number(`${integer}.${decimal}`) || 0;
 }
 
-const withDevelopmentDemo = (projects: Projects[]) =>
-  import.meta.env.DEV && !projects.some((project) => project.id === completeProjectDemo.id)
-    ? [completeProjectDemo, ...projects]
-    : projects;
-
-const listedProjects = computed(() => withDevelopmentDemo(projectList.value));
+const listedProjects = computed(() => projectList.value);
 const summaryProjects = computed(() =>
-  withDevelopmentDemo(summaryItems.value.length ? summaryItems.value : projectList.value),
+  summaryItems.value.length ? summaryItems.value : projectList.value,
 );
 
 const pipelineTotal = computed(() =>

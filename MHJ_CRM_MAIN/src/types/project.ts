@@ -282,8 +282,6 @@ export interface ActivityTemplate {
 /** Project dari dbo.m_projects. */
 export interface Projects {
   id: number
-  /** Penanda data fixture/fallback lokal yang tidak berasal dari API. */
-  isDemo?: boolean
   /** deal_name pada API legacy /deals, ditampilkan sebagai Project Name. */
   projectName: string
   projectDescription: string

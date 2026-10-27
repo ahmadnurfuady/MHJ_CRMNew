@@ -2,10 +2,6 @@ import { ref } from "vue";
 
 import { api } from "@/api";
 import { extractList, isRecord, pickString, type Dict } from "@/api/response";
-import {
-  cityOptionsByProvince as baseCityOptionsByProvince,
-  provinceOptions as baseProvinceOptions,
-} from "@/core/data/contactCrm";
 import type { Select } from "@/types/common";
 
 interface CompanyAddress {
@@ -21,16 +17,8 @@ interface CompanyAddress {
 const addressCache = new Map<string, CompanyAddress | null>();
 const pendingFetches = new Map<string, Promise<CompanyAddress | null>>();
 
-/**
- * Opsi dropdown dimulai dari daftar statis (core/data/contactCrm), lalu makin lama
- * makin lengkap setiap kali ketemu provinsi/kota real dari data company.
- */
-const provinceOptions = ref<Select[]>([...baseProvinceOptions]);
-const cityOptionsByProvince = ref<Record<string, Select[]>>(
-  Object.fromEntries(
-    Object.entries(baseCityOptionsByProvince).map(([key, value]) => [key, [...value]]),
-  ),
-);
+const provinceOptions = ref<Select[]>([]);
+const cityOptionsByProvince = ref<Record<string, Select[]>>({});
 
 function rememberOptions(address: CompanyAddress) {
   const province = address.province.trim();
@@ -226,8 +214,7 @@ let regionsPromise: Promise<void> | null = null;
 
 /**
  * GET /api/master-data/provinsi & /api/master-data/kotakabupaten.
- * Menggantikan dropdown statis dengan data resmi begitu endpoint berhasil dimuat;
- * jika gagal, dropdown statis (core/data/contactCrm) tetap dipakai sebagai cadangan.
+ * Mengisi dropdown wilayah hanya dari master data backend.
  */
 function loadRegionsFromApi(): Promise<void> {
   if (regionsLoaded) return Promise.resolve();
@@ -270,7 +257,7 @@ function loadRegionsFromApi(): Promise<void> {
       if (Object.keys(nextCityMap).length) cityOptionsByProvince.value = nextCityMap;
       regionsLoaded = true;
     } catch (error) {
-      console.warn("Gagal memuat provinsi/kotakabupaten dari master data, memakai data lokal.", error);
+      console.warn("Gagal memuat provinsi/kotakabupaten dari master data.", error);
     } finally {
       regionsPromise = null;
     }
@@ -280,7 +267,7 @@ function loadRegionsFromApi(): Promise<void> {
 }
 
 /**
- * Dropdown Provinsi/Kota (dari master data, dengan statis sebagai cadangan),
+ * Dropdown Provinsi/Kota dari master data,
  * plus lookup alamat satu company (untuk auto-fill saat company dipilih).
  */
 export function useCompanyRegions() {

@@ -1,6 +1,7 @@
 import { fetchRecentTasks } from '@/services/managerDashboardService'
 import {
   fetchDashboardMetrics,
+  fetchDashboardMetricsFromExistingApis,
   type DashboardMetricsRaw,
 } from '@/services/analyticsService'
 import type {
@@ -11,131 +12,27 @@ import type {
   MapHighlight,
 } from '@/types/dashboard/manager'
 
-/**
- * Data base untuk Dashboard Manager. Nilai di sini dipakai sebagai fallback
- * jika endpoint di BE belum tersedia atau gagal diambil.
- * - KPI/benchmark/coverage → di-override oleh `fetchDashboardMetrics()` (GET /api/dashboard/metrics)
- * - Peta cakupan mengambil daftar RS langsung dari store Company/Hospital di komponen peta.
- * - Aktivitas → di-override oleh `fetchRecentTasks()` (GET /api/tasks)
- */
+/** Konfigurasi navigasi dan state kosong Dashboard Manager. */
 const managerDashboardData: ManagerDashboardData = {
-  greetingName: 'Sales',
-  dummySections: [
-    'KPI kinerja',
-    'Benchmark target',
-    'Ringkasan cakupan',
-    'Titik sorotan peta',
-    'Aktivitas terbaru',
-  ],
-  kpis: [
-    {
-      id: 'target-omset',
-      label: 'Target vs Omset',
-      value: 'Rp12,5M',
-      sublabel: 'dari Rp15M',
-      icon: 'graph',
-      progress: 83,
-      accent: 'blue',
-    },
-    {
-      id: 'win-rate',
-      label: 'Win Rate',
-      value: '68%',
-      sublabel: '14 deal ditutup',
-      icon: 'star',
-      progress: 68,
-      accent: 'amber',
-    },
-    {
-      id: 'cakupan-pasar',
-      label: 'Cakupan Pasar',
-      value: '45/100',
-      sublabel: 'Faskes aktif',
-      icon: 'cart',
-      progress: 45,
-      accent: 'green',
-    },
-    {
-      id: 'funnel-aktif',
-      label: 'Funnel Aktif',
-      value: '24',
-      sublabel: '3 perlu ditutup',
-      icon: 'filter',
-      progress: 60,
-      accent: 'violet',
-    },
-  ],
+  greetingName: '',
+  kpis: [],
   quickActions: [
     { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
     { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
     { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/promos' },
     { id: 'form-survey', label: 'Form Survey', icon: 'clipboard', comingSoon: true },
   ],
-  benchmark: {
-    stats: [
-      { id: 'target-tahunan', label: 'Target Tahunan', value: 'Rp23,70M' },
-      { id: 'target-peluang', label: 'Target Peluang', value: 'Rp71,10M', hint: 'Target x3' },
-      { id: 'real-peluang', label: 'Real Peluang', value: 'Rp32,59M' },
-      { id: 'revenue', label: 'Revenue', value: 'Rp6,74M' },
-    ],
-    progressStats: [
-      { id: 'peluang-progres', label: 'Peluang Progres', value: 45.85, displayValue: '45,85%' },
-      { id: 'target-progres', label: 'Target Progres', value: 28.45, displayValue: '28,45%' },
-    ],
-    winningChance: 20.68,
-  },
+  benchmark: { stats: [], progressStats: [], winningChance: 0 },
   coverage: {
-    stats: [
-      {
-        id: 'area-coverage',
-        label: 'Area Coverage',
-        value: '45',
-        progress: 45,
-        hint: 'dari 100 faskes dikunjungi',
-        icon: 'map-point',
-      },
-      {
-        id: 'market-coverage',
-        label: 'Market Coverage',
-        value: '12',
-        progress: 26.7,
-        hint: 'dari 45 faskes membeli',
-        icon: 'cart',
-      },
-    ],
+    stats: [],
     highlight: {
       lat: -6.2297,
       lng: 106.8198,
-      label: 'RS Mitra Keluarga Cemara',
+      label: '',
       zoom: 11,
     },
   },
-  activities: [
-    {
-      id: 1,
-      type: 'call',
-      title: 'Telepon dengan Dr. David',
-      subtitle: 'RSUD Bhayangkara',
-      time: '1 jam lalu',
-      icon: 'phone',
-    },
-    {
-      id: 2,
-      type: 'email',
-      title: 'Kirim proposal ke RS Siloam Surabaya',
-      subtitle: 'Proposal pengadaan alat',
-      time: '3 jam lalu',
-      icon: 'letter',
-    },
-    {
-      id: 3,
-      type: 'meeting',
-      title: 'Meeting dengan RS Hermina Jakarta',
-      subtitle: 'Presentasi produk & demo',
-      time: '3 jam lalu',
-      icon: 'camera',
-    },
-  ],
+  activities: [],
 }
 
 /** Format "Rp 12,5M" / "Rp 850Jt" / "Rp 500Rb" dari angka IDR (satuan rupiah). */
@@ -286,37 +183,31 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
   }
 }
 
-/**
- * Mengambil data Dashboard Manager. Setiap section di-override dengan data
- * backend kalau endpoint-nya sukses; kalau gagal, pakai dummy di atas.
- */
+/** Mengambil data Dashboard Manager hanya dari backend. */
 export async function fetchManagerDashboardData(): Promise<ManagerDashboardData> {
-  const [metrics, activities] = await Promise.all([
+  const [primaryMetrics, activities] = await Promise.all([
     fetchDashboardMetrics(),
     fetchRecentTasks(5).catch((error) => {
       console.error('Gagal memuat daftar tugas terbaru dari backend.', error)
       return [] as ManagerDashboardData['activities']
     }),
   ])
+  const metrics = primaryMetrics ?? await fetchDashboardMetricsFromExistingApis()
 
-  const kpis = metrics ? buildKpis(metrics) : managerDashboardData.kpis
-  const benchmark = metrics ? buildBenchmark(metrics) : managerDashboardData.benchmark
+  const kpis = metrics ? buildKpis(metrics) : []
+  const benchmark = metrics
+    ? buildBenchmark(metrics)
+    : { stats: [], progressStats: [], winningChance: 0 }
   const highlight = managerDashboardData.coverage.highlight
   const coverage = metrics
     ? buildCoverage(metrics, highlight)
-    : { ...managerDashboardData.coverage, highlight }
-  const dummySections = [
-    ...(!metrics ? ['KPI kinerja', 'Benchmark target', 'Ringkasan cakupan'] : []),
-    'Titik sorotan peta',
-    ...(!activities.length ? ['Aktivitas terbaru'] : []),
-  ]
+    : { stats: [], highlight }
 
   return {
     ...managerDashboardData,
-    dummySections,
     kpis,
     benchmark,
     coverage,
-    activities: activities.length ? activities : managerDashboardData.activities,
+    activities,
   }
 }
