@@ -333,12 +333,13 @@
                     Batal
                   </button>
                   <button class="btn btn-primary" type="submit" :disabled="projectStore.submitting">
-                    <span
-                      v-if="projectStore.submitting"
-                      class="spinner-border spinner-border-sm me-2"
-                      aria-hidden="true"
-                    />
-                    {{ isEditMode ? 'Simpan Perubahan' : 'Simpan Peluang' }}
+                    {{
+                      projectStore.submitting
+                        ? 'Menyimpan...'
+                        : isEditMode
+                          ? 'Simpan Perubahan'
+                          : 'Simpan Peluang'
+                    }}
                   </button>
                 </div>
               </div>

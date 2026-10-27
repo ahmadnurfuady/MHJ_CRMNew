@@ -296,18 +296,13 @@
           <button class="btn btn-light" type="button" @click="closeForm">Batal</button>
           <details class="export-menu" :class="{ disabled: saving }">
             <summary class="btn btn-primary" @click="saving && $event.preventDefault()">
-              <span v-if="saving" class="spinner-border spinner-border-sm me-2"></span>
-              <SolarIcon name="fa-download" class="me-2" v-else />
-              Simpan Dokumen
-              <SolarIcon name="fa-chevron-down" class="export-chevron" />
+              {{ saving ? 'Menyimpan...' : 'Simpan Dokumen' }}
             </summary>
             <div class="export-menu__panel">
               <button type="submit" @click="exportFormat = 'word'">
-                <SolarIcon name="fa-file-word" />
                 <span><strong>Simpan sebagai Word</strong><small>Format .doc yang dapat diedit</small></span>
               </button>
               <button type="submit" @click="exportFormat = 'pdf'">
-                <SolarIcon name="fa-file-pdf" />
                 <span><strong>Simpan sebagai PDF</strong><small>Format .pdf siap dikirim</small></span>
               </button>
             </div>
@@ -973,12 +968,9 @@ onMounted(loadDocuments)
 .export-menu summary { display: flex; align-items: center; min-width: 190px; justify-content: center; list-style: none; cursor: pointer; }
 .export-menu summary::-webkit-details-marker { display: none; }
 .export-menu.disabled summary { cursor: wait; opacity: .65; }
-.export-chevron { margin-left: 12px; font-size: 9px; transition: transform .18s ease; }
-.export-menu[open] .export-chevron { transform: rotate(180deg); }
 .export-menu__panel { position: absolute; z-index: 60; right: 0; bottom: calc(100% + 8px); width: 265px; overflow: hidden; border: 1px solid #dfe7ec; border-radius: 11px; padding: 6px; background: #fff; box-shadow: 0 13px 32px rgba(27, 51, 69, .18); }
-.export-menu__panel button { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 8px; padding: 10px; color: #334352; background: transparent; text-align: left; }
+.export-menu__panel button { display: block; width: 100%; border: 0; border-radius: 8px; padding: 10px; color: #334352; background: transparent; text-align: left; }
 .export-menu__panel button:hover { background: var(--app-primary-wash, #f1f8fb); }
-.export-menu__panel button > i { color: var(--app-primary, #159ed8); font-size: 16px; text-align: center; }
 .export-menu__panel strong, .export-menu__panel small { display: block; }
 .export-menu__panel strong { font-size: 13px; font-weight: 600; }
 .export-menu__panel small { margin-top: 2px; color: #89949e; font-size: 11px; }

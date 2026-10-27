@@ -279,17 +279,20 @@
                     <span>Detail</span>
                   </button>
                   <button
-                    class="btn btn-outline-danger btn-sm task-delete-button"
+                    class="task-delete-button"
                     type="button"
                     :aria-label="`Hapus ${item.title}`"
+                    :title="`Hapus ${item.title}`"
                     @click="deleteTask(item)"
                   >
-                    <vue-feather
-                      type="trash-2"
-                      size="15"
-                      color="currentColor"
-                      secondary-color="#fecaca"
-                      :secondary-opacity="1"
+                    <SolarIcon
+                      name="trash"
+                      class="task-delete-icon"
+    :size="20"
+                      color="var(--theme-default, #18a6e4)"
+                      secondary-color="var(--theme-default, #18a6e4)"
+                      :secondary-opacity="0.4"
+                      aria-hidden="true"
                     />
                     <span class="visually-hidden">Hapus</span>
                   </button>
@@ -1342,8 +1345,7 @@ onBeforeUnmount(() => {
   gap: 6px;
 }
 
-.task-detail-button,
-.task-delete-button {
+.task-detail-button {
   display: inline-flex;
   width: auto;
   align-items: center;
@@ -1384,40 +1386,54 @@ onBeforeUnmount(() => {
 }
 
 .task-delete-button {
-  width: 34px;
-  height: 32px;
-  border-color: #dc3545 !important;
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid
+    color-mix(in srgb, var(--theme-default, #18a6e4) 18%, #edf1f5);
+  border-radius: 8px;
   padding: 0;
-  background: #fff !important;
-  color: #dc3545 !important;
+  background-color: color-mix(
+    in srgb,
+    var(--theme-default, #18a6e4) 5%,
+    #fff
+  );
+  box-shadow: 0 3px 12px
+    color-mix(in srgb, var(--theme-default, #18a6e4) 10%, transparent);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-.task-delete-button :deep(.solar-icon) {
-  --solar-secondary-color: #fecaca !important;
-  --solar-secondary-opacity: 1 !important;
-  color: #dc3545 !important;
+.task-delete-icon {
+  display: block;
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px;
 }
 
-.task-delete-button:hover,
-.task-delete-button:focus,
-.task-delete-button:focus-visible,
-.task-delete-button:active {
-  border-color: #dc3545 !important;
-  background: #dc3545 !important;
+.task-delete-button:hover {
+  border-color: var(--bs-danger, #dc3545);
+  background-color: var(--bs-danger, #dc3545);
+  box-shadow: 0 5px 14px
+    color-mix(in srgb, var(--bs-danger, #dc3545) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+.task-delete-button:hover :deep(.task-delete-icon) {
   color: #fff !important;
-}
-
-.task-delete-button:hover :deep(.solar-icon),
-.task-delete-button:focus :deep(.solar-icon),
-.task-delete-button:focus-visible :deep(.solar-icon),
-.task-delete-button:active :deep(.solar-icon) {
   --solar-secondary-color: #fff !important;
-  --solar-secondary-opacity: 0.62 !important;
-  color: #fff !important;
+  --solar-secondary-opacity: 0.5 !important;
 }
 
 .task-delete-button:focus-visible {
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.22) !important;
+  outline: 2px solid var(--theme-default, #18a6e4);
+  outline-offset: 2px;
 }
 
 .task-table-state {

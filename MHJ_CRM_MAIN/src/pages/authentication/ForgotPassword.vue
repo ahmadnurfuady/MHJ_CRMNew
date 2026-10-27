@@ -155,7 +155,6 @@
                   </div>
                 </div>
                 <button class="btn btn-primary btn-block w-100 mt-3" type="submit" :disabled="loading">
-                  <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                   {{ loading ? 'Menyimpan...' : 'Simpan Password' }}
                 </button>
                 <p v-if="errorMessage" class="mt-4 mb-0 text-center">

@@ -3,8 +3,18 @@ import { routes } from './routes'
 import { canAccessRoute } from '@/utils/permission'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  scrollBehavior(_to, _from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
+
+    // Mengubah mode lihat/edit pada halaman detail yang sama hanya mengubah
+    // query `edit`. Pertahankan posisi agar form inline tidak terasa menutup
+    // lalu melempar pengguna kembali ke bagian paling atas halaman.
+    const isSameDetailEditTransition =
+      to.path === from.path &&
+      String(to.query.detail ?? '') === String(from.query.detail ?? '') &&
+      String(to.query.edit ?? '') !== String(from.query.edit ?? '')
+    if (isSameDetailEditTransition) return false
+
     return { top: 0 }
   },
   routes: [

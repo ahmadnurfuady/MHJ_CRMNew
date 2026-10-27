@@ -350,7 +350,7 @@
           {{ t('common.cancel') }}
         </button>
         <button class="btn btn-primary" type="submit">
-          <vue-feather type="save" size="16" class="me-1" />{{ t('contacts.save') }}
+          {{ t('contacts.save') }}
         </button>
       </div>
     </form>

@@ -275,12 +275,6 @@
         Batal
       </button>
       <button class="btn btn-primary" type="submit" :disabled="contactApi.submitting">
-        <span
-          v-if="contactApi.submitting"
-          class="spinner-border spinner-border-sm me-2"
-          aria-hidden="true"
-        ></span>
-        <vue-feather v-else type="save" size="16" class="me-2" />
         {{ contactApi.submitting ? 'Menyimpan...' : 'Simpan Perubahan' }}
       </button>
     </div>

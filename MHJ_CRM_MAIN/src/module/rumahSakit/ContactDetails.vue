@@ -81,7 +81,7 @@
                 class="hospital-table__resizable-header"
                 :class="{ 'text-center': column.center }"
               >
-                {{ column.label }}
+                <span class="hospital-table__header-label">{{ column.label }}</span>
                 <button
                   v-if="index < hospitalTableColumns.length - 1"
                   class="hospital-table__resize-handle"
@@ -633,12 +633,22 @@ onBeforeUnmount(() => {
   font-weight: 700;
   letter-spacing: normal;
   text-transform: none;
-  white-space: nowrap;
+  line-height: 1.3;
+  white-space: normal;
 }
 
 .hospital-table__resizable-header {
   position: relative;
-  padding-right: 18px !important;
+  height: auto;
+  padding-right: 24px !important;
+  vertical-align: middle;
+}
+
+.hospital-table__header-label {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .hospital-table__resize-handle {

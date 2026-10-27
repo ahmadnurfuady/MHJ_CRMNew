@@ -634,7 +634,6 @@
               Batal
             </button>
             <button class="btn btn-primary" type="submit">
-              <vue-feather type="save" class="me-2"></vue-feather>
               {{
                 isEditing
                   ? "Simpan Perubahan"

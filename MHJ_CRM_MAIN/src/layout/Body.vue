@@ -21,7 +21,7 @@
         <div id="page-content-scroll" ref="pageScrollRef" class="page-content-scroll">
           <BreadCrumbs :refreshing="refreshingPage" @refresh="refreshCurrentPage" />
           <router-view v-slot="{ Component }">
-            <component :is="Component" :key="`${route.fullPath}:${pageRefreshKey}`" />
+            <component :is="Component" :key="`${contentRouteKey}:${pageRefreshKey}`" />
           </router-view>
           <Footer />
         </div>
@@ -36,7 +36,7 @@ import { useLayout } from '@/store/layout'
 import { useMenu } from '@/store/menu'
 import { storeToRefs } from 'pinia'
 import { useWindowSize } from '@vueuse/core'
-import { defineAsyncComponent, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { startPermissionWatcher, stopPermissionWatcher } from '@/services/permissionWatcher'
 import { useProjectStore } from '@/store/project'
@@ -66,6 +66,18 @@ const refreshingPage = ref(false)
 let refreshIndicatorTimer: number | undefined
 let headerResizeObserver: ResizeObserver | undefined
 const route = useRoute()
+const contentRouteKey = computed(() => {
+  const persistentQuery = Object.fromEntries(
+    Object.entries(route.query).filter(([key]) => key !== 'edit'),
+  )
+
+  return JSON.stringify({
+    path: route.path,
+    params: route.params,
+    query: persistentQuery,
+    hash: route.hash,
+  })
+})
 const storeLayout = useLayout()
 const { layoutState } = storeToRefs(storeLayout)
 const store = useMenu()
@@ -104,7 +116,7 @@ watch(width, (newWidth) => {
 }, { immediate: true })
 
 watch(
-  () => route.fullPath,
+  contentRouteKey,
   async () => {
     await nextTick()
     pageScrollRef.value?.scrollTo({ top: 0, behavior: 'auto' })

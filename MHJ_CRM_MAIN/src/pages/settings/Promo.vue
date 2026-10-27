@@ -373,12 +373,7 @@
                   Batal
                 </button>
                 <button class="btn btn-primary" type="submit" :disabled="saving">
-                  <span
-                    v-if="saving"
-                    class="spinner-border spinner-border-sm me-2"
-                    aria-hidden="true"
-                  />
-                  {{ form.id ? 'Simpan Perubahan' : 'Simpan Promo' }}
+                  {{ saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Simpan Promo' }}
                 </button>
               </div>
             </div>

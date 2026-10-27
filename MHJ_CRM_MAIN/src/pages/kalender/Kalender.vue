@@ -107,6 +107,14 @@ const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
   { value: 'yearly', label: 'Tahunan' },
 ]
 
+function showLoadError(message: string) {
+  return Swal.fire({
+    icon: 'error',
+    text: message,
+    confirmButtonColor: 'var(--theme-default)',
+  })
+}
+
 const calendarEntries = computed<CalendarEntry[]>(() => {
   const tasks = currentTask.value?.data ?? []
   const projects = projectItems.value ?? []
@@ -196,10 +204,11 @@ async function loadData() {
     (projectItems.value?.length ?? 0) >= 0
 
   // Hanya tampilkan error kalau DUA-DUANYA gagal total. Kalau cuma salah satu,
-  // tampilkan data yang berhasil + toast peringatan ringan.
+  // tampilkan data yang berhasil dan beri notifikasi error yang konsisten dengan
+  // halaman Peluang, Kontak, dan Faskes.
   if (!taskOk && !projectOk) {
     loadError.value = 'Gagal memuat data tugas dan peluang.'
-    Swal.fire({ icon: 'error', text: loadError.value })
+    void showLoadError(loadError.value)
     return
   }
 
@@ -207,14 +216,9 @@ async function loadData() {
   if (!taskOk) failed.push('tugas')
   if (!projectOk) failed.push('peluang')
   if (failed.length === 1) {
-    Swal.fire({
-      icon: 'warning',
-      text: `Data ${failed[0]} tidak dapat dimuat. Kalender menampilkan sebagian data saja.`,
-      timer: 3000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end',
-    })
+    void showLoadError(
+      `Data ${failed[0]} tidak dapat dimuat. Kalender menampilkan sebagian data saja.`,
+    )
   }
 }
 
