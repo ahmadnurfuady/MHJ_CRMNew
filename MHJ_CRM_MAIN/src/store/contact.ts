@@ -37,6 +37,7 @@ import { showSaveSuccess } from "@/utils/feedback";
 const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
+const CONTACT_LIST_FETCH_LIMIT = 1000;
 const DEFAULT_CONTACT_STATUS = "1";
 export const INDONESIA_COUNTRY = "Indonesia";
 
@@ -591,7 +592,7 @@ export const useContact = defineStore("contact", () => {
       fetchContactCompanies(),
     ]);
 
-    const [contactResult] = await Promise.allSettled([fetchRemoteContacts()]);
+    const [contactResult] = await Promise.allSettled([fetchAllRemoteContacts()]);
     const results = [lookupResults[0], contactResult, lookupResults[1]];
 
     // Pastikan semua baris memakai lookup yang sudah selesai dimuat, termasuk
@@ -683,11 +684,7 @@ export const useContact = defineStore("contact", () => {
     contactApi.search = query.trim();
 
     try {
-      await fetchRemoteContacts({
-        page: 1,
-        per_page: contactApi.pagination.perPage,
-        search: contactApi.search || undefined,
-      });
+      await fetchAllRemoteContacts(contactApi.search || undefined);
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
@@ -721,6 +718,63 @@ export const useContact = defineStore("contact", () => {
           knownTotal ?? Math.max(contactApi.pagination.total, visitedTotal);
         contactApi.pagination.lastPage =
           Math.max(page, meta?.lastPage ?? 0, totalLastPage, inferredLastPage);
+        return contactApi.items;
+      },
+    });
+  }
+
+  /**
+   * Memuat seluruh halaman Contact dari backend untuk pagination lokal di frontend.
+   * Jika backend mengembalikan paginator, semua page diambil lalu digabung tanpa duplikat.
+   */
+  function fetchAllRemoteContacts(search?: string) {
+    return runApiAction({
+      flag: contactLoading,
+      error: contactError,
+      fallbackMessage: "Gagal memuat seluruh data kontak.",
+      task: async () => {
+        const requestPage = async (page: number) => {
+          const response = await api.getbydata(CONTACT_ENDPOINT, {
+            page,
+            per_page: CONTACT_LIST_FETCH_LIMIT,
+            search,
+          });
+          return extractList(response.data, ["contacts"]);
+        };
+
+        const firstResult = await requestPage(1);
+        const firstPageSize = firstResult.items.length;
+        const knownTotal = firstResult.meta?.total;
+        const lastPage = Math.max(
+          1,
+          firstResult.meta?.lastPage ?? 0,
+          knownTotal !== undefined && firstPageSize > 0
+            ? Math.ceil(knownTotal / firstPageSize)
+            : 0,
+        );
+        const rawItems = [...firstResult.items];
+
+        for (let page = 2; page <= lastPage; page += 1) {
+          const result = await requestPage(page);
+          rawItems.push(...result.items);
+        }
+
+        const uniqueContacts = new Map<number, Contact>();
+        rawItems.filter(isRecord).forEach((raw) => {
+          const contact = normalizeApiContact(raw);
+          const key = Number(contact.remoteId ?? contact.id);
+          if (Number.isFinite(key)) uniqueContacts.set(key, contact);
+        });
+
+        contactApi.items = [...uniqueContacts.values()];
+        await hydrateContactCompanyNames();
+        contactApi.pagination.page = 1;
+        contactApi.pagination.perPage = 10;
+        contactApi.pagination.total = contactApi.items.length;
+        contactApi.pagination.lastPage = Math.max(
+          1,
+          Math.ceil(contactApi.items.length / contactApi.pagination.perPage),
+        );
         return contactApi.items;
       },
     });
@@ -948,7 +1002,7 @@ export const useContact = defineStore("contact", () => {
             if (createdContact) applySavedContactPayload(createdContact, payload);
             return createdContact;
           } catch {
-            await fetchRemoteContacts();
+            await fetchAllRemoteContacts(contactApi.search || undefined);
             const createdContact = contactApi.items.find((item) => item.remoteId === createdId);
             if (createdContact) applySavedContactPayload(createdContact, payload);
             syncRemoteContacts();
@@ -956,7 +1010,7 @@ export const useContact = defineStore("contact", () => {
           }
         }
 
-        await fetchRemoteContacts();
+        await fetchAllRemoteContacts(contactApi.search || undefined);
         syncRemoteContacts();
         return undefined;
       },
@@ -981,7 +1035,7 @@ export const useContact = defineStore("contact", () => {
           const updatedContact = await fetchRemoteContactById(remoteId);
           if (updatedContact) applySavedContactPayload(updatedContact, payload);
         } catch {
-          await fetchRemoteContacts();
+          await fetchAllRemoteContacts(contactApi.search || undefined);
           const updatedContact = contactApi.items.find((item) => item.remoteId === remoteId);
           if (updatedContact) applySavedContactPayload(updatedContact, payload);
         }

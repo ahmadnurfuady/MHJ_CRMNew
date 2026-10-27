@@ -94,13 +94,13 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-if="contactApi.loading && !filteredContact.length">
+            <tr v-if="contactApi.loading && !paginatedContacts.length">
               <td colspan="7" class="contact-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 Memuat data kontak...
               </td>
             </tr>
-            <tr v-for="contact in filteredContact" :key="contact.id">
+            <tr v-for="contact in paginatedContacts" :key="contact.id">
               <td
                 class="entity-detail-cell"
                 data-label="Nama"
@@ -214,18 +214,18 @@
       </div>
     </div>
     <div
-      v-if="filteredContact.length || contactApi.pagination.page > 1"
+      v-if="filteredContact.length"
       class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
     >
       <span class="text-muted f-14">
-        Halaman {{ contactApi.pagination.page }} dari {{ contactApi.pagination.lastPage }}
+        Halaman {{ currentContactPage }} dari {{ contactLastPage }}
       </span>
       <div class="pagination-actions" role="group" aria-label="Pagination Kontak">
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
-          :disabled="contactApi.loading || contactApi.pagination.page <= 1"
-          @click="changeContactPage(contactApi.pagination.page - 1)"
+          :disabled="contactApi.loading || currentContactPage <= 1"
+          @click="changeContactPage(currentContactPage - 1)"
         >
           <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
         </button>
@@ -238,11 +238,11 @@
               v-else
               class="btn btn-sm pagination-page-button"
               :class="{
-                'pagination-page-button--active': item === contactApi.pagination.page,
+                'pagination-page-button--active': item === currentContactPage,
               }"
               type="button"
-              :disabled="contactApi.loading || item === contactApi.pagination.page"
-              :aria-current="item === contactApi.pagination.page ? 'page' : undefined"
+              :disabled="contactApi.loading || item === currentContactPage"
+              :aria-current="item === currentContactPage ? 'page' : undefined"
               :aria-label="`Ke halaman ${item}`"
               @click="changeContactPage(item)"
             >
@@ -254,9 +254,9 @@
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
           :disabled="
-            contactApi.loading || contactApi.pagination.page >= contactApi.pagination.lastPage
+            contactApi.loading || currentContactPage >= contactLastPage
           "
-          @click="changeContactPage(contactApi.pagination.page + 1)"
+          @click="changeContactPage(currentContactPage + 1)"
         >
           Berikutnya<vue-feather type="chevron-right" size="15" class="ms-1" />
         </button>
@@ -290,9 +290,11 @@ const router = useRouter();
 const contactStore = useContact();
 const projectStore = useProjectStore();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
-const { changeContactPage, openContactModal, searchContacts } = contactStore;
+const { openContactModal, searchContacts } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
+const CONTACTS_PER_PAGE = 10;
+const currentContactPage = ref(1);
 const contactTableColumns = [
   { label: "Nama", defaultWidth: 300, minWidth: 220 },
   { label: "Faskes", defaultWidth: 220, minWidth: 140 },
@@ -308,16 +310,18 @@ const contactColumnWidths = ref<number[]>(
 const contactTableWidth = computed(() =>
   contactColumnWidths.value.reduce((total, width) => total + width, 0),
 );
-const contactTotal = computed(() =>
-  Math.max(
-    filteredContact.value.length,
-    contactApi.value.pagination.total,
-  ),
+const contactTotal = computed(() => filteredContact.value.length);
+const contactLastPage = computed(() =>
+  Math.max(1, Math.ceil(contactTotal.value / CONTACTS_PER_PAGE)),
 );
+const paginatedContacts = computed(() => {
+  const start = (currentContactPage.value - 1) * CONTACTS_PER_PAGE;
+  return filteredContact.value.slice(start, start + CONTACTS_PER_PAGE);
+});
 const visibleContactPages = computed<Array<number | string>>(() => {
-  const totalPages = Math.max(1, contactApi.value.pagination.lastPage);
+  const totalPages = contactLastPage.value;
   const currentPage = Math.min(
-    Math.max(1, contactApi.value.pagination.page),
+    Math.max(1, currentContactPage.value),
     totalPages,
   );
 
@@ -357,6 +361,12 @@ const visibleContactPages = computed<Array<number | string>>(() => {
 
   return items;
 });
+
+function changeContactPage(page: number) {
+  const targetPage = Math.min(Math.max(1, page), contactLastPage.value);
+  if (targetPage === currentContactPage.value) return;
+  currentContactPage.value = targetPage;
+}
 let activeColumnResize:
   | { index: number; startX: number; startWidth: number }
   | undefined;
@@ -402,10 +412,20 @@ function resetColumnWidth(index: number) {
 
 watch(searchQuery, (query) => {
   if (searchTimer) clearTimeout(searchTimer);
+  currentContactPage.value = 1;
   searchTimer = setTimeout(() => {
     void searchContacts(query);
   }, 350);
 });
+
+watch(
+  () => filteredContact.value.length,
+  () => {
+    if (currentContactPage.value > contactLastPage.value) {
+      currentContactPage.value = contactLastPage.value;
+    }
+  },
+);
 
 function fullName(contact: Contact) {
   return `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Tanpa nama";
@@ -486,13 +506,6 @@ function contactPeluang(contact: Contact): Array<{ projectName: string }> {
 const latestActivities = ref(new Map<number, LatestActivity>());
 /** Hanya respons permintaan terakhir yang dipakai saat user cepat ganti halaman / mencari. */
 let activityRequestSeq = 0;
-const ACTIVITY_REFRESH_INTERVAL_MS = 60_000;
-let activityRefreshTimer: number | undefined;
-
-function refreshActivitiesOnFocus() {
-  if (document.visibilityState === "hidden") return;
-  void loadLatestActivities();
-}
 
 async function loadLatestActivities() {
   const remoteIds = filteredContact.value
@@ -542,7 +555,7 @@ function activityTooltip(contact: Contact) {
     .join(" · ");
 }
 
-// Kolom aktivitas selalu mengikuti baris yang sedang tampil (ganti halaman / cari).
+// Seluruh aktivitas dimuat sekali untuk semua kontak; pagination hanya mengatur baris yang terlihat.
 watch(
   () =>
     filteredContact.value
@@ -599,23 +612,10 @@ function openContactSection(contact: Contact, hash: string) {
 onMounted(() => {
   contactStore.initStore();
   if (!projectStore.loaded) void projectStore.fetchProjects({ per_page: 100 });
-
-  // Aktivitas bisa bertambah dari halaman detail, pengguna lain, atau APK.
-  // Daftar disegarkan berkala dan saat tab kembali aktif supaya kolom
-  // Aktivitas tidak tertinggal dari riwayat di halaman detail.
-  activityRefreshTimer = window.setInterval(
-    () => void loadLatestActivities(),
-    ACTIVITY_REFRESH_INTERVAL_MS,
-  );
-  window.addEventListener("focus", refreshActivitiesOnFocus);
-  document.addEventListener("visibilitychange", refreshActivitiesOnFocus);
 });
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
-  if (activityRefreshTimer) clearInterval(activityRefreshTimer);
-  window.removeEventListener("focus", refreshActivitiesOnFocus);
-  document.removeEventListener("visibilitychange", refreshActivitiesOnFocus);
   stopColumnResize();
 });
 </script>
@@ -1166,15 +1166,10 @@ onBeforeUnmount(() => {
   }
 }
 
-@media (max-width: 575.98px) {
-  .contact-header-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .add-contact-header-button {
-    width: 100%;
-  }
-
+/* Tablet & mobile: tabel diubah jadi kartu bertumpuk supaya tidak perlu
+   geser horizontal di layar sempit. Laptop/desktop (>=992px) tetap memakai
+   tabel resizable seperti semula. */
+@media (max-width: 991.98px) {
   .contact-table-wrap {
     padding: 12px;
     overflow: visible;
@@ -1250,6 +1245,16 @@ onBeforeUnmount(() => {
 
   .contact-table-state::before {
     display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .contact-header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .add-contact-header-button {
+    width: 100%;
   }
 }
 </style>

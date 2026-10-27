@@ -914,6 +914,15 @@ body.dark-only
   border-color: var(--mhj-dark-divider) !important;
 }
 
+body.dark-only .pagination-page-button.pagination-page-button--active,
+body.dark-only .pagination-page-button.pagination-page-button--active:disabled {
+  color: #ffffff !important;
+  background: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  border-color: var(--theme-default, var(--app-primary, #18a6e4)) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--app-primary, #18a6e4) 28%, transparent) !important;
+  opacity: 1 !important;
+}
+
 body.dark-only .task-view-switch .task-view-switch__button--active {
   color: var(--app-primary-soft-light, #b9e8fa) !important;
   background: var(--mhj-dark-surface-raised) !important;

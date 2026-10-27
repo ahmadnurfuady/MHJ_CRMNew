@@ -228,9 +228,9 @@ async function fetchLatestPerEntity(
   )
 
   // Entity tanpa activity_logs bisa tetap punya catatan (mis. data lama atau
-  // entri dari APK). Dicari hanya untuk yang belum ketemu agar jumlah request
-  // tetap kecil.
-  const tanpaAktivitas = ids.filter((id) => !result.has(id)).slice(0, 20)
+  // entri dari APK). Semua id yang belum ditemukan tetap diperiksa agar hasil
+  // awal lengkap sebelum pagination frontend digunakan.
+  const tanpaAktivitas = ids.filter((id) => !result.has(id))
   await Promise.all(
     tanpaAktivitas.map(async (id) => {
       try {
@@ -251,7 +251,7 @@ async function fetchLatestPerEntity(
  * (GET /api/activity-logs/latest); bila endpoint itu belum tersedia di server,
  * otomatis jatuh ke GET /api/activity-logs per entity.
  *
- * Backend membatasi 200 id per request, jadi id dipotong di sisi ini juga.
+ * Backend membatasi 200 id per request, jadi daftar id dibagi menjadi beberapa batch.
  * Kegagalan dikembalikan sebagai Map kosong: kolom aktivitas bukan data utama
  * halaman, jadi tidak boleh menggagalkan daftar kontak.
  */
@@ -259,18 +259,25 @@ export async function fetchLatestActivities(
   entity: ActivityLogEntity,
   entityIds: number[],
 ): Promise<Map<number, LatestActivity>> {
-  const ids = [...new Set(entityIds.filter((id) => Number.isSafeInteger(id) && id > 0))].slice(
-    0,
-    200,
-  )
+  const ids = [...new Set(entityIds.filter((id) => Number.isSafeInteger(id) && id > 0))]
   if (!ids.length) return new Map()
 
-  if (batchLatestAvailable) {
-    const batch = await fetchLatestBatch(entity, ids)
-    if (batch) return batch
+  const result = new Map<number, LatestActivity>()
+  for (let start = 0; start < ids.length; start += 200) {
+    const chunk = ids.slice(start, start + 200)
+    let chunkResult: Map<number, LatestActivity> | null = null
+
+    if (batchLatestAvailable) {
+      chunkResult = await fetchLatestBatch(entity, chunk)
+    }
+    if (!chunkResult) {
+      chunkResult = await fetchLatestPerEntity(entity, chunk)
+    }
+
+    chunkResult.forEach((activity, id) => result.set(id, activity))
   }
 
-  return fetchLatestPerEntity(entity, ids)
+  return result
 }
 
 export interface ActivityLogDetails {
