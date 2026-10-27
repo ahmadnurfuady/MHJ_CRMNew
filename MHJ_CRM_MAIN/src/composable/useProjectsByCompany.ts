@@ -68,9 +68,16 @@ export function useProjectsByCompany(options: {
     void refreshProjects(field)
 
     const companyIds = companyIdSet(field)
-    if (!companyIds.size) return
-
     const current = projectField()
+
+    // Peluang hanya bisa dipilih lewat Faskes-nya. Begitu seluruh Faskes
+    // dilepas, dropdown Peluang dinonaktifkan sehingga pilihan lamanya dibuang.
+    if (!companyIds.size) {
+      if (!(current.selectedItems ?? []).length) return
+      setProjectField({ ...current, selectedItems: [], data: '' })
+      return
+    }
+
     const selectedItems = current.selectedItems ?? []
     const kept = selectedItems.filter((project) => {
       const companyId = projectCompanyId(project)

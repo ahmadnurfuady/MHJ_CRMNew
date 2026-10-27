@@ -63,6 +63,216 @@ export async function fetchActivityLogs(
   return response.data?.data ?? []
 }
 
+/** Satu baris aktivitas terakhir milik sebuah entity (tanpa kolom `details`). */
+export interface LatestActivityRow {
+  entity_id: number
+  id: number
+  user_id: number | null
+  user_name: string | null
+  action: ActivityLogRawAction
+  entity_name: string
+  frmdvc: string | null
+  created_at: string
+  /** 'activity' (activity_logs) atau 'note' (dbvnotes); hanya dikirim endpoint batch. */
+  source_type?: string
+  /** Isi catatan, hanya terisi saat source_type = 'note'. */
+  note?: string | null
+}
+
+export interface LatestActivity {
+  action: NormalizedAction
+  /** Label siap tampil, mis. "Kontak diperbarui". */
+  label: string
+  authorName: string
+  createdAt: string
+  source: 'APK' | 'WEB' | null
+}
+
+/** Label pendek untuk kolom "Aktivitas" di halaman daftar. */
+const LATEST_ACTIVITY_LABELS: Record<ActivityLogEntity, Record<NormalizedAction, string>> = {
+  contacts: {
+    i: 'Kontak dibuat',
+    u: 'Data kontak diperbarui',
+    d: 'Kontak dihapus',
+    r: 'Kontak dibuka',
+    other: 'Aktivitas tercatat',
+  },
+  companies: {
+    i: 'Faskes didaftarkan',
+    u: 'Data faskes diperbarui',
+    d: 'Faskes dihapus',
+    r: 'Faskes dibuka',
+    other: 'Aktivitas tercatat',
+  },
+  m_projects: {
+    i: 'Peluang dibuat',
+    u: 'Peluang diperbarui',
+    d: 'Peluang dihapus',
+    r: 'Peluang dibuka',
+    other: 'Aktivitas tercatat',
+  },
+  tasks: {
+    i: 'Tugas dibuat',
+    u: 'Tugas diperbarui',
+    d: 'Tugas dihapus',
+    r: 'Tugas dibuka',
+    other: 'Aktivitas tercatat',
+  },
+  master_information_cards: {
+    i: 'Kartu informasi dibuat',
+    u: 'Kartu informasi diperbarui',
+    d: 'Kartu informasi dihapus',
+    r: 'Kartu informasi dibuka',
+    other: 'Aktivitas tercatat',
+  },
+}
+
+/** Nama user dari endpoint timeline dihias "(DBD lvl=1)"; untuk satu baris tabel cukup namanya. */
+function cleanAuthorName(value: string | null | undefined): string {
+  const name = String(value ?? '')
+    .replace(/\s*\([^()]*\)\s*$/, '')
+    .trim()
+  return name || 'Pengguna sistem'
+}
+
+/** Catatan (dbvnotes) tidak punya action; labelnya memakai cuplikan isi catatan. */
+function noteLabel(note: string | null | undefined): string {
+  const body = String(note ?? '').replace(/\s+/g, ' ').trim()
+  if (!body) return 'Catatan ditambahkan'
+  return `Catatan: ${body.length > 60 ? `${body.slice(0, 57)}…` : body}`
+}
+
+function toLatestActivity(entity: ActivityLogEntity, row: LatestActivityRow): LatestActivity {
+  const action = normalizeAction(row.action)
+  const isNote = String(row.source_type ?? '') === 'note'
+
+  return {
+    action,
+    label: isNote ? noteLabel(row.note) : LATEST_ACTIVITY_LABELS[entity][action],
+    authorName: cleanAuthorName(row.user_name),
+    createdAt: row.created_at || '',
+    source: normalizeSource(row.frmdvc),
+  }
+}
+
+/**
+ * Endpoint batch baru ada setelah backend versi ini dideploy. Selama belum,
+ * server menjawab 404 dan daftar kontak memakai jalur per-kontak di bawah.
+ */
+let batchLatestAvailable = true
+
+async function fetchLatestBatch(
+  entity: ActivityLogEntity,
+  ids: number[],
+): Promise<Map<number, LatestActivity> | null> {
+  try {
+    const response = await api.getbydata<{ data: LatestActivityRow[] }>('/activity-logs/latest', {
+      entity_name: entity,
+      entity_ids: ids.join(','),
+    })
+    const rows = Array.isArray(response.data?.data) ? response.data.data : []
+    const result = new Map<number, LatestActivity>()
+
+    for (const row of rows) {
+      const entityId = Number(row.entity_id)
+      if (!Number.isSafeInteger(entityId) || entityId <= 0) continue
+      result.set(entityId, toLatestActivity(entity, row))
+    }
+
+    return result
+  } catch (error) {
+    const status = (error as { response?: { status?: number } })?.response?.status
+    // 404/405 = route belum ada di server; jangan dicoba lagi selama sesi ini.
+    if (status === 404 || status === 405) batchLatestAvailable = false
+    return null
+  }
+}
+
+/** Catatan terbaru dari dbvnotes, dipakai jalur cadangan per entity. */
+function latestNoteActivity(notes: NoteRow[]): LatestActivity | null {
+  const newest = [...notes].sort((left, right) => {
+    const timeLeft = new Date(left.created_at || '').getTime() || 0
+    const timeRight = new Date(right.created_at || '').getTime() || 0
+    return timeRight - timeLeft || (right.id ?? 0) - (left.id ?? 0)
+  })[0]
+  if (!newest) return null
+
+  return {
+    action: 'other',
+    label: noteLabel(newest.notes ?? newest.body),
+    authorName: cleanAuthorName(newest.sender_name),
+    createdAt: newest.created_at || '',
+    source: normalizeSource(newest.frmdvc),
+  }
+}
+
+/** Cadangan: satu permintaan timeline per entity (endpoint lama yang pasti tersedia). */
+async function fetchLatestPerEntity(
+  entity: ActivityLogEntity,
+  ids: number[],
+): Promise<Map<number, LatestActivity>> {
+  const entries = await Promise.all(
+    ids.map(async (id): Promise<[number, LatestActivity] | null> => {
+      try {
+        const [row] = await fetchActivityLogs(entity, id, 1)
+        if (!row) return null
+        return [id, toLatestActivity(entity, { ...row, entity_id: id })]
+      } catch {
+        return null
+      }
+    }),
+  )
+
+  const result = new Map(
+    entries.filter((entry): entry is [number, LatestActivity] => entry !== null),
+  )
+
+  // Entity tanpa activity_logs bisa tetap punya catatan (mis. data lama atau
+  // entri dari APK). Dicari hanya untuk yang belum ketemu agar jumlah request
+  // tetap kecil.
+  const tanpaAktivitas = ids.filter((id) => !result.has(id)).slice(0, 20)
+  await Promise.all(
+    tanpaAktivitas.map(async (id) => {
+      try {
+        const activity = latestNoteActivity(await fetchAllNotes(entity, id))
+        if (activity) result.set(id, activity)
+      } catch {
+        // Catatan bersifat pelengkap; diamkan bila endpoint history gagal.
+      }
+    }),
+  )
+
+  return result
+}
+
+/**
+ * Aktivitas terakhir untuk sekumpulan entity, dipakai kolom "Aktivitas" di
+ * halaman daftar. Jalur utamanya satu request batch
+ * (GET /api/activity-logs/latest); bila endpoint itu belum tersedia di server,
+ * otomatis jatuh ke GET /api/activity-logs per entity.
+ *
+ * Backend membatasi 200 id per request, jadi id dipotong di sisi ini juga.
+ * Kegagalan dikembalikan sebagai Map kosong: kolom aktivitas bukan data utama
+ * halaman, jadi tidak boleh menggagalkan daftar kontak.
+ */
+export async function fetchLatestActivities(
+  entity: ActivityLogEntity,
+  entityIds: number[],
+): Promise<Map<number, LatestActivity>> {
+  const ids = [...new Set(entityIds.filter((id) => Number.isSafeInteger(id) && id > 0))].slice(
+    0,
+    200,
+  )
+  if (!ids.length) return new Map()
+
+  if (batchLatestAvailable) {
+    const batch = await fetchLatestBatch(entity, ids)
+    if (batch) return batch
+  }
+
+  return fetchLatestPerEntity(entity, ids)
+}
+
 export interface ActivityLogDetails {
   before?: Record<string, unknown> | Record<string, unknown>[] | null
   after?: Record<string, unknown> | null

@@ -1,6 +1,7 @@
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import type { InputProps } from '@/types/common'
 import { validateNonEmptyFields, validateEmail } from '@/utils/validators/InputFieldValidators'
+import { containsEmoji, EMOJI_ERROR_MESSAGE, stripEmoji } from '@/utils/validators/emoji'
 import { formatThousandsInput, parseThousands } from '@/utils/numberFormat'
 
 interface ValidationStatus {
@@ -46,6 +47,11 @@ export function useInputField(
   function onInput(event: Event) {
     const target = event.target as HTMLInputElement | null
     if (!target) return
+
+    // Emoji ditolak backend (SafeText), jadi dibuang saat diketik maupun ditempel.
+    const withoutEmoji = stripEmoji(target.value)
+    if (target.value !== withoutEmoji) target.value = withoutEmoji
+
     let inputValue: string | number = target.value
 
     if (props.thousandSeparator) {
@@ -95,6 +101,12 @@ export function useInputField(
       }
     } else {
       validStatus.value = { valid: true, errorMessage: '' }
+    }
+
+    // Nilai yang masuk tanpa event input (prefill dari API, autofill browser)
+    // tidak lewat stripEmoji, jadi tetap diberi tanda tidak valid di sini.
+    if (containsEmoji(inputValue)) {
+      validStatus.value = { valid: false, errorMessage: EMOJI_ERROR_MESSAGE }
     }
 
     let data: string | number | File | null | undefined = inputValue

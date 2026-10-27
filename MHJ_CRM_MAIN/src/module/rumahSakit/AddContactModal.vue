@@ -70,10 +70,15 @@
                 v-if="!readOnly"
                 class="btn btn-link btn-sm mt-1 mhj-form-add-button"
                 type="button"
+                :disabled="!canAddPhone"
+                :title="addPhoneHint || 'Tambah nomor telepon'"
                 @click="addPhone"
               >
                 <MhjIcon name="action_add" :size="14" />Tambah nomor telepon
               </button>
+              <small v-if="!readOnly && addPhoneHint" class="d-block text-muted mt-1">
+                {{ addPhoneHint }}
+              </small>
             </InputWrapper>
           </div>
 
@@ -507,9 +512,10 @@ import { storeToRefs } from "pinia";
 import { useDebounceFn } from "@vueuse/core";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
-import { initInputField, initSelectField } from "@/core/data/common";
+import { initSelectField } from "@/core/data/common";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { useHospitalLookups } from "@/composable/useHospitalLookups";
+import { usePhoneNumberList } from "@/composable/usePhoneNumberList";
 import {
   geolocationErrorMessage,
   getCurrentPosition,
@@ -996,13 +1002,9 @@ function cancelForm() {
   closeRumahSakitModal();
 }
 
-function addPhone() {
-  contactState.value.rumahSakitForm.phoneNumbers.push(initInputField());
-}
-
-function removePhone(index: number) {
-  contactState.value.rumahSakitForm.phoneNumbers.splice(index, 1);
-}
+const { canAddPhone, addPhoneHint, addPhone, removePhone } = usePhoneNumberList(
+  () => contactState.value.rumahSakitForm.phoneNumbers,
+);
 
 async function searchTypedAddress(query: string) {
   locationError.value = "";

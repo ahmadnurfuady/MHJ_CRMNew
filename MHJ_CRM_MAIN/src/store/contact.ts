@@ -36,6 +36,7 @@ import type { Select } from "@/types/common";
 import type { Hospital, HospitalPayload } from "@/types/hospital";
 import { runApiAction } from "@/store/apiAction";
 import { useHospitalStore } from "@/store/hospital";
+import { MAX_PHONE_NUMBERS } from "@/composable/usePhoneNumberList";
 import {
   splitPhoneNumbers,
 } from "@/utils/indonesianPhone";
@@ -189,6 +190,16 @@ function textValue(value: unknown): string {
   return value === undefined || value === null ? "" : String(value);
 }
 
+/**
+ * Kolom teks opsional pada tabel contacts diisi "-" oleh ContactController saat
+ * form dikirim kosong. Untuk tampilan, "-" itu bukan isi data, jadi dibuang
+ * supaya nama tanpa nama belakang tidak muncul sebagai "Budi -".
+ */
+function withoutPlaceholder(value: string): string {
+  const text = value.trim();
+  return text === "-" ? "" : value;
+}
+
 function normalizeGender(value: string): string {
   const lower = value.trim().toLowerCase();
   if (lower === "l" || lower.includes("laki")) return "Laki-laki";
@@ -257,7 +268,7 @@ function normalizeApiContact(raw: Dict): Contact {
     origin: "api",
     remoteId,
     firstName: pickString(raw, "first_name", "First Name", "firstName"),
-    lastName: pickString(raw, "last_name", "Last Name", "lastName"),
+    lastName: withoutPlaceholder(pickString(raw, "last_name", "Last Name", "lastName")),
     profile: "user/user.png",
     gender: normalizeGender(pickString(raw, "gender") || "") || "-",
     dob: pickString(raw, "dob", "birthday") || "-",
@@ -269,7 +280,7 @@ function normalizeApiContact(raw: Dict): Contact {
     interest: "-",
     category: pickString(raw, "category") || "personal",
     contactType: pickString(raw, "contactType", "contact_type") || "-",
-    jobTitle: pickString(raw, "job_title", "jobTitle"),
+    jobTitle: withoutPlaceholder(pickString(raw, "job_title", "jobTitle")),
     companyId: pickString(raw, "company_id", "Company ID"),
     sourceId: pickString(raw, "source_id", "Source ID"),
     status: pickString(raw, "statusname", "status_name", "Status Name", "status", "Status"),
@@ -1268,9 +1279,12 @@ export const useContact = defineStore("contact", () => {
       "project",
     ];
     const validation = validateForm(formFields, optionalFields);
+    // Form membatasi baris nomor ke MAX_PHONE_NUMBERS; slice di sini menjaga
+    // payload tetap sesuai batas walau datanya berasal dari sumber lain.
     const normalizedPhoneNumbers = phoneNumbers
       .map((phone) => phone.data.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, MAX_PHONE_NUMBERS);
 
     const requiredLabels: Record<string, string> = {
       firstName: "Nama Depan",
@@ -1359,7 +1373,8 @@ export const useContact = defineStore("contact", () => {
     const validation = validateForm(formFields, optionalFields);
     const normalizedPhoneNumbers = phoneNumbers
       .map((phone) => phone.data.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, MAX_PHONE_NUMBERS);
     const hasPhoneNumber = normalizedPhoneNumbers.length > 0;
 
     phoneNumbers.forEach((phone, index) => {

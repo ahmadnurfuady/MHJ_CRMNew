@@ -401,7 +401,8 @@
       "source": "Select contact source",
       "gender": "Select M / F",
       "company": "Search healthcare facility",
-      "project": "Search opportunity name"
+      "project": "Search opportunity name",
+      "selectCompanyFirst": "Select a healthcare facility first"
     }
   }
 }

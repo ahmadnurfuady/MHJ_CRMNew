@@ -93,10 +93,15 @@
               <button
                 class="btn btn-link btn-sm mt-1 mhj-form-add-button"
                 type="button"
+                :disabled="!canAddPhone"
+                :title="addPhoneHint || t('contacts.addPhone')"
                 @click="addPhone"
               >
                 <MhjIcon name="action_add" :size="14" />{{ t('contacts.addPhone') }}
               </button>
+              <small v-if="addPhoneHint" class="d-block text-muted mt-1">
+                {{ addPhoneHint }}
+              </small>
             </InputWrapper>
           </div>
 
@@ -335,7 +340,12 @@
                 display-key="label"
                 subtitle-key="address"
                 getValueKey="value"
-                :placeholder="t('contacts.placeholders.project')"
+                :placeholder="
+                  companySelected
+                    ? t('contacts.placeholders.project')
+                    : t('contacts.placeholders.selectCompanyFirst')
+                "
+                :disabled="!companySelected"
                 :multiSelect="true"
                 :removableTags="true"
                 :required="false"
@@ -365,9 +375,10 @@ import { useDebounceFn } from "@vueuse/core";
 import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
 
 import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
-import { initInputField, initSelectField } from "@/core/data/common";
+import { initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
+import { usePhoneNumberList } from "@/composable/usePhoneNumberList";
 import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
 import { INDONESIA_COUNTRY, useContact } from "@/store/contact";
 import { useAuthStore } from "@/store/auth";
@@ -451,6 +462,11 @@ const {
 });
 const sourceOptions = computed(() => contactApi.value.sources);
 const statusOptions = computed(() => contactApi.value.statuses);
+// Peluang selalu milik sebuah Faskes, jadi dropdown-nya baru aktif setelah
+// Faskes dipilih (sama seperti pola Provinsi -> Kota/Kabupaten di form ini).
+const companySelected = computed(
+  () => (contactState.value.contactForm.company.selectedItems ?? []).length > 0,
+);
 const locatingAddress = ref(false);
 const locationError = ref("");
 const addressSuggestions = ref<AddressSearchResult[]>([]);
@@ -585,13 +601,9 @@ watch(
   },
 );
 
-function addPhone() {
-  contactState.value.contactForm.phoneNumbers.push(initInputField());
-}
-
-function removePhone(index: number) {
-  contactState.value.contactForm.phoneNumbers.splice(index, 1);
-}
+const { canAddPhone, addPhoneHint, addPhone, removePhone } = usePhoneNumberList(
+  () => contactState.value.contactForm.phoneNumbers,
+);
 
 function setLocationRegions(provinceName: string, cityName: string) {
   const { province, city } = resolveRegionSelection(provinceName, cityName);

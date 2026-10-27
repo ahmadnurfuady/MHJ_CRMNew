@@ -17,12 +17,12 @@
         </InputWrapper>
       </div>
       <div class="col-md-6">
-        <InputWrapper title="Nama Belakang" required>
+        <InputWrapper title="Nama Belakang">
           <InputField
             v-model:modelValue="form.lastName"
-            :formSubmitted="formSubmitted"
             inputId="edit-contact-last-name"
             placeholder="Masukkan nama belakang"
+            :required="false"
           />
         </InputWrapper>
       </div>
@@ -104,10 +104,15 @@
           <button
             class="btn btn-link btn-sm mt-1 mhj-form-add-button"
             type="button"
+            :disabled="!canAddPhone"
+            :title="addPhoneHint || 'Tambah nomor'"
             @click="addPhone"
           >
             <MhjIcon name="action_add" :size="14" />Tambah nomor
           </button>
+          <small v-if="addPhoneHint" class="d-block text-muted mt-1">
+            {{ addPhoneHint }}
+          </small>
         </InputWrapper>
       </div>
 
@@ -261,7 +266,8 @@
             display-key="label"
             subtitle-key="address"
             getValueKey="value"
-            placeholder="Cari nama peluang"
+            :placeholder="companySelected ? 'Cari nama peluang' : 'Pilih Faskes dahulu'"
+            :disabled="!companySelected"
             :multiSelect="true"
             :removableTags="true"
             :required="false"
@@ -289,6 +295,7 @@ import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
+import { usePhoneNumberList } from "@/composable/usePhoneNumberList";
 import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
 import {
   INDONESIA_COUNTRY,
@@ -362,6 +369,10 @@ const optionalPhoneValidator = (value: string) =>
 // Lookup langsung dari API (GET /api/contact/company & GET /api/contact/project), lihat fetchContactLookups.
 const companyOptions = computed(() => contactApi.value.companyLookup);
 const projectOptions = computed(() => contactApi.value.projectLookup);
+// Peluang selalu milik sebuah Faskes, jadi dropdown-nya baru aktif setelah Faskes dipilih.
+const companySelected = computed(
+  () => (form.value.company.selectedItems ?? []).length > 0,
+);
 const {
   filteredProjectOptions,
   pruneProjectsForCompanies,
@@ -445,13 +456,9 @@ function nullableNumber(value: unknown): number | null {
   return Number.isFinite(number) ? number : null;
 }
 
-function addPhone() {
-  form.value.phoneNumbers.push(initInputField());
-}
-
-function removePhone(index: number) {
-  form.value.phoneNumbers.splice(index, 1);
-}
+const { canAddPhone, addPhoneHint, addPhone, removePhone } = usePhoneNumberList(
+  () => form.value.phoneNumbers,
+);
 
 function expandCombinedPhoneRows() {
   const values = form.value.phoneNumbers.map((phone) => phone.data);
@@ -675,9 +682,6 @@ async function save() {
   form.value.firstName.errorMessage = form.value.firstName.data.trim()
     ? ""
     : "Nama depan wajib diisi.";
-  form.value.lastName.errorMessage = form.value.lastName.data.trim()
-    ? ""
-    : "Nama belakang wajib diisi.";
   form.value.email.errorMessage = "";
 
   let phoneNumbersValid = true;
@@ -689,7 +693,6 @@ async function save() {
   form.value.status.errorMessage = form.value.status.data ? "" : "Status wajib dipilih.";
   if (
     form.value.firstName.errorMessage ||
-    form.value.lastName.errorMessage ||
     !phoneNumbersValid ||
     form.value.status.errorMessage
   ) {

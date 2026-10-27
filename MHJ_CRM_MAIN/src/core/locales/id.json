@@ -130,7 +130,8 @@
       "source": "Pilih sumber",
       "gender": "Pilih Jenis Kelamin",
       "company": "Ketik manual / pilih dari daftar Faskes",
-      "project": "Pilih peluang dari database live"
+      "project": "Pilih peluang dari database live",
+      "selectCompanyFirst": "Pilih Faskes dahulu"
     }
   }
 }

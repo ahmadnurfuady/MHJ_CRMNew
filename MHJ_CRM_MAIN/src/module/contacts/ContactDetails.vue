@@ -166,14 +166,13 @@
                 <span v-else class="empty-value">Belum ada peluang</span>
               </td>
               <td data-label="Aktivitas">
-                <span
-                  v-if="contact.lastActivity"
-                  class="activity-label"
-                  :title="contact.lastActivity"
-                >
-                  <span class="activity-dot"></span>
-                  <span class="activity-label__text">{{ contact.lastActivity }}</span>
-                </span>
+                <div v-if="activityLabel(contact)" class="activity-cell">
+                  <span class="activity-label" :title="activityTooltip(contact)">
+                    <span class="activity-dot"></span>
+                    <span class="activity-label__text">{{ activityLabel(contact) }}</span>
+                  </span>
+                  <small v-if="activityTime(contact)">{{ activityTime(contact) }}</small>
+                </div>
                 <span v-else class="empty-value">Belum ada aktivitas</span>
               </td>
               <td data-label="Terakhir Dihubungi">
@@ -276,6 +275,12 @@ import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
 import DummyDataBadge from "@/components/shared/DummyDataBadge.vue";
 import { companyDetails } from "@/core/data/contactCrm";
+import {
+  fetchLatestActivities,
+  formatTimelineDate,
+  timeAgo,
+  type LatestActivity,
+} from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
@@ -458,6 +463,80 @@ function contactPeluang(contact: Contact): Array<{ projectName: string }> {
   return projectsByCompany.value.get(`name:${companyName}`) ?? [];
 }
 
+/**
+ * Aktivitas terakhir per kontak untuk seluruh baris halaman aktif. Sumbernya
+ * sama dengan panel Riwayat di halaman detail (activity_logs + catatan), lihat
+ * fetchLatestActivities di services/activityLogService.
+ */
+const latestActivities = ref(new Map<number, LatestActivity>());
+/** Hanya respons permintaan terakhir yang dipakai saat user cepat ganti halaman / mencari. */
+let activityRequestSeq = 0;
+const ACTIVITY_REFRESH_INTERVAL_MS = 60_000;
+let activityRefreshTimer: number | undefined;
+
+function refreshActivitiesOnFocus() {
+  if (document.visibilityState === "hidden") return;
+  void loadLatestActivities();
+}
+
+async function loadLatestActivities() {
+  const remoteIds = filteredContact.value
+    .filter((contact) => contact.origin === "api" && !contact.isDemo)
+    .map((contact) => Number(contact.remoteId))
+    .filter((id) => Number.isSafeInteger(id) && id > 0);
+
+  const seq = ++activityRequestSeq;
+
+  if (!remoteIds.length) {
+    latestActivities.value = new Map();
+    return;
+  }
+
+  const activities = await fetchLatestActivities("contacts", remoteIds);
+  if (seq !== activityRequestSeq) return;
+  latestActivities.value = activities;
+}
+
+function contactActivity(contact: Contact): LatestActivity | undefined {
+  const remoteId = Number(contact.remoteId);
+  if (!Number.isSafeInteger(remoteId) || remoteId <= 0) return undefined;
+  return latestActivities.value.get(remoteId);
+}
+
+/** Log historis dipakai lebih dahulu; `lastActivity` dari list tetap jadi cadangan. */
+function activityLabel(contact: Contact) {
+  return contactActivity(contact)?.label || contact.lastActivity || "";
+}
+
+function activityTime(contact: Contact) {
+  const createdAt = contactActivity(contact)?.createdAt;
+  return createdAt ? timeAgo(createdAt) : "";
+}
+
+function activityTooltip(contact: Contact) {
+  const activity = contactActivity(contact);
+  if (!activity) return contact.lastActivity || "";
+
+  return [
+    activity.label,
+    activity.authorName ? `oleh ${activity.authorName}` : "",
+    activity.createdAt ? formatTimelineDate(activity.createdAt) : "",
+    activity.source ? `(${activity.source})` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+// Kolom aktivitas selalu mengikuti baris yang sedang tampil (ganti halaman / cari).
+watch(
+  () =>
+    filteredContact.value
+      .map((contact) => `${contact.origin ?? ""}:${contact.remoteId ?? ""}`)
+      .join(","),
+  () => void loadLatestActivities(),
+  { immediate: true },
+);
+
 function parseContactDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -505,10 +584,23 @@ function openContactSection(contact: Contact, hash: string) {
 onMounted(() => {
   contactStore.initStore();
   if (!projectStore.loaded) void projectStore.fetchProjects({ per_page: 100 });
+
+  // Aktivitas bisa bertambah dari halaman detail, pengguna lain, atau APK.
+  // Daftar disegarkan berkala dan saat tab kembali aktif supaya kolom
+  // Aktivitas tidak tertinggal dari riwayat di halaman detail.
+  activityRefreshTimer = window.setInterval(
+    () => void loadLatestActivities(),
+    ACTIVITY_REFRESH_INTERVAL_MS,
+  );
+  window.addEventListener("focus", refreshActivitiesOnFocus);
+  document.addEventListener("visibilitychange", refreshActivitiesOnFocus);
 });
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
+  if (activityRefreshTimer) clearInterval(activityRefreshTimer);
+  window.removeEventListener("focus", refreshActivitiesOnFocus);
+  document.removeEventListener("visibilitychange", refreshActivitiesOnFocus);
   stopColumnResize();
 });
 </script>
@@ -860,6 +952,21 @@ onBeforeUnmount(() => {
 .project-navigation-link:focus-visible {
   color: var(--app-primary-dark, #075985);
   background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
+}
+
+/* Label aktivitas + waktu relatifnya, sejajar dengan pola kolom "Terakhir Dihubungi". */
+.activity-cell {
+  width: 100%;
+  min-width: 0;
+}
+
+.activity-cell small {
+  display: block;
+  overflow: hidden;
+  color: #94a3b8;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .activity-label {

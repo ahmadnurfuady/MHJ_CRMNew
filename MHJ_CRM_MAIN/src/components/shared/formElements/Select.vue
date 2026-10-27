@@ -78,11 +78,19 @@
               <div class="disabled">{{ option[displayKey] }}</div>
               <template v-for="(child, childIndex) in option.data" :key="childIndex">
                 <li
-                  :class="{ selected: isSelected(child) }"
+                  :class="{ selected: isSelected(child), 'has-checkbox': multiSelect }"
                   @click="handleSelect(child)"
                   :ref="(el) => setOptionRef(el, index)"
                 >
-                  {{ child[displayKey] }}
+                  <input
+                    v-if="multiSelect"
+                    class="form-check-input option-checkbox"
+                    type="checkbox"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    :checked="isSelected(child)"
+                  />
+                  <span class="option-label">{{ child[displayKey] }}</span>
                 </li>
               </template>
             </template>
@@ -92,18 +100,31 @@
                   highlighted: index === highlightedIndex,
                   selected: isSelected(option),
                   'has-subtitle': Boolean(subtitleKey && option[subtitleKey]),
+                  'has-checkbox': multiSelect,
                 }"
                 @click="handleSelect(option)"
                 :ref="(el) => setOptionRef(el, index)"
               >
-                <span class="option-label">{{ option[displayKey] }}</span>
-                <small
-                  v-if="subtitleKey && option[subtitleKey]"
-                  class="option-subtitle"
-                  :title="String(option[subtitleKey])"
-                >
-                  {{ option[subtitleKey] }}
-                </small>
+                <!-- Checkbox menandakan opsi boleh dipilih lebih dari satu.
+                     Klik tetap ditangani <li>, jadi input-nya hanya penanda visual. -->
+                <input
+                  v-if="multiSelect"
+                  class="form-check-input option-checkbox"
+                  type="checkbox"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  :checked="isSelected(option)"
+                />
+                <div class="option-text">
+                  <span class="option-label">{{ option[displayKey] }}</span>
+                  <small
+                    v-if="subtitleKey && option[subtitleKey]"
+                    class="option-subtitle"
+                    :title="String(option[subtitleKey])"
+                  >
+                    {{ option[subtitleKey] }}
+                  </small>
+                </div>
               </li>
             </template>
           </template>
@@ -320,6 +341,36 @@ function toggleWithPlacement(event: Event) {
   gap: 2px;
   padding: 8px 12px;
   line-height: 1.3;
+}
+
+/* Mode pilih-banyak: checkbox di kiri, label (dan sub-teksnya) di kanan. */
+.dropdown li.has-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 12px;
+  line-height: 1.3;
+}
+
+.dropdown li.has-checkbox .option-checkbox {
+  /* .smart-select .dropdown input (global) memakai lebar penuh untuk kolom
+     pencarian; ukuran checkbox dikembalikan di sini. */
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin: 2px 0 0;
+  /* Klik ditangani <li> agar satu kali klik saja yang mengubah pilihan. */
+  pointer-events: none;
+}
+
+.dropdown li .option-text {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .dropdown li.has-subtitle .option-label {
