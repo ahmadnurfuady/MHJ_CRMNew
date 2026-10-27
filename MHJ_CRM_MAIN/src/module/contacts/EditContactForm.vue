@@ -651,10 +651,13 @@ function fillForm() {
   const projectName = String(contact.project || "").trim().toLowerCase();
   const projectIds = contact.projectIds ?? (contact.projectId ? [contact.projectId] : []);
   let projects = projectIds.map(
-    (id) =>
+    (id, index) =>
       projectOptions.value.find((option) => String(option.value) === String(id)) ?? {
         value: Number(id),
-        label: (String(id) === String(contact.projectId) && contact.project) || `Peluang #${id}`,
+        label:
+          contact.projectNames?.[index] ||
+          (String(id) === String(contact.projectId) && contact.project) ||
+          `Peluang #${id}`,
         address: "",
       },
   );

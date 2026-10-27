@@ -225,7 +225,7 @@
             type="button"
             role="tab"
             :aria-selected="company.name === selectedCompanyName"
-            @click="selectedCompanyName = company.name"
+            @click="selectCompany(company.name)"
           >
             <SolarIcon
               name="hospital"
@@ -448,6 +448,7 @@ import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
+import type { Hospital } from "@/types/hospital";
 import { useProjectStore } from "@/store/project";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
 import {
@@ -486,62 +487,116 @@ const contactPhoneNumbers = computed(() => {
     ...(contact.phoneNumbers || []),
   );
 });
-const associatedCompanyNames = computed(() => {
+/**
+ * Seluruh Faskes yang dipegang kontak, urut sesuai relasi contact_company pada
+ * endpoint detail (`company_ids` + `company_names`). Kontak lama yang hanya
+ * punya satu Faskes tetap terbaca lewat company_id / company.
+ */
+const relatedCompanies = computed(() => {
   const contact = contactState.value.activeContact;
-  if (!contact) return [];
+  if (!contact) return [] as Array<{ id: number; name: string }>;
 
+  const ids = contact.companyIds?.length
+    ? contact.companyIds
+    : contact.companyId
+      ? [contact.companyId]
+      : [];
   const names = contact.companyNames?.length
     ? contact.companyNames
     : contact.company
       ? [contact.company]
       : [];
 
-  return [...new Set(names.map((name) => name.trim()).filter(Boolean))];
+  const result: Array<{ id: number; name: string }> = [];
+  const seen = new Set<string>();
+
+  for (let index = 0; index < Math.max(ids.length, names.length); index += 1) {
+    const rawId = Number(ids[index]);
+    const id = Number.isSafeInteger(rawId) && rawId > 0 ? rawId : Number.NaN;
+    const name = String(names[index] ?? "").trim();
+    if (!name && Number.isNaN(id)) continue;
+
+    const key = name ? `name:${name.toLowerCase()}` : `id:${id}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push({ id, name });
+  }
+
+  return result;
 });
 
-const companiesForContact = computed<CompanyDetail[]>(() => {
-  const contact = contactState.value.activeContact;
-  if (!contact) return [];
+/** Faskes yang detailnya diambil saat user berpindah kartu (lihat selectCompany). */
+const loadedCompanies = ref(new Map<number, Hospital>());
 
-  const result: CompanyDetail[] = [];
-  associatedCompanyNames.value.forEach((companyName, index) => {
-    const normalizedName = companyName.toLowerCase();
-    const companyId = index === 0 ? Number(contact.companyId) : Number.NaN;
-    const liveCompany = [hospitalStore.selectedItem, ...hospitalStore.items].find((company) => {
-      if (!company) return false;
-      return (
-        (Number.isFinite(companyId) && companyId > 0 && company.id === companyId) ||
-        company.name.trim().toLowerCase() === normalizedName
-      );
-    });
-    const sample = companyDetails[companyName];
+function findLiveCompany(id: number, normalizedName: string) {
+  const candidates = [
+    Number.isNaN(id) ? undefined : loadedCompanies.value.get(id),
+    hospitalStore.selectedItem,
+    ...hospitalStore.items,
+  ];
 
-    if (!liveCompany) {
-      if (sample) {
-        result.push({
-          ...sample,
-          isDemo: true,
-          projectsAreDemo: Boolean(sample.projects.length),
-          installedProductsAreDemo: Boolean(sample.installedProducts.length),
-        });
-      }
-      return;
+  return candidates.find((company) => {
+    if (!company) return false;
+    return (
+      (!Number.isNaN(id) && company.id === id) ||
+      (Boolean(normalizedName) && company.name.trim().toLowerCase() === normalizedName)
+    );
+  });
+}
+
+function projectsForCompany(id: number, normalizedName: string) {
+  return projectStore.items
+    .filter(
+      (project) =>
+        (!Number.isNaN(id) && project.companyId === id) ||
+        (Boolean(normalizedName) &&
+          project.companyName?.trim().toLowerCase() === normalizedName),
+    )
+    .map((project) => ({
+      id: String(project.id),
+      name: project.projectName,
+      stage: project.stageName || titleCase(project.status),
+      value: project.amountValue ?? project.projectValue ?? 0,
+    }));
+}
+
+const companiesForContact = computed<CompanyDetail[]>(() =>
+  relatedCompanies.value.map(({ id, name }) => {
+    const normalizedName = name.toLowerCase();
+    const liveCompany = findLiveCompany(id, normalizedName);
+    const sample = companyDetails[name];
+    const projects = projectsForCompany(
+      liveCompany ? liveCompany.id : id,
+      liveCompany ? liveCompany.name.trim().toLowerCase() : normalizedName,
+    );
+
+    // Fixture lokal hanya untuk kontak demo yang tidak punya padanan di backend.
+    if (!liveCompany && sample) {
+      return {
+        ...sample,
+        isDemo: true,
+        projectsAreDemo: Boolean(sample.projects.length),
+        installedProductsAreDemo: Boolean(sample.installedProducts.length),
+      };
     }
 
-    const projects = projectStore.items
-      .filter(
-        (project) =>
-          project.companyId === liveCompany.id ||
-          project.companyName?.trim().toLowerCase() === normalizedName,
-      )
-      .map((project) => ({
-        id: String(project.id),
-        name: project.projectName,
-        stage: project.stageName || titleCase(project.status),
-        value: project.amountValue ?? project.projectValue ?? 0,
-      }));
+    // Faskes yang detailnya belum termuat tetap ditampilkan supaya seluruh
+    // Faskes kontak terlihat; profil lengkapnya menyusul setelah kartu dipilih.
+    if (!liveCompany) {
+      return {
+        name: name || `ID Faskes ${id}`,
+        type: "Faskes",
+        address: "-",
+        phone: "-",
+        website: "",
+        projects,
+        projectsAreDemo: false,
+        installedProducts: [],
+        installedProductsAreDemo: false,
+      };
+    }
 
-    result.push({
+    return {
       name: liveCompany.name,
       type:
         liveCompany.hospitalType ||
@@ -555,11 +610,27 @@ const companiesForContact = computed<CompanyDetail[]>(() => {
       projectsAreDemo: !projects.length && Boolean(sample?.projects.length),
       installedProducts: sample?.installedProducts ?? [],
       installedProductsAreDemo: Boolean(sample?.installedProducts.length),
-    });
-  });
+    };
+  }),
+);
 
-  return result;
-});
+/**
+ * Detail Faskes non-utama belum tentu ikut termuat saat halaman dibuka, jadi
+ * diambil saat kartunya dipilih. Sengaja tidak diambil di awal supaya tidak
+ * bertabrakan dengan pemuatan Faskes utama di ContactDetailPage.
+ */
+async function selectCompany(name: string) {
+  selectedCompanyName.value = name;
+
+  const related = relatedCompanies.value.find((company) => company.name === name);
+  const id = related?.id ?? Number.NaN;
+  if (Number.isNaN(id)) return;
+  if (loadedCompanies.value.has(id)) return;
+  if (findLiveCompany(id, name.trim().toLowerCase())) return;
+
+  const hospital = await hospitalStore.fetchHospitalById(id);
+  if (hospital) loadedCompanies.value.set(id, hospital);
+}
 
 const selectedCompanyName = ref("");
 watch(

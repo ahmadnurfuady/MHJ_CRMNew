@@ -145,6 +145,29 @@ function pickIdList(raw: Dict, key: string): string[] | undefined {
     .filter((id) => /^\d+$/.test(id) && Number(id) > 0);
 }
 
+/**
+ * Daftar nama relasi dari endpoint detail. Backend mengirimnya sebagai array
+ * string (company_names) sekaligus array objek (companies: [{ id, name }]),
+ * keduanya urut sama dengan company_ids.
+ */
+function pickNameList(raw: Dict, ...keys: string[]): string[] | undefined {
+  for (const key of keys) {
+    const value = raw[key];
+    if (!Array.isArray(value)) continue;
+
+    const names = value
+      .map((item) =>
+        isRecord(item)
+          ? pickString(item, "name", "company_name", "projects_name", "project_name", "label")
+          : textValue(item),
+      )
+      .map((name) => name.trim())
+      .filter(Boolean);
+    if (names.length) return names;
+  }
+  return undefined;
+}
+
 /** Pertahankan field terbaru ketika endpoint detail belum mengembalikan kolom tambahan. */
 function applySavedContactPayload(contact: Contact, payload: ContactCrudPayload) {
   contact.createdById = payload.created_by ?? contact.createdById;
@@ -325,7 +348,11 @@ function normalizeApiContact(raw: Dict): Contact {
     project: pickString(raw, "projects_name", "project_name", "Project Name", "project"),
     projectId: pickString(raw, "project_id", "Project ID", "projectId"),
     companyIds: pickIdList(raw, "company_ids"),
+    // Urutannya sejajar dengan companyIds, dipakai halaman detail untuk
+    // menampilkan kartu tiap Faskes yang dipegang kontak.
+    companyNames: pickNameList(raw, "company_names", "companies"),
     projectIds: pickIdList(raw, "project_ids"),
+    projectNames: pickNameList(raw, "project_names", "projects"),
     latitude: nullableNumber(pickString(raw, "latitude", "Latitude")) ?? undefined,
     longitude: nullableNumber(pickString(raw, "longitude", "Longitude")) ?? undefined,
     createdAt: pickString(raw, "created_at", "Created At", "createdAt"),

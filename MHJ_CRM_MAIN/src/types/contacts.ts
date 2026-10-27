@@ -56,6 +56,8 @@ export interface Contact {
   companyIds?: string[];
   /** ID relasi contact_project; undefined bila API belum mengirim daftarnya. */
   projectIds?: string[];
+  /** Nama peluang, urut sejajar dengan projectIds. */
+  projectNames?: string[];
   latitude?: number;
   longitude?: number;
   createdAt?: string;

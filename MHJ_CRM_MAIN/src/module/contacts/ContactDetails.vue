@@ -443,24 +443,50 @@ const projectsByCompany = computed(() => {
   return map;
 });
 
+/** Seluruh Faskes kontak (bisa lebih dari satu lewat tabel contact_company). */
+function contactCompanies(contact: Contact) {
+  const ids = contact.companyIds?.length
+    ? contact.companyIds
+    : contact.companyId
+      ? [contact.companyId]
+      : [];
+  const names = contact.companyNames?.length
+    ? contact.companyNames
+    : contact.company
+      ? [contact.company]
+      : [];
+
+  return { ids, names };
+}
+
 function contactPeluang(contact: Contact): Array<{ projectName: string }> {
-  if (contact.companyNames?.length) {
-    return contact.companyNames.flatMap((companyName) =>
-      (companyDetails[companyName]?.projects ?? []).map((project) => ({
-        projectName: project.name,
-      })),
-    );
-  }
+  const { ids, names } = contactCompanies(contact);
+  // Satu peluang bisa cocok lewat id maupun nama Faskes; dedupe pakai namanya.
+  const projects = new Map<string, { projectName: string }>();
 
-  const companyId = Number(contact.companyId);
-  if (Number.isFinite(companyId) && companyId > 0) {
-    const byId = projectsByCompany.value.get(`id:${companyId}`);
-    if (byId?.length) return byId;
-  }
+  ids.forEach((companyId) => {
+    const id = Number(companyId);
+    if (!Number.isFinite(id) || id <= 0) return;
+    projectsByCompany.value
+      .get(`id:${id}`)
+      ?.forEach((project) => projects.set(project.projectName, project));
+  });
+  names.forEach((companyName) => {
+    const key = companyName.trim().toLowerCase();
+    if (!key) return;
+    projectsByCompany.value
+      .get(`name:${key}`)
+      ?.forEach((project) => projects.set(project.projectName, project));
+  });
 
-  const companyName = (contact.company || "").trim().toLowerCase();
-  if (!companyName) return [];
-  return projectsByCompany.value.get(`name:${companyName}`) ?? [];
+  if (projects.size) return [...projects.values()];
+
+  // Fixture lokal hanya dipakai bila tidak ada peluang nyata yang cocok.
+  return names.flatMap((companyName) =>
+    (companyDetails[companyName]?.projects ?? []).map((project) => ({
+      projectName: project.name,
+    })),
+  );
 }
 
 /**
