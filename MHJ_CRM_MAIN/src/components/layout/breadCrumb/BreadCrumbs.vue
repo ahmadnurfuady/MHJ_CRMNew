@@ -44,7 +44,14 @@
             aria-label="Muat ulang data halaman ini"
             @click="emit('refresh')"
           >
-            <SolarIcon name="refresh" :size="18" aria-hidden="true" />
+            <SolarIcon
+              name="refresh"
+              :size="18"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="1"
+              aria-hidden="true"
+            />
             <span>{{ props.refreshing ? 'Memuat...' : 'Refresh' }}</span>
           </button>
         </div>
@@ -142,7 +149,7 @@ function handleBackClick() {
 
 .page-refresh-button:hover:not(:disabled),
 .page-refresh-button:focus-visible {
-  border-color: var(--app-secondary, #70c8ed);
+  border-color: var(--app-primary, #18a6e4);
   color: var(--app-primary-dark, #0788bd);
   background: var(--app-primary-wash, #f2fbff);
   box-shadow: 0 4px 13px rgba(var(--app-primary-rgb, 24, 166, 228), 0.13);

@@ -5,7 +5,13 @@
     /></router-link>
     <div class="back-btn" @click="toggleSidebar()"><SolarIcon name="fa-angle-left" /></div>
     <div class="toggle-sidebar" @click="toggleSidebar()">
-      <vue-feather :type="'grid'" class="status_toggle middle sidebar-toggle"></vue-feather>
+      <vue-feather
+        :type="'grid'"
+        class="status_toggle middle sidebar-toggle"
+        color="var(--app-primary, #18a6e4)"
+        secondary-color="#ffffff"
+        :secondary-opacity="1"
+      ></vue-feather>
     </div>
   </div>
   <div class="logo-icon-wrapper">
@@ -29,6 +35,10 @@ const { toggleSidebar } = store
   padding-right: 50px;
 }
 
+.toggle-sidebar {
+  --white: #fff;
+}
+
 /* Center and adjust padding for minimized logo container without breaking display toggle */
 .logo-icon-wrapper {
   padding: 16px 0 !important;
@@ -49,6 +59,13 @@ const { toggleSidebar } = store
   object-fit: contain;
   display: block;
   margin: 0 auto;
+}
+
+@media (max-width: 991.98px) {
+  /* Sidebar mobile ditutup lewat backdrop atau setelah memilih menu. */
+  .logo-wrapper > .back-btn {
+    display: none !important;
+  }
 }
 </style>
 
