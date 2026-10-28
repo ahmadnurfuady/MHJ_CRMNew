@@ -203,7 +203,18 @@
             <tr v-if="!contactApi.loading && !filteredContact.length">
               <td colspan="7" class="contact-table-state">
                 <div class="empty-state-icon">
-                  <vue-feather type="users" size="22" />
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="8" r="4" />
+                    <path
+                      d="M12 13c-4.42 0-8 2.24-8 5 0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2 0-2.76-3.58-5-8-5z"
+                    />
+                  </svg>
                 </div>
                 <strong>Kontak tidak ditemukan</strong>
                 <span>Belum ada kontak pada kategori ini.</span>
@@ -1093,6 +1104,11 @@ onBeforeUnmount(() => {
   color: var(--app-primary, #18a6e4);
 }
 
+/* Icon user solid, satu warna primer penuh. */
+.empty-state-icon svg {
+  color: var(--app-primary, #18a6e4);
+}
+
 .pagination-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1166,19 +1182,22 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Tablet & mobile: tabel diubah jadi kartu bertumpuk supaya tidak perlu
+/* Tablet & mobile: tabel diubah jadi kartu modern supaya tidak perlu
    geser horizontal di layar sempit. Laptop/desktop (>=992px) tetap memakai
-   tabel resizable seperti semula. */
+   tabel resizable seperti semula. Data yang ditampilkan tetap sama. */
 @media (max-width: 991.98px) {
   .contact-table-wrap {
     padding: 12px;
     overflow: visible;
+    background: #f1f5f9;
   }
 
   .contact-table {
     width: 100% !important;
     min-width: 0;
     table-layout: auto;
+    border-collapse: separate;
+    border-spacing: 0 14px;
   }
 
   .contact-table colgroup,
@@ -1197,91 +1216,199 @@ onBeforeUnmount(() => {
     width: 100%;
   }
 
+  /* Satu baris data = satu kartu. */
   .contact-table tbody tr {
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-subtle, #e2e8f0);
-    border-radius: 10px;
-    margin-bottom: 12px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
   }
 
-  .contact-table tbody td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 11px 13px;
-    text-align: right;
+  .contact-table tbody tr:hover {
+    background: #ffffff;
   }
 
+  /* Semua label bawaan disembunyikan: desain baru tidak pakai baris label-nilai. */
   .contact-table tbody td::before {
-    content: attr(data-label);
-    flex: 0 0 38%;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-align: left;
-    text-transform: capitalize;
+    display: none;
+    content: none;
   }
 
-  .contact-table tbody td:first-child {
-    background: #f8fafc;
-  }
-
-  .contact-table tbody td:last-child {
+  /* ── Header kartu: avatar + nama/email ─────────────────────────── */
+  .contact-table tbody td.entity-detail-cell {
+    order: 0;
     border-bottom: 0;
+    padding: 16px 16px 0;
+    background: #ffffff;
   }
 
   .contact-person {
     width: 100%;
     min-width: 0;
-    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
   }
 
-  .contact-table tbody td.entity-detail-cell::before {
-    display: none;
+  .contact-avatar {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+    font-size: 14px;
   }
 
   .contact-person__identity {
     flex: 1 1 auto;
-    text-align: right;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .contact-person__identity strong {
+    font-size: 15px;
   }
 
   .contact-person__identity span {
-    margin-left: auto;
+    max-width: 100%;
+    font-size: 12px;
+  }
+
+  /* ── Faskes: baris info dengan garis aksen kiri ────────────────── */
+  .contact-table tbody td[data-label="Faskes"] {
+    order: 1;
+    border-bottom: 0;
+    padding: 8px 16px 0 74px; /* sejajar dengan teks nama (46 avatar + 12 gap + 16 padding) */
   }
 
   .contact-table .cell-navigation-link {
     width: auto;
-    max-width: 62%;
-    margin-left: auto;
-    text-align: right;
+    max-width: 100%;
+    overflow: hidden;
+    color: #475569;
+    font-size: 12px;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Jabatan: chip kecil di bawah faskes ───────────────────────── */
+  .contact-table tbody td[data-label="Jabatan"] {
+    order: 2;
+    border-bottom: 0;
+    padding: 6px 16px 0 74px;
+  }
+
+  .contact-table tbody td[data-label="Jabatan"] > span {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 3px 10px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Peluang + Aktivitas: strip info abu muda ──────────────────── */
+  .contact-table tbody td[data-label="Peluang"] {
+    order: 3;
+    border-bottom: 0;
+    padding: 12px 16px 0;
+  }
+
+  .contact-table tbody td[data-label="Peluang"] .project-badge {
+    display: inline-flex;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+  .contact-table tbody td[data-label="Aktivitas"] {
+    order: 4;
+    border-bottom: 0;
+    padding: 8px 16px 0;
   }
 
   .contact-table .activity-cell {
-    width: auto;
-    max-width: 62%;
-    margin-left: auto;
-    text-align: right;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
   }
 
   .contact-table .activity-label {
-    justify-content: flex-end;
-    text-align: right;
+    width: 100%;
+    justify-content: flex-start;
+    font-size: 12px;
   }
 
   .contact-table .activity-cell small {
-    text-align: right;
+    margin-top: 2px;
+    padding-left: 14px; /* sejajar dengan teks setelah dot */
+    text-align: left;
   }
 
+  /* ── Footer kartu: terakhir dihubungi + tombol detail ──────────── */
+  .contact-table tbody td[data-label="Terakhir Dihubungi"] {
+    order: 5;
+    display: flex;
+    align-items: center;
+    border-top: 1px dashed #e2e8f0;
+    border-bottom: 0;
+    margin-top: 12px;
+    padding: 10px 16px;
+  }
+
+  .contact-table .last-contacted {
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .contact-table .last-contacted span {
+    display: inline;
+    font-size: 12px;
+  }
+
+  .contact-table .last-contacted small {
+    display: inline;
+    margin-top: 0;
+    margin-left: 6px;
+    text-align: left;
+  }
+
+  .contact-table tbody td[data-label="Terakhir Dihubungi"] .empty-value {
+    width: 100%;
+    text-align: left;
+  }
+
+  .contact-table tbody td.contact-detail-cell {
+    order: 6;
+    border-bottom: 0;
+    padding: 0 16px 14px !important;
+    background: #ffffff;
+  }
+
+  .contact-detail-cell .detail-button {
+    width: 100%;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-weight: 600;
+  }
+
+  /* Baris loading / kosong tetap tampil penuh. */
   .contact-table-state {
     display: table-cell !important;
     height: 180px;
-  }
-
-  .contact-table-state::before {
-    display: none;
+    padding: 24px !important;
+    background: #ffffff;
+    text-align: center;
   }
 }
 
