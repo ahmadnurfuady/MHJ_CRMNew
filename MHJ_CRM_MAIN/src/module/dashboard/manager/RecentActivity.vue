@@ -11,8 +11,8 @@
           <MhjIcon
             :name="activityIcon(activity.type)"
             :size="20"
-            color="var(--app-primary-dark, #0e7490)"
-            secondary-color="var(--app-secondary, #84d7eb)"
+            color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+            secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
           />
         </span>
         <div class="activity-item__body">
@@ -109,18 +109,26 @@ function activityIcon(type: ActivityType): MhjIconName {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  color: var(--app-primary, #18a6e4);
-  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16);
+  color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
+  background: var(--dashboard-icon-surface, rgba(var(--app-primary-rgb, 24, 166, 228), 0.1));
 }
 
 .activity-item__icon.is-meeting {
-  color: var(--app-primary, #18a6e4);
-  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.22);
+  background: var(--dashboard-icon-surface-strong, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14));
 }
 
 .activity-item__icon.is-email {
-  color: var(--app-primary, #18a6e4);
-  background: var(--app-primary-wash, #f0f9ff);
+  background: var(--dashboard-icon-surface, rgba(var(--app-primary-rgb, 24, 166, 228), 0.1));
+}
+
+.activity-item__icon:is(.is-task, .is-note) {
+  color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
+  background: var(--dashboard-icon-surface-strong, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14));
+}
+
+.activity-item__icon:is(.is-task, .is-note) :deep(.mhj-icon) {
+  width: 21px !important;
+  height: 21px !important;
 }
 
 .activity-item__body {
@@ -157,5 +165,22 @@ function activityIcon(type: ActivityType): MhjIconName {
   color: #93a0aa;
   font-size: 12.5px;
   text-align: center;
+}
+
+@media (max-width: 575px) {
+  .activity-card {
+    padding: 16px 14px;
+  }
+
+  .activity-item {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+  }
+
+  .activity-item__time {
+    grid-column: 2;
+    margin-top: -7px;
+  }
 }
 </style>

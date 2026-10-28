@@ -10,9 +10,11 @@
           <SolarIcon
             :name="resolveKpiIcon(kpi.id)"
             :size="24"
-            :color="kpi.id === 'win-rate' ? '#fff' : 'var(--app-primary-dark, #0e7490)'"
-            secondary-color="var(--app-primary, #18a6e4)"
-            :secondary-opacity="kpi.id === 'win-rate' ? 1 : 0.85"
+            :color="kpi.id === 'win-rate' ? '#fff' : 'currentColor'"
+            :secondary-color="kpi.id === 'win-rate'
+              ? 'var(--dashboard-icon-primary, var(--app-primary, #18a6e4))'
+              : 'currentColor'"
+            :secondary-opacity="1"
           />
         </div>
         <strong class="kpi-card__value">{{ kpi.value }}</strong>
@@ -98,8 +100,8 @@ function clampProgress(value: number): number {
   height: 40px;
   margin-bottom: 4px;
   border-radius: 12px;
-  color: var(--kpi-accent, var(--app-primary, #18a6e4));
-  background: var(--kpi-accent-soft, var(--app-primary-wash, #f0f9ff));
+  color: var(--dashboard-icon-primary, var(--kpi-accent, var(--app-primary, #18a6e4)));
+  background: var(--dashboard-icon-surface, var(--kpi-accent-soft, var(--app-primary-wash, #f0f9ff)));
 }
 
 .kpi-card__value {
@@ -146,6 +148,11 @@ function clampProgress(value: number): number {
 @media (max-width: 420px) {
   .kpi-card {
     padding: 14px;
+  }
+
+  .kpi-card__icon {
+    width: 38px;
+    height: 38px;
   }
 
   .kpi-card__value {

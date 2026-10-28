@@ -11,8 +11,8 @@
             <MhjIcon
               :name="resolveQuickActionIcon(action.id)"
               :size="24"
-              color="var(--app-primary-dark, #0e7490)"
-              secondary-color="var(--app-secondary, #84d7eb)"
+              color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+              secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
             />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
@@ -26,8 +26,8 @@
             <MhjIcon
               :name="resolveQuickActionIcon(action.id)"
               :size="24"
-              color="var(--app-primary-dark, #0e7490)"
-              secondary-color="var(--app-secondary, #84d7eb)"
+              color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+              secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
             />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
@@ -84,12 +84,15 @@ function resolveQuickActionIcon(id: string): MhjIconName {
 
 a.quick-actions__item:hover,
 a.quick-actions__item:focus-visible {
-  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.12);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
 }
 
 .quick-actions__item.is-disabled {
   cursor: default;
-  opacity: 0.6;
+}
+
+.quick-actions__item.is-disabled .quick-actions__label {
+  opacity: 0.55;
 }
 
 .quick-actions__icon {
@@ -98,8 +101,12 @@ a.quick-actions__item:focus-visible {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  color: var(--app-primary, #18a6e4);
-  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16);
+  color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
+  background: var(--dashboard-icon-surface, rgba(var(--app-primary-rgb, 24, 166, 228), 0.1));
+}
+
+.quick-actions__icon :deep([data-mhj-icon='action_folder'] svg path:first-child) {
+  opacity: 0.72;
 }
 
 .quick-actions__label {
@@ -127,14 +134,28 @@ a.quick-actions__item:focus-visible {
   background: rgba(245, 158, 11, 0.2);
 }
 
-@media (max-width: 420px) {
+@media (max-width: 767px) {
+  .quick-actions__list {
+    gap: 6px;
+  }
+
+  .quick-actions__item {
+    padding-inline: 4px;
+  }
+
   .quick-actions__icon {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
   }
 
   .quick-actions__label {
     font-size: 10.5px;
+  }
+}
+
+@media (max-width: 575px) {
+  .quick-actions__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>

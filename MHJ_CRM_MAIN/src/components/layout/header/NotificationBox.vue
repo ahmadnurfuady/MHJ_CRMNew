@@ -1,6 +1,10 @@
 <template>
   <div class="notification-box" :aria-label="unreadCount ? `${unreadCount} notifikasi belum dibaca` : 'Notifikasi'">
-    <MhjIcon :name="unreadCount > 0 ? 'letter_unread' : 'letter'" />
+    <MhjIcon
+      :name="unreadCount > 0 ? 'letter_unread' : 'letter'"
+      color="var(--app-primary, #18a6e4)"
+      secondary-color="var(--app-primary, #18a6e4)"
+    />
   </div>
   <div class="onhover-show-div notification-dropdown">
     <div class="card mb-0">
@@ -139,6 +143,11 @@ function handleItemClick(item: PushNotificationEntry) {
 .notification-box :deep(.mhj-icon svg),
 .notification-box :deep(.mhj-icon svg path) {
   stroke: none !important;
+}
+
+.notification-box :deep([data-mhj-icon='letter_unread'] svg path:first-child) {
+  fill: var(--app-primary, #18a6e4) !important;
+  opacity: 0.72;
 }
 
 .push-status {

@@ -299,7 +299,7 @@ function markImageAsFailed(id: PromoSlide['id']) {
 .promo-swiper-pagination :deep(.swiper-pagination-bullet-active) {
   width: 18px;
   border-radius: 999px;
-  background: var(--app-secondary, #84d7eb);
+  background: var(--app-primary, #18a6e4);
   opacity: 1;
 }
 

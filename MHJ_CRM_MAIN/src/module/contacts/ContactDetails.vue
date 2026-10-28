@@ -1234,8 +1234,45 @@ onBeforeUnmount(() => {
   }
 
   .contact-person {
+    width: 100%;
     min-width: 0;
+    justify-content: space-between;
+  }
+
+  .contact-table tbody td.entity-detail-cell::before {
+    display: none;
+  }
+
+  .contact-person__identity {
+    flex: 1 1 auto;
+    text-align: right;
+  }
+
+  .contact-person__identity span {
+    margin-left: auto;
+  }
+
+  .contact-table .cell-navigation-link {
+    width: auto;
+    max-width: 62%;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .contact-table .activity-cell {
+    width: auto;
+    max-width: 62%;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .contact-table .activity-label {
     justify-content: flex-end;
+    text-align: right;
+  }
+
+  .contact-table .activity-cell small {
+    text-align: right;
   }
 
   .contact-table-state {
@@ -1255,6 +1292,52 @@ onBeforeUnmount(() => {
 
   .add-contact-header-button {
     width: 100%;
+  }
+
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px 12px;
+  }
+
+  .card-footer > .text-muted {
+    width: 100%;
+    text-align: center;
+  }
+
+  .pagination-actions {
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .pagination-pages {
+    order: -1;
+    flex: 0 0 100%;
+    justify-content: center;
+  }
+
+  .pagination-button {
+    max-width: 145px;
+    flex: 1 1 0;
+    padding-inline: 10px;
+  }
+}
+
+/* Jaga pagination tetap berada di atas navigation/gesture bar perangkat.
+   Berlaku untuk mobile dan tablet; browser yang tidak menyediakan safe-area
+   tetap mendapat jarak bawah minimum. */
+@media (max-width: 991.98px) {
+  .card-footer {
+    padding-bottom: max(
+      32px,
+      calc(14px + env(safe-area-inset-bottom, 0px))
+    );
+    scroll-margin-bottom: max(
+      20px,
+      env(safe-area-inset-bottom, 0px)
+    );
   }
 }
 </style>

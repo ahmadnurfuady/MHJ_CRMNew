@@ -66,9 +66,18 @@ onMounted(loadDashboard)
 
 <style scoped>
 .manager-dashboard {
+  --dashboard-icon-primary: var(--app-primary, #18a6e4);
+  --dashboard-icon-surface: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+  --dashboard-icon-surface-strong: rgba(var(--app-primary-rgb, 24, 166, 228), 0.15);
   display: grid;
   gap: 22px;
   padding-bottom: 28px;
+}
+
+:global(body.dark-only) .manager-dashboard {
+  --dashboard-icon-primary: var(--app-primary, #18a6e4);
+  --dashboard-icon-surface: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
+  --dashboard-icon-surface-strong: rgba(var(--app-primary-rgb, 24, 166, 228), 0.24);
 }
 
 .manager-dashboard__header {
@@ -148,6 +157,5 @@ onMounted(loadDashboard)
   .manager-dashboard__header {
     padding: 16px 14px;
   }
-
 }
 </style>

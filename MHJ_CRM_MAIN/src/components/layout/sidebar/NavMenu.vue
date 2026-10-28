@@ -119,7 +119,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useMenu()
 const storeLayout = useLayout()
-const { menuState } = storeToRefs(store)
+const { menuState, uiState } = storeToRefs(store)
 const { layoutState } = storeToRefs(storeLayout)
 const { getPined, toggleMenu } = store
 
@@ -151,7 +151,11 @@ const onMenuClick = (menuItem: MenuItem) => {
   if (menuItem.children && menuItem.children.length) {
     toggleMenu(menuItem)
   } else if (menuItem.path) {
-    router.push(menuItem.path)
+    void router.push(menuItem.path).finally(() => {
+      if (window.innerWidth <= 991) {
+        uiState.value.show = false
+      }
+    })
   }
 }
 </script>

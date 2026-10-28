@@ -11,8 +11,8 @@
             <MhjIcon
               :name="stat.id === 'area-coverage' ? 'coverage_point_on_map' : 'kpi_pin_list'"
               :size="20"
-              color="var(--app-primary-dark, #0e7490)"
-              secondary-color="var(--app-secondary, #84d7eb)"
+              color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+              secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
             />
           </span>
           <strong>{{ stat.value }}</strong>
@@ -104,8 +104,12 @@ function formatPercent(value: number): string {
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  color: var(--app-primary, #18a6e4);
-  background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16);
+  color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
+  background: var(--dashboard-icon-surface-strong, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14));
+}
+
+.coverage-tile__icon :deep(.mhj-icon) {
+  filter: saturate(1.08) contrast(1.08);
 }
 
 .coverage-tile__head strong {
@@ -146,9 +150,13 @@ function formatPercent(value: number): string {
   font-size: 10.5px;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 575px) {
   .coverage-grid {
     grid-template-columns: 1fr;
+  }
+
+  .coverage-card {
+    padding: 16px 14px;
   }
 }
 </style>

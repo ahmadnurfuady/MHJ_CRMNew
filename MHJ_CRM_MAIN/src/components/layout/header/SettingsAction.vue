@@ -182,6 +182,15 @@ async function syncServerData() {
   transform-origin: top right;
 }
 
+.settings-dropdown :deep(svg) {
+  color: var(--app-primary, #18a6e4) !important;
+}
+
+.settings-dropdown :deep(svg *) {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
 .settings-dropdown > li {
   margin: 0 !important;
   padding: 0 !important;
@@ -201,7 +210,7 @@ async function syncServerData() {
 .settings-heading svg {
   width: 22px !important;
   height: 22px !important;
-  color: var(--app-primary, #18a6e4);
+  color: var(--app-primary, #18a6e4) !important;
   fill: none !important;
   stroke: currentColor !important;
 }
@@ -243,7 +252,7 @@ async function syncServerData() {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: var(--app-primary, #1599cf);
+  color: var(--app-primary, #18a6e4) !important;
   background: var(--app-primary-wash, #eaf7fd);
   line-height: 0;
 }
@@ -296,7 +305,7 @@ async function syncServerData() {
   flex: 0 0 auto;
   width: 18px !important;
   height: 18px !important;
-  color: #78818b;
+  color: var(--app-primary, #18a6e4) !important;
   fill: none !important;
   stroke: currentColor !important;
 }

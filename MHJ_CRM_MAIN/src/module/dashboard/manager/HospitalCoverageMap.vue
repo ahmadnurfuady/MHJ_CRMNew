@@ -32,7 +32,7 @@
           name="magnifier"
           :size="20"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
           :secondary-opacity="0.75"
         />
       </button>
@@ -48,7 +48,7 @@
           name="map"
           :size="19"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <MhjIcon
           v-else-if="activeLayer.id === 'satellite'"
@@ -56,14 +56,14 @@
           :size="20"
           class="map-layer-symbol map-layer-symbol--satellite"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <EarthDuotoneIcon
           v-else
           class="map-layer-symbol"
           :size="20"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
           :secondary-opacity="0.55"
         />
         <span>{{ activeLayer.label }}</span>
@@ -71,7 +71,7 @@
           :name="showLayers ? 'alt-arrow-up' : 'alt-arrow-down'"
           :size="15"
           color="currentColor"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
       </button>
       <button
@@ -85,7 +85,7 @@
           name="action_filter"
           :size="22"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <b v-if="activeFilterCount">{{ activeFilterCount }}</b>
       </button>
@@ -96,7 +96,7 @@
         name="magnifier"
         :size="18"
         color="var(--app-primary-dark, #0e7490)"
-        secondary-color="var(--app-secondary, #84d7eb)"
+        secondary-color="var(--app-primary, #18a6e4)"
         :secondary-opacity="0.75"
       />
       <input
@@ -133,7 +133,7 @@
           :name="layer.icon"
           :size="23"
           color="currentColor"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <MhjIcon
           v-else-if="layer.id === 'satellite'"
@@ -141,14 +141,14 @@
           :size="23"
           class="map-layer-symbol map-layer-symbol--satellite"
           color="currentColor"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <EarthDuotoneIcon
           v-else
           class="map-layer-symbol"
           :size="23"
           color="currentColor"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
           :secondary-opacity="0.55"
         />
         <span>
@@ -160,7 +160,7 @@
           name="check-circle"
           :size="19"
           color="var(--app-primary, #18a6e4)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
       </button>
     </div>
@@ -238,7 +238,7 @@
           name="action_location"
           :size="22"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <i v-if="userLocation"></i>
         <span class="map-control-tooltip" role="tooltip">{{ locationControlLabel }}</span>
@@ -262,7 +262,7 @@
           name="map"
           :size="21"
           color="var(--app-primary-dark, #0e7490)"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
       </button>
       <button type="button" class="primary" aria-label="Perbesar zoom" title="Perbesar zoom" @click="zoomIn">
@@ -361,7 +361,7 @@
             name="coverage_point_on_map"
             :size="28"
             color="var(--app-primary-dark, #0e7490)"
-            secondary-color="var(--app-secondary, #84d7eb)"
+            secondary-color="var(--app-primary, #18a6e4)"
           />
         </span>
         <div>
@@ -381,7 +381,7 @@
           name="action_location"
           :size="17"
           color="currentColor"
-          secondary-color="var(--app-secondary, #84d7eb)"
+          secondary-color="var(--app-primary, #18a6e4)"
         />
         <span>{{ selectedHospital.address || selectedHospital.mapAddress || selectedCoordinates }}</span>
       </div>
@@ -397,7 +397,7 @@
             name="action_route"
             :size="20"
             color="currentColor"
-            secondary-color="var(--app-secondary, #84d7eb)"
+            secondary-color="var(--app-primary, #18a6e4)"
           />
           <span>Buka Rute</span>
         </button>
@@ -926,7 +926,7 @@ onBeforeUnmount(() => {
 
 .hospital-map__layer-menu > small { display: block; margin: 0 4px 7px; color: #82909c; font-size: 10px; font-weight: 700; }
 .hospital-map__layer-menu button { display: grid; grid-template-columns: 28px 1fr 20px; align-items: center; width: 100%; border: 1px solid transparent; border-radius: 10px; padding: 9px; color: #647480; background: transparent; text-align: left; cursor: pointer; }
-.hospital-map__layer-menu button.active { border-color: var(--app-secondary, #84d7eb); color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16); }
+.hospital-map__layer-menu button.active { border-color: var(--app-primary, #18a6e4); color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); }
 .hospital-map__layer-menu button > span { display: grid; gap: 1px; }
 .hospital-map__layer-menu button strong { font-size: 11.5px; }
 .hospital-map__layer-menu button small { color: #9ba6af; font-size: 9.5px; }
@@ -987,7 +987,7 @@ onBeforeUnmount(() => {
 .filter-body legend { margin-bottom: 8px; color: #334155; font-size: 11.5px; font-weight: 700; }
 .filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .filter-chips button { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; border: 1px solid #e1e7ed; border-radius: 17px; padding: 6px 11px; color: #647180; background: #f5f7f9; font-size: 10px; cursor: pointer; }
-.filter-chips button.active { border-color: var(--app-secondary, #84d7eb); color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16); font-weight: 700; }
+.filter-chips button.active { border-color: var(--app-primary, #18a6e4); color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); font-weight: 700; }
 .hospital-map__filter footer { border-top: 1px solid #edf1f4; padding: 12px 16px; }
 .hospital-map__filter footer button,.detail-button { width: 100%; border: 0; border-radius: 10px; padding: 10px 14px; color: #fff; background: var(--app-primary, #18a6e4); font-size: 11.5px; font-weight: 700; cursor: pointer; }
 .detail-button { font-size: 12.5px; line-height: 1.25; }
@@ -995,7 +995,7 @@ onBeforeUnmount(() => {
 .hospital-map__detail { position: absolute; left: 16px; bottom: 16px; z-index: 503; width: min(600px, calc(100% - 94px)); min-height: 232px; border-radius: 17px; padding: 18px; }
 .detail-close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; color: #8b98a3; background: transparent; cursor: pointer; }
 .detail-heading { display: flex; align-items: center; gap: 13px; padding-right: 30px; }
-.detail-heading > span { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16); }
+.detail-heading > span { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); }
 .detail-heading > div { display: grid; gap: 3px; min-width: 0; }
 .detail-heading strong { overflow: hidden; color: #243240; font-size: 15.5px; font-weight: 700; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
 .detail-heading small { color: #768591; font-size: 11px; font-weight: 500; line-height: 1.3; }
@@ -1010,7 +1010,7 @@ onBeforeUnmount(() => {
 .detail-metrics strong { color: var(--app-primary, #18a6e4); font-size: 16px; font-weight: 800; line-height: 1.2; }
 .detail-metrics small { color: #667887; font-size: 10.5px; font-weight: 650; line-height: 1.25; }
 .detail-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 9px; }
-.detail-route { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 126px; border: 1px solid var(--app-secondary, #84d7eb); border-radius: 10px; padding: 9px 12px; color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-secondary-rgb, 132, 215, 235), 0.16); font-size: 11px; font-weight: 700; cursor: pointer; }
+.detail-route { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 126px; border: 1px solid var(--app-primary, #18a6e4); border-radius: 10px; padding: 9px 12px; color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); font-size: 11px; font-weight: 700; cursor: pointer; }
 
 .hospital-map__coordinate-note { position: absolute; left: 12px; bottom: 12px; z-index: 499; border-radius: 8px; padding: 6px 9px; color: #64748b; background: rgba(255,255,255,.92); font-size: 9px; box-shadow: 0 3px 10px rgba(15,23,42,.12); }
 .hospital-map__detail ~ .hospital-map__coordinate-note { display: none; }

@@ -17,6 +17,13 @@
       >
         <Sidebar />
       </div>
+      <button
+        v-if="isMobileOrTablet && uiState.show"
+        class="mobile-sidebar-backdrop"
+        type="button"
+        aria-label="Tutup menu navigasi"
+        @click="closeMobileSidebar"
+      ></button>
       <div class="page-body">
         <div id="page-content-scroll" ref="pageScrollRef" class="page-content-scroll">
           <BreadCrumbs :refreshing="refreshingPage" @refresh="refreshCurrentPage" />
@@ -84,6 +91,11 @@ const store = useMenu()
 const projectStore = useProjectStore()
 const { uiState } = storeToRefs(store)
 const { width } = useWindowSize()
+const isMobileOrTablet = computed(() => width.value <= 991)
+
+function closeMobileSidebar() {
+  if (isMobileOrTablet.value) uiState.value.show = false
+}
 
 async function refreshCurrentPage() {
   if (refreshingPage.value) return
@@ -288,6 +300,10 @@ onBeforeUnmount(() => {
   touch-action: pan-x pan-y pinch-zoom;
 }
 
+.mobile-sidebar-backdrop {
+  display: none;
+}
+
 .page-content-scroll :deep(.footer) {
   width: 100%;
   margin-top: auto;
@@ -358,15 +374,48 @@ onBeforeUnmount(() => {
 
 @media (max-width: 1199.98px) {
   .app-shell.compact-wrapper .page-body {
-    height: calc(100vh - 78px);
-    height: calc(100dvh - 78px);
+    height: calc(100vh - var(--app-header-height, 78px));
+    height: calc(100dvh - var(--app-header-height, 78px));
+    margin-top: var(--app-header-height, 78px) !important;
   }
 }
 
 @media (max-width: 767.98px) {
   .app-shell.compact-wrapper .page-body {
-    height: calc(100vh - 57px);
-    height: calc(100dvh - 57px);
+    height: calc(100vh - var(--app-header-height, 57px));
+    height: calc(100dvh - var(--app-header-height, 57px));
+    margin-top: var(--app-header-height, 57px) !important;
+  }
+}
+
+/* Sisakan ruang aman di atas header pada mobile/tablet. ResizeObserver pada
+   komponen ini memasukkan inset tersebut ke --app-header-height, sehingga
+   area konten otomatis ikut turun dan tidak tertutup browser bar/notch. */
+@media (max-width: 991.98px) {
+  .app-shell :deep(.sidebar-main > .left-arrow),
+  .app-shell :deep(.sidebar-main > .right-arrow) {
+    display: none !important;
+  }
+
+  .mobile-sidebar-backdrop {
+    position: fixed;
+    z-index: 8;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border: 0;
+    padding: 0;
+    background: rgba(15, 23, 42, 0.38);
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app-shell.compact-wrapper .page-header {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    background-color: var(--bs-body-bg, #ffffff);
   }
 }
 </style>

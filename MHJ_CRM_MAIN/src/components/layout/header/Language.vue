@@ -130,7 +130,7 @@ onClickOutside(dropdownRef, () => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: var(--app-primary, #1599cf);
+  color: var(--app-primary, #18a6e4) !important;
   background: var(--app-primary-wash, #eaf7fd);
   line-height: 0;
 }
@@ -181,7 +181,7 @@ onClickOutside(dropdownRef, () => {
 .language-menu-chevron {
   width: 18px !important;
   height: 18px !important;
-  color: #78818b;
+  color: var(--app-primary, #18a6e4) !important;
   fill: none !important;
   stroke: currentColor !important;
   transition: transform 0.2s ease;
