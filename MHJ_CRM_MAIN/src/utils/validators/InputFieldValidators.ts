@@ -34,13 +34,13 @@ export function validateNonEmptyFields(params: {
     minLengthVar = params.minLength || 1
   if (params.value.length == 0) {
     result.valid = false
-    result.errorMessage = params?.errorMessage ? params?.errorMessage : `This Field Cannot Be Empty`
+    result.errorMessage = params?.errorMessage ? params?.errorMessage : `Kolom ini wajib diisi`
   } else if (params.value.length >= minLengthVar) {
     result.valid = true
     result.errorMessage = ''
   } else {
     result.valid = false
-    result.errorMessage = `This Field must Contain more than ${params.minLength} characters`
+    result.errorMessage = `Kolom ini minimal harus berisi ${params.minLength} karakter`
   }
   return result
 }

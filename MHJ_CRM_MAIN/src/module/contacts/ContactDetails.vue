@@ -22,7 +22,7 @@
           <input
             id="contact-search-input"
             v-model="searchQuery"
-            type="search"
+            type="text"
             placeholder="Cari nama, faskes, atau nomor..."
             autocomplete="off"
           />
@@ -698,6 +698,24 @@ onBeforeUnmount(() => {
 
 .contact-search input::placeholder {
   color: #94a3b8;
+}
+
+/* Buang tombol X bawaan browser (Chrome/Edge/IE) agar tidak dobel dengan
+   tombol clear kustom di sebelah kanan. */
+.contact-search input::-webkit-search-cancel-button,
+.contact-search input::-webkit-search-decoration,
+.contact-search input::-webkit-search-results-button,
+.contact-search input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.contact-search input::-ms-clear,
+.contact-search input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .contact-search__loading {

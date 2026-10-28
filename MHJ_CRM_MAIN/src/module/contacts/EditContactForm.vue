@@ -58,6 +58,7 @@
             inputId="edit-contact-email"
             inputType="email"
             placeholder="nama@rumahsakit.com"
+            :required="false"
           />
         </InputWrapper>
       </div>

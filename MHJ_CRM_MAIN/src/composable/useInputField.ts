@@ -90,7 +90,7 @@ export function useInputField(
         const isValid = !!inputValue
         validStatus.value = {
           valid: isValid,
-          errorMessage: isValid ? '' : props.errorMessage || 'File is required.',
+          errorMessage: isValid ? '' : props.errorMessage || 'File wajib diisi.',
         }
       } else {
         validStatus.value = validateNonEmptyFields({
