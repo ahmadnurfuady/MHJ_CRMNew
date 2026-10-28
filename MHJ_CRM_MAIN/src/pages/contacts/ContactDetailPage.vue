@@ -158,32 +158,13 @@ async function loadContact() {
     if (!contact) throw new Error("Data kontak tidak ditemukan.");
     contactState.value.activeContact = contact;
 
-    const companyId = Number(contact.companyId);
-    const requests: Promise<unknown>[] = [
+    // Seluruh data kontak (termasuk country/province/city/gender/project/lat-long)
+    // diambil langsung dari fetchcontactbyid. Faskes tidak lagi di-fetch di sini;
+    // detail Faskes dimuat sendiri per kartu lewat selectCompany() di GeneralDetails.
+    await Promise.allSettled([
       projectStore.fetchProjects({ per_page: 100 }),
       projectStore.fetchProjectLeaders(),
-    ];
-    if (Number.isFinite(companyId) && companyId > 0) {
-      requests.push(hospitalStore.fetchHospitalById(companyId));
-    }
-    await Promise.allSettled(requests);
-
-    const associatedContact = hospitalStore.contactAssociations.find(
-      (item) => String(item.id) === String(contact.remoteId),
-    );
-    if (associatedContact) {
-      contact.country = associatedContact.country || contact.country;
-      contact.province = associatedContact.province || contact.province;
-      contact.city = associatedContact.city || contact.city;
-      contact.gender = associatedContact.gender || contact.gender;
-      contact.createdById = associatedContact.createdById ?? contact.createdById;
-      contact.project = associatedContact.projectName || contact.project;
-      contact.projectId = associatedContact.projectId
-        ? String(associatedContact.projectId)
-        : contact.projectId;
-      contact.latitude = associatedContact.latitude ?? contact.latitude;
-      contact.longitude = associatedContact.longitude ?? contact.longitude;
-    }
+    ]);
 
     const contactLeader = projectStore.lookups.owner.find(
       (leader) => String(leader.value) === String(contact.createdById),

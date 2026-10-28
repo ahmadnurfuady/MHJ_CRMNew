@@ -235,7 +235,6 @@
               aria-hidden="true"
             />
             <span>{{ company.name }}</span>
-            <small>{{ company.projects.length }} peluang</small>
           </button>
         </div>
 
@@ -369,7 +368,7 @@
             </template>
             <div v-else class="empty-company-section">
               <vue-feather type="folder" size="20" />
-              <span>Belum ada peluang berjalan untuk faskes ini.</span>
+              <span>Belum ada peluang berjalan untuk kontak ini.</span>
             </div>
           </div>
         </div>
@@ -438,7 +437,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
-import type { CompanyDetail } from "@/core/data/contactCrm";
+import type { CompanyDetail, CompanyProject } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
@@ -686,9 +685,7 @@ const contactLocation = computed(() => {
   };
 });
 const faskesCount = computed(() => companiesForContact.value.length);
-const opportunityCount = computed(() =>
-  companiesForContact.value.reduce((total, company) => total + company.projects.length, 0),
-);
+const opportunityCount = computed(() => contactProjects.value.length);
 
 function scrollToDetail(sectionId: string) {
   const section = document.getElementById(sectionId)
@@ -761,9 +758,28 @@ function normalizeStage(stage: string): string {
   return titleCase(value);
 }
 
+/**
+ * Peluang milik kontak ini sebagai PIC (contact_id di peluang), bukan lagi
+ * seluruh peluang satu Faskes. Diambil dari projectStore.items yang sudah
+ * dimuat saat halaman detail kontak dibuka.
+ */
+const contactProjects = computed<CompanyProject[]>(() => {
+  const remoteId = contactState.value.activeContact?.remoteId;
+  if (!remoteId) return [];
+
+  return projectStore.items
+    .filter((project) => project.contactId === remoteId)
+    .map((project) => ({
+      id: String(project.id),
+      name: project.projectName,
+      stage: project.stageName || titleCase(project.status),
+      value: project.amountValue ?? project.projectValue ?? 0,
+    }));
+});
+
 const projectsByStage = computed(() => {
-  const groups = new Map<string, NonNullable<typeof companyDetail.value>["projects"]>();
-  companyDetail.value?.projects.forEach((project) => {
+  const groups = new Map<string, CompanyProject[]>();
+  contactProjects.value.forEach((project) => {
     const stage = normalizeStage(project.stage);
     const current = groups.get(stage) || [];
     current.push(project);
