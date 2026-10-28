@@ -22,6 +22,7 @@
           <vue-feather type="user" size="13" />
           Profil Kontak
         </span>
+
         <h4 class="contact-identity__row mb-0">{{ fullName }}</h4>
         <p class="contact-identity__row contact-role mb-0">
           {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
@@ -36,9 +37,9 @@
             <SolarIcon
               name="hospital"
               :size="18"
-              color="var(--app-primary-dark, #087CAE)"
+              color="var(--app-primary, #18A6E4)"
               secondary-color="var(--app-primary, #18A6E4)"
-              :secondary-opacity="0.45"
+              :secondary-opacity="1"
               aria-hidden="true"
             />
             Faskes ({{ faskesCount }})
@@ -52,9 +53,7 @@
             <SolarIcon
               name="chart"
               :size="18"
-              color="var(--app-primary-dark, #087CAE)"
-              secondary-color="var(--app-primary, #18A6E4)"
-              :secondary-opacity="0.45"
+              color="var(--app-primary, #18A6E4)"
               aria-hidden="true"
             />
             Peluang ({{ opportunityCount }})
@@ -66,9 +65,7 @@
             <SolarIcon
               name="letter"
               :size="16"
-              color="var(--app-primary-dark, #087CAE)"
-              secondary-color="var(--app-primary, #18A6E4)"
-              :secondary-opacity="0.45"
+              color="var(--app-primary, #18A6E4)"
               aria-hidden="true"
             />
             {{ contactState.activeContact.email }}
@@ -77,9 +74,7 @@
             <SolarIcon
               name="map-point"
               :size="16"
-              color="var(--app-primary-dark, #087CAE)"
-              secondary-color="var(--app-primary, #18A6E4)"
-              :secondary-opacity="0.45"
+              color="var(--app-primary, #18A6E4)"
               aria-hidden="true"
             />
             {{ contactLocation.city }}
@@ -199,12 +194,17 @@
     <section id="contact-faskes-detail" class="company-dashboard">
       <div class="company-section-heading mb-3">
         <span class="detail-section-icon" aria-hidden="true">
-          <vue-feather type="home" size="19" />
+          <SolarIcon
+            name="hospital"
+            :size="19"
+            color="var(--app-primary, #18A6E4)"
+            aria-hidden="true"
+          />
         </span>
         <div>
           <h5>Detail Faskes</h5>
           <p>
-            Ringkasan faskes dan aktivitas peluang
+            Ringkasan faskes terkait kontak ini
           </p>
         </div>
       </div>
@@ -230,8 +230,6 @@
               name="hospital"
               :size="16"
               color="currentColor"
-              secondary-color="currentColor"
-              :secondary-opacity="0.42"
               aria-hidden="true"
             />
             <span>{{ company.name }}</span>
@@ -297,127 +295,147 @@
             </div>
           </div>
         </div>
-
-        <div class="stage-summary-grid mb-4">
-          <div
-            v-for="summary in stageSummaries"
-            :key="summary.stage"
-            class="card border mb-0 stage-summary"
-          >
-            <div class="card-body">
-              <div
-                class="stage-summary-heading"
-                :title="`${summary.stage} (${summary.quantity})`"
-              >
-                <span
-                  class="badge stage-summary-badge"
-                  :class="stageBadgeClass(summary.stage)"
-                >{{ summary.stage }}</span>
-                <span class="stage-summary-count">({{ summary.quantity }})</span>
-              </div>
-              <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
-                {{ formatCurrency(summary.value) }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div id="contact-opportunity-detail" class="card border mb-4 opportunity-card">
-          <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
-            <h6 class="mb-0">Peluang Berjalan per Stage</h6>
-          </div>
-          <div class="card-body pt-3">
-            <template v-if="groupedProjects.length">
-              <div
-                v-for="group in groupedProjects"
-                :key="group.stage"
-                class="project-stage mb-3"
-              >
-                <div
-                  class="d-flex justify-content-between align-items-center mb-2"
-                >
-                  <span class="badge" :class="stageBadgeClass(group.stage)">{{
-                    group.stage
-                  }}</span>
-                  <small class="text-muted"
-                    >{{ group.projects.length }} peluang</small
-                  >
-                </div>
-                <div class="list-group">
-                  <a
-                    v-for="project in group.projects"
-                    :key="project.id"
-                    :href="projectUrl(project.id)"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
-                  >
-                    <span
-                      ><strong class="opportunity-name">{{ project.name }}</strong
-                      ><small class="d-block text-muted">{{
-                        project.id
-                      }}</small></span
-                    >
-                    <span class="text-nowrap"
-                      >{{ formatCurrency(project.value) }}
-                      <vue-feather type="external-link" size="13"
-                    /></span>
-                  </a>
-                </div>
-              </div>
-            </template>
-            <div v-else class="empty-company-section">
-              <vue-feather type="folder" size="20" />
-              <span>Belum ada peluang berjalan untuk kontak ini.</span>
-            </div>
-          </div>
-        </div>
-
-
-         <div class="card border mb-0 installed-product-card">
-          <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
-            <h6 class="mb-0">Histori Produk Terinstal</h6>
-          </div>
-          <div class="card-body pt-3">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>Produk</th>
-                    <th>Serial Number</th>
-                    <th>Tanggal Instalasi</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="product in companyDetail.installedProducts"
-                    :key="product.serialNumber"
-                  >
-                    <td>{{ product.product }}</td>
-                    <td>{{ product.serialNumber }}</td>
-                    <td>{{ product.installedAt }}</td>
-                    <td>
-                      <span class="badge badge-light-success">{{
-                        product.status
-                      }}</span>
-                    </td>
-                  </tr>
-                  <tr v-if="!companyDetail.installedProducts.length">
-                    <td colspan="4" class="text-center text-muted">
-                      Belum ada histori produk.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
       </template>
 
       <div v-else class="alert alert-light border">
         Pilih faskes pada data kontak untuk menampilkan dashboard
         faskes.
+      </div>
+    </section>
+
+    <section
+      v-if="companyDetail"
+      id="contact-opportunity-detail"
+      class="company-dashboard opportunity-dashboard"
+    >
+      <div class="company-section-heading mb-3">
+        <span class="detail-section-icon" aria-hidden="true">
+          <SolarIcon
+            name="chart"
+            :size="19"
+            color="var(--app-primary, #18A6E4)"
+            aria-hidden="true"
+          />
+        </span>
+        <div>
+          <h5>Peluang per Stage</h5>
+          <p>Ringkasan dan daftar peluang berjalan di faskes ini</p>
+        </div>
+      </div>
+
+      <div class="stage-summary-grid mb-4">
+        <div
+          v-for="summary in stageSummaries"
+          :key="summary.stage"
+          class="card border mb-0 stage-summary"
+        >
+          <div class="card-body">
+            <div
+              class="stage-summary-heading"
+              :title="`${summary.stage} (${summary.quantity})`"
+            >
+              <span
+                class="badge stage-summary-badge"
+                :class="stageBadgeClass(summary.stage)"
+              >{{ summary.stage }}</span>
+              <span class="stage-summary-count">({{ summary.quantity }})</span>
+            </div>
+            <p class="stage-value mb-0 text-muted" :title="formatCurrency(summary.value)">
+              {{ formatCurrency(summary.value) }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border mb-0 opportunity-card">
+        <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
+          <h6 class="mb-0">Peluang Berjalan per Stage</h6>
+        </div>
+        <div class="card-body pt-3">
+          <template v-if="groupedProjects.length">
+            <div
+              v-for="group in groupedProjects"
+              :key="group.stage"
+              class="project-stage mb-3"
+            >
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <span class="badge" :class="stageBadgeClass(group.stage)">{{
+                  group.stage
+                }}</span>
+                <small class="text-muted"
+                  >{{ group.projects.length }} peluang</small
+                >
+              </div>
+              <div class="list-group">
+                <a
+                  v-for="project in group.projects"
+                  :key="project.id"
+                  :href="projectUrl(project.id)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
+                >
+                  <span
+                    ><strong class="opportunity-name">{{ project.name }}</strong
+                    ><small class="d-block text-muted">{{
+                      project.id
+                    }}</small></span
+                  >
+                  <span class="text-nowrap"
+                    >{{ formatCurrency(project.value) }}
+                    <vue-feather type="external-link" size="13"
+                  /></span>
+                </a>
+              </div>
+            </div>
+          </template>
+          <div v-else class="empty-company-section">
+            <vue-feather type="folder" size="20" />
+            <span>Belum ada peluang berjalan untuk kontak ini.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border mb-0 installed-product-card mt-4">
+        <div class="card-header d-flex align-items-center gap-2 flex-wrap pb-2">
+          <h6 class="mb-0">Histori Produk Terinstal</h6>
+        </div>
+        <div class="card-body pt-3">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Produk</th>
+                  <th>Serial Number</th>
+                  <th>Tanggal Instalasi</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="product in companyDetail.installedProducts"
+                  :key="product.serialNumber"
+                >
+                  <td>{{ product.product }}</td>
+                  <td>{{ product.serialNumber }}</td>
+                  <td>{{ product.installedAt }}</td>
+                  <td>
+                    <span class="badge badge-light-success">{{
+                      product.status
+                    }}</span>
+                  </td>
+                </tr>
+                <tr v-if="!companyDetail.installedProducts.length">
+                  <td colspan="4" class="text-center text-muted">
+                    Belum ada histori produk.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -557,15 +575,23 @@ function projectsForCompany(id: number, normalizedName: string) {
 const companiesForContact = computed<CompanyDetail[]>(() =>
   relatedCompanies.value.map(({ id, name }) => {
     const normalizedName = name.toLowerCase();
+
+    // Sumber utama: array companies dari response detail kontak.
+    const apiCompany = contactState.value.activeContact?.companies?.find(
+      (company) =>
+        company.id === String(id) ||
+        company.name.trim().toLowerCase() === normalizedName,
+    );
+
     const liveCompany = findLiveCompany(id, normalizedName);
     const projects = projectsForCompany(
       liveCompany ? liveCompany.id : id,
       liveCompany ? liveCompany.name.trim().toLowerCase() : normalizedName,
     );
 
-    // Faskes yang detailnya belum termuat tetap ditampilkan supaya seluruh
-    // Faskes kontak terlihat; profil lengkapnya menyusul setelah kartu dipilih.
-    if (!liveCompany) {
+    if (!liveCompany && !apiCompany) {
+      // Faskes yang detailnya belum termuat tetap ditampilkan supaya seluruh
+      // Faskes kontak terlihat; profil lengkapnya menyusul setelah kartu dipilih.
       return {
         name: name || `ID Faskes ${id}`,
         type: "Faskes",
@@ -578,15 +604,15 @@ const companiesForContact = computed<CompanyDetail[]>(() =>
     }
 
     return {
-      name: liveCompany.name,
+      name: liveCompany?.name || apiCompany?.name || name,
       type:
-        liveCompany.hospitalType ||
-        liveCompany.hospitalClass ||
-        liveCompany.industry ||
+        liveCompany?.hospitalType ||
+        liveCompany?.hospitalClass ||
+        liveCompany?.industry ||
         "Faskes",
-      address: liveCompany.address || "-",
-      phone: liveCompany.phone || "-",
-      website: liveCompany.website || "",
+      address: liveCompany?.address || apiCompany?.address || "-",
+      phone: liveCompany?.phone || "-",
+      website: liveCompany?.website || "",
       projects,
       installedProducts: [],
     };
@@ -759,12 +785,30 @@ function normalizeStage(stage: string): string {
 }
 
 /**
- * Peluang milik kontak ini sebagai PIC (contact_id di peluang), bukan lagi
- * seluruh peluang satu Faskes. Diambil dari projectStore.items yang sudah
- * dimuat saat halaman detail kontak dibuka.
+ * Peluang milik kontak ini. Sumber utama: field `projects` dari response
+ * fetch contact (id, name, company_name, stage_name, amount_value). Fallback
+ * ke projectStore bila response belum membawa daftar peluang.
  */
 const contactProjects = computed<CompanyProject[]>(() => {
-  const remoteId = contactState.value.activeContact?.remoteId;
+  const contact = contactState.value.activeContact;
+
+  if (contact?.projects?.length) {
+    const selectedCompany = selectedCompanyName.value.trim().toLowerCase();
+    return contact.projects
+      .filter((project) => {
+        // Kalau peluang membawa nama faskes, batasi ke faskes yang dipilih.
+        if (!project.companyName || !selectedCompany) return true;
+        return project.companyName.trim().toLowerCase() === selectedCompany;
+      })
+      .map((project) => ({
+        id: project.id,
+        name: project.name,
+        stage: project.stageName || "Qualified",
+        value: project.amountValue ?? 0,
+      }));
+  }
+
+  const remoteId = contact?.remoteId;
   if (!remoteId) return [];
 
   return projectStore.items
@@ -959,6 +1003,13 @@ async function toggleCompanyEdit() {
   text-transform: uppercase;
 }
 
+/* Icon user pada label: kepala & badan sama-sama warna primer. */
+.contact-profile-label :deep(.solar-icon),
+.contact-profile-label :deep(.solar-icon path) {
+  color: var(--app-primary, #18a6e4);
+  --solar-secondary-color: var(--app-primary, #18a6e4);
+}
+
 .contact-identity__row {
   display: flex;
   min-width: 0;
@@ -1065,6 +1116,11 @@ async function toggleCompanyEdit() {
   border-color: var(--theme-default, #18a6e4);
   color: #ffffff;
   background: var(--theme-default, #18a6e4);
+}
+
+/* Icon pen di tombol Edit selalu putih di atas tombol biru. */
+.profile-action--primary :deep(.solar-icon) {
+  color: #ffffff !important;
 }
 
 .detail-section {
@@ -1264,6 +1320,7 @@ async function toggleCompanyEdit() {
   scroll-margin-top: 96px;
   border: 1px solid #e3ebf0;
   border-radius: 16px;
+  margin-bottom: 24px;
   padding: 20px;
   background: linear-gradient(180deg, var(--app-primary-wash, #fafdff) 0%, #ffffff 180px);
   box-shadow: 0 8px 24px rgba(31, 52, 73, 0.045);

@@ -15,123 +15,122 @@
 
 <script setup lang="ts">
 import { computed, normalizeClass, type Component } from "vue";
-import { AddIcon } from "@solar-icons/vue/bold-duotone/add";
-import { AddCircleIcon } from "@solar-icons/vue/bold-duotone/add-circle";
-import { AltArrowDownIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-down";
-import { AltArrowLeftIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-left";
-import { AltArrowRightIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-right";
-import { AltArrowUpIcon } from "@solar-icons/vue/bold-duotone/alt-arrow-up";
-import { ArrowLeftIcon } from "@solar-icons/vue/bold-duotone/arrow-left";
-import { ArrowLeftIcon as ArrowLeftLinearIcon } from "@solar-icons/vue/linear/arrow-left";
-import { ArrowRightIcon } from "@solar-icons/vue/bold-duotone/arrow-right";
-import { ArrowRightUpIcon } from "@solar-icons/vue/bold-duotone/arrow-right-up";
-import { BellIcon } from "@solar-icons/vue/bold-duotone/bell";
-import { BoltIcon } from "@solar-icons/vue/bold-duotone/bolt";
-import { BoxIcon } from "@solar-icons/vue/bold-duotone/box";
-import { BuildingsIcon } from "@solar-icons/vue/bold-duotone/buildings";
-import { CalendarIcon } from "@solar-icons/vue/bold-duotone/calendar";
-import { CalendarIcon as CalendarLinearIcon } from "@solar-icons/vue/linear/calendar";
-import { CameraIcon } from "@solar-icons/vue/bold-duotone/camera";
-import { CartLargeIcon } from "@solar-icons/vue/bold-duotone/cart-large";
-import { CaseRoundIcon } from "@solar-icons/vue/bold-duotone/case-round";
-import { ChartSquareIcon } from "@solar-icons/vue/bold-duotone/chart-square";
-import { ChartSquareIcon as ChartSquareLinearIcon } from "@solar-icons/vue/linear/chart-square";
-import { ChatRoundDotsIcon } from "@solar-icons/vue/bold-duotone/chat-round-dots";
-import { CheckCircleIcon } from "@solar-icons/vue/bold-duotone/check-circle";
-import { CheckReadIcon } from "@solar-icons/vue/bold-duotone/check-read";
-import { CheckSquareIcon } from "@solar-icons/vue/bold-duotone/check-square";
-import { ClipboardIcon } from "@solar-icons/vue/bold-duotone/clipboard";
-import { ClockCircleIcon } from "@solar-icons/vue/bold-duotone/clock-circle";
-import { CloseCircleIcon } from "@solar-icons/vue/bold-duotone/close-circle";
-import { CloseIcon } from "@solar-icons/vue/bold-duotone/close";
-import { CloudUploadIcon } from "@solar-icons/vue/bold-duotone/cloud-upload";
-import { CopyIcon } from "@solar-icons/vue/bold-duotone/copy";
-import { DangerCircleIcon } from "@solar-icons/vue/bold-duotone/danger-circle";
-import { DangerTriangleIcon } from "@solar-icons/vue/bold-duotone/danger-triangle";
-import { DeliveryIcon } from "@solar-icons/vue/bold-duotone/delivery";
-import { DisketteIcon } from "@solar-icons/vue/bold-duotone/diskette";
-import { DocumentAddIcon } from "@solar-icons/vue/bold-duotone/document-add";
-import { DocumentTextIcon } from "@solar-icons/vue/bold-duotone/document-text";
-import { DollarIcon } from "@solar-icons/vue/bold-duotone/dollar";
-import { DoubleAltArrowDownIcon } from "@solar-icons/vue/bold-duotone/double-alt-arrow-down";
-import { DoubleAltArrowUpIcon } from "@solar-icons/vue/bold-duotone/double-alt-arrow-up";
-import { DownloadIcon } from "@solar-icons/vue/bold-duotone/download";
-import { EyeIcon } from "@solar-icons/vue/bold-duotone/eye";
-import { FileTextIcon } from "@solar-icons/vue/bold-duotone/file-text";
-import { FileTextIcon as FileTextLinearIcon } from "@solar-icons/vue/linear/file-text";
-import { FilterIcon } from "@solar-icons/vue/bold-duotone/filter";
-import { FolderIcon } from "@solar-icons/vue/bold-duotone/folder";
-import { FolderOpenIcon } from "@solar-icons/vue/bold-duotone/folder-open";
-import { ForbiddenCircleIcon } from "@solar-icons/vue/bold-duotone/forbidden-circle";
-import { ForwardIcon } from "@solar-icons/vue/bold-duotone/forward";
-import { GalleryIcon } from "@solar-icons/vue/bold-duotone/gallery";
-import { GiftIcon } from "@solar-icons/vue/bold-duotone/gift";
-import { GitForkIcon } from "@solar-icons/vue/bold-duotone/git-fork";
-import { GlobalIcon } from "@solar-icons/vue/bold-duotone/global";
-import { GlobalIcon as GlobalLinearIcon } from "@solar-icons/vue/linear/global";
-import { GraphUpIcon } from "@solar-icons/vue/bold-duotone/graph-up";
-import { HamburgerMenuIcon } from "@solar-icons/vue/bold-duotone/hamburger-menu";
-import { HashtagIcon } from "@solar-icons/vue/bold-duotone/hashtag";
-import { HeartIcon } from "@solar-icons/vue/bold-duotone/heart";
-import { HistoryIcon } from "@solar-icons/vue/bold-duotone/history";
-import { HomeIcon } from "@solar-icons/vue/bold-duotone/home";
-import { HospitalIcon } from "@solar-icons/vue/bold-duotone/hospital";
-import { InfoCircleIcon } from "@solar-icons/vue/bold-duotone/info-circle";
-import { LayersIcon } from "@solar-icons/vue/bold-duotone/layers";
-import { MapIcon } from "@solar-icons/vue/bold-duotone/map";
-import { LetterIcon } from "@solar-icons/vue/bold-duotone/letter";
-import { LinkIcon } from "@solar-icons/vue/bold-duotone/link";
-import { ListIcon } from "@solar-icons/vue/bold-duotone/list";
-import { LockIcon } from "@solar-icons/vue/bold-duotone/lock";
-import { LoginIcon } from "@solar-icons/vue/bold-duotone/login";
-import { LogoutIcon } from "@solar-icons/vue/bold-duotone/logout";
+import { AddIcon } from "@solar-icons/vue/bold/add";
+import { AddCircleIcon } from "@solar-icons/vue/bold/add-circle";
+import { AltArrowDownIcon } from "@solar-icons/vue/bold/alt-arrow-down";
+import { AltArrowLeftIcon } from "@solar-icons/vue/bold/alt-arrow-left";
+import { AltArrowRightIcon } from "@solar-icons/vue/bold/alt-arrow-right";
+import { AltArrowUpIcon } from "@solar-icons/vue/bold/alt-arrow-up";
+import { ArrowLeftIcon } from "@solar-icons/vue/bold/arrow-left";
+import { ArrowLeftIcon as ArrowLeftLinearIcon } from "@solar-icons/vue/bold/arrow-left";
+import { ArrowRightIcon } from "@solar-icons/vue/bold/arrow-right";
+import { ArrowRightUpIcon } from "@solar-icons/vue/bold/arrow-right-up";
+import { BellIcon } from "@solar-icons/vue/bold/bell";
+import { BoltIcon } from "@solar-icons/vue/bold/bolt";
+import { BoxIcon } from "@solar-icons/vue/bold/box";
+import { BuildingsIcon } from "@solar-icons/vue/bold/buildings";
+import { CalendarIcon } from "@solar-icons/vue/bold/calendar";
+import { CalendarIcon as CalendarLinearIcon } from "@solar-icons/vue/bold/calendar";
+import { CameraIcon } from "@solar-icons/vue/bold/camera";
+import { CartLargeIcon } from "@solar-icons/vue/bold/cart-large";
+import { CaseRoundIcon } from "@solar-icons/vue/bold/case-round";
+import { Chart2Icon } from "@solar-icons/vue/bold/chart-2";
+import { ChartSquareIcon as ChartSquareLinearIcon } from "@solar-icons/vue/bold/chart-square";
+import { ChatRoundDotsIcon } from "@solar-icons/vue/bold/chat-round-dots";
+import { CheckCircleIcon } from "@solar-icons/vue/bold/check-circle";
+import { CheckReadIcon } from "@solar-icons/vue/bold/check-read";
+import { CheckSquareIcon } from "@solar-icons/vue/bold/check-square";
+import { ClipboardIcon } from "@solar-icons/vue/bold/clipboard";
+import { ClockCircleIcon } from "@solar-icons/vue/bold/clock-circle";
+import { CloseCircleIcon } from "@solar-icons/vue/bold/close-circle";
+import { CloseIcon } from "@solar-icons/vue/bold/close";
+import { CloudUploadIcon } from "@solar-icons/vue/bold/cloud-upload";
+import { CopyIcon } from "@solar-icons/vue/bold/copy";
+import { DangerCircleIcon } from "@solar-icons/vue/bold/danger-circle";
+import { DangerTriangleIcon } from "@solar-icons/vue/bold/danger-triangle";
+import { DeliveryIcon } from "@solar-icons/vue/bold/delivery";
+import { DisketteIcon } from "@solar-icons/vue/bold/diskette";
+import { DocumentAddIcon } from "@solar-icons/vue/bold/document-add";
+import { DocumentTextIcon } from "@solar-icons/vue/bold/document-text";
+import { DollarIcon } from "@solar-icons/vue/bold/dollar";
+import { DoubleAltArrowDownIcon } from "@solar-icons/vue/bold/double-alt-arrow-down";
+import { DoubleAltArrowUpIcon } from "@solar-icons/vue/bold/double-alt-arrow-up";
+import { DownloadIcon } from "@solar-icons/vue/bold/download";
+import { EyeIcon } from "@solar-icons/vue/bold/eye";
+import { FileTextIcon } from "@solar-icons/vue/bold/file-text";
+import { FileTextIcon as FileTextLinearIcon } from "@solar-icons/vue/bold/file-text";
+import { FilterIcon } from "@solar-icons/vue/bold/filter";
+import { FolderIcon } from "@solar-icons/vue/bold/folder";
+import { FolderOpenIcon } from "@solar-icons/vue/bold/folder-open";
+import { ForbiddenCircleIcon } from "@solar-icons/vue/bold/forbidden-circle";
+import { ForwardIcon } from "@solar-icons/vue/bold/forward";
+import { GalleryIcon } from "@solar-icons/vue/bold/gallery";
+import { GiftIcon } from "@solar-icons/vue/bold/gift";
+import { GitForkIcon } from "@solar-icons/vue/bold/git-fork";
+import { GlobalIcon } from "@solar-icons/vue/bold/global";
+import { GlobalIcon as GlobalLinearIcon } from "@solar-icons/vue/bold/global";
+import { GraphUpIcon } from "@solar-icons/vue/bold/graph-up";
+import { HamburgerMenuIcon } from "@solar-icons/vue/bold/hamburger-menu";
+import { HashtagIcon } from "@solar-icons/vue/bold/hashtag";
+import { HeartIcon } from "@solar-icons/vue/bold/heart";
+import { HistoryIcon } from "@solar-icons/vue/bold/history";
+import { HomeIcon } from "@solar-icons/vue/bold/home";
+import { HospitalIcon } from "@solar-icons/vue/bold/hospital";
+import { InfoCircleIcon } from "@solar-icons/vue/bold/info-circle";
+import { LayersIcon } from "@solar-icons/vue/bold/layers";
+import { MapIcon } from "@solar-icons/vue/bold/map";
+import { LetterIcon } from "@solar-icons/vue/bold/letter";
+import { LinkIcon } from "@solar-icons/vue/bold/link";
+import { ListIcon } from "@solar-icons/vue/bold/list";
+import { LockIcon } from "@solar-icons/vue/bold/lock";
+import { LoginIcon } from "@solar-icons/vue/bold/login";
+import { LogoutIcon } from "@solar-icons/vue/bold/logout";
 import { MagnifierIcon } from "@solar-icons/vue/linear/magnifier";
-import { MagnifierZoomInIcon } from "@solar-icons/vue/bold-duotone/magnifier-zoom-in";
-import { MagnifierZoomOutIcon } from "@solar-icons/vue/bold-duotone/magnifier-zoom-out";
-import { MapPointIcon } from "@solar-icons/vue/bold-duotone/map-point";
-import { MaximizeIcon } from "@solar-icons/vue/bold-duotone/maximize";
-import { MinimizeIcon } from "@solar-icons/vue/bold-duotone/minimize";
-import { MedicalKitIcon } from "@solar-icons/vue/bold-duotone/medical-kit";
-import { MenuDotsIcon } from "@solar-icons/vue/bold-duotone/menu-dots";
-import { MicrophoneIcon } from "@solar-icons/vue/bold-duotone/microphone";
-import { MinusIcon } from "@solar-icons/vue/bold-duotone/minus";
-import { NotesIcon } from "@solar-icons/vue/bold-duotone/notes";
-import { Palette2Icon } from "@solar-icons/vue/bold-duotone/palette-2";
-import { PaperclipIcon } from "@solar-icons/vue/bold-duotone/paperclip";
-import { Pen2Icon } from "@solar-icons/vue/bold-duotone/pen-2";
-import { PenNewSquareIcon } from "@solar-icons/vue/bold-duotone/pen-new-square";
-import { PhoneIcon } from "@solar-icons/vue/bold-duotone/phone";
-import { PinIcon } from "@solar-icons/vue/bold-duotone/pin";
-import { PrinterIcon } from "@solar-icons/vue/bold-duotone/printer";
-import { QuestionCircleIcon } from "@solar-icons/vue/bold-duotone/question-circle";
-import { RefreshIcon } from "@solar-icons/vue/bold-duotone/refresh";
-import { ReplyIcon } from "@solar-icons/vue/bold-duotone/reply";
-import { RocketIcon } from "@solar-icons/vue/bold-duotone/rocket";
-import { SendSquareIcon } from "@solar-icons/vue/bold-duotone/send-square";
-import { SettingsIcon } from "@solar-icons/vue/bold-duotone/settings";
-import { SettingsIcon as SettingsLinearIcon } from "@solar-icons/vue/linear/settings";
-import { SatelliteIcon } from "@solar-icons/vue/bold-duotone/satellite";
-import { ShareIcon } from "@solar-icons/vue/bold-duotone/share";
-import { ShieldCheckIcon } from "@solar-icons/vue/bold-duotone/shield-check";
-import { ShieldUserIcon } from "@solar-icons/vue/bold-duotone/shield-user";
-import { ShieldWarningIcon } from "@solar-icons/vue/bold-duotone/shield-warning";
-import { SmileCircleIcon } from "@solar-icons/vue/bold-duotone/smile-circle";
-import { SortIcon } from "@solar-icons/vue/bold-duotone/sort";
-import { SquareArrowLeftIcon } from "@solar-icons/vue/bold-duotone/square-arrow-left";
-import { SquareArrowRightUpIcon } from "@solar-icons/vue/bold-duotone/square-arrow-right-up";
-import { StarIcon } from "@solar-icons/vue/bold-duotone/star";
-import { TagIcon } from "@solar-icons/vue/bold-duotone/tag";
-import { TrashBinTrashIcon } from "@solar-icons/vue/bold-duotone/trash-bin-trash";
-import { TuningIcon } from "@solar-icons/vue/bold-duotone/tuning";
-import { UploadIcon } from "@solar-icons/vue/bold-duotone/upload";
-import { UserBlockIcon } from "@solar-icons/vue/bold-duotone/user-block";
-import { UserCheckIcon } from "@solar-icons/vue/bold-duotone/user-check";
-import { UserIcon } from "@solar-icons/vue/bold-duotone/user";
-import { UserPlusIcon } from "@solar-icons/vue/bold-duotone/user-plus";
-import { UsersGroupRoundedIcon } from "@solar-icons/vue/bold-duotone/users-group-rounded";
-import { WalletIcon } from "@solar-icons/vue/bold-duotone/wallet";
-import { WidgetIcon } from "@solar-icons/vue/bold-duotone/widget";
-import { GpsIcon } from "@solar-icons/vue/line-duotone/gps";
+import { MagnifierZoomInIcon } from "@solar-icons/vue/bold/magnifier-zoom-in";
+import { MagnifierZoomOutIcon } from "@solar-icons/vue/bold/magnifier-zoom-out";
+import { MapPointIcon } from "@solar-icons/vue/bold/map-point";
+import { MaximizeIcon } from "@solar-icons/vue/bold/maximize";
+import { MinimizeIcon } from "@solar-icons/vue/bold/minimize";
+import { MedicalKitIcon } from "@solar-icons/vue/bold/medical-kit";
+import { MenuDotsIcon } from "@solar-icons/vue/bold/menu-dots";
+import { MicrophoneIcon } from "@solar-icons/vue/bold/microphone";
+import { MinusIcon } from "@solar-icons/vue/bold/minus";
+import { NotesIcon } from "@solar-icons/vue/bold/notes";
+import { Palette2Icon } from "@solar-icons/vue/bold/palette-2";
+import { PaperclipIcon } from "@solar-icons/vue/bold/paperclip";
+import { PenIcon } from "@solar-icons/vue/bold/pen";
+import { PhoneIcon } from "@solar-icons/vue/bold/phone";
+import { PinIcon } from "@solar-icons/vue/bold/pin";
+import { PrinterIcon } from "@solar-icons/vue/bold/printer";
+import { QuestionCircleIcon } from "@solar-icons/vue/bold/question-circle";
+import { RefreshIcon } from "@solar-icons/vue/bold/refresh";
+import { ReplyIcon } from "@solar-icons/vue/bold/reply";
+import { RocketIcon } from "@solar-icons/vue/bold/rocket";
+import { SendSquareIcon } from "@solar-icons/vue/bold/send-square";
+import { SettingsIcon } from "@solar-icons/vue/bold/settings";
+import { SettingsIcon as SettingsLinearIcon } from "@solar-icons/vue/bold/settings";
+import { SatelliteIcon } from "@solar-icons/vue/bold/satellite";
+import { ShareIcon } from "@solar-icons/vue/bold/share";
+import { ShieldCheckIcon } from "@solar-icons/vue/bold/shield-check";
+import { ShieldUserIcon } from "@solar-icons/vue/bold/shield-user";
+import { ShieldWarningIcon } from "@solar-icons/vue/bold/shield-warning";
+import { SmileCircleIcon } from "@solar-icons/vue/bold/smile-circle";
+import { SortIcon } from "@solar-icons/vue/bold/sort";
+import { SquareArrowLeftIcon } from "@solar-icons/vue/bold/square-arrow-left";
+import { SquareArrowRightUpIcon } from "@solar-icons/vue/bold/square-arrow-right-up";
+import { StarIcon } from "@solar-icons/vue/bold/star";
+import { TagIcon } from "@solar-icons/vue/bold/tag";
+import { TrashBinTrashIcon } from "@solar-icons/vue/bold/trash-bin-trash";
+import { TuningIcon } from "@solar-icons/vue/bold/tuning";
+import { UploadIcon } from "@solar-icons/vue/bold/upload";
+import { UserBlockIcon } from "@solar-icons/vue/bold/user-block";
+import { UserCheckIcon } from "@solar-icons/vue/bold/user-check";
+import { UserIcon } from "@solar-icons/vue/bold/user";
+import { UserPlusIcon } from "@solar-icons/vue/bold/user-plus";
+import { UsersGroupRoundedIcon } from "@solar-icons/vue/bold/users-group-rounded";
+import { WalletIcon } from "@solar-icons/vue/bold/wallet";
+import { WidgetIcon } from "@solar-icons/vue/bold/widget";
+import { GpsIcon } from "@solar-icons/vue/bold/gps";
 
 defineOptions({ inheritAttrs: false });
 
@@ -174,7 +173,7 @@ const icons: Record<string, Component> = {
   camera: CameraIcon,
   cart: CartLargeIcon,
   case: CaseRoundIcon,
-  chart: ChartSquareIcon,
+  chart: Chart2Icon,
   "chart-linear": ChartSquareLinearIcon,
   chat: ChatRoundDotsIcon,
   check: CheckReadIcon,
@@ -238,8 +237,8 @@ const icons: Record<string, Component> = {
   notes: NotesIcon,
   "palette-2": Palette2Icon,
   paperclip: PaperclipIcon,
-  pen: Pen2Icon,
-  "pen-new-square": PenNewSquareIcon,
+  pen: PenIcon,
+  "pen-new-square": PenIcon,
   phone: PhoneIcon,
   pin: PinIcon,
   printer: PrinterIcon,
@@ -493,7 +492,7 @@ const legacyClasses = computed(() =>
 
 <style scoped>
 .solar-icon {
-  color: var(--app-primary-deep, #032a4e);
+  color: var(--app-primary, #18a6e4);
   display: inline-block;
   flex: 0 0 auto;
   line-height: 1;

@@ -14,9 +14,7 @@
             name="magnifier"
             class="crm-search-icon"
             :size="18"
-            color="var(--app-primary-deep, #032A4E)"
-            secondary-color="var(--app-primary, #18A6E4)"
-            :secondary-opacity="0.75"
+            color="var(--app-primary, #18A6E4)"
             aria-hidden="true"
           />
           <input
@@ -150,8 +148,18 @@
                 >
                   {{ contact.jobTitle || "-" }}
                 </span>
+                <button
+                  v-if="contactPeluang(contact).length"
+                  class="project-badge project-navigation-link contact-peluang-inline"
+                  type="button"
+                  :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
+                  :aria-label="`Lihat ${contactPeluang(contact).length} peluang ${fullName(contact)}`"
+                  @click="openContactSection(contact, '#contact-opportunity-detail')"
+                >
+                  {{ contactPeluang(contact).length }} Peluang
+                </button>
               </td>
-              <td data-label="Peluang">
+              <td data-label="Peluang" class="contact-peluang-cell">
                 <button
                   v-if="contactPeluang(contact).length"
                   class="project-badge project-navigation-link mhj-cell-ellipsis"
@@ -170,13 +178,18 @@
                     <span class="activity-dot"></span>
                     <span class="activity-label__text">{{ activityLabel(contact) }}</span>
                   </span>
-                  <small v-if="activityTime(contact)">{{ activityTime(contact) }}</small>
+                  <small v-if="activityTime(contact)" class="activity-time">
+                    {{ activityTime(contact) }}
+                  </small>
                 </div>
                 <span v-else class="empty-value">Belum ada aktivitas</span>
               </td>
               <td data-label="Terakhir Dihubungi">
                 <div v-if="contact.lastContactedAt" class="last-contacted">
-                  <span>{{ formatContactDate(contact.lastContactedAt) }}</span>
+                  <span class="last-contacted__label">Terakhir dihubungi</span>
+                  <span class="last-contacted__date">{{
+                    formatContactDate(contact.lastContactedAt)
+                  }}</span>
                   <small>{{ relativeContactDate(contact.lastContactedAt) }}</small>
                 </div>
                 <span v-else class="empty-value">Belum pernah</span>
@@ -188,14 +201,6 @@
                   :aria-label="`Lihat detail ${fullName(contact)}`"
                   @click="openContactDetail(contact)"
                 >
-                  <SolarIcon
-                    name="eye"
-                    :size="17"
-                    color="currentColor"
-                    secondary-color="currentColor"
-                    :secondary-opacity="0.42"
-                    aria-hidden="true"
-                  />
                   <span>Lihat Detail</span>
                 </button>
               </td>
@@ -585,6 +590,16 @@ function formatContactDate(value: string) {
   const date = parseContactDate(value);
   if (!date) return value;
 
+  // Kalau tanggalnya di hari yang sama, tampilkan "Hari ini".
+  const now = new Date();
+  if (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  ) {
+    return "Hari ini";
+  }
+
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
@@ -665,6 +680,7 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: minmax(260px, 420px) max-content;
   width: 100%;
+  min-width: 0;
   align-items: center;
   justify-content: end;
   gap: 10px;
@@ -1077,15 +1093,6 @@ onBeforeUnmount(() => {
   padding-left: 20px !important;
 }
 
-.detail-button > span,
-.detail-button :deep(.solar-icon) {
-  color: inherit !important;
-}
-
-.detail-button :deep(.solar-icon path) {
-  stroke: none !important;
-}
-
 .detail-button:hover,
 .detail-button:focus,
 .detail-button:focus-visible,
@@ -1200,22 +1207,31 @@ onBeforeUnmount(() => {
   }
 }
 
-/* Tablet & mobile: tabel diubah jadi kartu modern supaya tidak perlu
-   geser horizontal di layar sempit. Laptop/desktop (>=992px) tetap memakai
-   tabel resizable seperti semula. Data yang ditampilkan tetap sama. */
-@media (max-width: 991.98px) {
+/* Tombol peluang inline hanya muncul di kartu mobile. */
+.contact-peluang-inline {
+  display: none;
+}
+
+/* Mobile: tabel diubah jadi kartu supaya tidak perlu geser horizontal.
+   Tablet/iPad (576px-991px) tetap memakai tabel seperti desktop. */
+@media (max-width: 575.98px) {
   .contact-table-wrap {
-    padding: 12px;
+    padding: 16px 14px;
     overflow: visible;
     background: #f1f5f9;
   }
 
+  /* Layar sangat sempit: perkecil padding supaya kartu tidak kepotong. */
+  @media (max-width: 400px) {
+    .contact-table-wrap {
+      padding: 12px 8px;
+    }
+  }
+
   .contact-table {
+    display: block;
     width: 100% !important;
     min-width: 0;
-    table-layout: auto;
-    border-collapse: separate;
-    border-spacing: 0 14px;
   }
 
   .contact-table colgroup,
@@ -1225,6 +1241,10 @@ onBeforeUnmount(() => {
 
   .contact-table thead {
     display: none;
+  }
+
+  .contact-table tbody td {
+    max-width: 100%;
   }
 
   .contact-table tbody,
@@ -1239,10 +1259,16 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    max-width: 100%;
+    margin-bottom: 18px;
     border: 1px solid var(--border-subtle, #e2e8f0);
     border-radius: 14px;
     background: #ffffff;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .contact-table tbody tr:last-child {
+    margin-bottom: 0;
   }
 
   .contact-table tbody tr:hover {
@@ -1259,28 +1285,42 @@ onBeforeUnmount(() => {
   .contact-table tbody td.entity-detail-cell {
     order: 0;
     border-bottom: 0;
-    padding: 16px 16px 0;
+    padding: 16px 16px 4px;
     background: #ffffff;
   }
 
   .contact-person {
+    display: flex;
     width: 100%;
     min-width: 0;
+    max-width: 100%;
     gap: 12px;
     align-items: center;
+    box-sizing: border-box;
   }
 
   .contact-avatar {
     width: 46px;
     height: 46px;
-    flex-basis: 46px;
+    flex: 0 0 auto;
     font-size: 14px;
   }
 
   .contact-person__identity {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
+    max-width: 100%;
     text-align: left;
+  }
+
+  .contact-person__identity strong,
+  .contact-person__identity span {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .contact-person__identity strong {
@@ -1288,15 +1328,14 @@ onBeforeUnmount(() => {
   }
 
   .contact-person__identity span {
-    max-width: 100%;
     font-size: 12px;
   }
 
-  /* ── Faskes: baris info dengan garis aksen kiri ────────────────── */
+  /* ── Faskes ─────────────────────────────────────────────────────── */
   .contact-table tbody td[data-label="Faskes"] {
     order: 1;
     border-bottom: 0;
-    padding: 8px 16px 0 74px; /* sejajar dengan teks nama (46 avatar + 12 gap + 16 padding) */
+    padding: 2px 16px 0;
   }
 
   .contact-table .cell-navigation-link {
@@ -1304,100 +1343,123 @@ onBeforeUnmount(() => {
     max-width: 100%;
     overflow: hidden;
     color: #475569;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
     text-align: left;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* ── Jabatan: chip kecil di bawah faskes ───────────────────────── */
+  /* ── Jabatan + peluang inline ──────────────────────────────────── */
   .contact-table tbody td[data-label="Jabatan"] {
     order: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
     border-bottom: 0;
-    padding: 6px 16px 0 74px;
+    padding: 4px 16px 0;
   }
 
   .contact-table tbody td[data-label="Jabatan"] > span {
-    display: inline-block;
-    max-width: 100%;
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 96px);
     overflow: hidden;
-    border: 1px solid #e2e8f0;
-    border-radius: 999px;
-    padding: 3px 10px;
-    background: #f8fafc;
-    color: #475569;
-    font-size: 11px;
-    font-weight: 600;
+    color: #64748b;
+    font-size: 12px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* ── Peluang + Aktivitas: strip info abu muda ──────────────────── */
-  .contact-table tbody td[data-label="Peluang"] {
-    order: 3;
-    border-bottom: 0;
-    padding: 12px 16px 0;
-  }
-
-  .contact-table tbody td[data-label="Peluang"] .project-badge {
+  .contact-table tbody td[data-label="Jabatan"] .contact-peluang-inline {
     display: inline-flex;
+    flex: 0 1 auto;
+    max-width: 100%;
+    align-items: center;
+    overflow: hidden;
     border-radius: 999px;
-    padding: 5px 12px;
+    padding: 3px 10px;
     font-size: 11px;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  /* Kolom Peluang desktop disembunyikan di mobile karena sudah inline. */
+  .contact-table tbody td.contact-peluang-cell {
+    display: none;
+  }
+
+  /* ── Aktivitas: label + waktu satu baris ─────────────────────────── */
   .contact-table tbody td[data-label="Aktivitas"] {
-    order: 4;
+    order: 3;
     border-bottom: 0;
     padding: 8px 16px 0;
   }
 
   .contact-table .activity-cell {
+    display: flex;
     width: 100%;
     max-width: 100%;
+    align-items: center;
+    gap: 10px;
     text-align: left;
   }
 
   .contact-table .activity-label {
-    width: 100%;
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 0;
     justify-content: flex-start;
     font-size: 12px;
   }
 
-  .contact-table .activity-cell small {
-    margin-top: 2px;
-    padding-left: 14px; /* sejajar dengan teks setelah dot */
-    text-align: left;
+  .contact-table .activity-cell .activity-time {
+    flex: 0 0 auto;
+    margin: 0;
+    font-size: 12px;
+    text-align: right;
+    white-space: nowrap;
   }
 
-  /* ── Footer kartu: terakhir dihubungi + tombol detail ──────────── */
+  /* ── Terakhir dihubungi - tanggal ───────────────────────────────── */
   .contact-table tbody td[data-label="Terakhir Dihubungi"] {
-    order: 5;
-    display: flex;
-    align-items: center;
-    border-top: 1px dashed #e2e8f0;
+    order: 4;
     border-bottom: 0;
-    margin-top: 12px;
-    padding: 10px 16px;
+    padding: 8px 16px 0;
   }
 
   .contact-table .last-contacted {
+    display: flex;
     width: 100%;
     max-width: 100%;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 8px;
     text-align: left;
   }
 
-  .contact-table .last-contacted span {
-    display: inline;
+  .contact-table .last-contacted .last-contacted__label {
+    flex: 0 1 auto;
+    color: #94a3b8;
     font-size: 12px;
+    font-weight: 500;
+    white-space: normal;
   }
 
+  .contact-table .last-contacted .last-contacted__date {
+    overflow: hidden;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Waktu relatif hanya tampil di desktop; di mobile sudah "Hari ini" bila perlu. */
   .contact-table .last-contacted small {
-    display: inline;
-    margin-top: 0;
-    margin-left: 6px;
-    text-align: left;
+    display: none;
   }
 
   .contact-table tbody td[data-label="Terakhir Dihubungi"] .empty-value {
@@ -1405,10 +1467,11 @@ onBeforeUnmount(() => {
     text-align: left;
   }
 
+  /* ── Tombol detail ─────────────────────────────────────────────── */
   .contact-table tbody td.contact-detail-cell {
-    order: 6;
+    order: 5;
     border-bottom: 0;
-    padding: 0 16px 14px !important;
+    padding: 12px 16px 16px !important;
     background: #ffffff;
   }
 

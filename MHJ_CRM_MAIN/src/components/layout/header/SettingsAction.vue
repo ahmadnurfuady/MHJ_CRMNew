@@ -8,9 +8,7 @@
     <SolarIcon
       name="settings"
       :size="24"
-      color="var(--app-primary-deep, #032A4E)"
-      secondary-color="var(--app-primary, #18A6E4)"
-      :secondary-opacity="0.75"
+      color="var(--app-primary, #18A6E4)"
       aria-hidden="true"
     />
   </button>
@@ -159,14 +157,17 @@ async function syncServerData() {
   cursor: pointer;
 }
 
+.header-icon-action :deep(.solar-icon) {
+  color: var(--app-primary, #18a6e4) !important;
+}
+
+.header-icon-action :deep(.solar-icon path) {
+  fill: var(--app-primary, #18a6e4) !important;
+}
+
 .header-icon-action :deep(.solar-icon),
 .header-icon-action :deep(.solar-icon path) {
   stroke: none !important;
-}
-
-.header-icon-action :deep(.solar-icon path:last-child) {
-  color: #fff !important;
-  fill: #fff !important;
 }
 
 .settings-dropdown {
