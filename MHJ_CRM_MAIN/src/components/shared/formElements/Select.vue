@@ -335,6 +335,24 @@ function toggleWithPlacement(event: Event) {
   stroke-width: 2.75;
 }
 
+/* Tombol X bawaan browser (Chrome/Edge/IE) di kolom pencarian dropdown
+   dihilangkan agar tidak muncul berdampingan dengan tombol clear kustom. */
+.dropdown input::-webkit-search-cancel-button,
+.dropdown input::-webkit-search-decoration,
+.dropdown input::-webkit-search-results-button,
+.dropdown input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.dropdown input::-ms-clear,
+.dropdown input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .dropdown li.has-subtitle {
   display: flex;
   flex-direction: column;
@@ -357,12 +375,23 @@ function toggleWithPlacement(event: Event) {
   /* .smart-select .dropdown input (global) memakai lebar penuh untuk kolom
      pencarian; ukuran checkbox dikembalikan di sini. */
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  flex: 0 0 16px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
   margin: 2px 0 0;
+  /* Border lebih tebal supaya kotak checkbox tidak terlihat samar di latar
+     putih dropdown Faskes & Peluang. */
+  border: 2px solid #475569;
+  border-radius: 4px;
+  background-color: #ffffff;
   /* Klik ditangani <li> agar satu kali klik saja yang mengubah pilihan. */
   pointer-events: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropdown li.has-checkbox .option-checkbox:checked {
+  border-color: var(--app-primary, #18a6e4);
+  background-color: var(--app-primary, #18a6e4);
 }
 
 .dropdown li .option-text {

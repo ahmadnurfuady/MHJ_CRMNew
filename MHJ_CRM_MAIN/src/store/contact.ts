@@ -1292,6 +1292,7 @@ export const useContact = defineStore("contact", () => {
     const optionalFields = [
       "lastName",
       "jobTitle",
+      "email",
       "owner",
       "status",
       "contactNumber",

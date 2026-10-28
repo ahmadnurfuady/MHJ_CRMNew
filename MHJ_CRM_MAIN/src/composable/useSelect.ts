@@ -19,7 +19,9 @@ export function useSmartSelect(
 ) {
   const showDropdown = ref(false)
   const search = ref('')
-  const highlightedIndex = ref(0)
+  // Mulai -1 agar baris pertama tidak otomatis bersorot (background abu) saat
+  // dropdown dibuka. Highlight hanya aktif setelah user menekan panah / Enter.
+  const highlightedIndex = ref(-1)
   const wrapperRef = ref<HTMLElement | null>(null)
   const searchInput = ref<HTMLInputElement | null>(null)
   const optionRefs = ref<HTMLElement[]>([])
@@ -139,7 +141,7 @@ export function useSmartSelect(
           return item[props.getValueKey] === props.modelValue.selected?.value
         }
       })
-      highlightedIndex.value = selectedIndex !== -1 ? selectedIndex : 0
+      highlightedIndex.value = selectedIndex !== -1 ? selectedIndex : -1
     }
   }
 
@@ -159,7 +161,7 @@ export function useSmartSelect(
       (props.multiSelect && (!props.modelValue?.data || props.modelValue?.data?.length === 0)) ||
       (!props.multiSelect && !props.modelValue?.data)
     props.modelValue.errorMessage =
-      isEmpty && props.required ? props.errorMessage || 'Please select a value' : ''
+      isEmpty && props.required ? props.errorMessage || 'Silakan pilih salah satu' : ''
   }
 
   function clear() {
@@ -169,12 +171,12 @@ export function useSmartSelect(
         ? {
             selectedItems: [],
             data: [],
-            errorMessage: props.required ? props.errorMessage || 'Please select a value' : '',
+            errorMessage: props.required ? props.errorMessage || 'Silakan pilih salah satu' : '',
           }
         : {
             selected: null,
             data: '',
-            errorMessage: props.required ? props.errorMessage || 'Please select a value' : '',
+            errorMessage: props.required ? props.errorMessage || 'Silakan pilih salah satu' : '',
           }
     )
     search.value = ''
@@ -190,7 +192,7 @@ export function useSmartSelect(
       data: selectedItems.map((item) => item[key]),
       errorMessage:
         !selectedItems.length && props.required
-          ? props.errorMessage || 'Please select a value'
+          ? props.errorMessage || 'Silakan pilih salah satu'
           : '',
       type: 'dropdown',
     })
@@ -198,7 +200,7 @@ export function useSmartSelect(
 
   watch(
     () => props.modelValue,
-    () => (highlightedIndex.value = 0)
+    () => (highlightedIndex.value = -1)
   )
 
   watch(search, (value) => {

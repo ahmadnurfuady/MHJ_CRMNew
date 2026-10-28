@@ -48,6 +48,7 @@
                 inputId="contact-email"
                 inputType="email"
                 placeholder="Contoh: nama@domain.com"
+                :required="false"
               />
             </InputWrapper>
           </div>
@@ -847,7 +848,10 @@ function closeModal() {
 
 .location-clear-button {
   position: absolute;
-  top: 50%;
+  /* InputField tinggi 46px (lihat .location-address-box :deep(.form-control));
+     tombol X dikunci di tengah vertikal input saja, bukan tengah seluruh
+     container yang bisa berubah tinggi saat daftar saran lokasi muncul. */
+  top: 23px;
   right: 10px;
   display: inline-flex;
   width: 28px;
@@ -860,6 +864,10 @@ function closeModal() {
   border-radius: 50%;
   background: #eef2f6;
   color: #667085;
+}
+
+.location-clear-button :deep(svg) {
+  display: block;
 }
 
 .location-clear-button:hover {
