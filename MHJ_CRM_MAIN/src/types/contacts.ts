@@ -62,6 +62,7 @@ export interface Contact {
   lastActivity?: string;
   lastContactedAt?: string;
   hospitalClass?: string;
+  financialGrade?: string;
   hospitalType?: string;
   totalContacts?: number;
   totalProjects?: number;

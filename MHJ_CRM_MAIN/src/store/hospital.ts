@@ -117,6 +117,12 @@ export function normalizeHospital(raw: Dict): Hospital {
       'rs_class',
       'class_name',
     ),
+    financialGrade: pickString(
+      raw,
+      'financial_grade',
+      'financialGrade',
+      'Financial Grade',
+    ),
     hospitalType: pickString(
       raw,
       'Hospital Type',

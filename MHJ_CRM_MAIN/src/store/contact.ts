@@ -249,6 +249,7 @@ function hospitalToContact(hospital: Hospital): Contact {
     financeStatus: hospital.financeStatus,
     keterangan: hospital.description,
     hospitalClass: hospital.hospitalClass,
+    financialGrade: hospital.financialGrade,
     hospitalType: hospital.hospitalType,
     totalContacts: hospital.totalContacts,
     totalProjects: hospital.totalProjects,

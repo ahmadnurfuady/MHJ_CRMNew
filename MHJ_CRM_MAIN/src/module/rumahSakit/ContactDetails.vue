@@ -135,7 +135,16 @@
               </td>
               <td data-label="Provinsi">{{ displayValue(hospital.province) }}</td>
               <td data-label="Kota">{{ displayValue(hospital.city) }}</td>
-              <td data-label="Kelas">{{ displayValue(hospital.hospitalClass) }}</td>
+              <td data-label="Financial Grade">
+                <span
+                  v-if="normalizeGrade(hospital.financialGrade)"
+                  class="financial-grade-badge"
+                  :class="`financial-grade-badge--${normalizeGrade(hospital.financialGrade).toLowerCase()}`"
+                >
+                  Grade {{ normalizeGrade(hospital.financialGrade) }}
+                </span>
+                <span v-else class="empty-value">-</span>
+              </td>
               <td data-label="Jenis Faskes">
                 {{ hospitalType(hospital) }}
               </td>
@@ -288,7 +297,7 @@ const hospitalTableColumns = [
   { label: "Nama Faskes", defaultWidth: 280, minWidth: 220, center: false },
   { label: "Provinsi", defaultWidth: 150, minWidth: 110, center: false },
   { label: "Kota", defaultWidth: 150, minWidth: 110, center: false },
-  { label: "Kelas", defaultWidth: 110, minWidth: 90, center: false },
+  { label: "Financial Grade", defaultWidth: 150, minWidth: 120, center: false },
   { label: "Jenis Faskes", defaultWidth: 180, minWidth: 130, center: false },
   { label: "Total Kontak", defaultWidth: 120, minWidth: 110, center: true },
   { label: "Total Peluang", defaultWidth: 120, minWidth: 110, center: true },
@@ -411,6 +420,11 @@ function formatMetric(total?: number) {
 
 function hospitalType(hospital: Contact) {
   return displayValue(hospital.hospitalType);
+}
+
+function normalizeGrade(value?: string) {
+  const normalized = String(value ?? "").trim().toUpperCase();
+  return normalized && normalized !== "-" ? normalized : "";
 }
 
 function projectTotal(hospital: Contact) {
@@ -797,6 +811,51 @@ onBeforeUnmount(() => {
 .empty-value {
   color: #64748b;
   font-size: 12px;
+}
+
+.financial-grade-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.financial-grade-badge--a {
+  background: #e6f6ec;
+  color: #137a3b;
+  border-color: #b7e4c7;
+}
+
+.financial-grade-badge--b {
+  background: #e8f3ff;
+  color: #1559b4;
+  border-color: #b8d4f1;
+}
+
+.financial-grade-badge--c {
+  background: #fff5e0;
+  color: #a06100;
+  border-color: #f3d79a;
+}
+
+.financial-grade-badge--d {
+  background: #fdecea;
+  color: #b32020;
+  border-color: #f5bcb6;
+}
+
+.financial-grade-badge--e,
+.financial-grade-badge--f {
+  background: #f3f4f6;
+  color: #475569;
+  border-color: #d1d5db;
 }
 
 .detail-button {

@@ -38,6 +38,8 @@ export interface Hospital {
   financeStatus: string
   /** kelas Rumah Sakit, bila disediakan endpoint company */
   hospitalClass: string
+  /** financial_grade — hasil grading finance (A/B/C/...), ditampilkan sebagai badge warna */
+  financialGrade: string
   /** jenis Rumah Sakit, bila disediakan endpoint company */
   hospitalType: string
   /** Field khusus form Rumah Sakit. */
