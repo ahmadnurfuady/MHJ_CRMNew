@@ -88,6 +88,21 @@
         <button class="profile-action" type="button" @click="showHistory">
           <vue-feather type="clock" size="14" />Aktivitas
         </button>
+        <button
+          class="contact-delete-button"
+          type="button"
+          title="Hapus kontak"
+          aria-label="Hapus kontak"
+          @click="deleteContact"
+        >
+          <SolarIcon
+            name="trash"
+            class="contact-delete-icon"
+            :size="16"
+            color="var(--theme-default, #18a6e4)"
+            aria-hidden="true"
+          />
+        </button>
       </div>
     </section>
 
@@ -150,9 +165,14 @@
                       :aria-label="`Telepon ${phone}`"
                       :title="`Telepon ${phone}`"
                     >
-                      <MhjIcon name="action_phone" :size="16" />
+                      <SolarIcon
+                        name="phone"
+                        :size="16"
+                        color="#18A6E4"
+                      />
                     </a>
                     <a
+                      class="contact-phone-whatsapp"
                       :href="indonesianWhatsAppUrl(phone)"
                       :aria-label="`WhatsApp ${phone}`"
                       :title="`WhatsApp ${phone}`"
@@ -433,16 +453,6 @@
         </div>
       </div>
     </section>
-
-    <div class="contact-danger-zone mt-4">
-      <div>
-        <strong>Hapus kontak</strong>
-        <p class="mb-0">Data kontak yang dihapus tidak dapat dikembalikan.</p>
-      </div>
-      <button class="btn btn-outline-danger btn-sm" type="button" @click="deleteContact">
-        <vue-feather type="trash-2" size="14" />Hapus Kontak
-      </button>
-    </div>
   </template>
 </template>
 
@@ -1064,13 +1074,63 @@ async function toggleCompanyEdit() {
 }
 
 .contact-primary-actions {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 2;
   display: flex;
-  align-self: start;
   gap: 8px;
 }
 
-.profile-action,
-.contact-danger-zone .btn {
+/* Tombol hapus kontak, disamakan dengan user-action-button--delete di User List. */
+.contact-delete-button {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid
+    color-mix(in srgb, var(--theme-default, #18a6e4) 18%, #edf1f5);
+  border-radius: 8px;
+  padding: 0;
+  background-color: color-mix(
+    in srgb,
+    var(--theme-default, #18a6e4) 5%,
+    #fff
+  );
+  box-shadow: 0 3px 12px
+    color-mix(in srgb, var(--theme-default, #18a6e4) 10%, transparent);
+  cursor: pointer;
+  line-height: 1;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.contact-delete-button:hover {
+  border-color: var(--bs-danger, #dc3545);
+  background-color: var(--bs-danger, #dc3545);
+  box-shadow: 0 5px 14px
+    color-mix(in srgb, var(--bs-danger, #dc3545) 30%, transparent);
+  transform: translateY(-1px);
+}
+
+.contact-delete-button:focus-visible {
+  outline: 2px solid var(--theme-default, #18a6e4);
+  outline-offset: 2px;
+}
+
+.contact-delete-icon {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.contact-delete-button:hover :deep(.contact-delete-icon) {
+  color: #fff !important;
+}
+
+.profile-action {
   display: inline-flex;
   width: auto;
   align-items: center;
@@ -1078,9 +1138,6 @@ async function toggleCompanyEdit() {
   gap: 6px;
   border-radius: 9px;
   padding: 8px 12px;
-}
-
-.profile-action {
   border: 1px solid #d8e5ec;
   color: #486581;
   background: rgba(255, 255, 255, 0.92);
@@ -1169,28 +1226,6 @@ async function toggleCompanyEdit() {
 
 .detail-section-body {
   padding: 20px;
-}
-
-.contact-danger-zone {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  border: 1px solid rgba(231, 41, 41, 0.22);
-  border-radius: 10px;
-  padding: 16px;
-  background: rgba(231, 41, 41, 0.035);
-}
-
-.contact-danger-zone strong {
-  display: block;
-  margin-bottom: 3px;
-  color: #991b1b;
-}
-
-.contact-danger-zone p {
-  color: #64748b;
-  font-size: 12px;
 }
 
 .contact-info-grid {
@@ -1295,13 +1330,16 @@ async function toggleCompanyEdit() {
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  color: #17212b;
+  color: var(--app-primary, #18a6e4);
   background: transparent;
   text-decoration: none;
 }
 
-.contact-phone-actions a:last-child {
-  color: #16a34a;
+/* WhatsApp: hijau khas WhatsApp, juga ke SVG fill=currentColor di dalamnya. */
+.contact-phone-actions a.contact-phone-whatsapp,
+.contact-phone-actions a.contact-phone-whatsapp :deep(svg) {
+  color: #25d366 !important;
+  fill: #25d366 !important;
 }
 
 .contact-phone-actions a:hover {
@@ -1515,8 +1553,8 @@ async function toggleCompanyEdit() {
   }
 
   .contact-primary-actions {
-    grid-column: 1 / -1;
-    justify-content: flex-end;
+    top: 14px;
+    right: 16px;
   }
 }
 
@@ -1563,18 +1601,19 @@ async function toggleCompanyEdit() {
     max-width: 100%;
   }
 
+  /* Mobile: tombol aksi kembali ke alur konten, di bawah dan rata kiri. */
   .contact-primary-actions {
+    position: static;
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
     margin-top: 4px;
   }
 
   .profile-action {
-    width: 100%;
+    width: auto;
     min-width: 0;
-    padding-inline: 8px;
+    padding-inline: 12px;
   }
 
   .detail-section-header,
@@ -1611,15 +1650,6 @@ async function toggleCompanyEdit() {
 
   .contact-phone-list {
     grid-template-columns: 1fr;
-  }
-
-  .contact-danger-zone {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .contact-danger-zone .btn {
-    width: 100%;
   }
 
 }

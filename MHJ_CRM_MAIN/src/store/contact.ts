@@ -38,6 +38,7 @@ const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
 const CONTACT_LIST_FETCH_LIMIT = 1000;
+const HOSPITAL_LIST_FETCH_LIMIT = 1000;
 const DEFAULT_CONTACT_STATUS = "1";
 export const INDONESIA_COUNTRY = "Indonesia";
 
@@ -641,6 +642,24 @@ export const useContact = defineStore("contact", () => {
     resolveContactCompanyNames();
   }
 
+  /**
+   * Memuat seluruh halaman Faskes dari backend supaya daftar Faskes bisa
+   * dipaginasi 10 per halaman di frontend, lepas dari page size backend.
+   */
+  async function fetchAllHospitalsForList(search?: string) {
+    await hospitalStore.fetchHospitals({ page: 1, per_page: HOSPITAL_LIST_FETCH_LIMIT, search });
+    while (hospitalStore.pagination.page < hospitalStore.pagination.lastPage) {
+      await hospitalStore.fetchHospitals(
+        {
+          page: hospitalStore.pagination.page + 1,
+          per_page: HOSPITAL_LIST_FETCH_LIMIT,
+          search,
+        },
+        { append: true },
+      );
+    }
+  }
+
   async function loadRemoteContacts() {
     // Halaman Kontak hanya butuh endpoint /api/contact: sp_view_listcontact sudah
     // membawa company_name, total_peluang, total_faskes, aktifitas_terakhir, dsb.
@@ -658,7 +677,7 @@ export const useContact = defineStore("contact", () => {
     // Scope "hospital": tetap muat Rumah Sakit + lookup Faskes untuk menampilkan
     // daftar faskes pada halaman Rumah Sakit.
     const lookupResults = await Promise.allSettled([
-      hospitalStore.fetchHospitals(),
+      scope.value === "hospital" ? fetchAllHospitalsForList() : hospitalStore.fetchHospitals(),
       fetchContactCompanies(),
     ]);
 
@@ -670,29 +689,6 @@ export const useContact = defineStore("contact", () => {
 
     if (results.some((result) => result.status === "rejected")) {
       notifyError(hospitalStore.error ?? contactError.value ?? "Gagal memuat data.");
-    }
-  }
-
-  /** Memuat halaman company tertentu lalu menyelaraskannya ke daftar Rumah Sakit. */
-  async function changeHospitalPage(page: number) {
-    const targetPage = Math.max(1, page);
-    if (
-      hospitalStore.pagination.total > 0 &&
-      targetPage > hospitalStore.pagination.lastPage
-    )
-      return;
-    if (targetPage === hospitalStore.pagination.page && hospitalStore.items.length) return;
-
-    try {
-      await hospitalStore.fetchHospitals({
-        page: targetPage,
-        per_page: hospitalStore.pagination.perPage,
-        search: hospitalSearch.value || undefined,
-      });
-      contactState.activeContact = undefined;
-      syncRemoteContacts();
-    } catch {
-      notifyError(hospitalStore.error ?? "Gagal memuat halaman Faskes.");
     }
   }
 
@@ -730,11 +726,7 @@ export const useContact = defineStore("contact", () => {
     hospitalSearch.value = query.trim();
 
     try {
-      await hospitalStore.fetchHospitals({
-        page: 1,
-        per_page: hospitalStore.pagination.perPage,
-        search: hospitalSearch.value || undefined,
-      });
+      await fetchAllHospitalsForList(hospitalSearch.value || undefined);
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
@@ -1612,7 +1604,6 @@ export const useContact = defineStore("contact", () => {
     initStore,
     setScope,
     handleActiveTab,
-    changeHospitalPage,
     changeContactPage,
     searchHospitals,
     searchContacts,
