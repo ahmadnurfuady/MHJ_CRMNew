@@ -459,7 +459,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import type { CompanyDetail, CompanyProject } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
@@ -476,6 +476,7 @@ import {
 
 const contactStore = useContact();
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
@@ -869,9 +870,11 @@ function formatCurrency(value: number) {
 }
 
 function projectRoute(projectId: string) {
+  // Simpan path saat ini sebagai `backTo` supaya tombol "Kembali" di halaman
+  // detail peluang balik ke detail kontak ini, bukan ke daftar peluang.
   return {
     path: routes.Project.ProjectDetailsV2,
-    query: { id: projectId },
+    query: { id: projectId, backTo: route.fullPath },
   };
 }
 

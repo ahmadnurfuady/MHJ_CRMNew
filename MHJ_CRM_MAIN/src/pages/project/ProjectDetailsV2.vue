@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid project-detail-v2">
     <div class="detail-toolbar">
-      <router-link :to="routes.Project.ProjectList" class="back-link" aria-label="Kembali ke daftar peluang">
+      <router-link :to="backTarget" class="back-link" aria-label="Kembali ke halaman sebelumnya">
         <SolarIcon
           name="arrow-left-linear"
           :size="26"
@@ -34,8 +34,8 @@
     <div v-else-if="loadError || !project" class="detail-state card">
       <SolarIcon name="fa-circle-exclamation" class="text-danger" />
       <span>{{ loadError || 'Data peluang tidak ditemukan.' }}</span>
-      <router-link class="btn btn-primary btn-sm" :to="routes.Project.ProjectList">
-        Kembali ke Daftar Peluang
+      <router-link class="btn btn-primary btn-sm" :to="backTarget">
+        Kembali
       </router-link>
     </div>
 
@@ -309,6 +309,19 @@ const route = useRoute()
 const store = useProjectStore()
 const contactStore = useContact()
 const { items, selectedItem, selectedDetails, loading } = storeToRefs(store)
+
+/**
+ * Halaman ini bisa dibuka dari daftar peluang atau dari detail kontak.
+ * Tombol "Kembali" mengikuti query `backTo` saat tersedia agar user kembali ke
+ * halaman asal; jika tidak ada, fallback ke daftar peluang.
+ */
+const backTarget = computed(() => {
+  const raw = route.query.backTo
+  const path = Array.isArray(raw) ? raw[0] : raw
+  // Hindari open redirect: hanya terima path internal yang diawali "/".
+  if (typeof path === 'string' && path.startsWith('/')) return path
+  return routes.Project.ProjectList
+})
 const activeTab = ref<'info' | 'activity' | 'order-status'>('info')
 const loadError = ref('')
 const newComment = ref('')

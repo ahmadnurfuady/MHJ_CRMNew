@@ -93,7 +93,7 @@
           </thead>
           <tbody>
             <tr v-if="contactApi.loading && !paginatedContacts.length">
-              <td colspan="7" class="contact-table-state">
+              <td colspan="6" class="contact-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 Memuat data kontak...
               </td>
@@ -182,16 +182,6 @@
                 </div>
                 <span v-else class="empty-value">Belum ada aktivitas</span>
               </td>
-              <td data-label="Terakhir Dihubungi">
-                <div v-if="contact.lastContactedAt" class="last-contacted">
-                  <span class="last-contacted__label">Terakhir dihubungi</span>
-                  <span class="last-contacted__date">{{
-                    formatContactDate(contact.lastContactedAt)
-                  }}</span>
-                  <small>{{ relativeContactDate(contact.lastContactedAt) }}</small>
-                </div>
-                <span v-else class="empty-value">Belum pernah</span>
-              </td>
               <td data-label="Detail" class="text-center contact-detail-cell">
                 <button
                   class="btn btn-outline-primary btn-sm detail-button"
@@ -204,7 +194,7 @@
               </td>
             </tr>
             <tr v-if="!contactApi.loading && !filteredContact.length">
-              <td colspan="7" class="contact-table-state">
+              <td colspan="6" class="contact-table-state">
                 <div class="empty-state-icon">
                   <svg
                     width="22"
@@ -312,7 +302,7 @@ const contactTableColumns = [
   { label: "Jabatan", defaultWidth: 320, minWidth: 140 },
   { label: "Peluang", defaultWidth: 130, minWidth: 110 },
   { label: "Aktivitas", defaultWidth: 230, minWidth: 170 },
-  { label: "Terakhir Dihubungi", defaultWidth: 220, minWidth: 180 },
+  // Kolom "Terakhir Dihubungi" sementara disembunyikan.
   { label: "Detail", defaultWidth: 180, minWidth: 160 },
 ] as const;
 const contactColumnWidths = ref<number[]>(
