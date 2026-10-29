@@ -309,6 +309,8 @@ onBeforeUnmount(() => {
   margin-top: auto;
   margin-right: 0 !important;
   margin-left: 0 !important;
+  /* Tambahan padding bawah supaya teks footer tidak ketutup gesture/back bar HP. */
+  padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
 }
 
 .app-shell.compact-wrapper :deep(.sidebar-wrapper) {

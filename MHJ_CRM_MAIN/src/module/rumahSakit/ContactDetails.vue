@@ -101,7 +101,7 @@
                 Memuat data faskes...
               </td>
             </tr>
-            <tr v-for="hospital in filteredContact" :key="hospital.id">
+            <tr v-for="hospital in pagedHospitals" :key="hospital.id">
               <td
                 class="entity-detail-cell"
                 data-label="Nama Faskes"
@@ -222,18 +222,18 @@
     </div>
 
     <div
-      v-if="filteredContact.length || hospitalPagination.page > 1"
+      v-if="filteredContact.length || hospitalPage > 1"
       class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
     >
       <span class="text-muted f-14">
-        Halaman {{ hospitalPagination.page }} dari {{ hospitalPagination.lastPage }}
+        Halaman {{ hospitalPage }} dari {{ hospitalTotalPages }}
       </span>
       <div class="pagination-actions" role="group" aria-label="Pagination Faskes">
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
-          :disabled="hospitalLoading || hospitalPagination.page <= 1"
-          @click="changeHospitalPage(hospitalPagination.page - 1)"
+          :disabled="hospitalLoading || hospitalPage <= 1"
+          @click="changeHospitalPage(hospitalPage - 1)"
         >
           <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
         </button>
@@ -246,11 +246,11 @@
               v-else
               class="btn btn-sm pagination-page-button"
               :class="{
-                'pagination-page-button--active': item === hospitalPagination.page,
+                'pagination-page-button--active': item === hospitalPage,
               }"
               type="button"
-              :disabled="hospitalLoading || item === hospitalPagination.page"
-              :aria-current="item === hospitalPagination.page ? 'page' : undefined"
+              :disabled="hospitalLoading || item === hospitalPage"
+              :aria-current="item === hospitalPage ? 'page' : undefined"
               :aria-label="`Ke halaman ${item}`"
               @click="changeHospitalPage(item)"
             >
@@ -261,8 +261,8 @@
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
-          :disabled="hospitalLoading || hospitalPagination.page >= hospitalPagination.lastPage"
-          @click="changeHospitalPage(hospitalPagination.page + 1)"
+          :disabled="hospitalLoading || hospitalPage >= hospitalTotalPages"
+          @click="changeHospitalPage(hospitalPage + 1)"
         >
           Berikutnya<vue-feather type="chevron-right" size="15" class="ms-1" />
         </button>
@@ -289,10 +289,29 @@ const router = useRouter();
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const { contactState, filteredContact } = storeToRefs(contactStore);
-const { pagination: hospitalPagination, loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { changeHospitalPage, openContactModal, searchHospitals } = contactStore;
+const { loading: hospitalLoading } = storeToRefs(hospitalStore);
+const { openContactModal, searchHospitals } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
+// Paginasi daftar Faskes dilakukan di frontend: seluruh data sudah dimuat
+// (lihat fetchAllHospitalsForList di store), di sini tinggal dipotong 10/halaman.
+const HOSPITAL_PAGE_SIZE = 10;
+const hospitalPage = ref(1);
+const hospitalTotalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredContact.value.length / HOSPITAL_PAGE_SIZE)),
+);
+const pagedHospitals = computed(() => {
+  const start = (hospitalPage.value - 1) * HOSPITAL_PAGE_SIZE;
+  return filteredContact.value.slice(start, start + HOSPITAL_PAGE_SIZE);
+});
+function changeHospitalPage(page: number) {
+  const target = Math.min(Math.max(1, page), hospitalTotalPages.value);
+  if (target === hospitalPage.value) return;
+  hospitalPage.value = target;
+}
+watch(hospitalTotalPages, (totalPages) => {
+  if (hospitalPage.value > totalPages) hospitalPage.value = totalPages;
+});
 const hospitalTableColumns = [
   { label: "Nama Faskes", defaultWidth: 280, minWidth: 220, center: false },
   { label: "Provinsi", defaultWidth: 150, minWidth: 110, center: false },
@@ -311,15 +330,10 @@ const hospitalColumnWidths = ref<number[]>(
 const hospitalTableWidth = computed(() =>
   hospitalColumnWidths.value.reduce((total, width) => total + width, 0),
 );
-const hospitalDisplayTotal = computed(() => {
-  const apiTotal =
-    hospitalPagination.value.total ||
-    filteredContact.value.length;
-  return apiTotal;
-});
+const hospitalDisplayTotal = computed(() => filteredContact.value.length);
 const visibleHospitalPages = computed<Array<number | string>>(() => {
-  const totalPages = Math.max(1, hospitalPagination.value.lastPage);
-  const currentPage = Math.min(Math.max(1, hospitalPagination.value.page), totalPages);
+  const totalPages = hospitalTotalPages.value;
+  const currentPage = Math.min(Math.max(1, hospitalPage.value), totalPages);
 
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -401,6 +415,7 @@ function resetHospitalColumnWidth(index: number) {
 watch(searchQuery, (query) => {
   if (searchTimer) clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
+    hospitalPage.value = 1;
     void searchHospitals(query);
   }, 350);
 });

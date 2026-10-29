@@ -238,6 +238,17 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnloa
   padding-bottom: 28px;
 }
 
+/*
+ * Footer global nempel ke dasar viewport (margin-top: auto di Body.vue) kalau
+ * konten halaman lebih pendek dari layar. Di halaman ini kontennya sering
+ * pendek (faskes/peluang sedikit), jadi jaraknya ke footer jadi sangat jauh.
+ * Override hanya di sini: footer menyusul konten dengan gap yang sama seperti
+ * jarak antar section (24px), tanpa mengubah perilaku footer di halaman lain.
+ */
+:global(.contact-detail-page ~ .footer) {
+  margin-top: 24px !important;
+}
+
 .detail-toolbar {
   display: flex;
   align-items: center;
