@@ -149,26 +149,24 @@
                   {{ contact.jobTitle || "-" }}
                 </span>
                 <button
-                  v-if="contactPeluang(contact).length"
+                  v-if="contactPeluangCount(contact) > 0"
                   class="project-badge project-navigation-link contact-peluang-inline"
                   type="button"
-                  :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
-                  :aria-label="`Lihat ${contactPeluang(contact).length} peluang ${fullName(contact)}`"
+                  :aria-label="`Lihat ${contactPeluangCount(contact)} peluang ${fullName(contact)}`"
                   @click="openContactSection(contact, '#contact-opportunity-detail')"
                 >
-                  {{ contactPeluang(contact).length }} Peluang
+                  {{ contactPeluangCount(contact) }} Peluang
                 </button>
               </td>
               <td data-label="Peluang" class="contact-peluang-cell">
                 <button
-                  v-if="contactPeluang(contact).length"
+                  v-if="contactPeluangCount(contact) > 0"
                   class="project-badge project-navigation-link mhj-cell-ellipsis"
                   type="button"
-                  :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
-                  :aria-label="`Lihat ${contactPeluang(contact).length} peluang ${fullName(contact)}`"
+                  :aria-label="`Lihat ${contactPeluangCount(contact)} peluang ${fullName(contact)}`"
                   @click="openContactSection(contact, '#contact-opportunity-detail')"
                 >
-                  {{ contactPeluang(contact).length }} Peluang
+                  {{ contactPeluangCount(contact) }} Peluang
                 </button>
                 <span v-else class="empty-value">Belum ada peluang</span>
               </td>
@@ -295,16 +293,13 @@ import {
   type LatestActivity,
 } from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
-import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
-import type { Projects } from "@/types/project";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );
 const router = useRouter();
 const contactStore = useContact();
-const projectStore = useProjectStore();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
 const { openContactModal, searchContacts } = contactStore;
 const searchQuery = ref("");
@@ -457,61 +452,13 @@ function hospitalLabel(contact: Contact) {
     : contact.company || "-";
 }
 
-/** Peluang terkait rumah sakit kontak, sama seperti ringkasan di halaman detail kontak. */
-const projectsByCompany = computed(() => {
-  const map = new Map<string, Projects[]>();
-  projectStore.items.forEach((project) => {
-    const keys = [
-      project.companyId ? `id:${project.companyId}` : undefined,
-      project.companyName ? `name:${project.companyName.trim().toLowerCase()}` : undefined,
-    ].filter((key): key is string => Boolean(key));
-
-    keys.forEach((key) => {
-      const list = map.get(key) ?? [];
-      list.push(project);
-      map.set(key, list);
-    });
-  });
-  return map;
-});
-
-/** Seluruh Faskes kontak (bisa lebih dari satu lewat tabel contact_company). */
-function contactCompanies(contact: Contact) {
-  const ids = contact.companyIds?.length
-    ? contact.companyIds
-    : contact.companyId
-      ? [contact.companyId]
-      : [];
-  const names = contact.companyNames?.length
-    ? contact.companyNames
-    : contact.company
-      ? [contact.company]
-      : [];
-
-  return { ids, names };
-}
-
-function contactPeluang(contact: Contact): Array<{ projectName: string }> {
-  const { ids, names } = contactCompanies(contact);
-  // Satu peluang bisa cocok lewat id maupun nama Faskes; dedupe pakai namanya.
-  const projects = new Map<string, { projectName: string }>();
-
-  ids.forEach((companyId) => {
-    const id = Number(companyId);
-    if (!Number.isFinite(id) || id <= 0) return;
-    projectsByCompany.value
-      .get(`id:${id}`)
-      ?.forEach((project) => projects.set(project.projectName, project));
-  });
-  names.forEach((companyName) => {
-    const key = companyName.trim().toLowerCase();
-    if (!key) return;
-    projectsByCompany.value
-      .get(`name:${key}`)
-      ?.forEach((project) => projects.set(project.projectName, project));
-  });
-
-  return [...projects.values()];
+/**
+ * Jumlah peluang kontak langsung dari sp_view_listcontact (kolom total_peluang).
+ * Hindari matching lokal via projectStore agar hitungannya identik dengan
+ * response BE dan placeholder "-" tidak saling match antar kontak.
+ */
+function contactPeluangCount(contact: Contact): number {
+  return contact.totalPeluang ?? 0;
 }
 
 /**
@@ -637,7 +584,6 @@ function openContactSection(contact: Contact, hash: string) {
 
 onMounted(() => {
   contactStore.initStore();
-  if (!projectStore.loaded) void projectStore.fetchProjects({ per_page: 100 });
 });
 
 onBeforeUnmount(() => {
