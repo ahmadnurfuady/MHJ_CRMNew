@@ -319,7 +319,7 @@
         </span>
         <div>
           <h5>Peluang per Stage</h5>
-          <p>Ringkasan dan daftar peluang berjalan di faskes ini</p>
+          <p>Ringkasan dan daftar peluang berjalan untuk kontak ini</p>
         </div>
       </div>
 
@@ -369,12 +369,10 @@
                 >
               </div>
               <div class="list-group">
-                <a
+                <router-link
                   v-for="project in group.projects"
                   :key="project.id"
-                  :href="projectUrl(project.id)"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  :to="projectRoute(project.id)"
                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-3"
                 >
                   <span
@@ -383,11 +381,8 @@
                       project.id
                     }}</small></span
                   >
-                  <span class="text-nowrap"
-                    >{{ formatCurrency(project.value) }}
-                    <vue-feather type="external-link" size="13"
-                  /></span>
-                </a>
+                  <span class="text-nowrap">{{ formatCurrency(project.value) }}</span>
+                </router-link>
               </div>
             </div>
           </template>
@@ -786,26 +781,20 @@ function normalizeStage(stage: string): string {
 
 /**
  * Peluang milik kontak ini. Sumber utama: field `projects` dari response
- * fetch contact (id, name, company_name, stage_name, amount_value). Fallback
- * ke projectStore bila response belum membawa daftar peluang.
+ * fetch contact (id, name, company_name, stage_name, amount_value). Daftar
+ * ini berdiri sendiri — tidak difilter oleh Faskes yang sedang dipilih.
+ * Fallback ke projectStore bila response belum membawa daftar peluang.
  */
 const contactProjects = computed<CompanyProject[]>(() => {
   const contact = contactState.value.activeContact;
 
   if (contact?.projects?.length) {
-    const selectedCompany = selectedCompanyName.value.trim().toLowerCase();
-    return contact.projects
-      .filter((project) => {
-        // Kalau peluang membawa nama faskes, batasi ke faskes yang dipilih.
-        if (!project.companyName || !selectedCompany) return true;
-        return project.companyName.trim().toLowerCase() === selectedCompany;
-      })
-      .map((project) => ({
-        id: project.id,
-        name: project.name,
-        stage: project.stageName || "Qualified",
-        value: project.amountValue ?? 0,
-      }));
+    return contact.projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      stage: project.stageName || "Qualified",
+      value: project.amountValue ?? 0,
+    }));
   }
 
   const remoteId = contact?.remoteId;
@@ -869,8 +858,11 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function projectUrl(projectId: string) {
-  return `${routes.Project.ProjectDetailsV2}?id=${encodeURIComponent(projectId)}`;
+function projectRoute(projectId: string) {
+  return {
+    path: routes.Project.ProjectDetailsV2,
+    query: { id: projectId },
+  };
 }
 
 function titleCase(value: string) {
