@@ -54,7 +54,6 @@ import {
 } from "@/composable/usePageHeader";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
-import { useProjectStore } from "@/store/project";
 import { confirmEditExit } from "@/utils/confirmEditExit";
 import { getApiErrorMessage } from "@/api/response";
 
@@ -76,14 +75,13 @@ usePageTitle("Detail Kontak");
 usePageBackHandler(() => handleBack());
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
-const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const loadError = ref("");
 let allowEditNavigation = false;
 
 const activeContact = computed(() => contactState.value.activeContact);
 const loading = computed(
-  () => contactApi.value.detailLoading || hospitalStore.detailLoading || projectStore.loading,
+  () => contactApi.value.detailLoading || hospitalStore.detailLoading,
 );
 const backButtonLabel = computed(() =>
   contactState.value.historyVisible || contactState.value.isEditContact
@@ -158,18 +156,9 @@ async function loadContact() {
     if (!contact) throw new Error("Data kontak tidak ditemukan.");
     contactState.value.activeContact = contact;
 
-    // Seluruh data kontak (termasuk country/province/city/gender/project/lat-long)
-    // diambil langsung dari fetchcontactbyid. Faskes tidak lagi di-fetch di sini;
-    // detail Faskes dimuat sendiri per kartu lewat selectCompany() di GeneralDetails.
-    await Promise.allSettled([
-      projectStore.fetchProjects({ per_page: 100 }),
-      projectStore.fetchProjectLeaders(),
-    ]);
-
-    const contactLeader = projectStore.lookups.owner.find(
-      (leader) => String(leader.value) === String(contact.createdById),
-    );
-    if (contactLeader?.label) contact.owner = contactLeader.label;
+    // Seluruh data kontak (termasuk owner_name, companies, projects) sudah dibawa
+    // oleh fetchcontactbyid, jadi tidak perlu memanggil /api/project atau
+    // /api/project/leader lagi di sini.
     await scrollToRequestedSection();
   } catch (error) {
     loadError.value =

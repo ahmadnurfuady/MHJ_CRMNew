@@ -93,7 +93,7 @@
           </thead>
           <tbody>
             <tr v-if="contactApi.loading && !paginatedContacts.length">
-              <td colspan="7" class="contact-table-state">
+              <td colspan="6" class="contact-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 Memuat data kontak...
               </td>
@@ -149,26 +149,24 @@
                   {{ contact.jobTitle || "-" }}
                 </span>
                 <button
-                  v-if="contactPeluang(contact).length"
+                  v-if="contactPeluangCount(contact) > 0"
                   class="project-badge project-navigation-link contact-peluang-inline"
                   type="button"
-                  :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
-                  :aria-label="`Lihat ${contactPeluang(contact).length} peluang ${fullName(contact)}`"
+                  :aria-label="`Lihat ${contactPeluangCount(contact)} peluang ${fullName(contact)}`"
                   @click="openContactSection(contact, '#contact-opportunity-detail')"
                 >
-                  {{ contactPeluang(contact).length }} Peluang
+                  {{ contactPeluangCount(contact) }} Peluang
                 </button>
               </td>
               <td data-label="Peluang" class="contact-peluang-cell">
                 <button
-                  v-if="contactPeluang(contact).length"
+                  v-if="contactPeluangCount(contact) > 0"
                   class="project-badge project-navigation-link mhj-cell-ellipsis"
                   type="button"
-                  :title="contactPeluang(contact).map((project) => project.projectName).join(', ')"
-                  :aria-label="`Lihat ${contactPeluang(contact).length} peluang ${fullName(contact)}`"
+                  :aria-label="`Lihat ${contactPeluangCount(contact)} peluang ${fullName(contact)}`"
                   @click="openContactSection(contact, '#contact-opportunity-detail')"
                 >
-                  {{ contactPeluang(contact).length }} Peluang
+                  {{ contactPeluangCount(contact) }} Peluang
                 </button>
                 <span v-else class="empty-value">Belum ada peluang</span>
               </td>
@@ -184,16 +182,6 @@
                 </div>
                 <span v-else class="empty-value">Belum ada aktivitas</span>
               </td>
-              <td data-label="Terakhir Dihubungi">
-                <div v-if="contact.lastContactedAt" class="last-contacted">
-                  <span class="last-contacted__label">Terakhir dihubungi</span>
-                  <span class="last-contacted__date">{{
-                    formatContactDate(contact.lastContactedAt)
-                  }}</span>
-                  <small>{{ relativeContactDate(contact.lastContactedAt) }}</small>
-                </div>
-                <span v-else class="empty-value">Belum pernah</span>
-              </td>
               <td data-label="Detail" class="text-center contact-detail-cell">
                 <button
                   class="btn btn-outline-primary btn-sm detail-button"
@@ -206,7 +194,7 @@
               </td>
             </tr>
             <tr v-if="!contactApi.loading && !filteredContact.length">
-              <td colspan="7" class="contact-table-state">
+              <td colspan="6" class="contact-table-state">
                 <div class="empty-state-icon">
                   <svg
                     width="22"
@@ -288,23 +276,15 @@ import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch 
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
-import {
-  fetchLatestActivities,
-  formatTimelineDate,
-  timeAgo,
-  type LatestActivity,
-} from "@/services/activityLogService";
+import { timeAgo } from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
-import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
-import type { Projects } from "@/types/project";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );
 const router = useRouter();
 const contactStore = useContact();
-const projectStore = useProjectStore();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
 const { openContactModal, searchContacts } = contactStore;
 const searchQuery = ref("");
@@ -317,7 +297,7 @@ const contactTableColumns = [
   { label: "Jabatan", defaultWidth: 320, minWidth: 140 },
   { label: "Peluang", defaultWidth: 130, minWidth: 110 },
   { label: "Aktivitas", defaultWidth: 230, minWidth: 170 },
-  { label: "Terakhir Dihubungi", defaultWidth: 220, minWidth: 180 },
+  // Kolom "Terakhir Dihubungi" sementara disembunyikan.
   { label: "Detail", defaultWidth: 180, minWidth: 160 },
 ] as const;
 const contactColumnWidths = ref<number[]>(
@@ -457,129 +437,31 @@ function hospitalLabel(contact: Contact) {
     : contact.company || "-";
 }
 
-/** Peluang terkait rumah sakit kontak, sama seperti ringkasan di halaman detail kontak. */
-const projectsByCompany = computed(() => {
-  const map = new Map<string, Projects[]>();
-  projectStore.items.forEach((project) => {
-    const keys = [
-      project.companyId ? `id:${project.companyId}` : undefined,
-      project.companyName ? `name:${project.companyName.trim().toLowerCase()}` : undefined,
-    ].filter((key): key is string => Boolean(key));
-
-    keys.forEach((key) => {
-      const list = map.get(key) ?? [];
-      list.push(project);
-      map.set(key, list);
-    });
-  });
-  return map;
-});
-
-/** Seluruh Faskes kontak (bisa lebih dari satu lewat tabel contact_company). */
-function contactCompanies(contact: Contact) {
-  const ids = contact.companyIds?.length
-    ? contact.companyIds
-    : contact.companyId
-      ? [contact.companyId]
-      : [];
-  const names = contact.companyNames?.length
-    ? contact.companyNames
-    : contact.company
-      ? [contact.company]
-      : [];
-
-  return { ids, names };
-}
-
-function contactPeluang(contact: Contact): Array<{ projectName: string }> {
-  const { ids, names } = contactCompanies(contact);
-  // Satu peluang bisa cocok lewat id maupun nama Faskes; dedupe pakai namanya.
-  const projects = new Map<string, { projectName: string }>();
-
-  ids.forEach((companyId) => {
-    const id = Number(companyId);
-    if (!Number.isFinite(id) || id <= 0) return;
-    projectsByCompany.value
-      .get(`id:${id}`)
-      ?.forEach((project) => projects.set(project.projectName, project));
-  });
-  names.forEach((companyName) => {
-    const key = companyName.trim().toLowerCase();
-    if (!key) return;
-    projectsByCompany.value
-      .get(`name:${key}`)
-      ?.forEach((project) => projects.set(project.projectName, project));
-  });
-
-  return [...projects.values()];
+/**
+ * Jumlah peluang kontak langsung dari sp_view_listcontact (kolom total_peluang).
+ * Hindari matching lokal via projectStore agar hitungannya identik dengan
+ * response BE dan placeholder "-" tidak saling match antar kontak.
+ */
+function contactPeluangCount(contact: Contact): number {
+  return contact.totalPeluang ?? 0;
 }
 
 /**
- * Aktivitas terakhir per kontak untuk seluruh baris halaman aktif. Sumbernya
- * sama dengan panel Riwayat di halaman detail (activity_logs + catatan), lihat
- * fetchLatestActivities di services/activityLogService.
+ * Aktivitas terakhir per kontak langsung dari sp_view_listcontact:
+ * `last_activity_text`/`aktifitas_terakhir` + `last_activity_at`. Hindari call
+ * tambahan ke /api/activity-logs/latest karena data sudah ada di response list.
  */
-const latestActivities = ref(new Map<number, LatestActivity>());
-/** Hanya respons permintaan terakhir yang dipakai saat user cepat ganti halaman / mencari. */
-let activityRequestSeq = 0;
-
-async function loadLatestActivities() {
-  const remoteIds = filteredContact.value
-    .filter((contact) => contact.origin === "api")
-    .map((contact) => Number(contact.remoteId))
-    .filter((id) => Number.isSafeInteger(id) && id > 0);
-
-  const seq = ++activityRequestSeq;
-
-  if (!remoteIds.length) {
-    latestActivities.value = new Map();
-    return;
-  }
-
-  const activities = await fetchLatestActivities("contacts", remoteIds);
-  if (seq !== activityRequestSeq) return;
-  latestActivities.value = activities;
-}
-
-function contactActivity(contact: Contact): LatestActivity | undefined {
-  const remoteId = Number(contact.remoteId);
-  if (!Number.isSafeInteger(remoteId) || remoteId <= 0) return undefined;
-  return latestActivities.value.get(remoteId);
-}
-
-/** Log historis dipakai lebih dahulu; `lastActivity` dari list tetap jadi cadangan. */
 function activityLabel(contact: Contact) {
-  return contactActivity(contact)?.label || contact.lastActivity || "";
+  return contact.lastActivity || "";
 }
 
 function activityTime(contact: Contact) {
-  const createdAt = contactActivity(contact)?.createdAt;
-  return createdAt ? timeAgo(createdAt) : "";
+  return contact.lastContactedAt ? timeAgo(contact.lastContactedAt) : "";
 }
 
 function activityTooltip(contact: Contact) {
-  const activity = contactActivity(contact);
-  if (!activity) return contact.lastActivity || "";
-
-  return [
-    activity.label,
-    activity.authorName ? `oleh ${activity.authorName}` : "",
-    activity.createdAt ? formatTimelineDate(activity.createdAt) : "",
-    activity.source ? `(${activity.source})` : "",
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  return contact.lastActivity || "";
 }
-
-// Seluruh aktivitas dimuat sekali untuk semua kontak; pagination hanya mengatur baris yang terlihat.
-watch(
-  () =>
-    filteredContact.value
-      .map((contact) => `${contact.origin ?? ""}:${contact.remoteId ?? ""}`)
-      .join(","),
-  () => void loadLatestActivities(),
-  { immediate: true },
-);
 
 function parseContactDate(value: string) {
   const date = new Date(value);
@@ -637,7 +519,6 @@ function openContactSection(contact: Contact, hash: string) {
 
 onMounted(() => {
   contactStore.initStore();
-  if (!projectStore.loaded) void projectStore.fetchProjects({ per_page: 100 });
 });
 
 onBeforeUnmount(() => {

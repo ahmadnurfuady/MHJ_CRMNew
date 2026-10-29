@@ -391,6 +391,8 @@ function normalizeApiContact(raw: Dict): Contact {
     createdAt: pickString(raw, "created_at", "Created At", "createdAt"),
     lastActivity: pickString(
       raw,
+      "last_activity_text",
+      "aktifitas_terakhir",
       "last_activity",
       "last_activity_name",
       "latest_activity",
@@ -406,6 +408,9 @@ function normalizeApiContact(raw: Dict): Contact {
       "contacted_at",
       "updated_at",
     ),
+    totalPeluang: nullableNumber(pickString(raw, "total_peluang")) ?? undefined,
+    totalFaskes: nullableNumber(pickString(raw, "total_faskes")) ?? undefined,
+    totalAktifitas: nullableNumber(pickString(raw, "total_aktifitas")) ?? undefined,
   };
 }
 
@@ -658,8 +663,21 @@ export const useContact = defineStore("contact", () => {
   }
 
   async function loadRemoteContacts() {
-    // Muat lookup company lebih dahulu. Jika dijalankan bersamaan dengan daftar
-    // contact, response contact bisa dipetakan sebelum nama company tersedia.
+    // Halaman Kontak hanya butuh endpoint /api/contact: sp_view_listcontact sudah
+    // membawa company_name, total_peluang, total_faskes, aktifitas_terakhir, dsb.
+    // Jadi untuk scope "contact" tidak perlu memanggil /api/company,
+    // /api/contact/company, maupun /api/contact/fetchcontactbyid saat init.
+    if (scope.value === "contact") {
+      const contactResult = await Promise.allSettled([fetchAllRemoteContacts()]);
+      syncRemoteContacts();
+      if (contactResult[0].status === "rejected") {
+        notifyError(contactError.value ?? "Gagal memuat data kontak.");
+      }
+      return;
+    }
+
+    // Scope "hospital": tetap muat Rumah Sakit + lookup Faskes untuk menampilkan
+    // daftar faskes pada halaman Rumah Sakit.
     const lookupResults = await Promise.allSettled([
       scope.value === "hospital" ? fetchAllHospitalsForList() : hospitalStore.fetchHospitals(),
       fetchContactCompanies(),
@@ -668,18 +686,11 @@ export const useContact = defineStore("contact", () => {
     const [contactResult] = await Promise.allSettled([fetchAllRemoteContacts()]);
     const results = [lookupResults[0], contactResult, lookupResults[1]];
 
-    // Pastikan semua baris memakai lookup yang sudah selesai dimuat, termasuk
-    // beberapa contact yang menunjuk ke company_id yang sama.
     resolveContactCompanyNames();
     syncRemoteContacts();
 
     if (results.some((result) => result.status === "rejected")) {
       notifyError(hospitalStore.error ?? contactError.value ?? "Gagal memuat data.");
-    }
-
-    if (scope.value === "contact" && results[1]?.status === "fulfilled") {
-      const firstContact = filteredContact.value[0];
-      if (firstContact) await hydrateRemoteContact(firstContact);
     }
   }
 

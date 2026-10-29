@@ -71,6 +71,12 @@ export interface Contact {
   createdAt?: string;
   lastActivity?: string;
   lastContactedAt?: string;
+  /** Jumlah peluang kontak dari sp_view_listcontact (kolom total_peluang). */
+  totalPeluang?: number;
+  /** Jumlah faskes kontak dari sp_view_listcontact (kolom total_faskes). */
+  totalFaskes?: number;
+  /** Jumlah aktifitas kontak dari sp_view_listcontact (kolom total_aktifitas). */
+  totalAktifitas?: number;
   hospitalClass?: string;
   financialGrade?: string;
   hospitalType?: string;

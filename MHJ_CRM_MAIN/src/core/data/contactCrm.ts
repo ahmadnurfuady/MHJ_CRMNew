@@ -24,7 +24,7 @@ export interface CompanyDetail {
   type: string;
   address: string;
   phone: string;
-  website: string;
+  email: string;
   projects: CompanyProject[];
   installedProducts: InstalledProduct[];
 }
