@@ -14,9 +14,7 @@
       <SolarIcon
         name="palette-2"
         :size="24"
-        color="var(--app-primary-deep, #032A4E)"
-        secondary-color="var(--app-primary, #18A6E4)"
-        :secondary-opacity="0.85"
+        color="var(--app-primary, #18A6E4)"
       />
     </div>
     <span>Opsi cepat</span>

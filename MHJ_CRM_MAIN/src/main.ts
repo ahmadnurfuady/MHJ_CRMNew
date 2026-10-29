@@ -96,15 +96,6 @@ document.documentElement.style.setProperty(
   `${storedAppearance.fontSizeOffset}px`
 )
 
-if (import.meta.env.DEV) {
-  const script = document.createElement('script')
-  script.src = 'https://cdn.jsdelivr.net/npm/eruda'
-  script.onload = () => {
-    ;(window as unknown as { eruda: { init: () => void } }).eruda?.init()
-  }
-  document.body.appendChild(script)
-}
-
 const app = createApp(App)
 const head = createHead()
 

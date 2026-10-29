@@ -10,11 +10,8 @@
           <SolarIcon
             :name="resolveKpiIcon(kpi.id)"
             :size="24"
-            :color="kpi.id === 'win-rate' ? '#fff' : 'currentColor'"
-            :secondary-color="kpi.id === 'win-rate'
-              ? 'var(--dashboard-icon-primary, var(--app-primary, #18a6e4))'
-              : 'currentColor'"
-            :secondary-opacity="1"
+            color="currentColor"
+            aria-hidden="true"
           />
         </div>
         <strong class="kpi-card__value">{{ kpi.value }}</strong>

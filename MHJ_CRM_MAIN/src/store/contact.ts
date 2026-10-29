@@ -147,6 +147,57 @@ function pickNameList(raw: Dict, ...keys: string[]): string[] | undefined {
   return undefined;
 }
 
+/**
+ * Daftar peluang lengkap dari response detail kontak. Backend mengirim array
+ * objek: [{ id, name, company_name, stage_name, amount_value }].
+ */
+function pickContactProjects(raw: Dict, key: string): Contact["projects"] {
+  const value = raw[key];
+  if (!Array.isArray(value)) return undefined;
+
+  const projects = value
+    .map((item) => {
+      if (!isRecord(item)) return undefined;
+      const id = pickString(item, "id", "project_id");
+      const name = pickString(item, "name", "project_name", "projects_name");
+      if (!id || !name) return undefined;
+      return {
+        id,
+        name,
+        companyName: pickString(item, "company_name") || undefined,
+        stageName: pickString(item, "stage_name", "stage") || undefined,
+        amountValue: nullableNumber(pickString(item, "amount_value", "value")) ?? undefined,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+  return projects;
+}
+
+/**
+ * Daftar faskes lengkap dari response detail kontak: [{ id, name, address }].
+ */
+function pickContactCompanies(raw: Dict, key: string): Contact["companies"] {
+  const value = raw[key];
+  if (!Array.isArray(value)) return undefined;
+
+  const companies = value
+    .map((item) => {
+      if (!isRecord(item)) return undefined;
+      const id = pickString(item, "id", "company_id");
+      const name = pickString(item, "name", "company_name");
+      if (!id || !name) return undefined;
+      return {
+        id,
+        name,
+        address: pickString(item, "address") || undefined,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+  return companies;
+}
+
 /** Pertahankan field terbaru ketika endpoint detail belum mengembalikan kolom tambahan. */
 function applySavedContactPayload(contact: Contact, payload: ContactCrudPayload) {
   contact.createdById = payload.created_by ?? contact.createdById;
@@ -330,8 +381,10 @@ function normalizeApiContact(raw: Dict): Contact {
     // Urutannya sejajar dengan companyIds, dipakai halaman detail untuk
     // menampilkan kartu tiap Faskes yang dipegang kontak.
     companyNames: pickNameList(raw, "company_names", "companies"),
+    companies: pickContactCompanies(raw, "companies"),
     projectIds: pickIdList(raw, "project_ids"),
     projectNames: pickNameList(raw, "project_names", "projects"),
+    projects: pickContactProjects(raw, "projects"),
     latitude: nullableNumber(pickString(raw, "latitude", "Latitude")) ?? undefined,
     longitude: nullableNumber(pickString(raw, "longitude", "Longitude")) ?? undefined,
     createdAt: pickString(raw, "created_at", "Created At", "createdAt"),

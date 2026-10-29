@@ -48,6 +48,8 @@ export interface Contact {
   company?: string;
   /** Semua faskes yang berelasi dengan kontak. */
   companyNames?: string[];
+  /** Faskes lengkap dari response detail kontak: [{ id, name, address }]. */
+  companies?: Array<{ id: string; name: string; address?: string }>;
   project?: string;
   projectId?: string;
   /** ID relasi contact_company; undefined bila API belum mengirim daftarnya. */
@@ -56,6 +58,14 @@ export interface Contact {
   projectIds?: string[];
   /** Nama peluang, urut sejajar dengan projectIds. */
   projectNames?: string[];
+  /** Peluang lengkap dari response detail kontak (id, name, stage_name, amount_value). */
+  projects?: Array<{
+    id: string;
+    name: string;
+    companyName?: string;
+    stageName?: string;
+    amountValue?: number;
+  }>;
   latitude?: number;
   longitude?: number;
   createdAt?: string;
