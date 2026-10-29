@@ -195,14 +195,6 @@
                   :aria-label="`Lihat detail ${hospital.firstName}`"
                   @click="openHospitalDetail(hospital)"
                 >
-                  <SolarIcon
-                    name="eye"
-                    :size="17"
-                    color="currentColor"
-                    secondary-color="currentColor"
-                    :secondary-opacity="0.42"
-                    aria-hidden="true"
-                  />
                   <span>Lihat Detail</span>
                 </button>
               </td>
@@ -1009,15 +1001,17 @@ onBeforeUnmount(() => {
     width: 100%;
   }
 
+  /* ── Kartu per faskes (seperti contact list mobile) ─────────────── */
   .hospital-table-wrap {
-    padding: 12px;
+    padding: 16px 14px;
     overflow: visible;
+    background: #f1f5f9;
   }
 
   .hospital-table {
+    display: block;
     width: 100% !important;
     min-width: 0;
-    table-layout: auto;
   }
 
   .hospital-table colgroup,
@@ -1037,53 +1031,143 @@ onBeforeUnmount(() => {
   }
 
   .hospital-table tbody tr {
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
+    max-width: 100%;
+    margin-bottom: 18px;
     border: 1px solid var(--border-subtle, #e2e8f0);
-    border-radius: 10px;
-    margin-bottom: 12px;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
   }
 
-  .hospital-table tbody td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 11px 13px;
-    text-align: right;
+  .hospital-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .hospital-table tbody tr:hover {
+    background: #ffffff;
   }
 
   .hospital-table tbody td::before {
-    content: attr(data-label);
-    flex: 0 0 38%;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-align: left;
-    text-transform: capitalize;
+    display: none;
+    content: none;
   }
 
-  .hospital-table tbody td:first-child {
-    background: #f8fafc;
-  }
-
-  .hospital-table tbody td:last-child {
+  /* Header kartu: icon + nama + email */
+  .hospital-table tbody td.entity-detail-cell {
+    order: 0;
     border-bottom: 0;
+    padding: 16px 16px 4px;
+    background: #ffffff;
   }
 
   .hospital-identity {
+    display: flex;
+    width: 100%;
     min-width: 0;
-    justify-content: flex-end;
+    max-width: 100%;
+    gap: 12px;
+    align-items: center;
+    box-sizing: border-box;
   }
 
+  .hospital-avatar {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    border-radius: 12px;
+  }
+
+  .hospital-identity__text {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .hospital-identity__text strong,
+  .hospital-identity__text span {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hospital-identity__text strong {
+    font-size: 15px;
+  }
+
+  .hospital-identity__text span {
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  /* Baris atribut: label kecil kiri, nilai kanan */
+  .hospital-table tbody td:not(.entity-detail-cell) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 0;
+    padding: 7px 16px;
+    text-align: right;
+  }
+
+  .hospital-table tbody td:not(.entity-detail-cell)::before {
+    display: block;
+    content: attr(data-label);
+    flex: 0 0 auto;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: left;
+  }
+
+  .hospital-table tbody td:not(.entity-detail-cell) > * {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Badge grade/metrik tetap rapi */
+  .hospital-table .financial-grade-badge,
+  .hospital-table .metric-badge {
+    flex: 0 0 auto;
+  }
+
+  .hospital-table .last-visit {
+    text-align: right;
+  }
+
+  /* Tombol detail full-width di bawah kartu */
+  .hospital-table tbody td[data-label="Detail"] {
+    justify-content: stretch;
+    padding: 12px 16px 16px;
+  }
+
+  .hospital-table tbody td[data-label="Detail"]::before {
+    display: none;
+  }
+
+  .hospital-table tbody td[data-label="Detail"] .detail-button {
+    width: 100%;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-weight: 600;
+  }
+
+  /* Baris loading / kosong tetap tampil penuh. */
   .hospital-table-state {
     display: table-cell !important;
     height: 180px;
-  }
-
-  .hospital-table-state::before {
-    display: none;
+    padding: 24px !important;
+    background: #ffffff;
+    text-align: center;
   }
 }
 </style>
