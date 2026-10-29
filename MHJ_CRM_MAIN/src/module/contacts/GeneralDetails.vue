@@ -287,18 +287,17 @@
                 <strong v-else>{{ companyDetail.phone }}</strong>
               </div>
               <div class="col-md-6">
-                <span>Website</span>
+                <span>Email</span>
                 <input
                   v-if="isEditingCompany"
-                  v-model="companyDraft.website"
+                  v-model="companyDraft.email"
+                  type="email"
                   class="form-control form-control-sm"
                 />
                 <a
-                  v-else-if="companyDetail.website"
-                  :href="companyDetail.website"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >{{ companyDetail.website }}</a
+                  v-else-if="companyDetail.email"
+                  :href="`mailto:${companyDetail.email}`"
+                  >{{ companyDetail.email }}</a
                 >
                 <strong v-else>-</strong>
               </div>
@@ -466,7 +465,6 @@ import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Hospital } from "@/types/hospital";
-import { useProjectStore } from "@/store/project";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
 import {
   indonesianPhoneCallUrl,
@@ -479,7 +477,6 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const hospitalStore = useHospitalStore();
-const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const { editContact, fetchContactSources, showHistory } = contactStore;
 
@@ -562,19 +559,24 @@ function findLiveCompany(id: number, normalizedName: string) {
   });
 }
 
-function projectsForCompany(id: number, normalizedName: string) {
-  return projectStore.items
+/**
+ * Peluang per Faskes diambil dari `contact.projects` (dari fetchcontactbyid)
+ * yang sudah membawa `company_name` per peluang. Hindari fetch /api/project di
+ * halaman ini karena hanya peluang kontak ini yang relevan untuk ditampilkan.
+ */
+function projectsForCompany(_id: number, normalizedName: string) {
+  const projects = contactState.value.activeContact?.projects ?? [];
+  return projects
     .filter(
       (project) =>
-        (!Number.isNaN(id) && project.companyId === id) ||
-        (Boolean(normalizedName) &&
-          project.companyName?.trim().toLowerCase() === normalizedName),
+        Boolean(normalizedName) &&
+        (project.companyName?.trim().toLowerCase() ?? "") === normalizedName,
     )
     .map((project) => ({
-      id: String(project.id),
-      name: project.projectName,
-      stage: project.stageName || titleCase(project.status),
-      value: project.amountValue ?? project.projectValue ?? 0,
+      id: project.id,
+      name: project.name,
+      stage: project.stageName || "Qualified",
+      value: project.amountValue ?? 0,
     }));
 }
 
@@ -603,7 +605,7 @@ const companiesForContact = computed<CompanyDetail[]>(() =>
         type: "Faskes",
         address: "-",
         phone: "-",
-        website: "",
+        email: "",
         projects,
         installedProducts: [],
       };
@@ -618,7 +620,7 @@ const companiesForContact = computed<CompanyDetail[]>(() =>
         "Faskes",
       address: liveCompany?.address || apiCompany?.address || "-",
       phone: liveCompany?.phone || "-",
-      website: liveCompany?.website || "",
+      email: liveCompany?.email || "",
       projects,
       installedProducts: [],
     };
@@ -654,6 +656,20 @@ watch(
   { immediate: true },
 );
 
+/**
+ * Faskes utama (kartu pertama) langsung di-fetch tanpa menunggu user klik,
+ * supaya profil Faskes default halaman detail langsung lengkap (jenis,
+ * telepon, email, dsb). Faskes kedua dan seterusnya tetap lazy — dimuat
+ * saat kartunya dipilih lewat selectCompany().
+ */
+watch(
+  selectedCompanyName,
+  (name) => {
+    if (name) void selectCompany(name);
+  },
+  { immediate: true },
+);
+
 const companyDetail = computed<CompanyDetail | undefined>(() =>
   companiesForContact.value.find((company) => company.name === selectedCompanyName.value),
 );
@@ -676,17 +692,9 @@ const companyLabel = computed(() => {
   );
 });
 const ownerLabel = computed(() => {
-  const contact = contactState.value.activeContact;
-  const directOwner = String(contact?.owner || "").trim();
-  if (directOwner && directOwner !== "-") return directOwner;
-
-  const createdById = Number(contact?.createdById);
-  if (!Number.isFinite(createdById) || createdById <= 0) return "-";
-
-  const owner = projectStore.lookups.owner.find(
-    (option) => Number(option.value) === createdById,
-  );
-  return owner?.label || "-";
+  // owner_name sudah ikut dibawa fetchcontactbyid lewat JOIN users; cukup pakai itu.
+  const directOwner = String(contactState.value.activeContact?.owner || "").trim();
+  return directOwner && directOwner !== "-" ? directOwner : "-";
 });
 const sourceLabel = computed(() => {
   const contact = contactState.value.activeContact;
@@ -751,14 +759,14 @@ const companyEditTitle = computed(() =>
     : "Profil faskes hanya dapat dilihat",
 );
 const isEditingCompany = ref(false);
-const companyDraft = reactive({ phone: "", website: "", address: "" });
+const companyDraft = reactive({ phone: "", email: "", address: "" });
 
 watch(
   companyDetail,
   (company) => {
     isEditingCompany.value = false;
     companyDraft.phone = company?.phone || "";
-    companyDraft.website = company?.website || "";
+    companyDraft.email = company?.email || "";
     companyDraft.address = company?.address || "";
   },
   { immediate: true },
@@ -791,34 +799,18 @@ function normalizeStage(stage: string): string {
 }
 
 /**
- * Peluang milik kontak ini. Sumber utama: field `projects` dari response
- * fetch contact (id, name, company_name, stage_name, amount_value). Daftar
- * ini berdiri sendiri — tidak difilter oleh Faskes yang sedang dipilih.
- * Fallback ke projectStore bila response belum membawa daftar peluang.
+ * Peluang milik kontak ini, dari field `projects` response fetchcontactbyid
+ * (id, name, company_name, stage_name, amount_value). Daftar ini berdiri
+ * sendiri — tidak difilter oleh Faskes yang sedang dipilih.
  */
 const contactProjects = computed<CompanyProject[]>(() => {
-  const contact = contactState.value.activeContact;
-
-  if (contact?.projects?.length) {
-    return contact.projects.map((project) => ({
-      id: project.id,
-      name: project.name,
-      stage: project.stageName || "Qualified",
-      value: project.amountValue ?? 0,
-    }));
-  }
-
-  const remoteId = contact?.remoteId;
-  if (!remoteId) return [];
-
-  return projectStore.items
-    .filter((project) => project.contactId === remoteId)
-    .map((project) => ({
-      id: String(project.id),
-      name: project.projectName,
-      stage: project.stageName || titleCase(project.status),
-      value: project.amountValue ?? project.projectValue ?? 0,
-    }));
+  const projects = contactState.value.activeContact?.projects ?? [];
+  return projects.map((project) => ({
+    id: project.id,
+    name: project.name,
+    stage: project.stageName || "Qualified",
+    value: project.amountValue ?? 0,
+  }));
 });
 
 const projectsByStage = computed(() => {
@@ -901,8 +893,8 @@ async function toggleCompanyEdit() {
         await hospitalStore.updateHospital(company.id, {
           company_name: company.name,
           telephone: companyDraft.phone.trim(),
-          email: company.email || undefined,
-          website: companyDraft.website.trim(),
+          email: companyDraft.email.trim(),
+          website: company.website || undefined,
           description: company.description || undefined,
           address: companyDraft.address.trim(),
           country: company.country || undefined,
@@ -916,7 +908,7 @@ async function toggleCompanyEdit() {
       }
     } else {
       companyDetail.value.phone = companyDraft.phone.trim();
-      companyDetail.value.website = companyDraft.website.trim();
+      companyDetail.value.email = companyDraft.email.trim();
       companyDetail.value.address = companyDraft.address.trim();
     }
   }

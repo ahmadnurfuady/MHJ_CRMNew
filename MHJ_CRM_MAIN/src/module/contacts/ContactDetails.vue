@@ -276,12 +276,7 @@ import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch 
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
-import {
-  fetchLatestActivities,
-  formatTimelineDate,
-  timeAgo,
-  type LatestActivity,
-} from "@/services/activityLogService";
+import { timeAgo } from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
 import type { Contact } from "@/types/contacts";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
@@ -452,71 +447,21 @@ function contactPeluangCount(contact: Contact): number {
 }
 
 /**
- * Aktivitas terakhir per kontak untuk seluruh baris halaman aktif. Sumbernya
- * sama dengan panel Riwayat di halaman detail (activity_logs + catatan), lihat
- * fetchLatestActivities di services/activityLogService.
+ * Aktivitas terakhir per kontak langsung dari sp_view_listcontact:
+ * `last_activity_text`/`aktifitas_terakhir` + `last_activity_at`. Hindari call
+ * tambahan ke /api/activity-logs/latest karena data sudah ada di response list.
  */
-const latestActivities = ref(new Map<number, LatestActivity>());
-/** Hanya respons permintaan terakhir yang dipakai saat user cepat ganti halaman / mencari. */
-let activityRequestSeq = 0;
-
-async function loadLatestActivities() {
-  const remoteIds = filteredContact.value
-    .filter((contact) => contact.origin === "api")
-    .map((contact) => Number(contact.remoteId))
-    .filter((id) => Number.isSafeInteger(id) && id > 0);
-
-  const seq = ++activityRequestSeq;
-
-  if (!remoteIds.length) {
-    latestActivities.value = new Map();
-    return;
-  }
-
-  const activities = await fetchLatestActivities("contacts", remoteIds);
-  if (seq !== activityRequestSeq) return;
-  latestActivities.value = activities;
-}
-
-function contactActivity(contact: Contact): LatestActivity | undefined {
-  const remoteId = Number(contact.remoteId);
-  if (!Number.isSafeInteger(remoteId) || remoteId <= 0) return undefined;
-  return latestActivities.value.get(remoteId);
-}
-
-/** Log historis dipakai lebih dahulu; `lastActivity` dari list tetap jadi cadangan. */
 function activityLabel(contact: Contact) {
-  return contactActivity(contact)?.label || contact.lastActivity || "";
+  return contact.lastActivity || "";
 }
 
 function activityTime(contact: Contact) {
-  const createdAt = contactActivity(contact)?.createdAt;
-  return createdAt ? timeAgo(createdAt) : "";
+  return contact.lastContactedAt ? timeAgo(contact.lastContactedAt) : "";
 }
 
 function activityTooltip(contact: Contact) {
-  const activity = contactActivity(contact);
-  if (!activity) return contact.lastActivity || "";
-
-  return [
-    activity.label,
-    activity.authorName ? `oleh ${activity.authorName}` : "",
-    activity.createdAt ? formatTimelineDate(activity.createdAt) : "",
-    activity.source ? `(${activity.source})` : "",
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  return contact.lastActivity || "";
 }
-
-// Seluruh aktivitas dimuat sekali untuk semua kontak; pagination hanya mengatur baris yang terlihat.
-watch(
-  () =>
-    filteredContact.value
-      .map((contact) => `${contact.origin ?? ""}:${contact.remoteId ?? ""}`)
-      .join(","),
-  () => void loadLatestActivities(),
-  { immediate: true },
-);
 
 function parseContactDate(value: string) {
   const date = new Date(value);

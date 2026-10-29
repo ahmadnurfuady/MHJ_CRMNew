@@ -391,6 +391,8 @@ function normalizeApiContact(raw: Dict): Contact {
     createdAt: pickString(raw, "created_at", "Created At", "createdAt"),
     lastActivity: pickString(
       raw,
+      "last_activity_text",
+      "aktifitas_terakhir",
       "last_activity",
       "last_activity_name",
       "latest_activity",
