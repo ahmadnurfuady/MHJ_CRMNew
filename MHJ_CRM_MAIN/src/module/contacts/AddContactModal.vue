@@ -152,7 +152,12 @@
                         @mousedown.prevent="selectAddressSuggestion(suggestion)"
                       >
                         <SolarIcon name="fa-location-dot" />
-                        <span>{{ suggestion.address }}</span>
+                        <span class="address-suggestion-copy">
+                          <span>{{ suggestion.address }}</span>
+                          <small v-if="formatDistanceKm(suggestion.distanceKm)">
+                            {{ formatDistanceKm(suggestion.distanceKm) }}
+                          </small>
+                        </span>
                       </li>
                     </ul>
                   </div>
@@ -388,12 +393,14 @@ const requiredPhoneValidator = (value: string) =>
 const optionalPhoneValidator = (value: string) =>
   indonesianMobilePhoneError(value);
 import {
+  formatDistanceKm,
   geolocationErrorMessage,
   getCurrentPosition,
   reverseGeocodeLocation,
   searchAddress,
   type AddressSearchResult,
 } from "@/services/geocoding";
+import { useUserLocation } from "@/composable/useUserLocation";
 import type { Contact } from "@/types/contacts";
 
 interface LeafletLatLngEvent {
@@ -478,6 +485,7 @@ const selectedLocationCenter = computed<[number, number]>(() =>
 const pinUpdating = ref(false);
 let suppressNextAddressSearch = false;
 let suppressProvinceCityReset = false;
+const { ensureLocation } = useUserLocation();
 const loggedInOwnerName = computed(
   () => authStore.user?.name || authStore.user?.email || "Penanggung Jawab",
 );
@@ -568,7 +576,11 @@ const runAddressSearch = useDebounceFn(async (query: string) => {
   addressSearchError.value = "";
   addressSearchNoResult.value = false;
   try {
-    const results = await searchAddress(trimmed);
+    const location = await ensureLocation();
+    const results = await searchAddress(
+      trimmed,
+      location ? { lat: location.lat, lon: location.lon } : undefined,
+    );
     addressSuggestions.value = results;
     addressSearchNoResult.value = results.length === 0;
   } catch {
@@ -703,7 +715,11 @@ async function searchTypedAddress(query: string) {
   addressSearchNoResult.value = false;
 
   try {
-    const [best] = await searchAddress(query);
+    const location = await ensureLocation();
+    const [best] = await searchAddress(
+      query,
+      location ? { lat: location.lat, lon: location.lon } : undefined,
+    );
     if (!best) {
       locationError.value = "Lokasi tidak ditemukan. Coba kata kunci lain.";
       return;
@@ -835,6 +851,18 @@ function closeModal() {
   color: #344054;
   font-size: 12px;
   cursor: pointer;
+}
+
+.address-suggestion-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.address-suggestion-copy small {
+  color: var(--theme-default, #18a6e4);
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .address-suggestion-item i {

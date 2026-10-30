@@ -160,6 +160,9 @@
                             <template v-if="currentSearchArea().province">
                               · {{ suggestionScopeLabel(suggestion) }}
                             </template>
+                            <template v-if="formatDistanceKm(suggestion.distanceKm)">
+                              · {{ formatDistanceKm(suggestion.distanceKm) }}
+                            </template>
                           </small>
                         </span>
                       </li>
@@ -483,6 +486,9 @@
               <SolarIcon name="fa-location-dot" :size="12" />
               {{ pickerLocationLabel(result) }}
             </span>
+            <span v-if="formatDistanceKm(result.distanceKm)" class="location-picker__distance">
+              {{ formatDistanceKm(result.distanceKm) }}
+            </span>
           </span>
         </li>
         <li
@@ -517,6 +523,7 @@ import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { useHospitalLookups } from "@/composable/useHospitalLookups";
 import { usePhoneNumberList } from "@/composable/usePhoneNumberList";
 import {
+  formatDistanceKm,
   geolocationErrorMessage,
   getCurrentPosition,
   reverseGeocodeLocation,
@@ -524,6 +531,7 @@ import {
   searchHealthFacilities,
   type AddressSearchResult,
 } from "@/services/geocoding";
+import { useUserLocation } from "@/composable/useUserLocation";
 import { useContact } from "@/store/contact";
 import {
   indonesianMobilePhoneError,
@@ -613,6 +621,7 @@ let suppressNextAddressSearch = false;
 let suppressProvinceCityReset = false;
 let searchOriginPromise: Promise<void> | null = null;
 let facilitySearchSequence = 0;
+const { ensureLocation } = useUserLocation();
 
 const { provinceOptions, cityOptionsByProvince, loadRegions, resolveRegionSelection } =
   useCompanyRegions();
@@ -847,9 +856,12 @@ async function executeFacilitySearch(query: string, searchOutside = false) {
   addressSearchNoResult.value = false;
   try {
     await ensureSearchOrigin();
+    const location = await ensureLocation();
     const results = await searchHealthFacilities(trimmed, {
       ...currentSearchArea(),
       includeOutsideProvince: searchOutside,
+      latitude: location?.lat,
+      longitude: location?.lon,
     });
     if (sequence !== facilitySearchSequence) return;
     addressSuggestions.value = results;
@@ -882,9 +894,12 @@ async function searchOutsideFromPicker() {
   pickerSearchingOutside.value = true;
 
   try {
+    const location = await ensureLocation();
     const results = await searchHealthFacilities(query, {
       ...currentSearchArea(),
       includeOutsideProvince: true,
+      latitude: location?.lat,
+      longitude: location?.lon,
     });
     locationPickerResults.value = results;
   } catch {
@@ -1014,9 +1029,12 @@ async function searchTypedAddress(query: string) {
 
   try {
     await ensureSearchOrigin();
+    const location = await ensureLocation();
     const results = await searchHealthFacilities(query, {
       ...currentSearchArea(),
       includeOutsideProvince: includeOutsideProvince.value,
+      latitude: location?.lat,
+      longitude: location?.lon,
     });
     if (!results.length) {
       locationError.value =
@@ -1439,6 +1457,12 @@ function clearCurrentAddress() {
   color: #475467;
   font-size: 11px;
   font-weight: 500;
+}
+
+.location-picker__distance {
+  color: var(--theme-default, #18a6e4);
+  font-size: 11px;
+  font-weight: 600;
 }
 
 @media (max-width: 575.98px) {

@@ -38,12 +38,24 @@ export interface AddressSearchResult extends ReverseGeocodeLocation {
   name?: string
   facilityType?: string
   searchScope?: 'city' | 'province' | 'outside'
+  /** Jarak dari koordinat bias (GPS) dalam kilometer — hanya diisi bila koordinat dikirim ke backend. */
+  distanceKm?: number
 }
 
 export interface HealthFacilitySearchOptions {
   city?: string
   province?: string
   includeOutsideProvince?: boolean
+  /** Bias GPS opsional — kirim hanya jika latitude & longitude SAMA-SAMA diisi (satu saja ditolak backend, 422). */
+  latitude?: number
+  longitude?: number
+}
+
+/** Format jarak GPS untuk ditampilkan di dropdown hasil pencarian: di bawah 1 km pakai meter, selain itu km dengan koma desimal. Tanpa nilai → undefined (jangan tampilkan apa pun). */
+export function formatDistanceKm(distanceKm: number | null | undefined): string | undefined {
+  if (distanceKm === null || distanceKm === undefined || Number.isNaN(distanceKm)) return undefined
+  if (distanceKm < 1) return `${Math.round(distanceKm * 1000)} m`
+  return `${distanceKm.toFixed(1).replace('.', ',')} km`
 }
 
 function uniqueAddressParts(parts: Array<string | undefined>): string {
@@ -293,6 +305,7 @@ interface HealthFacilityApiResult {
   scope: 'city' | 'province' | 'outside'
   scope_label: string
   provider: string
+  distance_km?: number
 }
 
 interface HealthFacilitySearchApiResponse {
@@ -320,10 +333,15 @@ export async function searchHealthFacilities(
   const trimmed = query.trim()
   if (!trimmed) return []
 
-  const params: Record<string, string> = { q: trimmed }
+  const params: Record<string, string | number> = { q: trimmed }
   if (options.city?.trim()) params.city = options.city.trim()
   if (options.province?.trim()) params.province = options.province.trim()
   if (options.includeOutsideProvince) params.include_outside_province = '1'
+  // Backend menolak (422) bila cuma salah satu koordinat yang dikirim — kirim hanya jika keduanya ada.
+  if (options.latitude !== undefined && options.longitude !== undefined) {
+    params.latitude = options.latitude
+    params.longitude = options.longitude
+  }
 
   const response = await api.getbydata<HealthFacilitySearchApiResponse>(
     'geocoding/health-facilities',
@@ -341,7 +359,8 @@ export async function searchHealthFacilities(
     city: result.city?.trim() ?? '',
     posCode: result.postal_code?.trim() ?? '',
     facilityType: result.facility_type,
-    searchScope: result.scope
+    searchScope: result.scope,
+    distanceKm: result.distance_km
   }))
 }
 
@@ -353,6 +372,7 @@ interface AddressSearchApiResult {
   province: string | null
   city: string | null
   postal_code: string | null
+  distance_km?: number
 }
 
 interface AddressSearchApiResponse {
@@ -372,13 +392,22 @@ interface AddressSearchApiResponse {
  * form lain yang butuh cari alamat umum. Untuk pencarian yang dibatasi ke faskes
  * (hospital/clinic/pharmacy/dll) lihat `searchHealthFacilities`.
  */
-export async function searchAddress(query: string): Promise<AddressSearchResult[]> {
+export async function searchAddress(
+  query: string,
+  coords?: { lat: number; lon: number }
+): Promise<AddressSearchResult[]> {
   const trimmed = query.trim()
   if (!trimmed) return []
 
+  const params: Record<string, string | number> = { q: trimmed }
+  if (coords) {
+    params.latitude = coords.lat
+    params.longitude = coords.lon
+  }
+
   const response = await api.getbydata<AddressSearchApiResponse>(
     'geocoding/address-search',
-    { q: trimmed }
+    params
   )
   const results = response.data.data?.results ?? []
 
@@ -389,7 +418,8 @@ export async function searchAddress(query: string): Promise<AddressSearchResult[
     country: result.country?.trim() || '',
     province: result.province?.trim() || '',
     city: result.city?.trim() || '',
-    posCode: result.postal_code?.trim() || ''
+    posCode: result.postal_code?.trim() || '',
+    distanceKm: result.distance_km
   }))
 }
 
