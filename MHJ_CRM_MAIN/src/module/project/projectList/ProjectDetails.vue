@@ -17,7 +17,14 @@
         {{ stageTitle }}
       </span>
       <span class="opp-created" :title="formatFullDate(project.createdAt)">
-        <vue-feather type="calendar" size="14" />
+        <SolarIcon
+          name="calendar"
+          :size="14"
+          color="#7b8794"
+          secondary-color="#7b8794"
+          :secondary-opacity="1"
+          aria-hidden="true"
+        />
         <span>{{ formatShortDate(project.createdAt) }}</span>
       </span>
     </div>
