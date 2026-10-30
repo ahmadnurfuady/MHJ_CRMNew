@@ -217,25 +217,21 @@
                   v-if="selectedLocation"
                   class="location-preview map-z-index"
                 >
-                  <l-map
-                    :use-global-leaflet="false"
+                  <GoogleMapView
+                    :center="{ lat: selectedLocation!.lat, lng: selectedLocation!.lng }"
                     :zoom="16"
-                    :center="[selectedLocation!.lat, selectedLocation!.lng]"
-                    :style="{
-                      height: '220px',
-                      cursor: readOnly ? 'default' : 'crosshair',
-                    }"
+                    :markers="[
+                      {
+                        lat: selectedLocation!.lat,
+                        lng: selectedLocation!.lng,
+                        draggable: !readOnly,
+                      },
+                    ]"
+                    :cursor="readOnly ? 'default' : 'crosshair'"
+                    style="height: 220px"
                     @click="onMapClick"
-                  >
-                    <l-tile-layer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <l-marker
-                      :lat-lng="[selectedLocation!.lat, selectedLocation!.lng]"
-                      :draggable="!readOnly"
-                      @dragend="onMarkerDragEnd"
-                    />
-                  </l-map>
+                    @marker-dragend="onMarkerDragEnd"
+                  />
                   <p class="location-preview-address">
                     <SolarIcon name="fa-location-dot" />
                     <span>
@@ -516,7 +512,7 @@
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useDebounceFn } from "@vueuse/core";
-import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import GoogleMapView from "@/components/GoogleMapView.vue";
 
 import { initSelectField } from "@/core/data/common";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
@@ -559,15 +555,6 @@ const emit = defineEmits<{
   saved: [];
   cancel: [];
 }>();
-
-// Paket "leaflet" tidak menyediakan deklarasi tipenya sendiri di proyek ini, jadi cukup
-// ambil bentuk minimal yang dipakai dari event klik peta & akhir drag marker.
-interface LeafletLatLngEvent {
-  latlng: { lat: number; lng: number };
-}
-interface LeafletMarkerDragEndEvent {
-  target: { getLatLng: () => { lat: number; lng: number } };
-}
 
 const InputWrapper = defineAsyncComponent(
   () => import("@/components/shared/formElements/InputWrapper.vue"),
@@ -727,7 +714,7 @@ function pickerLocationLabel(result: AddressSearchResult) {
   return result.city || result.province || "Lokasi tidak diketahui";
 }
 
-/** Alamat lengkap Nominatim biasanya diawali nama faskes itu sendiri — buang supaya tidak diulang di bawah nama pada kartu popup. */
+/** Alamat lengkap dari backend biasanya diawali nama faskes itu sendiri — buang supaya tidak diulang di bawah nama pada kartu popup. */
 function pickerAddressLabel(result: AddressSearchResult) {
   const name = result.name?.trim();
   if (name && result.address.startsWith(`${name}, `)) {
@@ -992,15 +979,14 @@ async function applyPickedLocation(lat: number, lng: number) {
   }
 }
 
-function onMapClick(event: LeafletLatLngEvent) {
+function onMapClick(position: { lat: number; lng: number }) {
   if (props.readOnly) return;
-  void applyPickedLocation(event.latlng.lat, event.latlng.lng);
+  void applyPickedLocation(position.lat, position.lng);
 }
 
-function onMarkerDragEnd(event: LeafletMarkerDragEndEvent) {
+function onMarkerDragEnd(payload: { index: number; lat: number; lng: number }) {
   if (props.readOnly) return;
-  const { lat, lng } = event.target.getLatLng();
-  void applyPickedLocation(lat, lng);
+  void applyPickedLocation(payload.lat, payload.lng);
 }
 
 async function submitRumahSakit() {

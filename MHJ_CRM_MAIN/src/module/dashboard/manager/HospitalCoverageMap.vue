@@ -173,57 +173,17 @@
       Belum ada faskes dengan koordinat yang dapat ditampilkan.
     </div>
 
-    <LMap
-      :use-global-leaflet="false"
+    <GoogleMapView
+      ref="mapViewRef"
+      :center="{ lat: initialCenter[0], lng: initialCenter[1] }"
       :zoom="initialZoom"
-      :center="initialCenter"
-      :options="{ zoomControl: false, scrollWheelZoom: true }"
+      :map-type-id="googleMapTypeId"
+      :zoom-control="false"
+      :markers="markerPoints"
+      :user-location="userLocation"
+      @marker-click="handleMarkerClick"
       @ready="handleMapReady"
-    >
-      <LTileLayer
-        v-if="selectedLayer === 'standard'"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
-      />
-      <LTileLayer
-        v-else
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-        attribution="Tiles &copy; Esri"
-      />
-      <LTileLayer
-        v-if="selectedLayer === 'hybrid'"
-        url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
-        attribution="Labels &copy; Esri"
-      />
-
-      <LMarker
-        v-for="point in filteredPoints"
-        :key="point.hospital.id"
-        :lat-lng="[point.lat, point.lng]"
-        :title="point.hospital.name"
-        @click="selectHospital(point.hospital)"
-      >
-        <LIcon :icon-size="[42, 42]" :icon-anchor="[21, 21]" class-name="hospital-marker-shell">
-          <span class="hospital-marker" :class="`hospital-marker--${point.urgency.id}`">
-            <span class="hospital-marker__plus">
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </span>
-          </span>
-        </LIcon>
-      </LMarker>
-
-      <LCircleMarker
-        v-if="userLocation"
-        :lat-lng="userLocation"
-        :radius="8"
-        color="#ffffff"
-        fill-color="var(--app-primary, #18a6e4)"
-        :fill-opacity="1"
-        :weight="4"
-      />
-    </LMap>
+    />
 
     <div class="hospital-map__controls" aria-label="Kontrol peta">
       <button
@@ -414,7 +374,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { LCircleMarker, LIcon, LMap, LMarker, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import GoogleMapView from '@/components/GoogleMapView.vue'
+import type { GoogleMapMarker } from '@/components/GoogleMapView.vue'
 import { EarthIcon as EarthDuotoneIcon } from '@solar-icons/vue/bold-duotone/earth'
 
 import { useHospitalStore } from '@/store/hospital'
@@ -425,12 +386,10 @@ type UrgencyId = 'fresh' | 'attention' | 'overdue'
 type UrgencyFilter = UrgencyId | 'all'
 type EquipmentFilter = 'all' | 'mhj' | 'none'
 
-interface LeafletMapInstance {
-  invalidateSize: (options?: { animate?: boolean }) => void
-  fitBounds: (bounds: [number, number][], options?: { padding?: [number, number]; maxZoom?: number }) => void
-  setView: (center: [number, number], zoom: number, options?: { animate?: boolean }) => void
-  zoomIn: () => void
-  zoomOut: () => void
+const urgencyColors: Record<UrgencyId, string> = {
+  fresh: '#14b88a',
+  attention: '#f59e0b',
+  overdue: '#ef4444',
 }
 
 interface UrgencyOption {
@@ -447,7 +406,7 @@ const router = useRouter()
 const hospitalStore = useHospitalStore()
 const { items: hospitals } = storeToRefs(hospitalStore)
 
-const mapInstance = ref<LeafletMapInstance | null>(null)
+const mapViewRef = ref<InstanceType<typeof GoogleMapView> | null>(null)
 const mapLoading = ref(false)
 const isExpanded = ref(false)
 const showLayers = ref(false)
@@ -456,7 +415,7 @@ const showSearch = ref(false)
 const searchQuery = ref('')
 const selectedLayer = ref<MapLayer>('standard')
 const selectedHospital = ref<Hospital | null>(null)
-const userLocation = ref<[number, number] | null>(null)
+const userLocation = ref<{ lat: number; lng: number } | null>(null)
 const locating = ref(false)
 const mapMessage = ref('')
 const urgencyFilter = ref<UrgencyFilter>('all')
@@ -479,6 +438,10 @@ const layerOptions: Array<{ id: MapLayer; label: string; description: string; ic
 ]
 
 const activeLayer = computed(() => layerOptions.find((layer) => layer.id === selectedLayer.value) ?? layerOptions[0]!)
+
+const googleMapTypeId = computed<'roadmap' | 'satellite' | 'hybrid'>(() =>
+  selectedLayer.value === 'standard' ? 'roadmap' : selectedLayer.value,
+)
 
 function hasCoordinates(hospital: Hospital): boolean {
   return Number.isFinite(hospital.latitude) && Number.isFinite(hospital.longitude)
@@ -520,6 +483,14 @@ const filteredPoints = computed(() => hospitalPoints.value.filter((point) => {
   return true
 }))
 
+const markerPoints = computed<GoogleMapMarker[]>(() => filteredPoints.value.map((point) => ({
+  lat: point.lat,
+  lng: point.lng,
+  title: point.hospital.name,
+  color: urgencyColors[point.urgency.id],
+  glyphText: '+',
+})))
+
 const cityOptions = computed(() => [...new Set(hospitalPoints.value.map(({ hospital }) => hospital.city).filter(Boolean))]
   .sort((a, b) => a.localeCompare(b, 'id-ID')))
 const typeOptions = computed(() => [...new Set(hospitalPoints.value.map(({ hospital }) => hospitalType(hospital)).filter(Boolean))]
@@ -541,22 +512,26 @@ const locationControlLabel = computed(() => {
 })
 
 function refreshMapSize(): void {
-  void nextTick(() => window.requestAnimationFrame(() => mapInstance.value?.invalidateSize({ animate: false })))
+  void nextTick(() => window.requestAnimationFrame(() => mapViewRef.value?.refreshSize()))
 }
 
-function handleMapReady(map: LeafletMapInstance): void {
-  mapInstance.value = map
+function handleMapReady(): void {
   if (hospitalPoints.value.length) fitHospitals()
 }
 
 function fitHospitals(): void {
   const points = filteredPoints.value
-  if (!mapInstance.value || !points.length) return
-  mapInstance.value.fitBounds(points.map((point) => [point.lat, point.lng]), { padding: [48, 48], maxZoom: 12 })
+  if (!points.length) return
+  mapViewRef.value?.fitToPoints(points.map((point) => ({ lat: point.lat, lng: point.lng })), { padding: 48, maxZoom: 12 })
 }
 
-function zoomIn(): void { mapInstance.value?.zoomIn() }
-function zoomOut(): void { mapInstance.value?.zoomOut() }
+function zoomIn(): void { mapViewRef.value?.zoomIn() }
+function zoomOut(): void { mapViewRef.value?.zoomOut() }
+
+function handleMarkerClick(index: number): void {
+  const point = filteredPoints.value[index]
+  if (point) selectHospital(point.hospital)
+}
 
 function toggleExpandedMap(): void {
   isExpanded.value = !isExpanded.value
@@ -668,8 +643,8 @@ function requestCurrentPosition(options: PositionOptions): Promise<GeolocationPo
 
 function focusUserLocation(position: GeolocationPosition): void {
   const { latitude, longitude } = position.coords
-  userLocation.value = [latitude, longitude]
-  mapInstance.value?.setView(userLocation.value, 16, { animate: true })
+  userLocation.value = { lat: latitude, lng: longitude }
+  mapViewRef.value?.panTo(userLocation.value, 16)
   showMapMessage('Lokasi kamu berhasil ditemukan.')
 }
 
@@ -826,7 +801,7 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(2px);
 }
 
-.hospital-map :deep(.leaflet-container) {
+.hospital-map :deep(.google-map-view) {
   width: 100%;
   height: 100%;
   font-family: inherit;
@@ -948,17 +923,6 @@ onBeforeUnmount(() => {
 .location-control:hover .map-control-tooltip,.location-control:focus-visible .map-control-tooltip { opacity: 1; transform: translate(0,-50%); }
 .hospital-map:not(.hospital-map--expanded) .hospital-map__controls button:nth-child(n + 3) { display: none; }
 
-.hospital-marker { display: grid; place-items: center; width: 42px; height: 42px; border: 4px solid #fff; border-radius: 50%; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); }
-.hospital-marker--fresh { background: #14b88a; }
-.hospital-marker--attention { background: #f59e0b; }
-.hospital-marker--overdue { background: #ef4444; }
-.hospital-marker__plus { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 4px; background: #fff; }
-.hospital-marker__plus svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 3.6; stroke-linecap: round; }
-.hospital-marker--fresh .hospital-marker__plus { color: #14b88a; }
-.hospital-marker--attention .hospital-marker__plus { color: #f59e0b; }
-.hospital-marker--overdue .hospital-marker__plus { color: #ef4444; }
-:deep(.hospital-marker-shell) { border: 0; background: transparent; }
-
 .hospital-map__state { position: absolute; inset: 0; z-index: 490; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 24px; color: #6b7a86; background: rgba(247, 250, 252, 0.88); font-size: 12px; text-align: center; }
 .hospital-map__message { position: absolute; left: 50%; bottom: 14px; z-index: 510; max-width: calc(100% - 130px); border-radius: 9px; padding: 8px 12px; color: #fff; background: rgba(30, 41, 59, 0.9); font-size: 11px; transform: translateX(-50%); }
 
@@ -1016,9 +980,6 @@ onBeforeUnmount(() => {
 .hospital-map__detail ~ .hospital-map__coordinate-note { display: none; }
 
 /* Overlay peta tetap memakai palet terang, termasuk saat halaman beralih ke dark mode. */
-:global(body.dark-only .hospital-map .hospital-marker--fresh .hospital-marker__plus) { color: #14b88a !important; }
-:global(body.dark-only .hospital-map .hospital-marker--attention .hospital-marker__plus) { color: #f59e0b !important; }
-:global(body.dark-only .hospital-map .hospital-marker--overdue .hospital-marker__plus) { color: #ef4444 !important; }
 :global(body.dark-only .hospital-map .hospital-map__legend span) { color: #52606d !important; }
 :global(body.dark-only .hospital-map .map-action--wide span) { color: #304250 !important; }
 :global(body.dark-only .hospital-map .hospital-map__layer-menu > small) { color: #82909c !important; }

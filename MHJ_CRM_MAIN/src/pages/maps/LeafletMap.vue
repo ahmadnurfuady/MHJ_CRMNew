@@ -19,6 +19,9 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
+// CSS Leaflet dipindah dari import global (main.ts) ke sini karena fitur produksi
+// sudah bermigrasi ke Google Maps JS SDK — halaman demo ini tetap butuh style-nya sendiri.
+import 'leaflet/dist/leaflet.css'
 
 const SimpleLeafletMap = defineAsyncComponent(
   () => import('@/module/maps/leafletMap/SimpleLeafletMap.vue')

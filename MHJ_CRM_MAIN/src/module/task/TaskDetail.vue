@@ -105,12 +105,13 @@
           </div>
 
           <div class="evidence-preview evidence-map">
-            <iframe
-              v-if="mapEmbedUrl"
-              :src="mapEmbedUrl"
-              title="Lokasi kunjungan"
-              loading="lazy"
-            ></iframe>
+            <GoogleMapView
+              v-if="taskLocation"
+              :center="taskLocation"
+              :zoom="17"
+              :markers="[taskLocation]"
+              :zoom-control="false"
+            />
             <div v-else class="evidence-empty">
               <MhjIcon name="action_location" />
               <span>Lokasi belum tersedia</span>
@@ -210,6 +211,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
+import GoogleMapView from '@/components/GoogleMapView.vue'
 import { projectTab } from '@/core/data/project'
 import type { TaskDetails } from '@/types/tasks'
 import {
@@ -270,25 +272,17 @@ const productLabel = computed(() => {
   return props.task?.products?.join(', ') || '-'
 })
 
-const mapEmbedUrl = computed(() => {
+const taskLocation = computed(() => {
   const latitude = props.task?.latitude
   const longitude = props.task?.longitude
-  if (!latitude || !longitude) return ''
-  const delta = 0.006
-  const bbox = [longitude - delta, latitude - delta, longitude + delta, latitude + delta].join(',')
-  const params = new URLSearchParams({
-    bbox,
-    layer: 'mapnik',
-    marker: `${latitude},${longitude}`,
-  })
-  return `https://www.openstreetmap.org/export/embed.html?${params.toString()}`
+  if (!latitude || !longitude) return null
+  return { lat: latitude, lng: longitude }
 })
 
 const mapPageUrl = computed(() => {
-  const latitude = props.task?.latitude
-  const longitude = props.task?.longitude
-  if (!latitude || !longitude) return ''
-  return `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=17/${latitude}/${longitude}`
+  if (!taskLocation.value) return ''
+  const { lat, lng } = taskLocation.value
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
 })
 
 function initials(name: string) {
@@ -674,7 +668,7 @@ function preventUnavailableContact(event: MouseEvent) {
 }
 
 .evidence-preview img,
-.evidence-preview iframe {
+.evidence-preview :deep(.google-map-view) {
   width: 100%;
   height: 190px;
   border: 0;
@@ -935,7 +929,7 @@ function preventUnavailableContact(event: MouseEvent) {
 
   .evidence-preview,
   .evidence-preview img,
-  .evidence-preview iframe,
+  .evidence-preview :deep(.google-map-view),
   .evidence-empty {
     height: 145px;
     min-height: 145px;

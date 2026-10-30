@@ -583,17 +583,12 @@
               <strong>{{ displayValue(hospital.mapAddress || hospital.address) }}</strong>
             </div>
             <div v-if="profileLocation" class="hospital-profile-map">
-              <l-map
-                :use-global-leaflet="false"
+              <GoogleMapView
+                :center="profileLocation!"
                 :zoom="16"
-                :center="profileMapCenter"
+                :markers="[{ lat: profileLocation!.lat, lng: profileLocation!.lng }]"
                 style="height: 310px"
-              >
-                <l-tile-layer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <l-marker :lat-lng="profileMapCenter" />
-              </l-map>
+              />
             </div>
             <div v-else class="hospital-map-empty">
               <span
@@ -693,7 +688,7 @@ import {
   type LocationQueryRaw,
 } from "vue-router";
 import { storeToRefs } from "pinia";
-import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import GoogleMapView from "@/components/GoogleMapView.vue";
 import type { InstalledProduct } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
@@ -770,11 +765,6 @@ const profileEditing = ref(false);
 const profilePanel = ref<HTMLElement | null>(null);
 let allowEditNavigation = false;
 const profileLocation = ref<{ lat: number; lng: number } | null>(null);
-const profileMapCenter = computed<[number, number]>(() =>
-  profileLocation.value
-    ? [profileLocation.value.lat, profileLocation.value.lng]
-    : [0, 0],
-);
 const profileMapLoading = ref(false);
 const expandedStage = ref("qualified");
 const loadError = ref("");

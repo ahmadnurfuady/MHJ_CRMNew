@@ -195,22 +195,15 @@
                   v-if="selectedLocation"
                   class="location-preview map-z-index"
                 >
-                  <l-map
-                    :use-global-leaflet="false"
+                  <GoogleMapView
+                    :center="selectedLocation"
                     :zoom="16"
-                    :center="selectedLocationCenter"
-                    style="height: 220px; cursor: crosshair"
+                    :markers="[{ lat: selectedLocation.lat, lng: selectedLocation.lng, draggable: true }]"
+                    cursor="crosshair"
+                    style="height: 220px"
                     @click="onMapClick"
-                  >
-                    <l-tile-layer
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <l-marker
-                      :lat-lng="selectedLocationCenter"
-                      :draggable="true"
-                      @dragend="onMarkerDragEnd"
-                    />
-                  </l-map>
+                    @marker-dragend="onMarkerDragEnd"
+                  />
                   <p class="location-preview-address">
                     <SolarIcon name="fa-location-dot" />
                     <span>
@@ -373,7 +366,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 import { useDebounceFn } from "@vueuse/core";
-import { LMap, LMarker, LTileLayer } from "@vue-leaflet/vue-leaflet";
+import GoogleMapView from "@/components/GoogleMapView.vue";
 
 import { initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
@@ -402,14 +395,6 @@ import {
 } from "@/services/geocoding";
 import { useUserLocation } from "@/composable/useUserLocation";
 import type { Contact } from "@/types/contacts";
-
-interface LeafletLatLngEvent {
-  latlng: { lat: number; lng: number };
-}
-
-interface LeafletMarkerDragEndEvent {
-  target: { getLatLng: () => { lat: number; lng: number } };
-}
 
 const emit = defineEmits<{
   saved: [contact: Contact];
@@ -477,11 +462,6 @@ const addressSearchError = ref("");
 const addressSearchNoResult = ref(false);
 const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
 const regionFieldsLocked = computed(() => selectedLocation.value !== null);
-const selectedLocationCenter = computed<[number, number]>(() =>
-  selectedLocation.value
-    ? [selectedLocation.value.lat, selectedLocation.value.lng]
-    : [0, 0],
-);
 const pinUpdating = ref(false);
 let suppressNextAddressSearch = false;
 let suppressProvinceCityReset = false;
@@ -699,13 +679,12 @@ async function applyPickedLocation(latitude: number, longitude: number) {
   }
 }
 
-function onMapClick(event: LeafletLatLngEvent) {
-  void applyPickedLocation(event.latlng.lat, event.latlng.lng);
+function onMapClick(position: { lat: number; lng: number }) {
+  void applyPickedLocation(position.lat, position.lng);
 }
 
-function onMarkerDragEnd(event: LeafletMarkerDragEndEvent) {
-  const { lat, lng } = event.target.getLatLng();
-  void applyPickedLocation(lat, lng);
+function onMarkerDragEnd(payload: { index: number; lat: number; lng: number }) {
+  void applyPickedLocation(payload.lat, payload.lng);
 }
 
 async function searchTypedAddress(query: string) {

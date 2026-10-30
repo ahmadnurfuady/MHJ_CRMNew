@@ -19,7 +19,6 @@
 @import 'vue-advanced-cropper/dist/style.css';
 @import './animate.scss';
 @import './chartist.scss';
-@import 'leaflet/dist/leaflet.css';
 @import 'md-editor-v3/lib/style.css';
 @import './style.scss';
 
@@ -39,9 +38,6 @@ option,
 .dx-theme-material-typography input,
 .dx-theme-material-typography textarea,
 .dx-widget,
-.leaflet-container,
-.leaflet-control,
-.leaflet-popup-content,
 .flatpickr-calendar,
 .swal2-popup,
 .Toastify__toast,
