@@ -39,6 +39,66 @@
             <vue-feather type="x" size="15" />
           </button>
         </div>
+        <div ref="filterRoot" class="contact-filter">
+          <button
+            class="contact-filter__trigger"
+            type="button"
+            aria-label="Filter kontak"
+            title="Filter kontak"
+            :aria-expanded="filterOpen"
+            aria-haspopup="true"
+            @click="filterOpen = !filterOpen"
+          >
+            <MhjIcon
+              name="action_filter"
+              :size="22"
+              color="var(--app-primary-dark, #0e7490)"
+              secondary-color="var(--app-primary, #18a6e4)"
+            />
+            <b v-if="selectedUserId !== null">1</b>
+          </button>
+          <div v-if="filterOpen" class="contact-filter__dropdown" role="menu">
+            <div class="contact-filter__search" role="search">
+              <input
+                v-model="filterSearch"
+                type="text"
+                class="contact-filter__search-input"
+                placeholder="Cari user..."
+                autocomplete="off"
+              />
+            </div>
+            <ul class="contact-filter__list" role="listbox">
+              <li v-for="user in filteredUsers" :key="user.id">
+                <button
+                  class="contact-filter__card"
+                  :class="{ 'contact-filter__card--active': selectedUserId === user.id }"
+                  type="button"
+                  role="option"
+                  :aria-selected="selectedUserId === user.id"
+                  :title="`${user.name} - ${user.jabatan} | ${user.divisi} | ${user.cabang}`"
+                  @click="selectUser(user.id)"
+                >
+                  <span class="contact-filter__card-content">
+                    <span class="contact-filter__card-name">{{ user.name }}</span>
+                    <span class="contact-filter__card-meta">
+                      {{ user.jabatan }} | {{ user.divisi }} | {{ user.cabang }}
+                    </span>
+                  </span>
+                  <span
+                    v-if="selectedUserId === user.id"
+                    class="contact-filter__card-check"
+                    aria-hidden="true"
+                  >
+                    <vue-feather type="check" size="14" />
+                  </span>
+                </button>
+              </li>
+              <li v-if="!filteredUsers.length" class="contact-filter__empty">
+                Tidak ditemukan.
+              </li>
+            </ul>
+          </div>
+        </div>
         <button
           class="btn btn-primary add-contact-header-button mhj-add-button"
           type="button"
@@ -289,6 +349,53 @@ const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
 const { openContactModal, searchContacts } = contactStore;
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+// ── Filter user (dropdown) ──────────────────────────────────────────
+interface FilterUser {
+  id: number;
+  name: string;
+  jabatan: string;
+  divisi: string;
+  cabang: string;
+}
+
+const filterOpen = ref(false);
+const filterSearch = ref("");
+const selectedUserId = ref<number | null>(null);
+const filterRoot = ref<HTMLElement | null>(null);
+
+const filterUsers = ref<FilterUser[]>([
+  {
+    id: 1,
+    name: "Andi Pratama",
+    jabatan: "Sales Executive",
+    divisi: "Marketing",
+    cabang: "Jakarta",
+  },
+]);
+
+const filteredUsers = computed(() => {
+  const query = filterSearch.value.trim().toLowerCase();
+  if (!query) return filterUsers.value;
+  return filterUsers.value.filter((user) =>
+    [user.name, user.jabatan, user.divisi, user.cabang]
+      .join(" ")
+      .toLowerCase()
+      .includes(query),
+  );
+});
+
+function selectUser(id: number) {
+  selectedUserId.value = selectedUserId.value === id ? null : id;
+  filterOpen.value = false;
+}
+
+function onClickOutsideFilter(event: MouseEvent) {
+  if (!filterOpen.value) return;
+  if (filterRoot.value && !filterRoot.value.contains(event.target as Node)) {
+    filterOpen.value = false;
+  }
+}
 const CONTACTS_PER_PAGE = 10;
 const currentContactPage = ref(1);
 const contactTableColumns = [
@@ -519,11 +626,13 @@ function openContactSection(contact: Contact, hash: string) {
 
 onMounted(() => {
   contactStore.initStore();
+  document.addEventListener("click", onClickOutsideFilter);
 });
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
   stopColumnResize();
+  document.removeEventListener("click", onClickOutsideFilter);
 });
 </script>
 
@@ -559,7 +668,7 @@ onBeforeUnmount(() => {
 
 .contact-header-actions {
   display: grid;
-  grid-template-columns: minmax(260px, 420px) max-content;
+  grid-template-columns: minmax(260px, 420px) max-content max-content;
   width: 100%;
   min-width: 0;
   align-items: center;
@@ -1079,7 +1188,7 @@ onBeforeUnmount(() => {
   }
 
   .contact-header-actions {
-    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
     justify-content: stretch;
   }
 
@@ -1412,6 +1521,230 @@ onBeforeUnmount(() => {
     flex: 1 1 0;
     padding-inline: 10px;
   }
+}
+
+/* ── Filter dropdown ─────────────────────────────────────────────── */
+.contact-filter {
+  position: relative;
+  z-index: 20;
+}
+
+.contact-filter__trigger {
+  position: relative;
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0;
+  background: #ffffff;
+  color: #304250;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.contact-filter__trigger:hover,
+.contact-filter__trigger[aria-expanded="true"] {
+  border-color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+}
+
+.contact-filter__trigger:hover {
+  transform: translateY(-1px);
+}
+
+.contact-filter__trigger:focus-visible {
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.4);
+  outline-offset: 2px;
+}
+
+/* Badge jumlah filter aktif (sama seperti di peta). */
+.contact-filter__trigger b {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  place-items: center;
+  border-radius: 9px;
+  padding: 0 4px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 9px;
+}
+
+.contact-filter__dropdown {
+  position: absolute;
+  z-index: 1050;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid #dbe4ee;
+  border-radius: 14px;
+  padding: 0;
+  background: #ffffff;
+  box-shadow:
+    0 18px 45px rgba(15, 23, 42, 0.16),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+  list-style: none;
+}
+
+.contact-filter__search {
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.contact-filter__search-input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 13px;
+  outline: none;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.875rem;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.contact-filter__search-input:focus {
+  border-color: var(--theme-default, #18a6e4);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+}
+
+.contact-filter__search-input::placeholder {
+  color: #94a3b8;
+}
+
+.contact-filter__list {
+  max-height: 290px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 12px;
+  background: #f8fafc;
+  list-style: none;
+}
+
+.contact-filter__list > li + li {
+  margin-top: 8px;
+}
+
+.contact-filter__card {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+}
+
+.contact-filter__card:hover,
+.contact-filter__card:focus-visible {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.55);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.04);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.09);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.contact-filter__card--active {
+  border-color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
+  box-shadow: 0 0 0 2px rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+}
+
+.contact-filter__card-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.contact-filter__card-check {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--app-primary, #18a6e4);
+  color: #ffffff;
+}
+
+.contact-filter__card-check svg {
+  stroke-width: 2.5;
+}
+
+.contact-filter__card:hover .contact-filter__card-name,
+.contact-filter__card:focus-visible .contact-filter__card-name,
+.contact-filter__card--active .contact-filter__card-name {
+  color: #0f172a;
+}
+
+.contact-filter__card:hover .contact-filter__card-meta,
+.contact-filter__card:focus-visible .contact-filter__card-meta,
+.contact-filter__card--active .contact-filter__card-meta {
+  color: #475569;
+}
+
+.contact-filter__card:focus-visible {
+  outline: none;
+}
+
+.contact-filter__card-name,
+.contact-filter__card-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-filter__card-name {
+  margin-bottom: 4px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.contact-filter__card-meta {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.contact-filter__empty {
+  padding: 20px 12px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
 }
 
 /* Jaga pagination tetap berada di atas navigation/gesture bar perangkat.
