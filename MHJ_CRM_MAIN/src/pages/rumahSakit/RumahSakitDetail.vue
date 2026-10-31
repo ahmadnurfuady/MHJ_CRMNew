@@ -827,35 +827,11 @@ const loadError = ref("");
 const comments = ref<CommentItem[]>([]);
 const newComment = ref("");
 
-const loading = computed(
-  () =>
-    detailLoading.value ||
-    projectStore.loading ||
-    contactStore.contactApi.loading,
-);
+const loading = computed(() => detailLoading.value);
 
-const normalizeName = (value: string) => value.trim().toLowerCase();
+const hospitalProjects = computed(() => hospitalStore.detailProjects);
 
-const hospitalProjects = computed(() => {
-  if (!hospital.value) return [];
-  const name = normalizeName(hospital.value.name);
-  return projectStore.items.filter(
-    (project) =>
-      project.companyId === hospital.value?.id ||
-      normalizeName(project.companyName || "") === name,
-  );
-});
-
-const hospitalContacts = computed(() => {
-  if (!hospital.value) return [];
-  const companyId = String(hospital.value.id);
-  const name = normalizeName(hospital.value.name);
-  return contactStore.contactApi.items.filter(
-    (contact) =>
-      String(contact.companyId || "") === companyId ||
-      normalizeName(contact.company || "") === name,
-  );
-});
+const hospitalContacts = computed(() => hospitalStore.detailContacts);
 
 const installedProducts = computed<InstalledProduct[]>(() => []);
 
@@ -1155,10 +1131,7 @@ function closePurchaseHistory() {
 }
 
 async function handleContactCreated() {
-  await Promise.allSettled([
-    contactStore.fetchRemoteContacts({ per_page: 100 }),
-    hospitalStore.fetchHospitalById(props.hospitalId),
-  ]);
+  await hospitalStore.fetchHospitalById(props.hospitalId);
 }
 
 function prepareProfileForm() {
@@ -1467,12 +1440,9 @@ async function loadDetail() {
   loadError.value = "";
   activeTab.value = detailTabFromQuery(route.query.tab);
   hospitalStore.selectedItem = null;
-  const detailRequests = [
+  const results = await Promise.allSettled([
     hospitalStore.fetchHospitalById(props.hospitalId),
-    projectStore.fetchProjects({ per_page: 100 }),
-    contactStore.fetchRemoteContacts({ per_page: 100 }),
-  ];
-  const results = await Promise.allSettled(detailRequests);
+  ]);
 
   if (results[0]?.status === "rejected" || !hospitalStore.selectedItem) {
     loadError.value =

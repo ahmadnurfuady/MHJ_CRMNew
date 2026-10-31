@@ -311,7 +311,7 @@ function hospitalToContact(hospital: Hospital): Contact {
 }
 
 /** Kontak personal dari endpoint Contact. Nama field mengikuti kolom yang umum dipakai form. */
-function normalizeApiContact(raw: Dict): Contact {
+export function normalizeApiContact(raw: Dict): Contact {
   const remoteId = pickNumber(raw, "id", "ID");
   // Kolom tabel contacts: first_name, last_name, job_title, email, telephone_1, telephone_2,
   // address, province, city. Key berspasi dari response lama tetap dicoba sebagai cadangan.
@@ -676,22 +676,14 @@ export const useContact = defineStore("contact", () => {
       return;
     }
 
-    // Scope "hospital": tetap muat Rumah Sakit + lookup Faskes untuk menampilkan
-    // daftar faskes pada halaman Rumah Sakit.
-    const lookupResults = await Promise.allSettled([
-      scope.value === "hospital" ? fetchAllHospitalsForList() : hospitalStore.fetchHospitals(),
-      fetchContactCompanies(),
-    ]);
-
-    const [contactResult] = await Promise.allSettled([fetchAllRemoteContacts()]);
-    const results = [lookupResults[0], contactResult, lookupResults[1]];
-
-    resolveContactCompanyNames();
-    syncRemoteContacts();
-
-    if (results.some((result) => result.status === "rejected")) {
-      notifyError(hospitalStore.error ?? contactError.value ?? "Gagal memuat data.");
+    // Scope "hospital": cukup GET /api/company?page=1&per_page=1000.
+    // Response sudah lengkap (total_contacts, count_active_projects, dsb).
+    try {
+      await fetchAllHospitalsForList();
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal memuat data Faskes.");
     }
+    syncRemoteContacts();
   }
 
   /** Memuat halaman contact tertentu dan memilih contact pertama pada halaman tersebut. */
@@ -1512,6 +1504,13 @@ export const useContact = defineStore("contact", () => {
       contactState.rumahSakitForm.jenis.selected?.value,
     );
     const typeId = nullableId(contactState.rumahSakitForm.tipe.selected?.value);
+    const penyelenggaraId = nullableId(
+      contactState.rumahSakitForm.penyelenggara.selected?.value,
+    );
+    const tipeMarketingCode =
+      String(
+        contactState.rumahSakitForm.tipeMarketingGo500.selected?.value ?? "",
+      ).trim() || null;
 
     // `company_owner` diwajibkan endpoint Company dan sumber nilainya adalah
     // pilihan Penyelenggara pada form Rumah Sakit.
@@ -1530,6 +1529,11 @@ export const useContact = defineStore("contact", () => {
         "Pilih Tipe dari daftar yang tersedia.";
       return false;
     }
+    if (penyelenggaraId === null) {
+      contactState.rumahSakitForm.penyelenggara.errorMessage =
+        "Pilih Penyelenggara dari daftar yang tersedia.";
+      return false;
+    }
 
     // Payload sementara mengikuti seluruh field pada Kerangka Menu RS.
     // Backend saat ini menyediakan satu field telephone, sehingga beberapa nomor
@@ -1545,13 +1549,14 @@ export const useContact = defineStore("contact", () => {
       country: INDONESIA_COUNTRY,
       province: textValue(formData.province),
       city: textValue(formData.city),
-      // Pertahankan key form lama dan kirim alias yang dipakai parameter SP.
       jenis,
       industry: industryId,
       tipe,
       type: typeId,
       penyelenggara,
+      penyelenggaraid: penyelenggaraId,
       tipe_marketing_go500: textValue(formData.tipeMarketingGo500),
+      kodetipemarketing: tipeMarketingCode,
       description: textValue(formData.keterangan),
       sirs: textValue(formData.sirs),
       status_finance: textValue(formData.financeStatus),

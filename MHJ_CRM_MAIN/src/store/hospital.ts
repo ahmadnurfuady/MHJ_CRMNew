@@ -15,6 +15,10 @@ import type {
   HospitalContactAssociation,
   HospitalPayload,
 } from '@/types/hospital'
+import type { Projects } from '@/types/project'
+import type { Contact } from '@/types/contacts'
+import { normalizeProject } from '@/store/project'
+import { normalizeApiContact } from '@/store/contact'
 import { runApiAction } from '@/store/apiAction'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
@@ -111,6 +115,8 @@ export function normalizeHospital(raw: Dict): Hospital {
       'Hospital Class',
       'hospital_class',
       'hospitalClass',
+      'tipe_rs_name',
+      'tipe_rs',
       'Kelas',
       'kelas',
       'kelas_rs',
@@ -128,19 +134,20 @@ export function normalizeHospital(raw: Dict): Hospital {
       'Hospital Type',
       'hospital_type',
       'hospitalType',
+      'jenis_rs_name',
+      'jenis_rs',
       'Jenis',
       'jenis',
-      'jenis_rs',
       'rs_type',
       'type_name',
-      'Type',
-      'type',
     ),
-    jenis: pickString(raw, 'Jenis', 'jenis', 'Industry', 'industry', 'industry_name'),
+    jenis: pickString(raw, 'Jenis', 'jenis', 'jenis_rs_name', 'jenis_rs', 'Industry', 'industry', 'industry_name'),
     tipe: pickString(
       raw,
       'Tipe',
       'tipe',
+      'tipe_rs_name',
+      'tipe_rs',
       'Type',
       'type',
       'Hospital Type',
@@ -150,6 +157,7 @@ export function normalizeHospital(raw: Dict): Hospital {
       raw,
       'Penyelenggara',
       'penyelenggara',
+      'ownership',
       'Company Owner',
       'company_owner',
       'owner',
@@ -159,8 +167,12 @@ export function normalizeHospital(raw: Dict): Hospital {
       'Tipe Marketing G0500',
       'tipe_marketing_go500',
       'tipeMarketingGo500',
+      'marketing_tier_name',
+      'tipemarket_name',
+      'tipemarket',
+      'marketing_tier',
     ),
-    sirs: pickString(raw, 'SIRS', 'sirs'),
+    sirs: pickString(raw, 'SIRS', 'sirs', 'sirs_code'),
     latitude: pickCoordinate(raw, 'latitude'),
     longitude: pickCoordinate(raw, 'longitude'),
     totalContacts: pickOptionalNumber(
@@ -185,6 +197,7 @@ export function normalizeHospital(raw: Dict): Hospital {
       'Total Installed Equipment',
       'total_installed_equipment',
       'totalInstalledEquipment',
+      'count_installed_bases',
       'installed_equipment_count',
       'installed_products_count',
       'equipment_count',
@@ -220,6 +233,8 @@ export const useHospitalStore = defineStore('hospital', () => {
   const items = ref<Hospital[]>([])
   const selectedItem = ref<Hospital | null>(null)
   const contactAssociations = ref<HospitalContactAssociation[]>([])
+  const detailProjects = ref<Projects[]>([])
+  const detailContacts = ref<Contact[]>([])
   const loading = ref(false)
   const detailLoading = ref(false)
   const submitting = ref(false)
@@ -282,6 +297,12 @@ export const useHospitalStore = defineStore('hospital', () => {
           .map(normalizeContactAssociation)
         contactAssociations.value = normalizedContacts
         selectedItem.value = raw ? normalizeHospital(raw) : null
+
+        const { items: rawProjects } = extractList(response.data, ['projectsassoc', 'dealsassoc', 'projects'])
+        detailProjects.value = rawProjects.filter(isRecord).map(normalizeProject)
+
+        const { items: rawApiContacts } = extractList(response.data, ['contacts'])
+        detailContacts.value = rawApiContacts.filter(isRecord).map(normalizeApiContact)
 
         // Sebagian response detail menyimpan koordinat hanya pada contactassoc.
         // Gunakan koordinat asosiasi sebagai fallback yang sama seperti halaman detail RS.
@@ -373,6 +394,8 @@ export const useHospitalStore = defineStore('hospital', () => {
     items,
     selectedItem,
     contactAssociations,
+    detailProjects,
+    detailContacts,
     loading,
     detailLoading,
     submitting,

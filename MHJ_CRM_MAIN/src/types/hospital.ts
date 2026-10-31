@@ -97,7 +97,9 @@ export interface HospitalPayload {
   /** Alias backend/SP untuk field Tipe. */
   type?: number | null
   penyelenggara?: string
+  penyelenggaraid?: number | null
   tipe_marketing_go500?: string
+  kodetipemarketing?: string | null
   sirs?: string
   latitude?: number | null
   longitude?: number | null
