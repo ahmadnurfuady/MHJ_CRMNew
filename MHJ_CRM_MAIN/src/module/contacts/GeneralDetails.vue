@@ -85,9 +85,6 @@
         <button class="profile-action profile-action--primary" type="button" @click="editContact">
           <vue-feather type="edit-2" size="14" />Edit
         </button>
-        <button class="profile-action" type="button" @click="showHistory">
-          <vue-feather type="clock" size="14" />Aktivitas
-        </button>
         <button
           class="contact-delete-button"
           type="button"
@@ -117,37 +114,34 @@
             <p>Data pribadi dan informasi untuk menghubungi kontak.</p>
           </div>
         </div>
-        <span v-if="contactApi.detailLoading" class="text-muted f-12">Memuat detail...</span>
+        <div class="detail-section-actions">
+          <span v-if="contactApi.detailLoading" class="text-muted f-12">Memuat detail...</span>
+          <button class="profile-action" type="button" @click="showHistory">
+            <vue-feather type="clock" size="14" />Aktivitas
+          </button>
+        </div>
       </header>
       <div class="detail-section-body">
         <div class="row g-3 contact-info-grid">
           <div class="col-md-6">
-            <span>Nama Depan</span>
-            <strong>{{ contactState.activeContact.firstName || "-" }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Nama Belakang</span>
-            <strong>{{ contactState.activeContact.lastName || "-" }}</strong>
+            <span>Nama</span>
+            <strong>{{ fullName || "-" }}</strong>
           </div>
           <div class="col-md-6">
             <span>Jabatan</span>
             <strong>{{ contactState.activeContact.jobTitle || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Penanggung Jawab</span>
-            <strong>{{ ownerLabel }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Email</span>
-            <strong>{{ contactState.activeContact.email || "-" }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Faskes</span>
-            <strong>{{ companyLabel }}</strong>
-          </div>
-          <div class="col-md-6">
             <span>Gender</span>
             <strong>{{ displayValue(contactState.activeContact.gender) }}</strong>
+          </div>
+          <div class="col-md-6">
+            <span>Sumber</span>
+            <strong>{{ sourceLabel }}</strong>
+          </div>
+          <div class="col-12">
+            <span>Email</span>
+            <strong>{{ contactState.activeContact.email || "-" }}</strong>
           </div>
           <div class="col-12 contact-phone-field">
             <span>Nomor Telepon</span>
@@ -187,21 +181,30 @@
             </div>
             <strong v-else>-</strong>
           </div>
-          <div class="col-12">
-            <span>Alamat</span>
-            <strong>{{ contactState.activeContact.address || "-" }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Provinsi</span>
-            <strong>{{ contactLocation.province }}</strong>
-          </div>
           <div class="col-md-6">
             <span>Kota</span>
             <strong>{{ contactLocation.city }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Sumber</span>
-            <strong>{{ sourceLabel }}</strong>
+            <span>Provinsi</span>
+            <strong>{{ contactLocation.province }}</strong>
+          </div>
+          <div class="col-12">
+            <span>Alamat</span>
+            <strong>{{ contactState.activeContact.address || "-" }}</strong>
+          </div>
+          <div class="col-12 contact-map-field">
+            <div v-if="contactMapLocation" class="contact-map-preview">
+              <GoogleMapView
+                :center="contactMapLocation"
+                :zoom="16"
+                :markers="[{ ...contactMapLocation, title: fullName || 'Lokasi kontak' }]"
+              />
+            </div>
+            <div v-else class="contact-map-empty">
+              <MhjIcon name="action_location" />
+              <span>Titik lokasi kontak belum tersedia.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -462,6 +465,7 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Hospital } from "@/types/hospital";
 import { avatarColorStyle, personInitials } from "@/utils/avatar";
+import GoogleMapView from "@/components/GoogleMapView.vue";
 import {
   indonesianPhoneCallUrl,
   indonesianWhatsAppUrl,
@@ -678,20 +682,6 @@ const liveCompany = computed(() => {
     return company?.name.trim().toLowerCase() === normalizedName;
   });
 });
-const companyLabel = computed(() => {
-  const contact = contactState.value.activeContact;
-  if (contact?.companyNames?.length) return contact.companyNames.join(", ");
-  return (
-    liveCompany.value?.name ||
-    contact?.company ||
-    (contact?.companyId ? `ID Faskes ${contact.companyId}` : "-")
-  );
-});
-const ownerLabel = computed(() => {
-  // owner_name sudah ikut dibawa fetchcontactbyid lewat JOIN users; cukup pakai itu.
-  const directOwner = String(contactState.value.activeContact?.owner || "").trim();
-  return directOwner && directOwner !== "-" ? directOwner : "-";
-});
 const sourceLabel = computed(() => {
   const contact = contactState.value.activeContact;
   const source = contactApi.value.sources.find(
@@ -718,6 +708,17 @@ const contactLocation = computed(() => {
     province: firstDisplayValue(contact?.province, company?.province),
     city: firstDisplayValue(contact?.city, company?.city),
   };
+});
+const contactMapLocation = computed(() => {
+  const contact = contactState.value.activeContact;
+  if (contact?.latitude === undefined || contact.longitude === undefined) return null;
+
+  const latitude = Number(contact.latitude);
+  const longitude = Number(contact.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+
+  return { lat: latitude, lng: longitude };
 });
 const faskesCount = computed(() => companiesForContact.value.length);
 const opportunityCount = computed(() => contactProjects.value.length);
@@ -1180,6 +1181,14 @@ async function toggleCompanyEdit() {
   background: linear-gradient(90deg, #ffffff 0%, var(--app-primary-wash, #f8fcfe) 100%);
 }
 
+.detail-section-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .detail-section-title,
 .company-section-heading {
   display: flex;
@@ -1323,6 +1332,30 @@ async function toggleCompanyEdit() {
   color: var(--app-primary, #18a6e4);
   background: transparent;
   text-decoration: none;
+}
+
+.contact-map-preview {
+  height: 310px;
+  overflow: hidden;
+  border: 1px solid #e3ebf0;
+  border-radius: 12px;
+}
+
+.contact-map-preview :deep(.google-map-view) {
+  height: 100%;
+}
+
+.contact-map-empty {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px dashed #d5e1e8;
+  border-radius: 12px;
+  color: #718096;
+  background: #f8fbfd;
+  font-size: 13px;
 }
 
 /* WhatsApp: hijau khas WhatsApp, juga ke SVG fill=currentColor di dalamnya. */
@@ -1614,6 +1647,11 @@ async function toggleCompanyEdit() {
 
   .detail-section-header {
     align-items: flex-start;
+  }
+
+  .detail-section-actions {
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .detail-section-icon {

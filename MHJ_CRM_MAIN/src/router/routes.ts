@@ -22,6 +22,7 @@ export const routes = {
     Roles: '/crmAdmin/roles',
     Settings: '/crmAdmin/settings',
     Promo: '/crmAdmin/settings/promo',
+    Target: '/crmAdmin/settings/target',
   },
   Promo: {
     List: '/crmAdmin/promos',
