@@ -69,6 +69,7 @@ function applyThemeColors(svg: string): string {
     .replace(/\sheight="[^"]*"/i, '')
     .replace(/#032A4E/gi, primary)
     .replace(/#078DBD/gi, primary)
+    .replace(/#(?:000000|000)\b/gi, primary)
     .replace(/#18A6E4/gi, secondary)
 }
 

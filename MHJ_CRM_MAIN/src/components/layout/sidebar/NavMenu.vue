@@ -55,6 +55,16 @@
         :secondary-opacity="0.45"
         aria-hidden="true"
       />
+      <SolarIcon
+        v-else-if="isPeluangNavigationItem(menuItem)"
+        name="chart-2"
+        class="sidebar-mhj-icon sidebar-opportunity-icon"
+        :size="18"
+        color="#ffffff"
+        secondary-color="#ffffff"
+        :secondary-opacity="1"
+        aria-hidden="true"
+      />
       <MhjIcon
         v-else-if="resolveMhjNavigationIcon(menuItem)"
         :name="resolveMhjNavigationIcon(menuItem)!"
@@ -131,6 +141,11 @@ function isActive(path: string) {
   return path === route.path
 }
 
+function isPeluangNavigationItem(item: MenuItem) {
+  const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
+  return /peluang|project|proyek|projek|deal/.test(value)
+}
+
 function resolveSidebarIcon(item: MenuItem) {
   const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
 
@@ -172,7 +187,8 @@ const onMenuClick = (menuItem: MenuItem) => {
 
 /* Kontak & Faskes harus identik pada sidebar samping dan sidebar atas. */
 .sidebar-link :deep(.sidebar-mhj-icon[data-mhj-icon='contact_card']),
-.sidebar-link :deep(.sidebar-faskes-icon) {
+.sidebar-link :deep(.sidebar-faskes-icon),
+.sidebar-link :deep(.sidebar-opportunity-icon) {
   display: inline-block !important;
   width: 18px !important;
   height: 18px !important;

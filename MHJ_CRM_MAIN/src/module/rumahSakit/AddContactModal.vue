@@ -451,6 +451,7 @@
       </div>
 
       <div v-if="!readOnly" class="modal-footer">
+        <slot name="delete"></slot>
         <button
           class="btn btn-light"
           type="button"
@@ -1149,9 +1150,16 @@ function clearCurrentAddress() {
 }
 
 .inline-hospital-form .modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 22px;
   padding: 18px 0 0;
   border-top: 1px solid #e8ecef;
+}
+
+.inline-hospital-form .modal-footer .btn-light {
+  margin-left: auto;
 }
 
 .location-field {

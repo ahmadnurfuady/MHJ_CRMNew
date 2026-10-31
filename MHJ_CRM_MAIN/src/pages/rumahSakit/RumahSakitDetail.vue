@@ -23,9 +23,9 @@
             <SolarIcon
               name="hospital"
               :size="32"
-              color="currentColor"
-              secondary-color="currentColor"
-              :secondary-opacity="0.45"
+              color="#18A6E4"
+              secondary-color="#18A6E4"
+              :secondary-opacity="1"
             />
           </div>
           <div class="hospital-copy">
@@ -61,11 +61,11 @@
           >
             <SolarIcon
               name="hospital"
-              color="currentColor"
-              secondary-color="currentColor"
-              :secondary-opacity="0.45"
+              color="#18A6E4"
+              secondary-color="#18A6E4"
+              :secondary-opacity="1"
             />
-            <span>Profil Faskes</span><SolarIcon name="fa-chevron-right" />
+            <span class="profile-link-text">Profil Faskes</span><SolarIcon name="fa-chevron-right" />
           </button>
         </div>
 
@@ -80,7 +80,12 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon violet">
-              <MhjIcon name="kpi_graph" />
+              <SolarIcon
+                name="chart-2"
+                color="var(--primary)"
+                secondary-color="var(--primary)"
+                :secondary-opacity="1"
+              />
             </div>
             <div>
               <span>Nilai peluang</span
@@ -88,8 +93,12 @@
             </div>
           </div>
           <div class="overview-metric">
-            <div class="metric-icon green">
-              <MhjIcon name="nav_contact" />
+            <div class="metric-icon">
+              <MhjIcon
+                name="contact_card"
+                color="var(--primary)"
+                secondary-color="var(--primary)"
+              />
             </div>
             <div>
               <span>Total kontak</span><strong>{{ contactCount }}</strong>
@@ -97,7 +106,12 @@
           </div>
           <div class="overview-metric">
             <div class="metric-icon amber">
-              <MhjIcon name="hospital_installed" />
+              <SolarIcon
+                name="medical-kit"
+                color="var(--primary)"
+                secondary-color="var(--primary)"
+                :secondary-opacity="1"
+              />
             </div>
             <div>
               <span>Alat terpasang</span><strong>{{ installedCount }}</strong>
@@ -151,7 +165,6 @@
           </div>
         </div>
         <div v-else class="purchase-timeline-empty">
-          <SolarIcon name="fa-circle-nodes" />
           Belum ada riwayat pembelian.
         </div>
 
@@ -182,10 +195,41 @@
           v-for="tab in tabs"
           :key="tab.value"
           type="button"
-          :class="{ active: activeTab === tab.value }"
+          :class="[
+            `${tab.value}-tab`,
+            { active: activeTab === tab.value },
+          ]"
           @click="selectDetailTab(tab.value)"
         >
-          <MhjIcon :name="tab.mhjIcon" />
+          <SolarIcon
+            v-if="tab.value === 'projects'"
+            name="chart-2"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="1"
+          />
+          <SolarIcon
+            v-else-if="tab.value === 'installed'"
+            name="medical-kit"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="1"
+          />
+          <SolarIcon
+            v-else-if="tab.value === 'activities'"
+            name="history"
+            color="currentColor"
+            secondary-color="currentColor"
+            :secondary-opacity="1"
+          />
+          <MhjIcon
+            v-else
+            :name="tab.mhjIcon"
+            :color="tab.mhjIcon === 'contact_card' ? 'var(--primary)' : undefined"
+            :secondary-color="
+              tab.mhjIcon === 'contact_card' ? 'var(--primary)' : undefined
+            "
+          />
           <span>{{ tab.label }}</span>
           <em>{{ tab.count }}</em>
         </button>
@@ -416,7 +460,12 @@
             class="installed-card"
           >
             <div class="equipment-icon" :class="index % 2 ? 'cyan' : 'amber'">
-              <MhjIcon name="hospital_installed" />
+              <SolarIcon
+                name="medical-kit"
+                color="var(--primary)"
+                secondary-color="var(--primary)"
+                :secondary-opacity="1"
+              />
             </div>
             <div>
               <strong>{{ item.product }}</strong>
@@ -611,7 +660,13 @@
           inline
           @saved="handleHospitalSaved"
           @cancel="cancelHospitalEdit"
-        />
+        >
+          <template #delete>
+            <button class="delete-profile" type="button" @click="confirmDeleteHospital">
+              Hapus
+            </button>
+          </template>
+        </HospitalForm>
       </section>
     </template>
 
@@ -688,6 +743,7 @@ import {
   type LocationQueryRaw,
 } from "vue-router";
 import { storeToRefs } from "pinia";
+import Swal from "sweetalert2";
 import GoogleMapView from "@/components/GoogleMapView.vue";
 import type { InstalledProduct } from "@/core/data/contactCrm";
 import { routes } from "@/router/routes";
@@ -1026,7 +1082,7 @@ const tabs = computed(() => [
     value: "contacts" as const,
     label: "Kontak",
     count: contactCount.value,
-    mhjIcon: "nav_contact",
+    mhjIcon: "contact_card",
   },
   {
     value: "installed" as const,
@@ -1200,6 +1256,31 @@ function handleHospitalSaved() {
   profileEditing.value = false;
   void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
   void loadProfileMap();
+}
+
+async function confirmDeleteHospital() {
+  if (!hospital.value) return;
+  const result = await Swal.fire({
+    title: "Hapus faskes?",
+    text: "Data faskes ini akan dihapus dari database.",
+    icon: "warning",
+    confirmButtonText: "Ya, hapus",
+    showCancelButton: true,
+    cancelButtonText: "Batal",
+    cancelButtonColor: "#898989",
+  });
+  if (!result.isConfirmed) return;
+  try {
+    allowEditNavigation = true;
+    await hospitalStore.deleteHospital(hospital.value.id);
+    profileEditing.value = false;
+    void router.push({ path: routes.App.RumahSakit });
+  } catch {
+    Swal.fire({
+      icon: "error",
+      text: hospitalStore.error || "Gagal menghapus faskes.",
+    });
+  }
 }
 
 function closeProfile() {
@@ -1613,7 +1694,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   transition: transform 0.2s ease;
 }
 .profile-link > span {
-  color: inherit !important;
+  color: var(--primary) !important;
+}
+.profile-link .profile-link-text {
+  color: var(--primary) !important;
+  font-weight: 700;
 }
 .profile-link:hover,
 .profile-link:focus-visible {
@@ -1657,17 +1742,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   height: 24px;
   flex: 0 0 24px;
 }
-.metric-icon.blue {
-  color: var(--app-primary, #178bc0);
-}
-.metric-icon.violet {
-  color: #8057d7;
-}
-.metric-icon.green {
-  color: #168b4c;
-}
+.metric-icon.blue,
+.metric-icon.violet,
+.metric-icon.green,
 .metric-icon.amber {
-  color: #b1760b;
+  color: var(--app-primary, #18a6e4);
 }
 .overview-metric span,
 .overview-metric strong {
@@ -1680,6 +1759,7 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   margin-bottom: 2px;
   color: var(--muted);
   font-size: 10px;
+  font-weight: 700;
   text-transform: capitalize;
 }
 .overview-metric strong {
@@ -1938,9 +2018,14 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   color: #78838d;
   background: transparent;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: 0.2s ease;
+}
+.detail-tabs button.projects-tab:not(.active),
+.detail-tabs button.installed-tab:not(.active),
+.detail-tabs button.activities-tab:not(.active) {
+  color: var(--primary);
 }
 .detail-tabs button:not(.active):hover,
 .detail-tabs button:not(.active):focus-visible {
@@ -2651,6 +2736,34 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 .edit-profile:focus-visible,
 .close-profile:focus-visible {
   outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
+  outline-offset: 2px;
+}
+.profile-delete-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 14px;
+}
+.delete-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #dce3e7;
+  border-radius: 9px;
+  padding: 8px 11px;
+  color: #dc3545;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  transition: 0.2s ease;
+}
+.delete-profile:hover,
+.delete-profile:focus-visible {
+  color: #fff;
+  border-color: #dc3545;
+  background: #dc3545;
+}
+.delete-profile:focus-visible {
+  outline: 3px solid rgba(220, 53, 69, 0.2);
   outline-offset: 2px;
 }
 .hospital-info-view {
