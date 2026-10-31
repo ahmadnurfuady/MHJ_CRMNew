@@ -12,7 +12,9 @@ export interface UserCoordinates {
 // tab/aplikasi ditutup.
 let cachedCoords: UserCoordinates | null = null
 let pendingRequest: Promise<UserCoordinates | null> | null = null
-let attempted = false
+// Hanya penolakan izin (code 1) yang mengunci permintaan untuk sisa sesi. Timeout /
+// posisi tidak tersedia (umum di laptop tanpa GPS) dicoba lagi pada pencarian berikutnya.
+let permissionDenied = false
 
 /**
  * Composable bias lokasi untuk pencarian alamat/faskes. TIDAK mengambil posisi secara
@@ -30,10 +32,15 @@ export function useUserLocation() {
     }
 
     if (!pendingRequest) {
-      // Sudah pernah dicoba sebelumnya dalam sesi ini (gagal/ditolak) — jangan minta izin lagi.
-      if (attempted) return null
-      attempted = true
-      pendingRequest = getCurrentPosition()
+      // Izin sudah ditolak sebelumnya dalam sesi ini — jangan minta izin lagi.
+      if (permissionDenied) return null
+      // Untuk bias pencarian cukup akurasi kasar (wifi/IP) & posisi yang masih segar, agar
+      // cepat dan tidak timeout di perangkat tanpa GPS.
+      pendingRequest = getCurrentPosition({
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 5 * 60 * 1000
+      })
         .then((position) => {
           cachedCoords = {
             lat: position.coords.latitude,
@@ -42,7 +49,10 @@ export function useUserLocation() {
           coords.value = cachedCoords
           return cachedCoords
         })
-        .catch(() => null)
+        .catch((error: GeolocationPositionError) => {
+          if (error?.code === 1) permissionDenied = true
+          return null
+        })
         .finally(() => {
           pendingRequest = null
         })

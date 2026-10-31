@@ -152,19 +152,42 @@
                         class="address-suggestion-item"
                         @mousedown.prevent="selectAddressSuggestion(suggestion)"
                       >
-                        <SolarIcon name="fa-location-dot" />
-                        <span class="address-suggestion-copy">
-                          <span>{{ suggestion.address }}</span>
-                          <small>
-                            {{ facilityTypeLabel(suggestion) }}
-                            <template v-if="currentSearchArea().province">
-                              · {{ suggestionScopeLabel(suggestion) }}
-                            </template>
-                            <template v-if="formatDistanceKm(suggestion.distanceKm)">
-                              · {{ formatDistanceKm(suggestion.distanceKm) }}
-                            </template>
-                          </small>
+                        <span class="address-suggestion-icon">
+                          <SolarIcon name="fa-location-dot" />
                         </span>
+                        <span class="address-suggestion-copy">
+                          <strong class="address-suggestion-title">
+                            {{ suggestionTitle(suggestion) }}
+                          </strong>
+                          <span
+                            v-if="suggestionDetail(suggestion)"
+                            class="address-suggestion-detail"
+                          >
+                            {{ suggestionDetail(suggestion) }}
+                          </span>
+                          <span class="address-suggestion-meta">
+                            <span
+                              v-if="suggestionRegion(suggestion)"
+                              class="address-suggestion-chip"
+                            >
+                              {{ suggestionRegion(suggestion) }}
+                            </span>
+                            <small>
+                              {{ facilityTypeLabel(suggestion) }}
+                              <template v-if="currentSearchArea().province">
+                                · {{ suggestionScopeLabel(suggestion) }}
+                              </template>
+                              <template v-if="formatDistanceKm(suggestion.distanceKm)">
+                                · {{ formatDistanceKm(suggestion.distanceKm) }}
+                              </template>
+                            </small>
+                          </span>
+                        </span>
+                        <vue-feather
+                          type="chevron-right"
+                          size="16"
+                          class="address-suggestion-chevron"
+                        />
                       </li>
                       <li
                         v-if="canSearchOutsideProvince && !searchingAddress"
@@ -687,6 +710,22 @@ function suggestionScopeLabel(suggestion: AddressSearchResult) {
   return `Di luar ${area.province || "provinsi aktif"}`;
 }
 
+// Tampilan kartu saran: judul = nama faskes (atau bagian pertama alamat bila backend
+// tidak mengirim nama), detail = alamat lengkap, chip = kota/provinsi + kode pos.
+function suggestionTitle(suggestion: AddressSearchResult): string {
+  return suggestion.name || (suggestion.address.split(",")[0] ?? "").trim();
+}
+
+function suggestionDetail(suggestion: AddressSearchResult): string {
+  if (suggestion.name) return suggestion.address;
+  return suggestion.address.split(",").slice(1).join(",").trim();
+}
+
+function suggestionRegion(suggestion: AddressSearchResult): string {
+  const area = [suggestion.city, suggestion.province].filter(Boolean).join(", ");
+  return [area, suggestion.posCode].filter(Boolean).join(" ");
+}
+
 function facilityTypeLabel(suggestion: AddressSearchResult) {
   const labels: Record<string, string> = {
     hospital: "Rumah Sakit",
@@ -1177,13 +1216,15 @@ function clearCurrentAddress() {
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  max-height: 220px;
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
   margin: 0;
   overflow-y: auto;
   list-style: none;
   border: 1px solid #e3e8eb;
-  border-radius: 10px;
-  padding: 6px;
+  border-radius: 12px;
+  padding: 8px;
   background: #fff;
   box-shadow: 0 10px 24px rgba(16, 24, 40, 0.12);
 }
@@ -1200,33 +1241,85 @@ function clearCurrentAddress() {
 .address-suggestion-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 10px;
-  border-radius: 8px;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e3e8eb;
+  border-radius: 12px;
+  background: #fbfcfd;
   color: #344054;
-  font-size: 12px;
   cursor: pointer;
-}
-
-.address-suggestion-item i {
-  margin-top: 2px;
-  color: var(--theme-default, #18a6e4);
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .address-suggestion-item:hover {
+  border-color: var(--theme-default, #18a6e4);
   background: var(--app-primary-wash, #f3fbfe);
+}
+
+.address-suggestion-icon {
+  display: inline-flex;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--app-primary-wash, #e8f6fd);
+  color: var(--theme-default, #18a6e4);
 }
 
 .address-suggestion-copy {
   display: grid;
+  flex: 1;
   min-width: 0;
-  gap: 3px;
+  gap: 4px;
 }
 
-.address-suggestion-copy small {
-  color: var(--theme-default, #18a6e4);
-  font-size: 10px;
+.address-suggestion-title {
+  overflow: hidden;
+  color: #101828;
+  font-size: 14px;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.address-suggestion-detail {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.address-suggestion-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.address-suggestion-chip {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eef2f6;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.address-suggestion-meta small {
+  color: var(--theme-default, #18a6e4);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.address-suggestion-chevron {
+  flex: 0 0 16px;
+  margin-top: 2px;
+  color: #98a2b3;
 }
 
 .address-search-more {

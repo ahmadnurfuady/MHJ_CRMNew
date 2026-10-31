@@ -262,6 +262,8 @@ export async function searchHealthFacilities(
 }
 
 interface AddressSearchApiResult {
+  /** Nama tempat (mis. "Alfamart Ditotrunan") — opsional, tidak selalu dikirim backend. */
+  name?: string | null
   display_address: string
   latitude: number
   longitude: number
@@ -312,6 +314,7 @@ export async function searchAddress(
     address: result.display_address?.trim() || '',
     latitude: result.latitude,
     longitude: result.longitude,
+    name: result.name?.trim() || undefined,
     country: result.country?.trim() || '',
     province: result.province?.trim() || '',
     city: result.city?.trim() || '',
@@ -447,7 +450,7 @@ export async function reverseGeocodeAddress(
   return (await reverseGeocodeLocation(latitude, longitude)).address
 }
 
-export function getCurrentPosition(): Promise<GeolocationPosition> {
+export function getCurrentPosition(options: PositionOptions = {}): Promise<GeolocationPosition> {
   if (!navigator.geolocation) {
     return Promise.reject(new Error('Browser ini tidak mendukung GPS.'))
   }
@@ -456,7 +459,8 @@ export function getCurrentPosition(): Promise<GeolocationPosition> {
     navigator.geolocation.getCurrentPosition(resolve, reject, {
       enableHighAccuracy: true,
       timeout: 15000,
-      maximumAge: 0
+      maximumAge: 0,
+      ...options
     })
   })
 }
