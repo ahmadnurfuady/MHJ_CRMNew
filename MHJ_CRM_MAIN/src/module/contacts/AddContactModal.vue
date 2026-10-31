@@ -74,7 +74,7 @@
                     :validator="index === 0 ? requiredPhoneValidator : optionalPhoneValidator"
                     :placeholder="
                       index === 0
-                        ? 'Contoh: 081234567890 atau +6281234567890'
+                        ? 'Contoh: 081234567890'
                         : 'Contoh nomor tambahan: 081234567890'
                     "
                     :required="index === 0"

@@ -1404,7 +1404,7 @@ export const useContact = defineStore("contact", () => {
         // Endpoint Contact mengharuskan status berupa integer; kontak baru aktif secara default.
         status: textValue(formData.status) || DEFAULT_CONTACT_STATUS,
         telephone_1: normalizedPhoneNumbers[0] ?? "",
-        telephone_2: normalizedPhoneNumbers.slice(1).join(", ") || null,
+        telephone_2: normalizedPhoneNumbers.slice(1).join(" ") || null,
         // Endpoint kontak hanya menyediakan satu kolom alamat. Jika alamat manual
         // kosong, pertahankan hasil Google Maps sebagai alamat kontak.
         address: nullableText(formData.address) ?? nullableText(formData.mapAddress),
@@ -1542,7 +1542,7 @@ export const useContact = defineStore("contact", () => {
       company_name: textValue(formData.name),
       // Company owner mengikuti Penyelenggara, bukan diisi manual terpisah.
       company_owner: penyelenggara,
-      telephone: normalizedPhoneNumbers.join(", "),
+      telephone: normalizedPhoneNumbers.join(" "),
       email: textValue(formData.email),
       map_address: textValue(formData.mapAddress),
       address: textValue(formData.address),

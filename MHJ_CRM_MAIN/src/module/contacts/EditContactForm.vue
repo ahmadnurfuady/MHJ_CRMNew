@@ -3,8 +3,6 @@
     class="form-bookmark needs-validation custom-input contact-edit-form mhj-form"
     @submit.prevent="save"
   >
-    <div v-if="saveError" class="alert alert-danger" role="alert">{{ saveError }}</div>
-
     <div class="row g-3">
       <div class="col-md-6">
         <InputWrapper title="Nama Depan" required>
@@ -70,7 +68,7 @@
                 :validator="index === 0 ? requiredPhoneValidator : optionalPhoneValidator"
                 :placeholder="
                   index === 0
-                    ? 'Contoh: 081234567890 atau +6281234567890'
+                    ? 'Contoh: 081234567890'
                     : 'Contoh nomor tambahan: 081234567890'
                 "
                 :required="index === 0"
@@ -88,7 +86,7 @@
             </button>
           </div>
           <small class="d-block text-muted mb-3">
-            Minimal 8 digit, diawali dengan 08, 62, atau +62.
+            Minimal 8 digit, diawali dengan 08 atau 62.
           </small>
           <button
             class="btn btn-link btn-sm mt-1 mhj-form-add-button"
@@ -109,11 +107,14 @@
         <InputWrapper title="Alamat (Google Maps)">
           <div class="location-field">
             <div class="location-input-group">
-              <div class="location-address-box">
+              <div
+                class="location-address-box"
+                @focusout="handleAddressFieldBlur"
+              >
                 <InputField
                   v-model:modelValue="form.mapAddress"
                   inputId="edit-contact-map-address"
-                  placeholder="Alamat lengkap akan muncul dari lokasi saat ini"
+                  placeholder="Ketik nama faskes atau alamat..."
                   :required="false"
                 />
                 <button
@@ -126,12 +127,70 @@
                 >
                   <vue-feather type="x" size="16" />
                 </button>
+
+                <ul
+                  v-if="addressSuggestions.length || searchingAddress"
+                  class="address-suggestions"
+                >
+                  <li
+                    v-if="searchingAddress"
+                    class="address-suggestion-status"
+                  >
+                    <span
+                      class="spinner-border spinner-border-sm"
+                      aria-hidden="true"
+                    ></span>
+                    Mencari lokasi...
+                  </li>
+                  <li
+                    v-for="suggestion in addressSuggestions"
+                    :key="`${suggestion.latitude}-${suggestion.longitude}`"
+                    class="address-suggestion-item"
+                    @mousedown.prevent="selectAddressSuggestion(suggestion)"
+                  >
+                    <span class="address-suggestion-icon">
+                      <SolarIcon name="fa-location-dot" />
+                    </span>
+                    <span class="address-suggestion-copy">
+                      <strong class="address-suggestion-title">
+                        {{ suggestionTitle(suggestion) }}
+                      </strong>
+                      <span
+                        v-if="suggestionDetail(suggestion)"
+                        class="address-suggestion-detail"
+                      >
+                        {{ suggestionDetail(suggestion) }}
+                      </span>
+                      <span class="address-suggestion-meta">
+                        <span
+                          v-if="suggestionRegion(suggestion)"
+                          class="address-suggestion-chip"
+                        >
+                          {{ suggestionRegion(suggestion) }}
+                        </span>
+                        <small v-if="formatDistanceKm(suggestion.distanceKm)">
+                          {{ formatDistanceKm(suggestion.distanceKm) }}
+                        </small>
+                      </span>
+                    </span>
+                    <vue-feather
+                      type="chevron-right"
+                      size="16"
+                      class="address-suggestion-chevron"
+                    />
+                  </li>
+                </ul>
               </div>
               <button
                 class="btn btn-outline-primary location-button"
                 type="button"
                 :disabled="locatingAddress"
-                @click="captureCurrentAddress"
+                :title="
+                  form.mapAddress.data.trim()
+                    ? 'Cari lokasi dari teks yang diketik'
+                    : 'Gunakan lokasi GPS saat ini'
+                "
+                @click="handleLocateClick"
               >
                 <span
                   v-if="locatingAddress"
@@ -151,10 +210,46 @@
                 <span>{{ locatingAddress ? 'Mencari...' : 'Cari lokasi' }}</span>
               </button>
             </div>
-            <small class="text-muted">
-              Alamat lengkap akan diisi dari GPS dan tetap dapat diperbaiki secara manual.
+
+            <div
+              v-if="selectedLocation"
+              class="location-preview map-z-index"
+            >
+              <GoogleMapView
+                :center="selectedLocation"
+                :zoom="16"
+                :markers="[{ lat: selectedLocation.lat, lng: selectedLocation.lng, draggable: true }]"
+                cursor="crosshair"
+                style="height: 220px"
+                @click="onMapClick"
+                @marker-dragend="onMarkerDragEnd"
+              />
+              <p class="location-preview-address">
+                <SolarIcon name="fa-location-dot" />
+                <span>
+                  {{ form.mapAddress.data || 'Alamat tidak tersedia' }}
+                  <em v-if="pinUpdating">(memperbarui alamat...)</em>
+                </span>
+              </p>
+              <small class="location-preview-hint">
+                Klik di peta atau geser pin untuk membetulkan titik lokasi.
+              </small>
+            </div>
+
+            <small
+              v-if="!addressSuggestions.length && !searchingAddress"
+              class="text-muted"
+            >
+              Ketik nama tempat atau alamat untuk melihat rekomendasi lokasi,
+              atau gunakan GPS.
+            </small>
+            <small v-if="addressSearchNoResult" class="text-muted">
+              Lokasi tidak ditemukan, coba kata kunci lain.
             </small>
             <small v-if="locationError" class="text-danger">{{ locationError }}</small>
+            <small v-if="addressSearchError" class="text-danger">
+              {{ addressSearchError }}
+            </small>
           </div>
         </InputWrapper>
       </div>
@@ -274,12 +369,15 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
+import { useDebounceFn } from "@vueuse/core";
+import GoogleMapView from "@/components/GoogleMapView.vue";
 
 import { initInputField, initSelectField } from "@/core/data/common";
 import { genderOptions } from "@/core/data/contactCrm";
 import { useCompanyRegions } from "@/composable/useCompanyRegions";
 import { usePhoneNumberList } from "@/composable/usePhoneNumberList";
 import { useProjectsByCompany } from "@/composable/useProjectsByCompany";
+import { useUserLocation } from "@/composable/useUserLocation";
 import {
   INDONESIA_COUNTRY,
   useContact,
@@ -294,11 +392,15 @@ import {
   splitPhoneNumbers,
 } from "@/utils/indonesianPhone";
 import {
+  formatDistanceKm,
   geolocationErrorMessage,
   getCurrentPosition,
   reverseGeocodeLocation,
+  searchAddress,
+  type AddressSearchResult,
 } from "@/services/geocoding";
 import { showSaveSuccess } from "@/utils/feedback";
+import Swal from "sweetalert2";
 
 const emit = defineEmits<{
   cancel: [];
@@ -331,20 +433,18 @@ const { provinceOptions, cityOptionsByProvince, loadRegions, resolveRegionSelect
   useCompanyRegions();
 
 const formSubmitted = ref(false);
-const saveError = ref("");
 const form = ref(createForm());
-const regionFieldsLocked = computed(() => {
-  const latitude = form.value.latitude.data.trim();
-  const longitude = form.value.longitude.data.trim();
-  return (
-    latitude !== "" &&
-    longitude !== "" &&
-    Number.isFinite(Number(latitude)) &&
-    Number.isFinite(Number(longitude))
-  );
-});
 const locatingAddress = ref(false);
 const locationError = ref("");
+const addressSuggestions = ref<AddressSearchResult[]>([]);
+const searchingAddress = ref(false);
+const addressSearchError = ref("");
+const addressSearchNoResult = ref(false);
+const selectedLocation = ref<{ lat: number; lng: number } | null>(null);
+const regionFieldsLocked = computed(() => selectedLocation.value !== null);
+const pinUpdating = ref(false);
+let suppressNextAddressSearch = false;
+const { ensureLocation } = useUserLocation();
 const requiredPhoneValidator = (value: string) =>
   indonesianMobilePhoneError(value, true);
 const optionalPhoneValidator = (value: string) =>
@@ -485,24 +585,145 @@ function setLocationRegions(provinceName: string, cityName: string) {
     : initSelectField();
 }
 
+function applyLocationFields(
+  location: {
+    address: string;
+    country: string;
+    province: string;
+    city: string;
+    posCode: string;
+  },
+  latitude: number,
+  longitude: number,
+) {
+  suppressNextAddressSearch = true;
+  form.value.mapAddress.data = location.address;
+  form.value.mapAddress.errorMessage = "";
+  form.value.address.data = location.address;
+  form.value.address.errorMessage = "";
+  form.value.latitude.data = String(latitude);
+  form.value.longitude.data = String(longitude);
+  form.value.country.data = INDONESIA_COUNTRY;
+  form.value.posCode.data = location.posCode;
+  form.value.kdKelurahan.data = "";
+  selectedLocation.value = { lat: latitude, lng: longitude };
+  addressSuggestions.value = [];
+  addressSearchNoResult.value = false;
+  locationError.value = "";
+  setLocationRegions(location.province, location.city);
+}
+
+function suggestionTitle(suggestion: AddressSearchResult): string {
+  return suggestion.name || (suggestion.address.split(",")[0] ?? "").trim();
+}
+
+function suggestionDetail(suggestion: AddressSearchResult): string {
+  if (suggestion.name) return suggestion.address;
+  return suggestion.address.split(",").slice(1).join(",").trim();
+}
+
+function suggestionRegion(suggestion: AddressSearchResult): string {
+  const area = [suggestion.city, suggestion.province].filter(Boolean).join(", ");
+  return [area, suggestion.posCode].filter(Boolean).join(" ");
+}
+
+function selectAddressSuggestion(suggestion: AddressSearchResult) {
+  applyLocationFields(suggestion, suggestion.latitude, suggestion.longitude);
+}
+
+function handleAddressFieldBlur() {
+  window.setTimeout(() => {
+    addressSuggestions.value = [];
+    addressSearchNoResult.value = false;
+  }, 150);
+}
+
+const runAddressSearch = useDebounceFn(async (query: string) => {
+  const trimmed = query.trim();
+  if (trimmed.length < 3) {
+    addressSuggestions.value = [];
+    addressSearchNoResult.value = false;
+    return;
+  }
+
+  searchingAddress.value = true;
+  addressSearchError.value = "";
+  addressSearchNoResult.value = false;
+  try {
+    const location = await ensureLocation();
+    const results = await searchAddress(
+      trimmed,
+      location ? { lat: location.lat, lon: location.lon } : undefined,
+    );
+    addressSuggestions.value = results;
+    addressSearchNoResult.value = results.length === 0;
+  } catch {
+    addressSuggestions.value = [];
+    addressSearchError.value = "Pencarian lokasi gagal. Coba lagi.";
+  } finally {
+    searchingAddress.value = false;
+  }
+}, 500);
+
+async function applyPickedLocation(latitude: number, longitude: number) {
+  suppressNextAddressSearch = true;
+  selectedLocation.value = { lat: latitude, lng: longitude };
+  addressSuggestions.value = [];
+  addressSearchNoResult.value = false;
+  locationError.value = "";
+  pinUpdating.value = true;
+
+  try {
+    const location = await reverseGeocodeLocation(latitude, longitude);
+    applyLocationFields(location, latitude, longitude);
+  } catch (error) {
+    locationError.value = geolocationErrorMessage(error);
+  } finally {
+    pinUpdating.value = false;
+  }
+}
+
+function onMapClick(position: { lat: number; lng: number }) {
+  void applyPickedLocation(position.lat, position.lng);
+}
+
+function onMarkerDragEnd(payload: { index: number; lat: number; lng: number }) {
+  void applyPickedLocation(payload.lat, payload.lng);
+}
+
+async function searchTypedAddress(query: string) {
+  locationError.value = "";
+  locatingAddress.value = true;
+  addressSuggestions.value = [];
+  addressSearchNoResult.value = false;
+
+  try {
+    const location = await ensureLocation();
+    const [best] = await searchAddress(
+      query,
+      location ? { lat: location.lat, lon: location.lon } : undefined,
+    );
+    if (!best) {
+      locationError.value = "Lokasi tidak ditemukan. Coba kata kunci lain.";
+      return;
+    }
+    selectAddressSuggestion(best);
+  } catch {
+    locationError.value = "Pencarian lokasi gagal. Coba lagi.";
+  } finally {
+    locatingAddress.value = false;
+  }
+}
+
 async function captureCurrentAddress() {
   locationError.value = "";
   locatingAddress.value = true;
 
   try {
     const position = await getCurrentPosition();
-    const location = await reverseGeocodeLocation(
-      position.coords.latitude,
-      position.coords.longitude,
-    );
-    form.value.mapAddress.data = location.address;
-    form.value.address.data = location.address;
-    form.value.latitude.data = String(position.coords.latitude);
-    form.value.longitude.data = String(position.coords.longitude);
-    form.value.country.data = INDONESIA_COUNTRY;
-    form.value.posCode.data = location.posCode;
-    form.value.kdKelurahan.data = "";
-    setLocationRegions(location.province, location.city);
+    const { latitude, longitude } = position.coords;
+    const location = await reverseGeocodeLocation(latitude, longitude);
+    applyLocationFields(location, latitude, longitude);
   } catch (error) {
     locationError.value = geolocationErrorMessage(error);
   } finally {
@@ -510,7 +731,17 @@ async function captureCurrentAddress() {
   }
 }
 
+function handleLocateClick() {
+  const query = form.value.mapAddress.data.trim();
+  if (query) {
+    void searchTypedAddress(query);
+  } else {
+    void captureCurrentAddress();
+  }
+}
+
 function clearCurrentAddress() {
+  suppressNextAddressSearch = true;
   form.value.mapAddress.data = "";
   form.value.address.data = "";
   form.value.latitude.data = "";
@@ -518,12 +749,35 @@ function clearCurrentAddress() {
   form.value.country.data = "";
   form.value.posCode.data = "";
   form.value.kdKelurahan.data = "";
+  form.value.mapAddress.errorMessage = "";
+  selectedLocation.value = null;
+  addressSuggestions.value = [];
+  addressSearchNoResult.value = false;
+  addressSearchError.value = "";
   locationError.value = "";
 }
 
 // Mencegah watch provinsi mereset kota saat data awal atau hasil Maps sedang diterapkan.
 let isFilling = false;
 let suppressProvinceCityReset = false;
+
+watch(
+  () => form.value.mapAddress.data,
+  (value) => {
+    if (isFilling) return;
+    if (suppressNextAddressSearch) {
+      suppressNextAddressSearch = false;
+      return;
+    }
+    if (String(value ?? "").trim()) {
+      form.value.mapAddress.errorMessage = "";
+    }
+    selectedLocation.value = null;
+    form.value.latitude.data = "";
+    form.value.longitude.data = "";
+    void runAddressSearch(String(value ?? ""));
+  },
+);
 
 function fillForm() {
   const contact = contactState.value.activeContact;
@@ -545,6 +799,12 @@ function fillForm() {
   form.value.kdKelurahan.data = contact.kdKelurahan || companyLocation?.kdKelurahan || "";
   form.value.latitude.data = contact.latitude == null ? "" : String(contact.latitude);
   form.value.longitude.data = contact.longitude == null ? "" : String(contact.longitude);
+
+  if (contact.latitude != null && contact.longitude != null) {
+    selectedLocation.value = { lat: Number(contact.latitude), lng: Number(contact.longitude) };
+  } else {
+    selectedLocation.value = null;
+  }
 
   const phones = splitPhoneNumbers(
     contact.telephone1 || contact.contactNumber,
@@ -681,15 +941,21 @@ async function save() {
   form.value.city.errorMessage = form.value.city.data ? "" : "Kota wajib dipilih.";
   form.value.source.errorMessage = form.value.source.data ? "" : "Sumber wajib dipilih.";
   form.value.gender.errorMessage = form.value.gender.data ? "" : "Jenis kelamin wajib dipilih.";
-  if (
-    form.value.firstName.errorMessage ||
-    !phoneNumbersValid ||
-    form.value.status.errorMessage ||
-    form.value.province.errorMessage ||
-    form.value.city.errorMessage ||
-    form.value.source.errorMessage ||
-    form.value.gender.errorMessage
-  ) {
+  const errors: string[] = [];
+  if (form.value.firstName.errorMessage) errors.push(form.value.firstName.errorMessage);
+  if (!phoneNumbersValid) errors.push("Nomor telepon belum valid.");
+  if (form.value.status.errorMessage) errors.push(form.value.status.errorMessage);
+  if (form.value.province.errorMessage) errors.push(form.value.province.errorMessage);
+  if (form.value.city.errorMessage) errors.push(form.value.city.errorMessage);
+  if (form.value.source.errorMessage) errors.push(form.value.source.errorMessage);
+  if (form.value.gender.errorMessage) errors.push(form.value.gender.errorMessage);
+  if (errors.length) {
+    void Swal.fire({
+      icon: "warning",
+      title: "Data belum lengkap",
+      html: errors.map((e) => `• ${e}`).join("<br>"),
+      confirmButtonColor: "var(--theme-default)",
+    });
     return;
   }
 
@@ -710,7 +976,7 @@ async function save() {
     email: nullableText(form.value.email.data),
     status: String(form.value.status.data || contact.statusId || 1),
     telephone_1: normalizedPhoneNumbers[0] ?? "",
-    telephone_2: nullableText(normalizedPhoneNumbers.slice(1).join(", ")),
+    telephone_2: nullableText(normalizedPhoneNumbers.slice(1).join(" ")),
     address: nullableText(form.value.address.data),
     country: INDONESIA_COUNTRY,
     province: nullableText(form.value.province.data),
@@ -728,13 +994,17 @@ async function save() {
   if (idListKey(companyIds) !== initialCompanyIds) payload.company_ids = companyIds;
   if (idListKey(projectIds) !== initialProjectIds) payload.project_ids = projectIds;
 
-  saveError.value = "";
   try {
     await updateRemoteContact(contact.remoteId, payload);
     await showSaveSuccess({ entity: "Kontak", action: "updated" });
     emit("saved");
   } catch {
-    saveError.value = contactApi.value.error || "Gagal memperbarui kontak.";
+    void Swal.fire({
+      icon: "error",
+      title: "Gagal menyimpan",
+      text: contactApi.value.error || "Gagal memperbarui kontak.",
+      confirmButtonColor: "var(--theme-default)",
+    });
   }
 }
 
@@ -824,9 +1094,125 @@ onMounted(async () => {
   padding-right: 42px;
 }
 
+.address-suggestions {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  margin: 0;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid #e3e8eb;
+  border-radius: 12px;
+  padding: 8px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.12);
+}
+
+.address-suggestion-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.address-suggestion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e3e8eb;
+  border-radius: 12px;
+  background: #fbfcfd;
+  color: #344054;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.address-suggestion-item:hover {
+  border-color: var(--theme-default, #18a6e4);
+  background: var(--app-primary-wash, #f3fbfe);
+}
+
+.address-suggestion-icon {
+  display: inline-flex;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--app-primary-wash, #e8f6fd);
+  color: var(--theme-default, #18a6e4);
+}
+
+.address-suggestion-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+}
+
+.address-suggestion-title {
+  overflow: hidden;
+  color: #101828;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.address-suggestion-detail {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.address-suggestion-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.address-suggestion-meta:empty {
+  display: none;
+}
+
+.address-suggestion-chip {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eef2f6;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.address-suggestion-meta small {
+  color: var(--theme-default, #18a6e4);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.address-suggestion-chevron {
+  flex: 0 0 16px;
+  margin-top: 2px;
+  color: #98a2b3;
+}
+
 .location-clear-button {
   position: absolute;
-  top: 50%;
+  top: 23px;
   right: 10px;
   display: inline-flex;
   width: 28px;
@@ -841,9 +1227,49 @@ onMounted(async () => {
   color: #667085;
 }
 
+.location-clear-button :deep(svg) {
+  display: block;
+}
+
 .location-clear-button:hover {
   background: #e2e8f0;
   color: #344054;
+}
+
+.location-preview {
+  overflow: hidden;
+  border: 1px solid #e3e8eb;
+  border-radius: 10px;
+}
+
+.location-preview-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 12px;
+  border-top: 1px solid #e3e8eb;
+  background: #fbfcfd;
+  color: #344054;
+  font-size: 12px;
+}
+
+.location-preview-address i {
+  margin-top: 2px;
+  color: var(--theme-default, #18a6e4);
+}
+
+.location-preview-address em {
+  color: #94a3b8;
+  font-style: normal;
+}
+
+.location-preview-hint {
+  display: block;
+  padding: 0 12px 10px;
+  background: #fbfcfd;
+  color: #94a3b8;
+  font-size: 11px;
 }
 
 .location-button {

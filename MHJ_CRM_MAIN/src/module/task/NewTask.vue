@@ -1129,7 +1129,7 @@ const selectedContactPhone = computed(() => {
     .map((phone) => phone.trim())
     .filter(Boolean);
 
-  return [...new Set(phones)].join(", ");
+  return [...new Set(phones)].join(" ");
 });
 const selectedProducts = computed(
   () => form.products.selectedItems as DealOption[],

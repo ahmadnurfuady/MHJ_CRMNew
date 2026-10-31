@@ -1,12 +1,10 @@
-// Minimal 8 digit total (termasuk prefix). Prefix wajib: 08, 62, atau +62.
+// Minimal 8 digit total (termasuk prefix). Prefix wajib: 08 atau 62.
 const PHONE_MIN_DIGITS = 8;
-const PHONE_INPUT_PATTERN = /^\+?\d+$/;
+const PHONE_INPUT_PATTERN = /^\d+$/;
 
-/** Hanya izinkan digit dan satu tanda + di awal input. */
+/** Hanya izinkan digit pada input nomor telepon. */
 export function sanitizeIndonesianPhoneInput(value: string): string {
-  const hasLeadingPlus = value.trimStart().startsWith("+");
-  const digits = value.replace(/\D/g, "");
-  return `${hasLeadingPlus ? "+" : ""}${digits}`;
+  return value.replace(/\D/g, "");
 }
 
 /** Simpan nomor HP Indonesia dalam format lokal 08xxxxxxxxxx. */
@@ -25,7 +23,7 @@ export function splitPhoneNumbers(
 
   values.forEach((value) => {
     String(value ?? "")
-      .split(/[,;|\n]+/)
+      .split(/[,;|\s\n]+/)
       .map((phone) => phone.trim())
       .filter(Boolean)
       .forEach((phone) => {
@@ -62,23 +60,20 @@ export function indonesianMobilePhoneError(
   const phone = value.trim();
   if (!phone) return required ? "Nomor HP wajib diisi." : "";
 
-  // Hanya izinkan digit atau tanda + di awal.
   if (!PHONE_INPUT_PATTERN.test(phone)) {
-    return "Nomor telepon hanya boleh berisi angka (dan tanda + di depan).";
+    return "Nomor telepon hanya boleh berisi angka.";
   }
 
-  // Prefix wajib: 08, 62, atau +62.
+  // Prefix wajib: 08 atau 62.
   const hasValidPrefix =
-    phone.startsWith("+62") ||
     phone.startsWith("08") ||
     phone.startsWith("62");
   if (!hasValidPrefix) {
-    return "Nomor telepon harus diawali 08, 62, atau +62.";
+    return "Nomor telepon harus diawali 08 atau 62.";
   }
 
-  // Minimal 8 digit total (hitungan digit saja, bukan termasuk tanda +).
-  const digitCount = phone.replace(/\D/g, "").length;
-  if (digitCount < PHONE_MIN_DIGITS) {
+  // Minimal 8 digit total.
+  if (phone.length < PHONE_MIN_DIGITS) {
     return `Nomor telepon minimal ${PHONE_MIN_DIGITS} digit.`;
   }
 
