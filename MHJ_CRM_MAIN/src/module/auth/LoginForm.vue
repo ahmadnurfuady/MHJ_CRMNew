@@ -51,7 +51,7 @@
           type="checkbox"
           @change="handleRememberChange"
         />
-        <label class="text-muted form-check-label" for="remember-password">Ingat password</label>
+        <label class="text-muted form-check-label" for="remember-password">Ingat saya</label>
       </div>
       <router-link class="link" :to="routes.Auth.ForgotPassword">Lupa password?</router-link>
       <div class="text-end">
@@ -72,7 +72,12 @@
     </div>
     <p class="mt-4 mb-0 text-center">
       Belum punya akun?
-      <router-link class="ms-2" :to="props.path">Buat akun</router-link>
+      <router-link
+        class="ms-2 fw-semibold register-link"
+        style="color: var(--theme-default, #18a6e4)"
+        :to="props.path"
+        >Buat akun</router-link
+      >
     </p>
   </form>
 </template>
@@ -210,6 +215,16 @@ async function submit() {
 </script>
 
 <style scoped>
+.register-link {
+  text-decoration: none;
+}
+.register-link:hover,
+.register-link:focus {
+  text-decoration: underline;
+}
+</style>
+
+<style scoped>
 .password-visibility-toggle {
   position: absolute;
   top: 50%;
@@ -241,6 +256,11 @@ async function submit() {
 
 .form-input :deep(.form-control) {
   padding-right: 60px;
+}
+
+.form-input :deep(.form-control)::-ms-reveal,
+.form-input :deep(.form-control)::-ms-clear {
+  display: none;
 }
 </style>
 
