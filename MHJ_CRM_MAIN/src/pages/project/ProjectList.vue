@@ -239,89 +239,6 @@
             </div>
           </div>
 
-          <div
-            v-if="
-              !usesSummaryData &&
-              (projectList.length || projectPagination.page > 1)
-            "
-            class="project-pagination-card"
-          >
-            <div class="project-pagination-card__body">
-              <span class="project-page-summary">
-                Halaman {{ projectPagination.page }} dari
-                {{ projectPagination.lastPage }}
-              </span>
-              <div
-                class="pagination-actions"
-                role="group"
-                aria-label="Pagination Peluang"
-              >
-                <button
-                  class="btn btn-outline-primary btn-sm pagination-button"
-                  type="button"
-                  :disabled="projectLoading || projectPagination.page <= 1"
-                  @click="changeProjectPage(projectPagination.page - 1)"
-                >
-                  <vue-feather
-                    type="chevron-left"
-                    size="15"
-                    class="me-1"
-                  />Sebelumnya
-                </button>
-                <div
-                  class="pagination-pages"
-                  aria-label="Pilih halaman peluang"
-                >
-                  <template
-                    v-for="item in visibleProjectPages"
-                    :key="String(item)"
-                  >
-                    <span
-                      v-if="typeof item === 'string'"
-                      class="pagination-ellipsis"
-                      aria-hidden="true"
-                    >
-                      …
-                    </span>
-                    <button
-                      v-else
-                      class="btn btn-sm pagination-page-button"
-                      :class="{
-                        'pagination-page-button--active':
-                          item === projectPagination.page,
-                      }"
-                      type="button"
-                      :disabled="
-                        projectLoading || item === projectPagination.page
-                      "
-                      :aria-current="
-                        item === projectPagination.page ? 'page' : undefined
-                      "
-                      :aria-label="`Ke halaman ${item}`"
-                      @click="changeProjectPage(item)"
-                    >
-                      {{ item }}
-                    </button>
-                  </template>
-                </div>
-                <button
-                  class="btn btn-outline-primary btn-sm pagination-button"
-                  type="button"
-                  :disabled="
-                    projectLoading ||
-                    projectPagination.page >= projectPagination.lastPage
-                  "
-                  @click="changeProjectPage(projectPagination.page + 1)"
-                >
-                  Berikutnya<vue-feather
-                    type="chevron-right"
-                    size="15"
-                    class="ms-1"
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
         </section>
       </div>
     </div>
@@ -332,39 +249,24 @@ import {
   computed,
   ref,
   defineAsyncComponent,
-  onBeforeUnmount,
   onMounted,
-  watch,
 } from "vue";
 import { storeToRefs } from "pinia";
-import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
-import { useTask } from "@/store/task";
 import { useProjectStore } from "@/store/project";
 import type { Projects } from "@/types/project";
 
-const taskStore = useTask();
-const { projectList } = storeToRefs(taskStore);
 const projectStore = useProjectStore();
 const {
   loading: projectLoading,
-  pagination: projectPagination,
   summaryItems,
 } = storeToRefs(projectStore);
 const searchQuery = ref("");
 const ownerFilter = ref("all");
 // Default tampilan peluang: list. User bisa pindah ke board via toggle di toolbar.
 const viewMode = ref<"board" | "list">("list");
-const projectPageSize = ref(10);
-let searchTimer: ReturnType<typeof setTimeout> | undefined;
-let resizeTimer: ReturnType<typeof setTimeout> | undefined;
-
-const LARGE_DESKTOP_BREAKPOINT = 1400;
 
 onMounted(() => {
-  projectPageSize.value = preferredProjectPageSize();
-  window.addEventListener("resize", handleViewportResize);
-  void loadProjects(1);
   void projectStore.fetchProjectSummary();
 });
 
@@ -405,10 +307,7 @@ function parseProjectAmount(project: Projects) {
   return Number(`${integer}.${decimal}`) || 0;
 }
 
-const listedProjects = computed(() => projectList.value);
-const summaryProjects = computed(() =>
-  summaryItems.value.length ? summaryItems.value : projectList.value,
-);
+const summaryProjects = computed(() => summaryItems.value);
 
 const pipelineTotal = computed(() =>
   summaryProjects.value.reduce(
@@ -437,12 +336,7 @@ const stageCards = computed(() => {
   return stages;
 });
 
-const summaryTotal = computed(() =>
-  Math.max(
-    projectPagination.value.total + (import.meta.env.DEV ? 1 : 0),
-    summaryProjects.value.length,
-  ),
-);
+const summaryTotal = computed(() => summaryProjects.value.length);
 const closedStatuses = new Set(["closed_won", "closed_lost", "closed_cancel"]);
 const activeProjects = computed(() =>
   summaryProjects.value.filter(
@@ -489,16 +383,8 @@ const activeStageLabel = computed(() =>
         ?.title || "Tahap peluang",
 );
 
-const usesSummaryData = computed(
-  () =>
-    activeTab.value !== "all" ||
-    ownerFilter.value !== "all" ||
-    searchQuery.value.trim() !== "",
-);
 const filteredProjects = computed(() => {
-  const source = usesSummaryData.value
-    ? summaryProjects.value
-    : listedProjects.value;
+  const source = summaryProjects.value;
   const query = searchQuery.value.trim().toLocaleLowerCase("id-ID");
 
   return source.filter((project) => {
@@ -529,92 +415,6 @@ const filteredProjects = computed(() => {
   });
 });
 
-const visibleProjectPages = computed<Array<number | string>>(() => {
-  const totalPages = Math.max(1, projectPagination.value.lastPage);
-  const currentPage = Math.min(
-    Math.max(1, projectPagination.value.page),
-    totalPages,
-  );
-
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, index) => index + 1);
-  }
-
-  const pageSet = new Set([
-    1,
-    totalPages,
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-  ]);
-  if (currentPage <= 3) {
-    pageSet.add(2);
-    pageSet.add(3);
-  }
-  if (currentPage >= totalPages - 2) {
-    pageSet.add(totalPages - 2);
-    pageSet.add(totalPages - 1);
-  }
-
-  const pages = [...pageSet]
-    .filter((page) => page >= 1 && page <= totalPages)
-    .sort((left, right) => left - right);
-  const items: Array<number | string> = [];
-  pages.forEach((page, index) => {
-    const previousPage = pages[index - 1];
-    if (previousPage !== undefined && page - previousPage > 1) {
-      items.push(`ellipsis-${previousPage}-${page}`);
-    }
-    items.push(page);
-  });
-  return items;
-});
-
-watch(searchQuery, () => {
-  if (searchTimer) clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => {
-    void loadProjects(1);
-  }, 350);
-});
-
-function loadProjects(page: number) {
-  return projectStore
-    .fetchProjects({
-      page,
-      per_page: projectPageSize.value,
-      search: searchQuery.value.trim() || undefined,
-    })
-    .catch(() => {
-      Swal.fire({
-        icon: "error",
-        text: projectStore.error ?? "Gagal memuat data peluang.",
-      });
-    });
-}
-
-function preferredProjectPageSize() {
-  return window.innerWidth >= LARGE_DESKTOP_BREAKPOINT ? 15 : 10;
-}
-
-function handleViewportResize() {
-  if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    const nextPageSize = preferredProjectPageSize();
-    if (nextPageSize === projectPageSize.value) return;
-    projectPageSize.value = nextPageSize;
-    void loadProjects(1);
-  }, 250);
-}
-
-function changeProjectPage(page: number) {
-  if (
-    page < 1 ||
-    page > projectPagination.value.lastPage ||
-    page === projectPagination.value.page
-  )
-    return;
-  void loadProjects(page);
-}
 
 function formatTotal(total: number) {
   return new Intl.NumberFormat("id-ID").format(total);
@@ -641,11 +441,6 @@ function selectStage(value: string) {
   activeTab.value = activeTab.value === value ? "all" : value;
 }
 
-onBeforeUnmount(() => {
-  if (searchTimer) clearTimeout(searchTimer);
-  if (resizeTimer) clearTimeout(resizeTimer);
-  window.removeEventListener("resize", handleViewportResize);
-});
 </script>
 
 <style scoped>

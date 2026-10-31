@@ -405,17 +405,21 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** Dataset ringkasan terpisah agar KPI dan stage tidak terbatas halaman aktif. */
+  /** Satu panggilan ke GET /api/project (per_page=1000) untuk KPI, stage, dan daftar. */
   async function fetchProjectSummary() {
     summaryLoading.value = true
     try {
       const response = await api.getbydata(ENDPOINT, { page: 1, per_page: 1000 })
-      const { items: rawItems } = extractList(response.data, [
+      const { items: rawItems, meta } = extractList(response.data, [
         'deals',
         'projects',
         'companies'
       ])
-      summaryItems.value = rawItems.filter(isRecord).map(normalizeProject)
+      const normalized = rawItems.filter(isRecord).map(normalizeProject)
+      summaryItems.value = normalized
+      items.value = normalized
+      if (meta) Object.assign(pagination, meta)
+      loaded.value = true
       return summaryItems.value
     } catch {
       if (!summaryItems.value.length) summaryItems.value = [...items.value]
