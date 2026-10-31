@@ -1017,7 +1017,7 @@ export const useContact = defineStore("contact", () => {
     });
   }
 
-  /** GET /api/master-data/sources, master sumber kontak (dipakai lintas modul). */
+  /** GET /api/contact/sources, master sumber kontak (dipakai lintas modul). */
   function fetchContactSources() {
     return runApiAction({
       flag: contactLoading,
@@ -1025,7 +1025,7 @@ export const useContact = defineStore("contact", () => {
       fallbackMessage: "Gagal memuat sumber kontak.",
       task: async () => {
         try {
-          const response = await api.get("master-data/sources");
+          const response = await api.get("contact/sources");
           const sources = normalizeOptions(response.data, ["sources", "source"])
             .filter((option) => option.value && option.label);
           contactApi.sources = sources;

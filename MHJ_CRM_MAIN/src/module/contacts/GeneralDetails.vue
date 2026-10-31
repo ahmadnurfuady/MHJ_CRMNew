@@ -192,10 +192,6 @@
             <strong>{{ contactState.activeContact.address || "-" }}</strong>
           </div>
           <div class="col-md-6">
-            <span>Negara</span>
-            <strong>{{ contactLocation.country }}</strong>
-          </div>
-          <div class="col-md-6">
             <span>Provinsi</span>
             <strong>{{ contactLocation.province }}</strong>
           </div>
@@ -719,7 +715,6 @@ const contactLocation = computed(() => {
   const company = liveCompany.value;
 
   return {
-    country: firstDisplayValue(contact?.country, company?.country),
     province: firstDisplayValue(contact?.province, company?.province),
     city: firstDisplayValue(contact?.city, company?.city),
   };

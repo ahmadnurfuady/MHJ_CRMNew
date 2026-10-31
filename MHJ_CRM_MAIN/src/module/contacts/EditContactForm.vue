@@ -27,24 +27,12 @@
         </InputWrapper>
       </div>
 
-      <div class="col-md-6">
+      <div class="col-12">
         <InputWrapper title="Jabatan">
           <InputField
             v-model:modelValue="form.jobTitle"
             inputId="edit-contact-job-title"
             placeholder="Masukkan jabatan"
-            :required="false"
-          />
-        </InputWrapper>
-      </div>
-      <div class="col-md-6">
-        <InputWrapper title="Penanggung Jawab">
-          <Select
-            v-model="form.owner"
-            :options="ownerOptions"
-            display-key="label"
-            getValueKey="value"
-            placeholder="Cari nama pengguna"
             :required="false"
           />
         </InputWrapper>
@@ -185,7 +173,7 @@
       </div>
 
       <div class="col-md-6">
-        <InputWrapper title="Provinsi">
+        <InputWrapper title="Provinsi" required>
           <Select
             v-model="form.province"
             :options="provinceOptions"
@@ -193,12 +181,12 @@
             getValueKey="label"
             placeholder="Cari provinsi"
             :disabled="regionFieldsLocked"
-            :required="false"
+            :formSubmitted="formSubmitted"
           />
         </InputWrapper>
       </div>
       <div class="col-md-6">
-        <InputWrapper title="Kota">
+        <InputWrapper title="Kota" required>
           <Select
             v-model="form.city"
             :options="cityOptions"
@@ -206,31 +194,31 @@
             getValueKey="label"
             :placeholder="form.province.data ? 'Cari kota' : 'Pilih provinsi dahulu'"
             :disabled="regionFieldsLocked || !form.province.data"
-            :required="false"
+            :formSubmitted="formSubmitted"
           />
         </InputWrapper>
       </div>
       <div class="col-md-6">
-        <InputWrapper title="Sumber">
+        <InputWrapper title="Sumber" required>
           <Select
             v-model="form.source"
             :options="sourceOptions"
             display-key="label"
             getValueKey="value"
             placeholder="Pilih sumber kontak"
-            :required="false"
+            :formSubmitted="formSubmitted"
           />
         </InputWrapper>
       </div>
       <div class="col-md-6">
-        <InputWrapper title="Jenis Kelamin">
+        <InputWrapper title="Jenis Kelamin" required>
           <Select
             v-model="form.gender"
             :options="genderOptions"
             display-key="label"
             getValueKey="value"
             placeholder="Pilih jenis kelamin"
-            :required="false"
+            :formSubmitted="formSubmitted"
           />
         </InputWrapper>
       </div>
@@ -689,10 +677,18 @@ async function save() {
   });
 
   form.value.status.errorMessage = form.value.status.data ? "" : "Status wajib dipilih.";
+  form.value.province.errorMessage = form.value.province.data ? "" : "Provinsi wajib dipilih.";
+  form.value.city.errorMessage = form.value.city.data ? "" : "Kota wajib dipilih.";
+  form.value.source.errorMessage = form.value.source.data ? "" : "Sumber wajib dipilih.";
+  form.value.gender.errorMessage = form.value.gender.data ? "" : "Jenis kelamin wajib dipilih.";
   if (
     form.value.firstName.errorMessage ||
     !phoneNumbersValid ||
-    form.value.status.errorMessage
+    form.value.status.errorMessage ||
+    form.value.province.errorMessage ||
+    form.value.city.errorMessage ||
+    form.value.source.errorMessage ||
+    form.value.gender.errorMessage
   ) {
     return;
   }
