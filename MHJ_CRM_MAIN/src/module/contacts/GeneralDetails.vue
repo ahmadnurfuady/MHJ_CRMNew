@@ -60,7 +60,10 @@
           </button>
           <a
             v-if="contactState.activeContact.email"
-            :href="`mailto:${contactState.activeContact.email}`"
+            :href="gmailComposeUrl(contactState.activeContact.email)"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Kirim email via Gmail"
           >
             <SolarIcon
               name="letter"
@@ -200,6 +203,20 @@
                 :zoom="16"
                 :markers="[{ ...contactMapLocation, title: fullName || 'Lokasi kontak' }]"
               />
+              <button
+                type="button"
+                class="contact-map-route"
+                aria-label="Buka rute"
+                title="Buka rute"
+                @click="openContactRoute"
+              >
+                <MhjIcon
+                  name="action_route"
+                  :size="20"
+                  color="currentColor"
+                  secondary-color="var(--app-primary, #18A6E4)"
+                />
+              </button>
             </div>
             <div v-else class="contact-map-empty">
               <MhjIcon name="action_location" />
@@ -720,6 +737,17 @@ const contactMapLocation = computed(() => {
 
   return { lat: latitude, lng: longitude };
 });
+function gmailComposeUrl(email: string) {
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
+}
+function openContactRoute() {
+  if (!contactMapLocation.value) return;
+
+  const destination = `${contactMapLocation.value.lat},${contactMapLocation.value.lng}`;
+  const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+  const routeWindow = window.open(routeUrl, "_blank", "noopener,noreferrer");
+  if (routeWindow) routeWindow.opener = null;
+}
 const faskesCount = computed(() => companiesForContact.value.length);
 const opportunityCount = computed(() => contactProjects.value.length);
 
@@ -1335,10 +1363,36 @@ async function toggleCompanyEdit() {
 }
 
 .contact-map-preview {
+  position: relative;
   height: 310px;
   overflow: hidden;
   border: 1px solid #e3ebf0;
   border-radius: 12px;
+}
+
+.contact-map-route {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #e3ebf0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--app-primary, #18a6e4);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(24, 166, 228, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contact-map-route:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 166, 228, 0.24);
 }
 
 .contact-map-preview :deep(.google-map-view) {
