@@ -11,7 +11,6 @@ import {
   type Dict
 } from '@/api/response'
 import { runApiAction } from '@/store/apiAction'
-import { masterDataService } from '@/services/masterDataService'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Profile, ProjectContact, ProjectProductDetail, Projects } from '@/types/project'
 import type { Select } from '@/types/common'
@@ -709,7 +708,7 @@ export const useProjectStore = defineStore('project', () => {
     return lookups.contactsByFaskes
   }
 
-  /** GET /api/project/leader, /api/master-data/competitor, /api/master-data/sumberdana. */
+  /** GET /api/project/leader, /api/project/competitor, /api/project/sumberdana. */
   function fetchProjectLookups() {
     return runApiAction({
       flag: loading,
@@ -727,7 +726,7 @@ export const useProjectStore = defineStore('project', () => {
         }
 
         try {
-          const competitorResponse = await api.get('master-data/competitor')
+          const competitorResponse = await api.get('project/competitor')
           const competitorOptions = normalizeOptions(competitorResponse.data, [
             'competitors',
             'competitor'
@@ -739,7 +738,7 @@ export const useProjectStore = defineStore('project', () => {
         }
 
         try {
-          const sumberdanaResponse = await api.get('master-data/sumberdana')
+          const sumberdanaResponse = await api.get('project/sumberdana')
           const sumberdanaOptions = normalizeOptions(sumberdanaResponse.data, [
             'sumberdana'
           ]).filter((option) => option.value && option.label)
@@ -752,7 +751,7 @@ export const useProjectStore = defineStore('project', () => {
     })
   }
 
-  /** GET /api/master-data/devisi & /api/master-data/barang, dipakai lintas form (Project, Task). */
+  /** GET /api/project/devisi & /api/project/barang, dipakai lintas form (Project, Task). */
   function fetchProjectCatalog() {
     return runApiAction({
       flag: loading,
@@ -760,11 +759,14 @@ export const useProjectStore = defineStore('project', () => {
       fallbackMessage: 'Gagal memuat data divisi/produk.',
       task: async () => {
         try {
-          const devisiItems = await masterDataService.getDevisi()
+          const devisiResponse = await api.get('project/devisi')
+          const devisiItems = extractList(devisiResponse.data, ['devisi']).items.filter(isRecord)
           const divisiOptions: DivisiOption[] = devisiItems
-            .map((item) => {
-              const code = String(item.KodeDevisi ?? '').trim()
-              const label = (item.NamaAlias?.trim() || item.NamaDevisi || code).trim()
+            .map((raw) => {
+              const code = String(pickString(raw, 'KodeDevisi', 'kode_devisi', 'kode') ?? '').trim()
+              const nama = pickString(raw, 'NamaDevisi', 'nama_devisi', 'nama') ?? code
+              const alias = pickString(raw, 'NamaAlias', 'nama_alias', 'alias')
+              const label = (alias?.trim() || nama || code).trim()
               return { value: code, label, code }
             })
             // Entri "none" dari master data bukan divisi sungguhan, jangan tampil di dropdown.
@@ -776,7 +778,7 @@ export const useProjectStore = defineStore('project', () => {
         }
 
         try {
-          const barangResponse = await api.get('master-data/barang')
+          const barangResponse = await api.get('project/barang')
           const barangItems = extractList(barangResponse.data, ['barang']).items.filter(isRecord)
           const barangOptions: BarangOption[] = barangItems
             // dbo.barang nonaktif tidak perlu muncul di dropdown produk aktif.
