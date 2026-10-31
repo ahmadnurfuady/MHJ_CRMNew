@@ -1,70 +1,46 @@
-/** Status siklus target tahunan sesuai alur DRAFT → SUBMITTED → APPROVED → LOCKED. */
-export type TargetStatus = 'draft' | 'submitted' | 'approved' | 'locked'
-
-export interface TargetYearItem {
+/** Satu baris target penjualan: nominal target & realisasi per periode-cabang-divisi. */
+export interface TargetItem {
   id: number
-  year_code: string
-  year_name: string
-  start_date: string
-  end_date: string
-  is_active: boolean
-  is_locked: boolean
+  tahun: number
+  bulan: number | null
+  nama_bulan: string
+  KodeCabang: string
+  nama_cabang: string
+  KodeDevisi: string
+  nama_devisi: string
+  nominal: number
+  realisasi: number
+  persentase_capaian: number
+  selisih: number
+  keterangan: string | null
+  created_by?: number | null
+  created_at?: string | null
+  updated_by?: number | null
+  updated_at?: string | null
 }
 
-export interface TargetIndicatorItem {
-  id: number
-  indicator_code: string
-  indicator_name: string
-  category: string
-  unit_name: string
-  data_type: string
-  decimal_precision: number
-  is_active: boolean
+/** Ringkasan KPI untuk kartu di atas tabel target. */
+export interface TargetKpi {
+  total_target: number
+  total_realisasi: number
+  gap: number
+  avg_capaian: number
+  total_baris: number
 }
 
-export interface DivisionBranchItem {
-  id: number
-  division_id: number
-  division_name: string
-  branch_id: number
-  branch_name: string
-  is_active: boolean
+/** Opsi dropdown master cabang / divisi. */
+export interface TargetMasterOption {
+  kode: string
+  nama: string
 }
 
-/** Satu baris target: kombinasi divisi-cabang-indikator pada satu versi. */
-export interface TargetPlanItem {
-  id: number
-  target_version_id: number
-  division_branch_id: number
-  indicator_id: number
-  target_value: number | null
-  notes: string
-  status: TargetStatus
-  updated_at: string
-}
-
-export interface TargetVersionItem {
-  id: number
-  target_year_id: number
-  version_number: number
-  version_name: string
-  status: TargetStatus
-  created_at: string
-}
-
-export interface TargetPlanSaveRow {
-  division_branch_id: number
-  indicator_id: number
-  target_value: number
-  notes: string
-}
-
-export interface TargetSummary {
-  total_combinations: number
-  filled: number
-  empty: number
-  draft: number
-  submitted: number
-  approved: number
-  locked: number
+/** Payload simpan/ubah target. */
+export interface TargetFormPayload {
+  tahun: number
+  bulan: number | null
+  kode_cabang: string
+  kode_devisi: string
+  nominal: number
+  realisasi: number
+  keterangan: string | null
 }

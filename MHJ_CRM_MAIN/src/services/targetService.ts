@@ -1,92 +1,83 @@
 import { api } from '@/services/api'
 import type {
-  DivisionBranchItem,
-  TargetIndicatorItem,
-  TargetPlanItem,
-  TargetPlanSaveRow,
-  TargetSummary,
-  TargetVersionItem,
-  TargetYearItem,
+  TargetFormPayload,
+  TargetItem,
+  TargetKpi,
+  TargetMasterOption,
 } from '@/types/target'
 
-/** Membungkus respons yang mungkin array langsung atau `{ data: [...] }`. */
-function asArray<T>(payload: unknown): T[] {
-  if (Array.isArray(payload)) return payload as T[]
-  if (payload && typeof payload === 'object' && Array.isArray((payload as { data?: unknown }).data)) {
-    return (payload as { data: T[] }).data
-  }
-  return []
+interface TargetListResponse {
+  success: boolean
+  data: TargetItem[]
+  kpi: TargetKpi | null
+  message?: string
+}
+
+export interface TargetListFilter {
+  tahun?: number | null
+  bulan?: number | null
+  kode_cabang?: string | null
+  kode_devisi?: string | null
+  search?: string | null
+  limit?: number
+}
+
+function cleanParams(filter: TargetListFilter): Record<string, string | number> {
+  const params: Record<string, string | number> = {}
+  if (filter.tahun) params.tahun = filter.tahun
+  if (filter.bulan) params.bulan = filter.bulan
+  if (filter.kode_cabang) params.kode_cabang = filter.kode_cabang
+  if (filter.kode_devisi) params.kode_devisi = filter.kode_devisi
+  if (filter.search) params.search = filter.search
+  if (filter.limit) params.limit = filter.limit
+  return params
 }
 
 export const targetService = {
-  /** GET /api/target/years — seluruh periode tahun target. */
-  async getYears(): Promise<TargetYearItem[]> {
-    const res = await api.get('/target/years')
-    return asArray<TargetYearItem>(res.data)
+  /** GET /api/target — list data target + ringkasan KPI (dipengaruhi filter). */
+  async list(filter: TargetListFilter = {}): Promise<TargetListResponse> {
+    const res = await api.get('/target', { params: cleanParams(filter) })
+    const payload = res.data as TargetListResponse
+    return {
+      success: payload?.success ?? true,
+      data: Array.isArray(payload?.data) ? payload.data : [],
+      kpi: payload?.kpi ?? null,
+      message: payload?.message,
+    }
   },
 
-  /** GET /api/target/indicators — seluruh indikator target. */
-  async getIndicators(): Promise<TargetIndicatorItem[]> {
-    const res = await api.get('/target/indicators')
-    return asArray<TargetIndicatorItem>(res.data)
+  /** GET /api/target/{id} — detail target untuk form edit. */
+  async detail(id: number): Promise<TargetItem> {
+    const res = await api.get(`/target/${id}`)
+    return (res.data as { data: TargetItem }).data
   },
 
-  /** GET /api/target/division-branches — relasi divisi-cabang yang aktif. */
-  async getDivisionBranches(): Promise<DivisionBranchItem[]> {
-    const res = await api.get('/target/division-branches')
-    return asArray<DivisionBranchItem>(res.data)
+  /** POST /api/target — simpan target baru. */
+  async create(payload: TargetFormPayload): Promise<void> {
+    await api.post('/target', payload)
   },
 
-  /** GET /api/target/versions?target_year_id= — versi target pada satu periode. */
-  async getVersions(targetYearId: number): Promise<TargetVersionItem[]> {
-    const res = await api.get('/target/versions', { params: { target_year_id: targetYearId } })
-    return asArray<TargetVersionItem>(res.data)
+  /** PUT /api/target/{id} — update target existing. */
+  async update(id: number, payload: TargetFormPayload): Promise<void> {
+    await api.put(`/target/${id}`, payload)
   },
 
-  /** GET /api/target/plans?target_version_id= — baris target pada satu versi. */
-  async getPlans(targetVersionId: number): Promise<TargetPlanItem[]> {
-    const res = await api.get('/target/plans', { params: { target_version_id: targetVersionId } })
-    return asArray<TargetPlanItem>(res.data)
+  /** DELETE /api/target/{id} — hapus target. */
+  async remove(id: number): Promise<void> {
+    await api.delete(`/target/${id}`)
   },
 
-  /** GET /api/target/summary?target_year_id= — ringkasan dashboard target. */
-  async getSummary(targetYearId: number): Promise<TargetSummary> {
-    const res = await api.get('/target/summary', { params: { target_year_id: targetYearId } })
-    return (res.data as { data?: TargetSummary }).data ?? (res.data as TargetSummary)
+  /** GET /api/target/master/cabang — opsi dropdown cabang. */
+  async getCabang(): Promise<TargetMasterOption[]> {
+    const res = await api.get('/target/master/cabang')
+    const payload = res.data as { data?: TargetMasterOption[] }
+    return Array.isArray(payload?.data) ? payload.data : []
   },
 
-  /** POST /api/target/plans/bulk — simpan massal target (upsert per kombinasi). */
-  async savePlans(targetVersionId: number, rows: TargetPlanSaveRow[]): Promise<void> {
-    await api.post('/target/plans/bulk', { target_version_id: targetVersionId, rows })
-  },
-
-  /** POST /api/target/versions/{id}/submit — ajukan draft untuk persetujuan. */
-  async submitVersion(targetVersionId: number): Promise<void> {
-    await api.post(`/target/versions/${targetVersionId}/submit`)
-  },
-
-  /** POST /api/target/versions/{id}/approve — setujui versi target. */
-  async approveVersion(targetVersionId: number, notes?: string): Promise<void> {
-    await api.post(`/target/versions/${targetVersionId}/approve`, { notes: notes ?? '' })
-  },
-
-  /** POST /api/target/versions/{id}/reject — tolak versi, kembali ke draft dengan catatan. */
-  async rejectVersion(targetVersionId: number, notes: string): Promise<void> {
-    await api.post(`/target/versions/${targetVersionId}/reject`, { notes })
-  },
-
-  /** POST /api/target/versions/{id}/lock — kunci versi yang sudah disetujui. */
-  async lockVersion(targetVersionId: number): Promise<void> {
-    await api.post(`/target/versions/${targetVersionId}/lock`)
-  },
-
-  /** POST /api/target/copy — salin target dari tahun sebelumnya sebagai draft. */
-  async copyFromPreviousYear(payload: {
-    source_year_id: number
-    target_year_id: number
-    division_branch_ids?: number[]
-    overwrite?: boolean
-  }): Promise<void> {
-    await api.post('/target/copy', payload)
+  /** GET /api/target/master/devisi — opsi dropdown divisi. */
+  async getDevisi(): Promise<TargetMasterOption[]> {
+    const res = await api.get('/target/master/devisi')
+    const payload = res.data as { data?: TargetMasterOption[] }
+    return Array.isArray(payload?.data) ? payload.data : []
   },
 }

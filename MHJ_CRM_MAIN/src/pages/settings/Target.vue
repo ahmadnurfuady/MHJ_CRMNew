@@ -6,161 +6,317 @@
           <span class="target-heading__icon"><vue-feather type="target" size="20" /></span>
           <div>
             <p>Setting</p>
-            <h3>Target Tahunan</h3>
+            <h3>Target Finansial &amp; Realisasi</h3>
             <span class="target-heading__description">
-              Kelola target per tahun, divisi, cabang, dan indikator melalui grid.
+              Catat target penjualan per bulan, cabang, dan divisi, lalu pantau realisasinya.
             </span>
           </div>
         </div>
         <div class="target-heading__actions">
-          <select
-            v-model.number="selectedYearId"
-            class="form-select target-year-select"
-            :disabled="yearsLoading"
-            @change="onYearChange"
-          >
-            <option :value="0">
-              {{ yearsLoading ? 'Memuat tahun...' : 'Pilih tahun target' }}
-            </option>
-            <option v-for="year in years" :key="year.id" :value="year.id">
-              {{ year.year_name }}{{ year.is_locked ? ' (Terkunci)' : '' }}
+          <select v-model.number="filterYear" class="form-select target-filter-select" @change="fetchList">
+            <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}</option>
+          </select>
+          <select v-model.number="filterMonth" class="form-select target-filter-select" @change="fetchList">
+            <option :value="0">Semua Bulan</option>
+            <option v-for="(label, idx) in monthLabels" :key="idx + 1" :value="idx + 1">
+              {{ label }}
             </option>
           </select>
-          <button
-            class="btn btn-primary target-add-button mhj-add-button"
-            type="button"
-            :disabled="!canEdit"
-            @click="saveDraft"
-          >
-            <vue-feather type="save" size="17" />
-            {{ saving ? 'Menyimpan...' : 'Simpan Draft' }}
-          </button>
-          <button
-            class="btn btn-outline-primary target-submit-button"
-            type="button"
-            :disabled="!canEdit || !dirtyRows.size"
-            @click="submitForApproval"
-          >
-            <vue-feather type="send" size="16" />
-            Ajukan Persetujuan
+          <button class="btn btn-primary target-add-button mhj-add-button" type="button" @click="openCreate">
+            <vue-feather type="plus" size="17" />
+            Tambah Target
           </button>
         </div>
       </header>
 
       <div class="target-overview__metrics">
         <article class="target-metric target-metric--accent">
-          <span class="target-metric__label">Kombinasi divisi-cabang</span>
-          <strong class="target-metric__value">{{ divisionBranches.length }}</strong>
-          <small>{{ filledCount }} terisi · {{ emptyCount }} kosong</small>
+          <span class="target-metric__label">Total Target</span>
+          <strong class="target-metric__value">{{ formatCurrency(kpi.total_target) }}</strong>
+          <small>{{ kpi.total_baris }} baris target</small>
         </article>
         <article class="target-metric">
-          <span class="target-metric__label is-green">Terisi</span>
-          <strong class="target-metric__value">{{ filledCount }}</strong>
-          <small>kombinasi sudah memiliki target</small>
+          <span class="target-metric__label is-green">Total Realisasi</span>
+          <strong class="target-metric__value">{{ formatCurrency(kpi.total_realisasi) }}</strong>
+          <small>akumulasi realisasi penjualan</small>
         </article>
         <article class="target-metric">
-          <span class="target-metric__label is-gray">Status versi</span>
-          <strong class="target-metric__value">{{ statusLabel(currentStatus) }}</strong>
-          <small>{{ currentVersion ? `Versi ${currentVersion.version_number} · ${currentVersion.version_name}` : 'Belum ada versi aktif' }}</small>
+          <span class="target-metric__label is-blue">% Capaian</span>
+          <strong class="target-metric__value">{{ formatPercent(kpi.avg_capaian) }}</strong>
+          <span class="target-metric__badge" :class="achievementBadgeClass(kpi.avg_capaian)">
+            {{ achievementBadgeLabel(kpi.avg_capaian) }}
+          </span>
+        </article>
+        <article class="target-metric">
+          <span class="target-metric__label" :class="kpi.gap >= 0 ? 'is-green' : 'is-red'">Selisih / Gap</span>
+          <strong class="target-metric__value" :class="{ 'is-negative': kpi.gap < 0 }">
+            {{ formatCurrency(kpi.gap) }}
+          </strong>
+          <small>{{ kpi.gap >= 0 ? 'Realisasi melampaui target' : 'Realisasi di bawah target' }}</small>
         </article>
       </div>
     </section>
 
-    <div class="card target-grid-card">
+    <div class="card target-list-card">
       <div class="card-body">
         <div class="target-toolbar">
           <div class="target-search">
             <vue-feather type="search" size="18" />
-            <input v-model.trim="search" type="search" placeholder="Cari divisi atau cabang..." />
+            <input
+              v-model.trim="search"
+              type="search"
+              placeholder="Cari divisi, cabang, atau keterangan..."
+              @input="onSearchInput"
+            />
           </div>
           <div class="target-toolbar__right">
-            <select v-model="divisionFilter" class="form-select target-filter-select">
-              <option value="all">Semua divisi</option>
-              <option v-for="division in divisionOptions" :key="division" :value="division">
-                {{ division }}
+            <select v-model="filterCabang" class="form-select target-filter-select" @change="fetchList">
+              <option value="">Semua Cabang</option>
+              <option v-for="cabang in cabangOptions" :key="cabang.kode" :value="cabang.kode">
+                {{ cabang.nama }}
               </option>
             </select>
-            <select v-model="branchFilter" class="form-select target-filter-select">
-              <option value="all">Semua cabang</option>
-              <option v-for="branch in branchOptions" :key="branch" :value="branch">
-                {{ branch }}
+            <select v-model="filterDevisi" class="form-select target-filter-select" @change="fetchList">
+              <option value="">Semua Divisi</option>
+              <option v-for="devisi in devisiOptions" :key="devisi.kode" :value="devisi.kode">
+                {{ devisi.nama }}
               </option>
             </select>
-            <button
-              class="btn btn-light target-copy-button"
-              type="button"
-              :disabled="!canEdit"
-              @click="copyPreviousYear"
-            >
-              <vue-feather type="copy" size="15" />
-              Salin Tahun Lalu
-            </button>
           </div>
         </div>
 
-        <div v-if="gridLoading" class="target-empty">
+        <div v-if="listLoading" class="target-empty">
           <span><vue-feather type="loader" size="32" /></span>
           <h5>Memuat target...</h5>
         </div>
 
-        <div v-else-if="gridError" class="target-empty">
+        <div v-else-if="listError" class="target-empty">
           <span><vue-feather type="alert-circle" size="32" /></span>
-          <h5>{{ gridError }}</h5>
-          <button class="btn btn-primary" type="button" @click="loadGrid">Coba lagi</button>
+          <h5>{{ listError }}</h5>
+          <button class="btn btn-primary" type="button" @click="fetchList">Coba lagi</button>
         </div>
 
-        <div v-else-if="!selectedYearId" class="target-empty">
-          <span><vue-feather type="calendar" size="32" /></span>
-          <h5>Pilih tahun target</h5>
-          <p>Pilih periode tahun untuk mulai menginput atau melihat target.</p>
+        <div v-else-if="!targets.length" class="target-empty">
+          <span><vue-feather type="inbox" size="32" /></span>
+          <h5>Belum ada target</h5>
+          <p>Belum ada data target penjualan untuk filter yang dipilih.</p>
+          <button class="btn btn-primary mhj-add-button" type="button" @click="openCreate">
+            <vue-feather type="plus" size="16" />
+            Tambah Target
+          </button>
         </div>
 
         <div v-else class="target-grid-wrapper">
           <table class="target-grid">
             <thead>
               <tr>
-                <th class="col-division">Divisi</th>
-                <th class="col-branch">Cabang</th>
-                <th v-for="indicator in activeIndicators" :key="indicator.id" class="col-value">
-                  {{ indicator.indicator_name }}
-                  <small>{{ indicator.unit_name }}</small>
-                </th>
+                <th class="col-no">No</th>
+                <th class="col-periode">Periode</th>
+                <th class="col-cabang">Cabang</th>
+                <th class="col-devisi">Divisi</th>
+                <th class="col-money">Nominal Target</th>
+                <th class="col-money">Realisasi</th>
+                <th class="col-persen">% Capaian</th>
+                <th class="col-money">Selisih</th>
+                <th class="col-keterangan">Keterangan</th>
+                <th class="col-aksi">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="combo in filteredCombos" :key="combo.id">
-                <td class="col-division">{{ combo.division_name }}</td>
-                <td class="col-branch">{{ combo.branch_name }}</td>
-                <td v-for="indicator in activeIndicators" :key="indicator.id" class="col-value">
-                  <input
-                    :value="displayValue(combo.id, indicator.id)"
-                    class="target-cell-input"
-                    :class="{ 'is-dirty': isDirty(combo.id, indicator.id) }"
-                    type="text"
-                    inputmode="decimal"
-                    :disabled="!canEdit"
-                    :placeholder="'0'"
-                    @input="onCellInput(combo.id, indicator.id, $event)"
-                    @blur="onCellBlur(combo.id, indicator.id)"
-                  />
+              <tr v-for="(row, index) in paginatedTargets" :key="row.id">
+                <td class="col-no">{{ (currentPage - 1) * pageSize + index + 1 }}</td>
+                <td class="col-periode">
+                  <span class="target-periode__month">{{ row.nama_bulan }}</span>
+                  <small class="target-periode__year">{{ row.tahun }}</small>
                 </td>
-              </tr>
-              <tr v-if="!filteredCombos.length">
-                <td :colspan="2 + activeIndicators.length" class="target-grid-empty">
-                  Tidak ada kombinasi divisi-cabang yang cocok dengan filter.
+                <td class="col-cabang">{{ row.nama_cabang }}</td>
+                <td class="col-devisi">{{ row.nama_devisi }}</td>
+                <td class="col-money">{{ formatCurrency(row.nominal) }}</td>
+                <td class="col-money">{{ formatCurrency(row.realisasi) }}</td>
+                <td class="col-persen">
+                  <span class="target-badge" :class="achievementBadgeClass(row.persentase_capaian)">
+                    {{ formatPercent(row.persentase_capaian) }}
+                  </span>
+                </td>
+                <td class="col-money" :class="{ 'is-negative': row.selisih < 0 }">
+                  {{ formatCurrency(row.selisih) }}
+                </td>
+                <td class="col-keterangan">{{ row.keterangan || '-' }}</td>
+                <td class="col-aksi">
+                  <button class="target-action target-action--edit" type="button" title="Edit" @click="openEdit(row)">
+                    <vue-feather type="edit-2" size="15" />
+                  </button>
+                  <button class="target-action target-action--delete" type="button" title="Hapus" @click="confirmDelete(row)">
+                    <vue-feather type="trash-2" size="15" />
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <p v-if="selectedYearId && !gridLoading && !gridError" class="target-grid-note">
-          <vue-feather type="info" size="14" />
-          Sel dengan tanda biru berarti ada perubahan yang belum disimpan. Target yang sudah
-          diajukan, disetujui, atau dikunci tidak dapat diedit pada grid ini.
-        </p>
+        <div v-if="!listLoading && targets.length > pageSize" class="target-pagination">
+          <small>
+            Menampilkan {{ (currentPage - 1) * pageSize + 1 }} -
+            {{ Math.min(currentPage * pageSize, targets.length) }}
+            dari {{ targets.length }} data
+          </small>
+          <div class="target-pagination__buttons">
+            <button
+              class="btn btn-light target-page-btn"
+              type="button"
+              :disabled="currentPage === 1"
+              @click="currentPage = Math.max(1, currentPage - 1)"
+            >
+              <vue-feather type="chevron-left" size="14" />
+              Sebelumnya
+            </button>
+            <span class="target-page-label">Hal {{ currentPage }} / {{ totalPages }}</span>
+            <button
+              class="btn btn-light target-page-btn"
+              type="button"
+              :disabled="currentPage >= totalPages"
+              @click="currentPage = Math.min(totalPages, currentPage + 1)"
+            >
+              Berikutnya
+              <vue-feather type="chevron-right" size="14" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+
+    <Modal
+      :modal-open="modalOpen"
+      :title="form.id ? 'Edit Target' : 'Tambah Target'"
+      size-class="modal-lg"
+      dialog-class="modal-dialog-scrollable target-form-dialog"
+      :modal-centered="true"
+      @close-modal="closeModal"
+    >
+      <div class="modal-body target-form-modal-body">
+        <form class="row g-3 needs-validation mhj-form target-form" @submit.prevent="saveTarget">
+          <div class="col-md-6">
+            <label for="target-cabang" class="form-label">
+              Cabang <span class="txt-danger">*</span>
+            </label>
+            <select
+              id="target-cabang"
+              v-model="form.kode_cabang"
+              class="form-select"
+              :class="{ 'is-invalid': submitted && !form.kode_cabang }"
+            >
+              <option value="">Pilih Cabang</option>
+              <option v-for="cabang in cabangOptions" :key="cabang.kode" :value="cabang.kode">
+                {{ cabang.nama }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Cabang wajib dipilih.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="target-devisi" class="form-label">
+              Divisi <span class="txt-danger">*</span>
+            </label>
+            <select
+              id="target-devisi"
+              v-model="form.kode_devisi"
+              class="form-select"
+              :class="{ 'is-invalid': submitted && !form.kode_devisi }"
+            >
+              <option value="">Pilih Divisi</option>
+              <option v-for="devisi in devisiOptions" :key="devisi.kode" :value="devisi.kode">
+                {{ devisi.nama }}
+              </option>
+            </select>
+            <div class="invalid-feedback">Divisi wajib dipilih.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="target-tahun" class="form-label">
+              Tahun <span class="txt-danger">*</span>
+            </label>
+            <select
+              id="target-tahun"
+              v-model.number="form.tahun"
+              class="form-select"
+              :class="{ 'is-invalid': submitted && !form.tahun }"
+            >
+              <option v-for="year in yearOptions" :key="year" :value="year">{{ year }}</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label for="target-bulan" class="form-label">Bulan</label>
+            <select id="target-bulan" v-model.number="form.bulan" class="form-select">
+              <option :value="0">Tahunan</option>
+              <option v-for="(label, idx) in monthLabels" :key="idx + 1" :value="idx + 1">
+                {{ label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label for="target-nominal" class="form-label">
+              Nominal Target (Rp) <span class="txt-danger">*</span>
+            </label>
+            <input
+              id="target-nominal"
+              v-model="form.nominal_display"
+              class="form-control"
+              :class="{ 'is-invalid': submitted && !isNominalValid }"
+              type="text"
+              inputmode="numeric"
+              placeholder="Rp 0"
+              @input="onCurrencyInput('nominal', $event)"
+              @blur="onCurrencyBlur('nominal')"
+            />
+            <div class="invalid-feedback">Nominal target wajib diisi dan lebih dari 0.</div>
+          </div>
+
+          <div class="col-md-6">
+            <label for="target-realisasi" class="form-label">
+              Realisasi (Rp) <span class="txt-danger">*</span>
+            </label>
+            <input
+              id="target-realisasi"
+              v-model="form.realisasi_display"
+              class="form-control"
+              :class="{ 'is-invalid': submitted && !isRealisasiValid }"
+              type="text"
+              inputmode="numeric"
+              placeholder="Rp 0"
+              @input="onCurrencyInput('realisasi', $event)"
+              @blur="onCurrencyBlur('realisasi')"
+            />
+            <div class="invalid-feedback">Realisasi wajib diisi (minimal 0).</div>
+          </div>
+
+          <div class="col-12">
+            <label for="target-keterangan" class="form-label">Keterangan</label>
+            <textarea
+              id="target-keterangan"
+              v-model.trim="form.keterangan"
+              class="form-control"
+              rows="3"
+              placeholder="Contoh: Target promo akhir tahun"
+            ></textarea>
+            <small class="text-muted">Keterangan boleh dikosongkan.</small>
+          </div>
+
+          <div class="col-12 target-form-footer">
+            <button class="btn btn-light" type="button" :disabled="saving" @click="closeModal">
+              Batal
+            </button>
+            <button class="btn btn-primary" type="submit" :disabled="saving">
+              <vue-feather v-if="!saving" type="save" size="16" />
+              <vue-feather v-else type="loader" size="16" />
+              {{ saving ? 'Menyimpan...' : form.id ? 'Simpan Perubahan' : 'Simpan Target' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -168,27 +324,172 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import Swal from 'sweetalert2'
 
+import Modal from '@/components/shared/Modal.vue'
 import { targetService } from '@/services/targetService'
 import type {
-  DivisionBranchItem,
-  TargetIndicatorItem,
-  TargetPlanItem,
-  TargetPlanSaveRow,
-  TargetStatus,
-  TargetVersionItem,
-  TargetYearItem,
+  TargetFormPayload,
+  TargetItem,
+  TargetKpi,
+  TargetMasterOption,
 } from '@/types/target'
 import { parseBackendError } from '@/utils/errorParser'
 
-/** Kunci sel pada grid: kombinasi division_branch + indikator. */
-function cellKey(divisionBranchId: number, indicatorId: number): string {
-  return `${divisionBranchId}:${indicatorId}`
+const monthLabels = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+]
+
+const currentYear = new Date().getFullYear()
+const yearOptions = computed(() => {
+  const list: number[] = []
+  for (let y = currentYear + 1; y >= currentYear - 4; y -= 1) list.push(y)
+  return list
+})
+
+const targets = ref<TargetItem[]>([])
+const kpi = ref<TargetKpi>({
+  total_target: 0,
+  total_realisasi: 0,
+  gap: 0,
+  avg_capaian: 0,
+  total_baris: 0,
+})
+const cabangOptions = ref<TargetMasterOption[]>([])
+const devisiOptions = ref<TargetMasterOption[]>([])
+
+const listLoading = ref(false)
+const listError = ref('')
+const search = ref('')
+const filterYear = ref(currentYear)
+const filterMonth = ref(0)
+const filterCabang = ref('')
+const filterDevisi = ref('')
+
+const pageSize = 10
+const currentPage = ref(1)
+
+const totalPages = computed(() => Math.max(1, Math.ceil(targets.value.length / pageSize)))
+const paginatedTargets = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return targets.value.slice(start, start + pageSize)
+})
+
+const modalOpen = ref(false)
+const saving = ref(false)
+const submitted = ref(false)
+
+interface TargetForm {
+  id: number | null
+  tahun: number
+  bulan: number
+  kode_cabang: string
+  kode_devisi: string
+  nominal: number
+  nominal_display: string
+  realisasi: number
+  realisasi_display: string
+  keterangan: string
 }
 
-/** Tampilkan pesan yang sudah diterjemahkan tanpa membocorkan detail server. */
-function showErrorDetail(title: string, error: unknown, fallback: string) {
+const emptyForm = (): TargetForm => ({
+  id: null,
+  tahun: filterYear.value || currentYear,
+  bulan: filterMonth.value || 0,
+  kode_cabang: '',
+  kode_devisi: '',
+  nominal: 0,
+  nominal_display: '',
+  realisasi: 0,
+  realisasi_display: 'Rp 0',
+  keterangan: '',
+})
+
+const form = reactive<TargetForm>(emptyForm())
+
+const isNominalValid = computed(() => form.nominal > 0)
+const isRealisasiValid = computed(() => form.realisasi >= 0 && form.realisasi_display !== '')
+
+/** Format number ke mata uang Rupiah (tanpa desimal). */
+function formatCurrency(value: number | null | undefined): string {
+  const num = Number(value ?? 0)
+  if (!Number.isFinite(num)) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(num)
+}
+
+function formatPercent(value: number | null | undefined): string {
+  const num = Number(value ?? 0)
+  if (!Number.isFinite(num)) return '0%'
+  return `${num.toFixed(num % 1 === 0 ? 0 : 1)}%`
+}
+
+function achievementBadgeClass(percent: number | null | undefined): string {
+  const num = Number(percent ?? 0)
+  if (num >= 100) return 'is-success'
+  if (num >= 50) return 'is-warning'
+  return 'is-danger'
+}
+
+function achievementBadgeLabel(percent: number | null | undefined): string {
+  const num = Number(percent ?? 0)
+  if (num >= 100) return 'Tercapai'
+  if (num >= 50) return 'Hampir'
+  return 'Jauh'
+}
+
+function parseCurrencyInput(raw: string): number {
+  const digits = raw.replace(/[^0-9]/g, '')
+  if (!digits) return 0
+  const parsed = Number(digits)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+function formatCurrencyInput(value: number): string {
+  if (!value) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
+function onCurrencyInput(field: 'nominal' | 'realisasi', event: Event) {
+  const target = event.target as HTMLInputElement
+  const parsed = parseCurrencyInput(target.value)
+  if (field === 'nominal') {
+    form.nominal = parsed
+    form.nominal_display = target.value
+  } else {
+    form.realisasi = parsed
+    form.realisasi_display = target.value
+  }
+}
+
+function onCurrencyBlur(field: 'nominal' | 'realisasi') {
+  if (field === 'nominal') {
+    form.nominal_display = form.nominal > 0 ? formatCurrencyInput(form.nominal) : ''
+  } else {
+    form.realisasi_display = formatCurrencyInput(form.realisasi)
+  }
+}
+
+async function showErrorDetail(title: string, error: unknown, fallback: string) {
   const parsed = parseBackendError(error, title)
-  return Swal.fire({
+  await Swal.fire({
     icon: 'error',
     title: parsed.title === 'Permintaan Gagal' ? title : parsed.title,
     text: parsed.message || fallback,
@@ -196,212 +497,132 @@ function showErrorDetail(title: string, error: unknown, fallback: string) {
   })
 }
 
-const years = ref<TargetYearItem[]>([])
-const indicators = ref<TargetIndicatorItem[]>([])
-const divisionBranches = ref<DivisionBranchItem[]>([])
-const currentVersion = ref<TargetVersionItem | null>(null)
-const plans = ref<TargetPlanItem[]>([])
-
-const selectedYearId = ref(0)
-const yearsLoading = ref(false)
-const gridLoading = ref(false)
-const gridError = ref('')
-const saving = ref(false)
-const search = ref('')
-const divisionFilter = ref('all')
-const branchFilter = ref('all')
-
-/** Nilai sel yang sedang diedit (belum disimpan). */
-const editedValues = reactive<Record<string, string>>({})
-/** Kunci sel yang berubah sejak terakhir disimpan. */
-const dirtyRows = ref<Set<string>>(new Set())
-
-const activeIndicators = computed(() => indicators.value.filter((item) => item.is_active))
-const currentStatus = computed<TargetStatus>(() => currentVersion.value?.status ?? 'draft')
-const canEdit = computed(() => {
-  const year = years.value.find((item) => item.id === selectedYearId.value)
-  return (
-    Boolean(selectedYearId.value) &&
-    !year?.is_locked &&
-    (currentStatus.value === 'draft' || !currentVersion.value)
-  )
-})
-
-const divisionOptions = computed(() =>
-  [...new Set(divisionBranches.value.map((item) => item.division_name))].sort((a, b) =>
-    a.localeCompare(b, 'id-ID')
-  )
-)
-const branchOptions = computed(() =>
-  [...new Set(divisionBranches.value.map((item) => item.branch_name))].sort((a, b) =>
-    a.localeCompare(b, 'id-ID')
-  )
-)
-
-const filteredCombos = computed(() => {
-  const keyword = search.value.toLocaleLowerCase('id-ID')
-  return divisionBranches.value.filter((combo) => {
-    const matchesSearch = `${combo.division_name} ${combo.branch_name}`
-      .toLocaleLowerCase('id-ID')
-      .includes(keyword)
-    const matchesDivision =
-      divisionFilter.value === 'all' || combo.division_name === divisionFilter.value
-    const matchesBranch = branchFilter.value === 'all' || combo.branch_name === branchFilter.value
-    return matchesSearch && matchesDivision && matchesBranch
-  })
-})
-
-const filledCount = computed(() => {
-  const filled = new Set(plans.value.filter((plan) => plan.target_value !== null).map((plan) => plan.division_branch_id))
-  return filled.size
-})
-const emptyCount = computed(() => Math.max(divisionBranches.value.length - filledCount.value, 0))
-
-function statusLabel(status: TargetStatus): string {
-  const labels: Record<TargetStatus, string> = {
-    draft: 'Draft',
-    submitted: 'Diajukan',
-    approved: 'Disetujui',
-    locked: 'Terkunci',
-  }
-  return labels[status]
-}
-
-function planValue(divisionBranchId: number, indicatorId: number): number | null {
-  const plan = plans.value.find(
-    (item) => item.division_branch_id === divisionBranchId && item.indicator_id === indicatorId
-  )
-  return plan?.target_value ?? null
-}
-
-function displayValue(divisionBranchId: number, indicatorId: number): string {
-  const key = cellKey(divisionBranchId, indicatorId)
-  if (key in editedValues) return editedValues[key] ?? ''
-  const value = planValue(divisionBranchId, indicatorId)
-  if (value === null) return ''
-  return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(value)
-}
-
-function isDirty(divisionBranchId: number, indicatorId: number): boolean {
-  return dirtyRows.value.has(cellKey(divisionBranchId, indicatorId))
-}
-
-/** Terima input angka lokal (mis. "5.000.000" atau "2,5") dan simpan mentah. */
-function onCellInput(divisionBranchId: number, indicatorId: number, event: Event) {
-  const raw = (event.target as HTMLInputElement).value
-  const key = cellKey(divisionBranchId, indicatorId)
-  editedValues[key] = raw
-  const normalized = raw.replace(/\./g, '').replace(',', '.').trim()
-  const parsed = normalized === '' ? null : Number(normalized)
-  const saved = planValue(divisionBranchId, indicatorId)
-  const changed = parsed !== saved && !(parsed === null && saved === null)
-  if (changed) dirtyRows.value.add(key)
-  else dirtyRows.value.delete(key)
-}
-
-function onCellBlur(divisionBranchId: number, indicatorId: number) {
-  const key = cellKey(divisionBranchId, indicatorId)
-  const raw = editedValues[key]
-  if (raw === undefined) return
-  const normalized = raw.replace(/\./g, '').replace(',', '.').trim()
-  const parsed = normalized === '' ? null : Number(normalized)
-  if (parsed !== null && Number.isFinite(parsed)) {
-    editedValues[key] = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(parsed)
-  }
-}
-
-async function loadLookups() {
-  yearsLoading.value = true
+async function fetchMasters() {
   try {
-    const [yearItems, indicatorItems, comboItems] = await Promise.all([
-      targetService.getYears(),
-      targetService.getIndicators(),
-      targetService.getDivisionBranches(),
+    const [cabangs, devisis] = await Promise.all([
+      targetService.getCabang(),
+      targetService.getDevisi(),
     ])
-    years.value = yearItems
-    indicators.value = indicatorItems
-    divisionBranches.value = comboItems.filter((item) => item.is_active)
-    const active = yearItems.find((item) => item.is_active && !item.is_locked) ?? yearItems[0]
-    if (active) {
-      selectedYearId.value = active.id
-      await loadGrid()
-    }
+    cabangOptions.value = cabangs
+    devisiOptions.value = devisis
   } catch (error) {
-    console.error('Gagal memuat lookup target:', error)
-    gridError.value = 'Data master target gagal dimuat. Silakan muat ulang halaman.'
-  } finally {
-    yearsLoading.value = false
+    console.error('Gagal memuat master target:', error)
   }
 }
 
-async function loadGrid() {
-  if (!selectedYearId.value) return
-  gridLoading.value = true
-  gridError.value = ''
+let searchDebounce: ReturnType<typeof setTimeout> | null = null
+function onSearchInput() {
+  if (searchDebounce) clearTimeout(searchDebounce)
+  searchDebounce = setTimeout(fetchList, 350)
+}
+
+async function fetchList() {
+  listLoading.value = true
+  listError.value = ''
   try {
-    const versions = await targetService.getVersions(selectedYearId.value)
-    currentVersion.value =
-      versions.sort((a, b) => b.version_number - a.version_number)[0] ?? null
-    plans.value = currentVersion.value
-      ? await targetService.getPlans(currentVersion.value.id)
-      : []
-    Object.keys(editedValues).forEach((key) => delete editedValues[key])
-    dirtyRows.value.clear()
+    const res = await targetService.list({
+      tahun: filterYear.value || null,
+      bulan: filterMonth.value || null,
+      kode_cabang: filterCabang.value || null,
+      kode_devisi: filterDevisi.value || null,
+      search: search.value || null,
+      limit: 500,
+    })
+    targets.value = res.data
+    kpi.value = res.kpi ?? {
+      total_target: 0,
+      total_realisasi: 0,
+      gap: 0,
+      avg_capaian: 0,
+      total_baris: res.data.length,
+    }
+    currentPage.value = 1
   } catch (error) {
-    console.error('Gagal memuat target:', error)
-    gridError.value = 'Data target gagal dimuat. Silakan coba lagi.'
+    console.error('Gagal memuat data target:', error)
+    listError.value = 'Data target gagal dimuat. Silakan coba lagi.'
+    targets.value = []
   } finally {
-    gridLoading.value = false
+    listLoading.value = false
   }
 }
 
-function onYearChange() {
-  loadGrid()
+function resetForm() {
+  const defaults = emptyForm()
+  Object.assign(form, defaults)
+  submitted.value = false
 }
 
-function collectRows(): TargetPlanSaveRow[] {
-  const rows: TargetPlanSaveRow[] = []
-  dirtyRows.value.forEach((key) => {
-    const [divisionBranchId, indicatorId] = key.split(':').map(Number)
-    if (!divisionBranchId || !indicatorId) return
-    const raw = editedValues[key]?.replace(/\./g, '').replace(',', '.').trim() ?? ''
-    const parsed = raw === '' ? null : Number(raw)
-    if (parsed === null || !Number.isFinite(parsed)) return
-    rows.push({
-      division_branch_id: divisionBranchId,
-      indicator_id: indicatorId,
-      target_value: parsed,
-      notes: '',
-    })
-  })
-  return rows
+function openCreate() {
+  resetForm()
+  modalOpen.value = true
 }
 
-async function saveDraft(): Promise<boolean> {
-  if (!currentVersion.value && !selectedYearId.value) return false
-  const rows = collectRows()
-  if (!rows.length) {
-    await Swal.fire({
-      icon: 'info',
-      title: 'Tidak ada perubahan',
-      text: 'Belum ada nilai target yang diubah.',
-      timer: 1600,
-      showConfirmButton: false,
-    })
-    return false
+async function openEdit(row: TargetItem) {
+  resetForm()
+  modalOpen.value = true
+  try {
+    const detail = await targetService.detail(row.id)
+    form.id = detail.id
+    form.tahun = detail.tahun
+    form.bulan = detail.bulan ?? 0
+    form.kode_cabang = detail.KodeCabang
+    form.kode_devisi = detail.KodeDevisi
+    form.nominal = Number(detail.nominal) || 0
+    form.realisasi = Number(detail.realisasi) || 0
+    form.nominal_display = formatCurrencyInput(form.nominal)
+    form.realisasi_display = formatCurrencyInput(form.realisasi)
+    form.keterangan = detail.keterangan ?? ''
+  } catch (error) {
+    console.error('Gagal memuat detail target:', error)
+    modalOpen.value = false
+    await showErrorDetail(
+      'Detail target gagal dimuat',
+      error,
+      'Terjadi kesalahan saat menghubungi server. Silakan coba lagi.'
+    )
   }
+}
 
+function closeModal() {
+  if (saving.value) return
+  modalOpen.value = false
+  resetForm()
+}
+
+function buildPayload(): TargetFormPayload {
+  return {
+    tahun: form.tahun,
+    bulan: form.bulan ? form.bulan : null,
+    kode_cabang: form.kode_cabang,
+    kode_devisi: form.kode_devisi,
+    nominal: form.nominal,
+    realisasi: form.realisasi,
+    keterangan: form.keterangan ? form.keterangan : null,
+  }
+}
+
+async function saveTarget() {
+  submitted.value = true
+  if (!form.kode_cabang || !form.kode_devisi || !isNominalValid.value || !isRealisasiValid.value) {
+    return
+  }
   saving.value = true
   try {
-    await targetService.savePlans(currentVersion.value?.id ?? 0, rows)
-    await loadGrid()
+    const payload = buildPayload()
+    if (form.id) {
+      await targetService.update(form.id, payload)
+    } else {
+      await targetService.create(payload)
+    }
+    modalOpen.value = false
+    resetForm()
+    await fetchList()
     await Swal.fire({
       icon: 'success',
-      title: 'Draft tersimpan',
-      timer: 1600,
+      title: 'Target tersimpan',
+      timer: 1500,
       showConfirmButton: false,
     })
-    return true
   } catch (error) {
     console.error('Gagal menyimpan target:', error)
     await showErrorDetail(
@@ -409,93 +630,45 @@ async function saveDraft(): Promise<boolean> {
       error,
       'Terjadi kesalahan saat menghubungi server. Silakan coba lagi.'
     )
-    return false
   } finally {
     saving.value = false
   }
 }
 
-async function submitForApproval() {
-  if (!currentVersion.value) return
+async function confirmDelete(row: TargetItem) {
   const confirmation = await Swal.fire({
-    icon: 'question',
-    title: 'Ajukan target ini?',
-    text: 'Target yang diajukan tidak dapat diedit sampai proses persetujuan selesai.',
+    icon: 'warning',
+    title: 'Hapus target ini?',
+    text: `${row.nama_bulan} ${row.tahun} · ${row.nama_cabang} · ${row.nama_devisi}`,
     showCancelButton: true,
-    confirmButtonText: 'Ya, ajukan',
+    confirmButtonText: 'Ya, hapus',
     cancelButtonText: 'Batal',
-    confirmButtonColor: 'var(--theme-default)',
+    confirmButtonColor: '#d33',
   })
   if (!confirmation.isConfirmed) return
-
   try {
-    const saved = await saveDraft()
-    if (!saved && dirtyRows.value.size) return
-    await targetService.submitVersion(currentVersion.value.id)
-    await loadGrid()
+    await targetService.remove(row.id)
+    await fetchList()
     await Swal.fire({
       icon: 'success',
-      title: 'Target diajukan',
-      timer: 1600,
+      title: 'Target dihapus',
+      timer: 1500,
       showConfirmButton: false,
     })
   } catch (error) {
-    console.error('Gagal mengajukan target:', error)
+    console.error('Gagal menghapus target:', error)
     await showErrorDetail(
-      'Target gagal diajukan',
+      'Target gagal dihapus',
       error,
       'Terjadi kesalahan saat menghubungi server. Silakan coba lagi.'
     )
   }
 }
 
-async function copyPreviousYear() {
-  const currentIndex = years.value.findIndex((item) => item.id === selectedYearId.value)
-  const source = years.value[currentIndex + 1]
-  if (!source) {
-    await Swal.fire({
-      icon: 'info',
-      title: 'Tidak ada tahun sebelumnya',
-      text: 'Tidak ditemukan periode lain untuk disalin.',
-      confirmButtonColor: 'var(--theme-default)',
-    })
-    return
-  }
-
-  const confirmation = await Swal.fire({
-    icon: 'question',
-    title: `Salin target ${source.year_name}?`,
-    text: 'Target tersalin akan berstatus Draft dan tidak menimpa target yang sudah ada.',
-    showCancelButton: true,
-    confirmButtonText: 'Ya, salin',
-    cancelButtonText: 'Batal',
-    confirmButtonColor: 'var(--theme-default)',
-  })
-  if (!confirmation.isConfirmed) return
-
-  try {
-    await targetService.copyFromPreviousYear({
-      source_year_id: source.id,
-      target_year_id: selectedYearId.value,
-    })
-    await loadGrid()
-    await Swal.fire({
-      icon: 'success',
-      title: 'Target tersalin',
-      timer: 1600,
-      showConfirmButton: false,
-    })
-  } catch (error) {
-    console.error('Gagal menyalin target:', error)
-    await showErrorDetail(
-      'Target gagal disalin',
-      error,
-      'Terjadi kesalahan saat menghubungi server. Silakan coba lagi.'
-    )
-  }
-}
-
-onMounted(loadLookups)
+onMounted(async () => {
+  await fetchMasters()
+  await fetchList()
+})
 </script>
 
 <style scoped>
@@ -522,6 +695,7 @@ onMounted(loadLookups)
   gap: 24px;
   border-bottom: 1px solid #e8eef2;
   padding: 20px 24px;
+  flex-wrap: wrap;
 }
 
 .target-heading {
@@ -569,23 +743,20 @@ onMounted(loadLookups)
   align-items: center;
   gap: 10px;
   flex: 0 0 auto;
+  flex-wrap: wrap;
 }
 
-.target-year-select {
-  width: 220px;
-  height: 44px;
+.target-filter-select {
+  min-width: 150px;
+  height: 42px;
 }
 
-.target-add-button,
-.target-submit-button {
+.target-add-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
-  min-height: 44px;
-  max-height: 44px;
-  box-sizing: border-box;
+  height: 42px;
   padding: 0 18px;
   border-radius: 8px;
   font-weight: 700;
@@ -608,7 +779,7 @@ onMounted(loadLookups)
 
 .target-overview__metrics {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   padding: 22px 24px 24px;
 }
@@ -616,7 +787,7 @@ onMounted(loadLookups)
 .target-metric {
   position: relative;
   overflow: hidden;
-  min-height: 108px;
+  min-height: 120px;
   border: 1px solid #dfe8ee;
   border-radius: 16px;
   padding: 18px 21px;
@@ -650,28 +821,61 @@ onMounted(loadLookups)
 .target-metric__label.is-gray {
   color: #7a8798;
 }
+.target-metric__label.is-blue {
+  color: var(--target-blue);
+}
+.target-metric__label.is-red {
+  color: #d14343;
+}
 
 .target-metric__value {
   display: block;
   color: var(--target-ink);
-  font-size: clamp(25px, 2.6vw, 34px);
+  font-size: clamp(20px, 2vw, 26px);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+.target-metric__value.is-negative {
+  color: #d14343;
+}
+
+.target-metric__badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.target-metric__badge.is-success {
+  color: #0f7a3a;
+  background: #e4f7eb;
+}
+.target-metric__badge.is-warning {
+  color: #9a6b00;
+  background: #fff2d2;
+}
+.target-metric__badge.is-danger {
+  color: #a51f1f;
+  background: #fde0e0;
 }
 
 .target-metric > small {
   display: block;
   margin-top: 8px;
   color: var(--target-muted);
-  font-size: 10px;
+  font-size: 11px;
 }
 
-.target-grid-card {
+.target-list-card {
   border: 0;
   border-radius: 14px;
 }
 
-.target-grid-card > .card-body {
+.target-list-card > .card-body {
   padding: 24px;
 }
 
@@ -681,12 +885,14 @@ onMounted(loadLookups)
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .target-toolbar__right {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .target-search {
@@ -714,19 +920,6 @@ onMounted(loadLookups)
   color: var(--target-ink);
   background: transparent;
   font-size: 14px;
-}
-
-.target-filter-select {
-  width: 180px;
-  height: 42px;
-}
-
-.target-copy-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 42px;
-  white-space: nowrap;
 }
 
 .target-grid-wrapper {
@@ -757,88 +950,168 @@ onMounted(loadLookups)
   white-space: nowrap;
 }
 
-.target-grid thead th small {
-  display: block;
-  color: #8a95a5;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: none;
-}
-
 .target-grid tbody td {
-  padding: 8px 14px;
+  padding: 10px 14px;
   border-bottom: 1px solid #eef2f5;
   color: var(--target-ink);
+  vertical-align: middle;
 }
 
 .target-grid tbody tr:hover td {
   background: #f8fbfd;
 }
 
-.col-division,
-.col-branch {
-  min-width: 160px;
-  white-space: nowrap;
-}
-
-.col-value {
-  min-width: 170px;
-}
-
-.target-cell-input {
-  width: 100%;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: 7px;
-  color: var(--target-ink);
-  background: transparent;
-  font-size: 13px;
-  text-align: right;
-}
-
-.target-cell-input:hover:not(:disabled) {
-  border-color: #dbe4ec;
-  background: #fff;
-}
-
-.target-cell-input:focus {
-  border-color: var(--target-blue);
-  outline: 0;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 32, 167, 220), 0.12);
-}
-
-.target-cell-input.is-dirty {
-  border-color: var(--target-blue);
-  background: var(--app-primary-wash, #eef9fd);
-}
-
-.target-cell-input:disabled {
-  color: #9aa5b3;
-  cursor: not-allowed;
-}
-
-.target-grid-empty {
-  padding: 40px 20px !important;
-  color: var(--target-muted);
+.col-no {
+  width: 50px;
   text-align: center;
 }
 
-.target-grid-note {
+.col-periode {
+  min-width: 110px;
+}
+
+.target-periode__month {
+  display: block;
+  font-weight: 600;
+}
+
+.target-periode__year {
+  color: var(--target-muted);
+  font-size: 11px;
+}
+
+.col-cabang,
+.col-devisi {
+  min-width: 140px;
+}
+
+.col-money {
+  min-width: 150px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.col-money.is-negative {
+  color: #d14343;
+}
+
+.col-persen {
+  min-width: 110px;
+  text-align: center;
+}
+
+.col-keterangan {
+  min-width: 180px;
+  color: var(--target-muted);
+}
+
+.col-aksi {
+  width: 110px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.target-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.target-badge.is-success {
+  color: #0f7a3a;
+  background: #e4f7eb;
+}
+.target-badge.is-warning {
+  color: #9a6b00;
+  background: #fff2d2;
+}
+.target-badge.is-danger {
+  color: #a51f1f;
+  background: #fde0e0;
+}
+
+.target-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0 2px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.target-action--edit {
+  color: var(--target-blue);
+  border-color: #d7eaf6;
+  background: #f1f8fd;
+}
+
+.target-action--edit:hover {
+  background: var(--target-blue);
+  color: #fff;
+  border-color: var(--target-blue);
+}
+
+.target-action--delete {
+  color: #d14343;
+  border-color: #f3d2d2;
+  background: #fdeeee;
+}
+
+.target-action--delete:hover {
+  background: #d14343;
+  color: #fff;
+  border-color: #d14343;
+}
+
+.target-pagination {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin: 16px 0 0;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
   color: var(--target-muted);
   font-size: 12px;
+}
+
+.target-pagination__buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.target-page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e1e6ed;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.target-page-label {
+  padding: 0 8px;
+  color: var(--target-ink);
+  font-weight: 600;
 }
 
 .target-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 70px 20px;
+  padding: 60px 20px;
   text-align: center;
 }
 
@@ -857,14 +1130,33 @@ onMounted(loadLookups)
 .target-empty h5 {
   margin-bottom: 6px;
 }
+
 .target-empty p {
   margin: 0 0 17px;
   color: var(--target-muted);
 }
 
-@media (max-width: 991.98px) {
-  .target-heading__actions {
-    flex-wrap: wrap;
+.target-form-modal-body {
+  padding: 24px 26px 20px;
+}
+
+.target-form .form-label {
+  font-weight: 600;
+  color: var(--target-ink);
+}
+
+.target-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid #eef2f5;
+}
+
+@media (max-width: 1199.98px) {
+  .target-overview__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -875,12 +1167,10 @@ onMounted(loadLookups)
   }
   .target-heading__actions {
     width: 100%;
-    flex-direction: column;
   }
-  .target-year-select,
-  .target-add-button,
-  .target-submit-button {
-    width: 100%;
+  .target-filter-select,
+  .target-add-button {
+    flex: 1 1 auto;
   }
   .target-overview__metrics {
     grid-template-columns: 1fr;
@@ -895,30 +1185,30 @@ onMounted(loadLookups)
   .target-filter-select {
     width: 100%;
   }
-  .target-grid-card > .card-body {
+  .target-list-card > .card-body {
     padding: 16px;
   }
 }
 
 :global(body.dark-only) .target-overview,
 :global(body.dark-only) .target-metric,
-:global(body.dark-only) .target-grid-card,
-:global(body.dark-only) .target-search,
-:global(body.dark-only) .target-cell-input:hover:not(:disabled),
-:global(body.dark-only) .target-cell-input:focus {
+:global(body.dark-only) .target-list-card,
+:global(body.dark-only) .target-search {
   border-color: #334155;
   background: #1f2937;
 }
 
 :global(body.dark-only) .target-overview__heading,
-:global(body.dark-only) .target-grid thead th {
+:global(body.dark-only) .target-grid thead th,
+:global(body.dark-only) .target-form-footer {
   border-color: #334155;
 }
 
 :global(body.dark-only) .target-metric__value,
 :global(body.dark-only) .target-search input,
-:global(body.dark-only) .target-cell-input,
-:global(body.dark-only) .target-heading h3 {
+:global(body.dark-only) .target-heading h3,
+:global(body.dark-only) .target-grid tbody td,
+:global(body.dark-only) .target-page-label {
   color: #eef2f7;
 }
 
@@ -934,5 +1224,9 @@ onMounted(loadLookups)
 
 :global(body.dark-only) .target-grid tbody td {
   border-color: #2c3a4e;
+}
+
+:global(body.dark-only) .target-grid tbody tr:hover td {
+  background: #263242;
 }
 </style>
