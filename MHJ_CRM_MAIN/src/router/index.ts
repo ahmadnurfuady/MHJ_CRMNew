@@ -125,6 +125,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.CrmAdmin.Target,
+          name: 'SettingsTarget',
+          component: () => import('@/pages/settings/Target.vue'),
+          meta: {
+            mainTitle: 'Target',
+            title: 'Target Tahunan | MHJ CRM',
+            breadcrumb: [{ text: 'Setting', subText: 'Target' }],
+          },
+        },
+        {
           path: routes.Dashboards.ECommerce,
           name: 'ECommerceDashboard',
           component: () => import('@/pages/dashboard/Ecommerce.vue'),

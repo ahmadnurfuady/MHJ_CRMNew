@@ -186,22 +186,25 @@ function ensurePromoSettingsMenu(items: MenuItem[], addFallback: boolean): void 
 
     if (isSettingsMenu && addFallback) {
       const children = item.children ?? []
-      const hasPromo = children.some(
-        (child) =>
-          child.path?.trim().replace(/\/+$/, '').toLowerCase() === '/crmadmin/settings/promo'
-      )
-
-      if (!hasPromo) {
-        children.push({
-          id: `${item.id || 'settings'}-promo`,
-          title: 'Promo',
-          path: '/crmAdmin/settings/promo',
-          type: 'link',
-          active: false,
-          isPinned: false,
-          permissions: item.permissions,
-        })
+      const ensureChild = (childPath: string, childTitle: string, childId: string) => {
+        const exists = children.some(
+          (child) => child.path?.trim().replace(/\/+$/, '').toLowerCase() === childPath
+        )
+        if (!exists) {
+          children.push({
+            id: `${item.id || 'settings'}-${childId}`,
+            title: childTitle,
+            path: `/crmAdmin/settings/${childId}`,
+            type: 'link',
+            active: false,
+            isPinned: false,
+            permissions: item.permissions,
+          })
+        }
       }
+
+      ensureChild('/crmadmin/settings/promo', 'Promo', 'promo')
+      ensureChild('/crmadmin/settings/target', 'Target', 'target')
 
       item.children = children
       item.type = 'sub'
