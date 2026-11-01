@@ -160,6 +160,10 @@ export const api = {
     })
   },
 
+  put<T = unknown>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
+    return client.put<T>(resolveEndpoint(endpoint), payload, config)
+  },
+
   patch<T = unknown>(endpoint: string, payload?: unknown, config?: AxiosRequestConfig) {
     return client.patch<T>(resolveEndpoint(endpoint), payload, config)
   },
