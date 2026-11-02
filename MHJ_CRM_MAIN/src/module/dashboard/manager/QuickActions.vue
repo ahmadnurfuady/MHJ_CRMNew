@@ -8,11 +8,12 @@
           class="quick-actions__item"
         >
           <span class="quick-actions__icon" aria-hidden="true">
-            <MhjIcon
+            <SolarIcon
               :name="resolveQuickActionIcon(action.id)"
               :size="24"
-              color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
-              secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+              color="currentColor"
+              secondary-color="currentColor"
+              :secondary-opacity="1"
             />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
@@ -23,11 +24,12 @@
           :title="action.comingSoon ? 'Segera hadir' : undefined"
         >
           <span class="quick-actions__icon" aria-hidden="true">
-            <MhjIcon
+            <SolarIcon
               :name="resolveQuickActionIcon(action.id)"
               :size="24"
-              color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
-              secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+              color="currentColor"
+              secondary-color="currentColor"
+              :secondary-opacity="1"
             />
           </span>
           <span class="quick-actions__label">{{ action.label }}</span>
@@ -40,28 +42,28 @@
 
 <script setup lang="ts">
 import type { ManagerQuickAction } from '@/types/dashboard/manager'
-import type { MhjIconName } from '@/utils/mhjIcons'
 
 defineProps<{
   actions: ManagerQuickAction[]
 }>()
 
-const QUICK_ACTION_ICONS: Record<string, MhjIconName> = {
-  'materi-dokumen': 'action_folder',
-  'kalender-tugas': 'action_calendar_tugas',
-  promo: 'action_promo_ticket',
-  'form-survey': 'action_form_survey',
+const QUICK_ACTION_ICONS: Record<string, string> = {
+  'materi-dokumen': 'folder',
+  'kalender-tugas': 'calendar',
+  promo: 'ticket-sale',
+  piutang: 'tag',
+  'form-survey': 'document-add',
 }
 
-function resolveQuickActionIcon(id: string): MhjIconName {
-  return QUICK_ACTION_ICONS[id] ?? 'action_add'
+function resolveQuickActionIcon(id: string): string {
+  return QUICK_ACTION_ICONS[id] ?? 'add'
 }
 </script>
 
 <style scoped>
 .quick-actions__list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
   margin: 0;
   padding: 0;
@@ -103,10 +105,6 @@ a.quick-actions__item:focus-visible {
   border-radius: 50%;
   color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
   background: var(--dashboard-icon-surface, rgba(var(--app-primary-rgb, 24, 166, 228), 0.1));
-}
-
-.quick-actions__icon :deep([data-mhj-icon='action_folder'] svg path:first-child) {
-  opacity: 0.72;
 }
 
 .quick-actions__label {

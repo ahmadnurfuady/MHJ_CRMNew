@@ -20,6 +20,7 @@ const managerDashboardData: ManagerDashboardData = {
     { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
     { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
     { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/promos' },
+    { id: 'piutang', label: 'Piutang', icon: 'tag', comingSoon: true },
     { id: 'form-survey', label: 'Form Survey', icon: 'clipboard', comingSoon: true },
   ],
   benchmark: { stats: [], progressStats: [], winningChance: 0 },
@@ -164,7 +165,7 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
     stats: [
       {
         id: 'area-coverage',
-        label: 'Area Coverage',
+        label: 'Cakupan Wilayah',
         value: `${m.active_visited_hospitals}`,
         progress: areaProgress,
         hint: `dari ${m.total_target_hospitals} faskes dikunjungi`,
@@ -172,7 +173,7 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
       },
       {
         id: 'market-coverage',
-        label: 'Market Coverage',
+        label: 'Cakupan Pasar',
         value: `${m.qty_po_terbit}`,
         progress: clampProgress(m.market_coverage_percent),
         hint: `dari ${m.active_visited_hospitals} faskes membeli`,

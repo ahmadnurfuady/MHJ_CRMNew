@@ -8,11 +8,12 @@
       <div v-for="stat in coverage.stats" :key="stat.id" class="coverage-tile">
         <div class="coverage-tile__head">
           <span class="coverage-tile__icon" aria-hidden="true">
-            <MhjIcon
-              :name="stat.id === 'area-coverage' ? 'coverage_point_on_map' : 'kpi_pin_list'"
+            <SolarIcon
+              :name="stat.id === 'area-coverage' ? 'point-on-map' : 'pin-list'"
               :size="20"
-              color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
-              secondary-color="var(--dashboard-icon-primary, var(--app-primary, #18a6e4))"
+              color="currentColor"
+              secondary-color="currentColor"
+              :secondary-opacity="1"
             />
           </span>
           <strong>{{ stat.value }}</strong>
@@ -108,8 +109,8 @@ function formatPercent(value: number): string {
   background: var(--dashboard-icon-surface-strong, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14));
 }
 
-.coverage-tile__icon :deep(.mhj-icon) {
-  filter: saturate(1.08) contrast(1.08);
+.coverage-tile__icon :deep(.solar-icon) {
+  display: block;
 }
 
 .coverage-tile__head strong {

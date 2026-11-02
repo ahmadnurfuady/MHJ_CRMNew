@@ -130,7 +130,8 @@
                     <ul
                       v-if="
                         !readOnly &&
-                        (addressSuggestions.length ||
+                        showAddressDropdown &&
+                         (addressSuggestions.length ||
                           searchingAddress ||
                           canSearchOutsideProvince)
                       "
@@ -612,6 +613,8 @@ const locatingAddress = ref(false);
 const locationError = ref("");
 
 const addressSuggestions = ref<AddressSearchResult[]>([]);
+/** Dropdown hanya tampil saat user sedang mengetik/mencari. */
+const showAddressDropdown = ref(false);
 const searchingAddress = ref(false);
 const addressSearchError = ref("");
 const addressSearchNoResult = ref(false);
@@ -872,13 +875,14 @@ function applyRegionFromGeocode(provinceName: string, cityName: string) {
 async function executeFacilitySearch(query: string, searchOutside = false) {
   const trimmed = query.trim();
   if (trimmed.length < 3) {
-    addressSuggestions.value = [];
+    addressSuggestions.value = [];showAddressDropdown.value = false;
     addressSearchNoResult.value = false;
     return;
   }
 
   const sequence = ++facilitySearchSequence;
   searchingAddress.value = true;
+  showAddressDropdown.value = true;
   addressSearchError.value = "";
   addressSearchNoResult.value = false;
   try {
@@ -895,7 +899,7 @@ async function executeFacilitySearch(query: string, searchOutside = false) {
     addressSearchNoResult.value = results.length === 0;
   } catch {
     if (sequence !== facilitySearchSequence) return;
-    addressSuggestions.value = [];
+    addressSuggestions.value = [];showAddressDropdown.value = false;
     addressSearchError.value = "Pencarian lokasi gagal. Coba lagi.";
   } finally {
     if (sequence === facilitySearchSequence) searchingAddress.value = false;
@@ -975,7 +979,7 @@ watch(
 
 function handleAddressFieldBlur() {
   window.setTimeout(() => {
-    addressSuggestions.value = [];
+    addressSuggestions.value = [];showAddressDropdown.value = false;
     addressSearchNoResult.value = false;
   }, 150);
 }
@@ -990,7 +994,7 @@ function selectAddressSuggestion(suggestion: AddressSearchResult) {
     lat: suggestion.latitude,
     lng: suggestion.longitude,
   };
-  addressSuggestions.value = [];
+  addressSuggestions.value = [];showAddressDropdown.value = false;
   addressSearchNoResult.value = false;
   locationError.value = "";
   applyRegionFromGeocode(suggestion.province, suggestion.city);
@@ -1000,7 +1004,7 @@ function selectAddressSuggestion(suggestion: AddressSearchResult) {
 async function applyPickedLocation(lat: number, lng: number) {
   suppressNextAddressSearch = true;
   selectedLocation.value = { lat, lng };
-  addressSuggestions.value = [];
+  addressSuggestions.value = [];showAddressDropdown.value = false;
   addressSearchNoResult.value = false;
   locationError.value = "";
   pinUpdating.value = true;
@@ -1050,7 +1054,7 @@ const { canAddPhone, addPhoneHint, addPhone, removePhone } = usePhoneNumberList(
 async function searchTypedAddress(query: string) {
   locationError.value = "";
   locatingAddress.value = true;
-  addressSuggestions.value = [];
+  addressSuggestions.value = [];showAddressDropdown.value = false;
   addressSearchNoResult.value = false;
 
   try {
@@ -1087,7 +1091,7 @@ async function captureCurrentAddress() {
     contactState.value.rumahSakitForm.mapAddress.data = location.address;
     contactState.value.rumahSakitForm.address.data = location.address;
     selectedLocation.value = { lat: latitude, lng: longitude };
-    addressSuggestions.value = [];
+    addressSuggestions.value = [];showAddressDropdown.value = false;
     addressSearchNoResult.value = false;
     applyRegionFromGeocode(location.province, location.city);
   } catch (error) {
@@ -1112,7 +1116,7 @@ function clearCurrentAddress() {
   contactState.value.rumahSakitForm.mapAddress.data = "";
   contactState.value.rumahSakitForm.address.data = "";
   selectedLocation.value = null;
-  addressSuggestions.value = [];
+  addressSuggestions.value = [];showAddressDropdown.value = false;
   addressSearchNoResult.value = false;
   locationError.value = "";
 }

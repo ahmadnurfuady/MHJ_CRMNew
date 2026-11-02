@@ -497,14 +497,6 @@
             @loaded="(n) => (activityTimelineCount = n)"
           />
         </article>
-
-        <article class="tab-panel comments-panel">
-          <CommentsPanel
-            parent-type="company"
-            :parent-id="hospital?.id ?? null"
-            title="Komentar Faskes"
-          />
-        </article>
       </section>
 
       <section
@@ -757,7 +749,7 @@ import {
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import ActivityTimeline from "@/components/shared/ActivityTimeline.vue";
-import CommentsPanel from "@/components/shared/CommentsPanel.vue";
+
 import { fetchUnifiedTimeline } from "@/services/activityLogService";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";

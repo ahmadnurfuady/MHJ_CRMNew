@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from "node:url";
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync, readFileSync, watch } from "node:fs";
 import { join, relative } from "node:path";
 
 import { defineConfig } from "vite";
@@ -45,6 +45,19 @@ const inlineMhjIconsPlugin = {
   load(id: string) {
     if (id !== resolvedMhjIconVirtualId) return undefined;
     return `export default ${JSON.stringify(collectMhjIconMarkup(mhjIconRoot))};`;
+  },
+  configureServer(server: {
+    moduleGraph: { getModuleById: (id: string) => unknown; invalidateModule: (mod: unknown) => void };
+    ws: { send: (payload: { type: string }) => void };
+  }) {
+    // Re-scan ikon MHJ saat ada file SVG baru/berubah agar ikon inline
+    // langsung aktif tanpa perlu restart dev server.
+    watch(mhjIconRoot, { recursive: true }, (_event, filename) => {
+      if (!filename || !filename.toLowerCase().endsWith(".svg")) return;
+      const mod = server.moduleGraph.getModuleById(resolvedMhjIconVirtualId);
+      if (mod) server.moduleGraph.invalidateModule(mod);
+      server.ws.send({ type: "full-reload" });
+    });
   },
 };
 

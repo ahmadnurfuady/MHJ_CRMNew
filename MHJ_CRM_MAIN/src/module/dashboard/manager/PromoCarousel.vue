@@ -8,11 +8,12 @@
     <div v-if="loading" class="promo-carousel__placeholder">Memuat promo...</div>
 
     <div v-else-if="slides.length === 0" class="promo-carousel__empty">
-      <MhjIcon
-        name="action_promo_ticket"
+      <SolarIcon
+        name="ticket-sale"
         :size="28"
-        color="var(--app-primary-dark, #0e7490)"
-        secondary-color="var(--app-secondary, #84d7eb)"
+        color="currentColor"
+        secondary-color="currentColor"
+        :secondary-opacity="1"
       />
       <span>Belum ada promo aktif saat ini.</span>
     </div>
@@ -39,11 +40,12 @@
           <div class="promo-slide__decoration" aria-hidden="true">
             <span class="promo-slide__orb promo-slide__orb--large"></span>
             <span class="promo-slide__orb promo-slide__orb--small"></span>
-            <MhjIcon
-              name="action_promo_ticket"
+            <SolarIcon
+              name="ticket-sale"
               :size="34"
               color="#fff"
               secondary-color="#fff"
+              :secondary-opacity="1"
             />
           </div>
           <span class="promo-slide__overlay" aria-hidden="true"></span>

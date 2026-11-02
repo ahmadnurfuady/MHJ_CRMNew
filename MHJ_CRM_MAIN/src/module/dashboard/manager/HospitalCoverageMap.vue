@@ -47,24 +47,27 @@
           v-if="activeLayer.id === 'standard'"
           name="map"
           :size="19"
-          color="var(--app-primary-dark, #0e7490)"
+          color="var(--app-primary, #18a6e4)"
           secondary-color="var(--app-primary, #18a6e4)"
+          :secondary-opacity="1"
         />
         <MhjIcon
           v-else-if="activeLayer.id === 'satellite'"
-          name="map_satellite"
+          name="map_satellite_bold"
           :size="20"
           class="map-layer-symbol map-layer-symbol--satellite"
-          color="var(--app-primary-dark, #0e7490)"
+          color="var(--app-primary, #18a6e4)"
           secondary-color="var(--app-primary, #18a6e4)"
+          single-color
         />
-        <EarthDuotoneIcon
+        <SolarIcon
           v-else
+          name="earth"
           class="map-layer-symbol"
           :size="20"
-          color="var(--app-primary-dark, #0e7490)"
+          color="var(--app-primary, #18a6e4)"
           secondary-color="var(--app-primary, #18a6e4)"
-          :secondary-opacity="0.55"
+          :secondary-opacity="1"
         />
         <span>{{ activeLayer.label }}</span>
         <SolarIcon
@@ -134,23 +137,26 @@
           :name="layer.icon"
           :size="23"
           color="currentColor"
-          secondary-color="var(--app-primary, #18a6e4)"
+          secondary-color="currentColor"
+          :secondary-opacity="1"
         />
         <MhjIcon
           v-else-if="layer.id === 'satellite'"
-          name="map_satellite"
+          name="map_satellite_bold"
           :size="23"
           class="map-layer-symbol map-layer-symbol--satellite"
           color="currentColor"
-          secondary-color="var(--app-primary, #18a6e4)"
+          secondary-color="currentColor"
+          single-color
         />
-        <EarthDuotoneIcon
+        <SolarIcon
           v-else
+          name="earth"
           class="map-layer-symbol"
           :size="23"
           color="currentColor"
-          secondary-color="var(--app-primary, #18a6e4)"
-          :secondary-opacity="0.55"
+          secondary-color="currentColor"
+          :secondary-opacity="1"
         />
         <span>
           <strong>{{ layer.label }}</strong>
@@ -385,7 +391,6 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import GoogleMapView from '@/components/GoogleMapView.vue'
 import type { GoogleMapMarker } from '@/components/GoogleMapView.vue'
-import { EarthIcon as EarthDuotoneIcon } from '@solar-icons/vue/bold-duotone/earth'
 
 import { fetchHospitalMap, type HospitalMapPoint } from '@/services/analyticsService'
 import { useHospitalStore } from '@/store/hospital'
@@ -990,12 +995,13 @@ onBeforeUnmount(() => {
 
 .hospital-map__layer-menu > small { display: block; margin: 0 4px 7px; color: #82909c; font-size: 10px; font-weight: 700; }
 .hospital-map__layer-menu button { display: grid; grid-template-columns: 28px 1fr 20px; align-items: center; width: 100%; border: 1px solid transparent; border-radius: 10px; padding: 9px; color: #647480; background: transparent; text-align: left; cursor: pointer; }
-.hospital-map__layer-menu button.active { border-color: var(--app-primary, #18a6e4); color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); }
+.hospital-map__layer-menu button:hover { color: var(--app-primary, #18a6e4); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08); }
+.hospital-map__layer-menu button.active { border-color: var(--app-primary, #18a6e4); color: var(--app-primary, #18a6e4); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); }
 .hospital-map__layer-menu button > span { display: grid; gap: 1px; }
 .hospital-map__layer-menu button strong { font-size: 11.5px; }
 .hospital-map__layer-menu button small { color: #9ba6af; font-size: 9.5px; }
-.map-layer-symbol { display: block; flex: 0 0 auto; width: 23px; height: 23px; color: currentColor; object-fit: contain; }
-.map-action--wide .map-layer-symbol { width: 20px; height: 20px; }
+.map-layer-symbol { display: grid; place-items: center; flex: 0 0 auto; width: 23px; height: 23px; color: inherit; object-fit: contain; }
+.map-action--wide .map-layer-symbol { width: 20px; height: 20px; color: var(--app-primary, #18a6e4); }
 .map-layer-symbol--satellite { padding: 1px; }
 
 .hospital-map__controls { position: absolute; right: 12px; bottom: 32px; z-index: 500; display: grid; gap: 7px; }

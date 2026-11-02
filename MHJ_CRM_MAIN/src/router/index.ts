@@ -211,9 +211,9 @@ const router = createRouter({
           component: () => import('@/pages/project/ProjectDetailsV2.vue'),
           alias: ['/crmAdmin/projects/details-v2'],
           meta: {
-            mainTitle: 'Detail Peluang V2',
-            title: 'Detail Peluang V2 | MHJ CRM',
-            breadcrumb: [{ text: 'Peluang', subText: 'Detail Peluang V2' }],
+            mainTitle: 'Detail Peluang',
+            title: 'Detail Peluang | MHJ CRM',
+            breadcrumb: [{ text: 'Peluang', subText: 'Detail Peluang' }],
           },
         },
         {

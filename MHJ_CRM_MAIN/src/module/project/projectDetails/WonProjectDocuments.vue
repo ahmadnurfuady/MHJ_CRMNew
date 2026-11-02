@@ -60,10 +60,6 @@
           </button>
         </div>
       </details>
-
-      <button type="button" class="tracking-button" @click="trackingOpen = true">
-        <SolarIcon name="fa-truck" />Status Pemesanan
-      </button>
     </div>
 
     <div class="document-notes">
@@ -298,23 +294,28 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-light" type="button" :disabled="saving" @click="closeForm">Batal</button>
-          <button class="btn btn-primary" type="submit" :disabled="saving">
-            {{ saving ? 'Menyimpan...' : 'Simpan' }}
-          </button>
+          <div class="footer-actions">
+            <button class="btn btn-outline-danger" type="button" :disabled="saving" @click="downloadDraft('pdf')">
+              <SolarIcon name="fa-file-pdf" /> PDF
+            </button>
+            <button class="btn btn-outline-primary" type="button" :disabled="saving" @click="downloadDraft('docx')">
+              <SolarIcon name="fa-file-word" /> Word
+            </button>
+            <button class="btn btn-primary" type="submit" :disabled="saving">
+              {{ saving ? 'Menyimpan...' : 'Simpan' }}
+            </button>
+          </div>
         </div>
       </form>
     </Modal>
-
-    <OrderTrackingModal :open="trackingOpen" :project="project" @close="trackingOpen = false" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
 
 import Modal from '@/components/shared/Modal.vue'
-import OrderTrackingModal from '@/module/project/projectDetails/OrderTrackingModal.vue'
 import { savePoCustomer, saveSuratPesanan } from '@/services/projectOrderService'
 import {
   downloadStoredDocument,
@@ -339,7 +340,39 @@ const salesOrderInput = ref<HTMLInputElement | null>(null)
 const formMode = ref<ProjectDocumentKind | null>(null)
 const documents = ref<StoredProjectDocument[]>([])
 const saving = ref(false)
-const trackingOpen = ref(false)
+const actionsRoot = ref<HTMLElement | null>(null)
+
+/** Tutup semua dropdown dokumen; kecuali yang sedang dibuka (accordion behavior). */
+function closeDocumentMenus(except?: HTMLDetailsElement): void {
+  actionsRoot.value
+    ?.querySelectorAll<HTMLDetailsElement>('details.document-menu[open]')
+    .forEach((menu) => {
+      if (menu !== except) menu.open = false
+    })
+}
+
+/** Saat satu dropdown dibuka, dropdown lain otomatis tertutup. */
+function handleMenuToggle(event: Event): void {
+  const menu = (event.target as HTMLElement).closest('details.document-menu') as HTMLDetailsElement | null
+  if (menu?.open) closeDocumentMenus(menu)
+}
+
+/** Klik di luar area card dokumen menutup dropdown yang sedang terbuka. */
+function handleOutsideClick(event: MouseEvent): void {
+  if (actionsRoot.value && !actionsRoot.value.contains(event.target as Node)) {
+    closeDocumentMenus()
+  }
+}
+
+onMounted(() => {
+  actionsRoot.value?.addEventListener('toggle', handleMenuToggle, true)
+  document.addEventListener('click', handleOutsideClick)
+})
+
+onBeforeUnmount(() => {
+  actionsRoot.value?.removeEventListener('toggle', handleMenuToggle, true)
+  document.removeEventListener('click', handleOutsideClick)
+})
 
 const form = reactive({
   documentNumber: '',
@@ -942,6 +975,67 @@ async function showStorageError(error: unknown): Promise<void> {
   await Swal.fire('Gagal menyimpan dokumen', message, 'error')
 }
 
+/** Bangun dokumen Word (.doc, kompatibel Word/LibreOffice) dari isi form. */
+function createWordBlob(kind: ProjectDocumentKind): Blob {
+  const escapeHtml = (value: string) => pdfSafeText(value || '-')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  const rowHtml = (rows: string[][]) => rows
+    .filter(([, value]) => value)
+    .map(([label = '', value = '']) => `<tr><td style="width:38%;font-weight:bold;padding:4px 8px;vertical-align:top">${escapeHtml(label)}</td><td style="width:4%;padding:4px 0;vertical-align:top">:</td><td style="padding:4px 8px;vertical-align:top">${escapeHtml(value).replace(/\n/g, '<br/>')}</td></tr>`)
+    .join('')
+
+  let body = ''
+  if (kind === 'customer-po') {
+    body = `
+      <h1 style="text-align:center;font-size:18pt;margin:0 0 4px">DATA PELANGGAN</h1>
+      <p style="text-align:right;font-size:10pt">Tgl. ${escapeHtml(formatDocumentDate(form.documentDate))}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:10pt">${rowHtml(customerRows())}</table>
+      <h2 style="font-size:12pt;border-bottom:1px solid #999;padding-bottom:4px">CARA PEMBAYARAN</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:10pt">${rowHtml(customerPaymentRows())}</table>
+      <h2 style="font-size:12pt;border-bottom:1px solid #999;padding-bottom:4px">PERSETUJUAN</h2>
+      <table style="width:100%;border-collapse:collapse;font-size:10pt">
+        <tr>${customerApprovalRows().map(([role = '']) => `<td style="border:1px solid #666;padding:6px;text-align:center;font-weight:bold;width:25%">${escapeHtml(role)}</td>`).join('')}</tr>
+        <tr>${customerApprovalRows().map(([, name = '']) => `<td style="border:1px solid #666;padding:6px;height:70px;text-align:center;vertical-align:bottom">${escapeHtml(name)}</td>`).join('')}</tr>
+      </table>`
+  } else {
+    body = `
+      <h1 style="text-align:center;font-size:18pt;margin:0 0 4px">SURAT PESANAN</h1>
+      <p style="text-align:right;font-size:10pt">Tgl. ${escapeHtml(formatDocumentDate(form.documentDate))}</p>
+      <table style="width:100%;border-collapse:collapse;font-size:10pt">${rowHtml(salesOrderRows())}</table>
+      <p style="margin-top:36px;font-size:10pt">Hormat kami,</p>
+      <p style="margin-top:56px;font-size:10pt"><b>${escapeHtml(form.signerName || '-')}</b><br/>${escapeHtml(form.signerTitle || '')}</p>`
+  }
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"/><style>body{font-family:Calibri,Arial,sans-serif;color:#222}</style></head><body>${body}</body></html>`
+  return new Blob(['﻿', html], { type: 'application/msword' })
+}
+
+function triggerDownload(blob: Blob, fileName: string): void {
+  const url = URL.createObjectURL(blob)
+  const anchor = window.document.createElement('a')
+  anchor.href = url
+  anchor.download = fileName
+  window.document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  URL.revokeObjectURL(url)
+}
+
+/** Unduh draft langsung dari isi form tanpa menyimpan dulu. */
+function downloadDraft(format: 'pdf' | 'docx'): void {
+  if (!formMode.value) return
+  const kind = formMode.value
+  const label = kind === 'customer-po' ? 'Data-Pelanggan' : 'Surat-Pesanan'
+  const baseName = `${label}-${safeFileName(form.customer)}-${form.documentDate || today()}`
+  if (format === 'pdf') {
+    triggerDownload(createPdfBlob(kind), `${baseName}.pdf`)
+  } else {
+    triggerDownload(createWordBlob(kind), `${baseName}.doc`)
+  }
+}
+
 watch(() => props.project.id, loadDocuments)
 onMounted(loadDocuments)
 </script>
@@ -970,9 +1064,6 @@ onMounted(loadDocuments)
 .document-menu__panel strong { font-size: 11px; }
 .document-menu__panel small { margin-top: 2px; color: #89949e; font-size: 9px; font-weight: 400; }
 .document-menu__panel .latest-document { margin-top: 4px; border-top: 1px solid #edf1f4; border-radius: 0 0 8px 8px; }
-.tracking-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 175px; border: 1px solid #bfe8d2; border-radius: 10px; padding: 10px 13px; color: #137944; background: #effaf4; font-size: 12px; font-weight: 600; }
-.tracking-button:hover { border-color: #a4ddbe; background: #e4f6ec; }
-.tracking-button i { color: #16884d; }
 .document-notes { display: grid; grid-column: 1 / -1; gap: 4px; margin: -3px 0 0 54px; }
 .document-notes p { margin: 0; }
 .order-status-note { color: #8a5a00; font-size: 10px; font-weight: 600; }
@@ -999,14 +1090,15 @@ onMounted(loadDocuments)
 .option-group--inline { display: flex; flex-wrap: wrap; gap: 5px 24px; }
 .option-group--inline legend { flex: 0 0 100%; }
 .form-section-title { margin: 8px 0 0; border-bottom: 1px solid #e5ebef; padding-bottom: 9px; color: var(--app-primary, #168fca); font-size: 14px; font-weight: 600; }
-.document-form .modal-footer { flex: 0 0 auto; padding: 14px 24px; background: #fff; }
+.document-form .modal-footer { display: flex; flex: 0 0 auto; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 24px; background: #fff; }
+.document-form .footer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.document-form .footer-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
 .document-form .btn { min-width: 100px; font-size: 14px; font-weight: 500; }
 
 @media (max-width: 767.98px) {
   .won-document-actions { grid-template-columns: 1fr; padding: 14px; }
   .document-buttons { display: grid; grid-template-columns: 1fr 1fr; }
   .document-menu summary { min-width: 0; }
-  .tracking-button { grid-column: 1 / -1; min-width: 0; }
   .document-menu__panel { width: min(270px, calc(100vw - 42px)); }
   .document-notes { margin: -2px 0 0; }
   .form-grid { grid-template-columns: 1fr; }

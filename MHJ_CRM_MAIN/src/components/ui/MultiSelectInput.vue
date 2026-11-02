@@ -227,6 +227,7 @@ onBeforeUnmount(() => {
   color: inherit;
   font-size: 0.875rem;
   line-height: 1;
+  transform: translateY(-1px);
   cursor: pointer;
 }
 

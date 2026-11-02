@@ -332,6 +332,8 @@ export const useProjectStore = defineStore('project', () => {
   const items = ref<Projects[]>([])
   const summaryItems = ref<Projects[]>([])
   const selectedItem = ref<Projects | null>(null)
+  const selectedDetail = ref<Dict | null>(null)
+  const selectedTasks = ref<Dict[]>([])
   const selectedDetails = ref<Dict[]>([])
   const createModalOpen = ref(false)
   const createModalHospital = ref<{ id: number; name: string } | null>(null)
@@ -438,17 +440,12 @@ export const useProjectStore = defineStore('project', () => {
         const response = await api.getbydata(`${ENDPOINT}/fetchprojectbyid`, {
           id
         })
-        const raw = extractItem(response.data, ['deal', 'deals', 'project', 'projects'])
-        const detailResult = extractList(response.data, [
-          'projectdetails',
-          'project_details',
-          'm_projectsdet',
-          'dealdetails',
-          'deal_details',
-          'details',
-          'taskassoc'
-        ])
-        selectedDetails.value = detailResult.items.filter(isRecord).map((task) => ({
+        const detail = extractItem(response.data, ['detail'])
+        const raw = detail ?? extractItem(response.data, ['deal', 'deals', 'project', 'projects'])
+        const taskResult = extractList(response.data, ['taskassoc'])
+        selectedDetail.value = detail
+        selectedTasks.value = taskResult.items.filter(isRecord)
+        selectedDetails.value = selectedTasks.value.map((task) => ({
           ...task,
           activity: pickString(task, 'activity', 'task_name', 'title'),
           activity_date: pickString(task, 'activity_date', 'due_date', 'created_at'),
@@ -829,6 +826,8 @@ export const useProjectStore = defineStore('project', () => {
     items,
     summaryItems,
     selectedItem,
+    selectedDetail,
+    selectedTasks,
     selectedDetails,
     createModalOpen,
     createModalHospital,

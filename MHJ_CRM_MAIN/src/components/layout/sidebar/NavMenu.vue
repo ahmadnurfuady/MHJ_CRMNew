@@ -66,24 +66,44 @@
         aria-hidden="true"
       />
       <MhjIcon
-        v-else-if="resolveMhjNavigationIcon(menuItem)"
+        v-else-if="resolveMhjNavigationIcon(menuItem) && !isTaskNavigationItem(menuItem)"
         :name="resolveMhjNavigationIcon(menuItem)!"
         class="sidebar-mhj-icon"
         :size="18"
       />
+      <SolarIcon
+        v-else-if="isTaskNavigationItem(menuItem)"
+        name="checklist"
+        class="sidebar-solar-icon"
+        :size="18"
+        color="#ffffff"
+        secondary-color="#ffffff"
+        :secondary-opacity="1"
+        aria-hidden="true"
+      />
       <template v-else>
+        <SolarIcon
+          :name="resolveSidebarIcon(menuItem)"
+          class="sidebar-solar-icon"
+          :size="18"
+          color="#ffffff"
+          secondary-color="#ffffff"
+          :secondary-opacity="1"
+          aria-hidden="true"
+          v-if="menuItem.icon && isBoldSidebarIcon(menuItem)"
+        />
         <SvgIcon
           :icon="resolveSidebarIcon(menuItem)"
           svgClass="stroke-icon"
           :stroke-width="resolveSidebarIconStrokeWidth(menuItem)"
-          v-if="menuItem.icon && layoutState.svgIcon == 'stroke-svg'"
+          v-else-if="menuItem.icon && layoutState.svgIcon == 'stroke-svg'"
           type="stroke"
         />
         <SvgIcon
           :icon="resolveSidebarIcon(menuItem)"
           svgClass="fill-icon"
           :stroke-width="resolveSidebarIconStrokeWidth(menuItem)"
-          v-if="menuItem.icon && layoutState.svgIcon == 'fill-svg'"
+          v-else-if="menuItem.icon && layoutState.svgIcon == 'fill-svg'"
           type="fill"
         />
       </template>
@@ -146,20 +166,28 @@ function isPeluangNavigationItem(item: MenuItem) {
   return /peluang|project|proyek|projek|deal/.test(value)
 }
 
+function isTaskNavigationItem(item: MenuItem) {
+  const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
+  return /tugas|task|checklist/.test(value)
+}
+
 function resolveSidebarIcon(item: MenuItem) {
   const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
 
-  if (/master/.test(value)) return 'file-text-linear'
-  if (/settings?/.test(value)) return 'settings-linear'
-
-  if (/kalender|calendar/.test(value)) return 'calendar-linear'
-  if (/laporan|reports?/.test(value)) return 'chart-linear'
+  if (/master/.test(value)) return 'file-text'
+  if (/settings?/.test(value)) return 'settings'
+  if (/kalender|calendar/.test(value)) return 'calendar'
+  if (/laporan|reports?/.test(value)) return 'chart'
   return item.icon
 }
 
-function resolveSidebarIconStrokeWidth(item: MenuItem) {
-  const icon = resolveSidebarIcon(item)
-  return icon === 'calendar-linear' || icon === 'chart-linear' ? 1.25 : undefined
+function isBoldSidebarIcon(item: MenuItem): boolean {
+  const value = `${item.title ?? ''} ${item.path ?? ''} ${item.icon ?? ''}`.toLowerCase()
+  return /master/.test(value) || /settings?/.test(value) || /kalender|calendar/.test(value) || /laporan|reports?/.test(value)
+}
+
+function resolveSidebarIconStrokeWidth(_item: MenuItem) {
+  return undefined
 }
 
 const onMenuClick = (menuItem: MenuItem) => {
@@ -201,28 +229,15 @@ const onMenuClick = (menuItem: MenuItem) => {
   transition: none !important;
 }
 
-/* Kalender & Laporan: tanpa bidang fill, dengan outline putih tipis. */
-.sidebar-link :deep(.solar-calendar-linear),
-.sidebar-link :deep(.solar-chart-square-linear),
-.sidebar-link :deep(.solar-file-text-linear),
-.sidebar-link :deep(.solar-settings-linear) {
-  color: #fff !important;
-  fill: none !important;
-}
-
-.sidebar-link :deep(.solar-calendar-linear path:first-of-type),
-.sidebar-link :deep(.solar-chart-square-linear path:last-of-type) {
-  stroke: #fff !important;
-  stroke-width: 1.25 !important;
-}
-
-.sidebar-link :deep(.solar-calendar-linear path:not(:first-of-type)),
-.sidebar-link :deep(.solar-chart-square-linear path:not(:last-of-type)) {
-  stroke: #fff !important;
-  stroke-width: 2 !important;
-}
-
-.sidebar-link :deep(.solar-calendar-linear path:nth-of-type(n + 5)) {
-  stroke-width: 2.5 !important;
+/* Master, Settings, Kalender, Laporan: bold solid putih tanpa outline. */
+.sidebar-link :deep(.sidebar-solar-icon) {
+  display: inline-block !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px;
+  margin-right: 10px !important;
+  vertical-align: -2px;
+  transform: none !important;
+  transition: none !important;
 }
 </style>

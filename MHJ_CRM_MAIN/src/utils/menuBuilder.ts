@@ -71,7 +71,7 @@ function resolveMenuTitle(rawTitle: string, fallback: string): string {
     .replace(/\b(?:projects?|pro(?:y|j)ek|peluang|deals?)\b/gi, 'Peluang')
     .replace(/^Peluang\s+Details?$/i, 'Detail Peluang')
     .replace(/^Peluang\s+List$/i, 'Daftar Peluang')
-    .replace(/^Peluang\s+Detail\s+Ver2$/i, 'Detail Peluang V2')
+    .replace(/^Peluang\s+Detail\s+Ver2$/i, 'Detail Peluang')
 }
 
 /** Arahkan path menu Faskes yang lama ke URL kanonis. */

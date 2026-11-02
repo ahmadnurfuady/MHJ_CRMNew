@@ -30,6 +30,7 @@ export const MHJ_ICON_PATHS = {
   kpi_medal_ribbons_star: '/icons/mhj/duotone/kpi_medal_ribbons_star.svg',
   kpi_pin_list: '/icons/mhj/duotone/kpi_pin_list.svg',
   map_satellite: '/icons/mhj/duotone/satelite.svg',
+  map_satellite_bold: '/icons/mhj/bold/satelite.svg',
   letter: '/icons/mhj/duotone/letter.svg',
   letter_unread: '/icons/mhj/duotone/letter_unread.svg',
   nav_contact: '/icons/mhj/duotone/nav_contact.svg',

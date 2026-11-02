@@ -26,6 +26,7 @@ import { ArrowLeftIcon as ArrowLeftLinearIcon } from "@solar-icons/vue/bold/arro
 import { ArrowRightIcon } from "@solar-icons/vue/bold/arrow-right";
 import { ArrowRightUpIcon } from "@solar-icons/vue/bold/arrow-right-up";
 import { BellIcon } from "@solar-icons/vue/bold/bell";
+import { BillListIcon } from "@solar-icons/vue/bold/bill-list";
 import { BoltIcon } from "@solar-icons/vue/bold/bolt";
 import { BoxIcon } from "@solar-icons/vue/bold/box";
 import { BuildingsIcon } from "@solar-icons/vue/bold/buildings";
@@ -38,6 +39,7 @@ import { Chart2Icon } from "@solar-icons/vue/bold/chart-2";
 import { ChartSquareIcon as ChartSquareLinearIcon } from "@solar-icons/vue/bold/chart-square";
 import { ChatRoundDotsIcon } from "@solar-icons/vue/bold/chat-round-dots";
 import { CheckCircleIcon } from "@solar-icons/vue/bold/check-circle";
+import { ChecklistIcon } from "@solar-icons/vue/bold/checklist";
 import { CheckReadIcon } from "@solar-icons/vue/bold/check-read";
 import { CheckSquareIcon } from "@solar-icons/vue/bold/check-square";
 import { ClipboardIcon } from "@solar-icons/vue/bold/clipboard";
@@ -79,6 +81,7 @@ import { HospitalIcon } from "@solar-icons/vue/bold/hospital";
 import { InfoCircleIcon } from "@solar-icons/vue/bold/info-circle";
 import { LayersIcon } from "@solar-icons/vue/bold/layers";
 import { MapIcon } from "@solar-icons/vue/bold/map";
+import { EarthIcon } from "@solar-icons/vue/bold/earth";
 import { LetterIcon } from "@solar-icons/vue/bold/letter";
 import { LinkIcon } from "@solar-icons/vue/bold/link";
 import { ListIcon } from "@solar-icons/vue/bold/list";
@@ -101,6 +104,8 @@ import { PaperclipIcon } from "@solar-icons/vue/bold/paperclip";
 import { PenIcon } from "@solar-icons/vue/bold/pen";
 import { PhoneIcon } from "@solar-icons/vue/bold/phone";
 import { PinIcon } from "@solar-icons/vue/bold/pin";
+import { PinListIcon } from "@solar-icons/vue/bold/pin-list";
+import { PointOnMapIcon } from "@solar-icons/vue/bold/point-on-map";
 import { PrinterIcon } from "@solar-icons/vue/bold/printer";
 import { QuestionCircleIcon } from "@solar-icons/vue/bold/question-circle";
 import { RefreshIcon } from "@solar-icons/vue/bold/refresh";
@@ -120,6 +125,7 @@ import { SquareArrowLeftIcon } from "@solar-icons/vue/bold/square-arrow-left";
 import { SquareArrowRightUpIcon } from "@solar-icons/vue/bold/square-arrow-right-up";
 import { StarIcon } from "@solar-icons/vue/bold/star";
 import { TagIcon } from "@solar-icons/vue/bold/tag";
+import { TicketSaleIcon } from "@solar-icons/vue/bold/ticket-sale";
 import { TrashBinTrashIcon } from "@solar-icons/vue/bold/trash-bin-trash";
 import { TuningIcon } from "@solar-icons/vue/bold/tuning";
 import { UploadIcon } from "@solar-icons/vue/bold/upload";
@@ -165,6 +171,7 @@ const icons: Record<string, Component> = {
   "arrow-right": ArrowRightIcon,
   "arrow-right-up": ArrowRightUpIcon,
   bell: BellIcon,
+  "bill-list": BillListIcon,
   bolt: BoltIcon,
   box: BoxIcon,
   buildings: BuildingsIcon,
@@ -179,6 +186,7 @@ const icons: Record<string, Component> = {
   chat: ChatRoundDotsIcon,
   check: CheckReadIcon,
   "check-circle": CheckCircleIcon,
+  checklist: ChecklistIcon,
   "check-square": CheckSquareIcon,
   clipboard: ClipboardIcon,
   clock: ClockCircleIcon,
@@ -219,6 +227,7 @@ const icons: Record<string, Component> = {
   info: InfoCircleIcon,
   layers: LayersIcon,
   map: MapIcon,
+  earth: EarthIcon,
   letter: LetterIcon,
   link: LinkIcon,
   list: ListIcon,
@@ -243,6 +252,8 @@ const icons: Record<string, Component> = {
   "pen-new-square": PenIcon,
   phone: PhoneIcon,
   pin: PinIcon,
+  "pin-list": PinListIcon,
+  "point-on-map": PointOnMapIcon,
   printer: PrinterIcon,
   question: QuestionCircleIcon,
   refresh: RefreshIcon,
@@ -262,6 +273,7 @@ const icons: Record<string, Component> = {
   "square-arrow-right-up": SquareArrowRightUpIcon,
   star: StarIcon,
   tag: TagIcon,
+  "ticket-sale": TicketSaleIcon,
   trash: TrashBinTrashIcon,
   tuning: TuningIcon,
   upload: UploadIcon,
@@ -278,6 +290,7 @@ const icons: Record<string, Component> = {
 const aliases: Record<string, string> = {
   "address-book": "users",
   "address-card": "user",
+  globe: "earth",
   "angle-down": "alt-arrow-down",
   "angle-left": "alt-arrow-left",
   "angle-right": "alt-arrow-right",

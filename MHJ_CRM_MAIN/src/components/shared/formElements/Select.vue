@@ -12,16 +12,32 @@
           :class="[
             props.class,
             {
-              'is-invalid': props.modelValue.errorMessage && required && props.formSubmitted,
+              'is-invalid':
+                props.modelValue.errorMessage &&
+                required &&
+                props.formSubmitted,
               'bg-light': props.disabled,
             },
           ]"
           :disabled="props.disabled"
           style="min-height: 38px"
         >
-          <template v-if="multiSelect && Array.isArray(displaySelected) && displaySelected.length">
-            <span v-for="(item, index) in displaySelected" :key="index" class="badge badge-primary selected-tag">
-              <span class="selected-tag__label" :title="String(item[props.displayKey] ?? '')">
+          <template
+            v-if="
+              multiSelect &&
+              Array.isArray(displaySelected) &&
+              displaySelected.length
+            "
+          >
+            <span
+              v-for="(item, index) in displaySelected"
+              :key="index"
+              class="badge badge-primary selected-tag"
+            >
+              <span
+                class="selected-tag__label"
+                :title="String(item[props.displayKey] ?? '')"
+              >
                 {{ item[props.displayKey] }}
               </span>
               <button
@@ -35,12 +51,14 @@
               </button>
             </span>
           </template>
-          <template v-else-if="displaySelected && !Array.isArray(displaySelected)">
+          <template
+            v-else-if="displaySelected && !Array.isArray(displaySelected)"
+          >
             <span class="select-value">{{ displaySelected }}</span>
           </template>
           <template v-else>
             <span class="select-placeholder">
-              {{ isPlaceholder ? placeholder || 'Select' : '' }}
+              {{ isPlaceholder ? placeholder || "Select" : "" }}
             </span>
           </template>
         </div>
@@ -73,12 +91,23 @@
         <ul class="custom-scrollbar" @scroll="handleListScroll">
           <template v-for="(option, index) in filteredOptions" :key="index">
             <template
-              v-if="option && option.data && Array.isArray(option.data) && props.showOptions"
+              v-if="
+                option &&
+                option.data &&
+                Array.isArray(option.data) &&
+                props.showOptions
+              "
             >
               <div class="disabled">{{ option[displayKey] }}</div>
-              <template v-for="(child, childIndex) in option.data" :key="childIndex">
+              <template
+                v-for="(child, childIndex) in option.data"
+                :key="childIndex"
+              >
                 <li
-                  :class="{ selected: isSelected(child), 'has-checkbox': multiSelect }"
+                  :class="{
+                    selected: isSelected(child),
+                    'has-checkbox': multiSelect,
+                  }"
                   @click="handleSelect(child)"
                   :ref="(el) => setOptionRef(el, index)"
                 >
@@ -129,8 +158,12 @@
             </template>
           </template>
           <li v-if="searching" class="no-option">Mencari...</li>
-          <li v-else-if="!filteredOptions.length" class="no-option">No Records Found</li>
-          <li v-else-if="loadingMore" class="no-option">Memuat data lainnya...</li>
+          <li v-else-if="!filteredOptions.length" class="no-option">
+            No Records Found
+          </li>
+          <li v-else-if="loadingMore" class="no-option">
+            Memuat data lainnya...
+          </li>
         </ul>
       </div>
     </div>
@@ -144,17 +177,17 @@
 </template>
 
 <script setup lang="ts">
-import { OnClickOutside } from '@vueuse/components'
-import { computed, ref } from 'vue'
+import { OnClickOutside } from "@vueuse/components";
+import { computed, ref } from "vue";
 
-import type { SelectProps } from '@/types/common'
+import type { SelectProps } from "@/types/common";
 
-import { useSmartSelect } from '../../../composable/useSelect'
+import { useSmartSelect } from "../../../composable/useSelect";
 
 const props = withDefaults(defineProps<SelectProps>(), {
-  placeholder: 'Select',
-  displayKey: 'label',
-  getValueKey: 'label',
+  placeholder: "Select",
+  displayKey: "label",
+  getValueKey: "label",
   multiSelect: false,
   required: true,
   formSubmitted: false,
@@ -167,13 +200,13 @@ const props = withDefaults(defineProps<SelectProps>(), {
   loadingMore: false,
   remoteSearch: false,
   searching: false,
-})
+});
 
-const subtitleKey = computed(() => props.subtitleKey)
+const subtitleKey = computed(() => props.subtitleKey);
 
-const emits = defineEmits(['update:modelValue', 'reach-bottom', 'search'])
+const emits = defineEmits(["update:modelValue", "reach-bottom", "search"]);
 
-const dropdownPlacement = ref<'bottom' | 'top'>('bottom')
+const dropdownPlacement = ref<"bottom" | "top">("bottom");
 
 const {
   showDropdown,
@@ -190,43 +223,49 @@ const {
   setOptionRef,
   clear,
   removeSelected,
-} = useSmartSelect(props, emits)
+} = useSmartSelect(props, emits);
 
 function scrollBoundary(element: HTMLElement): { top: number; bottom: number } {
-  let parent = element.parentElement
+  let parent = element.parentElement;
   while (parent) {
-    const overflowY = window.getComputedStyle(parent).overflowY
-    if (overflowY === 'auto' || overflowY === 'scroll') {
-      const rect = parent.getBoundingClientRect()
+    const overflowY = window.getComputedStyle(parent).overflowY;
+    if (overflowY === "auto" || overflowY === "scroll") {
+      const rect = parent.getBoundingClientRect();
       return {
         top: Math.max(0, rect.top),
         bottom: Math.min(window.innerHeight, rect.bottom),
-      }
+      };
     }
-    parent = parent.parentElement
+    parent = parent.parentElement;
   }
-  return { top: 0, bottom: window.innerHeight }
+  return { top: 0, bottom: window.innerHeight };
 }
 
 /** Dipanggil saat list opsi di-scroll mentok bawah, dipakai untuk infinite scroll (lihat prop loadingMore). */
 function handleListScroll(event: Event) {
-  const list = event.target as HTMLElement
-  const reachedBottom = list.scrollTop + list.clientHeight >= list.scrollHeight - 32
-  if (reachedBottom) emits('reach-bottom')
+  const list = event.target as HTMLElement;
+  const reachedBottom =
+    list.scrollTop + list.clientHeight >= list.scrollHeight - 32;
+  if (reachedBottom) emits("reach-bottom");
 }
 
 function toggleWithPlacement(event: Event) {
   if (!showDropdown.value && wrapperRef.value) {
-    const rect = wrapperRef.value.getBoundingClientRect()
-    const boundary = scrollBoundary(wrapperRef.value)
-    const availableBelow = boundary.bottom - rect.bottom
-    const availableAbove = rect.top - boundary.top
-    const expectedHeight = Math.min(280, 60 + filteredOptions.value.length * 40)
+    const rect = wrapperRef.value.getBoundingClientRect();
+    const boundary = scrollBoundary(wrapperRef.value);
+    const availableBelow = boundary.bottom - rect.bottom;
+    const availableAbove = rect.top - boundary.top;
+    const expectedHeight = Math.min(
+      280,
+      60 + filteredOptions.value.length * 40,
+    );
 
     dropdownPlacement.value =
-      availableBelow < expectedHeight && availableAbove > availableBelow ? 'top' : 'bottom'
+      availableBelow < expectedHeight && availableAbove > availableBelow
+        ? "top"
+        : "bottom";
   }
-  toggleDropdown(event)
+  toggleDropdown(event);
 }
 </script>
 
@@ -319,7 +358,9 @@ function toggleWithPlacement(event: Event) {
   color: #ffffff !important;
   background: rgba(0, 0, 0, 0.35);
   line-height: 1;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .selected-tag__remove:hover,
@@ -333,6 +374,8 @@ function toggleWithPlacement(event: Event) {
   color: #ffffff !important;
   stroke: #ffffff !important;
   stroke-width: 2.75;
+  display: block;
+  transform: translateY(-1px);
 }
 
 /* Tombol X bawaan browser (Chrome/Edge/IE) di kolom pencarian dropdown
@@ -386,7 +429,9 @@ function toggleWithPlacement(event: Event) {
   background-color: #ffffff;
   /* Klik ditangani <li> agar satu kali klik saja yang mengubah pilihan. */
   pointer-events: none;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .dropdown li.has-checkbox .option-checkbox:checked {

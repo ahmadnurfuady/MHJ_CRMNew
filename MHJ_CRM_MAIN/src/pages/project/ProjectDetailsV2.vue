@@ -1,68 +1,49 @@
 <template>
-  <div class="container-fluid project-detail-v2">
-    <div class="detail-toolbar">
-      <router-link :to="backTarget" class="back-link" aria-label="Kembali ke halaman sebelumnya">
-        <SolarIcon
-          name="arrow-left-linear"
-          :size="26"
-          color="var(--app-primary-dark, #087cae)"
-          :stroke-width="2.5"
-        />
-      </router-link>
-      <div>
-        <p class="toolbar-eyebrow">Peluang</p>
-        <h3>Detail Peluang</h3>
+  <div class="container-fluid opportunity-detail-page">
+    <div v-if="loading && !detail" class="detail-stack" aria-label="Memuat detail peluang">
+      <div v-for="item in 5" :key="item" class="detail-card skeleton-card">
+        <span class="skeleton skeleton-title"></span>
+        <span class="skeleton skeleton-line"></span>
+        <span class="skeleton skeleton-line short"></span>
       </div>
-      <router-link
-        v-if="project"
-        class="edit-button"
-        :to="{ path: routes.Project.ProjectEdit, query: { id: String(project.id) } }"
-        aria-label="Edit peluang"
-      >
-        <SolarIcon name="fa-pen" />
-      </router-link>
-      <button v-else class="edit-button" type="button" aria-label="Edit peluang" disabled>
-        <SolarIcon name="fa-pen" />
-      </button>
     </div>
 
-    <div v-if="loading && !project" class="detail-state card">
-      <div class="spinner-border text-primary" role="status"></div>
-      <span>Memuat detail peluang...</span>
-    </div>
-
-    <div v-else-if="loadError || !project" class="detail-state card">
+    <div v-else-if="loadError || !detail" class="detail-card state-card">
       <SolarIcon name="fa-circle-exclamation" class="text-danger" />
+      <strong>Detail peluang tidak dapat ditampilkan</strong>
       <span>{{ loadError || 'Data peluang tidak ditemukan.' }}</span>
-      <router-link class="btn btn-primary btn-sm" :to="backTarget">
-        Kembali
-      </router-link>
+      <router-link class="btn btn-primary btn-sm" :to="backTarget">Kembali</router-link>
     </div>
 
-    <template v-else>
-      <section class="project-hero">
-        <div class="product-icon" aria-hidden="true">
-          <MhjIcon name="action_medical_kit" />
-        </div>
-        <div class="hero-copy">
-          <span class="hero-eyebrow">Profil Peluang</span>
-          <h4>{{ project.projectName || productTitle }}</h4>
-          <p><MhjIcon name="action_location" />{{ project.companyName || 'Lokasi belum tersedia' }}</p>
-          <div class="hero-meta">
-            <span class="stage-pill">{{ project.stageName || titleCase(project.status) }}</span>
-            <span class="duration-pill">
-              <SolarIcon name="fa-clock" />{{ stageDuration }} di stage ini
+    <div v-else class="detail-stack">
+      <section class="opportunity-header-card">
+        <router-link
+          class="header-edit-button"
+          :to="{ path: routes.Project.ProjectEdit, query: { id: String(detailId) } }"
+          aria-label="Edit peluang"
+        >
+          <SolarIcon name="fa-pen" :size="14" aria-hidden="true" />
+        </router-link>
+        <div class="opportunity-header-copy">
+          <span class="section-kicker">Peluang</span>
+          <h1>{{ text(detail.deal_name) }}</h1>
+          <div class="badge-list">
+            <span class="opportunity-badge stage-badge">
+              {{ text(detail.stage_name) }}
+            </span>
+            <span class="opportunity-badge">{{ text(detail.division_name) }}</span>
+            <span class="opportunity-badge stage-duration-badge">
+              {{ stageDuration }} di stage ini
+            </span>
+            <span v-if="hasValue(detail.priority)" class="opportunity-badge priority-badge">
+              Prioritas {{ text(detail.priority) }}
             </span>
           </div>
-        </div>
-        <div class="hero-value" :title="formatMoney(projectValue)">
-          <small>Nilai Peluang</small>
-          <strong>{{ formatCompactMoney(projectValue) }}</strong>
         </div>
       </section>
 
       <WonProjectDocuments
-        v-if="isWonProject"
+        v-if="isWonProject && project"
         :project="project"
         @documents-loaded="handleDocumentsLoaded"
         @sales-order-saved="handleSalesOrderSaved"
@@ -99,460 +80,566 @@
         </button>
       </div>
 
-      <section v-if="activeTab === 'info'" class="info-panel">
-        <div class="info-grid">
-          <article class="detail-card opportunity-card">
-            <div class="section-heading">
-              <div>
-                <span class="section-kicker">Ringkasan</span>
-                <h5>Informasi Peluang</h5>
-              </div>
-              <span class="record-status"><SolarIcon name="fa-circle" />Aktif</span>
+      <template v-if="activeTab === 'info'">
+      <section class="detail-card value-card">
+        <div class="card-heading">
+          <span class="card-heading-icon">
+            <SolarIcon
+              name="chart-2"
+              :size="19"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="1"
+              aria-hidden="true"
+            />
+          </span>
+          <div>
+            <h2>Informasi Peluang</h2>
+            <p>Ringkasan nilai, perkiraan penutupan, dan pemilik peluang.</p>
+          </div>
+        </div>
+        <div class="card-body-content">
+          <div class="opportunity-information">
+            <div class="opportunity-field opportunity-field--value">
+              <span>Nilai Peluang</span>
+              <strong>{{ formatMoney(detail.amount_value) }}</strong>
             </div>
 
-            <div class="opportunity-name">
-              <span>Nama Peluang</span>
-              <strong>{{ project.projectName || 'Nama belum tersedia' }}</strong>
+            <div class="opportunity-field">
+              <span>Perkiraan Tanggal Penutupan</span>
+              <strong>{{ formatDate(detail.expected_close_date) }}</strong>
+            </div>
+            <div class="opportunity-field">
+              <span>Pemilik Peluang</span>
+              <strong>{{ text(detail.owner_name) }}</strong>
+              <small>{{ ownerPosition }}</small>
             </div>
 
-            <div class="summary-metrics">
-              <div class="metric primary" :title="formatMoney(projectValue)">
-                <span>Nilai Peluang</span>
-                <strong>{{ formatCompactMoney(projectValue) }}</strong>
-              </div>
-              <div class="metric">
-                <span>Lama di Stage</span>
-                <strong>{{ stageDuration }}</strong>
-              </div>
-              <div class="metric">
-                <span>Dibuat</span>
-                <strong>{{ formatDate(project.createdAt) }}</strong>
-              </div>
-              <div class="metric">
-                <span>Update Terakhir</span>
-                <strong>{{ lastUpdated }}</strong>
-              </div>
+            <div class="opportunity-divider" aria-hidden="true"></div>
+
+            <div class="opportunity-field">
+              <span>Kompetitor</span>
+              <strong>{{ text(detail.competitor_name) }}</strong>
+            </div>
+            <div class="opportunity-field">
+              <span>Sumber Dana</span>
+              <strong>{{ text(detail.sumberdana_name) }}</strong>
             </div>
 
-            <div class="detail-list">
-              <div class="detail-row">
-                <span><SolarIcon name="fa-user" />Owner</span>
-                <strong class="owner-detail">
-                  <i class="owner-avatar">{{ initials(project.ownerName || '') }}</i>
-                  <span class="owner-detail__text">
-                    {{ project.ownerName || 'Belum ditentukan' }}
-                    <small v-if="ownerJabatanLine" class="owner-detail__meta">
-                      {{ ownerJabatanLine }}
-                    </small>
-                  </span>
-                </strong>
-              </div>
-              <div class="detail-row">
-                <span><SolarIcon name="fa-user-plus" />Dibuat oleh</span>
-                <strong>{{ createdByName }}</strong>
-              </div>
-              <div class="detail-row">
-                <span><SolarIcon name="fa-user-pen" />Diperbarui oleh</span>
-                <strong>{{ updatedByName }}</strong>
-              </div>
-              <div class="detail-row">
-                <span><SolarIcon name="fa-layer-group" />Divisi</span>
-                <strong>{{ project.divisionCode || 'Belum ditentukan' }}</strong>
-              </div>
-              <div class="detail-row">
-                <span><SolarIcon name="fa-boxes-stacked" />Qty</span>
-                <strong>{{ quantity ?? 'Tidak tersedia' }}</strong>
-              </div>
-              <div class="detail-row">
-                <span><SolarIcon name="fa-tag" />Harga Satuan</span>
-                <strong>{{ formatOptionalMoney(unitPrice) }}</strong>
-              </div>
+            <div class="opportunity-field opportunity-field--full opportunity-notes">
+              <span>Catatan</span>
+              <strong>{{ text(detail.notes) }}</strong>
             </div>
-          </article>
-
-          <article class="detail-card supporting-card">
-            <div class="section-heading">
-              <div>
-                <span class="section-kicker">Relasi dan sumber</span>
-                <h5>Informasi Pendukung</h5>
-              </div>
+            <div v-if="isUnsuccessfulStage" class="opportunity-field opportunity-field--full unsuccessful-reason">
+              <span>Alasan Tidak Berhasil</span>
+              <strong>{{ formatLostReasons(detail.lost_reasons) }}</strong>
             </div>
-
-            <section class="support-section">
-              <h6><SolarIcon name="fa-address-card" />Kontak Utama</h6>
-              <div v-if="contacts.length" class="contact-list">
-                <div class="contact-item">
-                  <div class="contact-avatar">{{ initials(primaryContact.name) }}</div>
-                  <div class="contact-copy">
-                    <router-link
-                      v-if="primaryContact.id"
-                      :to="{ path: routes.App.Contacts, query: { detail: String(primaryContact.id) } }"
-                    >{{ primaryContact.name }}</router-link>
-                    <strong v-else>{{ primaryContact.name }}</strong>
-                    <span>{{ primaryContact.jobTitle || primaryContact.phone || 'Nomor telepon belum tersedia' }}</span>
-                  </div>
-                  <div class="contact-actions">
-                    <a
-                      v-if="primaryContact.phone"
-                      :href="`tel:${primaryContact.phone}`"
-                      :aria-label="`Telepon ${primaryContact.name}`"
-                    ><MhjIcon name="action_phone" /></a>
-                    <a
-                      v-if="primaryContact.phone"
-                      :href="whatsappLink(primaryContact.phone)"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      :aria-label="`WhatsApp ${primaryContact.name}`"
-                    ><MhjIcon name="whatsapp" :size="16" /></a>
-                    <div v-if="additionalContacts.length" class="more-detail-contacts">
-                      <button type="button" :aria-label="`${additionalContacts.length} kontak lainnya`">•••</button>
-                      <div class="detail-contact-popover" role="tooltip">
-                        <div v-for="otherContact in additionalContacts" :key="`${otherContact.id}-${otherContact.name}`">
-                          <span class="contact-avatar contact-avatar--small">{{ initials(otherContact.name) }}</span>
-                          <span><strong>{{ otherContact.name }}</strong><small>{{ otherContact.jobTitle || otherContact.phone || 'Kontak tambahan' }}</small></span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-else class="support-empty">
-                <SolarIcon name="fa-address-card" />
-                <span>Kontak belum dapat dimuat.</span>
-              </div>
-            </section>
-
-            <div class="support-grid">
-              <div class="support-item">
-                <span class="support-icon competitor"><SolarIcon name="fa-building" /></span>
-                <div>
-                  <span>Kompetitor</span>
-                  <strong>{{ competitorName }}</strong>
-                </div>
-              </div>
-              <div class="support-item">
-                <span class="support-icon funding"><MhjIcon name="action_wallet" /></span>
-                <div>
-                  <span>Sumber Pendanaan</span>
-                  <strong>{{ fundingSourceName }}</strong>
-                </div>
-              </div>
-            </div>
-
-            <section class="notes-panel">
-              <div>
-                <SolarIcon name="fa-note-sticky" />
-                <span>Notes/Catatan</span>
-              </div>
-              <p>{{ notes }}</p>
-            </section>
-          </article>
+          </div>
         </div>
       </section>
 
+      <section class="detail-card">
+        <div class="card-heading">
+          <span class="card-heading-icon">
+            <SolarIcon
+              name="hospital"
+              :size="19"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="0.45"
+              aria-hidden="true"
+            />
+          </span>
+          <div>
+            <h2>Informasi Faskes</h2>
+            <p>Profil faskes dan daftar kontak yang terkait dengan peluang.</p>
+          </div>
+        </div>
+        <div class="card-body-content">
+          <dl class="faskes-summary">
+            <div><dt>Faskes</dt><dd>{{ text(detail.company_name) }}</dd></div>
+            <div><dt>Alamat</dt><dd class="multiline-value">{{ text(detail.address) }}</dd></div>
+          </dl>
+
+          <div class="contact-section">
+            <div class="contact-section-heading">
+              <div>
+                <h3>Kontak Terkait</h3>
+                <p>Kontak yang dapat dihubungi untuk peluang ini.</p>
+              </div>
+              <span class="item-count">{{ relatedContacts.length }} kontak</span>
+            </div>
+
+            <div v-if="relatedContacts.length" class="contact-grid">
+              <article
+                v-for="(contact, index) in relatedContacts"
+                :key="`${contact.name}-${contact.phone}-${index}`"
+                class="contact-card"
+              >
+                <span class="contact-avatar" aria-hidden="true">{{ contactInitials(contact.name) }}</span>
+                <div class="contact-card-copy">
+                  <strong>{{ contact.name }}</strong>
+                  <span>{{ contact.jobTitle }}</span>
+                  <div v-if="contact.phone !== '-' || contact.email !== '-'" class="contact-meta">
+                    <a v-if="contact.phone !== '-'" :href="`tel:${contact.phone}`">
+                      <SolarIcon name="phone" :size="14" aria-hidden="true" />
+                      {{ contact.phone }}
+                    </a>
+                    <a v-if="contact.email !== '-'" :href="`mailto:${contact.email}`">
+                      <SolarIcon name="letter" :size="14" aria-hidden="true" />
+                      {{ contact.email }}
+                    </a>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <div v-else class="empty-state compact">
+              <SolarIcon name="contact" />
+              <span>Belum ada kontak terkait</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-card products-card">
+        <div class="card-heading">
+          <span class="card-heading-icon">
+            <SolarIcon
+              name="bill-list"
+              :size="19"
+              color="var(--app-primary, #18a6e4)"
+              aria-hidden="true"
+            />
+          </span>
+          <div>
+            <h2>Daftar Barang</h2>
+            <p>Rincian barang dan nilai yang membentuk total peluang.</p>
+          </div>
+          <span class="item-count">{{ barangs.length }} item</span>
+        </div>
+
+        <div class="card-body-content">
+          <div v-if="barangs.length" class="desktop-products">
+            <div class="table-responsive">
+              <table class="products-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Kode</th>
+                  <th>Nama Barang</th>
+                  <th>Satuan</th>
+                  <th class="numeric-cell">Qty</th>
+                  <th class="numeric-cell">Harga Satuan</th>
+                  <th class="numeric-cell">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(barang, index) in barangs" :key="`${barang.idbarang}-${index}`">
+                  <td>{{ index + 1 }}</td>
+                  <td><span class="product-code">{{ text(barang.idbarang) }}</span></td>
+                  <td class="product-name">{{ text(barang.nama_barang) }}</td>
+                  <td>{{ text(barang.satuan) }}</td>
+                  <td class="numeric-cell">{{ formatNumber(barang.qty) }}</td>
+                  <td class="numeric-cell">{{ formatMoney(barang.unitPrice) }}</td>
+                  <td class="numeric-cell subtotal-cell">{{ formatMoney(barang.subtotal) }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr><td colspan="6">Total</td><td class="numeric-cell">{{ formatMoney(barangTotal) }}</td></tr>
+              </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div v-if="barangs.length" class="mobile-products">
+            <article v-for="(barang, index) in barangs" :key="`mobile-${barang.idbarang}-${index}`" class="product-card">
+              <div>
+                <strong>{{ text(barang.nama_barang) }}</strong>
+                <span>{{ text(barang.idbarang) }} · {{ text(barang.satuan) }}</span>
+              </div>
+              <p>
+                {{ formatNumber(barang.qty) }} × {{ formatMoney(barang.unitPrice) }}
+                <b>= {{ formatMoney(barang.subtotal) }}</b>
+              </p>
+            </article>
+            <div class="mobile-total"><span>Total</span><strong>{{ formatMoney(barangTotal) }}</strong></div>
+          </div>
+
+          <div v-if="!barangs.length" class="empty-state">
+            <SolarIcon name="fa-box-open" />
+            <span>Belum ada barang</span>
+            <strong>Total {{ formatMoney(0) }}</strong>
+          </div>
+
+          <p v-if="hasTotalMismatch" class="total-warning">
+            <SolarIcon name="fa-triangle-exclamation" />
+            Total barang {{ formatMoney(barangTotal) }} berbeda dengan nilai peluang {{ formatMoney(detail.amount_value) }}.
+          </p>
+        </div>
+      </section>
+
+      <section class="detail-card tasks-card">
+        <div class="card-heading">
+          <span class="card-heading-icon">
+            <SolarIcon
+              name="checklist"
+              :size="19"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="1"
+              aria-hidden="true"
+            />
+          </span>
+          <div>
+            <h2>Tugas Terkait</h2>
+            <p>Daftar tugas yang terhubung dengan peluang ini.</p>
+          </div>
+          <span class="item-count">{{ tasks.length }} task</span>
+        </div>
+        <div class="card-body-content">
+          <div v-if="tasks.length" class="task-list">
+            <article v-for="(task, index) in tasks" :key="index" class="task-item">
+              <span class="task-marker"><SolarIcon name="fa-check" /></span>
+              <div>
+                <strong>{{ taskTitle(task) }}</strong>
+                <p>{{ taskDescription(task) }}</p>
+                <div class="task-meta">
+                  <span>{{ taskStatus(task) }}</span>
+                  <span>Jatuh tempo: {{ formatDate(task.due_date) }}</span>
+                  <span>PIC: {{ taskAssignee(task) }}</span>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div v-else class="empty-state compact"><SolarIcon name="fa-list-check" /><span>Belum ada task</span></div>
+        </div>
+      </section>
+
+      <section class="history-card">
+        <div>
+          <span>Dibuat</span>
+          <strong>{{ formatDateTime(detail.created_at) }}</strong>
+          <small>oleh {{ text(detail.created_by_name) }}</small>
+        </div>
+        <div>
+          <span>Diperbarui</span>
+          <strong>{{ formatDateTime(detail.updated_at) }}</strong>
+          <small>oleh {{ text(detail.updated_by_name) }}</small>
+        </div>
+      </section>
+      </template>
+
       <section v-else-if="activeTab === 'activity'" class="activity-panel">
         <article class="detail-card timeline-card">
-          <ActivityTimeline
-            entity="m_projects"
-            :entity-id="project?.id ?? null"
-            :title="`Aktivitas ${project?.projectName || 'Peluang'}`"
-            heading="Timeline Peluang"
-            :created-description="`Peluang ${project?.projectName || ''} dibuat.`"
-          />
+          <div class="card-body-content">
+            <ActivityTimeline
+              entity="m_projects"
+              :entity-id="detailId || null"
+              :title="`Aktivitas ${text(detail.deal_name)}`"
+              heading="Timeline Peluang"
+              :created-description="`Peluang ${text(detail.deal_name)} dibuat.`"
+            />
+          </div>
         </article>
 
         <article class="detail-card comments-card">
-          <h5><SolarIcon name="fa-comment" /> Komentar</h5>
-          <p v-if="!comments.length" class="empty-comment">Belum ada komentar.</p>
-          <div v-for="comment in comments" :key="comment.id" class="comment-item">
-            <div class="comment-avatar">{{ initials(comment.author) }}</div>
-            <div><strong>{{ comment.author }}</strong><p>{{ comment.message }}</p></div>
+          <div class="card-body-content">
+            <h5><SolarIcon name="fa-comment" /> Komentar</h5>
+            <p v-if="!comments.length" class="empty-comment">Belum ada komentar.</p>
+            <div v-for="comment in comments" :key="comment.id" class="comment-item">
+              <div class="comment-avatar">{{ contactInitials(comment.author) }}</div>
+              <div><strong>{{ comment.author }}</strong><p>{{ comment.message }}</p></div>
+            </div>
+            <form class="comment-form" @submit.prevent="addComment">
+              <input v-model.trim="newComment" type="text" placeholder="Tambahkan komentar..." aria-label="Komentar baru" />
+              <button type="submit" :disabled="!newComment">Kirim</button>
+            </form>
           </div>
-          <form class="comment-form" @submit.prevent="addComment">
-            <input v-model.trim="newComment" type="text" placeholder="Tambahkan komentar..." aria-label="Komentar baru" />
-            <button type="submit" :disabled="!newComment">Kirim</button>
-          </form>
         </article>
       </section>
 
       <OrderStatusPanel
-        v-else-if="latestSalesOrder"
+        v-else-if="activeTab === 'order-status' && project && latestSalesOrder"
         :project="project"
         :sales-order="latestSalesOrder"
       />
-    </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
+import { useRoute } from 'vue-router'
+import { getApiErrorMessage, isRecord, type Dict } from '@/api/response'
 import ActivityTimeline from '@/components/shared/ActivityTimeline.vue'
-import { routes } from '@/router/routes'
+import { usePageBackRoute, usePageTitle } from '@/composable/usePageHeader'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
 import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
+import { routes } from '@/router/routes'
 import type { StoredProjectDocument } from '@/services/projectDocumentStorage'
-import { useContact } from '@/store/contact'
 import { useProjectStore } from '@/store/project'
-import { shortProjectTitle } from '@/utils/index'
-import type { Contact } from '@/types/contacts'
-import type { Projects } from '@/types/project'
-import { getApiErrorMessage } from '@/api/response'
 
-type UnknownRecord = Record<string, unknown>
-interface ContactInfo { id?: number; name: string; phone: string; jobTitle?: string }
-interface ActivityInfo { title: string; date: string; description: string }
 interface CommentInfo { id: number; author: string; message: string }
+
+interface BarangView {
+  idbarang: string
+  nama_barang: string
+  satuan: string
+  qty: number
+  unitPrice: number
+  subtotal: number
+  urut: number
+}
+
+interface ContactView {
+  name: string
+  jobTitle: string
+  phone: string
+  email: string
+}
 
 const route = useRoute()
 const store = useProjectStore()
-const contactStore = useContact()
-const { items, selectedItem, selectedDetails, loading } = storeToRefs(store)
+const { selectedDetail, selectedItem, selectedTasks, loading } = storeToRefs(store)
 
-/**
- * Halaman ini bisa dibuka dari daftar peluang atau dari detail kontak.
- * Tombol "Kembali" mengikuti query `backTo` saat tersedia agar user kembali ke
- * halaman asal; jika tidak ada, fallback ke daftar peluang.
- */
-const backTarget = computed(() => {
-  const raw = route.query.backTo
-  const path = Array.isArray(raw) ? raw[0] : raw
-  // Hindari open redirect: hanya terima path internal yang diawali "/".
-  if (typeof path === 'string' && path.startsWith('/')) return path
-  return routes.Project.ProjectList
-})
 const activeTab = ref<'info' | 'activity' | 'order-status'>('info')
-const loadError = ref('')
 const newComment = ref('')
 const comments = ref<CommentInfo[]>([])
-const supportingContact = ref<Contact | null>(null)
 const latestSalesOrder = ref<StoredProjectDocument | null>(null)
 
-const project = computed<Projects | null>(() => selectedItem.value)
+/** Objek peluang ternormalisasi (dipakai WonProjectDocuments & OrderStatusPanel). */
+const project = computed(() => selectedItem.value)
 const hasOrderStatus = computed(() => latestSalesOrder.value !== null)
 const isWonProject = computed(() => {
-  const status = `${project.value?.status ?? ''} ${project.value?.stageName ?? ''}`
+  const status = `${selectedItem.value?.status ?? ''} ${selectedItem.value?.stageName ?? ''}`
     .trim()
     .toLowerCase()
     .replace(/[\s-]+/g, '_')
-  return status.includes('closed_won')
+  const detailStage = String(selectedDetail.value?.stage_name ?? '').toLowerCase()
+  return status.includes('closed_won') || detailStage.includes('won') || detailStage.includes('berhasil')
 })
-const detailRows = computed(() => selectedDetails.value as UnknownRecord[])
 
-function firstValue(keys: string[]): unknown {
-  for (const row of detailRows.value) {
-    for (const key of keys) {
-      const value = row[key]
-      if (value !== undefined && value !== null && value !== '') return value
-    }
-  }
-  return undefined
+const detail = computed<Dict | null>(() => selectedDetail.value)
+const tasks = computed<Dict[]>(() => selectedTasks.value)
+const loadError = computed(() => store.error || '')
+const detailId = computed(() => Number(detail.value?.id) || Number(route.query.id) || 0)
+const backTarget = computed(() => {
+  const raw = route.query.backTo
+  const path = Array.isArray(raw) ? raw[0] : raw
+  return typeof path === 'string' && path.startsWith('/') ? path : routes.Project.ProjectList
+})
+
+usePageTitle('Detail Peluang')
+usePageBackRoute(backTarget)
+
+function hasValue(value: unknown): boolean {
+  return value !== null && value !== undefined && String(value).trim() !== ''
 }
 
-function optionalNumber(value: unknown): number | null {
-  if (value === undefined || value === null || value === '') return null
+function text(value: unknown): string {
+  return hasValue(value) ? String(value).trim() : '-'
+}
+
+function toNumber(value: unknown): number {
+  if (!hasValue(value)) return 0
   const number = Number(value)
-  return Number.isFinite(number) ? number : null
+  return Number.isFinite(number) ? number : 0
 }
 
-function firstProductName(value?: string): string {
-  if (!value) return 'Produk belum tersedia'
-  try {
-    const parsed = JSON.parse(value)
-    if (Array.isArray(parsed) && parsed.length) return String(parsed[0])
-  } catch {
-    // Nilai dari API lama dapat berupa string dipisahkan koma.
+function firstNumber(source: Dict, keys: string[]): number {
+  for (const key of keys) {
+    if (hasValue(source[key])) return toNumber(source[key])
   }
-  // Saat product_names tidak tersedia, store jatuh balik ke deal_name
-  // berformat "PREFIX_Perusahaan_Produk" — ambil segmen produknya saja.
-  const withoutPrefix = shortProjectTitle(value)
-  return withoutPrefix.split(',')[0]?.trim() || withoutPrefix
+  return 0
 }
 
-const productTitle = computed(() => firstProductName(project.value?.productNames))
-const quantity = computed(() =>
-  project.value?.quantity ?? optionalNumber(firstValue(['quantity', 'qty']))
-)
-const unitPrice = computed(() =>
-  project.value?.unitPrice ?? optionalNumber(firstValue(['unit_price', 'price', 'harga']))
-)
-const projectValue = computed(() => {
-  if (project.value?.amountValue !== undefined) return project.value.amountValue
-  if (quantity.value === null || unitPrice.value === null) return 0
-  return quantity.value * unitPrice.value
-})
-const notes = computed(() =>
-  project.value?.notes || String(firstValue(['notes', 'note', 'description']) ?? 'Belum ada catatan.')
-)
-const competitorName = computed(() => {
-  if (project.value?.competitorName) return project.value.competitorName
-  const option = store.lookups.competitor.find(
-    (item) => String(item.value) === String(project.value?.competitorId ?? '')
-  )
-  return option?.label || (project.value?.competitorId ? `Kompetitor #${project.value.competitorId}` : 'Belum ditentukan')
-})
-const fundingSourceName = computed(() => {
-  if (project.value?.sumberdanaName) return project.value.sumberdanaName
-  const option = store.lookups.sumberdana.find(
-    (item) => String(item.value) === String(project.value?.sumberdanaId ?? '')
-  )
-  return option?.label || (project.value?.sumberdanaId ? `Sumber #${project.value.sumberdanaId}` : 'Belum ditentukan')
-})
-
-const contacts = computed<ContactInfo[]>(() => {
-  const collected: ContactInfo[] = []
-  project.value?.contacts?.forEach((contact) => collected.push({ ...contact, phone: contact.phone || '' }))
-  const detailedContact = supportingContact.value
-  if (detailedContact) {
-    collected.push({
-      id: detailedContact.remoteId ?? project.value?.contactId,
-      name: `${detailedContact.firstName} ${detailedContact.lastName}`.trim(),
-      phone: detailedContact.telephone1 || detailedContact.contactNumber || '',
-      jobTitle: detailedContact.jobTitle,
-    })
+function firstText(source: Dict, keys: string[]): string {
+  for (const key of keys) {
+    if (hasValue(source[key])) return text(source[key])
   }
+  return '-'
+}
 
-  const baseName = project.value?.contactName || ''
-  const basePhone = project.value?.contactPhone || ''
-  if (baseName && !collected.some((item) => item.name === baseName)) {
-    collected.push({ id: project.value?.contactId, name: baseName, phone: basePhone })
-  }
-
-  detailRows.value.forEach((row) => {
-    const name = String(row.contact_name ?? row.contact ?? row.pic_name ?? '')
-    const phone = String(row.contact_phone ?? row.phone ?? row.telephone_1 ?? row.mobile ?? '')
-    if (name && !collected.some((item) => item.name === name)) collected.push({ name, phone })
-  })
-  if (!collected.length && project.value?.contactId) {
-    collected.push({
-      id: project.value.contactId,
-      name: `Kontak #${project.value.contactId}`,
-      phone: '',
-    })
-  }
-  return collected
+const isUnsuccessfulStage = computed(() => {
+  const stage = String(detail.value?.stage_name ?? '').trim().toLowerCase()
+  return stage.includes('tidak berhasil') || stage.includes('lost')
 })
-const primaryContact = computed<ContactInfo>(() => contacts.value[0] || { name: '', phone: '' })
-const additionalContacts = computed(() => contacts.value.slice(1))
-const stageDuration = computed(() => formatDuration(
-  project.value?.stageEnteredAt || project.value?.updatedAt || project.value?.createdAt
-))
-const lastUpdated = computed(() => formatRelativeTime(project.value?.updatedAt || project.value?.createdAt))
-const createdByName = computed(() =>
-  project.value?.createdBy ||
-  String(firstValue(['created_by_name', 'createdby_name', 'created_user_name']) ?? '') ||
-  'Belum tersedia'
-)
-const updatedByName = computed(() =>
-  project.value?.updatedBy ||
-  String(firstValue(['updated_by_name', 'updatedby_name', 'updated_user_name']) ?? '') ||
-  'Belum tersedia'
-)
-
-/**
- * Baris sekunder jabatan owner: "Direktur Business Development · DBD · L0".
- * Hanya tampil ketika salah satu dari jabatan/alias/level tersedia.
- */
-const ownerJabatanLine = computed(() => {
-  const p = project.value
-  if (!p) return ''
-  const parts: string[] = []
-  if (p.ownerJabatan) parts.push(p.ownerJabatan)
-  if (p.ownerAlias) parts.push(p.ownerAlias)
-  if (p.ownerJabatanLevel !== undefined && p.ownerJabatanLevel !== null) {
-    parts.push(`L${p.ownerJabatanLevel}`)
-  }
-  return parts.join(' · ')
+const currency = computed(() => text(detail.value?.currency) === '-' ? 'IDR' : text(detail.value?.currency).toUpperCase())
+const ownerPosition = computed(() => {
+  const position = text(detail.value?.owner_jabatan)
+  const alias = text(detail.value?.owner_alias)
+  if (position === '-' && alias === '-') return '-'
+  if (position === '-') return `(${alias})`
+  return alias === '-' ? position : `${position} (${alias})`
 })
-
-const activities = computed<ActivityInfo[]>(() => {
-  const fromApi = detailRows.value
-    .map((row) => ({
-      title: String(row.activity ?? row.activity_name ?? row.timeline_activity ?? row.event ?? ''),
-      date: formatDate(String(row.activity_date ?? row.timeline_date ?? row.date ?? row.created_at ?? '')),
-      description: String(row.activity_description ?? row.description ?? 'Pembaruan aktivitas pada peluang ini.'),
-    }))
-    .filter((item) => item.title)
-
-  if (fromApi.length) return fromApi
-  return [{
-    title: 'Peluang dibuat',
-    date: formatDate(project.value?.createdAt),
-    description: `Peluang ${project.value?.projectName || ''} berhasil ditambahkan ke pipeline.`,
-  }]
-})
-
-function titleCase(value: string): string {
-  return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-function formatMoney(value: number): string {
-  const currency = project.value?.currency || 'IDR'
-  return `${currency} ${Math.max(0, value).toLocaleString('id-ID')}`
-}
-
-function formatCompactMoney(value: number): string {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: project.value?.currency || 'IDR',
-    currencyDisplay: 'narrowSymbol',
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(Math.max(0, value))
-}
-
-function formatOptionalMoney(value: number | null): string {
-  return value === null ? 'Tidak tersedia' : formatMoney(value)
-}
-
-function formatDate(value?: string): string {
+const stageDuration = computed(() => {
+  const source = detail.value
+  if (!source) return '-'
+  const value = [
+    'stage_entered_at',
+    'stage_changed_at',
+    'stage_started_at',
+    'pipeline_entered_at',
+    'pipeline_changed_at',
+    'status_changed_at',
+    'updated_at',
+    'created_at',
+  ].find((key) => hasValue(source[key]))
   if (!value) return '-'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(date)
+  const date = parseDate(source[value])
+  if (!date) return '-'
+  const days = Math.floor(Math.max(0, Date.now() - date.getTime()) / 86_400_000)
+  return days < 1 ? '< 1 hari' : `${formatNumber(days)} hari`
+})
+
+function contactValues(source: unknown): unknown[] {
+  if (Array.isArray(source)) return source
+  if (isRecord(source)) return Object.values(source)
+  if (typeof source !== 'string' || !source.trim()) return []
+  try {
+    const parsed: unknown = JSON.parse(source)
+    return Array.isArray(parsed) ? parsed : [parsed]
+  } catch {
+    return source.split(/[,;|]/).map((name) => name.trim()).filter(Boolean)
+  }
 }
 
-function elapsed(value?: string): number | null {
-  if (!value) return null
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? null : Math.max(0, Date.now() - date.getTime())
+const relatedContacts = computed<ContactView[]>(() => {
+  const source = detail.value
+  if (!source) return []
+  const sourceKey = [
+    'contacts',
+    'project_contacts',
+    'deal_contacts',
+    'contact_list',
+    'contact_names',
+    'contacts_name',
+  ].find((key) => hasValue(source[key]))
+  const values = sourceKey ? contactValues(source[sourceKey]) : []
+  const contacts = values.flatMap((value): ContactView[] => {
+    if (typeof value === 'string') {
+      return value.trim() ? [{ name: value.trim(), jobTitle: '-', phone: '-', email: '-' }] : []
+    }
+    if (!isRecord(value)) return []
+    const firstName = firstText(value, ['first_name', 'firstName'])
+    const lastName = firstText(value, ['last_name', 'lastName'])
+    const fullName = [firstName, lastName].filter((part) => part !== '-').join(' ')
+    const name = firstText(value, ['contact_name', 'name', 'full_name', 'label'])
+    const resolvedName = name === '-' ? fullName || '-' : name
+    if (resolvedName === '-') return []
+    return [{
+      name: resolvedName,
+      jobTitle: firstText(value, ['job_title', 'position', 'jabatan']),
+      phone: firstText(value, ['contact_phone', 'phone', 'telephone_1', 'mobile']),
+      email: firstText(value, ['email', 'email_address', 'contact_email']),
+    }]
+  })
+
+  const fallbackName = text(source.contact_name)
+  if (fallbackName !== '-' && !contacts.some((contact) => contact.name.toLocaleLowerCase('id-ID') === fallbackName.toLocaleLowerCase('id-ID'))) {
+    contacts.unshift({
+      name: fallbackName,
+      jobTitle: firstText(source, ['contact_jabatan', 'contact_job_title']),
+      phone: firstText(source, ['contact_phone', 'phone', 'telephone_1', 'mobile']),
+      email: firstText(source, ['contact_email', 'email']),
+    })
+  }
+
+  return contacts.filter((contact, index, items) => items.findIndex((candidate) =>
+    candidate.name.toLocaleLowerCase('id-ID') === contact.name.toLocaleLowerCase('id-ID')
+    && candidate.phone === contact.phone
+  ) === index)
+})
+
+function contactInitials(name: string): string {
+  return name.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
 }
 
-function formatRelativeTime(value?: string): string {
-  const milliseconds = elapsed(value)
-  if (milliseconds === null) return 'Belum tersedia'
-  const minutes = Math.floor(milliseconds / 60_000)
-  if (minutes < 1) return 'Baru saja'
-  if (minutes < 60) return `${minutes} menit lalu`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours} jam lalu`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days} hari lalu`
-  const months = Math.floor(days / 30)
-  return months < 12 ? `${months} bulan lalu` : `${Math.floor(months / 12)} tahun lalu`
+const barangs = computed<BarangView[]>(() => {
+  const source = detail.value?.barangs
+  if (!Array.isArray(source)) return []
+  return source.filter(isRecord).map((barang, index) => {
+    const qty = firstNumber(barang, ['qty', 'quantity'])
+    const unitPrice = firstNumber(barang, ['unit_price', 'harga_satuan', 'harga'])
+    const rawSubtotal = firstNumber(barang, ['subtotal'])
+    return {
+      idbarang: text(barang.idbarang),
+      nama_barang: text(barang.nama_barang),
+      satuan: firstText(barang, ['satuan', 'unit']),
+      qty,
+      unitPrice,
+      subtotal: hasValue(barang.subtotal) ? rawSubtotal : qty * unitPrice,
+      urut: hasValue(barang.urut) ? toNumber(barang.urut) : index,
+    }
+  }).sort((a, b) => a.urut - b.urut)
+})
+
+const barangTotal = computed(() => barangs.value.reduce((total, barang) => total + barang.subtotal, 0))
+const hasTotalMismatch = computed(() => Math.abs(barangTotal.value - toNumber(detail.value?.amount_value)) > 0.01)
+
+function formatNumber(value: unknown): string {
+  return new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 }).format(toNumber(value))
 }
 
-function formatDuration(value?: string): string {
-  const milliseconds = elapsed(value)
-  if (milliseconds === null) return 'Belum tersedia'
-  const hours = Math.floor(milliseconds / 3_600_000)
-  if (hours < 1) return '< 1 jam'
-  if (hours < 24) return `${hours} jam`
-  const days = Math.floor(hours / 24)
-  if (days < 30) return `${days} hari`
-  const months = Math.floor(days / 30)
-  return months < 12 ? `${months} bulan` : `${Math.floor(months / 12)} tahun`
+function formatMoney(value: unknown): string {
+  try {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: currency.value,
+      currencyDisplay: 'narrowSymbol',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(toNumber(value))
+  } catch {
+    return `${currency.value} ${formatNumber(value)}`
+  }
 }
 
-function whatsappLink(phone: string): string {
-  let digits = phone.replace(/\D/g, '')
-  if (digits.startsWith('0')) digits = `62${digits.slice(1)}`
-  return `https://wa.me/${digits}`
+function parseDate(value: unknown): Date | null {
+  if (!hasValue(value)) return null
+  const date = new Date(String(value))
+  return Number.isNaN(date.getTime()) ? null : date
 }
 
-function initials(name: string): string {
-  return name.split(/\s+/).slice(0, 2).map((word) => word[0]).join('').toUpperCase()
+function formatDate(value: unknown): string {
+  const date = parseDate(value)
+  return date ? new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(date) : '-'
+}
+
+function formatDateTime(value: unknown): string {
+  const date = parseDate(value)
+  return date ? new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+  }).format(date) : '-'
+}
+
+function formatLostReasons(value: unknown): string {
+  if (Array.isArray(value)) return value.map(text).filter((item) => item !== '-').join(', ') || '-'
+  if (!hasValue(value)) return '-'
+  const raw = String(value)
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.map(text).join(', ') || '-' : text(parsed)
+  } catch {
+    return raw
+  }
+}
+
+function taskTitle(task: Dict): string {
+  return firstText(task, ['task_name', 'title', 'name', 'activity'])
+}
+
+function taskDescription(task: Dict): string {
+  return firstText(task, ['description', 'notes', 'activity_description'])
+}
+
+function taskStatus(task: Dict): string {
+  return firstText(task, ['status_name', 'status'])
+}
+
+function taskAssignee(task: Dict): string {
+  return firstText(task, ['assigned_to_name', 'owner_name', 'pic_name', 'assignee_name'])
 }
 
 function addComment() {
@@ -570,38 +657,20 @@ function handleSalesOrderSaved(document: StoredProjectDocument): void {
   activeTab.value = 'order-status'
 }
 
-async function loadProject() {
-  loadError.value = ''
+async function loadProject(): Promise<void> {
   activeTab.value = 'info'
   latestSalesOrder.value = null
-  supportingContact.value = null
+  comments.value = []
   store.selectedItem = null
+  store.selectedDetail = null
+  store.selectedTasks = []
   store.selectedDetails = []
-  const requestedId = Number(route.query.id)
+  const id = Number(route.query.id)
+  if (!Number.isFinite(id) || id <= 0) return
   try {
-    let id = Number.isFinite(requestedId) && requestedId > 0 ? requestedId : 0
-    if (!id) {
-      if (!items.value.length) await store.fetchProjects({ per_page: 100 })
-      id = items.value[0]?.id ?? 0
-    }
-    if (!id) throw new Error('Belum ada peluang yang dapat ditampilkan.')
     await store.fetchProjectById(id)
-    if (!selectedItem.value) throw new Error('Data peluang tidak ditemukan.')
-
-    const supportingRequests: Promise<unknown>[] = []
-    if (!store.lookups.competitor.length || !store.lookups.sumberdana.length) {
-      supportingRequests.push(store.fetchProjectLookups())
-    }
-    if (selectedItem.value.contactId) {
-      supportingRequests.push(
-        contactStore.fetchRemoteContactById(selectedItem.value.contactId).then((contact) => {
-          supportingContact.value = contact ?? null
-        })
-      )
-    }
-    await Promise.allSettled(supportingRequests)
   } catch (error) {
-    loadError.value = store.error ?? getApiErrorMessage(error, 'Gagal memuat detail peluang.')
+    if (!store.error) store.error = getApiErrorMessage(error, 'Gagal memuat detail peluang.')
   }
 }
 
@@ -609,142 +678,178 @@ watch(() => route.query.id, loadProject, { immediate: true })
 </script>
 
 <style scoped>
-.project-detail-v2 { --detail-blue: var(--theme-default, #25a9e0); max-width: 1180px; padding-bottom: 28px; }
-.detail-toolbar { display: grid; grid-template-columns: 52px 1fr 44px; align-items: center; gap: 14px; margin-bottom: 18px; }
-.detail-toolbar h3 { margin: 0; font-size: 24px; }
-.toolbar-eyebrow { margin: 0 0 2px; color: #8c939c; font-size: 12px; text-transform: capitalize; letter-spacing: .08em; }
-.back-link, .edit-button { display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 12px; color: var(--detail-blue); background: #fff; box-shadow: 0 4px 16px rgba(28, 45, 69, .08); }
-.back-link { box-sizing: border-box; width: 50px; height: 50px; border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .28); border-radius: 12px; padding: 0; background: #fff; box-shadow: none; transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease; }
-.back-link :deep(.solar-icon) { transition: color .18s ease, transform .18s ease; }
-.back-link:hover, .back-link:focus-visible { border-color: var(--detail-blue); background: var(--detail-blue); box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), .2); }
-.back-link:hover :deep(.solar-icon), .back-link:focus-visible :deep(.solar-icon) { color: #fff !important; transform: translateX(-2px); }
-.back-link:focus-visible { outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), .2); outline-offset: 2px; }
-.edit-button:disabled { opacity: .65; }
-.project-hero { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 18px; border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .18); border-radius: 18px; padding: 22px 26px; color: #102a43; background: radial-gradient(circle at 90% 18%, rgba(var(--app-primary-rgb, 24, 166, 228), .15), transparent 24%), linear-gradient(135deg, #fff 0%, var(--app-primary-wash, #f5fbfe) 60%, var(--app-primary-wash, #eef9fd) 100%); box-shadow: 0 12px 32px rgba(22,76,105,.08); }
-.project-hero::after { position: absolute; z-index: -1; right: -50px; bottom: -78px; width: 170px; height: 170px; border: 24px solid rgba(var(--app-primary-rgb, 24, 166, 228), .055); border-radius: 50%; content: ''; }
-.product-icon { display: grid; place-items: center; width: 66px; height: 66px; border-radius: 17px; color: var(--detail-blue); background: rgba(var(--app-primary-rgb, 24, 166, 228), .1); font-size: 27px; }
-.hero-eyebrow { display: block; margin-bottom: 3px; color: var(--detail-blue); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.hero-copy h4 { margin: 0 0 7px; color: #102a43; font-size: 22px; line-height: 1.4; overflow-wrap: anywhere; }
-.hero-copy p { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; color: #627d98; }
-.hero-meta { display: flex; flex-wrap: wrap; gap: 8px; }
-.stage-pill { display: inline-flex; padding: 5px 14px; border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .18); border-radius: 999px; color: var(--app-primary-dark, #087cae); background: rgba(var(--app-primary-rgb, 24, 166, 228), .09); font-size: 11px; font-weight: 700; letter-spacing: .03em; }
-.duration-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border: 1px solid #dce8ee; border-radius: 999px; color: #486581; background: rgba(255,255,255,.82); font-size: 11px; }
-.hero-value { min-width: 175px; padding-left: 24px; border-left: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .2); text-align: right; }
-.hero-value small, .hero-value strong { display: block; }
-.hero-value small { margin-bottom: 4px; color: #718096; font-size: 11px; }
-.hero-value strong { color: var(--detail-blue); font-size: 18px; }
-.detail-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 18px 0; border-bottom: 1px solid #d9dde2; }
+.opportunity-detail-page { --opportunity-blue: var(--theme-default, #18a6e4); max-width: 1180px; padding-bottom: 28px; }
+:global(.opportunity-detail-page ~ .footer) { margin-top: 24px !important; }
+.detail-stack { display: grid; gap: 24px; }
+.detail-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #e3ebf0; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 8px 24px rgba(31, 52, 73, .05); }
 .detail-tabs.has-order-status { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.detail-tabs button { position: relative; padding: 12px; border: 0; color: #8b8b8b; background: transparent; font-weight: 500; }
-.detail-tabs button::after { content: ''; position: absolute; right: 0; bottom: -1px; left: 0; height: 4px; border-radius: 4px 4px 0 0; background: transparent; }
-.detail-tabs button.active { color: var(--detail-blue); }
-.detail-tabs button.active::after { background: var(--detail-blue); }
-.info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: stretch; }
-.activity-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.detail-card { padding: 22px; border: 1px solid #e4e8ec; border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgba(27, 43, 65, .04); }
-.detail-card h5 { margin: 0; font-size: 17px; }
-.record-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; color: #16884d; background: #e7f8ef; font-size: 11px; font-weight: 700; }
-.record-status i { font-size: 6px; }
-.opportunity-name { border-bottom: 1px solid #edf1f4; padding: 2px 2px 17px; }
-.opportunity-name span { display: block; margin-bottom: 6px; color: #858b93; font-size: 11px; }
-.opportunity-name strong { display: block; overflow-wrap: anywhere; color: #17212b; font-size: 15px; line-height: 1.55; }
-.summary-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin: 0; border-bottom: 1px solid #edf0f2; }
-.metric { min-width: 0; border: 0; border-bottom: 1px solid #edf0f2; border-radius: 0; padding: 14px 2px; background: transparent; }
-.metric span { display: block; margin-bottom: 5px; color: #8a929a; font-size: 11px; }
-.metric strong { display: block; overflow-wrap: anywhere; color: #252e37; font-size: 14px; }
-.metric.primary { border-color: #edf0f2; background: transparent; }
-.metric.primary strong { color: var(--detail-blue); font-size: 17px; }
-.detail-list { border-top: 0; }
-.detail-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px 2px; border-bottom: 1px solid #edf0f2; }
-.detail-row > span { display: inline-flex; align-items: center; gap: 9px; color: #7f8992; font-size: 12px; }
-.detail-row > span i { width: 16px; color: var(--detail-blue); text-align: center; }
-.detail-row strong { color: #242d35; font-size: 13px; font-weight: 600; text-align: right; }
-.owner-detail { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; }
-.owner-avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #fff; background: linear-gradient(145deg, var(--app-primary, #209de5), var(--app-secondary, #75c4ef)); font-size: 9px; font-style: normal; }
-.owner-detail__text { display: inline-flex; flex-direction: column; align-items: flex-end; line-height: 1.3; }
-.owner-detail__meta { color: #7f8992; font-size: 11px; font-weight: 500; margin-top: 2px; }
-.support-section h6 { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; color: #65717c; font-size: 12px; font-weight: 600; }
-.support-section h6 i { color: var(--detail-blue); }
-.contact-list { display: grid; gap: 8px; }
-.contact-item { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; align-items: center; gap: 11px; border: 0; border-bottom: 1px solid #edf1f4; border-radius: 0; padding: 10px 2px 14px; background: transparent; }
-.contact-avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #fff; background: linear-gradient(145deg, var(--app-primary, #209de5), var(--app-secondary, #75c4ef)); font-size: 12px; font-weight: 700; }
-.contact-copy { min-width: 0; }
-.contact-copy a, .contact-copy strong { display: block; overflow: hidden; color: #17212b; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.contact-copy a:hover { color: var(--detail-blue); }
-.contact-copy span { display: block; overflow: hidden; margin-top: 3px; color: #8b949c; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-.contact-actions { display: flex; gap: 12px; }
-.contact-actions a { color: var(--app-primary-dark, #24467b); font-size: 18px; }
-.contact-actions a:last-child { color: #14c96e; }
-.more-detail-contacts { position: relative; }
-.more-detail-contacts > button { width: 32px; height: 28px; border: 1px solid #dbe4ea; border-radius: 8px; color: #687783; background: #f8fafb; font-size: 10px; font-weight: 800; line-height: 1; }
-.detail-contact-popover { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; display: none; width: 240px; padding: 8px; border: 1px solid #dfe7ec; border-radius: 11px; background: #fff; box-shadow: 0 12px 30px rgba(31,54,72,.17); }
-.more-detail-contacts:hover .detail-contact-popover, .more-detail-contacts:focus-within .detail-contact-popover { display: grid; gap: 3px; }
-.detail-contact-popover > div { display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 8px; padding: 6px; text-align: left; }
-.contact-avatar--small { width: 30px; height: 30px; font-size: 8px; }
-.detail-contact-popover strong, .detail-contact-popover small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.detail-contact-popover strong { color: #29333d; font-size: 10px; }
-.detail-contact-popover small { color: #89949d; font-size: 9px; }
-.support-empty { display: flex; align-items: center; gap: 10px; padding: 14px; border: 1px dashed #d9e1e6; border-radius: 12px; color: #89939c; font-size: 12px; }
-.support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 14px; }
-.support-item { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: center; gap: 10px; min-width: 0; border: 0; border-bottom: 1px solid #edf1f4; border-radius: 0; padding: 14px 2px; }
-.support-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; color: #7c57c2; background: #f0eafa; }
-.support-icon.funding { color: #178650; background: #e7f7ee; }
-.support-item > div { min-width: 0; }
-.support-item > div > span { display: block; margin-bottom: 4px; color: #8a929a; font-size: 10px; }
-.support-item strong { display: block; overflow: hidden; color: #27313a; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.notes-panel { margin-top: 18px; border-left: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), .42); border-radius: 0; padding: 5px 0 5px 14px; background: transparent; }
-.notes-panel > div { display: flex; align-items: center; gap: 8px; color: #7d8790; font-size: 11px; font-weight: 600; }
-.notes-panel > div i { color: var(--detail-blue); }
-.notes-panel p { margin: 8px 0 0; color: #46515b; font-size: 12px; line-height: 1.6; white-space: pre-wrap; }
-.section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
-.section-heading h5 { margin: 2px 0 0; font-size: 18px; }
-.section-kicker { color: var(--detail-blue); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: capitalize; }
-.activity-count { flex: 0 0 auto; padding: 6px 10px; border-radius: 999px; color: #617080; background: #f0f4f7; font-size: 11px; font-weight: 600; }
-.timeline { position: relative; display: grid; gap: 16px; }
-.timeline::before { content: ''; position: absolute; top: 22px; bottom: 22px; left: 21px; width: 2px; background: linear-gradient(to bottom, var(--detail-blue), #dce8ee); }
-.timeline-item { position: relative; display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; gap: 14px; }
-.timeline-marker { z-index: 1; padding-top: 10px; background: #fff; }
-.timeline-icon { display: grid; place-items: center; width: 44px; height: 44px; border: 5px solid #fff; border-radius: 50%; color: var(--app-primary, #168ec4); background: var(--app-primary-soft, #ddf3fd); box-shadow: 0 0 0 1px var(--app-primary-border, #d6edf7); }
-.timeline-icon.green { color: #168b4c; background: #def5e7; box-shadow: 0 0 0 1px #d2efde; }
-.timeline-content { min-width: 0; padding: 15px 16px; border: 1px solid #e7ecef; border-radius: 13px; background: linear-gradient(135deg, #fff, #fbfdfe); box-shadow: 0 5px 15px rgba(31, 53, 72, .045); }
-.timeline-content-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.timeline-content-top strong { min-width: 0; color: #202b35; font-size: 14px; line-height: 1.35; }
-.latest-badge { flex: 0 0 auto; padding: 4px 9px; border-radius: 999px; color: var(--app-primary-dark, #0877a7); background: var(--app-primary-soft, #e1f4fc); font-size: 10px; font-weight: 700; }
-.activity-description { display: block !important; margin: 6px 0 11px !important; color: #7c8792 !important; font-size: 12px !important; line-height: 1.55; }
-.activity-date { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 7px; color: #667583; background: #f2f5f7; font-size: 11px; font-weight: 500; }
-.activity-date i { color: var(--detail-blue); }
-.comment-item p { margin: 3px 0 0; color: #90969d; font-size: 12px; }
-.comments-card h5 i { margin-right: 6px; color: var(--app-primary-dark, #29456f); }
-.empty-comment { color: #90969d; }
+.detail-tabs button { position: relative; padding: 14px 12px; border: 0; color: #7a8792; background: transparent; font-size: 13px; font-weight: 600; transition: color .18s ease, background-color .18s ease; }
+.detail-tabs button::after { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; border-radius: 3px 3px 0 0; background: transparent; content: ''; }
+.detail-tabs button:hover { color: var(--opportunity-blue); background: var(--app-primary-wash, #f5fbfe); }
+.detail-tabs button.active { color: var(--opportunity-blue); }
+.detail-tabs button.active::after { background: var(--opportunity-blue); }
+.activity-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.comments-card h5 { margin: 0 0 14px; color: #102a43; font-size: 15px; }
+.empty-comment { color: #90969d; font-size: 12px; }
 .comment-item { display: grid; grid-template-columns: 36px 1fr; gap: 10px; margin-bottom: 12px; }
-.comment-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #fff; background: var(--detail-blue); font-size: 11px; font-weight: 700; }
+.comment-item strong { color: #102a43; font-size: 13px; }
+.comment-item p { margin: 3px 0 0; color: #718096; font-size: 12px; }
+.comment-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #fff; background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #75c4ef)); font-size: 11px; font-weight: 700; }
 .comment-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 16px; }
-.comment-form input { min-width: 0; padding: 10px 14px; border: 1px solid #dce1e6; border-radius: 999px; outline: none; }
-.comment-form input:focus { border-color: var(--detail-blue); }
-.comment-form button { border: 0; color: var(--app-primary-dark, #27416a); background: transparent; font-size: 12px; font-weight: 600; }
+.comment-form input { min-width: 0; padding: 10px 14px; border: 1px solid #dce1e6; border-radius: 999px; outline: none; font-size: 13px; }
+.comment-form input:focus { border-color: var(--opportunity-blue); }
+.comment-form button { border: 0; color: var(--opportunity-blue); background: transparent; font-size: 12px; font-weight: 600; }
 .comment-form button:disabled { opacity: .45; }
-.detail-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 280px; padding: 30px; text-align: center; }
-.detail-state > i { font-size: 32px; }
+:global(body.dark-only) .detail-tabs { border-color: #34404c; background: #202730; }
+:global(body.dark-only) .detail-tabs button:hover { background: #25313c; }
+:global(body.dark-only) .comments-card h5, :global(body.dark-only) .comment-item strong { color: #eef3f6; }
+:global(body.dark-only) .comment-form input { border-color: #3a4652; background: #25303a; color: #e6edf2; }
+.detail-card, .history-card { overflow: hidden; border: 1px solid #e3ebf0; border-radius: 16px; background: #fff; box-shadow: 0 8px 24px rgba(31, 52, 73, .05); }
+.detail-card { padding: 0; }
+.opportunity-header-card { position: relative; isolation: isolate; overflow: hidden; border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .18); border-radius: 18px; padding: 24px 88px 24px 24px; background: radial-gradient(circle at 88% 18%, rgba(var(--app-primary-rgb, 24, 166, 228), .16), transparent 24%), linear-gradient(135deg, #fff 0%, var(--app-primary-wash, #f5fbfe) 58%, var(--app-primary-wash, #eef9fd) 100%); box-shadow: 0 12px 32px rgba(22, 76, 105, .08); }
+.opportunity-header-card::after { position: absolute; z-index: -1; right: -54px; bottom: -74px; width: 180px; height: 180px; border: 24px solid rgba(var(--app-primary-rgb, 24, 166, 228), .06); border-radius: 50%; content: ''; }
+.opportunity-header-copy { min-width: 0; }
+.opportunity-header-copy h1 { margin: 5px 0 14px; color: #102a43; font-size: clamp(21px, 2vw, 27px); font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.header-edit-button { position: absolute; z-index: 2; top: 18px; right: 20px; display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center; border: 1px solid var(--opportunity-blue); border-radius: 9px; padding: 0; color: #fff; background: var(--opportunity-blue); box-shadow: 0 4px 12px rgba(22, 76, 105, .08); line-height: 1; text-decoration: none; transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.header-edit-button :deep(.solar-icon), .header-edit-button :deep(svg) { flex: 0 0 auto; color: #fff !important; }
+.header-edit-button:hover, .header-edit-button:focus-visible { border-color: var(--app-primary-hover, #1493cc); color: #fff; background: var(--app-primary-hover, #1493cc); box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), .22); outline: none; transform: translateY(-1px); }
+.header-edit-button:focus-visible { outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), .16); outline-offset: 2px; }
+.section-kicker { color: var(--opportunity-blue); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.badge-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.opportunity-badge { display: inline-flex; min-width: 0; align-items: center; gap: 6px; border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .13); border-radius: 999px; padding: 6px 10px; color: #486581; background: rgba(255,255,255,.78); font-size: 11px; line-height: 1.2; }
+.item-count { display: inline-flex; flex: 0 0 auto; align-items: center; border-radius: 999px; padding: 6px 10px; color: #52677a; background: rgba(var(--app-primary-rgb, 24, 166, 228), .08); font-size: 11px; font-weight: 700; }
+.stage-badge { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .24); color: var(--app-primary-dark, #087cae); background: rgba(var(--app-primary-rgb, 24, 166, 228), .09); }
+.stage-duration-badge { border-color: #dce8ee; color: #486581; background: rgba(255,255,255,.82); }
+.priority-badge { border-color: #efd9a7; color: #8b650d; background: #fff7df; }
+.card-heading { display: flex; min-width: 0; align-items: center; gap: 12px; border-bottom: 1px solid #e8eef2; padding: 18px 20px; background: linear-gradient(90deg, #fff 0%, var(--app-primary-wash, #f8fcfe) 100%); }
+.card-heading > div { min-width: 0; flex: 1 1 auto; }
+.card-heading h2 { margin: 0 0 3px; color: #102a43; font-size: 16px; }
+.card-heading p { margin: 0; color: #829ab1; font-size: 12px; }
+.card-heading-icon { display: inline-flex; width: 42px; height: 42px; flex: 0 0 42px; align-items: center; justify-content: center; border-radius: 12px; color: var(--opportunity-blue); background: rgba(var(--app-primary-rgb, 24, 166, 228), .1); }
+.card-body-content { padding: 20px; }
+.opportunity-information { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(36px, 7vw, 96px); row-gap: 26px; }
+.opportunity-field { display: flex; min-width: 0; flex-direction: column; gap: 7px; padding: 2px 4px; }
+.opportunity-field span { color: #718096; font-size: 12px; font-weight: 500; }
+.opportunity-field strong { color: #102a43; font-size: 15px; font-weight: 500; line-height: 1.45; overflow-wrap: anywhere; }
+.opportunity-field small { color: #829ab1; font-size: 11px; line-height: 1.4; }
+.opportunity-field--value, .opportunity-field--full, .opportunity-divider { grid-column: 1 / -1; }
+.opportunity-field--value strong { color: var(--opportunity-blue); font-size: clamp(22px, 2vw, 26px); font-weight: 700; }
+.opportunity-divider { height: 1px; background: #e8eef2; }
+.opportunity-notes strong { white-space: pre-line; }
+.unsuccessful-reason { border-left: 3px solid #ef9aa2; padding: 10px 12px; background: #fff8f8; }
+.faskes-summary { display: grid; grid-template-columns: minmax(220px, .9fr) minmax(0, 1.6fr); gap: clamp(36px, 7vw, 96px); margin: 0; }
+.faskes-summary > div { display: flex; min-height: 0; justify-content: flex-start; flex-direction: column; gap: 7px; padding: 2px 4px; }
+.faskes-summary dt { color: #718096; font-size: 12px; font-weight: 500; }
+.faskes-summary dd { margin: 0; color: #102a43; font-size: 15px; font-weight: 500; line-height: 1.45; overflow-wrap: anywhere; }
+.multiline-value { white-space: pre-line; }
+.contact-section { margin-top: 24px; border-top: 1px solid #e8eef2; padding-top: 20px; }
+.contact-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.contact-section-heading h3 { margin: 0 0 3px; color: #102a43; font-size: 14px; }
+.contact-section-heading p { margin: 0; color: #829ab1; font-size: 11px; }
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.contact-card { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; gap: 12px; min-width: 0; border: 1px solid #e3ebf0; border-radius: 12px; padding: 14px; background: #fff; box-shadow: 0 4px 14px rgba(31, 52, 73, .035); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.contact-card:hover { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .32); box-shadow: 0 8px 20px rgba(31, 52, 73, .07); transform: translateY(-1px); }
+.contact-avatar { display: grid; width: 44px; height: 44px; place-items: center; border: 3px solid #fff; border-radius: 13px; color: #fff; background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #75c4ef)); box-shadow: 0 6px 14px rgba(22, 76, 105, .14); font-size: 12px; font-weight: 800; }
+.contact-card-copy { min-width: 0; }
+.contact-card-copy > strong, .contact-card-copy > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact-card-copy > strong { color: #102a43; font-size: 14px; font-weight: 600; }
+.contact-card-copy > span { margin-top: 3px; color: #718096; font-size: 11px; }
+.contact-meta { display: flex; min-width: 0; flex-wrap: wrap; gap: 5px 10px; margin-top: 9px; }
+.contact-meta a { display: inline-flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: #486581; font-size: 10px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.contact-meta a:hover { color: var(--opportunity-blue); }
+.contact-meta a :deep(.solar-icon) { flex: 0 0 auto; color: var(--opportunity-blue); }
+.table-responsive { overflow-x: auto; }
+.products-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.products-table th { padding: 11px 12px; border-bottom: 1px solid #e3ebf0; color: #627d98; background: #f8fbfd; font-size: 11px; letter-spacing: .03em; text-align: left; text-transform: uppercase; white-space: nowrap; }
+.products-table td { padding: 13px 12px; border-bottom: 1px solid #edf2f5; color: #334e68; vertical-align: middle; }
+.products-table .numeric-cell { text-align: right; white-space: nowrap; }
+.products-table .product-name, .products-table .subtotal-cell { color: #102a43; font-weight: 600; }
+.product-code { padding: 4px 7px; border-radius: 6px; color: var(--app-primary-dark, #087cae); background: var(--app-primary-wash, #eef9fd); font-family: monospace; }
+.products-table tfoot td { border: 0; padding-top: 16px; color: #243b53; font-size: 14px; font-weight: 700; }
+.products-table tfoot td:first-child { text-align: right; }
+.mobile-products { display: none; }
+.empty-state { display: flex; min-height: 150px; align-items: center; justify-content: center; flex-direction: column; gap: 8px; padding: 24px; border: 1px dashed #d9e1e6; border-radius: 10px; color: #7a8792; background: #fbfcfd; font-size: 12px; text-align: center; }
+.empty-state i { color: var(--opportunity-blue); font-size: 24px; }
+.empty-state strong { color: #52677a; font-size: 12px; }
+.empty-state.compact { min-height: 110px; }
+.total-warning { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; padding: 9px 11px; border-radius: 9px; color: #8b650d; background: #fff7df; font-size: 11px; }
+.task-list { display: grid; gap: 10px; }
+.task-item { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; padding: 14px; border: 1px solid #e3ebf0; border-radius: 12px; background: #fff; box-shadow: 0 4px 12px rgba(31, 52, 73, .035); }
+.task-marker { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: var(--opportunity-blue); background: rgba(var(--app-primary-rgb, 24, 166, 228), .1); }
+.task-item strong { color: #102a43; font-size: 14px; }
+.task-item p { margin: 4px 0 8px; color: #718096; font-size: 12px; }
+.task-meta { display: flex; flex-wrap: wrap; gap: 6px 12px; color: #829ab1; font-size: 11px; }
+.history-card { display: flex; justify-content: flex-end; gap: 38px; padding: 14px 18px; color: #829ab1; text-align: right; }
+.history-card span, .history-card strong, .history-card small { display: block; }
+.history-card span { font-size: 9px; text-transform: uppercase; }
+.history-card strong { margin-top: 2px; color: #606d78; font-size: 11px; }
+.history-card small { margin-top: 1px; font-size: 10px; }
+.state-card { display: flex; min-height: 330px; align-items: center; justify-content: center; flex-direction: column; gap: 10px; padding: 30px; text-align: center; }
+.state-card > i { font-size: 30px; }
+.skeleton-card { display: grid; gap: 12px; min-height: 130px; }
+.skeleton { display: block; border-radius: 7px; background: linear-gradient(90deg, #edf1f4 25%, #f8fafb 50%, #edf1f4 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+.skeleton-title { width: 32%; height: 20px; }
+.skeleton-line { width: 100%; height: 14px; }
+.skeleton-line.short { width: 62%; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+:global(body.dark-only) .detail-card,
+:global(body.dark-only) .opportunity-header-card,
+:global(body.dark-only) .history-card,
+:global(body.dark-only) .header-edit-button { border-color: #34404c; background-color: #202730; color: #dce3e8; }
+:global(body.dark-only) .opportunity-header-card { background: radial-gradient(circle at 92% 10%, rgba(var(--app-primary-rgb, 24, 166, 228), .16), transparent 30%), #202730; }
+:global(body.dark-only) .card-heading { border-color: #34404c; background: linear-gradient(90deg, #202730, #25313c); }
+:global(body.dark-only) .opportunity-header-copy h1,
+:global(body.dark-only) .card-heading h2,
+:global(body.dark-only) .faskes-summary dd,
+:global(body.dark-only) .contact-section-heading h3,
+:global(body.dark-only) .contact-card-copy > strong,
+:global(body.dark-only) .task-item strong,
+:global(body.dark-only) .products-table .product-name,
+:global(body.dark-only) .products-table .subtotal-cell { color: #eef3f6; }
+:global(body.dark-only) .products-table th { background: #28323c; }
+:global(body.dark-only) .opportunity-field strong { color: #e6edf2; }
+:global(body.dark-only) .opportunity-divider { background: #34404c; }
+:global(body.dark-only) .unsuccessful-reason { background: rgba(239, 154, 162, .08); }
+:global(body.dark-only) .products-table td { border-color: #34404c; }
+:global(body.dark-only) .task-item,
+:global(body.dark-only) .contact-card,
+:global(body.dark-only) .empty-state { border-color: #3a4652; }
+:global(body.dark-only) .task-item,
+:global(body.dark-only) .contact-card,
+:global(body.dark-only) .empty-state { background: #25303a; }
+:global(body.dark-only) .contact-section { border-color: #34404c; }
 
 @media (max-width: 767.98px) {
-  .project-detail-v2 { padding-right: 12px; padding-left: 12px; }
-  .detail-toolbar { grid-template-columns: 38px 1fr 38px; }
-  .detail-toolbar h3 { font-size: 20px; text-align: center; }
-  .toolbar-eyebrow { display: none; }
-  .back-link, .edit-button { width: 36px; height: 36px; box-shadow: none; }
-  .back-link { background: #fff; }
-  .back-link:hover, .back-link:focus-visible { background: var(--detail-blue); }
-  .back-link :deep(.solar-icon) { width: 21px !important; height: 21px !important; }
-  .project-hero { grid-template-columns: 58px minmax(0, 1fr); gap: 12px; padding: 16px; border-radius: 14px; }
-  .product-icon { width: 56px; height: 56px; font-size: 24px; }
-  .hero-copy h4 { overflow: hidden; font-size: 18px; text-overflow: ellipsis; white-space: nowrap; }
-  .hero-copy p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .hero-value { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 11px 0 0; border-top: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .18); border-left: 0; text-align: left; }
-  .hero-value strong { font-size: 15px; }
-  .info-grid, .activity-panel { grid-template-columns: 1fr; }
-  .detail-card { padding: 16px; }
-  .section-heading { align-items: center; }
-  .support-grid { grid-template-columns: 1fr; }
-  .timeline-content-top { align-items: flex-start; }
+  .opportunity-detail-page { padding-right: 12px; padding-left: 12px; }
+  .detail-stack { gap: 18px; }
+  .opportunity-header-card { border-radius: 14px; padding: 17px 62px 17px 17px; }
+  .header-edit-button { top: 14px; right: 14px; width: 36px; height: 36px; }
+  .detail-card { border-radius: 13px; }
+  .card-heading, .card-body-content { padding: 15px; }
+  .card-heading { align-items: flex-start; }
+  .card-heading-icon { width: 38px; height: 38px; flex-basis: 38px; }
+  .card-heading .item-count { margin-left: auto; }
+  .opportunity-information { grid-template-columns: 1fr; row-gap: 20px; }
+  .activity-panel { grid-template-columns: 1fr; }
+  .opportunity-field--value, .opportunity-field--full, .opportunity-divider { grid-column: auto; }
+  .faskes-summary { grid-template-columns: 1fr; gap: 20px; }
+  .contact-section-heading { align-items: flex-start; }
+  .contact-grid { grid-template-columns: 1fr; }
+  .desktop-products { display: none; }
+  .mobile-products { display: grid; gap: 10px; }
+  .product-card { padding: 13px; border: 1px solid #e3ebf0; border-radius: 12px; background: #fff; box-shadow: 0 3px 10px rgba(31, 52, 73, .035); }
+  .product-card strong, .product-card span { display: block; }
+  .product-card strong { color: #25313a; font-size: 13px; }
+  .product-card span { margin-top: 3px; color: #85919b; font-size: 10px; }
+  .product-card p { display: flex; justify-content: space-between; gap: 10px; margin: 12px 0 0; padding-top: 10px; border-top: 1px solid #edf1f4; color: #66737e; font-size: 11px; }
+  .product-card b { color: var(--opportunity-blue); white-space: nowrap; }
+  .mobile-total { display: flex; justify-content: space-between; padding: 13px; border-radius: 10px; color: #34414c; background: #f8fbfd; font-size: 13px; }
+  .history-card { justify-content: space-between; gap: 18px; text-align: left; }
+  .history-card > div:last-child { text-align: right; }
+  :global(body.dark-only) .product-card { border-color: #3a4652; }
+  :global(body.dark-only) .product-card strong { color: #eef3f6; }
+  :global(body.dark-only) .product-card p { border-color: #34404c; }
+  :global(body.dark-only) .mobile-total { color: #e6edf2; background: #28323c; }
 }
 </style>

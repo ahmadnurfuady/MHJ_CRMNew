@@ -40,11 +40,13 @@ const props = withDefaults(
     fallback?: MhjIconName
     color?: string
     secondaryColor?: string
+    singleColor?: boolean
   }>(),
   {
     size: 24,
     alt: '',
     fallback: 'nav_home',
+    singleColor: false,
   },
 )
 
@@ -61,9 +63,11 @@ const iconSizeStyle = computed(() => {
 
 function applyThemeColors(svg: string): string {
   const primary = props.color ?? 'var(--app-primary-deep, #032A4E)'
-  const secondary = props.secondaryColor ?? 'var(--app-secondary, #18A6E4)'
+  const secondary = props.singleColor
+    ? primary
+    : props.secondaryColor ?? 'var(--app-secondary, #18A6E4)'
 
-  return svg
+  let themed = svg
     .replace(/<\?xml[^>]*\?>/i, '')
     .replace(/\swidth="[^"]*"/i, '')
     .replace(/\sheight="[^"]*"/i, '')
@@ -71,6 +75,15 @@ function applyThemeColors(svg: string): string {
     .replace(/#078DBD/gi, primary)
     .replace(/#(?:000000|000)\b/gi, primary)
     .replace(/#18A6E4/gi, secondary)
+    .replace(/#647480/gi, primary)
+
+  if (props.singleColor) {
+    themed = themed
+      .replace(/\sopacity="[^"]*"/gi, '')
+      .replace(/\sfill-opacity="[^"]*"/gi, '')
+  }
+
+  return themed
 }
 
 const inlineSvg = computed(() => applyThemeColors(mhjIconMarkup[iconPath.value] ?? ''))

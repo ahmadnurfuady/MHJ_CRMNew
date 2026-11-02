@@ -358,13 +358,6 @@ onBeforeUnmount(() => {
   touch-action: pan-x pan-y pinch-zoom;
 }
 
-.app-shell.compact-wrapper
-  :deep(.sidebar-mhj-icon[data-mhj-icon='nav_task'] svg path) {
-  stroke: #fff !important;
-  stroke-width: 1 !important;
-  stroke-linejoin: round;
-}
-
 .app-shell.compact-wrapper :deep(.sidebar-links::-webkit-scrollbar) {
   width: 5px;
 }
