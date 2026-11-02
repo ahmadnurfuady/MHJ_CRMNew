@@ -1,20 +1,28 @@
 import { ref } from 'vue'
 
 import { fetchManagerDashboardData } from '@/core/data/dashboard/manager'
-import { promoService } from '@/services/promoService'
+import { api } from '@/services/api'
+import {
+  fetchHospitalMap,
+  fetchProjectLinearity,
+  fetchWinRateDrilldown,
+  type HospitalMapPoint,
+  type ProjectLinearityData,
+  type WinRateDivisionRow,
+} from '@/services/analyticsService'
+import type { PromoApiItem } from '@/services/promoService'
 import type { ManagerDashboardData, PromoSlide } from '@/types/dashboard/manager'
-
-function isPromoCurrentlyActive(startDate: string | null, endDate: string | null): boolean {
-  const now = Date.now()
-  if (startDate && new Date(startDate).getTime() > now) return false
-  if (endDate && new Date(endDate).getTime() < now) return false
-  return true
-}
 
 const data = ref<ManagerDashboardData | null>(null)
 const loading = ref(false)
 const promoSlides = ref<PromoSlide[]>([])
 const promoLoading = ref(false)
+const linearity = ref<ProjectLinearityData | null>(null)
+const linearityLoading = ref(false)
+const hospitalCoverage = ref<HospitalMapPoint[]>([])
+const hospitalCoverageLoading = ref(false)
+const winRateDrilldown = ref<WinRateDivisionRow[]>([])
+const winRateLoading = ref(false)
 
 /** Data Dashboard Manager dan promo dimuat dari service backend. */
 export function useManagerDashboard() {
@@ -30,18 +38,16 @@ export function useManagerDashboard() {
   async function loadPromoSlides() {
     promoLoading.value = true
     try {
-      const promos = await promoService.getPromos()
-      promoSlides.value = promos
-        .filter((promo) => Boolean(promo.is_active) && isPromoCurrentlyActive(promo.start_date, promo.end_date))
-        .sort((a, b) => a.sort_order - b.sort_order)
-        .map((promo) => ({
-          id: promo.id,
-          title: promo.title,
-          content: promo.content,
-          // Fallback ke image_path: sama seperti usePromoCatalog.ts, karena API
-          // tidak selalu mengisi image_url walau gambar (image_path) sudah ada.
-          imageUrl: promo.image_url ?? promo.image_path ?? null,
-        }))
+      const res = await api.get<{ data: PromoApiItem[] }>('/dashboard/promo')
+      const promos = Array.isArray(res.data?.data) ? res.data.data : []
+      promoSlides.value = promos.map((promo) => ({
+        id: promo.id,
+        title: promo.title,
+        content: promo.content,
+        // Fallback ke image_path: sama seperti usePromoCatalog.ts, karena API
+        // tidak selalu mengisi image_url walau gambar (image_path) sudah ada.
+        imageUrl: promo.image_url ?? promo.image_path ?? null,
+      }))
     } catch (error) {
       console.error('Gagal memuat promo.', error)
       promoSlides.value = []
@@ -50,12 +56,48 @@ export function useManagerDashboard() {
     }
   }
 
+  async function loadProjectLinearity() {
+    linearityLoading.value = true
+    try {
+      linearity.value = await fetchProjectLinearity()
+    } finally {
+      linearityLoading.value = false
+    }
+  }
+
+  async function loadHospitalCoverage() {
+    hospitalCoverageLoading.value = true
+    try {
+      hospitalCoverage.value = await fetchHospitalMap('visit')
+    } finally {
+      hospitalCoverageLoading.value = false
+    }
+  }
+
+  async function loadWinRateDrilldown() {
+    winRateLoading.value = true
+    try {
+      winRateDrilldown.value = await fetchWinRateDrilldown()
+    } finally {
+      winRateLoading.value = false
+    }
+  }
+
   return {
     data,
     loading,
     promoSlides,
     promoLoading,
+    linearity,
+    linearityLoading,
+    hospitalCoverage,
+    hospitalCoverageLoading,
+    winRateDrilldown,
+    winRateLoading,
     loadManagerDashboard,
     loadPromoSlides,
+    loadProjectLinearity,
+    loadHospitalCoverage,
+    loadWinRateDrilldown,
   }
 }

@@ -34,19 +34,25 @@ interface DashboardListSource {
   total: number
 }
 
+/**
+ * Row dari `GET /api/dashboard/hospital-map`
+ * (controller: `DashboardController@hospitalMap`). SP mengembalikan ringkasan
+ * daftar faskes beserta koordinat & jumlah peluang aktifnya. Nilai numerik
+ * dikirim backend sebagai string, parsing dilakukan di komponen presentasi.
+ * Nama field koordinat didukung dua variasi (`lat`/`lng` dan
+ * `latitude`/`longitude`) agar sinkron dengan SP sqlsrv maupun fallback.
+ */
 export interface HospitalMapPoint {
   id: number | string
   name: string
-  type?: string | null
   city?: string | null
   province?: string | null
-  branch?: string | null
-  coordinates: { lat: number; lng: number }
-  visit_frequency: number
-  sales_volume: number
-  active_deals: number
-  metric_value: number
-  display_label: string
+  type?: string | null
+  active_projects_count: number | string
+  lat?: number | string | null
+  lng?: number | string | null
+  latitude?: number | string | null
+  longitude?: number | string | null
 }
 
 interface HospitalMapResponse {
@@ -54,6 +60,44 @@ interface HospitalMapResponse {
   mode: string
   total: number
   data: HospitalMapPoint[]
+}
+
+/**
+ * Satu baris seri linearitas dari `GET /api/dashboard/project-linearity`
+ * (controller: `DashboardController@projectLinearity`). Angka dikirim backend
+ * sebagai string, parsing numerik dilakukan di komponen presentasi.
+ */
+export interface ProjectLinearityPoint {
+  MonthNum: number | string
+  MonthName: string
+  baseline_coverage_3x: number | string
+  total_project_input_value: number | string
+}
+
+export interface ProjectLinearityData {
+  formula: string
+  target_nominal: number
+  monthly_baseline: number
+  series: ProjectLinearityPoint[]
+}
+
+interface ProjectLinearityResponse {
+  status: string
+  data: ProjectLinearityData
+}
+
+/**
+ * Satu baris drilldown divisi dari `GET /api/dashboard/win-rate-drilldown`
+ * (controller: `DashboardController@winRateDrilldown`).
+ */
+export interface WinRateDivisionRow {
+  division_name: string
+  total_deals: number | string
+}
+
+interface WinRateDrilldownResponse {
+  status: string
+  data: WinRateDivisionRow[]
 }
 
 /** `GET /api/dashboard/metrics` → metric mentah untuk KPI, benchmark & coverage. */
@@ -343,7 +387,7 @@ export async function fetchDashboardMetricsFromExistingApis(): Promise<Dashboard
   }
 }
 
-/** `GET /api/dashboard/hospital-map` → daftar RS beserta koordinat untuk peta cakupan. */
+/** `GET /api/dashboard/hospital-map` → ringkasan daftar faskes + jumlah peluang aktif. */
 export async function fetchHospitalMap(mode: 'visit' | 'sales' = 'visit'): Promise<HospitalMapPoint[]> {
   try {
     const response = await api.get<HospitalMapResponse>('/dashboard/hospital-map', {
@@ -352,6 +396,28 @@ export async function fetchHospitalMap(mode: 'visit' | 'sales' = 'visit'): Promi
     return response.data?.data ?? []
   } catch (error) {
     console.error('Gagal memuat hospital map.', error)
+    return []
+  }
+}
+
+/** `GET /api/dashboard/project-linearity` → seri linearitas proyek per bulan. */
+export async function fetchProjectLinearity(): Promise<ProjectLinearityData | null> {
+  try {
+    const response = await api.get<ProjectLinearityResponse>('/dashboard/project-linearity')
+    return response.data?.data ?? null
+  } catch (error) {
+    console.error('Gagal memuat project linearity.', error)
+    return null
+  }
+}
+
+/** `GET /api/dashboard/win-rate-drilldown` → distribusi jumlah deal per divisi produk. */
+export async function fetchWinRateDrilldown(): Promise<WinRateDivisionRow[]> {
+  try {
+    const response = await api.get<WinRateDrilldownResponse>('/dashboard/win-rate-drilldown')
+    return response.data?.data ?? []
+  } catch (error) {
+    console.error('Gagal memuat win rate drilldown.', error)
     return []
   }
 }

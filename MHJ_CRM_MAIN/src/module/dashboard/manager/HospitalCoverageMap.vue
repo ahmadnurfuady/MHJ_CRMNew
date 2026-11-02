@@ -311,8 +311,8 @@
       </footer>
     </aside>
 
-    <aside v-if="selectedHospital && !showFilter" class="hospital-map__detail">
-      <button type="button" class="detail-close" aria-label="Tutup detail" @click="selectedHospital = null">
+    <aside v-if="selectedPoint && !showFilter" class="hospital-map__detail">
+      <button type="button" class="detail-close" aria-label="Tutup detail" @click="clearSelection">
         <SolarIcon name="close" :size="18" color="currentColor" secondary-color="currentColor" />
       </button>
       <div class="detail-heading">
@@ -325,12 +325,14 @@
           />
         </span>
         <div>
-          <strong>{{ selectedHospital.name }}</strong>
-          <small>{{ selectedHospital.city || selectedHospital.province || 'Wilayah belum tersedia' }}</small>
+          <strong>{{ selectedHospital?.name || selectedPoint.name }}</strong>
+          <small>
+            {{ selectedHospital?.city || selectedPoint.city || selectedHospital?.province || selectedPoint.province || 'Wilayah belum tersedia' }}
+          </small>
         </div>
       </div>
       <div class="detail-badges">
-        <span v-if="selectedHospital.financeStatus" class="grade">{{ selectedHospital.financeStatus }}</span>
+        <span v-if="selectedHospital?.financeStatus" class="grade">{{ selectedHospital.financeStatus }}</span>
         <span :class="`urgency urgency--${getUrgency(selectedHospital).id}`">
           <i :class="`urgency-dot urgency-dot--${getUrgency(selectedHospital).id}`"></i>
           {{ getUrgency(selectedHospital).label }}
@@ -343,12 +345,18 @@
           color="currentColor"
           secondary-color="var(--app-primary, #18a6e4)"
         />
-        <span>{{ selectedHospital.address || selectedHospital.mapAddress || selectedCoordinates }}</span>
+        <span>{{ selectedHospital?.address || selectedHospital?.mapAddress || selectedCoordinates }}</span>
+      </div>
+      <div v-if="selectedDetailLoading && !selectedHospital" class="detail-location" role="status">
+        <span>Memuat detail faskes...</span>
       </div>
       <div class="detail-metrics">
-        <span><strong>{{ selectedHospital.totalInstalledEquipment ?? 0 }}</strong><small>Total Alat</small></span>
-        <span><strong>{{ selectedHospital.totalProjects ?? 0 }}</strong><small>Total Proyek</small></span>
-        <span><strong>{{ selectedHospital.totalContacts ?? 0 }}</strong><small>Kontak</small></span>
+        <span><strong>{{ selectedHospital?.totalInstalledEquipment ?? 0 }}</strong><small>Total Alat</small></span>
+        <span>
+          <strong>{{ selectedHospital?.totalProjects ?? Number(selectedPoint.active_projects_count ?? 0) }}</strong>
+          <small>Total Proyek</small>
+        </span>
+        <span><strong>{{ selectedHospital?.totalContacts ?? 0 }}</strong><small>Kontak</small></span>
       </div>
       <div class="detail-actions">
         <button type="button" class="detail-button" @click="openHospitalDetail">Lihat Detail</button>
@@ -378,6 +386,7 @@ import GoogleMapView from '@/components/GoogleMapView.vue'
 import type { GoogleMapMarker } from '@/components/GoogleMapView.vue'
 import { EarthIcon as EarthDuotoneIcon } from '@solar-icons/vue/bold-duotone/earth'
 
+import { fetchHospitalMap, type HospitalMapPoint } from '@/services/analyticsService'
 import { useHospitalStore } from '@/store/hospital'
 import type { Hospital } from '@/types/hospital'
 
@@ -404,7 +413,15 @@ const props = defineProps<{
 
 const router = useRouter()
 const hospitalStore = useHospitalStore()
-const { items: hospitals } = storeToRefs(hospitalStore)
+const { items: storeHospitals } = storeToRefs(hospitalStore)
+
+/**
+ * Daftar titik faskes untuk peta diambil dari `/dashboard/hospital-map`
+ * (`DashboardController@hospitalMap`). Response-nya sudah membawa koordinat
+ * (lat/lng) sehingga marker dapat digambar dalam satu kali request, tanpa
+ * menghidrasi koordinat per-id lewat `/company/fetchcompanybyid`.
+ */
+const mapPoints = ref<HospitalMapPoint[]>([])
 
 const mapViewRef = ref<InstanceType<typeof GoogleMapView> | null>(null)
 const mapLoading = ref(false)
@@ -414,7 +431,9 @@ const showFilter = ref(false)
 const showSearch = ref(false)
 const searchQuery = ref('')
 const selectedLayer = ref<MapLayer>('standard')
+const selectedPoint = ref<HospitalMapPoint | null>(null)
 const selectedHospital = ref<Hospital | null>(null)
+const selectedDetailLoading = ref(false)
 const userLocation = ref<{ lat: number; lng: number } | null>(null)
 const locating = ref(false)
 const mapMessage = ref('')
@@ -443,18 +462,41 @@ const googleMapTypeId = computed<'roadmap' | 'satellite' | 'hybrid'>(() =>
   selectedLayer.value === 'standard' ? 'roadmap' : selectedLayer.value,
 )
 
-function hasCoordinates(hospital: Hospital): boolean {
-  return Number.isFinite(hospital.latitude) && Number.isFinite(hospital.longitude)
-    && Math.abs(hospital.latitude ?? 91) <= 90
-    && Math.abs(hospital.longitude ?? 181) <= 180
+function toCoordinate(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const parsed = typeof value === 'number' ? value : Number(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function pointCoordinate(point: HospitalMapPoint): { lat: number; lng: number } | null {
+  const lat = toCoordinate(point.lat ?? point.latitude)
+  const lng = toCoordinate(point.lng ?? point.longitude)
+  if (lat === null || lng === null) return null
+  if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null
+  return { lat, lng }
+}
+
+function pointIdNumber(point: HospitalMapPoint): number {
+  return Number(point.id)
 }
 
 function hospitalType(hospital: Hospital): string {
   return hospital.tipe || hospital.hospitalType || hospital.jenis || hospital.industry || 'Tidak diketahui'
 }
 
-function getUrgency(hospital: Hospital): UrgencyOption {
-  if (!hospital.lastVisitAt) return urgencyOptions[2]!
+function pointType(point: HospitalMapPoint): string {
+  return (point.type || '').trim() || 'Tidak diketahui'
+}
+
+/** Merge data detail (bila sudah dihidrasi dari toko) ke titik peta. */
+function hospitalForPoint(point: HospitalMapPoint): Hospital | null {
+  const id = pointIdNumber(point)
+  if (!Number.isFinite(id)) return null
+  return storeHospitals.value.find((hospital) => hospital.id === id) ?? null
+}
+
+function getUrgency(hospital: Hospital | null): UrgencyOption {
+  if (!hospital || !hospital.lastVisitAt) return urgencyOptions[2]!
   const parsedDate = new Date(hospital.lastVisitAt.replace(' ', 'T'))
   if (Number.isNaN(parsedDate.getTime())) return urgencyOptions[2]!
   const elapsedDays = Math.floor((Date.now() - parsedDate.getTime()) / 86_400_000)
@@ -463,39 +505,66 @@ function getUrgency(hospital: Hospital): UrgencyOption {
   return urgencyOptions[2]!
 }
 
-const hospitalPoints = computed(() => hospitals.value.filter(hasCoordinates).map((hospital) => ({
-  hospital,
-  lat: hospital.latitude as number,
-  lng: hospital.longitude as number,
-  urgency: getUrgency(hospital),
-})))
+const hospitalPoints = computed(() => mapPoints.value
+  .map((point) => {
+    const coord = pointCoordinate(point)
+    if (!coord) return null
+    const hospital = hospitalForPoint(point)
+    return {
+      point,
+      hospital,
+      lat: coord.lat,
+      lng: coord.lng,
+      urgency: getUrgency(hospital),
+    }
+  })
+  .filter((entry): entry is {
+    point: HospitalMapPoint
+    hospital: Hospital | null
+    lat: number
+    lng: number
+    urgency: UrgencyOption
+  } => entry !== null))
 
-const filteredPoints = computed(() => hospitalPoints.value.filter((point) => {
-  const hospital = point.hospital
+const filteredPoints = computed(() => hospitalPoints.value.filter((entry) => {
+  const { point, hospital } = entry
   const query = searchQuery.value.toLocaleLowerCase('id-ID')
-  if (query && ![hospital.name, hospital.city, hospital.province, hospital.address]
-    .some((value) => value.toLocaleLowerCase('id-ID').includes(query))) return false
-  if (urgencyFilter.value !== 'all' && point.urgency.id !== urgencyFilter.value) return false
-  if (equipmentFilter.value === 'mhj' && !(hospital.totalInstalledEquipment && hospital.totalInstalledEquipment > 0)) return false
-  if (equipmentFilter.value === 'none' && (hospital.totalInstalledEquipment ?? 0) > 0) return false
-  if (cityFilter.value !== 'all' && hospital.city !== cityFilter.value) return false
-  if (typeFilter.value !== 'all' && hospitalType(hospital) !== typeFilter.value) return false
+  if (query) {
+    const haystack = [
+      point.name,
+      point.city ?? '',
+      point.province ?? '',
+      hospital?.address ?? '',
+    ]
+    if (!haystack.some((value) => value.toLocaleLowerCase('id-ID').includes(query))) return false
+  }
+  if (urgencyFilter.value !== 'all' && entry.urgency.id !== urgencyFilter.value) return false
+  if (equipmentFilter.value === 'mhj' && !(hospital?.totalInstalledEquipment && hospital.totalInstalledEquipment > 0)) return false
+  if (equipmentFilter.value === 'none' && (hospital?.totalInstalledEquipment ?? 0) > 0) return false
+  if (cityFilter.value !== 'all' && (point.city ?? '') !== cityFilter.value) return false
+  if (typeFilter.value !== 'all' && pointType(point) !== typeFilter.value) return false
   return true
 }))
 
-const markerPoints = computed<GoogleMapMarker[]>(() => filteredPoints.value.map((point) => ({
-  lat: point.lat,
-  lng: point.lng,
-  title: point.hospital.name,
-  color: urgencyColors[point.urgency.id],
+const markerPoints = computed<GoogleMapMarker[]>(() => filteredPoints.value.map((entry) => ({
+  lat: entry.lat,
+  lng: entry.lng,
+  title: entry.point.name,
+  color: urgencyColors[entry.urgency.id],
   glyphText: '+',
 })))
 
-const cityOptions = computed(() => [...new Set(hospitalPoints.value.map(({ hospital }) => hospital.city).filter(Boolean))]
+const cityOptions = computed(() => [...new Set(hospitalPoints.value
+  .map((entry) => entry.point.city ?? '')
+  .filter(Boolean))]
   .sort((a, b) => a.localeCompare(b, 'id-ID')))
-const typeOptions = computed(() => [...new Set(hospitalPoints.value.map(({ hospital }) => hospitalType(hospital)).filter(Boolean))]
+const typeOptions = computed(() => [...new Set(hospitalPoints.value
+  .map((entry) => pointType(entry.point))
+  .filter((value) => value && value !== 'Tidak diketahui'))]
   .sort((a, b) => a.localeCompare(b, 'id-ID')))
-const missingCoordinateCount = computed(() => hospitals.value.filter((hospital) => !hasCoordinates(hospital)).length)
+const missingCoordinateCount = computed(() =>
+  mapPoints.value.filter((point) => !pointCoordinate(point)).length,
+)
 const activeFilterCount = computed(() => [
   urgencyFilter.value !== 'all',
   equipmentFilter.value !== 'all',
@@ -503,8 +572,11 @@ const activeFilterCount = computed(() => [
   typeFilter.value !== 'all',
 ].filter(Boolean).length)
 const selectedCoordinates = computed(() => {
-  if (!selectedHospital.value || !hasCoordinates(selectedHospital.value)) return 'Koordinat belum tersedia'
-  return `${selectedHospital.value.latitude!.toFixed(5)}, ${selectedHospital.value.longitude!.toFixed(5)}`
+  const point = selectedPoint.value
+  if (!point) return 'Koordinat belum tersedia'
+  const coord = pointCoordinate(point)
+  if (!coord) return 'Koordinat belum tersedia'
+  return `${coord.lat.toFixed(5)}, ${coord.lng.toFixed(5)}`
 })
 const locationControlLabel = computed(() => {
   if (locating.value) return 'Mencari lokasi...'
@@ -529,8 +601,8 @@ function zoomIn(): void { mapViewRef.value?.zoomIn() }
 function zoomOut(): void { mapViewRef.value?.zoomOut() }
 
 function handleMarkerClick(index: number): void {
-  const point = filteredPoints.value[index]
-  if (point) selectHospital(point.hospital)
+  const entry = filteredPoints.value[index]
+  if (entry) selectPoint(entry.point)
 }
 
 function toggleExpandedMap(): void {
@@ -544,6 +616,7 @@ function closeExpandedMap(): void {
   showFilter.value = false
   showLayers.value = false
   showSearch.value = false
+  selectedPoint.value = null
   selectedHospital.value = null
   refreshMapSize()
 }
@@ -566,6 +639,7 @@ function openFilter(): void {
   }
   showLayers.value = false
   showSearch.value = false
+  selectedPoint.value = null
   selectedHospital.value = null
   showFilter.value = true
 }
@@ -579,12 +653,13 @@ function resetFilters(): void {
 
 function applyFilters(): void {
   showFilter.value = false
+  selectedPoint.value = null
   selectedHospital.value = null
   void nextTick(fitHospitals)
 }
 
-function selectHospital(hospital: Hospital): void {
-  selectedHospital.value = hospital
+async function selectPoint(point: HospitalMapPoint): Promise<void> {
+  selectedPoint.value = point
   showFilter.value = false
   showLayers.value = false
   showSearch.value = false
@@ -592,11 +667,48 @@ function selectHospital(hospital: Hospital): void {
     isExpanded.value = true
     refreshMapSize()
   }
+
+  // Detail panel butuh field tambahan (totalInstalledEquipment, dsb) yang
+  // tidak dibawa oleh /dashboard/hospital-map. Hidrasi detail dilakukan sekali
+  // per RS saat marker di-klik, bukan untuk seluruh daftar di awal.
+  const id = pointIdNumber(point)
+  if (!Number.isFinite(id)) {
+    selectedHospital.value = null
+    return
+  }
+
+  const existing = storeHospitals.value.find((hospital) => hospital.id === id)
+  if (existing) {
+    selectedHospital.value = existing
+  } else {
+    selectedHospital.value = null
+  }
+
+  if (detailHydrationAttempted.has(id) && existing) return
+  detailHydrationAttempted.add(id)
+
+  selectedDetailLoading.value = true
+  try {
+    const detail = await hospitalStore.fetchHospitalById(id)
+    if (detail && selectedPoint.value && pointIdNumber(selectedPoint.value) === id) {
+      selectedHospital.value = detail
+    }
+  } catch {
+    // Marker tetap tampil; detail boleh gagal tanpa menggagalkan peta.
+  } finally {
+    selectedDetailLoading.value = false
+  }
 }
 
 function openHospitalDetail(): void {
-  if (!selectedHospital.value) return
-  void router.push({ name: 'RumahSakit', query: { detail: String(selectedHospital.value.id) } })
+  const id = selectedHospital.value?.id ?? (selectedPoint.value ? pointIdNumber(selectedPoint.value) : null)
+  if (id === null || !Number.isFinite(id)) return
+  void router.push({ name: 'RumahSakit', query: { detail: String(id) } })
+}
+
+function clearSelection(): void {
+  selectedPoint.value = null
+  selectedHospital.value = null
 }
 
 function toggleSearch(): void {
@@ -607,6 +719,7 @@ function toggleSearch(): void {
   showSearch.value = !showSearch.value
   showLayers.value = false
   showFilter.value = false
+  selectedPoint.value = null
   selectedHospital.value = null
 }
 
@@ -619,11 +732,13 @@ function applySearch(): void {
 }
 
 function openRoute(): void {
-  if (!selectedHospital.value || !hasCoordinates(selectedHospital.value)) {
+  const point = selectedPoint.value
+  const coord = point ? pointCoordinate(point) : null
+  if (!coord) {
     showMapMessage('Koordinat faskes belum tersedia.')
     return
   }
-  const destination = `${selectedHospital.value.latitude},${selectedHospital.value.longitude}`
+  const destination = `${coord.lat},${coord.lng}`
   const routeUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`
   const routeWindow = window.open(routeUrl, '_blank', 'noopener,noreferrer')
   if (routeWindow) routeWindow.opener = null
@@ -707,53 +822,26 @@ async function locateUser(): Promise<void> {
   }
 }
 
+/**
+ * Marker peta sepenuhnya dibangun dari `/dashboard/hospital-map`. Response
+ * tunggal itu sudah membawa koordinat + ringkasan tiap faskes, sehingga tidak
+ * ada lagi N panggilan `/company/fetchcompanybyid` yang membanjiri network
+ * saat halaman dashboard dibuka. Detail per-RS dihidrasi lazy pada
+ * `selectPoint()` ketika marker-nya di-klik.
+ */
 async function loadHospitals(): Promise<void> {
   mapLoading.value = true
   try {
-    await hospitalStore.fetchHospitals({ page: 1, per_page: 100 })
-    await hydrateMissingCoordinates()
+    const points = await fetchHospitalMap('visit')
+    mapPoints.value = points
     await nextTick()
     fitHospitals()
-
-    const lastPage = Math.min(hospitalStore.pagination.lastPage, 25)
-    for (let page = 2; page <= lastPage; page += 1) {
-      await hospitalStore.fetchHospitals({ page, per_page: 100 }, { append: true })
-      await hydrateMissingCoordinates()
-    }
-    await nextTick()
-    fitHospitals()
-  } catch {
-    showMapMessage(hospitalStore.error || 'Data faskes gagal dimuat.')
+  } catch (error) {
+    console.error('Gagal memuat peta cakupan faskes.', error)
+    showMapMessage('Data faskes gagal dimuat.')
   } finally {
     mapLoading.value = false
   }
-}
-
-/**
- * Respons daftar company tidak selalu membawa latitude/longitude, sementara
- * endpoint detail membawanya. Lengkapi hanya row yang belum punya koordinat,
- * dengan concurrency kecil agar API tidak dibanjiri request sekaligus.
- */
-async function hydrateMissingCoordinates(): Promise<void> {
-  const queue = hospitals.value
-    .filter((hospital) => !hasCoordinates(hospital) && !detailHydrationAttempted.has(hospital.id))
-    .map((hospital) => hospital.id)
-
-  queue.forEach((id) => detailHydrationAttempted.add(id))
-  if (!queue.length) return
-
-  const workerCount = Math.min(5, queue.length)
-  await Promise.all(Array.from({ length: workerCount }, async () => {
-    while (queue.length) {
-      const id = queue.shift()
-      if (id === undefined) return
-      try {
-        await hospitalStore.fetchHospitalById(id)
-      } catch {
-        // Satu detail gagal tidak boleh menggagalkan marker rumah sakit lainnya.
-      }
-    }
-  }))
 }
 
 function handleKeydown(event: KeyboardEvent): void {
