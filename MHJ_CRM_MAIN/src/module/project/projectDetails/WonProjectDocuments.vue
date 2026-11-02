@@ -15,9 +15,9 @@
           <SolarIcon name="fa-chevron-down" class="menu-chevron" />
         </summary>
         <div class="document-menu__panel">
-          <button type="button" @click="chooseUpload('customer-po', $event)">
+          <button type="button" class="is-disabled" disabled title="Belum tersedia">
             <SolarIcon name="fa-arrow-up-from-bracket" />
-            <span><strong>Upload PO Customer</strong><small>PDF, Word, Excel, atau gambar</small></span>
+            <span><strong>Upload PO Customer</strong><small>Belum tersedia</small></span>
           </button>
           <button type="button" @click="openForm('customer-po', $event)">
             <SolarIcon name="fa-pen-to-square" />
@@ -60,6 +60,10 @@
           </button>
         </div>
       </details>
+
+      <button type="button" class="tracking-button" @click="trackingOpen = true">
+        <SolarIcon name="fa-truck" />Status Pemesanan
+      </button>
     </div>
 
     <div class="document-notes">
@@ -69,7 +73,7 @@
       </p>
       <p class="local-storage-note">
         <SolarIcon name="fa-circle-info" />
-        Dokumen disimpan lokal sementara sampai endpoint backend tersedia.
+        Dokumen tersimpan di server; salinan lokal disimpan agar bisa diunduh ulang.
       </p>
     </div>
 
@@ -293,23 +297,15 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-light" type="button" @click="closeForm">Batal</button>
-          <details class="export-menu" :class="{ disabled: saving }">
-            <summary class="btn btn-primary" @click="saving && $event.preventDefault()">
-              {{ saving ? 'Menyimpan...' : 'Simpan Dokumen' }}
-            </summary>
-            <div class="export-menu__panel">
-              <button type="submit" @click="exportFormat = 'word'">
-                <span><strong>Simpan sebagai Word</strong><small>Format .doc yang dapat diedit</small></span>
-              </button>
-              <button type="submit" @click="exportFormat = 'pdf'">
-                <span><strong>Simpan sebagai PDF</strong><small>Format .pdf siap dikirim</small></span>
-              </button>
-            </div>
-          </details>
+          <button class="btn btn-light" type="button" :disabled="saving" @click="closeForm">Batal</button>
+          <button class="btn btn-primary" type="submit" :disabled="saving">
+            {{ saving ? 'Menyimpan...' : 'Simpan' }}
+          </button>
         </div>
       </form>
     </Modal>
+
+    <OrderTrackingModal :open="trackingOpen" :project="project" @close="trackingOpen = false" />
   </section>
 </template>
 
@@ -318,6 +314,8 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
 
 import Modal from '@/components/shared/Modal.vue'
+import OrderTrackingModal from '@/module/project/projectDetails/OrderTrackingModal.vue'
+import { savePoCustomer, saveSuratPesanan } from '@/services/projectOrderService'
 import {
   downloadStoredDocument,
   getProjectDocuments,
@@ -327,7 +325,6 @@ import {
 } from '@/services/projectDocumentStorage'
 import type { Projects } from '@/types/project'
 import { getUserErrorMessage } from '@/utils/errorParser'
-import { getActiveFontFamily } from '@/config/appearance'
 
 const props = defineProps<{ project: Projects }>()
 const emit = defineEmits<{
@@ -342,7 +339,7 @@ const salesOrderInput = ref<HTMLInputElement | null>(null)
 const formMode = ref<ProjectDocumentKind | null>(null)
 const documents = ref<StoredProjectDocument[]>([])
 const saving = ref(false)
-const exportFormat = ref<'word' | 'pdf'>('word')
+const trackingOpen = ref(false)
 
 const form = reactive({
   documentNumber: '',
@@ -507,10 +504,38 @@ async function handleUpload(kind: ProjectDocumentKind, event: Event): Promise<vo
     await saveProjectDocument(document)
     documents.value = [document, ...documents.value]
     if (kind === 'sales-order') emit('sales-order-saved', document)
+
+    // Hanya Surat Pesanan punya kolom file di backend. Upload PO Customer
+    // tetap lokal: tanpa isi form, kirim ke SP hanya akan menimpa data
+    // yang sudah ada dengan field kosong.
+    if (kind === 'sales-order') {
+      // Scan mentah tidak membawa isi form, tapi sp_surat_pesanan_crud
+      // mewajibkan nomor/penandatangan/produk, jadi diambil dari data peluang.
+      const customer = props.project.companyName || ''
+      await saveSuratPesanan(
+        {
+          project_id: props.project.id,
+          company_id: props.project.companyId ?? null,
+          contact_id: props.project.contactId ?? null,
+          nomor_sp: `SP/${new Date().getFullYear()}/${props.project.id}`,
+          tanggal_dokumen: today(),
+          nama_customer: customer,
+          alamat: props.project.address || '',
+          nama_kontak: props.project.contactName || '',
+          penandatangan: props.project.contactName || customer,
+          produk_pesanan: productText() || '-',
+        },
+        file,
+        file.name,
+      )
+    }
+
     await Swal.fire({
       icon: 'success',
       title: 'Dokumen tersimpan',
-      text: `${file.name} tersimpan lokal dan dapat diunduh kembali dari menu.`,
+      text: kind === 'sales-order'
+        ? `${file.name} berhasil diunggah ke server.`
+        : `${file.name} tersimpan lokal dan dapat diunduh kembali dari menu.`,
       timer: 2200,
       showConfirmButton: false,
     })
@@ -539,27 +564,6 @@ function formatCurrency(value: number): string {
     currency: props.project.currency || 'IDR',
     maximumFractionDigits: 0,
   }).format(value)
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-    .replaceAll('\n', '<br>')
-}
-
-function documentHtml(kind: ProjectDocumentKind): string {
-  return kind === 'customer-po' ? customerPoHtml() : salesOrderHtml()
-}
-
-function rowsHtml(rows: string[][]): string {
-  return rows
-    .filter((row) => row[1])
-    .map((row) => `<tr><td class="field-label">${escapeHtml(row[0])}</td><td class="colon">:</td><td class="field-value">${escapeHtml(row[1])}</td></tr>`)
-    .join('')
 }
 
 function bearerLabel(value: string): string {
@@ -609,27 +613,6 @@ function customerApprovalRows(): string[][] {
   ]
 }
 
-function customerPoHtml(): string {
-  const approvals = customerApprovalRows()
-  const fontFamily = getActiveFontFamily()
-
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @page{size:A4;margin:18mm 20mm}body{font-family:${fontFamily};font-size:10.5pt;line-height:1.4;color:#111;margin:0}
-    h1{text-align:center;font-size:16pt;margin:0 0 12px;letter-spacing:.4px}.document-date{text-align:right;margin:0 0 18px}
-    .document-date span{display:inline-block;min-width:180px;border-bottom:1px solid #555;padding:0 5px 2px}.form-table{width:100%;border-collapse:collapse;margin:0 0 14px}
-    .form-table td{border:0;padding:4px 2px;vertical-align:top}.field-label{width:31%;font-weight:600}.colon{width:12px}.field-value{border-bottom:1px solid #aaa!important;white-space:normal}
-    h2{margin:20px 0 8px;border-bottom:1.5px solid #222;padding-bottom:4px;font-size:11pt;letter-spacing:.3px}.approval-table{width:100%;border-collapse:collapse;margin-top:24px}
-    .approval-table td{width:25%;height:90px;border:1px solid #777;padding:7px;text-align:center;vertical-align:top}.approval-name{display:block;margin-top:52px;font-weight:600}
-  </style></head><body>
-    <h1>DATA PELANGGAN</h1>
-    <p class="document-date">Tgl. <span>${escapeHtml(formatDocumentDate(form.documentDate))}</span></p>
-    <table class="form-table">${rowsHtml(customerRows())}</table>
-    <h2>CARA PEMBAYARAN</h2>
-    <table class="form-table">${rowsHtml(customerPaymentRows())}</table>
-    <table class="approval-table"><tr>${approvals.map(([role, name]) => `<td>${escapeHtml(role)}<span class="approval-name">Nama: ${escapeHtml(name)}</span></td>`).join('')}</tr></table>
-  </body></html>`
-}
-
 function salesOrderRows(): string[][] {
   return [
     ['Nomor', form.documentNumber],
@@ -647,26 +630,6 @@ function salesOrderRows(): string[][] {
     ['Garansi', form.warranty],
     ['Catatan', form.notes],
   ]
-}
-
-function salesOrderHtml(): string {
-  const fontFamily = getActiveFontFamily()
-
-  return `<!doctype html><html><head><meta charset="utf-8"><style>
-    @page{size:A4;margin:22mm 24mm}body{font-family:${fontFamily};font-size:11pt;line-height:1.55;color:#111;margin:0}
-    h1{text-align:center;font-size:16pt;margin:0;text-decoration:underline;letter-spacing:.5px}.document-number{text-align:center;margin:3px 0 28px}
-    .document-date{text-align:right;margin:0 0 18px}.intro{margin:0 0 14px;text-align:justify}.form-table{width:100%;border-collapse:collapse;margin:14px 0 22px}
-    .form-table td{border:0;padding:4px 2px;vertical-align:top}.field-label{width:32%;font-weight:600}.colon{width:12px}.field-value{border-bottom:1px dotted #888!important}
-    .closing{text-align:justify;margin-top:24px}.signature{margin-top:34px;margin-left:auto;width:250px;text-align:center}.signature-space{height:68px}
-  </style></head><body>
-    <h1>SURAT PESANAN</h1>
-    <p class="document-number">Nomor: ${escapeHtml(form.documentNumber)}</p>
-    <p class="document-date">${escapeHtml(form.customer)}, ${escapeHtml(formatDocumentDate(form.documentDate))}</p>
-    <p class="intro">Yang bertanda tangan di bawah ini menyatakan bahwa kami memesan alat kedokteran berupa:</p>
-    <table class="form-table">${rowsHtml(salesOrderRows().filter(([label]) => label !== 'Nomor'))}</table>
-    <p class="closing">Demikianlah surat pesanan ini dibuat untuk segera direalisasi. Atas perhatian dan kerja samanya kami ucapkan terima kasih.</p>
-    <div class="signature"><p>Hormat kami,</p><div class="signature-space"></div><p><u>${escapeHtml(form.signerName)}</u><br>${escapeHtml(form.signerTitle)}</p></div>
-  </body></html>`
 }
 
 function pdfSafeText(value: string): string {
@@ -844,6 +807,69 @@ function createPdfBlob(kind: ProjectDocumentKind): Blob {
   return buildPdfBlob(pages.map((page) => page.join('\n')))
 }
 
+/** Payload PO Customer untuk `POST /api/project/pocustomer`. */
+function poCustomerPayload(): Record<string, unknown> {
+  return {
+    project_id: props.project.id,
+    company_id: props.project.companyId ?? null,
+    contact_id: props.project.contactId ?? null,
+    tanggal: form.documentDate,
+    nama_pelanggan: form.customer,
+    nama_barang: form.itemType,
+    harga_jual: form.salePrice,
+    komposisi_barang: form.itemComposition,
+    harga_jual_total: form.totalSalePrice,
+    diskon: form.discount,
+    harga_netto: form.netBeforeTax,
+    ppn: form.vat,
+    biaya_pengiriman: form.shippingCostBearer,
+    biaya_asuransi: form.insuranceCostBearer,
+    is_room_preparation: form.roomPreparation,
+    is_instalasi: form.installation,
+    dateline_pengiriman: form.deliveryDeadline,
+    telepon: form.phone,
+    hp: form.mobile,
+    fax: form.fax,
+    alamat: form.address,
+    alamat_pengiriman: form.shippingAddress,
+    alamat_penagihan: form.billingAddress,
+    jatuh_tempo: form.dueDatePayment,
+    dp: form.downPayment,
+    sisa: form.remainingPayment,
+    direktur_sales: form.salesDirectorName,
+    area_manager: form.areaManagerName,
+    product_specialist: form.productSpecialistName,
+    marketing: form.marketingName,
+    garansi: form.warranty,
+  }
+}
+
+/** Payload Surat Pesanan untuk `POST /api/project/suratpesanan`. */
+function suratPesananPayload(): Record<string, unknown> {
+  return {
+    project_id: props.project.id,
+    company_id: props.project.companyId ?? null,
+    contact_id: props.project.contactId ?? null,
+    nomor_sp: form.documentNumber,
+    tanggal_dokumen: form.documentDate,
+    nama_customer: form.customer,
+    alamat: form.address,
+    nama_kontak: form.contact,
+    penandatangan: form.signerName,
+    jabatan_penandatangan: form.signerTitle,
+    produk_pesanan: form.product,
+    jumlah: form.quantity,
+    nilai_pesanan: form.totalValue,
+    ketentuan_pembayaran: form.paymentTerms,
+    harga_franco: form.destination,
+    bank: form.bank,
+    nomor_rekening: form.accountNumber,
+    nama_rekening: form.accountName,
+    garansi: form.warranty,
+    catatan_tambahan: form.notes,
+  }
+}
+
 function formatDocumentDate(value: string): string {
   const [year, month, day] = value.split('-').map(Number)
   if (!year || !month || !day) return value
@@ -860,13 +886,11 @@ async function generateDocument(): Promise<void> {
   saving.value = true
   try {
     const kind = formMode.value
-    const format = exportFormat.value
-    const blob = format === 'pdf'
-      ? createPdfBlob(kind)
-      : new Blob([documentHtml(kind)], { type: 'application/msword;charset=utf-8' })
+    // PDF dibuat di belakang layar: Surat Pesanan butuh file terunggah agar
+    // milestone 1 ter-centang di SP, dan salinan lokal dipakai menu "Unduh terakhir".
+    const blob = createPdfBlob(kind)
     const label = kind === 'customer-po' ? 'Data-Pelanggan' : 'Surat-Pesanan'
-    const extension = format === 'pdf' ? 'pdf' : 'doc'
-    const fileName = `${label}-${safeFileName(form.customer)}-${form.documentDate}.${extension}`
+    const fileName = `${label}-${safeFileName(form.customer)}-${form.documentDate}.pdf`
     const document: StoredProjectDocument = {
       id: `${props.project.id}-${kind}-${Date.now()}`,
       projectId: props.project.id,
@@ -889,12 +913,20 @@ async function generateDocument(): Promise<void> {
     await saveProjectDocument(document)
     documents.value = [document, ...documents.value]
     if (kind === 'sales-order') emit('sales-order-saved', document)
-    downloadStoredDocument(document)
+
+    if (kind === 'customer-po') {
+      await savePoCustomer(poCustomerPayload())
+    } else {
+      await saveSuratPesanan(suratPesananPayload(), blob, fileName)
+    }
+
     formMode.value = null
     await Swal.fire({
       icon: 'success',
-      title: 'Dokumen berhasil dibuat',
-      text: `${fileName} sudah diunduh dan tersimpan lokal.`,
+      title: 'Data berhasil disimpan',
+      text: kind === 'customer-po'
+        ? 'Data Pelanggan / PO Customer tersimpan di server.'
+        : 'Surat Pesanan tersimpan di server.',
       timer: 2200,
       showConfirmButton: false,
     })
@@ -931,11 +963,16 @@ onMounted(loadDocuments)
 .document-menu__panel--right { right: 0; left: auto; }
 .document-menu__panel button { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: center; gap: 8px; width: 100%; border: 0; border-radius: 8px; padding: 9px; color: #334352; background: transparent; text-align: left; }
 .document-menu__panel button:hover { background: var(--app-primary-wash, #f1f8fb); }
+.document-menu__panel button.is-disabled { cursor: not-allowed; opacity: .45; }
+.document-menu__panel button.is-disabled:hover { background: transparent; }
 .document-menu__panel button > i { color: var(--app-primary, #159ed8); text-align: center; }
 .document-menu__panel strong, .document-menu__panel small { display: block; overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .document-menu__panel strong { font-size: 11px; }
 .document-menu__panel small { margin-top: 2px; color: #89949e; font-size: 9px; font-weight: 400; }
 .document-menu__panel .latest-document { margin-top: 4px; border-top: 1px solid #edf1f4; border-radius: 0 0 8px 8px; }
+.tracking-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 175px; border: 1px solid #bfe8d2; border-radius: 10px; padding: 10px 13px; color: #137944; background: #effaf4; font-size: 12px; font-weight: 600; }
+.tracking-button:hover { border-color: #a4ddbe; background: #e4f6ec; }
+.tracking-button i { color: #16884d; }
 .document-notes { display: grid; grid-column: 1 / -1; gap: 4px; margin: -3px 0 0 54px; }
 .document-notes p { margin: 0; }
 .order-status-note { color: #8a5a00; font-size: 10px; font-weight: 600; }
@@ -964,21 +1001,12 @@ onMounted(loadDocuments)
 .form-section-title { margin: 8px 0 0; border-bottom: 1px solid #e5ebef; padding-bottom: 9px; color: var(--app-primary, #168fca); font-size: 14px; font-weight: 600; }
 .document-form .modal-footer { flex: 0 0 auto; padding: 14px 24px; background: #fff; }
 .document-form .btn { min-width: 100px; font-size: 14px; font-weight: 500; }
-.export-menu { position: relative; }
-.export-menu summary { display: flex; align-items: center; min-width: 190px; justify-content: center; list-style: none; cursor: pointer; }
-.export-menu summary::-webkit-details-marker { display: none; }
-.export-menu.disabled summary { cursor: wait; opacity: .65; }
-.export-menu__panel { position: absolute; z-index: 60; right: 0; bottom: calc(100% + 8px); width: 265px; overflow: hidden; border: 1px solid #dfe7ec; border-radius: 11px; padding: 6px; background: #fff; box-shadow: 0 13px 32px rgba(27, 51, 69, .18); }
-.export-menu__panel button { display: block; width: 100%; border: 0; border-radius: 8px; padding: 10px; color: #334352; background: transparent; text-align: left; }
-.export-menu__panel button:hover { background: var(--app-primary-wash, #f1f8fb); }
-.export-menu__panel strong, .export-menu__panel small { display: block; }
-.export-menu__panel strong { font-size: 13px; font-weight: 600; }
-.export-menu__panel small { margin-top: 2px; color: #89949e; font-size: 11px; }
 
 @media (max-width: 767.98px) {
   .won-document-actions { grid-template-columns: 1fr; padding: 14px; }
   .document-buttons { display: grid; grid-template-columns: 1fr 1fr; }
   .document-menu summary { min-width: 0; }
+  .tracking-button { grid-column: 1 / -1; min-width: 0; }
   .document-menu__panel { width: min(270px, calc(100vw - 42px)); }
   .document-notes { margin: -2px 0 0; }
   .form-grid { grid-template-columns: 1fr; }
