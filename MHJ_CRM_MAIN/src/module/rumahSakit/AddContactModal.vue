@@ -1192,19 +1192,22 @@ function clearCurrentAddress() {
 }
 
 .location-address-box :deep(.form-control) {
-  height: 46px;
+  height: 46px !important;
   padding-right: 42px;
 }
 
 .location-clear-button {
   position: absolute;
-  top: 50%;
+  /* Input 46px, tombol 28px: (46 - 28) / 2 = 9px dari atas input. Tanpa transform
+     supaya tidak bergantung pada style global yang bisa menimpa transform. */
+  top: 9px;
   right: 10px;
+  margin: 0;
   display: inline-flex;
   width: 28px;
   height: 28px;
   padding: 0;
-  transform: translateY(-50%);
+  transform: none !important;
   align-items: center;
   justify-content: center;
   border: 0;

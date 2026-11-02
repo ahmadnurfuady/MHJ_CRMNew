@@ -81,11 +81,12 @@
         title="Filter peta"
         @click="openFilter"
       >
-        <MhjIcon
-          name="action_filter"
+        <SolarIcon
+          name="filter"
           :size="22"
-          color="var(--app-primary-dark, #0e7490)"
+          color="var(--app-primary, #18a6e4)"
           secondary-color="var(--app-primary, #18a6e4)"
+          :secondary-opacity="1"
         />
         <b v-if="activeFilterCount">{{ activeFilterCount }}</b>
       </button>
@@ -997,7 +998,7 @@ onBeforeUnmount(() => {
 .map-action--wide .map-layer-symbol { width: 20px; height: 20px; }
 .map-layer-symbol--satellite { padding: 1px; }
 
-.hospital-map__controls { position: absolute; right: 12px; bottom: 12px; z-index: 500; display: grid; gap: 7px; }
+.hospital-map__controls { position: absolute; right: 12px; bottom: 32px; z-index: 500; display: grid; gap: 7px; }
 .hospital-map__controls button { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; padding: 0; }
 .hospital-map__controls button:hover { color: var(--app-primary, #18a6e4); }
 .hospital-map__controls button:disabled { cursor: wait; opacity: .82; }
