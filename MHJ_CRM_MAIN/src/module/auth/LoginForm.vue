@@ -227,7 +227,10 @@ async function submit() {
 <style scoped>
 .password-visibility-toggle {
   position: absolute;
-  top: 50%;
+  /* Input dikunci 50px, tombol 36px: (50 - 36) / 2 = 7px dari atas input.
+     Jangan pakai top: 50% - container .form-input ikut memanjang saat pesan
+     error muncul, sehingga ikon mata turun dan tertimpa ikon error. */
+  top: 7px;
   right: 16px;
   z-index: 2;
   display: inline-flex;
@@ -240,7 +243,6 @@ async function submit() {
   background: transparent;
   border: 0;
   border-radius: 8px;
-  transform: translateY(-50%);
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
@@ -255,7 +257,14 @@ async function submit() {
 }
 
 .form-input :deep(.form-control) {
+  height: 50px;
   padding-right: 60px;
+}
+
+/* Ikon "!" bawaan Bootstrap berada di kanan input dan menumpuk dengan ikon
+   mata. Pesan error di bawah input + border merah sudah cukup jelas. */
+.form-input :deep(.form-control.is-invalid) {
+  background-image: none;
 }
 
 .form-input :deep(.form-control)::-ms-reveal,

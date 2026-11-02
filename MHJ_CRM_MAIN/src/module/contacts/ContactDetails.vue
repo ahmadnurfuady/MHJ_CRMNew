@@ -49,11 +49,12 @@
             aria-haspopup="true"
             @click="filterOpen = !filterOpen"
           >
-            <MhjIcon
-              name="action_filter"
+            <SolarIcon
+              name="filter"
               :size="22"
-              color="var(--app-primary-dark, #0e7490)"
+              color="var(--app-primary, #18a6e4)"
               secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="1"
             />
             <b v-if="selectedUserId !== null">1</b>
           </button>
@@ -1526,7 +1527,8 @@ onBeforeUnmount(() => {
 /* ── Filter dropdown ─────────────────────────────────────────────── */
 .contact-filter {
   position: relative;
-  z-index: 20;
+  /* Harus < z-index backdrop sidebar mobile (8) supaya tombol ikut gelap. */
+  z-index: 5;
 }
 
 .contact-filter__trigger {
