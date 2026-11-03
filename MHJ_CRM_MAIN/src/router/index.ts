@@ -68,6 +68,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.CrmAdmin.Piutang,
+          name: 'Piutang',
+          component: () => import('@/pages/piutang/PiutangPage.vue'),
+          meta: {
+            mainTitle: 'Piutang',
+            title: 'Piutang | MHJ CRM',
+            breadcrumb: [{ text: 'Dashboard' }, { text: 'Piutang' }],
+          },
+        },
+        {
           path: routes.Promo.List,
           name: 'PromoCatalog',
           component: () => import('@/pages/promo/PromoList.vue'),

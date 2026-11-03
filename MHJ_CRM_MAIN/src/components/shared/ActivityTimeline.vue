@@ -146,6 +146,7 @@ defineExpose({ reload: load })
 }
 
 .timeline-heading {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -155,7 +156,9 @@ defineExpose({ reload: load })
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 42px;
   width: 42px;
+  min-width: 42px;
   height: 42px;
   border-radius: 50%;
   background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
@@ -177,6 +180,8 @@ defineExpose({ reload: load })
 }
 
 .timeline-count {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 5px 11px;
   border-radius: 999px;
   background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
@@ -218,7 +223,9 @@ defineExpose({ reload: load })
 
 .timeline-item__marker {
   width: 40px;
+  min-width: 40px;
   height: 40px;
+  flex-shrink: 0;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;

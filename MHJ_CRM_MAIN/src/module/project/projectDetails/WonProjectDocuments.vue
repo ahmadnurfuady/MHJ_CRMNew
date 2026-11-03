@@ -1,5 +1,10 @@
 <template>
-  <section ref="actionsRoot" class="won-document-actions" aria-labelledby="won-document-title">
+  <section
+    ref="actionsRoot"
+    class="won-document-actions"
+    :class="documentsComplete ? 'won-document-actions--complete' : 'won-document-actions--pending'"
+    aria-labelledby="won-document-title"
+  >
     <div class="document-intro">
       <span class="document-icon"><SolarIcon name="fa-file-lines" /></span>
       <div>
@@ -11,7 +16,7 @@
     <div class="document-buttons">
       <details class="document-menu">
         <summary>
-          <span><SolarIcon name="fa-file-invoice-dollar" />PO Customer</span>
+          <span>PO Customer</span>
           <SolarIcon name="fa-chevron-down" class="menu-chevron" />
         </summary>
         <div class="document-menu__panel">
@@ -37,7 +42,7 @@
 
       <details class="document-menu">
         <summary>
-          <span><SolarIcon name="fa-file-word" />Surat Pesanan</span>
+          <span>Surat Pesanan</span>
           <SolarIcon name="fa-chevron-down" class="menu-chevron" />
         </summary>
         <div class="document-menu__panel document-menu__panel--right">
@@ -420,6 +425,7 @@ const form = reactive({
 
 const latestCustomerPo = computed(() => documents.value.find((item) => item.kind === 'customer-po'))
 const latestSalesOrder = computed(() => documents.value.find((item) => item.kind === 'sales-order'))
+const documentsComplete = computed(() => Boolean(latestCustomerPo.value && latestSalesOrder.value))
 
 function today(): string {
   const now = new Date()
@@ -1042,6 +1048,20 @@ onMounted(loadDocuments)
 
 <style scoped>
 .won-document-actions { display: grid; grid-template-columns: minmax(260px, 1fr) auto; align-items: center; gap: 14px 22px; margin-top: 14px; border: 1px solid #e2ebf0; border-radius: 15px; padding: 15px 18px; background: #fff; box-shadow: 0 5px 18px rgba(27, 43, 65, .04); }
+.won-document-actions--pending { border-color: rgba(220, 53, 69, .18); background: linear-gradient(105deg, #fff 0%, #fffafa 56%, rgba(220, 53, 69, .09) 100%); box-shadow: 0 8px 22px rgba(120, 54, 62, .06); }
+.won-document-actions--complete { border-color: rgba(var(--app-primary-rgb, 21, 158, 216), .18); background: linear-gradient(105deg, #fff 0%, var(--app-primary-wash, #f8fcfe) 56%, rgba(var(--app-primary-rgb, 21, 158, 216), .09) 100%); box-shadow: 0 8px 22px rgba(31, 92, 120, .06); }
+.won-document-actions--complete .document-icon { color: var(--app-primary, #159ed8); background: rgba(var(--app-primary-rgb, 21, 158, 216), .08); }
+.won-document-actions--complete .document-menu summary { border-color: rgba(var(--app-primary-rgb, 21, 158, 216), .2); color: var(--app-primary-dark, #087fae); background: rgba(255, 255, 255, .72); }
+.won-document-actions--complete .document-menu summary:hover { background: #fff; }
+.won-document-actions--complete .local-storage-note i { color: var(--app-primary, #159ed8); }
+.won-document-actions--pending .document-icon { color: #c94b58; background: rgba(220, 53, 69, .08); }
+.won-document-actions--pending .document-intro h5 { color: #243448; }
+.won-document-actions--pending .document-intro p { color: #7e8b97; }
+.won-document-actions--pending .document-menu summary { border-color: rgba(220, 53, 69, .2); color: #a9404b; background: rgba(255, 255, 255, .72); }
+.won-document-actions--pending .document-menu summary:hover { background: #fff; }
+.won-document-actions--pending .order-status-note { color: #9d4e57; }
+.won-document-actions--pending .order-status-note i { color: #c94b58; }
+.won-document-actions--pending .local-storage-note { color: #98a1aa; }
 .document-intro { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .document-icon { display: grid; flex: 0 0 auto; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: var(--app-primary, #159ed8); background: var(--app-primary-wash, #eaf7fd); }
 .document-intro h5 { margin: 0 0 3px; color: #243448; font-size: 14px; font-weight: 600; }

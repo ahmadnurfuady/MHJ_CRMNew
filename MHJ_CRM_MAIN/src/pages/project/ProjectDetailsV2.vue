@@ -688,7 +688,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .detail-tabs button:hover { color: var(--opportunity-blue); background: var(--app-primary-wash, #f5fbfe); }
 .detail-tabs button.active { color: var(--opportunity-blue); }
 .detail-tabs button.active::after { background: var(--opportunity-blue); }
-.activity-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+.activity-panel { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
 .comments-card h5 { margin: 0 0 14px; color: #102a43; font-size: 15px; }
 .empty-comment { color: #90969d; font-size: 12px; }
 .comment-item { display: grid; grid-template-columns: 36px 1fr; gap: 10px; margin-bottom: 12px; }

@@ -172,7 +172,9 @@
                         type="radio"
                         :value="false"
                       />
-                      <span>{{ taskType === "sales" ? "Tidak ada" : "Tidak" }}</span>
+                      <span>{{
+                        taskType === "sales" ? "Tidak ada" : "Tidak"
+                      }}</span>
                     </label>
                     <label
                       class="project-choice"
@@ -327,7 +329,9 @@
                       get-value-key="value"
                       :multi-select="true"
                       :disabled="
-                        isEditing || form.hasProject || !selectedDivisions.length
+                        isEditing ||
+                        form.hasProject ||
+                        !selectedDivisions.length
                       "
                       :required="true"
                       :form-submitted="formSubmitted"
@@ -381,7 +385,8 @@
                       </div>
                     </div>
                     <small class="text-muted">
-                      Menyimpan tugas akan memperbarui stage pada Daftar Peluang.
+                      Menyimpan tugas akan memperbarui stage pada Daftar
+                      Peluang.
                     </small>
                   </div>
 
@@ -463,11 +468,16 @@
                             v-if="capturingPhoto"
                             class="spinner-border spinner-border-sm me-2"
                           ></span>
-                          <vue-feather
+                          <SolarIcon
                             v-else
-                            type="camera"
+                            name="camera"
+                            :size="18"
                             class="me-2"
-                          ></vue-feather>
+                            color="currentColor"
+                            secondary-color="currentColor"
+                            :secondary-opacity="1"
+                            aria-hidden="true"
+                          />
                           {{
                             capturingPhoto
                               ? "Memproses watermark..."
@@ -496,7 +506,10 @@
                           alt="Preview foto kunjungan dengan watermark GPS"
                         />
                         <span class="photo-preview-zoom">
-                          <vue-feather type="maximize-2" size="17"></vue-feather>
+                          <vue-feather
+                            type="maximize-2"
+                            size="17"
+                          ></vue-feather>
                           Lihat penuh
                         </span>
                       </button>
@@ -533,11 +546,16 @@
                           v-if="cameraStarting"
                           class="spinner-border spinner-border-sm me-2"
                         ></span>
-                        <vue-feather
+                        <SolarIcon
                           v-else
-                          type="camera"
+                          name="camera"
+                          :size="18"
                           class="me-2"
-                        ></vue-feather>
+                          color="currentColor"
+                          secondary-color="currentColor"
+                          :secondary-opacity="1"
+                          aria-hidden="true"
+                        />
                         {{
                           cameraStarting ? "Membuka kamera..." : "Buka Kamera"
                         }}
@@ -567,11 +585,16 @@
                           v-if="locating"
                           class="spinner-border spinner-border-sm me-2"
                         ></span>
-                        <vue-feather
+                        <SolarIcon
                           v-else
-                          type="map-pin"
+                          name="map-point"
+                          :size="18"
                           class="me-2"
-                        ></vue-feather>
+                          color="currentColor"
+                          secondary-color="currentColor"
+                          :secondary-opacity="1"
+                          aria-hidden="true"
+                        />
                         {{
                           locating
                             ? "Mengambil lokasi..."
@@ -859,6 +882,7 @@ const manualTaskName = ref("");
 const formSubmitted = ref(false);
 const validationMessage = ref("");
 const minimumSchedule = ref(currentScheduleMinimum());
+const originalScheduledAt = ref("");
 const scheduleValidationMessage = computed(() => {
   if (!form.scheduledAt) return "Tanggal dan waktu kunjungan wajib diisi.";
 
@@ -866,6 +890,12 @@ const scheduleValidationMessage = computed(() => {
   const minimumTime = new Date(minimumSchedule.value).getTime();
   if (Number.isNaN(selectedTime))
     return "Tanggal dan waktu kunjungan tidak valid.";
+  if (
+    isEditing.value &&
+    originalScheduledAt.value &&
+    form.scheduledAt === originalScheduledAt.value
+  )
+    return "";
   if (selectedTime < minimumTime) {
     return "Tanggal dan waktu kunjungan tidak boleh di masa lalu.";
   }
@@ -1317,6 +1347,7 @@ async function hydrateForm(task: TaskDetails) {
     : selectField(contacts[0] ?? null);
   form.contactPhone = task.contactPhone || "";
   form.scheduledAt = toDateTimeLocal(task.scheduledAt || task.dueDate);
+  originalScheduledAt.value = form.scheduledAt;
   form.divisions = form.hasProject
     ? selectField(divisions[0] ?? null)
     : multiSelectField(divisions);
@@ -1422,15 +1453,15 @@ function clearProjectDetails() {
 }
 
 function applyProjectDetails(project: ProjectOption) {
-    form.hospital = selectField(project.hospital);
-    form.contact = multiSelectField(project.contacts);
-    form.divisions = selectField(project.division);
-    form.products = multiSelectField(project.products);
-    form.unrelatedProduct = false;
-    const currentStage =
-      stageOptions.find((stage) => stage.value === project.status) ?? null;
-    form.pipeline = selectField(currentStage);
-    form.serialNumber = project.serialNumber;
+  form.hospital = selectField(project.hospital);
+  form.contact = multiSelectField(project.contacts);
+  form.divisions = selectField(project.division);
+  form.products = multiSelectField(project.products);
+  form.unrelatedProduct = false;
+  const currentStage =
+    stageOptions.find((stage) => stage.value === project.status) ?? null;
+  form.pipeline = selectField(currentStage);
+  form.serialNumber = project.serialNumber;
 }
 
 function escapeHtml(value: unknown) {
@@ -1463,7 +1494,10 @@ function projectConfirmationSummary(project: ProjectOption) {
     <div style="overflow:hidden;border:1px solid #e2e8f0;border-radius:10px">
       ${rows
         .map(
-          ([label, value]) => `<div style="display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;padding:9px 12px;border-bottom:1px solid #edf2f7">
+          ([
+            label,
+            value,
+          ]) => `<div style="display:grid;grid-template-columns:130px minmax(0,1fr);gap:12px;padding:9px 12px;border-bottom:1px solid #edf2f7">
             <span style="color:#64748b">${escapeHtml(label)}</span>
             <span style="overflow-wrap:anywhere;color:#1e293b;font-weight:600">${escapeHtml(value)}</span>
           </div>`,
@@ -1657,7 +1691,9 @@ function drawPhotoWatermark(
   const timestampText = formatWatermarkTime(capturedAt);
   const ownerText = [
     form.owner || loggedInOwner() || "User CRM",
-    selectedCompanyLabel.value || selectedCategoryLabel.value || "Aktivitas CRM",
+    selectedCompanyLabel.value ||
+      selectedCategoryLabel.value ||
+      "Aktivitas CRM",
   ].join("  •  ");
 
   const rootStyles = getComputedStyle(document.documentElement);
@@ -1926,9 +1962,7 @@ function validateForm() {
   form.pipeline.errorMessage = pipelineMissing
     ? "Pipeline peluang wajib dipilih."
     : "";
-  form.hospital.errorMessage = hospitalMissing
-    ? "Faskes wajib dipilih."
-    : "";
+  form.hospital.errorMessage = hospitalMissing ? "Faskes wajib dipilih." : "";
 
   if (categoryMissing) errors.push("Kategori wajib dipilih.");
   if (isCustomCategory.value && !form.customCategory)
@@ -2112,10 +2146,16 @@ function isFormDirty(): boolean {
   if (form.contact.selected) return true;
   if (form.pipeline.selected) return true;
   const divisionsSelected = form.divisions.selected;
-  if (Array.isArray(divisionsSelected) ? divisionsSelected.length : divisionsSelected)
+  if (
+    Array.isArray(divisionsSelected)
+      ? divisionsSelected.length
+      : divisionsSelected
+  )
     return true;
   const productsSelected = form.products.selected;
-  if (Array.isArray(productsSelected) ? productsSelected.length : productsSelected)
+  if (
+    Array.isArray(productsSelected) ? productsSelected.length : productsSelected
+  )
     return true;
   if (form.unrelatedProduct) return true;
   if (form.hasProject) return true;
@@ -2177,7 +2217,9 @@ async function confirmTaskNavigation() {
 }
 
 onBeforeRouteUpdate((to, from) => {
-  const leavingEdit = String(from.query.edit ?? "") === "1" && String(to.query.edit ?? "") !== "1";
+  const leavingEdit =
+    String(from.query.edit ?? "") === "1" &&
+    String(to.query.edit ?? "") !== "1";
   return leavingEdit ? confirmTaskNavigation() : true;
 });
 onBeforeRouteLeave((_to, _from) => confirmTaskNavigation());
@@ -2437,6 +2479,31 @@ onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
   padding: 10px 18px;
   border-radius: 9px;
   white-space: nowrap;
+}
+
+.evidence-main-button :deep(svg),
+.icon-button :deep(svg) {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.evidence-main-button :deep(.vue-feather),
+.icon-button :deep(.vue-feather) {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2;
+}
+
+.evidence-main-button :deep(.solar-icon) {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: none !important;
+}
+
+.evidence-main-button :deep(.solar-icon *) {
+  stroke: none !important;
 }
 
 .icon-button {

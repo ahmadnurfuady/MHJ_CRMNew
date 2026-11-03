@@ -3,7 +3,7 @@
     <section class="target-overview">
       <header class="target-overview__heading">
         <div class="target-heading">
-          <span class="target-heading__icon"><vue-feather type="target" size="20" /></span>
+          <span class="target-heading__icon"><SolarIcon name="graph" :size="20" aria-hidden="true" /></span>
           <div>
             <p>Setting</p>
             <h3>Target Finansial &amp; Realisasi</h3>

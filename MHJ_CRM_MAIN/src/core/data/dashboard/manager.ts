@@ -20,7 +20,7 @@ const managerDashboardData: ManagerDashboardData = {
     { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
     { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
     { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/promos' },
-    { id: 'piutang', label: 'Piutang', icon: 'tag', comingSoon: true },
+    { id: 'piutang', label: 'Piutang', icon: 'tag', to: '/crmAdmin/piutang' },
     { id: 'form-survey', label: 'Form Survey', icon: 'clipboard', comingSoon: true },
   ],
   benchmark: { stats: [], progressStats: [], winningChance: 0 },
@@ -70,10 +70,14 @@ function clampProgress(value: number): number {
 
 function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
   const targetAchievement = clampProgress(m.target_achievement_percent)
-  const marketCoverageProgress =
-    m.total_target_hospitals > 0
-      ? clampProgress((m.active_visited_hospitals / m.total_target_hospitals) * 100)
-      : clampProgress(m.market_coverage_percent)
+  const wonCount = m.qty_po_terbit
+  // Lost = peluang masuk yang tidak menang dan tidak lagi berjalan (aktif/stalled).
+  const lostCount = Math.max(
+    0,
+    m.qty_project_masuk - m.qty_po_terbit - m.active_projects_count - m.stalled_projects_count,
+  )
+  const winLostProgress =
+    wonCount + lostCount > 0 ? clampProgress((wonCount / (wonCount + lostCount)) * 100) : 0
   const funnelProgress =
     m.active_projects_count + m.stalled_projects_count > 0
       ? clampProgress(
@@ -101,12 +105,12 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
       accent: 'amber',
     },
     {
-      id: 'cakupan-pasar',
-      label: 'Cakupan Pasar',
-      value: `${m.active_visited_hospitals}/${m.total_target_hospitals}`,
-      sublabel: 'Faskes aktif (< 90 hr)',
+      id: 'win-vs-lost',
+      label: 'Win vs Lost',
+      value: `${wonCount}/${lostCount}`,
+      sublabel: 'Peluang menang vs kalah',
       icon: 'cart',
-      progress: marketCoverageProgress,
+      progress: winLostProgress,
       accent: 'green',
     },
     {

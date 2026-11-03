@@ -81,8 +81,32 @@
         </section>
       </div>
 
+      <div v-if="missingCustomerProjects.length" class="col-12">
+        <button
+          type="button"
+          class="opportunity-reminder"
+          aria-label="Lihat peluang win yang perlu dilengkapi data pelanggan"
+          @click="showOpportunityReminder(true)"
+        >
+          <span class="opportunity-reminder__icon" aria-hidden="true">
+            <SolarIcon
+              name="clipboard-list"
+              :size="24"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="0.35"
+            />
+          </span>
+          <span class="opportunity-reminder__copy">
+            <strong>{{ missingCustomerProjects.length }} peluang win perlu data pelanggan</strong>
+            <small>Ketuk untuk lihat dan perbarui sekarang</small>
+          </span>
+          <SolarIcon name="arrow-right" class="opportunity-reminder__arrow" :size="20" aria-hidden="true" />
+        </button>
+      </div>
+
       <div class="col-12">
-        <section class="pipeline-stage-panel">
+        <section ref="stagePanel" class="pipeline-stage-panel">
           <header class="stage-panel-heading">
             <div class="stage-title">
               <h5>Tahap peluang</h5>
@@ -249,13 +273,19 @@ import {
   computed,
   ref,
   defineAsyncComponent,
+  nextTick,
   onMounted,
 } from "vue";
 import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
+import { routes } from "@/router/routes";
+import { fetchPoCustomer } from "@/services/projectOrderService";
 import { useProjectStore } from "@/store/project";
 import type { Projects } from "@/types/project";
 
+const router = useRouter();
 const projectStore = useProjectStore();
 const {
   loading: projectLoading,
@@ -263,12 +293,154 @@ const {
 } = storeToRefs(projectStore);
 const searchQuery = ref("");
 const ownerFilter = ref("all");
+const stagePanel = ref<HTMLElement | null>(null);
+const missingCustomerProjects = ref<Projects[]>([]);
+const reminderSessionKey = "project-list-win-customer-reminder-muted";
 // Default tampilan peluang: list. User bisa pindah ke board via toggle di toolbar.
 const viewMode = ref<"board" | "list">("list");
 
-onMounted(() => {
-  void projectStore.fetchProjectSummary();
+onMounted(async () => {
+  const showAutomaticPopup = sessionStorage.getItem(reminderSessionKey) !== "1";
+  if (showAutomaticPopup) {
+    Swal.fire({
+      title: "Memeriksa peluang win...",
+      text: "Menyiapkan reminder data pelanggan.",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: false,
+      didOpen: () => Swal.showLoading(),
+    });
+  }
+  const projects = await projectStore.fetchProjectSummary();
+  await loadOpportunityReminder(projects, showAutomaticPopup);
 });
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function openWonStage(): Promise<void> {
+  activeTab.value = "closed_won";
+  searchQuery.value = "";
+  ownerFilter.value = "all";
+  await nextTick();
+  stagePanel.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function openProjectDetail(projectId: number): void {
+  router.push({
+    path: routes.Project.ProjectDetails,
+    query: { id: String(projectId), backTo: routes.Project.ProjectList },
+  });
+}
+
+async function showOpportunityReminder(showProjectList = true, allowSessionMute = false): Promise<void> {
+  const count = missingCustomerProjects.value.length;
+  if (!count) return;
+  let muteForSession = false;
+  const projectCards = missingCustomerProjects.value
+    .map((project) => `
+      <li class="win-reminder-project" data-project-id="${project.id}" tabindex="0" role="button" style="margin:0 0 8px;border:1px solid rgba(24,166,228,.18);border-radius:12px;padding:11px 13px;background:linear-gradient(105deg,#fff 0%,#f8fcfe 62%,rgba(24,166,228,.08) 100%);box-shadow:0 4px 12px rgba(31,92,120,.05);cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease">
+        <span style="display:flex;align-items:flex-start;gap:10px">
+          <span style="display:grid;width:32px;height:32px;flex:0 0 32px;place-items:center;border-radius:9px;color:#159ed8;background:rgba(24,166,228,.09);font-size:14px;font-weight:800">W</span>
+          <span style="display:block;min-width:0">
+            <strong style="display:block;color:#243b53;font-size:13px;line-height:1.4">${escapeHtml(project.projectName || "Peluang tanpa nama")}</strong>
+            <span style="display:block;margin-top:3px;color:#829ab1;font-size:11px;line-height:1.4">${escapeHtml(project.companyName || "Faskes belum tersedia")}</span>
+            <span style="display:inline-block;margin-top:7px;border-radius:999px;padding:3px 8px;color:#087fae;background:rgba(24,166,228,.09);font-size:9px;font-weight:700">Data pelanggan belum diisi</span>
+          </span>
+        </span>
+      </li>
+    `)
+    .join("");
+
+  if (showProjectList) {
+    await Swal.fire({
+      title: `${count} peluang win perlu data pelanggan`,
+      html: `<ul style="max-height:340px;margin:0;padding:2px 3px 0 0;overflow-y:auto;list-style:none;text-align:left">${projectCards}</ul>`,
+      showConfirmButton: false,
+      showCloseButton: true,
+      customClass: { popup: "win-project-list-popup" },
+      didOpen: (popup) => {
+        popup.querySelectorAll<HTMLElement>(".win-reminder-project").forEach((card) => {
+          const openCard = () => {
+            const projectId = Number(card.dataset.projectId);
+            if (!Number.isFinite(projectId) || projectId <= 0) return;
+            Swal.close();
+            openProjectDetail(projectId);
+          };
+          card.addEventListener("click", openCard);
+          card.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openCard();
+            }
+          });
+        });
+      },
+    });
+    return;
+  }
+
+  const popupContent = showProjectList
+    ? `
+      <p style="margin:0 0 10px;color:#64748b;font-size:13px">Peluang berikut sudah Win tetapi Data Pelanggannya belum dilengkapi:</p>
+      <ul style="max-height:280px;margin:0;padding:0 3px 0 0;overflow-y:auto;list-style:none;text-align:left">${projectCards}</ul>
+    `
+    : '<p style="margin:0;color:#64748b;font-size:13px">Segera lengkapi Data Pelanggan agar proses pesanan dapat dilanjutkan.</p>';
+
+  const result = await Swal.fire({
+    icon: "info",
+    title: `${count} peluang win perlu data pelanggan`,
+    html: popupContent,
+    confirmButtonText: "Lihat dan perbarui sekarang",
+    showCancelButton: true,
+    cancelButtonText: "Nanti",
+    confirmButtonColor: "var(--theme-default)",
+    customClass: allowSessionMute ? { popup: "win-reminder-popup" } : undefined,
+    footer: allowSessionMute
+      ? '<div style="width:100%;margin:0;padding-left:50px;text-align:left"><label for="mute-win-reminder" style="display:flex;align-items:center;gap:8px;margin:0;cursor:pointer;color:#64748b;font-size:12px"><input id="mute-win-reminder" type="checkbox" style="width:16px;height:16px;flex:0 0 16px;accent-color:var(--theme-default)" /> Jangan tampilkan untuk sesi ini</label></div>'
+      : undefined,
+    didOpen: () => {
+      if (!allowSessionMute) return;
+      const checkbox = document.getElementById("mute-win-reminder") as HTMLInputElement | null;
+      checkbox?.addEventListener("change", () => {
+        muteForSession = checkbox.checked;
+      });
+    },
+  });
+
+  if (muteForSession) sessionStorage.setItem(reminderSessionKey, "1");
+  if (result.isConfirmed) await openWonStage();
+}
+
+async function loadOpportunityReminder(projects: Projects[], showAutomaticPopup: boolean): Promise<void> {
+  const wonProjects = projects.filter((project) => {
+    const status = `${project.status} ${project.stageName}`.toLowerCase();
+    return status.includes("closed_won")
+      || status.includes("closed won")
+      || status.includes("berhasil")
+      || /(^|[\s_-])win([\s_-]|$)/.test(status);
+  });
+  const customerResults = await Promise.allSettled(
+    wonProjects.map(async (project) => ({ project, customer: await fetchPoCustomer(project.id) })),
+  );
+  missingCustomerProjects.value = customerResults.flatMap((result, index) => {
+    if (result.status === "rejected") return wonProjects[index] ? [wonProjects[index]] : [];
+    return result.value.customer ? [] : [result.value.project];
+  });
+
+  const count = missingCustomerProjects.value.length;
+  if (!count) {
+    if (showAutomaticPopup) Swal.close();
+    return;
+  }
+  if (showAutomaticPopup) await showOpportunityReminder(false, true);
+}
 
 const ProjectDetails = defineAsyncComponent(
   () => import("@/module/project/projectList/ProjectDetails.vue"),
@@ -448,6 +620,71 @@ function selectStage(value: string) {
   --pipeline-blue: var(--theme-default, #18a6e4);
   padding-bottom: 28px;
 }
+
+:global(.win-reminder-popup .swal2-actions) {
+  margin-bottom: 0;
+}
+
+:global(.win-reminder-popup .swal2-footer) {
+  margin: 6px 0 0;
+  border-top: 0;
+  padding: 0 1em 1em;
+}
+
+:global(.win-project-list-popup .win-reminder-project:hover),
+:global(.win-project-list-popup .win-reminder-project:focus-visible) {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.48) !important;
+  box-shadow: 0 8px 20px rgba(var(--app-primary-rgb, 24, 166, 228), 0.13) !important;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.opportunity-reminder {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
+  border-radius: 15px;
+  padding: 15px 18px;
+  background: linear-gradient(105deg, #fff 0%, var(--app-primary-wash, #f8fcfe) 58%, rgba(var(--app-primary-rgb, 24, 166, 228), 0.1) 100%);
+  box-shadow: 0 7px 20px rgba(31, 92, 120, 0.06);
+  text-align: left;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.opportunity-reminder:hover,
+.opportunity-reminder:focus-visible {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.45);
+  box-shadow: 0 10px 26px rgba(var(--app-primary-rgb, 24, 166, 228), 0.13);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.opportunity-reminder__icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.09);
+}
+
+.opportunity-reminder__copy { display: block; min-width: 0; }
+.opportunity-reminder__copy strong,
+.opportunity-reminder__copy small { display: block; }
+.opportunity-reminder__copy strong { color: var(--app-primary-deep, #032a4e); font-size: 14px; font-weight: 700; }
+.opportunity-reminder__copy small { margin-top: 3px; color: #718096; font-size: 11px; }
+.opportunity-reminder__arrow { color: var(--app-primary, #18a6e4); }
+
+:global(body.dark-only) .opportunity-reminder {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
+  background: linear-gradient(105deg, #202730, #25313c);
+}
+:global(body.dark-only) .opportunity-reminder__copy strong { color: #eef3f6; }
+:global(body.dark-only) .opportunity-reminder__copy small { color: #aab7c2; }
 
 .pipeline-overview,
 .pipeline-stage-panel {
@@ -1765,6 +2002,9 @@ function selectStage(value: string) {
 }
 
 @media (max-width: 575.98px) {
+  .opportunity-reminder { padding: 12px; }
+  .opportunity-reminder__icon { width: 40px; height: 40px; }
+  .opportunity-reminder__copy strong { font-size: 13px; }
   .pipeline-overview,
   .pipeline-stage-panel {
     border-radius: 14px;

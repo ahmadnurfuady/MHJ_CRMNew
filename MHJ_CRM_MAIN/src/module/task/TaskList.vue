@@ -50,8 +50,8 @@
             :aria-pressed="activeView === 'list'"
             @click="setActiveView('list')"
           >
-            <vue-feather type="list" size="15" />
-            <span>List</span>
+            <SolarIcon name="list" :size="15" aria-hidden="true" />
+            <span>Daftar</span>
           </button>
           <button
             type="button"
@@ -59,8 +59,8 @@
             :aria-pressed="activeView === 'calendar'"
             @click="setActiveView('calendar')"
           >
-            <MhjIcon name="action_calendar_tugas" :size="15" />
-            <span>Calendar</span>
+            <SolarIcon name="calendar" :size="15" aria-hidden="true" />
+            <span>Kalender</span>
           </button>
         </div>
 
@@ -268,14 +268,6 @@
                     :aria-label="`Lihat detail ${item.title}`"
                     @click="openTaskDetail(item)"
                   >
-                    <SolarIcon
-                      name="eye"
-                      :size="17"
-                      color="currentColor"
-                      secondary-color="currentColor"
-                      :secondary-opacity="0.42"
-                      aria-hidden="true"
-                    />
                     <span>Detail</span>
                   </button>
                   <button
