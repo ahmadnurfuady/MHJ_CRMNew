@@ -1,18 +1,10 @@
 <template>
-  <article class="benchmark-card" aria-labelledby="benchmark-title">
-    <div class="benchmark-card__head">
-      <div>
-        <p class="benchmark-card__eyebrow">Performa periode berjalan</p>
-        <div class="benchmark-card__title-row">
-          <h2 id="benchmark-title" class="section-title">Ringkasan Target &amp; Benchmark</h2>
-        </div>
+  <div class="benchmark-layout">
+    <article class="benchmark-card" aria-labelledby="benchmark-title">
+      <div class="benchmark-card__head">
+        <h2 id="benchmark-title" class="section-title">Ringkasan Target &amp; Benchmark</h2>
       </div>
-      <span class="benchmark-card__status" :class="`is-${benchmarkStatus.tone}`">
-        {{ benchmarkStatus.label }}
-      </span>
-    </div>
 
-    <div class="benchmark-visual">
       <section class="benchmark-bars" aria-label="Perbandingan nilai target dan realisasi">
         <div v-for="stat in normalizedStats" :key="stat.id" class="benchmark-bar">
           <div class="benchmark-bar__head">
@@ -29,17 +21,32 @@
           <span v-if="stat.hint" class="benchmark-bar__hint">{{ stat.hint }}</span>
         </div>
       </section>
+    </article>
+
+    <article class="benchmark-card" aria-labelledby="performance-title">
+      <div class="benchmark-card__head">
+        <h2 id="performance-title" class="section-title">Capaian Kinerja</h2>
+        <span class="benchmark-card__status" :class="`is-${benchmarkStatus.tone}`">
+          {{ benchmarkStatus.label }}
+        </span>
+      </div>
 
       <section class="benchmark-score" aria-label="Capaian benchmark">
-        <div
-          class="benchmark-score__ring"
-          :style="{
-            background: `conic-gradient(var(--app-primary, #18a6e4) ${clampProgress(benchmark.winningChance)}%, #e9f1f5 0)`,
-          }"
-        >
-          <div class="benchmark-score__center">
-            <strong>{{ formatPercent(benchmark.winningChance) }}</strong>
-            <span>Winning Chance</span>
+        <div class="benchmark-score__primary">
+          <div
+            class="benchmark-score__ring"
+            :style="{
+              background: `conic-gradient(var(--app-primary, #18a6e4) ${clampProgress(benchmark.winningChance)}%, #e9f1f5 0)`,
+            }"
+          >
+            <div class="benchmark-score__center">
+              <strong>{{ formatPercent(benchmark.winningChance) }}</strong>
+              <span>Winning Chance</span>
+            </div>
+          </div>
+          <div class="benchmark-score__primary-copy">
+            <strong>Peluang Kemenangan</strong>
+            <span>Rasio deal yang berhasil dari seluruh peluang masuk.</span>
           </div>
         </div>
 
@@ -54,9 +61,10 @@
             </div>
           </div>
         </div>
+
       </section>
-    </div>
-  </article>
+    </article>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -80,15 +88,17 @@ const normalizedStats = computed(() => {
 })
 
 const benchmarkStatus = computed(() => {
-  const values = props.benchmark.progressStats.map((stat) => stat.value)
-  const average = values.length
-    ? values.reduce((total, value) => total + value, 0) / values.length
-    : 0
+  const average = averageProgress.value
 
   if (average >= 75) return { label: 'Sangat Baik', tone: 'positive' }
   if (average >= 50) return { label: 'Bertumbuh', tone: 'positive' }
   if (average >= 25) return { label: 'Perlu Didorong', tone: 'warning' }
   return { label: 'Perlu Perhatian', tone: 'danger' }
+})
+
+const averageProgress = computed(() => {
+  const values = props.benchmark.progressStats.map((stat) => stat.value)
+  return values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0
 })
 
 function parseMetricValue(value: string): number {
@@ -113,6 +123,14 @@ function shortProgressLabel(label: string): string {
 </script>
 
 <style scoped>
+.benchmark-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+  min-width: 0;
+}
+
 .benchmark-card {
   display: grid;
   gap: 20px;
@@ -129,22 +147,6 @@ function shortProgressLabel(label: string): string {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-}
-
-.benchmark-card__eyebrow {
-  margin: 0 0 3px;
-  color: #8a97a1;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.benchmark-card__title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
 }
 
 .section-title {
@@ -191,13 +193,6 @@ function shortProgressLabel(label: string): string {
 :global(body.dark-only .benchmark-card__status.is-danger) {
   color: #fca5a5 !important;
   background: rgba(239, 68, 68, 0.18);
-}
-
-.benchmark-visual {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: stretch;
-  gap: 20px;
 }
 
 .benchmark-bars {
@@ -274,12 +269,21 @@ function shortProgressLabel(label: string): string {
 
 .benchmark-score {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: space-between;
+  gap: 16px;
+  height: 100%;
+}
+
+.benchmark-score__primary {
+  display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  justify-items: center;
-  gap: 20px;
-  border-top: 1px solid #edf1f4;
-  padding-top: 20px;
+  gap: 18px;
+  border: 1px solid #e8f0f4;
+  border-radius: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--app-primary-wash, #f0f9ff), #fff);
 }
 
 .benchmark-score__ring {
@@ -318,10 +322,35 @@ function shortProgressLabel(label: string): string {
   line-height: 1.2;
 }
 
+.benchmark-score__primary-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.benchmark-score__primary-copy strong {
+  color: #273642;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.benchmark-score__primary-copy span {
+  color: #84919b;
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
 .benchmark-score__progress {
   display: grid;
-  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   width: 100%;
+}
+
+.progress-row {
+  border: 1px solid #edf1f4;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
 }
 
 .progress-row__head {
@@ -345,6 +374,10 @@ function shortProgressLabel(label: string): string {
 }
 
 @media (max-width: 767px) {
+  .benchmark-layout {
+    grid-template-columns: 1fr;
+  }
+
   .benchmark-card {
     padding: 18px;
   }
@@ -352,7 +385,16 @@ function shortProgressLabel(label: string): string {
   .benchmark-score {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
-    padding-top: 18px;
+  }
+
+  .benchmark-score__primary,
+  .benchmark-score__progress {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .benchmark-score__primary {
+    justify-items: center;
+    text-align: center;
   }
 
   .benchmark-score__ring {

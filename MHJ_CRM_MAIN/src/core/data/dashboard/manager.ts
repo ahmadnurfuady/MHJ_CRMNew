@@ -16,6 +16,7 @@ import type {
 const managerDashboardData: ManagerDashboardData = {
   greetingName: '',
   kpis: [],
+  opportunityOutcome: { won: 0, lost: 0 },
   quickActions: [
     { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
     { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
@@ -70,14 +71,6 @@ function clampProgress(value: number): number {
 
 function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
   const targetAchievement = clampProgress(m.target_achievement_percent)
-  const wonCount = m.qty_po_terbit
-  // Lost = peluang masuk yang tidak menang dan tidak lagi berjalan (aktif/stalled).
-  const lostCount = Math.max(
-    0,
-    m.qty_project_masuk - m.qty_po_terbit - m.active_projects_count - m.stalled_projects_count,
-  )
-  const winLostProgress =
-    wonCount + lostCount > 0 ? clampProgress((wonCount / (wonCount + lostCount)) * 100) : 0
   const funnelProgress =
     m.active_projects_count + m.stalled_projects_count > 0
       ? clampProgress(
@@ -105,15 +98,6 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
       accent: 'amber',
     },
     {
-      id: 'win-vs-lost',
-      label: 'Win vs Lost',
-      value: `${wonCount}/${lostCount}`,
-      sublabel: 'Peluang menang vs kalah',
-      icon: 'cart',
-      progress: winLostProgress,
-      accent: 'green',
-    },
-    {
       id: 'funnel-aktif',
       label: 'Funnel Aktif',
       value: `${m.active_projects_count}`,
@@ -123,6 +107,17 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
       accent: 'violet',
     },
   ]
+}
+
+function buildOpportunityOutcome(m: DashboardMetricsRaw) {
+  return {
+    won: m.qty_po_terbit,
+    // Lost = peluang masuk yang tidak menang dan tidak lagi berjalan (aktif/stalled).
+    lost: Math.max(
+      0,
+      m.qty_project_masuk - m.qty_po_terbit - m.active_projects_count - m.stalled_projects_count,
+    ),
+  }
 }
 
 function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
@@ -211,6 +206,7 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
   return {
     ...managerDashboardData,
     kpis,
+    opportunityOutcome: metrics ? buildOpportunityOutcome(metrics) : { won: 0, lost: 0 },
     benchmark,
     coverage,
     activities,

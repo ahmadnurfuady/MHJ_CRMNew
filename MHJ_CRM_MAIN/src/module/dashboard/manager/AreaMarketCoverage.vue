@@ -1,8 +1,13 @@
 <template>
   <article class="coverage-card" aria-labelledby="coverage-title">
     <div class="coverage-card__head">
-      <h2 id="coverage-title" class="section-title">Jangkauan Area &amp; Pasar</h2>
+      <h2 id="coverage-title" class="section-title">Sebaran Fasilitas Kesehatan</h2>
     </div>
+
+    <HospitalCoverageMap
+      :initial-center="[coverage.highlight.lat, coverage.highlight.lng]"
+      :initial-zoom="coverage.highlight.zoom ?? 11"
+    />
 
     <div class="coverage-grid">
       <div v-for="stat in coverage.stats" :key="stat.id" class="coverage-tile">
@@ -27,10 +32,6 @@
       </div>
     </div>
 
-    <HospitalCoverageMap
-      :initial-center="[coverage.highlight.lat, coverage.highlight.lng]"
-      :initial-zoom="coverage.highlight.zoom ?? 11"
-    />
   </article>
 </template>
 

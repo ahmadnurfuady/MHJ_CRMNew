@@ -1,5 +1,9 @@
 <template>
-  <section class="quick-actions" aria-label="Aksi cepat">
+  <section class="quick-actions" aria-labelledby="quick-actions-title">
+    <div class="quick-actions__head">
+      <h2 id="quick-actions-title" class="quick-actions__title">Akses Cepat</h2>
+    </div>
+
     <ul class="quick-actions__list">
       <li v-for="action in actions" :key="action.id">
         <router-link
@@ -61,6 +65,23 @@ function resolveQuickActionIcon(id: string): string {
 </script>
 
 <style scoped>
+.quick-actions {
+  display: grid;
+  gap: 14px;
+}
+
+.quick-actions__head {
+  display: grid;
+  gap: 3px;
+}
+
+.quick-actions__title {
+  margin: 0;
+  color: #1c2a36;
+  font-size: 16px;
+  font-weight: 700;
+}
+
 .quick-actions__list {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

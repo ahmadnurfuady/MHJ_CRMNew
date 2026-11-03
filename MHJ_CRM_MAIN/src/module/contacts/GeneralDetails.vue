@@ -4,7 +4,7 @@
       <div class="contact-avatar-shell">
         <div
           class="contact-profile-avatar"
-          :style="avatarColorStyle(fullName || contactState.activeContact.id)"
+          :style="genderAvatarColorStyle(contactState.activeContact.gender)"
           role="img"
           :aria-label="`Inisial ${fullName}`"
         >
@@ -481,7 +481,7 @@ import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Hospital } from "@/types/hospital";
-import { avatarColorStyle, personInitials } from "@/utils/avatar";
+import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
 import GoogleMapView from "@/components/GoogleMapView.vue";
 import {
   indonesianPhoneCallUrl,

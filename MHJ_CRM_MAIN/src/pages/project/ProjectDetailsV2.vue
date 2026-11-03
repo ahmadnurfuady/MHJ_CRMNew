@@ -95,7 +95,7 @@
           </span>
           <div>
             <h2>Informasi Peluang</h2>
-            <p>Ringkasan nilai, perkiraan penutupan, dan pemilik peluang.</p>
+            <p>Ringkasan nilai, perkiraan PO, dan pemilik peluang.</p>
           </div>
         </div>
         <div class="card-body-content">
@@ -106,7 +106,7 @@
             </div>
 
             <div class="opportunity-field">
-              <span>Perkiraan Tanggal Penutupan</span>
+              <span>Perkiraan PO</span>
               <strong>{{ formatDate(detail.expected_close_date) }}</strong>
             </div>
             <div class="opportunity-field">
@@ -469,9 +469,15 @@ const currency = computed(() => text(detail.value?.currency) === '-' ? 'IDR' : t
 const ownerPosition = computed(() => {
   const position = text(detail.value?.owner_jabatan)
   const alias = text(detail.value?.owner_alias)
-  if (position === '-' && alias === '-') return '-'
-  if (position === '-') return `(${alias})`
-  return alias === '-' ? position : `${position} (${alias})`
+  const level = hasValue(detail.value?.owner_jabatan_level)
+    ? `Level ${text(detail.value?.owner_jabatan_level)}`
+    : '-'
+  const positionLabel = position === '-'
+    ? (alias === '-' ? '-' : `(${alias})`)
+    : (alias === '-' ? position : `${position} (${alias})`)
+
+  if (positionLabel === '-') return level
+  return level === '-' ? positionLabel : `${positionLabel} - ${level}`
 })
 const stageDuration = computed(() => {
   const source = detail.value

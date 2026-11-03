@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { api } from '@/api'
 import {
+  assertApiOperationSucceeded,
   extractItem,
   extractList,
   isRecord,
@@ -108,6 +109,40 @@ function optionalNumber(raw: Dict, ...keys: string[]): number | undefined {
   if (value === undefined || value === '') return undefined
   const number = Number(value)
   return Number.isFinite(number) ? number : undefined
+}
+
+function normalizedText(value: unknown): string {
+  return String(value ?? '').trim()
+}
+
+function sameNumber(actual: number | undefined, expected: number | null | undefined): boolean {
+  if (expected === undefined) return true
+  if (expected === null) return actual === undefined
+  return actual !== undefined && Math.abs(actual - expected) < 0.000001
+}
+
+function sameDate(actual: string | undefined, expected: string | null | undefined): boolean {
+  if (expected === undefined) return true
+  if (expected === null) return !actual
+  return normalizedText(actual).slice(0, 10) === normalizedText(expected).slice(0, 10)
+}
+
+function projectMatchesPayload(project: Projects, payload: Partial<ProjectPayload>): boolean {
+  return (payload.projects_name === undefined || normalizedText(project.projectName) === normalizedText(payload.projects_name))
+    && sameNumber(project.companyId, payload.company_id)
+    && sameNumber(project.contactId, payload.contact_id)
+    && sameNumber(project.ownerId, payload.owner_id)
+    && sameNumber(project.stageId, payload.stage_id)
+    && (payload.currency === undefined || normalizedText(project.currency) === normalizedText(payload.currency))
+    && sameNumber(project.amountValue, payload.amount_value)
+    && sameDate(project.expectedCloseDate, payload.expected_close_date)
+    && sameNumber(project.priority, payload.priority)
+    && sameNumber(project.competitorId, payload.competitor_id)
+    && sameNumber(project.sumberdanaId, payload.sumberdana_id)
+    && sameNumber(project.probability, payload.probability)
+    && sameNumber(project.aktif, payload.aktif)
+    && (payload.division_code === undefined || normalizedText(project.divisionCode) === normalizedText(payload.division_code))
+    && (payload.notes === undefined || normalizedText(project.notes) === normalizedText(payload.notes))
 }
 
 /** Mengubah created_at menjadi tanggal yang mudah dibaca, mis. "29 Apr 2026". */
@@ -508,7 +543,7 @@ export const useProjectStore = defineStore('project', () => {
       error,
       fallbackMessage: 'Gagal memperbarui peluang.',
       task: async () => {
-        await api.post(`${ENDPOINT}/input`, {
+        const response = await api.post(`${ENDPOINT}/input`, {
           choice: 'u',
           id,
           deal_name: payload.projects_name,
@@ -516,6 +551,7 @@ export const useProjectStore = defineStore('project', () => {
           source_id: null,
           ...payload
         })
+        assertApiOperationSucceeded(response.data)
 
         let updated: Projects | null = null
         try {
@@ -524,7 +560,7 @@ export const useProjectStore = defineStore('project', () => {
           updated = null
         }
 
-        if (updated) {
+        if (updated && projectMatchesPayload(updated, payload)) {
           items.value = items.value.map((item) => (item.id === id ? (updated as Projects) : item))
           summaryItems.value = summaryItems.value.map((item) =>
             item.id === id ? (updated as Projects) : item
@@ -533,9 +569,7 @@ export const useProjectStore = defineStore('project', () => {
           return updated
         }
 
-        await fetchProjects(lastParams.value)
-        await fetchProjectSummary()
-        return null
+        throw new Error('Perubahan peluang belum tersimpan di server. Silakan coba lagi.')
       }
     })
   }

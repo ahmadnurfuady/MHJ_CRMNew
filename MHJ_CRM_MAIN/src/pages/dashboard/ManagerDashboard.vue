@@ -6,21 +6,26 @@
     </div>
 
     <template v-else-if="data">
-      <KeyMetricsGrid :kpis="data.kpis" />
+      <div class="manager-dashboard__row manager-dashboard__row--coverage">
+        <AreaMarketCoverage :coverage="data.coverage" />
+      </div>
+
+      <section class="manager-dashboard__promo-card" aria-label="Promo terbaru">
+        <PromoCarousel :slides="promoSlides" :loading="promoLoading" />
+      </section>
 
       <header class="manager-dashboard__header">
         <QuickActions :actions="data.quickActions" />
       </header>
 
+      <div class="manager-dashboard__performance">
+        <KeyMetricsGrid :kpis="data.kpis" />
+        <OpportunityOutcomeChart :outcome="data.opportunityOutcome" />
+      </div>
+
       <div class="manager-dashboard__content">
         <div class="manager-dashboard__row manager-dashboard__row--overview">
           <TargetBenchmarkSummary :benchmark="data.benchmark" />
-          <section class="manager-dashboard__promo-card" aria-label="Promo terbaru">
-            <PromoCarousel :slides="promoSlides" :loading="promoLoading" />
-          </section>
-        </div>
-        <div class="manager-dashboard__row manager-dashboard__row--details">
-          <AreaMarketCoverage :coverage="data.coverage" />
         </div>
         <div class="manager-dashboard__row manager-dashboard__row--activity">
           <RecentActivity :activities="data.activities" />
@@ -43,6 +48,7 @@ import { onMounted } from 'vue'
 import { useManagerDashboard } from '@/composable/useManagerDashboard'
 import AreaMarketCoverage from '@/module/dashboard/manager/AreaMarketCoverage.vue'
 import KeyMetricsGrid from '@/module/dashboard/manager/KeyMetricsGrid.vue'
+import OpportunityOutcomeChart from '@/module/dashboard/manager/OpportunityOutcomeChart.vue'
 import PromoCarousel from '@/module/dashboard/manager/PromoCarousel.vue'
 import QuickActions from '@/module/dashboard/manager/QuickActions.vue'
 import RecentActivity from '@/module/dashboard/manager/RecentActivity.vue'
@@ -104,11 +110,19 @@ onMounted(loadDashboard)
 }
 
 .manager-dashboard__row--overview {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
 }
 
-.manager-dashboard__row--details,
+.manager-dashboard__performance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 18px;
+  min-width: 0;
+}
+
+.manager-dashboard__row--coverage,
 .manager-dashboard__row--activity {
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
@@ -144,7 +158,8 @@ onMounted(loadDashboard)
 }
 
 @media (max-width: 1199px) {
-  .manager-dashboard__row {
+  .manager-dashboard__row,
+  .manager-dashboard__performance {
     grid-template-columns: 1fr;
   }
 }

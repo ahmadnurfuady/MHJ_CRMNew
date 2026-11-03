@@ -200,7 +200,7 @@
                 <div class="contact-person">
                   <div
                     class="contact-avatar"
-                    :style="avatarColorStyle(fullName(contact) || contact.id)"
+                    :style="genderAvatarColorStyle(contact.gender)"
                     aria-hidden="true"
                   >
                     {{ personInitials(contact.firstName, contact.lastName) }}
@@ -375,7 +375,7 @@ import { routes } from "@/router/routes";
 import { timeAgo } from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
 import type { Contact } from "@/types/contacts";
-import { avatarColorStyle, personInitials } from "@/utils/avatar";
+import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );

@@ -1558,24 +1558,37 @@ export const useContact = defineStore("contact", () => {
 
     // `company_owner` diwajibkan endpoint Company dan sumber nilainya adalah
     // pilihan Penyelenggara pada form Rumah Sakit.
+    const invalidLookupFields: string[] = [];
     if (!penyelenggara) {
       contactState.rumahSakitForm.penyelenggara.errorMessage =
         "Penyelenggara wajib diisi.";
-      return false;
+      invalidLookupFields.push("Penyelenggara");
     }
     if (industryId === null) {
       contactState.rumahSakitForm.jenis.errorMessage =
         "Pilih Jenis dari daftar yang tersedia.";
-      return false;
+      invalidLookupFields.push("Jenis");
     }
     if (typeId === null) {
       contactState.rumahSakitForm.tipe.errorMessage =
         "Pilih Tipe dari daftar yang tersedia.";
-      return false;
+      invalidLookupFields.push("Tipe");
     }
     if (penyelenggaraId === null) {
       contactState.rumahSakitForm.penyelenggara.errorMessage =
         "Pilih Penyelenggara dari daftar yang tersedia.";
+      if (!invalidLookupFields.includes("Penyelenggara")) {
+        invalidLookupFields.push("Penyelenggara");
+      }
+    }
+    if (invalidLookupFields.length) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Pilihan Faskes perlu diperiksa",
+        text: `${invalidLookupFields.join(", ")} harus dipilih ulang dari daftar yang tersedia.`,
+        confirmButtonText: "Periksa Data",
+        confirmButtonColor: "var(--theme-default)",
+      });
       return false;
     }
 

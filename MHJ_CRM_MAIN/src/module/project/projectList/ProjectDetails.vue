@@ -12,10 +12,19 @@
     @keydown.space.prevent="openProjectDetail"
   >
     <div class="opp-card__stage">
-      <span class="opp-stage-pill">
-        <i class="opp-stage-pill__dot"></i>
-        {{ stageTitle }}
-      </span>
+      <div class="opp-stage-status">
+        <span class="opp-stage-pill">
+          <i class="opp-stage-pill__dot"></i>
+          {{ stageTitle }}
+        </span>
+        <span
+          v-if="hasMissingRequirements"
+          class="opp-requirement-alert"
+          role="img"
+          :aria-label="missingRequirementsLabel"
+          :title="missingRequirementsLabel"
+        >!</span>
+      </div>
       <span class="opp-created" :title="formatFullDate(project.createdAt)">
         <SolarIcon
           name="calendar"
@@ -148,8 +157,9 @@ const props = withDefaults(
   defineProps<{
     project: Projects
     viewMode?: 'board' | 'list'
+    missingRequirements?: string[]
   }>(),
-  { viewMode: 'board' }
+  { viewMode: 'board', missingRequirements: () => [] }
 )
 const router = useRouter()
 
@@ -180,6 +190,10 @@ const lastUpdated = computed(() => formatRelativeTime(props.project.updatedAt ||
 const stageDuration = computed(() => formatDuration(props.project.stageEnteredAt || props.project.updatedAt || props.project.createdAt))
 const createdByName = computed(() => props.project.createdBy || 'Belum tersedia')
 const updatedByName = computed(() => props.project.updatedBy || 'Belum tersedia')
+const hasMissingRequirements = computed(() => props.missingRequirements.length > 0)
+const missingRequirementsLabel = computed(() =>
+  `Belum lengkap: ${props.missingRequirements.join(' dan ')}`
+)
 
 function titleCase(value: string) {
   return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) || 'Tanpa stage'

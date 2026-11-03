@@ -246,7 +246,11 @@
                         : 'col-xxl-4 col-xl-6 col-md-6'
                     "
                   >
-                    <ProjectDetails :project="project" :view-mode="viewMode" />
+                    <ProjectDetails
+                      :project="project"
+                      :view-mode="viewMode"
+                      :missing-requirements="wonMissingRequirements[project.id] ?? []"
+                    />
                   </div>
                   <div
                     v-if="!projectLoading && !filteredProjects.length"
@@ -281,7 +285,10 @@ import { useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
 import { routes } from "@/router/routes";
-import { fetchPoCustomer } from "@/services/projectOrderService";
+import {
+  fetchPoCustomer,
+  fetchSuratPesanan,
+} from "@/services/projectOrderService";
 import { useProjectStore } from "@/store/project";
 import type { Projects } from "@/types/project";
 
@@ -295,6 +302,7 @@ const searchQuery = ref("");
 const ownerFilter = ref("all");
 const stagePanel = ref<HTMLElement | null>(null);
 const missingCustomerProjects = ref<Projects[]>([]);
+const wonMissingRequirements = ref<Record<number, string[]>>({});
 const reminderSessionKey = "project-list-win-customer-reminder-muted";
 // Default tampilan peluang: list. User bisa pindah ke board via toggle di toolbar.
 const viewMode = ref<"board" | "list">("list");
@@ -426,13 +434,33 @@ async function loadOpportunityReminder(projects: Projects[], showAutomaticPopup:
       || status.includes("berhasil")
       || /(^|[\s_-])win([\s_-]|$)/.test(status);
   });
-  const customerResults = await Promise.allSettled(
-    wonProjects.map(async (project) => ({ project, customer: await fetchPoCustomer(project.id) })),
+  const requirementResults = await Promise.all(
+    wonProjects.map(async (project) => {
+      const [customerResult, salesOrderResult] = await Promise.allSettled([
+        fetchPoCustomer(project.id),
+        fetchSuratPesanan(project.id),
+      ]);
+      const missing: string[] = [];
+
+      if (customerResult.status === "rejected" || !customerResult.value) {
+        missing.push("Data customer");
+      }
+      if (salesOrderResult.status === "rejected" || !salesOrderResult.value) {
+        missing.push("Surat Pesanan");
+      }
+
+      return { project, missing };
+    }),
   );
-  missingCustomerProjects.value = customerResults.flatMap((result, index) => {
-    if (result.status === "rejected") return wonProjects[index] ? [wonProjects[index]] : [];
-    return result.value.customer ? [] : [result.value.project];
-  });
+
+  wonMissingRequirements.value = Object.fromEntries(
+    requirementResults
+      .filter(({ missing }) => missing.length)
+      .map(({ project, missing }) => [project.id, missing]),
+  );
+  missingCustomerProjects.value = requirementResults.flatMap(({ project, missing }) =>
+    missing.includes("Data customer") ? [project] : [],
+  );
 
   const count = missingCustomerProjects.value.length;
   if (!count) {
@@ -1200,6 +1228,30 @@ function selectStage(value: string) {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+:deep(.opp-stage-status) {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+:deep(.opp-requirement-alert) {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  place-items: center;
+  border: 1px solid #fecaca;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1;
+  cursor: help;
 }
 
 :deep(.opp-stage-pill) {

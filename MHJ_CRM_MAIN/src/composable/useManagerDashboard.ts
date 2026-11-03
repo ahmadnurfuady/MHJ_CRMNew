@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 
 import { fetchManagerDashboardData } from '@/core/data/dashboard/manager'
-import { api } from '@/services/api'
+import { clearDashboardBundleCache, fetchDashboardBundle } from '@/services/dashboardService'
 import {
   fetchHospitalMap,
   fetchProjectLinearity,
@@ -10,7 +10,6 @@ import {
   type ProjectLinearityData,
   type WinRateDivisionRow,
 } from '@/services/analyticsService'
-import type { PromoApiItem } from '@/services/promoService'
 import type { ManagerDashboardData, PromoSlide } from '@/types/dashboard/manager'
 
 const data = ref<ManagerDashboardData | null>(null)
@@ -29,6 +28,7 @@ export function useManagerDashboard() {
   async function loadManagerDashboard() {
     loading.value = true
     try {
+      clearDashboardBundleCache()
       data.value = await fetchManagerDashboardData()
     } finally {
       loading.value = false
@@ -38,15 +38,14 @@ export function useManagerDashboard() {
   async function loadPromoSlides() {
     promoLoading.value = true
     try {
-      const res = await api.get<{ data: PromoApiItem[] }>('/dashboard/promo')
-      const promos = Array.isArray(res.data?.data) ? res.data.data : []
+      const promos = (await fetchDashboardBundle()).promos
       promoSlides.value = promos.map((promo) => ({
         id: promo.id,
         title: promo.title,
         content: promo.content,
         // Fallback ke image_path: sama seperti usePromoCatalog.ts, karena API
         // tidak selalu mengisi image_url walau gambar (image_path) sudah ada.
-        imageUrl: promo.image_url ?? promo.image_path ?? null,
+        imageUrl: promo.image_url || promo.image_path || null,
       }))
     } catch (error) {
       console.error('Gagal memuat promo.', error)

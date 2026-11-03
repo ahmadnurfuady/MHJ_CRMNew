@@ -22,6 +22,29 @@ export function avatarColorStyle(seed: string | number) {
   return avatarPalette[hashSeed(seed) % avatarPalette.length];
 }
 
+const genderAvatarColors = {
+  male: { background: "var(--app-primary-wash, #eff8ff)", color: "var(--app-primary-dark, #0284c7)" },
+  female: { background: "#fff3f8", color: "#db2777" },
+  neutral: { background: "#f3f4f6", color: "#6b7280" },
+} as const;
+
+/** Biru untuk laki-laki, pink untuk perempuan, dan abu-abu jika gender tidak dikenali. */
+export function genderAvatarColorStyle(gender?: string | null) {
+  const value = String(gender ?? "").trim().toLocaleLowerCase("id-ID");
+  if (value === "l" || value.includes("laki") || value === "male") {
+    return genderAvatarColors.male;
+  }
+  if (
+    value === "p" ||
+    value.includes("perempuan") ||
+    value.includes("wanita") ||
+    value === "female"
+  ) {
+    return genderAvatarColors.female;
+  }
+  return genderAvatarColors.neutral;
+}
+
 /** Inisial nama depan + belakang, dengan dukungan data lama berupa satu nama lengkap. */
 export function personInitials(firstName?: string, lastName?: string): string {
   const firstWords = String(firstName ?? "").trim().split(/\s+/).filter(Boolean);

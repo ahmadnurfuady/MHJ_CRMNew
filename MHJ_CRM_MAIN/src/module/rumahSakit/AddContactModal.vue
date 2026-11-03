@@ -460,8 +460,13 @@
         >
           Batal
         </button>
-        <button class="btn btn-primary" type="submit">
-          {{ isEditing ? "Simpan Perubahan" : "Simpan" }}
+        <button class="btn btn-primary" type="submit" :disabled="saving">
+          <span
+            v-if="saving"
+            class="spinner-border spinner-border-sm me-2"
+            aria-hidden="true"
+          ></span>
+          {{ saving ? "Menyimpan..." : isEditing ? "Simpan Perubahan" : "Simpan" }}
         </button>
       </div>
     </form>
@@ -610,6 +615,7 @@ const containerProps = computed(() =>
       },
 );
 const locatingAddress = ref(false);
+const saving = ref(false);
 const locationError = ref("");
 
 const addressSuggestions = ref<AddressSearchResult[]>([]);
@@ -1034,9 +1040,14 @@ function onMarkerDragEnd(payload: { index: number; lat: number; lng: number }) {
 }
 
 async function submitRumahSakit() {
-  if (props.readOnly) return;
-  const saved = await saveRumahSakit(selectedLocation.value, !props.inline);
-  if (saved && props.inline) emit("saved");
+  if (props.readOnly || saving.value) return;
+  saving.value = true;
+  try {
+    const saved = await saveRumahSakit(selectedLocation.value, !props.inline);
+    if (saved && props.inline) emit("saved");
+  } finally {
+    saving.value = false;
+  }
 }
 
 function cancelForm() {

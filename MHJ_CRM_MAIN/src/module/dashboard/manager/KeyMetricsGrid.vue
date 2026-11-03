@@ -74,7 +74,7 @@ function clampProgress(value: number): number {
 
 .key-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -136,9 +136,9 @@ function clampProgress(value: number): number {
   font-size: 11px;
 }
 
-@media (min-width: 992px) {
+@media (max-width: 767px) {
   .key-metrics-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 

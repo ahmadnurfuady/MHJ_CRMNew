@@ -1,9 +1,10 @@
 import { api } from '@/services/api'
 import { extractList, isRecord, pick, pickString, type Dict } from '@/api/response'
+import { fetchDashboardBundle } from '@/services/dashboardService'
 
 /**
- * Response mentah dari `GET /api/dashboard/metrics`
- * (controller: `DashboardController@dashboardMetrics`). Shape ini
+ * Metrics mentah dari bagian `metrics.data` pada `GET /api/dashboard`.
+ * Shape ini
  * disamakan dengan isi SP `sp_view_dashboardmetrics` + fallback default
  * di controller, sehingga field selalu ada walau DB kosong.
  */
@@ -22,11 +23,6 @@ export interface DashboardMetricsRaw {
   backlog_value: number
   total_po_value: number
   invoiced_sales_value: number
-}
-
-interface MetricsResponse {
-  status: string
-  data: DashboardMetricsRaw
 }
 
 interface DashboardListSource {
@@ -53,13 +49,6 @@ export interface HospitalMapPoint {
   lng?: number | string | null
   latitude?: number | string | null
   longitude?: number | string | null
-}
-
-interface HospitalMapResponse {
-  status: string
-  mode: string
-  total: number
-  data: HospitalMapPoint[]
 }
 
 /**
@@ -100,19 +89,13 @@ interface WinRateDrilldownResponse {
   data: WinRateDivisionRow[]
 }
 
-/** `GET /api/dashboard/metrics` → metric mentah untuk KPI, benchmark & coverage. */
+/** Bagian metrics `GET /api/dashboard` untuk KPI, benchmark & coverage. */
 export async function fetchDashboardMetrics(params?: {
   branchId?: number | string | null
   divisionId?: number | string | null
 }): Promise<DashboardMetricsRaw | null> {
   try {
-    const response = await api.get<MetricsResponse>('/dashboard/metrics', {
-      params: {
-        branch_id: params?.branchId ?? undefined,
-        division_id: params?.divisionId ?? undefined,
-      },
-    })
-    return response.data?.data ?? null
+    return (await fetchDashboardBundle(params)).metrics
   } catch (error) {
     console.error('Gagal memuat dashboard metrics.', error)
     return null
@@ -387,13 +370,10 @@ export async function fetchDashboardMetricsFromExistingApis(): Promise<Dashboard
   }
 }
 
-/** `GET /api/dashboard/hospital-map` → ringkasan daftar faskes + jumlah peluang aktif. */
+/** Bagian hospital map `GET /api/dashboard` untuk daftar faskes + peluang aktif. */
 export async function fetchHospitalMap(mode: 'visit' | 'sales' = 'visit'): Promise<HospitalMapPoint[]> {
   try {
-    const response = await api.get<HospitalMapResponse>('/dashboard/hospital-map', {
-      params: { mode },
-    })
-    return response.data?.data ?? []
+    return (await fetchDashboardBundle({ mode })).hospitals
   } catch (error) {
     console.error('Gagal memuat hospital map.', error)
     return []

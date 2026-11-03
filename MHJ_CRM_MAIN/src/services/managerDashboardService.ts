@@ -1,4 +1,5 @@
 import { api } from '@/services/api'
+import { fetchDashboardBundle, type DashboardTaskRow } from '@/services/dashboardService'
 import type { ActivityItem, ActivityType } from '@/types/dashboard/manager'
 
 /**
@@ -189,40 +190,10 @@ export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> 
 }
 
 /**
- * Row mentah dari `GET /api/tasks` (controller: `TaskController@index`).
+ * Row mentah dari bagian `tasks.tasks.data` pada `GET /api/dashboard`.
  * Hanya kolom yang dipakai untuk card Aktivitas Terbaru.
  */
-interface TaskListRow {
-  id: number | string
-  task_name?: string | null
-  task_subject?: string | null
-  hospital_name?: string | null
-  company_name?: string | null
-  projects_name?: string | null
-  project_name?: string | null
-  status?: string | null
-  status_name?: string | null
-  due_date?: string | null
-  created_at?: string | null
-  updated_at?: string | null
-}
-
-interface TaskListResponse {
-  tasks?: { data?: TaskListRow[] } | TaskListRow[]
-  data?: TaskListRow[]
-  list?: TaskListRow[]
-}
-
-function pickTaskRows(payload: TaskListResponse | TaskListRow[] | undefined): TaskListRow[] {
-  if (!payload) return []
-  if (Array.isArray(payload)) return payload
-  const t = payload.tasks
-  if (Array.isArray(t)) return t
-  if (t && Array.isArray(t.data)) return t.data
-  if (Array.isArray(payload.data)) return payload.data
-  if (Array.isArray(payload.list)) return payload.list
-  return []
-}
+type TaskListRow = DashboardTaskRow
 
 function parseRowDate(row: TaskListRow): number {
   const raw = row.updated_at || row.created_at || row.due_date || ''
@@ -232,13 +203,12 @@ function parseRowDate(row: TaskListRow): number {
 }
 
 /**
- * `GET /api/tasks` → ActivityItem[] untuk card Aktivitas Terbaru.
+ * Bagian tasks `GET /api/dashboard` → ActivityItem[] untuk card Aktivitas Terbaru.
  * Menampilkan tugas langsung (bukan baris activity_logs), diurutkan
  * berdasarkan tanggal pembaruan/pembuatan terbaru.
  */
 export async function fetchRecentTasks(limit = 5): Promise<ActivityItem[]> {
-  const response = await api.get<TaskListResponse>('/tasks')
-  const rows = pickTaskRows(response.data)
+  const rows = (await fetchDashboardBundle({ limit: 100, page: 1 })).tasks
   const sorted = [...rows].sort((a, b) => parseRowDate(b) - parseRowDate(a))
 
   const items: ActivityItem[] = []

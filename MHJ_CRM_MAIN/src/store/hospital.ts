@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { reactive, ref } from 'vue'
 import { api } from '@/api'
 import {
+  assertApiOperationSucceeded,
   extractList,
   isRecord,
   pick,
@@ -229,6 +230,44 @@ function normalizeContactAssociation(raw: Dict): HospitalContactAssociation {
   }
 }
 
+function normalizedText(value: unknown): string {
+  return String(value ?? '').trim()
+}
+
+function sameCoordinate(actual: number | undefined, expected: number | null | undefined): boolean {
+  if (expected === undefined) return true
+  if (expected === null) return actual === undefined
+  return actual !== undefined && Math.abs(actual - expected) < 0.000001
+}
+
+function hospitalMatchesPayload(hospital: Hospital, payload: HospitalPayload): boolean {
+  const textFields: [keyof Hospital, keyof HospitalPayload][] = [
+    ['name', 'company_name'],
+    ['owner', 'company_owner'],
+    ['phone', 'telephone'],
+    ['email', 'email'],
+    ['mapAddress', 'map_address'],
+    ['address', 'address'],
+    ['country', 'country'],
+    ['province', 'province'],
+    ['city', 'city'],
+    ['description', 'description'],
+    ['jenis', 'jenis'],
+    ['tipe', 'tipe'],
+    ['penyelenggara', 'penyelenggara'],
+    ['tipeMarketingGo500', 'tipe_marketing_go500'],
+    ['sirs', 'sirs'],
+    ['financeStatus', 'status_finance'],
+  ]
+
+  return textFields.every(([hospitalKey, payloadKey]) => {
+    const expected = payload[payloadKey]
+    return expected === undefined || normalizedText(hospital[hospitalKey]) === normalizedText(expected)
+  })
+    && sameCoordinate(hospital.latitude, payload.latitude)
+    && sameCoordinate(hospital.longitude, payload.longitude)
+}
+
 export const useHospitalStore = defineStore('hospital', () => {
   const items = ref<Hospital[]>([])
   const selectedItem = ref<Hospital | null>(null)
@@ -361,14 +400,13 @@ export const useHospitalStore = defineStore('hospital', () => {
       fallbackMessage: 'Gagal memperbarui Faskes.',
       task: async () => {
         const response = await api.post(`${ENDPOINT}/input`, { choice: 'u', id, ...payload })
-        const raw = findCompanyRecord(response.data)
-        if (!raw) {
-          // Backend tidak mengembalikan data baru: ambil ulang daftar.
-          await fetchHospitals(lastParams.value)
-          return null
+        assertApiOperationSucceeded(response.data)
+
+        const updated = await fetchHospitalById(id)
+        if (!updated || !hospitalMatchesPayload(updated, payload)) {
+          throw new Error('Perubahan Faskes belum tersimpan di server. Silakan coba lagi.')
         }
 
-        const updated = normalizeHospital(raw)
         items.value = items.value.map((item) => (item.id === id ? updated : item))
         if (selectedItem.value?.id === id) selectedItem.value = updated
         return updated

@@ -101,6 +101,27 @@ export function pickNumber(raw: Dict, ...keys: string[]): number {
   return Number.isFinite(value) ? value : 0
 }
 
+/**
+ * Stored procedure pada beberapa endpoint mengembalikan HTTP 200 meskipun
+ * operasinya gagal. Anggap ErrorMessage di level mana pun sebagai kegagalan.
+ */
+export function assertApiOperationSucceeded(payload: unknown, depth = 0): void {
+  if (depth > 5) return
+
+  if (Array.isArray(payload)) {
+    for (const item of payload) assertApiOperationSucceeded(item, depth + 1)
+    return
+  }
+  if (!isRecord(payload)) return
+
+  const message = pickString(payload, 'ErrorMessage', 'errorMessage').trim()
+  if (message) throw new Error(message)
+
+  for (const value of Object.values(payload)) {
+    assertApiOperationSucceeded(value, depth + 1)
+  }
+}
+
 /** Mengubah data pendukung menjadi pilihan { value, label }. */
 export function normalizeOptions(
   payload: unknown,

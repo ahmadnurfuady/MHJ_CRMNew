@@ -391,7 +391,7 @@
             <div class="contact-top">
               <div
                 class="contact-avatar"
-                :style="avatarColorStyle(fullName(contact) || contact.id)"
+                :style="genderAvatarColorStyle(contact.gender)"
               >
                 {{ personInitials(contact.firstName, contact.lastName) }}
               </div>
@@ -761,7 +761,7 @@ import {
 import ContactFormModal from "@/module/contacts/AddContactModal.vue";
 import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
 import Modal from "@/components/shared/Modal.vue";
-import { avatarColorStyle, personInitials } from "@/utils/avatar";
+import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
 
 const navigableDetailTabs = [
   "projects",
@@ -2532,7 +2532,13 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
 }
 .activity-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.7fr);
+  grid-template-columns: minmax(0, 1fr);
+}
+.activity-card {
+  width: 100%;
+}
+.activity-card :deep(.timeline-panel) {
+  padding: 0;
   gap: 16px;
 }
 .activity-timeline {

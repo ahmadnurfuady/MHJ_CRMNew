@@ -15,6 +15,11 @@ export interface ManagerKpiCard {
   accent: ManagerKpiAccent
 }
 
+export interface ManagerOpportunityOutcome {
+  won: number
+  lost: number
+}
+
 export interface ManagerQuickAction {
   id: string
   label: string
@@ -85,6 +90,7 @@ export interface PromoSlide {
 export interface ManagerDashboardData {
   greetingName: string
   kpis: ManagerKpiCard[]
+  opportunityOutcome: ManagerOpportunityOutcome
   quickActions: ManagerQuickAction[]
   benchmark: ManagerBenchmarkSummary
   coverage: ManagerAreaCoverage
