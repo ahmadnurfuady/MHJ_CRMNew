@@ -7,7 +7,7 @@
             <div class="kalender-title-group">
               <h5 class="mb-1">Kalender</h5>
               <p class="kalender-subtitle mb-0">
-        Gabungan jadwal tugas dan peluang. Klik item untuk membuka detailnya.
+        Jadwal tugas. Klik item untuk membuka detailnya.
               </p>
             </div>
           </div>
@@ -72,12 +72,12 @@ import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import UnifiedCalendarView from '@/module/calendar/UnifiedCalendarView.vue'
 import {
-  mapProjectToCalendarEntry,
+  // mapProjectToCalendarEntry, // dinonaktifkan: kalender hanya menampilkan data Tugas
   mapTaskToCalendarEntry,
   type CalendarEntry,
 } from '@/module/calendar/calendarEntry'
 import { useTask } from '@/store/task'
-import { useProjectStore } from '@/store/project'
+// import { useProjectStore } from '@/store/project' // dinonaktifkan: endpoint peluang tidak dipanggil lagi
 import { routes } from '@/router/routes'
 
 type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
@@ -85,7 +85,7 @@ type ExportFormat = 'csv' | 'excel'
 
 const router = useRouter()
 const taskStore = useTask()
-const projectStore = useProjectStore()
+// const projectStore = useProjectStore() // dinonaktifkan: endpoint peluang tidak dipanggil lagi
 
 // Hanya ambil state yang kita butuhkan. error state di store global sengaja
 // TIDAK di-expose ke sini — fetchTasks() memicu resolveTaskProjects() yang
@@ -94,7 +94,7 @@ const projectStore = useProjectStore()
 // projectStore.error, padahal fetchProjects utama kita sukses. Kalender hanya
 // peduli apakah SELURUH loadData() gagal (lihat loadData di bawah).
 const { currentTask } = storeToRefs(taskStore)
-const { items: projectItems } = storeToRefs(projectStore)
+// const { items: projectItems } = storeToRefs(projectStore) // dinonaktifkan: data peluang tidak dipakai lagi
 
 const loadError = ref<string | null>(null)
 const periodFilter = ref<PeriodFilter>('all')
@@ -117,17 +117,19 @@ function showLoadError(message: string) {
 
 const calendarEntries = computed<CalendarEntry[]>(() => {
   const tasks = currentTask.value?.data ?? []
-  const projects = projectItems.value ?? []
+  // Kalender hanya menampilkan data Tugas. Data Peluang dinonaktifkan sesuai permintaan.
+  // const projects = projectItems.value ?? []
 
   const taskEntries = tasks
     .map(mapTaskToCalendarEntry)
     .filter((entry): entry is CalendarEntry => Boolean(entry))
 
-  const projectEntries = projects
-    .map(mapProjectToCalendarEntry)
-    .filter((entry): entry is CalendarEntry => Boolean(entry))
+  // const projectEntries = projects
+  //   .map(mapProjectToCalendarEntry)
+  //   .filter((entry): entry is CalendarEntry => Boolean(entry))
 
-  return [...taskEntries, ...projectEntries]
+  // return [...taskEntries, ...projectEntries]
+  return taskEntries
 })
 
 function localDayStart(date = new Date()) {
@@ -191,34 +193,24 @@ const focusRange = computed(() => {
 async function loadData() {
   loadError.value = null
 
-  const [taskResult, projectResult] = await Promise.allSettled([
-    taskStore.fetchTasks(),
-    projectStore.fetchProjects({ page: 1, per_page: 1000 }),
-  ])
+  // Kalender hanya memanggil endpoint tugas. Pemanggilan endpoint peluang
+  // (projectStore.fetchProjects → GET /api/project) dinonaktifkan sesuai permintaan.
+  const taskResult = await Promise.allSettled([taskStore.fetchTasks()]).then((r) => r[0])
+  // const [taskResult, projectResult] = await Promise.allSettled([
+  //   taskStore.fetchTasks(),
+  //   projectStore.fetchProjects({ page: 1, per_page: 1000 }),
+  // ])
 
   const taskOk =
     taskResult.status === 'fulfilled' &&
     (currentTask.value?.data?.length ?? 0) >= 0
-  const projectOk =
-    projectResult.status === 'fulfilled' &&
-    (projectItems.value?.length ?? 0) >= 0
+  // const projectOk =
+  //   projectResult.status === 'fulfilled' &&
+  //   (projectItems.value?.length ?? 0) >= 0
 
-  // Hanya tampilkan error kalau DUA-DUANYA gagal total. Kalau cuma salah satu,
-  // tampilkan data yang berhasil dan beri notifikasi error yang konsisten dengan
-  // halaman Peluang, Kontak, dan Faskes.
-  if (!taskOk && !projectOk) {
-    loadError.value = 'Gagal memuat data tugas dan peluang.'
+  if (!taskOk) {
+    loadError.value = 'Gagal memuat data tugas.'
     void showLoadError(loadError.value)
-    return
-  }
-
-  const failed: string[] = []
-  if (!taskOk) failed.push('tugas')
-  if (!projectOk) failed.push('peluang')
-  if (failed.length === 1) {
-    void showLoadError(
-      `Data ${failed[0]} tidak dapat dimuat. Kalender menampilkan sebagian data saja.`,
-    )
   }
 }
 
