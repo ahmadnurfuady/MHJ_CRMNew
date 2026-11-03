@@ -523,6 +523,12 @@ export const useContact = defineStore("contact", () => {
     submitting: false,
     error: null as string | null,
     search: "",
+    /**
+     * Filter staf aktif dari dropdown filter kontak. Dikirim ke BE sebagai
+     * `subordinate_ids` (CSV) di endpoint GET /api/contact. Array kosong =
+     * tanpa filter (BE fallback ke user login).
+     */
+    subordinateFilter: [] as number[],
     pagination: { page: 1, perPage: 10, total: 0, lastPage: 1 } as Pagination,
   });
   const contactLoading = toRef(contactApi, "loading");
@@ -741,6 +747,12 @@ export const useContact = defineStore("contact", () => {
     }
   }
 
+  /** CSV subordinate_ids untuk endpoint /api/contact; undefined bila filter kosong. */
+  function subordinateIdsParam(): string | undefined {
+    const ids = contactApi.subordinateFilter;
+    return ids.length ? ids.join(",") : undefined;
+  }
+
   /** GET /api/contact. */
   function fetchRemoteContacts(params: ListParams = {}) {
     return runApiAction({
@@ -748,7 +760,10 @@ export const useContact = defineStore("contact", () => {
       error: contactError,
       fallbackMessage: "Gagal memuat data kontak.",
       task: async () => {
-        const response = await api.getbydata(CONTACT_ENDPOINT, { ...params });
+        const response = await api.getbydata(CONTACT_ENDPOINT, {
+          subordinate_ids: subordinateIdsParam(),
+          ...params,
+        });
         const { items, meta } = extractList(response.data, ["contacts"]);
         contactApi.items = items.filter(isRecord).map(normalizeApiContact);
         await hydrateContactCompanyNames();
@@ -787,6 +802,7 @@ export const useContact = defineStore("contact", () => {
             page,
             per_page: CONTACT_LIST_FETCH_LIMIT,
             search,
+            subordinate_ids: subordinateIdsParam(),
           });
           return extractList(response.data, ["contacts"]);
         };
@@ -827,6 +843,34 @@ export const useContact = defineStore("contact", () => {
         return contactApi.items;
       },
     });
+  }
+
+  /**
+   * GET /api/contact/stafflook. Dipakai dropdown filter kontak untuk daftar
+   * kandidat owner (user login + bawahan). Response adalah array langsung;
+   * kolom nama / jabatan / cabang akan dinormalkan di komponen.
+   */
+  function fetchContactStaff() {
+    return runApiAction({
+      flag: contactLoading,
+      error: contactError,
+      fallbackMessage: "Gagal memuat daftar staf.",
+      task: async () => {
+        const response = await api.getbydata(`${CONTACT_ENDPOINT}/stafflook`);
+        const { items } = extractList(response.data);
+        return items.filter(isRecord);
+      },
+    });
+  }
+
+  /**
+   * Set daftar staf aktif pada filter kontak lalu refetch list.
+   * Dipanggil dari tombol "Terapkan" di dropdown filter.
+   */
+  async function applySubordinateFilter(ids: number[]) {
+    contactApi.subordinateFilter = [...ids];
+    await fetchAllRemoteContacts(contactApi.search || undefined);
+    syncRemoteContacts();
   }
 
   /** GET /api/contact/fetchcontactbyid?id=<id>. */
@@ -1635,6 +1679,8 @@ export const useContact = defineStore("contact", () => {
     searchContactProjects,
     fetchContactStatuses,
     fetchContactSources,
+    fetchContactStaff,
+    applySubordinateFilter,
     createRemoteContact,
     updateRemoteContact,
     removeRemoteContact,

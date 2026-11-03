@@ -47,7 +47,7 @@
             title="Filter kontak"
             :aria-expanded="filterOpen"
             aria-haspopup="true"
-            @click="filterOpen = !filterOpen"
+            @click="toggleFilter"
           >
             <SolarIcon
               name="filter"
@@ -56,48 +56,75 @@
               secondary-color="var(--app-primary, #18a6e4)"
               :secondary-opacity="1"
             />
-            <b v-if="selectedUserId !== null">1</b>
+            <b v-if="appliedUserIds.length">{{ appliedUserIds.length }}</b>
           </button>
           <div v-if="filterOpen" class="contact-filter__dropdown" role="menu">
-            <div class="contact-filter__search" role="search">
-              <input
-                v-model="filterSearch"
-                type="text"
-                class="contact-filter__search-input"
-                placeholder="Cari user..."
-                autocomplete="off"
-              />
+            <div class="contact-filter__topbar">
+              <div class="contact-filter__search" role="search">
+                <input
+                  v-model="filterSearch"
+                  type="text"
+                  class="contact-filter__search-input"
+                  placeholder="Cari user..."
+                  autocomplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                class="contact-filter__select-all"
+                @click="toggleSelectAllVisible"
+              >
+                {{ allVisibleSelected ? "Batal Semua" : "Pilih Semua" }}
+              </button>
             </div>
-            <ul class="contact-filter__list" role="listbox">
-              <li v-for="user in filteredUsers" :key="user.id">
-                <button
-                  class="contact-filter__card"
-                  :class="{ 'contact-filter__card--active': selectedUserId === user.id }"
-                  type="button"
-                  role="option"
-                  :aria-selected="selectedUserId === user.id"
-                  :title="`${user.name} - ${user.jabatan} | ${user.divisi} | ${user.cabang}`"
-                  @click="selectUser(user.id)"
-                >
-                  <span class="contact-filter__card-content">
-                    <span class="contact-filter__card-name">{{ user.name }}</span>
-                    <span class="contact-filter__card-meta">
-                      {{ user.jabatan }} | {{ user.divisi }} | {{ user.cabang }}
-                    </span>
-                  </span>
-                  <span
-                    v-if="selectedUserId === user.id"
-                    class="contact-filter__card-check"
-                    aria-hidden="true"
+            <ul class="contact-filter__list" role="listbox" aria-multiselectable="true">
+              <li v-if="filterLoading" class="contact-filter__empty">
+                Memuat daftar staf...
+              </li>
+              <template v-else>
+                <li v-for="user in filteredUsers" :key="user.id">
+                  <label
+                    class="contact-filter__card"
+                    :class="{ 'contact-filter__card--active': isSelected(user.id) }"
+                    :title="`${user.name} - ${user.jabatan || '-'} | ${user.cabang || '-'}`"
                   >
-                    <vue-feather type="check" size="14" />
-                  </span>
-                </button>
-              </li>
-              <li v-if="!filteredUsers.length" class="contact-filter__empty">
-                Tidak ditemukan.
-              </li>
+                    <input
+                      type="checkbox"
+                      class="contact-filter__checkbox"
+                      :checked="isSelected(user.id)"
+                      :value="user.id"
+                      @change="toggleUser(user.id)"
+                    />
+                    <span class="contact-filter__card-content">
+                      <span class="contact-filter__card-name">{{ user.name }}</span>
+                      <span class="contact-filter__card-meta">
+                        {{ user.jabatan || "-" }} | {{ user.cabang || "-" }}
+                      </span>
+                    </span>
+                  </label>
+                </li>
+                <li v-if="!filteredUsers.length" class="contact-filter__empty">
+                  Tidak ditemukan.
+                </li>
+              </template>
             </ul>
+            <div class="contact-filter__footer">
+              <button
+                type="button"
+                class="btn btn-outline-secondary contact-filter__btn"
+                @click="cancelFilter"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary contact-filter__btn"
+                :disabled="filterLoading"
+                @click="applyFilter"
+              >
+                Terapkan
+              </button>
+            </div>
           </div>
         </div>
         <button
@@ -154,7 +181,7 @@
           </thead>
           <tbody>
             <tr v-if="contactApi.loading && !paginatedContacts.length">
-              <td colspan="6" class="contact-table-state">
+              <td colspan="7" class="contact-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 Memuat data kontak...
               </td>
@@ -219,6 +246,14 @@
                   {{ contactPeluangCount(contact) }} Peluang
                 </button>
               </td>
+              <td data-label="Dibuat Oleh">
+                <span
+                  class="mhj-cell-ellipsis contact-table__bounded-text"
+                  :title="contact.owner || '-'"
+                >
+                  {{ contact.owner || "-" }}
+                </span>
+              </td>
               <td data-label="Peluang" class="contact-peluang-cell">
                 <button
                   v-if="contactPeluangCount(contact) > 0"
@@ -255,7 +290,7 @@
               </td>
             </tr>
             <tr v-if="!contactApi.loading && !filteredContact.length">
-              <td colspan="6" class="contact-table-state">
+              <td colspan="7" class="contact-table-state">
                 <div class="empty-state-icon">
                   <svg
                     width="22"
@@ -356,45 +391,129 @@ interface FilterUser {
   id: number;
   name: string;
   jabatan: string;
-  divisi: string;
   cabang: string;
 }
 
+const { fetchContactStaff, applySubordinateFilter } = contactStore;
+
 const filterOpen = ref(false);
 const filterSearch = ref("");
-const selectedUserId = ref<number | null>(null);
 const filterRoot = ref<HTMLElement | null>(null);
+const filterUsers = ref<FilterUser[]>([]);
+const filterLoading = ref(false);
+const filterLoaded = ref(false);
 
-const filterUsers = ref<FilterUser[]>([
-  {
-    id: 1,
-    name: "Andi Pratama",
-    jabatan: "Sales Executive",
-    divisi: "Marketing",
-    cabang: "Jakarta",
-  },
-]);
+/** ID staf yang sudah pernah di-"Terapkan" (sinkron dengan store/BE). */
+const appliedUserIds = ref<number[]>([]);
+/** Pilihan sementara di dalam dropdown; baru dicommit saat "Terapkan". */
+const draftUserIds = ref<number[]>([]);
+
+/** Ambil daftar staf dari /contact/stafflook lalu normalkan ke bentuk FilterUser. */
+async function loadFilterUsers() {
+  if (filterLoaded.value || filterLoading.value) return;
+  filterLoading.value = true;
+  try {
+    const rows = (await fetchContactStaff()) ?? [];
+    filterUsers.value = rows
+      .map((row): FilterUser | null => {
+        const raw = row as Record<string, unknown>;
+        const idValue = Number(raw.id ?? raw.value ?? raw.id_owner);
+        if (!Number.isFinite(idValue) || idValue <= 0) return null;
+        const name = String(raw.name ?? raw.label ?? raw.nm_owner ?? "").trim();
+        if (!name) return null;
+        return {
+          id: idValue,
+          name,
+          jabatan: String(raw.nama_jabatan ?? raw.jabatan_alias ?? "").trim(),
+          cabang: String(raw.nama_cabang ?? "").trim(),
+        };
+      })
+      .filter((user): user is FilterUser => user !== null);
+    filterLoaded.value = true;
+  } catch {
+    // Error sudah ditangani runApiAction (notify); biarkan list kosong.
+  } finally {
+    filterLoading.value = false;
+  }
+}
 
 const filteredUsers = computed(() => {
   const query = filterSearch.value.trim().toLowerCase();
   if (!query) return filterUsers.value;
   return filterUsers.value.filter((user) =>
-    [user.name, user.jabatan, user.divisi, user.cabang]
+    [user.name, user.jabatan, user.cabang]
       .join(" ")
       .toLowerCase()
       .includes(query),
   );
 });
 
-function selectUser(id: number) {
-  selectedUserId.value = selectedUserId.value === id ? null : id;
+const allVisibleSelected = computed(() => {
+  const visible = filteredUsers.value;
+  if (!visible.length) return false;
+  return visible.every((user) => draftUserIds.value.includes(user.id));
+});
+
+function isSelected(id: number): boolean {
+  return draftUserIds.value.includes(id);
+}
+
+function toggleUser(id: number) {
+  const index = draftUserIds.value.indexOf(id);
+  if (index >= 0) draftUserIds.value.splice(index, 1);
+  else draftUserIds.value.push(id);
+}
+
+/**
+ * Pilih / batalkan semua user yang sedang terlihat (sesuai filterSearch).
+ * Hanya menyentuh ID yang terlihat agar hasil search lama tidak hilang.
+ */
+function toggleSelectAllVisible() {
+  const visibleIds = filteredUsers.value.map((user) => user.id);
+  if (allVisibleSelected.value) {
+    draftUserIds.value = draftUserIds.value.filter(
+      (id) => !visibleIds.includes(id),
+    );
+  } else {
+    const next = new Set(draftUserIds.value);
+    visibleIds.forEach((id) => next.add(id));
+    draftUserIds.value = [...next];
+  }
+}
+
+async function toggleFilter() {
+  if (filterOpen.value) {
+    cancelFilter();
+    return;
+  }
+  // Reset draft ke state yang sudah diterapkan agar perubahan belum apply hilang.
+  draftUserIds.value = [...appliedUserIds.value];
+  filterOpen.value = true;
+  await loadFilterUsers();
+}
+
+function cancelFilter() {
   filterOpen.value = false;
+  filterSearch.value = "";
+}
+
+async function applyFilter() {
+  const ids = [...draftUserIds.value];
+  appliedUserIds.value = ids;
+  filterOpen.value = false;
+  filterSearch.value = "";
+  currentContactPage.value = 1;
+  try {
+    await applySubordinateFilter(ids);
+  } catch {
+    // runApiAction sudah notify; biarkan state tetap untuk retry.
+  }
 }
 
 function onClickOutsideFilter(event: MouseEvent) {
   if (!filterOpen.value) return;
   if (filterRoot.value && !filterRoot.value.contains(event.target as Node)) {
-    filterOpen.value = false;
+    cancelFilter();
   }
 }
 const CONTACTS_PER_PAGE = 10;
@@ -402,7 +521,8 @@ const currentContactPage = ref(1);
 const contactTableColumns = [
   { label: "Nama", defaultWidth: 300, minWidth: 220 },
   { label: "Faskes", defaultWidth: 220, minWidth: 140 },
-  { label: "Jabatan", defaultWidth: 320, minWidth: 140 },
+  { label: "Jabatan", defaultWidth: 260, minWidth: 140 },
+  { label: "Dibuat Oleh", defaultWidth: 180, minWidth: 140 },
   { label: "Peluang", defaultWidth: 130, minWidth: 110 },
   { label: "Aktivitas", defaultWidth: 230, minWidth: 170 },
   // Kolom "Terakhir Dihubungi" sementara disembunyikan.
@@ -1602,6 +1722,44 @@ onBeforeUnmount(() => {
   list-style: none;
 }
 
+.contact-filter__topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.contact-filter__topbar .contact-filter__search {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border-bottom: none;
+}
+
+.contact-filter__select-all {
+  flex: 0 0 auto;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--app-primary, #18a6e4);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--app-primary, #18a6e4);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.contact-filter__select-all:hover,
+.contact-filter__select-all:focus-visible {
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
+  outline: none;
+}
+
 .contact-filter__search {
   padding: 14px;
   border-bottom: 1px solid #e2e8f0;
@@ -1747,6 +1905,33 @@ onBeforeUnmount(() => {
   color: #94a3b8;
   font-size: 13px;
   text-align: center;
+}
+
+.contact-filter__checkbox {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--app-primary, #18a6e4);
+  cursor: pointer;
+}
+
+.contact-filter__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.contact-filter__btn {
+  min-width: 96px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 /* Jaga pagination tetap berada di atas navigation/gesture bar perangkat.
