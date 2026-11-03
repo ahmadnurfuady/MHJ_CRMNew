@@ -135,11 +135,12 @@
               </td>
               <td data-label="Provinsi">{{ displayValue(hospital.province) }}</td>
               <td data-label="Kota">{{ displayValue(hospital.city) }}</td>
-              <td data-label="Financial Grade">
+              <td data-label="Tipe Faskes">
                 <span
                   v-if="normalizeGrade(hospital.financialGrade)"
                   class="financial-grade-badge"
-                  :class="`financial-grade-badge--${normalizeGrade(hospital.financialGrade).toLowerCase()}`"
+                  :class="`financial-grade-badge--${normalizeGrade(hospital.financialGrade).charAt(0).toLowerCase()}`"
+                  :title="`Grade ${normalizeGrade(hospital.financialGrade)}`"
                 >
                   Grade {{ normalizeGrade(hospital.financialGrade) }}
                 </span>
@@ -308,7 +309,7 @@ const hospitalTableColumns = [
   { label: "Nama Faskes", defaultWidth: 280, minWidth: 220, center: false },
   { label: "Provinsi", defaultWidth: 150, minWidth: 110, center: false },
   { label: "Kota", defaultWidth: 150, minWidth: 110, center: false },
-  { label: "Financial Grade", defaultWidth: 150, minWidth: 120, center: false },
+  { label: "Tipe Faskes", defaultWidth: 200, minWidth: 140, center: false },
   { label: "Jenis Faskes", defaultWidth: 180, minWidth: 130, center: false },
   { label: "Total Kontak", defaultWidth: 120, minWidth: 110, center: true },
   { label: "Total Peluang", defaultWidth: 120, minWidth: 110, center: true },
@@ -825,13 +826,18 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   min-width: 72px;
+  max-width: 100%;
   padding: 4px 12px;
   border-radius: 999px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.3;
   letter-spacing: 0.02em;
-  border: 1px solid transparent;
-  white-space: nowrap;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .financial-grade-badge--a {
