@@ -156,6 +156,14 @@ async function loadContact() {
     if (!contact) throw new Error("Data kontak tidak ditemukan.");
     contactState.value.activeContact = contact;
 
+    // Tolak mode edit untuk kontak milik user lain, bahkan bila URL punya `edit=1`.
+    // Ini sekadar defense-in-depth; BE juga akan mengembalikan 403 pada POST /input.
+    if (contact.isOwnContact === false && contactState.value.isEditContact) {
+      contactState.value.isEditContact = false;
+      allowEditNavigation = true;
+      await router.replace({ path: routes.App.Contacts, query: detailRouteQuery() });
+    }
+
     // Seluruh data kontak (termasuk owner_name, companies, projects) sudah dibawa
     // oleh fetchcontactbyid, jadi tidak perlu memanggil /api/project atau
     // /api/project/leader lagi di sini.
@@ -187,6 +195,14 @@ watch(
   (edit) => {
     const routeIsEditing = String(edit ?? "") === "1";
     if (routeIsEditing && activeContact.value) {
+      // Kontak bukan milik user login: abaikan `edit=1`. BE pun akan menolak
+      // POST /input (403), jadi mode edit dipastikan tidak pernah terbuka.
+      if (activeContact.value.isOwnContact === false) {
+        allowEditNavigation = true;
+        contactState.value.isEditContact = false;
+        void router.replace({ path: routes.App.Contacts, query: detailRouteQuery() });
+        return;
+      }
       allowEditNavigation = false;
       contactState.value.isEditContact = true;
     } else if (!routeIsEditing && allowEditNavigation) {

@@ -211,9 +211,25 @@
                     </strong>
                     <span
                       class="mhj-cell-ellipsis"
-                      :title="contact.email || 'Email belum tersedia'"
+                      :title="sensitiveTooltip(contact)"
                     >
                       {{ contact.email || "Email belum tersedia" }}
+                    </span>
+                    <!--
+                      Kontak bawahan: BE sudah mengirim email/telepon ter-masking.
+                      Tampilkan penanda kecil beserta nama pemiliknya supaya user
+                      langsung paham kenapa data sensitifnya tidak terbaca utuh.
+                    -->
+                    <span
+                      v-if="isSubordinateContact(contact)"
+                      class="contact-sensitive-badge"
+                      :title="sensitiveTooltip(contact)"
+                    >
+                      <vue-feather type="lock" size="10" />
+                      <span class="contact-sensitive-badge__text mhj-cell-ellipsis">
+                        Email &amp; telepon disembunyikan — milik
+                        {{ contact.owner || "user lain" }}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -655,6 +671,23 @@ function fullName(contact: Contact) {
   return `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Tanpa nama";
 }
 
+/**
+ * Kontak bawahan: BE mengirim `is_own_contact=false` dan sudah memasking email/
+ * telepon. Data legacy tanpa flag ini dianggap milik sendiri (fail-open) agar
+ * tidak salah tampil sebagai "disembunyikan" hanya karena cache lama.
+ */
+function isSubordinateContact(contact: Contact): boolean {
+  return contact.isOwnContact === false;
+}
+
+function sensitiveTooltip(contact: Contact): string {
+  if (!isSubordinateContact(contact)) {
+    return contact.email || "Email belum tersedia";
+  }
+  const owner = contact.owner?.trim() || "user lain";
+  return `Email & nomor telepon disembunyikan — hanya terlihat oleh ${owner}.`;
+}
+
 function formatContactTotal(total: number) {
   return new Intl.NumberFormat("id-ID").format(total);
 }
@@ -747,6 +780,14 @@ function openContactSection(contact: Contact, hash: string) {
 
 onMounted(() => {
   contactStore.initStore();
+  // Filter user disimpan di store (contactApi.subordinateFilter). Komponen list
+  // ini di-unmount saat user masuk halaman detail kontak, jadi state lokal
+  // (appliedUserIds / draftUserIds) harus di-rehydrate dari store ketika
+  // komponen dibuat ulang — kalau tidak, jumlah filter di tombol hilang
+  // meski datanya tetap tersaring sesuai pilihan sebelumnya.
+  const persistedIds = [...contactApi.value.subordinateFilter];
+  appliedUserIds.value = persistedIds;
+  draftUserIds.value = [...persistedIds];
   document.addEventListener("click", onClickOutsideFilter);
 });
 
@@ -1055,6 +1096,39 @@ onBeforeUnmount(() => {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/*
+ * Badge kontak bawahan: menegaskan ke user kenapa email/telepon tidak terlihat
+ * utuh. Warna peach supaya cepat terbaca sebagai peringatan tanpa "berteriak"
+ * seperti merah penuh.
+ */
+.contact-sensitive-badge {
+  display: inline-flex !important;
+  max-width: 100%;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.3;
+  white-space: nowrap !important;
+}
+
+.contact-sensitive-badge :deep(svg) {
+  flex: 0 0 auto;
+  stroke-width: 2.2;
+}
+
+.contact-sensitive-badge__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Nama Rumah Sakit dan Jabatan memakai batas teks yang sama. */

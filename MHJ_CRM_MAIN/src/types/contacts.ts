@@ -77,6 +77,25 @@ export interface Contact {
   totalFaskes?: number;
   /** Jumlah aktifitas kontak dari sp_view_listcontact (kolom total_aktifitas). */
   totalAktifitas?: number;
+  /**
+   * Flag dari backend: true bila kontak dibuat user yang sedang login.
+   * Dipakai FE untuk memutuskan apakah email/nomor telepon ditampilkan utuh,
+   * serta apakah tombol edit/hapus tersedia. Undefined pada data lama yang
+   * belum membawa flag dianggap sebagai milik sendiri (fail-open sementara).
+   */
+  isOwnContact?: boolean;
+  /** Flag dari backend: kontak dibuat bawahan user login (atasan hanya read-only). */
+  isSubordinate?: boolean;
+  /**
+   * Permission eksplisit dari backend. Dipakai agar FE sinkron dengan guard
+   * backend (POST /input memvalidasi ulang; endpoint tidak akan edit/hapus
+   * kontak milik user lain walau tombolnya dipaksa tampil).
+   */
+  permissions?: {
+    canEdit: boolean;
+    canDelete: boolean;
+    canViewSensitiveData: boolean;
+  };
   hospitalClass?: string;
   financialGrade?: string;
   hospitalType?: string;

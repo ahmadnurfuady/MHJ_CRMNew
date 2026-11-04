@@ -411,6 +411,52 @@ export function normalizeApiContact(raw: Dict): Contact {
     totalPeluang: nullableNumber(pickString(raw, "total_peluang")) ?? undefined,
     totalFaskes: nullableNumber(pickString(raw, "total_faskes")) ?? undefined,
     totalAktifitas: nullableNumber(pickString(raw, "total_aktifitas")) ?? undefined,
+    isOwnContact: pickOwnContactFlag(raw),
+    isSubordinate: pickBooleanFlag(raw, "is_subordinate"),
+    permissions: pickContactPermissions(raw),
+  };
+}
+
+/**
+ * BE kirim `is_own_contact` sebagai bool / 0|1 / "true". Kontak lama yang
+ * belum punya field ini dianggap milik sendiri (undefined → fail-open) supaya
+ * data yang di-cache dari versi lama FE tidak tiba-tiba kehilangan tombol edit.
+ */
+function pickOwnContactFlag(raw: Dict): boolean | undefined {
+  const value = raw.is_own_contact;
+  if (value === undefined || value === null || value === "") return undefined;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  const text = String(value).trim().toLowerCase();
+  if (text === "true" || text === "1") return true;
+  if (text === "false" || text === "0") return false;
+  return undefined;
+}
+
+function pickBooleanFlag(raw: Dict, key: string): boolean | undefined {
+  const value = raw[key];
+  if (value === undefined || value === null || value === "") return undefined;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  const text = String(value).trim().toLowerCase();
+  if (text === "true" || text === "1") return true;
+  if (text === "false" || text === "0") return false;
+  return undefined;
+}
+
+/**
+ * Permission eksplisit dari BE. Fail-open bila `permissions` tidak ada pada
+ * response (data legacy), tapi begitu ada, FE mengikuti apa adanya — konsisten
+ * dengan guard di ContactController@input yang juga memvalidasi ulang.
+ */
+function pickContactPermissions(raw: Dict): Contact["permissions"] {
+  const value = raw.permissions;
+  if (!isRecord(value)) return undefined;
+
+  return {
+    canEdit: pickBooleanFlag(value, "can_edit") ?? false,
+    canDelete: pickBooleanFlag(value, "can_delete") ?? false,
+    canViewSensitiveData: pickBooleanFlag(value, "can_view_sensitive_data") ?? false,
   };
 }
 

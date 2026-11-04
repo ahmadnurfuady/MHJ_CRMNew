@@ -58,8 +58,13 @@
             />
             Peluang ({{ opportunityCount }})
           </button>
+          <!--
+            Link mailto hanya aktif untuk pemilik kontak. Pada kontak bawahan,
+            email yang BE kirim sudah ter-masking sehingga link Gmail juga
+            tidak akan valid; cukup tampilkan nilai masked tanpa <a>.
+          -->
           <a
-            v-if="contactState.activeContact.email"
+            v-if="contactState.activeContact.email && isOwnActiveContact"
             :href="gmailComposeUrl(contactState.activeContact.email)"
             target="_blank"
             rel="noopener noreferrer"
@@ -73,6 +78,15 @@
             />
             {{ contactState.activeContact.email }}
           </a>
+          <span v-else-if="!isOwnActiveContact" :title="sensitiveOwnerNote">
+            <SolarIcon
+              name="letter"
+              :size="16"
+              color="var(--app-primary, #18A6E4)"
+              aria-hidden="true"
+            />
+            Email disembunyikan
+          </span>
           <span v-if="contactLocation.city !== '-'">
             <SolarIcon
               name="map-point"
@@ -85,24 +99,35 @@
         </div>
       </div>
       <div class="contact-primary-actions">
-        <button class="profile-action profile-action--primary" type="button" @click="editContact">
-          <vue-feather type="edit-2" size="14" />Edit
-        </button>
-        <button
-          class="contact-delete-button"
-          type="button"
-          title="Hapus kontak"
-          aria-label="Hapus kontak"
-          @click="deleteContact"
-        >
-          <SolarIcon
-            name="trash"
-            class="contact-delete-icon"
-            :size="16"
-            color="var(--theme-default, #18a6e4)"
-            aria-hidden="true"
-          />
-        </button>
+        <!--
+          Tombol edit/hapus hanya dirender untuk pemilik kontak. BE juga
+          memvalidasi ulang (POST /input mengembalikan 403 bila bukan pemilik),
+          jadi walau tombol dipaksa tampil via DevTools, request-nya tetap ditolak.
+        -->
+        <template v-if="isOwnActiveContact">
+          <button class="profile-action profile-action--primary" type="button" @click="editContact">
+            <vue-feather type="edit-2" size="14" />Edit
+          </button>
+          <button
+            class="contact-delete-button"
+            type="button"
+            title="Hapus kontak"
+            aria-label="Hapus kontak"
+            @click="deleteContact"
+          >
+            <SolarIcon
+              name="trash"
+              class="contact-delete-icon"
+              :size="16"
+              color="var(--theme-default, #18a6e4)"
+              aria-hidden="true"
+            />
+          </button>
+        </template>
+        <div v-else class="contact-readonly-notice" :title="sensitiveOwnerNote">
+          <vue-feather type="lock" size="14" />
+          <span>Read-only — milik {{ contactOwnerLabel }}</span>
+        </div>
       </div>
     </section>
 
@@ -144,45 +169,63 @@
           </div>
           <div class="col-12">
             <span>Email</span>
-            <strong>{{ contactState.activeContact.email || "-" }}</strong>
+            <!--
+              Kontak milik user lain: tampilkan keterangan jelas bahwa email
+              disembunyikan, bukan nilai masked polos. Nilai BE tetap bisa
+              dilihat di DevTools (karena sudah bentuk "a......@gmail.com"),
+              tapi UI menjelaskan ke user kenapa data tidak bisa dibaca.
+            -->
+            <template v-if="isOwnActiveContact">
+              <strong>{{ contactState.activeContact.email || "-" }}</strong>
+            </template>
+            <div v-else class="sensitive-hidden-note">
+              <vue-feather type="lock" size="14" />
+              <span>Disembunyikan — hanya terlihat oleh {{ contactOwnerLabel }}</span>
+            </div>
           </div>
           <div class="col-12 contact-phone-field">
             <span>Nomor Telepon</span>
-            <div v-if="contactPhoneNumbers.length" class="row g-3 contact-phone-list">
-              <div
-                v-for="phone in contactPhoneNumbers"
-                :key="phone"
-                class="col-12 col-md-6"
-              >
-                <div class="contact-phone-item">
-                  <strong>{{ phone }}</strong>
-                  <div class="contact-phone-actions">
-                    <a
-                      :href="indonesianPhoneCallUrl(phone)"
-                      :aria-label="`Telepon ${phone}`"
-                      :title="`Telepon ${phone}`"
-                    >
-                      <SolarIcon
-                        name="phone"
-                        :size="16"
-                        color="#18A6E4"
-                      />
-                    </a>
-                    <a
-                      class="contact-phone-whatsapp"
-                      :href="indonesianWhatsAppUrl(phone)"
-                      :aria-label="`WhatsApp ${phone}`"
-                      :title="`WhatsApp ${phone}`"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <MhjIcon name="whatsapp" :size="16" />
-                    </a>
+            <template v-if="isOwnActiveContact">
+              <div v-if="contactPhoneNumbers.length" class="row g-3 contact-phone-list">
+                <div
+                  v-for="phone in contactPhoneNumbers"
+                  :key="phone"
+                  class="col-12 col-md-6"
+                >
+                  <div class="contact-phone-item">
+                    <strong>{{ phone }}</strong>
+                    <div class="contact-phone-actions">
+                      <a
+                        :href="indonesianPhoneCallUrl(phone)"
+                        :aria-label="`Telepon ${phone}`"
+                        :title="`Telepon ${phone}`"
+                      >
+                        <SolarIcon
+                          name="phone"
+                          :size="16"
+                          color="#18A6E4"
+                        />
+                      </a>
+                      <a
+                        class="contact-phone-whatsapp"
+                        :href="indonesianWhatsAppUrl(phone)"
+                        :aria-label="`WhatsApp ${phone}`"
+                        :title="`WhatsApp ${phone}`"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MhjIcon name="whatsapp" :size="16" />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
+              <strong v-else>-</strong>
+            </template>
+            <div v-else class="sensitive-hidden-note">
+              <vue-feather type="lock" size="14" />
+              <span>Disembunyikan — hanya terlihat oleh {{ contactOwnerLabel }}</span>
             </div>
-            <strong v-else>-</strong>
           </div>
           <div class="col-md-6">
             <span>Kota</span>
@@ -508,6 +551,26 @@ async function deleteContact() {
 
 const fullName = computed(() =>
   `${contactState.value.activeContact?.firstName || ""} ${contactState.value.activeContact?.lastName || ""}`.trim(),
+);
+
+/**
+ * Pemilik kontak = user yang membuat kontak di DB (contacts.created_by).
+ * BE menandai kontak milik sendiri via `is_own_contact`. Data legacy yang
+ * belum punya flag ini dianggap milik sendiri (undefined → true) sehingga
+ * kontak lama tidak kehilangan tombol edit tanpa alasan.
+ */
+const isOwnActiveContact = computed(() => {
+  const value = contactState.value.activeContact?.isOwnContact;
+  return value !== false;
+});
+
+const contactOwnerLabel = computed(() => {
+  const owner = contactState.value.activeContact?.owner?.trim();
+  return owner && owner !== "-" ? owner : "pemilik kontak";
+});
+
+const sensitiveOwnerNote = computed(
+  () => `Email & nomor telepon disembunyikan — hanya terlihat oleh ${contactOwnerLabel.value}.`,
 );
 const contactPhoneNumbers = computed(() => {
   const contact = contactState.value.activeContact;
@@ -1099,6 +1162,53 @@ async function toggleCompanyEdit() {
   z-index: 2;
   display: flex;
   gap: 8px;
+}
+
+/*
+ * Keterangan read-only untuk kontak milik bawahan. Warna peach dipakai agar
+ * konsisten dengan badge di halaman list (bukan merah; aksinya cuma edukatif).
+ */
+.contact-readonly-notice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #fcd9b5;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.contact-readonly-notice :deep(svg) {
+  flex: 0 0 auto;
+  stroke-width: 2.2;
+}
+
+/*
+ * Baris Email / Nomor Telepon untuk kontak bawahan. Dibuat kontras lembut
+ * supaya terlihat sebagai info status, bukan nilai yang bisa dicopy.
+ */
+.sensitive-hidden-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px dashed #d4c08a;
+  border-radius: 8px;
+  background: #fff8e1;
+  color: #6b5915;
+  font-size: 13px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.sensitive-hidden-note :deep(svg) {
+  flex: 0 0 auto;
+  color: #a16207;
+  stroke-width: 2.2;
 }
 
 /* Tombol hapus kontak, disamakan dengan user-action-button--delete di User List. */
