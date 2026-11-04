@@ -241,23 +241,30 @@ function sameCoordinate(actual: number | undefined, expected: number | null | un
 }
 
 function hospitalMatchesPayload(hospital: Hospital, payload: HospitalPayload): boolean {
+  // Verifikasi after-save hanya membandingkan field yang ditulis sp_companies_crud
+  // dan dikembalikan apa adanya oleh query detail. Field berikut SENGAJA tidak
+  // dibandingkan karena tidak pernah round-trip persis dengan payload form
+  // (memicu "belum tersimpan" palsu walau data sudah tersimpan):
+  //   - jenis / tipe / penyelenggara  -> disimpan sebagai ID, di-fetch jadi nama
+  //     master (mis. COALESCE(p.Nama, ...)) yang bisa beda teks/kapitalisasi.
+  //   - tipeMarketingGo500            -> disimpan sbg kode (KodeTipeMarketing
+  //     "003"), payload kirim label ("GOVERNMENT").
+  //   - owner                         -> di-fetch via COALESCE(p.Nama, ...),
+  //     ikut lookup penyelenggara.
+  //   - country / financeStatus       -> tidak punya parameter di SP, jadi tidak
+  //     ikut tersimpan sama sekali.
+  // Field langsung di bawah sudah cukup untuk memastikan update benar-benar
+  // mendarat di server.
   const textFields: [keyof Hospital, keyof HospitalPayload][] = [
     ['name', 'company_name'],
-    ['owner', 'company_owner'],
     ['phone', 'telephone'],
     ['email', 'email'],
     ['mapAddress', 'map_address'],
     ['address', 'address'],
-    ['country', 'country'],
     ['province', 'province'],
     ['city', 'city'],
     ['description', 'description'],
-    ['jenis', 'jenis'],
-    ['tipe', 'tipe'],
-    ['penyelenggara', 'penyelenggara'],
-    ['tipeMarketingGo500', 'tipe_marketing_go500'],
     ['sirs', 'sirs'],
-    ['financeStatus', 'status_finance'],
   ]
 
   return textFields.every(([hospitalKey, payloadKey]) => {
