@@ -6,8 +6,8 @@
     </div>
 
     <template v-else-if="data">
-      <div class="manager-dashboard__row manager-dashboard__row--coverage">
-        <AreaMarketCoverage :coverage="data.coverage" />
+      <div class="manager-dashboard__row manager-dashboard__row--coverage-map">
+        <HospitalDistributionMap :highlight="data.coverage.highlight" />
       </div>
 
       <section class="manager-dashboard__promo-card" aria-label="Promo terbaru">
@@ -26,6 +26,9 @@
       <div class="manager-dashboard__content">
         <div class="manager-dashboard__row manager-dashboard__row--overview">
           <TargetBenchmarkSummary :benchmark="data.benchmark" />
+        </div>
+        <div class="manager-dashboard__row manager-dashboard__row--coverage">
+          <AreaMarketCoverage :coverage="data.coverage" />
         </div>
         <div class="manager-dashboard__row manager-dashboard__row--activity">
           <RecentActivity :activities="data.activities" />
@@ -47,6 +50,7 @@ import { onMounted } from 'vue'
 
 import { useManagerDashboard } from '@/composable/useManagerDashboard'
 import AreaMarketCoverage from '@/module/dashboard/manager/AreaMarketCoverage.vue'
+import HospitalDistributionMap from '@/module/dashboard/manager/HospitalDistributionMap.vue'
 import KeyMetricsGrid from '@/module/dashboard/manager/KeyMetricsGrid.vue'
 import OpportunityOutcomeChart from '@/module/dashboard/manager/OpportunityOutcomeChart.vue'
 import PromoCarousel from '@/module/dashboard/manager/PromoCarousel.vue'
@@ -123,6 +127,7 @@ onMounted(loadDashboard)
 }
 
 .manager-dashboard__row--coverage,
+.manager-dashboard__row--coverage-map,
 .manager-dashboard__row--activity {
   grid-template-columns: minmax(0, 1fr);
   align-items: start;

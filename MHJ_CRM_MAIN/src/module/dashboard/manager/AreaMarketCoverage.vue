@@ -1,13 +1,6 @@
 <template>
   <article class="coverage-card" aria-labelledby="coverage-title">
-    <div class="coverage-card__head">
-      <h2 id="coverage-title" class="section-title">Sebaran Fasilitas Kesehatan</h2>
-    </div>
-
-    <HospitalCoverageMap
-      :initial-center="[coverage.highlight.lat, coverage.highlight.lng]"
-      :initial-zoom="coverage.highlight.zoom ?? 11"
-    />
+    <h2 id="coverage-title" class="section-title">Jangkauan Area dan Pasar</h2>
 
     <div class="coverage-grid">
       <div v-for="stat in coverage.stats" :key="stat.id" class="coverage-tile">
@@ -31,13 +24,10 @@
         <span class="coverage-tile__hint">{{ formatPercent(stat.progress) }} &middot; {{ stat.hint }}</span>
       </div>
     </div>
-
   </article>
 </template>
 
 <script setup lang="ts">
-import HospitalCoverageMap from '@/module/dashboard/manager/HospitalCoverageMap.vue'
-
 import type { ManagerAreaCoverage } from '@/types/dashboard/manager'
 
 defineProps<{
@@ -62,13 +52,6 @@ function formatPercent(value: number): string {
   padding: 20px;
   background: #fff;
   box-shadow: 0 6px 20px rgba(27, 43, 65, 0.04);
-}
-
-.coverage-card__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
 }
 
 .section-title {
@@ -153,12 +136,12 @@ function formatPercent(value: number): string {
 }
 
 @media (max-width: 575px) {
-  .coverage-grid {
-    grid-template-columns: 1fr;
-  }
-
   .coverage-card {
     padding: 16px 14px;
+  }
+
+  .coverage-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

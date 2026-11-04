@@ -121,7 +121,7 @@ export const useNotificationStore = defineStore('pushNotification', {
     },
 
     /** Hapus token dari backend dan cabut subscription agar login berikutnya memakai token baru. */
-    async unregisterToken() {
+    async unregisterToken(authToken?: string | null) {
       if (!this.fcmToken) return
 
       let backendError: unknown = null
@@ -129,6 +129,7 @@ export const useNotificationStore = defineStore('pushNotification', {
       try {
         await api.delete(TOKEN_ENDPOINT, {
           data: { token: this.fcmToken, device: 'web' },
+          headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
         })
       } catch (error) {
         backendError = error

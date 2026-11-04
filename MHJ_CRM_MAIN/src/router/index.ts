@@ -642,6 +642,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.CrmAdmin.Logs,
+          name: 'ActivityLogs',
+          component: () => import('@/pages/logs/ActivityLogs.vue'),
+          meta: {
+            mainTitle: 'Log Aktivitas',
+            title: 'Log Aktivitas | MHJ CRM',
+            breadcrumb: [{ text: 'Dashboard', subText: 'Log Aktivitas' }],
+          },
+        },
+        {
           path: routes.CrmAdmin.Kalender,
           name: 'Kalender',
           component: () => import('@/pages/kalender/Kalender.vue'),

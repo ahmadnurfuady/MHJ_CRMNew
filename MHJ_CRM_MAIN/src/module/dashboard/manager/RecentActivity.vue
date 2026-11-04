@@ -2,7 +2,7 @@
   <article class="activity-card" aria-labelledby="activity-title">
     <div class="activity-card__head">
       <h2 id="activity-title" class="section-title">Aktivitas Terbaru</h2>
-      <router-link to="/crmAdmin/task" class="activity-card__link">Lihat Semua</router-link>
+      <router-link :to="routes.CrmAdmin.Logs" class="activity-card__link">Lihat Semua</router-link>
     </div>
 
     <ul v-if="activities.length" class="activity-list">
@@ -29,6 +29,7 @@
 </template>
 
 <script setup lang="ts">
+import { routes } from '@/router/routes'
 import type { ActivityItem } from '@/types/dashboard/manager'
 
 defineProps<{

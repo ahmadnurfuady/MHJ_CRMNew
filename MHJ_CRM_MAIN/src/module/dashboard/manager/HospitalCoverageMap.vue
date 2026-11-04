@@ -14,7 +14,7 @@
     <div class="hospital-map__legend">
       <strong>Urgensi Kunjungan</strong>
       <span v-for="status in urgencyOptions" :key="status.id">
-        <i :class="`urgency-dot urgency-dot--${status.id}`"></i>
+        <i class="urgency-dot" :style="{ backgroundColor: status.color }"></i>
         {{ status.label }}
       </span>
     </div>
@@ -270,7 +270,7 @@
               :class="{ active: urgencyFilter === status.id }"
               @click="urgencyFilter = status.id"
             >
-              <i :class="`urgency-dot urgency-dot--${status.id}`"></i>{{ status.label }}
+              <i class="urgency-dot" :style="{ backgroundColor: status.color }"></i>{{ status.label }}
             </button>
           </div>
         </fieldset>
@@ -340,9 +340,12 @@
       </div>
       <div class="detail-badges">
         <span v-if="selectedHospital?.financeStatus" class="grade">{{ selectedHospital.financeStatus }}</span>
-        <span :class="`urgency urgency--${getUrgency(selectedHospital).id}`">
-          <i :class="`urgency-dot urgency-dot--${getUrgency(selectedHospital).id}`"></i>
-          {{ getUrgency(selectedHospital).label }}
+        <span :class="`urgency urgency--${getUrgency(selectedPoint, selectedHospital).id}`">
+          <i
+            class="urgency-dot"
+            :style="{ backgroundColor: getUrgency(selectedPoint, selectedHospital).color }"
+          ></i>
+          {{ getUrgency(selectedPoint, selectedHospital).label }}
         </span>
       </div>
       <div class="detail-location">
@@ -397,19 +400,14 @@ import { useHospitalStore } from '@/store/hospital'
 import type { Hospital } from '@/types/hospital'
 
 type MapLayer = 'standard' | 'satellite' | 'hybrid'
-type UrgencyId = 'fresh' | 'attention' | 'overdue'
+type UrgencyId = 'fresh' | 'attention' | 'overdue' | 'unvisited'
 type UrgencyFilter = UrgencyId | 'all'
 type EquipmentFilter = 'all' | 'mhj' | 'none'
-
-const urgencyColors: Record<UrgencyId, string> = {
-  fresh: '#14b88a',
-  attention: '#f59e0b',
-  overdue: '#ef4444',
-}
 
 interface UrgencyOption {
   id: UrgencyId
   label: string
+  color: string
 }
 
 const props = defineProps<{
@@ -451,9 +449,10 @@ let messageTimer: number | undefined
 const detailHydrationAttempted = new Set<number>()
 
 const urgencyOptions: UrgencyOption[] = [
-  { id: 'fresh', label: '< 30 Hari' },
-  { id: 'attention', label: '30 - 90 Hari' },
-  { id: 'overdue', label: '> 90 Hari / Baru' },
+  { id: 'fresh', label: '< 30 Hari', color: '#14b88a' },
+  { id: 'attention', label: '30 - 90 Hari', color: '#f59e0b' },
+  { id: 'overdue', label: '> 90 Hari', color: '#ef4444' },
+  { id: 'unvisited', label: 'Belum pernah dikunjungi', color: '#111827' },
 ]
 
 const layerOptions: Array<{ id: MapLayer; label: string; description: string; icon: string }> = [
@@ -501,10 +500,21 @@ function hospitalForPoint(point: HospitalMapPoint): Hospital | null {
   return storeHospitals.value.find((hospital) => hospital.id === id) ?? null
 }
 
-function getUrgency(hospital: Hospital | null): UrgencyOption {
-  if (!hospital || !hospital.lastVisitAt) return urgencyOptions[2]!
-  const parsedDate = new Date(hospital.lastVisitAt.replace(' ', 'T'))
-  if (Number.isNaN(parsedDate.getTime())) return urgencyOptions[2]!
+function pointLastVisit(point: HospitalMapPoint | null): string {
+  if (!point) return ''
+  return point.last_visit_at
+    || point.lastVisitAt
+    || point.last_visit
+    || point.last_visited_at
+    || point.latest_visit_at
+    || ''
+}
+
+function getUrgency(point: HospitalMapPoint | null, hospital: Hospital | null): UrgencyOption {
+  const lastVisitAt = hospital?.lastVisitAt || pointLastVisit(point)
+  if (!lastVisitAt) return urgencyOptions[3]!
+  const parsedDate = new Date(lastVisitAt.replace(' ', 'T'))
+  if (Number.isNaN(parsedDate.getTime())) return urgencyOptions[3]!
   const elapsedDays = Math.floor((Date.now() - parsedDate.getTime()) / 86_400_000)
   if (elapsedDays < 30) return urgencyOptions[0]!
   if (elapsedDays <= 90) return urgencyOptions[1]!
@@ -521,7 +531,7 @@ const hospitalPoints = computed(() => mapPoints.value
       hospital,
       lat: coord.lat,
       lng: coord.lng,
-      urgency: getUrgency(hospital),
+      urgency: getUrgency(point, hospital),
     }
   })
   .filter((entry): entry is {
@@ -556,7 +566,7 @@ const markerPoints = computed<GoogleMapMarker[]>(() => filteredPoints.value.map(
   lat: entry.lat,
   lng: entry.lng,
   title: entry.point.name,
-  color: urgencyColors[entry.urgency.id],
+  color: entry.urgency.color,
   glyphText: '+',
 })))
 
@@ -925,9 +935,6 @@ onBeforeUnmount(() => {
 .hospital-map__legend strong { margin-bottom: 1px; font-size: 11.5px; }
 .hospital-map__legend span { display: flex; align-items: center; gap: 7px; color: #52606d; }
 .urgency-dot { display: inline-block; flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; }
-.urgency-dot--fresh { background: #14b88a; }
-.urgency-dot--attention { background: #f59e0b; }
-.urgency-dot--overdue { background: #ef4444; }
 
 .hospital-map__top-actions {
   position: absolute;

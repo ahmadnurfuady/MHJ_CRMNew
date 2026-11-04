@@ -1,6 +1,11 @@
 import { api } from '@/services/api'
 import { fetchDashboardBundle, type DashboardTaskRow } from '@/services/dashboardService'
-import type { ActivityItem, ActivityType } from '@/types/dashboard/manager'
+import type {
+  ActivityAction,
+  ActivityItem,
+  ActivityLogItem,
+  ActivityType,
+} from '@/types/dashboard/manager'
 
 /**
  * Row mentah dari `GET /api/dashboard/systemactivity` (controller:
@@ -23,7 +28,7 @@ interface SystemActivityResponse {
 }
 
 interface ActivityDetails {
-  before?: unknown
+  before?: Record<string, unknown> | Record<string, unknown>[] | null
   after?: Record<string, unknown> | null
 }
 
@@ -38,9 +43,7 @@ function parseDetails(raw: string | null): ActivityDetails {
   }
 }
 
-type MeaningfulAction = 'i' | 'u' | 'd'
-
-function normalizeAction(raw: string): MeaningfulAction | null {
+function normalizeAction(raw: string): ActivityAction | null {
   const value = (raw || '').toString().trim().toLowerCase()
   if (!value) return null
   if (value === 'i' || value.startsWith('ins') || value.startsWith('crea') || value.startsWith('add')) return 'i'
@@ -64,19 +67,34 @@ interface MappedActivity {
   icon: string
 }
 
-function mapRow(row: SystemActivityRow, action: MeaningfulAction): MappedActivity | null {
+function entityLabel(entityName: string): string {
+  const labels: Record<string, string> = {
+    tasks: 'Tugas',
+    contacts: 'Kontak',
+    companies: 'Faskes',
+    m_projects: 'Peluang',
+    master_information_cards: 'Promo & informasi',
+  }
+  return labels[entityName] || entityName.replaceAll('_', ' ')
+}
+
+function actionLabel(action: ActivityAction): string {
+  if (action === 'i') return 'ditambahkan'
+  if (action === 'u') return 'diperbarui'
+  return 'dihapus'
+}
+
+function mapRow(row: SystemActivityRow, action: ActivityAction): MappedActivity {
   const details = parseDetails(row.details)
-  const after = (details.after && typeof details.after === 'object'
-    ? details.after
-    : {}) as Record<string, unknown>
+  const before = Array.isArray(details.before) ? details.before[0] : details.before
+  const after = (details.after && typeof details.after === 'object' ? details.after : before) || {}
 
   switch (row.entity_name) {
     case 'tasks': {
       const name = pickString(after, ['task_name', 'task_subject'])
       const hospital = pickString(after, ['hospital_name', 'company_name'])
-      if (!name && action === 'd') return null
       return {
-        title: name || 'Tugas',
+        title: name || `Tugas ${actionLabel(action)}`,
         subtitle: hospital || 'Tugas CRM',
         type: 'task',
         icon: 'check-square',
@@ -135,7 +153,12 @@ function mapRow(row: SystemActivityRow, action: MeaningfulAction): MappedActivit
       }
     }
     default:
-      return null
+      return {
+        title: `${entityLabel(row.entity_name)} ${actionLabel(action)}`,
+        subtitle: `Data #${row.entity_id}`,
+        type: 'note',
+        icon: 'document-text',
+      }
   }
 }
 
@@ -167,16 +190,19 @@ function timeAgo(value: string): string {
  * terbaru. Sumber data: `DashboardController@systemactivity`.
  */
 export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> {
+  return (await fetchSystemActivities()).slice(0, limit)
+}
+
+/** Seluruh activity log sistem, diurutkan dari aktivitas terbaru. */
+export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
   const response = await api.get<SystemActivityResponse>('/dashboard/systemactivity')
   const rows = response.data?.data ?? []
 
-  const items: ActivityItem[] = []
-  for (let i = rows.length - 1; i >= 0 && items.length < limit; i--) {
-    const row = rows[i]
+  const items: ActivityLogItem[] = []
+  for (const row of rows) {
     const action = normalizeAction(row.action)
     if (!action) continue
     const mapped = mapRow(row, action)
-    if (!mapped) continue
     items.push({
       id: row.id,
       type: mapped.type,
@@ -184,9 +210,16 @@ export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> 
       title: mapped.title,
       subtitle: mapped.subtitle,
       time: timeAgo(row.created_at),
+      action,
+      entityName: row.entity_name,
+      createdAt: row.created_at,
     })
   }
-  return items
+  return items.sort((a, b) => {
+    const timeA = new Date(a.createdAt.replace(' ', 'T')).getTime() || 0
+    const timeB = new Date(b.createdAt.replace(' ', 'T')).getTime() || 0
+    return timeB - timeA
+  })
 }
 
 /**

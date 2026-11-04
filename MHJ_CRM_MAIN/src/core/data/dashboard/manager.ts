@@ -1,4 +1,4 @@
-import { fetchRecentTasks } from '@/services/managerDashboardService'
+import { fetchRecentActivities } from '@/services/managerDashboardService'
 import {
   fetchDashboardMetrics,
   fetchDashboardMetricsFromExistingApis,
@@ -187,8 +187,8 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
 export async function fetchManagerDashboardData(): Promise<ManagerDashboardData> {
   const [primaryMetrics, activities] = await Promise.all([
     fetchDashboardMetrics(),
-    fetchRecentTasks(5).catch((error) => {
-      console.error('Gagal memuat daftar tugas terbaru dari backend.', error)
+    fetchRecentActivities(5).catch((error) => {
+      console.error('Gagal memuat aktivitas terbaru dari backend.', error)
       return [] as ManagerDashboardData['activities']
     }),
   ])

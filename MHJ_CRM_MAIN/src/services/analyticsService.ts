@@ -49,6 +49,11 @@ export interface HospitalMapPoint {
   lng?: number | string | null
   latitude?: number | string | null
   longitude?: number | string | null
+  last_visit_at?: string | null
+  lastVisitAt?: string | null
+  last_visit?: string | null
+  last_visited_at?: string | null
+  latest_visit_at?: string | null
 }
 
 /**

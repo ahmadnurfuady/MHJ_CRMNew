@@ -108,6 +108,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
+import { usePageBackRoute } from '@/composable/usePageHeader'
+import { routes } from '@/router/routes'
 import {
   formatPromoPeriod,
   promoPeriodStatus,
@@ -123,6 +125,8 @@ const { publishedItems, loading, loaded, error, loadPromos } = usePromoCatalog()
 const search = ref('')
 const filter = ref<PromoFilter>('all')
 const failedImageIds = ref(new Set<number>())
+
+usePageBackRoute(routes.Dashboards.Default)
 
 const filterOptions: Array<{ label: string; value: PromoFilter }> = [
   { label: 'Semua', value: 'all' },

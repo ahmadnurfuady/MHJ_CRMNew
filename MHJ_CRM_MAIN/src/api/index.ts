@@ -69,7 +69,11 @@ function redirectToLogin() {
 // Request Interceptor: Menempelkan Bearer token otomatis jika ada
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
-  if (token) {
+  const url = config.url || ''
+  const isLoginEndpoint = /\/login(?:$|\?)/.test(url)
+
+  // Login harus memakai kredensial form, bukan sesi akun yang mungkin masih tersisa.
+  if (token && !isLoginEndpoint && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`
   }
   return config
@@ -90,9 +94,10 @@ client.interceptors.response.use(
     const url = error.config?.url || ''
 
     // Abaikan jika error berasal dari endpoint login itu sendiri (kredensial salah)
-    const isLoginEndpoint = url.includes('/login')
+    const isLoginEndpoint = /\/login(?:$|\?)/.test(url)
+    const isLogoutEndpoint = /\/logout(?:$|\?)/.test(url)
 
-    if (!isLoginEndpoint) {
+    if (!isLoginEndpoint && !isLogoutEndpoint) {
       if (
         status === 401 ||
         status === 599 ||

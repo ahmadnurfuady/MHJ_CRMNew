@@ -174,13 +174,20 @@ export const useAuthStore = defineStore('auth', {
         if (token) {
           this.token = token
           this.user = data.user || null
+          this.menuuser = []
           localStorage.setItem('token', token)
           if (data.refresh_token) {
             localStorage.setItem('refresh_token', data.refresh_token)
+          } else {
+            localStorage.removeItem('refresh_token')
           }
           if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user))
+          } else {
+            localStorage.removeItem('user')
           }
+          localStorage.removeItem('menuuser')
+          localStorage.removeItem('raw_user_menus')
           // Header Authorization ditambahkan otomatis oleh wrapper API dari localStorage.
 
           // Ambil menu dinamis web dari backend secara non-blocking di background
@@ -256,37 +263,45 @@ export const useAuthStore = defineStore('auth', {
      */
     async logout() {
       const notificationStore = useNotificationStore()
+      const token = this.token || localStorage.getItem('token')
 
-      // Hapus asosiasi token sebelum Bearer token login dibersihkan.
+      // Putuskan sesi lokal terlebih dahulu agar route guard langsung menganggap
+      // pengguna sudah logout meskipun cleanup backend masih berlangsung.
+      this.token = null
+      this.user = null
+      this.menuuser = []
+      this.error = null
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('user')
+      localStorage.removeItem('menuuser')
+      localStorage.removeItem('raw_user_menus')
+
       try {
-        await notificationStore.unregisterToken()
+        stopPermissionWatcher()
+        useMenu().resetMenu()
       } catch (e) {
-        // Kegagalan unregister FCM tidak boleh menghalangi proses logout utama.
-        console.warn('Gagal menghapus FCM token dari backend:', e)
+        console.warn('Gagal mengembalikan menu sidebar:', e)
       }
 
-      try {
-        await api.get('/logout')
-      } catch (e) {
-        console.error('Logout error:', e)
-      } finally {
-        this.token = null
-        this.user = null
-        this.menuuser = []
-        this.error = null
-        localStorage.removeItem('token')
-        localStorage.removeItem('refresh_token')
-        localStorage.removeItem('user')
-        localStorage.removeItem('menuuser')
+      if (!token) {
+        notificationStore.stop()
+        return
+      }
 
-        try {
-          stopPermissionWatcher()
-          notificationStore.stop()
-          useMenu().resetMenu()
-        } catch (e) {
-          console.warn('Gagal mengembalikan menu sidebar:', e)
+      const headers = { Authorization: `Bearer ${token}` }
+      void Promise.allSettled([
+        notificationStore.unregisterToken(token),
+        api.get('/logout', { headers }),
+      ]).then(([notificationResult, logoutResult]) => {
+        if (notificationResult.status === 'rejected') {
+          console.warn('Gagal menghapus FCM token dari backend:', notificationResult.reason)
         }
-      }
+        if (logoutResult.status === 'rejected') {
+          console.error('Logout error:', logoutResult.reason)
+        }
+        notificationStore.stop()
+      })
     }
   }
 })

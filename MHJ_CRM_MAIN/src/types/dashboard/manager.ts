@@ -80,6 +80,14 @@ export interface ActivityItem {
   icon: string
 }
 
+export type ActivityAction = 'i' | 'u' | 'd'
+
+export interface ActivityLogItem extends ActivityItem {
+  action: ActivityAction
+  entityName: string
+  createdAt: string
+}
+
 export interface PromoSlide {
   id: number | string
   title: string
