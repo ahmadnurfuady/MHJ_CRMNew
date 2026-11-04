@@ -237,13 +237,16 @@ function normalizeProjectProducts(raw: Dict): ProjectProductDetail[] {
 
   return values.flatMap((value) => {
     if (!isRecord(value)) return []
-    const name = pickString(value, 'product_name', 'name', 'label', 'NamaBrg')
+    const name = pickString(value, 'product_name', 'name', 'label', 'NamaBrg', 'nama_barang')
     if (!name) return []
     return [{
-      code: pickString(value, 'product_code', 'code', 'value', 'KodeBrg') || undefined,
+      // Response barangs/products memakai `idbarang` / `id` sebagai kode produk
+      // (mis. "AKDPN-001"); tanpa ini code jadi undefined dan form edit gagal
+      // mencocokkan produk untuk dipilih ulang.
+      code: pickString(value, 'product_code', 'code', 'value', 'KodeBrg', 'idbarang', 'idBarang', 'id', 'ID') || undefined,
       name,
       quantity: optionalNumber(value, 'quantity', 'qty') ?? 1,
-      unitPrice: optionalNumber(value, 'unit_price', 'price', 'harga') ?? 0
+      unitPrice: optionalNumber(value, 'unit_price', 'price', 'harga', 'harga_satuan') ?? 0
     }]
   })
 }

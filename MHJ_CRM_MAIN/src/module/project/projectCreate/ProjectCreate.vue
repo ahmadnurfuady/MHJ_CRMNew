@@ -891,9 +891,28 @@ async function prefillForm(project: Projects) {
   const division = projectStore.lookups.divisi.find((option) => option.code === project.divisionCode)
   if (division) projectForm.value.division = selectedField(division)
 
-  const products = parseProductNames(project.productNames)
-    .map((label) => findOptionByLabel(productOptions.value, label))
-    .filter((option): option is BarangOption => Boolean(option))
+  // Pilih produk dari productDetails (terstruktur: satu entri = satu produk)
+  // supaya nama produk yang mengandung koma — mis. "Precisionmed Pendant
+  // Series, ICU Suspension Bridge" — tidak ter-split keliru oleh pemisah koma.
+  // Cocokkan lewat kode produk dulu, lalu nama penuh. Fallback ke parsing nama
+  // (legacy, untuk data tanpa productDetails) hanya bila productDetails kosong.
+  const productMatches = (project.productDetails?.length
+    ? project.productDetails.map((detail) =>
+        (detail.code
+          ? productOptions.value.find(
+              (option) =>
+                normalizeLabel(String(option.code ?? option.value)) === normalizeLabel(detail.code!),
+            )
+          : undefined) ?? findOptionByLabel(productOptions.value, detail.name),
+      )
+    : parseProductNames(project.productNames).map((label) =>
+        findOptionByLabel(productOptions.value, label),
+      )
+  ).filter((option): option is BarangOption => Boolean(option))
+  // Buang duplikat kalau satu produk tercocok lebih dari sekali.
+  const products = productMatches.filter(
+    (option, index) => productMatches.findIndex((o) => o.value === option.value) === index,
+  )
   if (products.length) projectForm.value.products = multiSelectedField(products)
   await nextTick()
   productLines.value.forEach((line) => {
