@@ -184,13 +184,23 @@ function timeAgo(value: string): string {
   return `${year} tahun lalu`
 }
 
+const ACTIVITY_TYPES: ActivityType[] = ['call', 'email', 'meeting', 'note', 'task']
+
 /**
- * `GET /api/dashboard/systemactivity` → ActivityItem[] siap pakai di dashboard.
- * Filter action yang tidak informatif (`read`), lalu ambil `limit` entri
- * terbaru. Sumber data: `DashboardController@systemactivity`.
+ * Card "Aktivitas Terbaru": bagian `activities.data` pada `GET /api/dashboard`
+ * (`DashboardController@recentActivities`). Backend sudah mengurutkan, membatasi
+ * jumlah, dan menyusun title/subtitle; FE hanya memformat waktu relatif.
  */
 export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> {
-  return (await fetchSystemActivities()).slice(0, limit)
+  const { activities } = await fetchDashboardBundle()
+  return activities.slice(0, limit).map((row) => ({
+    id: row.id,
+    type: ACTIVITY_TYPES.includes(row.type as ActivityType) ? (row.type as ActivityType) : 'note',
+    icon: row.icon,
+    title: row.title,
+    subtitle: row.subtitle,
+    time: timeAgo(row.created_at),
+  }))
 }
 
 /** Seluruh activity log sistem, diurutkan dari aktivitas terbaru. */

@@ -23,8 +23,24 @@ export interface DashboardTaskMeta {
   currentPage: number
 }
 
+/**
+ * Item `activities.data` pada `GET /api/dashboard`, sudah siap tampil
+ * (title/subtitle disusun backend dari `activity_logs`).
+ */
+export interface DashboardActivityRow {
+  id: number | string
+  action: 'i' | 'u' | 'd'
+  entity_name: string
+  type: string
+  icon: string
+  title: string
+  subtitle: string
+  created_at: string
+}
+
 export interface DashboardBundle {
   metrics: DashboardMetricsRaw
+  activities: DashboardActivityRow[]
   promos: PromoApiItem[]
   tasks: DashboardTaskRow[]
   taskMeta: DashboardTaskMeta
@@ -66,6 +82,9 @@ interface DashboardResponse {
       data?: HospitalMapPoint[] | null
       mode?: unknown
       total?: unknown
+    } | null
+    activities?: {
+      data?: DashboardActivityRow[] | null
     } | null
   } | null
 }
@@ -148,6 +167,7 @@ export async function fetchDashboardBundle(
     const hospitalMap = payload.hospital_map
     const bundle: DashboardBundle = {
       metrics: normalizeMetrics(payload.metrics?.data),
+      activities: Array.isArray(payload.activities?.data) ? payload.activities.data : [],
       promos: Array.isArray(payload.promo?.data) ? payload.promo.data : [],
       tasks: Array.isArray(taskPage?.data) ? taskPage.data : [],
       taskMeta: {
