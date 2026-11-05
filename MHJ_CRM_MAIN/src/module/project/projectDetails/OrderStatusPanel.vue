@@ -25,7 +25,7 @@
           <span class="progress-count">{{ completedStepCount }} dari {{ orderSteps.length }} tahap</span>
         </div>
 
-        <ol class="order-steps">
+        <ol v-if="orderSteps.length" class="order-steps">
           <li
             v-for="(step, index) in orderSteps"
             :key="step.title"
@@ -42,11 +42,16 @@
                 <strong>{{ step.title }}</strong>
                 <span class="step-state">{{ step.label }}</span>
               </div>
-              <p>{{ step.description }}</p>
-              <time v-if="step.state === 'complete'" :datetime="salesOrder.createdAt">{{ submittedAt }}</time>
+              <p v-if="step.description">{{ step.description }}</p>
+              <div v-if="step.completedLabel || step.referensi" class="step-meta">
+                <time v-if="step.completedLabel">{{ step.completedLabel }}</time>
+                <span v-if="step.referensi" class="step-ref">Ref ERP: {{ step.referensi }}</span>
+              </div>
             </div>
           </li>
         </ol>
+        <p v-else-if="loading" class="order-status-note">Memuat status pesanan...</p>
+        <p v-else class="order-status-note">{{ loadError || 'Status pesanan belum tersedia.' }}</p>
       </article>
 
       <article class="status-card order-detail-card">
@@ -93,9 +98,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { downloadStoredDocument, type StoredProjectDocument } from '@/services/projectDocumentStorage'
+import { fetchOrderTracking, type OrderMilestone } from '@/services/projectOrderService'
 import type { Projects } from '@/types/project'
 
 type OrderStepState = 'complete' | 'current' | 'pending'
@@ -104,73 +110,92 @@ interface OrderStep {
   description: string
   state: OrderStepState
   label: string
+  completedLabel: string
+  referensi: string | null
 }
-type OrderStepDefinition = Pick<OrderStep, 'title' | 'description'>
 
 const props = defineProps<{
   project: Projects
   salesOrder: StoredProjectDocument
 }>()
 
-const orderStepDefinitions: OrderStepDefinition[] = [
-  {
-    title: 'Data Customer dibuat & Surat Pesanan di-upload',
-    description: 'Sales melengkapi Data Customer dan melampirkan Surat Pesanan dari pelanggan. Jika pelanggan belum memiliki SP, sales dapat membuat draft Surat Pesanan.',
-  },
-  {
-    title: 'Surat Pesanan (SP) dibuat',
-    description: 'Admin memeriksa Data Customer dan SP dari sales, membuat SP di program G0500, lalu menunggu pembayaran/DP serta pembuatan dan penandatanganan SPJB.',
-  },
-  {
-    title: 'Delivery Order (DO) dibuat',
-    description: 'Setelah DP diterima dan SPJB ditandatangani, admin akan membuat Delivery Order.',
-  },
-  {
-    title: 'Produk dalam proses pengiriman',
-    description: 'DO diperiksa dan diproses oleh departemen logistik/gudang, kemudian dibuatkan Surat Jalan (SJ).',
-  },
-  {
-    title: 'Produk tiba di alamat tujuan',
-    description: 'Sales atau koordinator engineer mengonfirmasi bahwa produk telah sampai di lokasi pelanggan.',
-  },
-  {
-    title: 'Produk dalam proses instalasi',
-    description: 'Koordinator engineer membuat tiket instalasi berisi jadwal dan engineer berdasarkan serial number alat.',
-  },
-  {
-    title: 'Produk sudah terinstal',
-    description: 'Engineer yang bertugas menyelesaikan tiket instalasi melalui aplikasi.',
-  },
-  {
-    title: 'Training & BAST',
-    description: 'Application Specialist membuat tugas training dan BAST berdasarkan serial number alat.',
-  },
-]
+// Status pesanan diambil real dari BE (GET /api/project/ordertracking/{id})
+// yang membaca P_order_tracking + m_order_milestones. Tidak lagi hardcode.
+const milestones = ref<OrderMilestone[]>([])
+const loading = ref(false)
+const loadError = ref('')
 
-const completedStepCount = computed(() => {
-  const savedStep = props.salesOrder.metadata?.completedOrderStep ?? 1
-  return Math.min(orderStepDefinitions.length, Math.max(0, savedStep))
-})
+async function loadTracking() {
+  const id = Number(props.project?.id)
+  if (!Number.isFinite(id) || id <= 0) return
 
-const orderSteps = computed<OrderStep[]>(() => orderStepDefinitions.map((step, index) => {
-  if (index < completedStepCount.value) {
-    return { ...step, state: 'complete', label: 'Selesai' }
+  loading.value = true
+  loadError.value = ''
+  try {
+    const result = await fetchOrderTracking(id)
+    milestones.value = result.milestones
+  } catch {
+    loadError.value = 'Gagal memuat status pesanan.'
+    milestones.value = []
+  } finally {
+    loading.value = false
   }
-  if (index === completedStepCount.value) {
-    return { ...step, state: 'current', label: 'Dalam proses' }
+}
+
+watch(() => props.project?.id, loadTracking, { immediate: true })
+
+function formatMilestoneDate(milestone: OrderMilestone): string {
+  const source = milestone.completed_at || milestone.completed_date
+  if (!source) return ''
+  const date = new Date(source)
+  if (Number.isNaN(date.getTime())) return milestone.completed_date ?? ''
+  return new Intl.DateTimeFormat('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
+}
+
+const completedStepCount = computed(() => milestones.value.filter((item) => item.is_completed).length)
+
+/** Tahap "sedang berjalan" = milestone pertama yang belum selesai. */
+const currentStepIndex = computed(() => milestones.value.findIndex((item) => !item.is_completed))
+
+const orderSteps = computed<OrderStep[]>(() => milestones.value.map((milestone, index) => {
+  const state: OrderStepState = milestone.is_completed
+    ? 'complete'
+    : index === currentStepIndex.value
+      ? 'current'
+      : 'pending'
+
+  return {
+    title: milestone.nama,
+    description: milestone.keterangan ?? '',
+    state,
+    label: state === 'complete' ? 'Selesai' : state === 'current' ? 'Dalam proses' : 'Belum dimulai',
+    completedLabel: state === 'complete' ? formatMilestoneDate(milestone) : '',
+    referensi: milestone.no_referensi_erp,
   }
-  return { ...step, state: 'pending', label: 'Belum dimulai' }
 }))
 
-const isOrderComplete = computed(() => completedStepCount.value === orderStepDefinitions.length)
+const isOrderComplete = computed(
+  () => milestones.value.length > 0 && completedStepCount.value === milestones.value.length,
+)
 const orderStatusTitle = computed(() => isOrderComplete.value
   ? 'Seluruh Tahapan Pesanan Selesai'
-  : 'Data Customer & Surat Pesanan Diterima'
+  : 'Pesanan Sedang Diproses'
 )
-const orderStatusDescription = computed(() => isOrderComplete.value
-  ? 'Produk telah melalui seluruh proses pesanan, instalasi, training, dan BAST.'
-  : 'Tahap awal selesai. Pesanan sedang menunggu pemeriksaan dan pembuatan SP oleh admin.'
-)
+const orderStatusDescription = computed(() => {
+  if (isOrderComplete.value) {
+    return 'Produk telah melalui seluruh proses pesanan, instalasi, training, dan BAST.'
+  }
+  const current = orderSteps.value.find((step) => step.state === 'current')
+  return current
+    ? `Tahap saat ini: ${current.title}.`
+    : 'Menunggu pembaruan status pesanan dari tim terkait.'
+})
 
 const submittedAt = computed(() => {
   const date = new Date(props.salesOrder.createdAt)
@@ -232,6 +257,9 @@ const fileSize = computed(() => {
 .order-step strong { display: block; color: #34404a; font-size: 13px; line-height: 1.45; }
 .order-step p { margin: 6px 0 5px; font-size: 11px; line-height: 1.55; }
 .order-step time, .step-state { color: #91a0aa; font-size: 10px; }
+.step-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 2px; }
+.step-ref { color: var(--app-primary-dark, #087fae); font-size: 10px; font-weight: 700; }
+.order-status-note { margin: 4px 0 0; color: #77838e; font-size: 12px; }
 .step-state { flex: 0 0 auto; border-radius: 999px; padding: 4px 8px; background: #dfe3e6; font-weight: 700; white-space: nowrap; }
 .order-step.is-complete .step-state { color: #16884d; background: #e7f8ef; }
 .order-step.is-current .step-state { color: #525d66; background: #d2d7da; }
