@@ -144,27 +144,22 @@ function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
 }
 
 function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): ManagerAreaCoverage {
-  const areaProgress =
-    m.total_target_hospitals > 0
-      ? clampProgress((m.active_visited_hospitals / m.total_target_hospitals) * 100)
-      : 0
-
   return {
     stats: [
       {
         id: 'area-coverage',
         label: 'Cakupan Wilayah',
-        value: `${m.active_visited_hospitals}`,
-        progress: areaProgress,
-        hint: `dari ${m.total_target_hospitals} faskes dikunjungi`,
+        value: `${m.area_visited_count}`,
+        progress: clampProgress(m.area_progress_percent),
+        hint: `dikunjungi dari ${m.area_target_count} faskes target`,
         icon: 'map-point',
       },
       {
         id: 'market-coverage',
         label: 'Cakupan Pasar',
-        value: `${m.qty_po_terbit}`,
-        progress: clampProgress(m.market_coverage_percent),
-        hint: `dari ${m.active_visited_hospitals} faskes membeli`,
+        value: `${m.market_buying_count}`,
+        progress: clampProgress(m.market_progress_percent),
+        hint: `membeli dari ${m.market_base_count} faskes`,
         icon: 'cart',
       },
     ],

@@ -110,6 +110,12 @@ function normalizeMetrics(
     peluang_progress_percent: toNumber(raw?.peluang_progress_percent),
     target_progress_percent: toNumber(raw?.target_progress_percent),
     capaian_average_percent: toNumber(raw?.capaian_average_percent),
+    area_visited_count: toNumber(raw?.area_visited_count),
+    area_target_count: toNumber(raw?.area_target_count),
+    area_progress_percent: toNumber(raw?.area_progress_percent),
+    market_buying_count: toNumber(raw?.market_buying_count),
+    market_base_count: toNumber(raw?.market_base_count),
+    market_progress_percent: toNumber(raw?.market_progress_percent),
   }
 }
 

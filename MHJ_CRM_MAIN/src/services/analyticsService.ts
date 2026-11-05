@@ -43,6 +43,14 @@ export interface DashboardMetricsRaw {
   peluang_progress_percent: number
   target_progress_percent: number
   capaian_average_percent: number
+  /** Jangkauan Area dan Pasar → Cakupan Wilayah */
+  area_visited_count: number
+  area_target_count: number
+  area_progress_percent: number
+  /** Jangkauan Area dan Pasar → Cakupan Pasar */
+  market_buying_count: number
+  market_base_count: number
+  market_progress_percent: number
 }
 
 export type DashboardMetricsBase = Omit<
@@ -61,13 +69,23 @@ export type DashboardMetricsBase = Omit<
   | 'peluang_progress_percent'
   | 'target_progress_percent'
   | 'capaian_average_percent'
+  | 'area_visited_count'
+  | 'area_target_count'
+  | 'area_progress_percent'
+  | 'market_buying_count'
+  | 'market_base_count'
+  | 'market_progress_percent'
 >
 
 /**
  * Hanya untuk fallback `fetchDashboardMetricsFromExistingApis` (tanpa endpoint metrics).
  * Rumus sama persis dengan `DashboardController::dashboardMetricsResponse` di backend.
  */
-function withDisplayMetrics(m: DashboardMetricsBase, qtyLost?: number): DashboardMetricsRaw {
+function withDisplayMetrics(
+  m: DashboardMetricsBase,
+  qtyLost?: number,
+  buyingHospitals?: number,
+): DashboardMetricsRaw {
   const pct = (part: number, whole: number) =>
     whole > 0 ? Math.round((part / whole) * 10000) / 100 : 0
   const clamp = (value: number) => Math.min(100, Math.max(0, value))
@@ -80,6 +98,10 @@ function withDisplayMetrics(m: DashboardMetricsBase, qtyLost?: number): Dashboar
   const targetPeluang = m.target_nominal * 3
   const realPeluang = m.total_po_value > 0 ? m.total_po_value : m.realisasi_omset
   const peluangProgress = pct(realPeluang, targetPeluang)
+  const buying = buyingHospitals ?? m.qty_po_terbit
+  const marketBase = m.active_visited_hospitals > 0
+    ? m.active_visited_hospitals
+    : m.total_target_hospitals
 
   return {
     ...m,
@@ -103,6 +125,12 @@ function withDisplayMetrics(m: DashboardMetricsBase, qtyLost?: number): Dashboar
     target_progress_percent: m.target_achievement_percent,
     capaian_average_percent:
       Math.round(((clamp(peluangProgress) + clamp(m.target_achievement_percent)) / 2) * 100) / 100,
+    area_visited_count: m.active_visited_hospitals,
+    area_target_count: m.total_target_hospitals,
+    area_progress_percent: pct(m.active_visited_hospitals, m.total_target_hospitals),
+    market_buying_count: buying,
+    market_base_count: marketBase,
+    market_progress_percent: pct(buying, marketBase),
   }
 }
 
@@ -455,7 +483,7 @@ export async function fetchDashboardMetricsFromExistingApis(): Promise<Dashboard
     backlog_value: backlogValue,
     total_po_value: weightedPipelineValue,
     invoiced_sales_value: wonValue,
-  }, lostProjects)
+  }, lostProjects, buyingHospitals)
 }
 
 /** Bagian hospital map `GET /api/dashboard` untuk daftar faskes + peluang aktif. */
