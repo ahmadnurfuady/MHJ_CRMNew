@@ -96,6 +96,20 @@ function normalizeMetrics(
     backlog_value: toNumber(raw?.backlog_value),
     total_po_value: toNumber(raw?.total_po_value),
     invoiced_sales_value: toNumber(raw?.invoiced_sales_value),
+    funnel_progress_percent: toNumber(raw?.funnel_progress_percent),
+    win_count: toNumber(raw?.win_count),
+    lost_count: toNumber(raw?.lost_count),
+    finished_count: toNumber(raw?.finished_count),
+    win_percent: toNumber(raw?.win_percent),
+    lost_percent: toNumber(raw?.lost_percent),
+    target_tahunan_value: toNumber(raw?.target_tahunan_value),
+    target_peluang_value: toNumber(raw?.target_peluang_value),
+    real_peluang_value: toNumber(raw?.real_peluang_value),
+    revenue_value: toNumber(raw?.revenue_value),
+    winning_chance_percent: toNumber(raw?.winning_chance_percent),
+    peluang_progress_percent: toNumber(raw?.peluang_progress_percent),
+    target_progress_percent: toNumber(raw?.target_progress_percent),
+    capaian_average_percent: toNumber(raw?.capaian_average_percent),
   }
 }
 

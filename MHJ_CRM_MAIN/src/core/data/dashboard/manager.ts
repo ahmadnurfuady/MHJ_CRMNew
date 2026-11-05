@@ -8,6 +8,7 @@ import type {
   ManagerDashboardData,
   ManagerKpiCard,
   ManagerBenchmarkSummary,
+  ManagerOpportunityOutcome,
   ManagerAreaCoverage,
   MapHighlight,
 } from '@/types/dashboard/manager'
@@ -16,7 +17,7 @@ import type {
 const managerDashboardData: ManagerDashboardData = {
   greetingName: '',
   kpis: [],
-  opportunityOutcome: { won: 0, lost: 0 },
+  opportunityOutcome: { won: 0, lost: 0, total: 0, wonPercent: 0, lostPercent: 0 },
   quickActions: [
     { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
     { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
@@ -24,7 +25,7 @@ const managerDashboardData: ManagerDashboardData = {
     { id: 'piutang', label: 'Piutang', icon: 'tag', to: '/crmAdmin/piutang' },
     { id: 'form-survey', label: 'Form Survey', icon: 'clipboard', comingSoon: true },
   ],
-  benchmark: { stats: [], progressStats: [], winningChance: 0 },
+  benchmark: { stats: [], progressStats: [], winningChance: 0, averageProgress: 0 },
   coverage: {
     stats: [],
     highlight: {
@@ -70,14 +71,6 @@ function clampProgress(value: number): number {
 }
 
 function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
-  const targetAchievement = clampProgress(m.target_achievement_percent)
-  const funnelProgress =
-    m.active_projects_count + m.stalled_projects_count > 0
-      ? clampProgress(
-          (m.active_projects_count / (m.active_projects_count + m.stalled_projects_count)) * 100,
-        )
-      : 0
-
   return [
     {
       id: 'target-omset',
@@ -85,7 +78,7 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
       value: formatRupiahCompact(m.realisasi_omset),
       sublabel: `dari ${formatRupiahCompact(m.target_nominal)}`,
       icon: 'graph',
-      progress: targetAchievement,
+      progress: clampProgress(m.target_achievement_percent),
       accent: 'blue',
     },
     {
@@ -103,54 +96,50 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
       value: `${m.active_projects_count}`,
       sublabel: `${m.stalled_projects_count} stalled`,
       icon: 'filter',
-      progress: funnelProgress,
+      progress: clampProgress(m.funnel_progress_percent),
       accent: 'violet',
     },
   ]
 }
 
-function buildOpportunityOutcome(m: DashboardMetricsRaw) {
+function buildOpportunityOutcome(m: DashboardMetricsRaw): ManagerOpportunityOutcome {
   return {
-    won: m.qty_po_terbit,
-    // Lost = peluang masuk yang tidak menang dan tidak lagi berjalan (aktif/stalled).
-    lost: Math.max(
-      0,
-      m.qty_project_masuk - m.qty_po_terbit - m.active_projects_count - m.stalled_projects_count,
-    ),
+    won: m.win_count,
+    lost: m.lost_count,
+    total: m.finished_count,
+    wonPercent: m.win_percent,
+    lostPercent: m.lost_percent,
   }
 }
 
-function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
-  const targetPeluang = m.target_nominal * 3
-  const realPeluang = m.total_po_value > 0 ? m.total_po_value : m.realisasi_omset
-  const peluangProgres = targetPeluang > 0 ? (realPeluang / targetPeluang) * 100 : 0
-  const targetProgres = clampProgress(m.target_achievement_percent)
-  const winningChance = m.qty_project_masuk > 0
-    ? (m.qty_po_terbit / m.qty_project_masuk) * 100
-    : m.global_win_rate_percent
+function rupiahStat(id: string, label: string, amount: number, hint?: string) {
+  return { id, label, value: formatRupiahCompact(amount), amount, ...(hint ? { hint } : {}) }
+}
 
+function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
   return {
     stats: [
-      { id: 'target-tahunan', label: 'Target Tahunan', value: formatRupiahCompact(m.target_nominal) },
-      { id: 'target-peluang', label: 'Target Peluang', value: formatRupiahCompact(targetPeluang), hint: 'Target x3' },
-      { id: 'real-peluang', label: 'Real Peluang', value: formatRupiahCompact(realPeluang) },
-      { id: 'revenue', label: 'Revenue', value: formatRupiahCompact(m.invoiced_sales_value) },
+      rupiahStat('target-tahunan', 'Target Tahunan', m.target_tahunan_value),
+      rupiahStat('target-peluang', 'Target Peluang', m.target_peluang_value, 'Target x3'),
+      rupiahStat('real-peluang', 'Real Peluang', m.real_peluang_value),
+      rupiahStat('revenue', 'Revenue', m.revenue_value),
     ],
     progressStats: [
       {
         id: 'peluang-progres',
         label: 'Peluang Progres',
-        value: clampProgress(peluangProgres),
-        displayValue: formatPercent(peluangProgres),
+        value: clampProgress(m.peluang_progress_percent),
+        displayValue: formatPercent(m.peluang_progress_percent),
       },
       {
         id: 'target-progres',
         label: 'Target Progres',
-        value: targetProgres,
-        displayValue: formatPercent(targetProgres),
+        value: clampProgress(m.target_progress_percent),
+        displayValue: formatPercent(m.target_progress_percent),
       },
     ],
-    winningChance: clampProgress(winningChance),
+    winningChance: m.winning_chance_percent,
+    averageProgress: m.capaian_average_percent,
   }
 }
 
@@ -197,7 +186,7 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
   const kpis = metrics ? buildKpis(metrics) : []
   const benchmark = metrics
     ? buildBenchmark(metrics)
-    : { stats: [], progressStats: [], winningChance: 0 }
+    : managerDashboardData.benchmark
   const highlight = managerDashboardData.coverage.highlight
   const coverage = metrics
     ? buildCoverage(metrics, highlight)
@@ -206,7 +195,9 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
   return {
     ...managerDashboardData,
     kpis,
-    opportunityOutcome: metrics ? buildOpportunityOutcome(metrics) : { won: 0, lost: 0 },
+    opportunityOutcome: metrics
+      ? buildOpportunityOutcome(metrics)
+      : managerDashboardData.opportunityOutcome,
     benchmark,
     coverage,
     activities,

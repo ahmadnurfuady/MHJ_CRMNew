@@ -77,37 +77,26 @@ const props = defineProps<{
 }>()
 
 const normalizedStats = computed(() => {
-  const numericValues = props.benchmark.stats.map((stat) => parseMetricValue(stat.value))
-  const maximum = Math.max(...numericValues, 1)
+  // Panjang bar dari nilai rupiah mentah backend, bukan dari teks "Rp150M"/"Rp617Jt"
+  // (parse teks menghilangkan satuan M/Jt sehingga perbandingannya salah).
+  const amounts = props.benchmark.stats.map((stat) => (stat.amount > 0 ? stat.amount : 0))
+  const maximum = Math.max(...amounts, 1)
 
   return props.benchmark.stats.map((stat, index) => ({
     ...stat,
     index,
-    visualPercent: Math.max(8, (numericValues[index] / maximum) * 100),
+    visualPercent: amounts[index] > 0 ? Math.max(2, (amounts[index] / maximum) * 100) : 0,
   }))
 })
 
 const benchmarkStatus = computed(() => {
-  const average = averageProgress.value
+  const average = props.benchmark.averageProgress
 
   if (average >= 75) return { label: 'Sangat Baik', tone: 'positive' }
   if (average >= 50) return { label: 'Bertumbuh', tone: 'positive' }
   if (average >= 25) return { label: 'Perlu Didorong', tone: 'warning' }
   return { label: 'Perlu Perhatian', tone: 'danger' }
 })
-
-const averageProgress = computed(() => {
-  const values = props.benchmark.progressStats.map((stat) => stat.value)
-  return values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0
-})
-
-function parseMetricValue(value: string): number {
-  const numericPart = value.match(/[\d.,]+/)?.[0] ?? '0'
-  const normalized = numericPart.includes(',')
-    ? numericPart.replace(/\./g, '').replace(',', '.')
-    : numericPart
-  return Number.parseFloat(normalized) || 0
-}
 
 function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, value))

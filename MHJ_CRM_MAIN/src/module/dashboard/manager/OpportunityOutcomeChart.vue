@@ -39,19 +39,19 @@ const props = defineProps<{
   outcome: ManagerOpportunityOutcome
 }>()
 
-const total = computed(() => props.outcome.won + props.outcome.lost)
+const total = computed(() => props.outcome.total)
 const chartItems = computed(() => [
   {
     id: 'win',
     label: 'Win',
     value: props.outcome.won,
-    percent: total.value > 0 ? (props.outcome.won / total.value) * 100 : 0,
+    percent: Math.min(100, Math.max(0, props.outcome.wonPercent)),
   },
   {
     id: 'lost',
     label: 'Lost',
     value: props.outcome.lost,
-    percent: total.value > 0 ? (props.outcome.lost / total.value) * 100 : 0,
+    percent: Math.min(100, Math.max(0, props.outcome.lostPercent)),
   },
 ])
 

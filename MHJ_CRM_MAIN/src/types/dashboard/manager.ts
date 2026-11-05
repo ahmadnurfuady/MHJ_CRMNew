@@ -18,6 +18,9 @@ export interface ManagerKpiCard {
 export interface ManagerOpportunityOutcome {
   won: number
   lost: number
+  total: number
+  wonPercent: number
+  lostPercent: number
 }
 
 export interface ManagerQuickAction {
@@ -32,6 +35,8 @@ export interface BenchmarkStat {
   id: string
   label: string
   value: string
+  /** Nilai rupiah mentah dari backend, dipakai untuk panjang bar. */
+  amount: number
   hint?: string
 }
 
@@ -46,6 +51,8 @@ export interface ManagerBenchmarkSummary {
   stats: BenchmarkStat[]
   progressStats: BenchmarkProgressStat[]
   winningChance: number
+  /** Rata-rata capaian untuk badge status (dari backend). */
+  averageProgress: number
 }
 
 export interface CoverageStat {

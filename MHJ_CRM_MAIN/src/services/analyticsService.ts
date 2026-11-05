@@ -23,6 +23,87 @@ export interface DashboardMetricsRaw {
   backlog_value: number
   total_po_value: number
   invoiced_sales_value: number
+
+  // Field siap tampil (dihitung backend, 1 field = 1 angka di Dashboard Manager)
+  /** Kinerja Utama → bar Funnel Aktif */
+  funnel_progress_percent: number
+  /** Peluang Win vs Lost */
+  win_count: number
+  lost_count: number
+  finished_count: number
+  win_percent: number
+  lost_percent: number
+  /** Ringkasan Target & Benchmark */
+  target_tahunan_value: number
+  target_peluang_value: number
+  real_peluang_value: number
+  revenue_value: number
+  /** Capaian Kinerja */
+  winning_chance_percent: number
+  peluang_progress_percent: number
+  target_progress_percent: number
+  capaian_average_percent: number
+}
+
+export type DashboardMetricsBase = Omit<
+  DashboardMetricsRaw,
+  | 'funnel_progress_percent'
+  | 'win_count'
+  | 'lost_count'
+  | 'finished_count'
+  | 'win_percent'
+  | 'lost_percent'
+  | 'target_tahunan_value'
+  | 'target_peluang_value'
+  | 'real_peluang_value'
+  | 'revenue_value'
+  | 'winning_chance_percent'
+  | 'peluang_progress_percent'
+  | 'target_progress_percent'
+  | 'capaian_average_percent'
+>
+
+/**
+ * Hanya untuk fallback `fetchDashboardMetricsFromExistingApis` (tanpa endpoint metrics).
+ * Rumus sama persis dengan `DashboardController::dashboardMetricsResponse` di backend.
+ */
+function withDisplayMetrics(m: DashboardMetricsBase, qtyLost?: number): DashboardMetricsRaw {
+  const pct = (part: number, whole: number) =>
+    whole > 0 ? Math.round((part / whole) * 10000) / 100 : 0
+  const clamp = (value: number) => Math.min(100, Math.max(0, value))
+
+  const lost = qtyLost ?? Math.max(
+    0,
+    m.qty_project_masuk - m.qty_po_terbit - m.active_projects_count - m.stalled_projects_count,
+  )
+  const finished = m.qty_po_terbit + lost
+  const targetPeluang = m.target_nominal * 3
+  const realPeluang = m.total_po_value > 0 ? m.total_po_value : m.realisasi_omset
+  const peluangProgress = pct(realPeluang, targetPeluang)
+
+  return {
+    ...m,
+    funnel_progress_percent: pct(
+      m.active_projects_count,
+      m.active_projects_count + m.stalled_projects_count,
+    ),
+    win_count: m.qty_po_terbit,
+    lost_count: lost,
+    finished_count: finished,
+    win_percent: pct(m.qty_po_terbit, finished),
+    lost_percent: pct(lost, finished),
+    target_tahunan_value: m.target_nominal,
+    target_peluang_value: targetPeluang,
+    real_peluang_value: realPeluang,
+    revenue_value: m.invoiced_sales_value,
+    winning_chance_percent: m.qty_project_masuk > 0
+      ? pct(m.qty_po_terbit, m.qty_project_masuk)
+      : m.global_win_rate_percent,
+    peluang_progress_percent: peluangProgress,
+    target_progress_percent: m.target_achievement_percent,
+    capaian_average_percent:
+      Math.round(((clamp(peluangProgress) + clamp(m.target_achievement_percent)) / 2) * 100) / 100,
+  }
 }
 
 interface DashboardListSource {
@@ -357,7 +438,9 @@ export async function fetchDashboardMetricsFromExistingApis(): Promise<Dashboard
     ? (wonProjects.length / winRateDenominator) * 100
     : 0
 
-  return {
+  const lostProjects = closedProjects.length - wonProjects.length
+
+  return withDisplayMetrics({
     target_nominal: targetNominal,
     realisasi_omset: wonValue,
     target_achievement_percent: targetAchievement,
@@ -372,7 +455,7 @@ export async function fetchDashboardMetricsFromExistingApis(): Promise<Dashboard
     backlog_value: backlogValue,
     total_po_value: weightedPipelineValue,
     invoiced_sales_value: wonValue,
-  }
+  }, lostProjects)
 }
 
 /** Bagian hospital map `GET /api/dashboard` untuk daftar faskes + peluang aktif. */
