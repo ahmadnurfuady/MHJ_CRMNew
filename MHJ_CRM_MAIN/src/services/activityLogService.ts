@@ -12,7 +12,7 @@ export type ActivityLogEntity =
 export type ActivityLogRawAction = string
 
 /** Action yang sudah dinormalkan untuk pemakaian FE. */
-export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'other'
+export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'pic' | 'other'
 
 export interface ActivityLogRow {
   id: number
@@ -170,6 +170,29 @@ function normalizeSource(frmdvc: string | null | undefined): 'APK' | 'WEB' | nul
 }
 
 function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow): TimelineItem {
+  // Aktivitas sintetik "Didaftarkan sebagai PIC Peluang": action 'pic_peluang'
+  // dengan details { project_id, project_name } (bukan struktur before/after).
+  // Dibedakan di sini supaya judulnya memakai nama peluang, bukan "Aktivitas
+  // tercatat". Row ini tidak punya id activity_logs, jadi key-nya komposit.
+  if ((row.action || '').toString().trim().toLowerCase() === 'pic_peluang') {
+    const info = parseActivityDetails(row.details) as unknown as Record<string, unknown>
+    const projectName = typeof info.project_name === 'string' ? info.project_name.trim() : ''
+    const projectId = info.project_id
+    return {
+      key: row.id != null
+        ? `a-${row.id}`
+        : `pic-${row.entity_id}-${String(projectId ?? '')}-${row.created_at}`,
+      kind: 'activity',
+      type: 'pic',
+      title: projectName
+        ? `Didaftarkan sebagai PIC Peluang: ${projectName}`
+        : 'Didaftarkan sebagai PIC Peluang',
+      authorName: row.user_name || 'Pengguna sistem',
+      createdAt: row.created_at,
+      source: normalizeSource(row.frmdvc),
+    }
+  }
+
   const action = normalizeAction(row.action)
   const details = parseActivityDetails(row.details)
   return {
@@ -217,6 +240,8 @@ export function timelineIcon(type: TimelineItem['type']): string {
       return 'trash-2'
     case 'r':
       return 'eye'
+    case 'pic':
+      return 'briefcase'
     default:
       return 'activity'
   }
@@ -232,6 +257,8 @@ export function timelineTone(type: TimelineItem['type']): 'success' | 'warning' 
       return 'danger'
     case 'r':
       return 'muted'
+    case 'pic':
+      return 'info'
     default:
       return 'muted'
   }
