@@ -3,19 +3,30 @@
     :class="searchResult ? 'Typeahead-menu is-open custom-scrollbar' : 'Typeahead-menu'"
     v-if="menuItems.length"
   >
-    <div v-for="(item, index) in menuItems.slice(0, 8)" :key="index" class="ProfileCard u-cf">
+    <div v-for="(item, index) in menuItems.slice(0, 8)" :key="index" class="ProfileCard u-cf" style="cursor: pointer" @click="openResult(item.path)">
       <div class="ProfileCard-avatar header-search">
-        <template v-if="item.iconForDisplay || item.icon">
-          <SvgIcon :icon="item.iconForDisplay || item.icon" type="stroke" />
+        <MhjIcon
+          v-if="(item.iconForDisplay || item.icon) === 'contact_card'"
+          name="contact_card"
+          :size="16"
+          color="var(--app-primary, #18A6E4)"
+          secondary-color="var(--app-primary, #18A6E4)"
+        />
+        <template v-else-if="item.iconForDisplay || item.icon">
+          <SolarIcon
+            :name="item.iconForDisplay || item.icon"
+            :size="20"
+            color="var(--app-primary, #18A6E4)"
+            secondary-color="var(--app-primary, #18A6E4)"
+            :secondary-opacity="1"
+          />
         </template>
       </div>
       <!-- Search result details -->
       <div class="ProfileCard-details">
         <div class="ProfileCard-realName">
           <span>
-            <router-link :to="{ path: item.path }" class="realname">{{
-              t(item.title || '')
-            }}</router-link>
+            <a href="#" class="realname" @click.prevent>{{ t(item.title || '') }}</a>
           </span>
         </div>
       </div>
@@ -30,10 +41,19 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import SolarIcon from '@/components/shared/SolarIcon.vue'
+import MhjIcon from '@/components/shared/MhjIcon.vue'
 
 const { t } = useI18n()
+const router = useRouter()
+const emit = defineEmits(['clearSearch'])
+function openResult(path?: string) {
+  if (!path) return
+  void router.push(path)
+  emit('clearSearch')
+}
 defineProps<{
   menuItems: {
     title?: string
@@ -44,7 +64,4 @@ defineProps<{
   searchResult: boolean
   searchResultEmpty: boolean
 }>()
-defineEmits(['clearSearch'])
-
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 </script>

@@ -10,7 +10,6 @@
           <h4>{{ task.title || 'Tanpa nama tugas' }}</h4>
           <div class="task-name-card__meta">
             <span><vue-feather type="user" size="14" />{{ task.owner || '-' }}</span>
-            <span><vue-feather type="hash" size="14" />{{ task.id }}</span>
           </div>
         </div>
         <span class="task-type-badge">{{ taskTypeLabel }}</span>
@@ -191,7 +190,11 @@
 
     <footer v-if="task" class="task-detail-footer">
       <button class="btn btn-primary download-button" type="button" @click="printDetail">
-        <vue-feather type="download" size="17" />
+        <svg class="pdf-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 2.75h6.8L18.5 7.5v13.75H7z" />
+          <path d="M13.5 3v4.75h4.75" />
+          <text x="8.35" y="17.25">PDF</text>
+        </svg>
         Download PDF
       </button>
       <a
@@ -201,7 +204,14 @@
         :aria-disabled="!task.contactPhone"
         @click="preventUnavailableContact"
       >
-        <MhjIcon name="action_phone" :size="17" />
+        <SolarIcon
+          name="phone"
+          :size="18"
+          color="currentColor"
+          secondary-color="currentColor"
+          :secondary-opacity="1"
+          aria-hidden="true"
+        />
         Hubungi Kontak
       </a>
     </footer>
@@ -872,6 +882,32 @@ function preventUnavailableContact(event: MouseEvent) {
   justify-content: center;
   gap: 8px;
   border-radius: 9px;
+}
+
+.download-button {
+  color: #fff;
+}
+
+.pdf-icon {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  overflow: visible;
+  color: currentColor;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pdf-icon text {
+  fill: currentColor;
+  stroke: none;
+  font-family: Arial, sans-serif;
+  font-size: 5.5px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
 @media (max-width: 575.98px) {

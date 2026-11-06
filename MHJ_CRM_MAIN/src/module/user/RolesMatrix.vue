@@ -38,7 +38,7 @@
         class="d-flex flex-wrap gap-2 mb-3 align-items-center p-2 rounded quick-actions-toolbar"
       >
         <span class="f-w-600 f-13 text-secondary me-1 quick-actions-label">
-          <SolarIcon name="fa-sliders" :size="14" />
+          <SolarIcon name="tuning-linear" :size="14" />
           Aksi Cepat:
         </span>
         <button
@@ -47,11 +47,9 @@
           @click="setAllPermissions(true)"
         >
           <SolarIcon
-            name="fa-check-double"
+            name="check-linear"
             :size="16"
             color="currentColor"
-            secondary-color="currentColor"
-            :secondary-opacity="0.45"
             class="quick-action-btn__icon"
           />
           Beri Semua Hak Akses
@@ -62,11 +60,9 @@
           @click="setReadOnlyAccess()"
         >
           <SolarIcon
-            name="fa-eye"
+            name="eye-linear"
             :size="16"
             color="currentColor"
-            secondary-color="currentColor"
-            :secondary-opacity="0.45"
             class="quick-action-btn__icon"
           />
           Hanya Akses Baca (View)
@@ -77,11 +73,9 @@
           @click="setAllPermissions(false)"
         >
           <SolarIcon
-            name="fa-ban"
+            name="forbidden-linear"
             :size="16"
             color="currentColor"
-            secondary-color="currentColor"
-            :secondary-opacity="0.45"
             class="quick-action-btn__icon"
           />
           Kosongkan Semua

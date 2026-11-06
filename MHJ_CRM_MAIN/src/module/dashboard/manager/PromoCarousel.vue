@@ -247,15 +247,17 @@ function markImageAsFailed(id: PromoSlide['id']) {
   align-items: center;
   width: fit-content;
   margin-bottom: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.92);
   border-radius: 999px;
   padding: 4px 9px;
-  background: rgba(255, 255, 255, 0.16);
-  font-size: 9px;
+  color: #0b4f6c;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 8px rgba(5, 34, 55, 0.2);
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(6px);
 }
 
 .promo-slide__caption strong {

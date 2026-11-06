@@ -24,8 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, defineAsyncComponent, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useContact } from '@/store/contact'
 
 const ContactDetails = defineAsyncComponent(() => import('@/module/contacts/ContactDetails.vue'))
@@ -39,6 +39,15 @@ const PrintContactModal = defineAsyncComponent(
 const contactStore = useContact()
 contactStore.setScope('contact')
 const route = useRoute()
+const router = useRouter()
+onMounted(() => {
+  // Dari pencarian header: /crmAdmin/contacts?add=1 membuka form Tambah Kontak.
+  if (route.query.add) {
+    contactStore.openContactModal()
+    const { add: _add, ...rest } = route.query
+    void router.replace({ query: rest })
+  }
+})
 const detailId = computed(() => {
   const id = Number(route.query.detail)
   return Number.isFinite(id) && id > 0 ? id : 0

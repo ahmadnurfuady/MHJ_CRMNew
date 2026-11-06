@@ -15,6 +15,11 @@ const router = createRouter({
       String(to.query.edit ?? '') !== String(from.query.edit ?? '')
     if (isSameDetailEditTransition) return false
 
+    const isSameProjectStageTransition =
+      to.path === from.path &&
+      String(to.query.stage ?? '') !== String(from.query.stage ?? '')
+    if (isSameProjectStageTransition) return false
+
     return { top: 0 }
   },
   routes: [

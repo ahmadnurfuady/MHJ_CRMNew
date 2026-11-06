@@ -2701,6 +2701,10 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   color: #fff;
   background: var(--primary);
 }
+.edit-profile:hover :deep(.solar-icon),
+.edit-profile:focus-visible :deep(.solar-icon) {
+  color: #fff;
+}
 .edit-profile:focus-visible,
 .close-profile:focus-visible {
   outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);

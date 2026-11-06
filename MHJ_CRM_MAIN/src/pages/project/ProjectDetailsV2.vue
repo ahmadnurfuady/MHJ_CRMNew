@@ -370,10 +370,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getApiErrorMessage, isRecord, type Dict } from '@/api/response'
 import ActivityTimeline from '@/components/shared/ActivityTimeline.vue'
-import { usePageBackRoute, usePageTitle } from '@/composable/usePageHeader'
+import { usePageBackHandler, usePageTitle } from '@/composable/usePageHeader'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
 import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
 import { routes } from '@/router/routes'
@@ -400,6 +400,7 @@ interface ContactView {
 }
 
 const route = useRoute()
+const router = useRouter()
 const store = useProjectStore()
 const { selectedDetail, selectedItem, selectedTasks, loading } = storeToRefs(store)
 
@@ -431,7 +432,16 @@ const backTarget = computed(() => {
 })
 
 usePageTitle('Detail Peluang')
-usePageBackRoute(backTarget)
+usePageBackHandler(handleBack)
+
+function handleBack(): void {
+  if (window.history.state?.back) {
+    router.back()
+    return
+  }
+
+  void router.push(backTarget.value)
+}
 
 function hasValue(value: unknown): boolean {
   return value !== null && value !== undefined && String(value).trim() !== ''

@@ -51,17 +51,28 @@
 }
 
 .ProfileCard-avatar {
-  svg {
-    height: 18px;
+  // Tanpa outline untuk semua ikon (Solar maupun MhjIcon).
+  svg,
+  svg path,
+  svg polygon {
+    stroke: none !important;
+  }
+
+  // Ikon Solar (svg langsung di dalam avatar).
+  > svg {
+    width: 20px;
+    height: 20px;
     vertical-align: bottom;
 
-    path {
-      color: #7e7c7c !important;
-    }
-
+    path,
     polygon {
-      color: #7e7c7c !important;
+      color: var(--app-primary, #18a6e4) !important;
     }
+  }
+
+  // Ikon MhjIcon (Kontak): ukuran diatur oleh komponennya, jangan dipotong.
+  .mhj-icon {
+    overflow: visible !important;
   }
 }
 

@@ -250,6 +250,7 @@
                       :project="project"
                       :view-mode="viewMode"
                       :missing-requirements="wonMissingRequirements[project.id] ?? []"
+                      :back-to="route.fullPath"
                     />
                   </div>
                   <div
@@ -279,9 +280,10 @@ import {
   defineAsyncComponent,
   nextTick,
   onMounted,
+  watch,
 } from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
 import { routes } from "@/router/routes";
@@ -292,6 +294,7 @@ import {
 import { useProjectStore } from "@/store/project";
 import type { Projects } from "@/types/project";
 
+const route = useRoute();
 const router = useRouter();
 const projectStore = useProjectStore();
 const {
@@ -343,7 +346,7 @@ async function openWonStage(): Promise<void> {
 function openProjectDetail(projectId: number): void {
   router.push({
     path: routes.Project.ProjectDetails,
-    query: { id: String(projectId), backTo: routes.Project.ProjectList },
+    query: { id: String(projectId), backTo: route.fullPath },
   });
 }
 
@@ -474,7 +477,31 @@ const ProjectDetails = defineAsyncComponent(
   () => import("@/module/project/projectList/ProjectDetails.vue"),
 );
 
-const activeTab = ref<string>("all");
+const validStages = new Set(["all", ...projectTab.map((stage) => stage.value)]);
+const stageFromQuery = Array.isArray(route.query.stage)
+  ? route.query.stage[0]
+  : route.query.stage;
+const activeTab = ref<string>(
+  typeof stageFromQuery === "string" && validStages.has(stageFromQuery)
+    ? stageFromQuery
+    : "all",
+);
+
+watch(activeTab, (stage) => {
+  const query = { ...route.query };
+  if (stage === "all") delete query.stage;
+  else query.stage = stage;
+  void router.replace({ query });
+});
+
+watch(
+  () => route.query.stage,
+  (stageQuery) => {
+    const stage = Array.isArray(stageQuery) ? stageQuery[0] : stageQuery;
+    activeTab.value =
+      typeof stage === "string" && validStages.has(stage) ? stage : "all";
+  },
+);
 
 const STAGE_COLORS: Record<string, string> = {
   qualified: "#2563eb",

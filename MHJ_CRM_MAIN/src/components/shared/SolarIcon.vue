@@ -3,7 +3,7 @@
     :is="resolvedIcon"
     class="solar-icon"
     :class="legacyClasses"
-    :size="size"
+    :size="normalizedSize"
     :color="color"
     :secondary-color="secondaryColor"
     :secondary-opacity="secondaryOpacity"
@@ -137,6 +137,10 @@ import { UsersGroupRoundedIcon } from "@solar-icons/vue/bold/users-group-rounded
 import { WalletIcon } from "@solar-icons/vue/bold/wallet";
 import { WidgetIcon } from "@solar-icons/vue/bold/widget";
 import { GpsIcon } from "@solar-icons/vue/bold/gps";
+import { CheckReadIcon as CheckReadLinearIcon } from "@solar-icons/vue/linear/check-read";
+import { EyeIcon as EyeLinearIcon } from "@solar-icons/vue/linear/eye";
+import { ForbiddenCircleIcon as ForbiddenCircleLinearIcon } from "@solar-icons/vue/linear/forbidden-circle";
+import { TuningIcon as TuningLinearIcon } from "@solar-icons/vue/linear/tuning";
 
 defineOptions({ inheritAttrs: false });
 
@@ -153,11 +157,21 @@ const props = withDefaults(
     alt?: string;
   }>(),
   {
+    size: 24,
     secondaryColor: "var(--app-secondary, #18A6E4)",
     secondaryOpacity: 1,
     strokeWidth: 1.5,
   },
 );
+
+// size="10" (string tanpa satuan, dari alias <vue-feather>) harus jadi angka,
+// kalau tidak Firefox/Zen menganggapnya CSS tidak valid dan ikon jadi jumbo.
+const normalizedSize = computed<string | number>(() => {
+  const raw = props.size;
+  if (typeof raw === "number") return raw;
+  const trimmed = String(raw ?? "").trim();
+  return /^\d+(\.\d+)?$/.test(trimmed) ? Number(trimmed) : trimmed || 24;
+});
 
 const icons: Record<string, Component> = {
   add: AddIcon,
@@ -285,6 +299,10 @@ const icons: Record<string, Component> = {
   wallet: WalletIcon,
   widget: WidgetIcon,
   gps: GpsIcon,
+  "check-linear": CheckReadLinearIcon,
+  "eye-linear": EyeLinearIcon,
+  "forbidden-linear": ForbiddenCircleLinearIcon,
+  "tuning-linear": TuningLinearIcon,
 };
 
 const aliases: Record<string, string> = {

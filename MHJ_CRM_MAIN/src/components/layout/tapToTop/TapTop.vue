@@ -1,7 +1,14 @@
 <template>
-  <div class="tap-top" :style="{ display: show ? 'block' : 'none' }">
-    <vue-feather type="chevrons-up" @click="scrollToTop"></vue-feather>
-  </div>
+  <button
+    class="tap-top"
+    type="button"
+    :style="{ display: show ? 'flex' : 'none' }"
+    aria-label="Kembali ke atas"
+    title="Kembali ke atas"
+    @click="scrollToTop"
+  >
+    <SolarIcon name="arrow-up" :size="20" color="currentColor" aria-hidden="true" />
+  </button>
 </template>
 
 <script lang="ts" setup>
@@ -36,3 +43,12 @@ onBeforeUnmount(() => {
   scrollTarget.removeEventListener('scroll', updateVisibility)
 })
 </script>
+
+<style scoped>
+.tap-top {
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+</style>

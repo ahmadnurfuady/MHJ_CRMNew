@@ -158,8 +158,9 @@ const props = withDefaults(
     project: Projects
     viewMode?: 'board' | 'list'
     missingRequirements?: string[]
+    backTo?: string
   }>(),
-  { viewMode: 'board', missingRequirements: () => [] }
+  { viewMode: 'board', missingRequirements: () => [], backTo: '' }
 )
 const router = useRouter()
 
@@ -265,6 +266,12 @@ function formatFullMoney(value: number) {
 }
 
 function openProjectDetail() {
-  router.push({ name: 'Project Details V2', query: { id: String(props.project.id) } })
+  router.push({
+    name: 'Project Details V2',
+    query: {
+      id: String(props.project.id),
+      ...(props.backTo ? { backTo: props.backTo } : {}),
+    },
+  })
 }
 </script>

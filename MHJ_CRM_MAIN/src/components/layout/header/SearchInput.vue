@@ -28,16 +28,34 @@
       :class="searchResult ? 'Typeahead-menu is-open custom-scrollbar' : 'Typeahead-menu '"
       v-if="menuItems.length"
     >
-      <div class="ProfileCard u-cf" v-for="(menuItem, index) in menuItems" :key="index">
+      <div
+        class="ProfileCard u-cf"
+        v-for="(menuItem, index) in menuItems"
+        :key="index"
+        style="cursor: pointer"
+        @click="openResult(menuItem.path)"
+      >
         <div class="ProfileCard-avatar header-search">
-          <SvgIcon :icon="menuItem.icon || menuItem.iconForDisplay" type="fill" />
+          <MhjIcon
+            v-if="(menuItem.iconForDisplay || menuItem.icon) === 'contact_card'"
+            name="contact_card"
+            :size="16"
+            color="var(--app-primary, #18A6E4)"
+            secondary-color="var(--app-primary, #18A6E4)"
+          />
+          <SolarIcon
+            v-else
+            :name="menuItem.iconForDisplay || menuItem.icon"
+            :size="20"
+            color="var(--app-primary, #18A6E4)"
+            secondary-color="var(--app-primary, #18A6E4)"
+            :secondary-opacity="1"
+          />
         </div>
         <div class="ProfileCard-details">
           <div class="ProfileCard-realName">
-            <span @click.prevent="removeFix()">
-              <router-link :to="{ path: menuItem.path }" class="realname">
-                {{ t(menuItem.title || '') }}</router-link
-              >
+            <span>
+              <a href="#" class="realname" @click.prevent>{{ t(menuItem.title || '') }}</a>
             </span>
           </div>
         </div>
@@ -53,14 +71,17 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { defineAsyncComponent, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSearch } from '@/store/searchBar'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import SolarIcon from '@/components/shared/SolarIcon.vue'
+import MhjIcon from '@/components/shared/MhjIcon.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 
-const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 const filtered = ref<boolean>(false)
 const terms = ref<string>('')
 
@@ -85,6 +106,12 @@ watch(
 )
 function searchTerms() {
   searchTerm(terms.value)
+}
+function openResult(path?: string) {
+  if (!path) return
+  void router.push(path)
+  removeFix()
+  filtered.value = false
 }
 function addFix() {
   searchResult.value = true
