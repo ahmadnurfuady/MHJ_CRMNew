@@ -86,7 +86,7 @@
                   type="button"
                   :title="t('contacts.deletePhone')"
                   :aria-label="t('contacts.deletePhone')"
-                  @click="removePhone(index)"
+                  @click="confirmRemovePhone(index)"
                 >
                   <span class="mhj-phone-remove-symbol" aria-hidden="true">−</span>
                 </button>
@@ -389,6 +389,7 @@ import { computed, defineAsyncComponent, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useI18n } from "vue-i18n";
 import { useDebounceFn } from "@vueuse/core";
+import Swal from "sweetalert2";
 import GoogleMapView from "@/components/GoogleMapView.vue";
 
 import { initSelectField } from "@/core/data/common";
@@ -615,6 +616,20 @@ const { canAddPhone, addPhoneHint, addPhone, removePhone } = usePhoneNumberList(
   () => contactState.value.contactForm.phoneNumbers,
 );
 
+async function confirmRemovePhone(index: number) {
+  const result = await Swal.fire({
+    title: "Hapus nomor telepon?",
+    text: "Nomor telepon ini akan dihapus dari form kontak.",
+    icon: "warning",
+    confirmButtonText: "Ya, hapus",
+    confirmButtonColor: "var(--theme-default)",
+    showCancelButton: true,
+    cancelButtonText: "Batal",
+    cancelButtonColor: "#898989",
+  });
+  if (result.isConfirmed) removePhone(index);
+}
+
 function setLocationRegions(provinceName: string, cityName: string) {
   const { province, city } = resolveRegionSelection(provinceName, cityName);
 
@@ -795,7 +810,21 @@ function clearCurrentAddress() {
   locationError.value = "";
 }
 
-function closeModal() {
+async function closeModal() {
+  const result = await Swal.fire({
+    icon: "warning",
+    title: "Batalkan tambah kontak?",
+    text: "Data yang sudah diisi dan belum disimpan akan hilang.",
+    showCancelButton: true,
+    confirmButtonText: "Ya, batalkan",
+    cancelButtonText: "Tetap di sini",
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "var(--theme-default)",
+    reverseButtons: true,
+    focusCancel: true,
+  });
+  if (!result.isConfirmed) return;
+
   locationError.value = "";
   addressSuggestions.value = [];
   addressSearchError.value = "";

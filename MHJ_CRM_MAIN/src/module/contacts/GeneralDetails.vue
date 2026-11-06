@@ -167,7 +167,7 @@
             <span>Sumber</span>
             <strong>{{ sourceLabel }}</strong>
           </div>
-          <div class="col-12">
+          <div class="col-md-6">
             <span>Email</span>
             <!--
               Kontak milik user lain: tampilkan keterangan jelas bahwa email
@@ -180,8 +180,12 @@
             </template>
             <div v-else class="sensitive-hidden-note">
               <vue-feather type="lock" size="14" />
-              <span>Disembunyikan — hanya terlihat oleh {{ contactOwnerLabel }}</span>
+              <span>Disembunyikan</span>
             </div>
+          </div>
+          <div class="col-md-6">
+            <span>Dibuat Oleh</span>
+            <strong>{{ contactState.activeContact.owner || "-" }}</strong>
           </div>
           <div class="col-12 contact-phone-field">
             <span>Nomor Telepon</span>
@@ -224,7 +228,7 @@
             </template>
             <div v-else class="sensitive-hidden-note">
               <vue-feather type="lock" size="14" />
-              <span>Disembunyikan — hanya terlihat oleh {{ contactOwnerLabel }}</span>
+              <span>Disembunyikan</span>
             </div>
           </div>
           <div class="col-md-6">
@@ -1187,19 +1191,15 @@ async function toggleCompanyEdit() {
   stroke-width: 2.2;
 }
 
-/*
- * Baris Email / Nomor Telepon untuk kontak bawahan. Dibuat kontras lembut
- * supaya terlihat sebagai info status, bukan nilai yang bisa dicopy.
- */
 .sensitive-hidden-note {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px dashed #d4c08a;
+  border: 1px dashed rgba(var(--app-primary-rgb, 24, 166, 228), 0.32);
   border-radius: 8px;
-  background: #fff8e1;
-  color: #6b5915;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
+  color: var(--theme-default, #18a6e4);
   font-size: 13px;
   font-weight: 500;
   font-style: italic;
@@ -1207,7 +1207,7 @@ async function toggleCompanyEdit() {
 
 .sensitive-hidden-note :deep(svg) {
   flex: 0 0 auto;
-  color: #a16207;
+  color: var(--theme-default, #18a6e4);
   stroke-width: 2.2;
 }
 

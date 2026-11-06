@@ -209,28 +209,26 @@
                     <strong class="entity-detail-name mhj-cell-ellipsis">
                       {{ fullName(contact) }}
                     </strong>
-                    <span
-                      class="mhj-cell-ellipsis"
-                      :title="sensitiveTooltip(contact)"
-                    >
-                      {{ contact.email || "Email belum tersedia" }}
-                    </span>
-                    <!--
-                      Kontak bawahan: BE sudah mengirim email/telepon ter-masking.
-                      Tampilkan penanda kecil beserta nama pemiliknya supaya user
-                      langsung paham kenapa data sensitifnya tidak terbaca utuh.
-                    -->
-                    <span
-                      v-if="isSubordinateContact(contact)"
-                      class="contact-sensitive-badge"
-                      :title="sensitiveTooltip(contact)"
-                    >
-                      <vue-feather type="lock" size="10" />
-                      <span class="contact-sensitive-badge__text mhj-cell-ellipsis">
-                        Email &amp; telepon disembunyikan — milik
-                        {{ contact.owner || "user lain" }}
+                    <div class="contact-person__meta">
+                      <span
+                        v-if="!isSubordinateContact(contact)"
+                        class="contact-person__email mhj-cell-ellipsis"
+                        :title="sensitiveTooltip(contact)"
+                      >
+                        {{ contact.email || "Email belum tersedia" }}
                       </span>
-                    </span>
+                      <span
+                        v-if="isSubordinateContact(contact)"
+                        class="contact-sensitive-badge"
+                        :title="sensitiveTooltip(contact)"
+                        :aria-label="sensitiveTooltip(contact)"
+                      >
+                        <vue-feather type="lock" size="10" aria-hidden="true" />
+                        <span class="contact-sensitive-badge__text mhj-cell-ellipsis">
+                          Email disembunyikan
+                        </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -1061,6 +1059,7 @@ onBeforeUnmount(() => {
 }
 
 .contact-person__identity {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -1089,8 +1088,19 @@ onBeforeUnmount(() => {
   outline-offset: -2px;
 }
 
-.contact-person__identity span {
+.contact-person__meta {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.contact-person__email {
+  min-width: 0;
   max-width: 190px;
+  flex: 1 1 auto;
   overflow: hidden;
   color: #64748b;
   font-size: 11px;
@@ -1098,24 +1108,21 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/*
- * Badge kontak bawahan: menegaskan ke user kenapa email/telepon tidak terlihat
- * utuh. Warna peach supaya cepat terbaca sebagai peringatan tanpa "berteriak"
- * seperti merah penuh.
- */
 .contact-sensitive-badge {
   display: inline-flex !important;
+  min-width: 0;
   max-width: 100%;
+  flex: 0 1 auto;
   align-items: center;
   gap: 4px;
-  margin-top: 4px;
-  padding: 2px 7px;
-  border-radius: 10px;
-  background: #fef3c7;
-  color: #92400e !important;
-  font-size: 10.5px !important;
+  padding: 3px 7px;
+  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.24);
+  border-radius: 999px;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.09);
+  color: var(--theme-default, #18a6e4) !important;
+  font-size: 10px !important;
   font-weight: 600 !important;
-  line-height: 1.3;
+  line-height: 1.2;
   white-space: nowrap !important;
 }
 
@@ -1499,7 +1506,7 @@ onBeforeUnmount(() => {
   }
 
   .contact-person__identity strong,
-  .contact-person__identity span {
+  .contact-person__email {
     display: block;
     width: 100%;
     max-width: 100%;
@@ -1512,8 +1519,22 @@ onBeforeUnmount(() => {
     font-size: 15px;
   }
 
-  .contact-person__identity span {
+  .contact-person__email {
     font-size: 12px;
+  }
+
+  .contact-person__meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 3px;
+  }
+
+  .contact-sensitive-badge {
+    width: auto !important;
+    max-width: 100%;
+    padding: 3px 8px;
+    font-size: 10.5px !important;
   }
 
   /* ── Faskes ─────────────────────────────────────────────────────── */

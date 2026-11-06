@@ -80,7 +80,7 @@
               type="button"
               title="Hapus nomor"
               aria-label="Hapus nomor telepon"
-              @click="removePhone(index)"
+              @click="confirmRemovePhone(index)"
             >
               <span class="mhj-phone-remove-symbol" aria-hidden="true">−</span>
             </button>
@@ -542,6 +542,20 @@ function nullableNumber(value: unknown): number | null {
 const { canAddPhone, addPhoneHint, addPhone, removePhone } = usePhoneNumberList(
   () => form.value.phoneNumbers,
 );
+
+async function confirmRemovePhone(index: number) {
+  const result = await Swal.fire({
+    title: "Hapus nomor telepon?",
+    text: "Nomor telepon ini akan dihapus dari form kontak.",
+    icon: "warning",
+    confirmButtonText: "Ya, hapus",
+    confirmButtonColor: "var(--theme-default)",
+    showCancelButton: true,
+    cancelButtonText: "Batal",
+    cancelButtonColor: "#898989",
+  });
+  if (result.isConfirmed) removePhone(index);
+}
 
 function expandCombinedPhoneRows() {
   const values = form.value.phoneNumbers.map((phone) => phone.data);
@@ -1008,7 +1022,21 @@ async function save() {
   }
 }
 
-function cancel() {
+async function cancel() {
+  const result = await Swal.fire({
+    icon: "warning",
+    title: "Batalkan perubahan kontak?",
+    text: "Perubahan yang belum disimpan akan hilang.",
+    showCancelButton: true,
+    confirmButtonText: "Ya, batalkan",
+    cancelButtonText: "Tetap di sini",
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "var(--theme-default)",
+    reverseButtons: true,
+    focusCancel: true,
+  });
+  if (!result.isConfirmed) return;
+
   emit("cancel");
 }
 
