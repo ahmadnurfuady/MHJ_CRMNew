@@ -137,7 +137,9 @@ function buildActivityTitle(entity: ActivityLogEntity, action: NormalizedAction,
   }
   const bucket = base[entity]
   if (!bucket) return 'Aktivitas tercatat'
-  if (action === 'other') return 'Aktivitas tercatat'
+  // 'pic' ditangani khusus di activityToTimelineItem (tidak pernah sampai sini),
+  // tapi tetap di-guard agar tipe `action` menyempit ke i|u|d|r untuk indexing.
+  if (action === 'other' || action === 'pic') return 'Aktivitas tercatat'
   return bucket[action] ?? 'Aktivitas tercatat'
 }
 
