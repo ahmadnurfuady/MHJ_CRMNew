@@ -354,6 +354,8 @@ import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
+import { api } from "@/api";
+import { extractList, isRecord, pickString } from "@/api/response";
 import type { Contact } from "@/types/contacts";
 import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 
@@ -365,7 +367,8 @@ const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const { contactState, filteredContact } = storeToRefs(contactStore);
 const { loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { openHospitalModal, searchHospitals } = contactStore;
+const { openHospitalModal, searchHospitals, filterHospitalsByBranch } =
+  contactStore;
 const { canAddHospital } = useHospitalPermissions();
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
@@ -375,8 +378,31 @@ interface BranchFilterOption {
   name: string;
 }
 
-// TODO: Ganti opsi dummy ini dengan daftar cabang dari backend.
-const branchOptions = ref<BranchFilterOption[]>([{ id: "dummy", name: "dummy" }]);
+// Opsi cabang dari GET /api/company/cabang. Entri pertama "Semua Cabang"
+// (id kosong) memakai filter kode_cabang kosong di backend = seluruh cabang.
+const ALL_BRANCH_ID = "";
+const branchOptions = ref<BranchFilterOption[]>([]);
+
+async function loadBranchOptions() {
+  try {
+    const response = await api.get("company/cabang");
+    const { items } = extractList(response.data);
+    const branches = items
+      .filter(isRecord)
+      .map((raw) => ({
+        id: pickString(raw, "value", "kode_cabang", "kode", "KodeCabang"),
+        name: pickString(raw, "label", "nama_cabang", "name", "NamaCabang"),
+      }))
+      .filter((branch) => branch.id && branch.name);
+    branchOptions.value = [
+      { id: ALL_BRANCH_ID, name: "Semua Cabang" },
+      ...branches,
+    ];
+  } catch (error) {
+    console.error("Gagal memuat daftar cabang.", error);
+  }
+}
+
 const branchFilterRoot = ref<HTMLElement | null>(null);
 const branchFilterOpen = ref(false);
 const branchFilterSearch = ref("");
@@ -435,7 +461,10 @@ function applyBranchFilter() {
   branchFilterOpen.value = false;
   branchFilterSearch.value = "";
   hospitalPage.value = 1;
-  // TODO: Kirim appliedBranchIds ke endpoint daftar Faskes saat backend siap.
+  // Kirim kode cabang terpilih ke daftar Faskes:
+  // []         = default (cabang user), ['']  = semua cabang,
+  // ['00',...] = cabang tertentu. Lihat filterHospitalsByBranch di store.
+  void filterHospitalsByBranch(appliedBranchIds.value);
 }
 
 function onClickOutsideBranchFilter(event: MouseEvent) {
@@ -645,6 +674,7 @@ function openHospitalDetail(
 
 onMounted(() => {
   contactStore.initStore();
+  void loadBranchOptions();
   document.addEventListener("click", onClickOutsideBranchFilter);
 });
 

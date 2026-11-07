@@ -25,6 +25,7 @@ import type { Select } from "@/types/common";
 import type { Hospital, HospitalPayload } from "@/types/hospital";
 import { runApiAction } from "@/store/apiAction";
 import { useHospitalStore } from "@/store/hospital";
+import { useAuthStore } from "@/store/auth";
 import { MAX_PHONE_NUMBERS } from "@/composable/usePhoneNumberList";
 import {
   splitPhoneNumbers,
@@ -501,6 +502,37 @@ export const useContact = defineStore("contact", () => {
     selected: value ? { value, label: value } : null,
   });
 
+  /**
+   * Field Cabang form Faskes. Saat edit: pakai KodeCabang Faskes.
+   * Saat tambah (tidak ada hospital): default ke cabang user yang login
+   * (branch_id / branch_name dari auth) supaya langsung terisi.
+   */
+  const createCabangField = (hospital?: Hospital) => {
+    if (hospital?.kodeCabang) {
+      return {
+        ...initSelectField(),
+        data: hospital.kodeCabang,
+        selected: {
+          value: hospital.kodeCabang,
+          label: hospital.namaCabang || hospital.kodeCabang,
+        },
+      };
+    }
+
+    const authUser = useAuthStore().user;
+    const branchId = authUser?.branch_id?.trim() || "";
+    if (!branchId) return selectFieldWithValue();
+
+    return {
+      ...initSelectField(),
+      data: branchId,
+      selected: {
+        value: branchId,
+        label: authUser?.branch_name?.trim() || branchId,
+      },
+    };
+  };
+
   const createRumahSakitForm = (hospital?: Hospital): RumahSakitForm => {
     const phoneNumbers = splitPhoneNumbers(hospital?.phone);
     const jenis = hospital?.jenis || hospital?.industry || "";
@@ -527,6 +559,10 @@ export const useContact = defineStore("contact", () => {
       ),
       keterangan: inputFieldWithValue(hospital?.description),
       sirs: inputFieldWithValue(hospital?.sirs),
+      // Diisi dengan KodeCabang; reconcileLookupSelections menukar label jadi
+      // nama cabang setelah opsi dari /company/cabang dimuat. Faskes BARU
+      // default ke cabang user yang login supaya tak perlu memilih manual.
+      cabang: createCabangField(hospital),
       financeStatus: inputFieldWithValue(hospital?.financeStatus),
     };
   };
@@ -698,21 +734,83 @@ export const useContact = defineStore("contact", () => {
     resolveContactCompanyNames();
   }
 
-  /**
-   * Memuat seluruh halaman Faskes dari backend supaya daftar Faskes bisa
-   * dipaginasi 10 per halaman di frontend, lepas dari page size backend.
-   */
-  async function fetchAllHospitalsForList(search?: string) {
-    await hospitalStore.fetchHospitals({ page: 1, per_page: HOSPITAL_LIST_FETCH_LIMIT, search });
+  // Filter cabang untuk daftar Faskes.
+  // - []            => default: pakai cabang user (backend tak diberi kode_cabang).
+  // - ['']          => Semua Cabang (kirim kode_cabang kosong).
+  // - ['00','01']   => cabang-cabang tertentu (dimuat per cabang lalu digabung).
+  const hospitalBranchFilter = ref<string[]>([]);
+  const ALL_BRANCHES = "";
+
+  /** Memuat seluruh halaman untuk satu set parameter (search / kode_cabang). */
+  async function loadHospitalPages(
+    extra: { search?: string; kode_cabang?: string },
+    append = false,
+  ) {
+    await hospitalStore.fetchHospitals(
+      { page: 1, per_page: HOSPITAL_LIST_FETCH_LIMIT, ...extra },
+      { append },
+    );
     while (hospitalStore.pagination.page < hospitalStore.pagination.lastPage) {
       await hospitalStore.fetchHospitals(
         {
           page: hospitalStore.pagination.page + 1,
           per_page: HOSPITAL_LIST_FETCH_LIMIT,
-          search,
+          ...extra,
         },
         { append: true },
       );
+    }
+  }
+
+  /**
+   * Memuat seluruh halaman Faskes dari backend supaya daftar Faskes bisa
+   * dipaginasi 10 per halaman di frontend, lepas dari page size backend.
+   *
+   * Menghormati hospitalBranchFilter. Saat search aktif, filter cabang
+   * diabaikan karena pencarian bersifat GENERAL (lintas cabang).
+   */
+  async function fetchAllHospitalsForList(search?: string) {
+    const codes = hospitalBranchFilter.value;
+
+    // Pencarian general: abaikan filter cabang.
+    if (search) {
+      await loadHospitalPages({ search });
+      return;
+    }
+
+    // Default (cabang user): jangan kirim kode_cabang.
+    if (codes.length === 0) {
+      await loadHospitalPages({});
+      return;
+    }
+
+    // Semua Cabang: kirim kode_cabang kosong satu kali.
+    if (codes.includes(ALL_BRANCHES)) {
+      await loadHospitalPages({ kode_cabang: ALL_BRANCHES });
+      return;
+    }
+
+    // Beberapa cabang tertentu: muat per cabang lalu gabungkan (append).
+    let append = false;
+    for (const code of codes) {
+      await loadHospitalPages({ kode_cabang: code }, append);
+      append = true;
+    }
+  }
+
+  /**
+   * Set filter cabang daftar Faskes lalu muat ulang.
+   * @param codes [] = cabang user (default), [''] = semua cabang, selain itu kode cabang terpilih.
+   */
+  async function filterHospitalsByBranch(codes: string[]) {
+    hospitalBranchFilter.value = [...codes];
+
+    try {
+      await fetchAllHospitalsForList(hospitalSearch.value || undefined);
+      contactState.activeContact = undefined;
+      syncRemoteContacts();
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal memfilter Faskes per cabang.");
     }
   }
 
@@ -1583,6 +1681,7 @@ export const useContact = defineStore("contact", () => {
       penyelenggara: "Penyelenggara",
       tipeMarketingGo500: "Tipe Marketing G0500",
       sirs: "SIRS",
+      cabang: "Cabang",
     };
     Object.entries(requiredLabels).forEach(([key, label]) => {
       const field = formFields[key as keyof typeof formFields];
@@ -1623,6 +1722,10 @@ export const useContact = defineStore("contact", () => {
       String(
         contactState.rumahSakitForm.tipeMarketingGo500.selected?.value ?? "",
       ).trim() || null;
+    // KodeCabang dari pilihan dropdown Cabang (wajib supaya Faskes punya cabang).
+    const cabangCode =
+      String(contactState.rumahSakitForm.cabang.selected?.value ?? "").trim() ||
+      null;
 
     // `company_owner` diwajibkan endpoint Company dan sumber nilainya adalah
     // pilihan Penyelenggara pada form Rumah Sakit.
@@ -1648,6 +1751,11 @@ export const useContact = defineStore("contact", () => {
       if (!invalidLookupFields.includes("Penyelenggara")) {
         invalidLookupFields.push("Penyelenggara");
       }
+    }
+    if (cabangCode === null) {
+      contactState.rumahSakitForm.cabang.errorMessage =
+        "Pilih Cabang dari daftar yang tersedia.";
+      invalidLookupFields.push("Cabang");
     }
     if (invalidLookupFields.length) {
       await Swal.fire({
@@ -1682,6 +1790,8 @@ export const useContact = defineStore("contact", () => {
       penyelenggaraid: penyelenggaraId,
       tipe_marketing_go500: textValue(formData.tipeMarketingGo500),
       kodetipemarketing: tipeMarketingCode,
+      // KodeCabang wajib dari pilihan dropdown Cabang.
+      kodecabang: cabangCode,
       description: textValue(formData.keterangan),
       sirs: textValue(formData.sirs),
       status_finance: textValue(formData.financeStatus),
@@ -1738,6 +1848,7 @@ export const useContact = defineStore("contact", () => {
     handleActiveTab,
     changeContactPage,
     searchHospitals,
+    filterHospitalsByBranch,
     searchContacts,
     filteredContact,
     handleContact,

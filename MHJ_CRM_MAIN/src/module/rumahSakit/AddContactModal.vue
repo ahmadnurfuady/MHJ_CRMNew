@@ -437,13 +437,26 @@
             </InputWrapper>
           </div>
 
-          <div class="col-12">
+          <div class="col-md-6">
             <InputWrapper title="SIRS" required>
               <InputField
                 v-model:modelValue="contactState.rumahSakitForm.sirs"
                 :formSubmitted="contactState.formSubmitted"
                 inputId="rs-sirs"
                 placeholder="Masukkan kode SIRS (contoh: 3578012)..."
+                :disabled="readOnly"
+              />
+            </InputWrapper>
+          </div>
+          <div class="col-md-6">
+            <InputWrapper title="Cabang" required>
+              <Select
+                v-model="contactState.rumahSakitForm.cabang"
+                :options="cabangOptions"
+                display-key="label"
+                getValueKey="label"
+                placeholder="Pilih Cabang"
+                :formSubmitted="contactState.formSubmitted"
                 :disabled="readOnly"
               />
             </InputWrapper>
@@ -651,6 +664,7 @@ const {
   tipeOptions,
   penyelenggaraOptions,
   tipeMarketingOptions,
+  cabangOptions,
   loadHospitalLookups,
 } = useHospitalLookups();
 
@@ -809,6 +823,7 @@ function reconcileLookupSelections() {
   reconcileSelectField(form.tipe, tipeOptions.value);
   reconcileSelectField(form.penyelenggara, penyelenggaraOptions.value);
   reconcileSelectField(form.tipeMarketingGo500, tipeMarketingOptions.value);
+  reconcileSelectField(form.cabang, cabangOptions.value);
 }
 
 async function loadStoredLocationPreview() {
@@ -975,10 +990,12 @@ watch(
     contactState.value.rumahSakitForm.tipe.data,
     contactState.value.rumahSakitForm.penyelenggara.data,
     contactState.value.rumahSakitForm.tipeMarketingGo500.data,
+    contactState.value.rumahSakitForm.cabang.data,
     jenisOptions.value.length,
     tipeOptions.value.length,
     penyelenggaraOptions.value.length,
     tipeMarketingOptions.value.length,
+    cabangOptions.value.length,
   ],
   reconcileLookupSelections,
   { flush: "post" },

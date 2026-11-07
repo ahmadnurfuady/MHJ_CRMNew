@@ -175,6 +175,8 @@ export function normalizeHospital(raw: Dict): Hospital {
       'marketing_tier',
     ),
     sirs: pickString(raw, 'SIRS', 'sirs', 'sirs_code'),
+    kodeCabang: pickString(raw, 'kode_cabang', 'kodecabang', 'KodeCabang'),
+    namaCabang: pickString(raw, 'nama_cabang', 'namaCabang', 'NamaCabang', 'cabang', 'branch_name'),
     latitude: pickCoordinate(raw, 'latitude'),
     longitude: pickCoordinate(raw, 'longitude'),
     totalContacts: pickOptionalNumber(

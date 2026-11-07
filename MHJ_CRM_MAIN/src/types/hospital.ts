@@ -48,6 +48,10 @@ export interface Hospital {
   penyelenggara: string
   tipeMarketingGo500: string
   sirs: string
+  /** KodeCabang (dbCabang) — kode cabang pemilik Faskes. */
+  kodeCabang: string
+  /** NamaCabang (dbCabang) — nama cabang untuk ditampilkan. */
+  namaCabang: string
   latitude?: number
   longitude?: number
   /** metrik ringkas per Rumah Sakit */
@@ -100,6 +104,8 @@ export interface HospitalPayload {
   penyelenggaraid?: number | null
   tipe_marketing_go500?: string
   kodetipemarketing?: string | null
+  /** KodeCabang (dbCabang) pemilik Faskes; dibaca CompanyController@input. */
+  kodecabang?: string | null
   sirs?: string
   latitude?: number | null
   longitude?: number | null

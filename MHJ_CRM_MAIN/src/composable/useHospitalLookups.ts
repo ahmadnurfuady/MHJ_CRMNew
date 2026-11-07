@@ -61,6 +61,7 @@ const lookups = {
   tipe: createLookup("company/tipers"),
   penyelenggara: createLookup("company/penyelenggarars"),
   tipeMarketing: createLookup("company/tipemarketing"),
+  cabang: createLookup("company/cabang"),
 };
 
 function loadLookup(key: keyof typeof lookups): Promise<void> {
@@ -94,6 +95,7 @@ export function useHospitalLookups() {
       loadLookup("tipe"),
       loadLookup("penyelenggara"),
       loadLookup("tipeMarketing"),
+      loadLookup("cabang"),
     ]);
   }
 
@@ -102,6 +104,7 @@ export function useHospitalLookups() {
     tipeOptions: lookups.tipe.options,
     penyelenggaraOptions: lookups.penyelenggara.options,
     tipeMarketingOptions: lookups.tipeMarketing.options,
+    cabangOptions: lookups.cabang.options,
     loadHospitalLookups,
   };
 }

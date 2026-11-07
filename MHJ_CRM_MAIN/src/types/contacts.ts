@@ -125,6 +125,8 @@ export interface RumahSakitForm {
   tipeMarketingGo500: SelectField;
   keterangan: InputField;
   sirs: InputField;
+  /** Cabang (dbCabang.KodeCabang) pemilik Faskes. Opsional. */
+  cabang: SelectField;
   financeStatus: InputField;
 }
 

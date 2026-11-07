@@ -3,6 +3,8 @@ export interface ListParams {
   page?: number
   per_page?: number
   search?: string
+  /** Filter cabang (dbCabang.KodeCabang). '' = semua cabang; undefined = default cabang user. */
+  kode_cabang?: string
 }
 
 /** Status pagination yang dipakai store. */
