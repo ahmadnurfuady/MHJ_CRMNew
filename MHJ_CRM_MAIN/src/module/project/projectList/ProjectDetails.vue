@@ -130,7 +130,7 @@
 
     <div class="opp-card__value" :title="formatFullMoney(projectValue)">
       <small>Nilai peluang</small>
-      <strong>{{ formatCompactMoney(projectValue) }}</strong>
+      <strong>{{ formatMoney(projectValue) }}</strong>
       <span>
         <SolarIcon
           name="eye"
@@ -252,16 +252,17 @@ function formatDuration(value?: string) {
   return months < 12 ? `${months} bulan` : `${Math.floor(months / 12)} tahun`
 }
 
-function formatCompactMoney(value: number) {
+function formatMoney(value: number) {
   return new Intl.NumberFormat('id-ID', {
-    style: 'currency', currency: props.project.currency || 'IDR', notation: 'compact',
-    maximumFractionDigits: 1, currencyDisplay: 'narrowSymbol'
+    style: 'currency', currency: props.project.currency || 'IDR',
+    minimumFractionDigits: 0, maximumFractionDigits: 20, currencyDisplay: 'narrowSymbol'
   }).format(value)
 }
 
 function formatFullMoney(value: number) {
   return new Intl.NumberFormat('id-ID', {
-    style: 'currency', currency: props.project.currency || 'IDR', maximumFractionDigits: 0
+    style: 'currency', currency: props.project.currency || 'IDR',
+    minimumFractionDigits: 0, maximumFractionDigits: 20
   }).format(value)
 }
 

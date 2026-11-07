@@ -30,7 +30,10 @@
             </button>
           </header>
 
-          <div class="overview-metrics">
+          <div
+            class="overview-metrics"
+            :class="{ 'overview-metrics--wide-value': hasWidePipelineValue }"
+          >
             <article class="overview-card overview-card--total">
               <span class="overview-label">Total Peluang</span>
               <div class="overview-value-row">
@@ -39,26 +42,26 @@
               </div>
               <small
                 >{{ activeProjectCount }} aktif ·
-                {{ lostProjectCount }} lost</small
+                {{ lostProjectCount }} lost/cancel</small
               >
             </article>
 
             <article class="overview-card">
-              <span class="overview-label">Nilai Pipeline</span>
+              <span class="overview-label">Nilai Peluang</span>
               <strong class="pipeline-total-value">{{
-                formatCompactMoney(pipelineTotal)
+                formatMoney(pipelineTotal)
               }}</strong>
               <small>dari peluang yang tersedia</small>
             </article>
 
             <article class="overview-card overview-card--composition">
               <div>
-                <strong>Komposisi pipeline</strong>
+                <strong>Komposisi peluang</strong>
                 <small>Nilai per tahap</small>
               </div>
               <div
                 class="pipeline-composition"
-                aria-label="Komposisi nilai pipeline"
+                aria-label="Komposisi nilai peluang"
               >
                 <span
                   v-for="stage in stageCards"
@@ -73,9 +76,9 @@
               <div class="composition-legend">
                 <span>Terbesar · {{ dominantStage.title }}</span>
                 <span
-                  >Aktif · {{ formatCompactMoney(activePipelineValue) }}</span
+                  >Aktif · {{ formatMoney(activePipelineValue) }}</span
                 >
-                <span>Lost · {{ formatCompactMoney(lostPipelineValue) }}</span>
+                <span>Lost/Cancel · {{ formatMoney(lostPipelineValue) }}</span>
               </div>
             </article>
           </div>
@@ -200,7 +203,7 @@
                 <strong>All</strong>
                 <em>{{ summaryTotal }}</em>
               </span>
-              <span>{{ formatCompactMoney(pipelineTotal) }}</span>
+              <span>{{ formatMoney(pipelineTotal) }}</span>
             </button>
             <button
               v-for="stage in stageCards"
@@ -218,7 +221,7 @@
                 <strong>{{ stage.title }}</strong>
                 <em>{{ stage.quantity }}</em>
               </span>
-              <span>{{ formatCompactMoney(stage.totalValue) }}</span>
+              <span>{{ formatMoney(stage.totalValue) }}</span>
             </button>
           </div>
 
@@ -518,138 +521,47 @@ const STAGE_COLORS: Record<string, string> = {
   closed_cancel: "#64748b",
 };
 
-function parseProjectAmount(project: Projects) {
-  const directValue = project.amountValue ?? project.projectValue;
-  if (typeof directValue === "number" && Number.isFinite(directValue))
-    return directValue;
-
-  const normalized = String(project.budget || "").replace(/[^\d,.-]/g, "");
-  if (!normalized) return 0;
-  const lastSeparator = Math.max(
-    normalized.lastIndexOf(","),
-    normalized.lastIndexOf("."),
-  );
-  const decimalLength =
-    lastSeparator < 0 ? 0 : normalized.length - lastSeparator - 1;
-  if (lastSeparator < 0 || decimalLength === 3) {
-    return Number(normalized.replace(/[,.]/g, "")) || 0;
-  }
-  const integer = normalized.slice(0, lastSeparator).replace(/[,.]/g, "");
-  const decimal = normalized.slice(lastSeparator + 1);
-  return Number(`${integer}.${decimal}`) || 0;
-}
-
 const summaryProjects = computed(() => summaryItems.value);
 
-// Ringkasan & rekap per tahap memakai hitungan dari BE (`ringkasan` / `stages`)
-// yang mencakup SELURUH peluang milik user. Bila BE belum mengirimnya (mis.
-// belum deploy), komponen jatuh ke hitungan lokal dari daftar yang termuat.
-const stageSummaryMap = computed(() => {
-  const map = new Map<string, { quantity: number; totalValue: number }>();
-  for (const stage of stageSummaries.value) {
-    if (stage.status) {
-      map.set(stage.status, {
-        quantity: stage.quantity,
-        totalValue: stage.totalValue,
-      });
-    }
-  }
-  return map;
-});
-const hasBackendSummary = computed(
-  () => ringkasan.value !== null || stageSummaries.value.length > 0,
+// Seluruh angka ringkasan dan tahap merupakan hasil final dari backend.
+const pipelineTotal = computed(() => ringkasan.value?.totalValue ?? 0);
+const hasWidePipelineValue = computed(
+  () => formatMoney(pipelineTotal.value).length >= 16,
 );
 
-const pipelineTotal = computed(() =>
-  ringkasan.value
-    ? ringkasan.value.totalValue
-    : summaryProjects.value.reduce(
-        (total, project) => total + parseProjectAmount(project),
-        0,
-      ),
+const stageSummaryMap = computed(
+  () => new Map(stageSummaries.value.map((stage) => [stage.status, stage])),
 );
 
-const stageCards = computed(() => {
-  const stages = projectTab
+const stageCards = computed(() =>
+  projectTab
     .filter((stage) => stage.value !== "all")
     .map((stage) => {
-      const fromBackend = stageSummaryMap.value.get(stage.value);
-      const localProjects = summaryProjects.value.filter(
-        (project) => project.status === stage.value,
-      );
+      const backendStage = stageSummaryMap.value.get(stage.value);
       return {
-        ...stage,
+        value: stage.value,
+        title: backendStage?.stageName || stage.title,
         color: STAGE_COLORS[stage.value] || "#94a3b8",
-        quantity: fromBackend
-          ? fromBackend.quantity
-          : hasBackendSummary.value
-            ? 0
-            : localProjects.length,
-        totalValue: fromBackend
-          ? fromBackend.totalValue
-          : hasBackendSummary.value
-            ? 0
-            : localProjects.reduce(
-                (total, project) => total + parseProjectAmount(project),
-                0,
-              ),
+        quantity: backendStage?.quantity ?? 0,
+        totalValue: backendStage?.totalValue ?? 0,
       };
-    });
-  return stages;
-});
+    }),
+);
 
-const summaryTotal = computed(() =>
-  ringkasan.value ? ringkasan.value.totalPeluang : summaryProjects.value.length,
-);
-const closedStatuses = new Set(["closed_won", "closed_lost", "closed_cancel"]);
-const activeProjects = computed(() =>
-  summaryProjects.value.filter(
-    (project) => !closedStatuses.has(project.status),
-  ),
-);
-const activeProjectCount = computed(() =>
-  ringkasan.value ? ringkasan.value.totalAktif : activeProjects.value.length,
-);
-const lostProjectCount = computed(() => {
-  const fromBackend = stageSummaryMap.value.get("closed_lost");
-  if (fromBackend) return fromBackend.quantity;
-  if (hasBackendSummary.value) return 0;
-  return summaryProjects.value.filter(
-    (project) => project.status === "closed_lost",
-  ).length;
-});
-const activePipelineValue = computed(() =>
-  ringkasan.value
-    ? ringkasan.value.valueAktif
-    : activeProjects.value.reduce(
-        (total, project) => total + parseProjectAmount(project),
-        0,
-      ),
-);
-const lostPipelineValue = computed(() => {
-  const fromBackend = stageSummaryMap.value.get("closed_lost");
-  if (fromBackend) return fromBackend.totalValue;
-  if (hasBackendSummary.value) return 0;
-  return summaryProjects.value
-    .filter((project) => project.status === "closed_lost")
-    .reduce((total, project) => total + parseProjectAmount(project), 0);
-});
-// "Stage terbanyak" = tahap dengan JUMLAH peluang terbanyak (mis. Qualified).
+const summaryTotal = computed(() => ringkasan.value?.totalPeluang ?? 0);
+const activeProjectCount = computed(() => ringkasan.value?.totalAktif ?? 0);
+const lostProjectCount = computed(() => ringkasan.value?.totalLostCancel ?? 0);
+const activePipelineValue = computed(() => ringkasan.value?.valueAktif ?? 0);
+const lostPipelineValue = computed(() => ringkasan.value?.valueLostCancel ?? 0);
 const dominantStage = computed(() => {
   const terbanyak = ringkasan.value?.stageTerbanyak;
-  if (terbanyak) {
-    const tab = projectTab.find((stage) => stage.value === terbanyak.status);
-    return {
-      title: tab?.title ?? (terbanyak.stageName || "Belum ada data"),
-      totalValue: terbanyak.totalValue,
-      quantity: terbanyak.quantity,
-    };
-  }
-  return stageCards.value.reduce(
-    (dominant, stage) =>
-      stage.quantity > dominant.quantity ? stage : dominant,
-    { title: "Belum ada data", totalValue: 0, quantity: 0 },
-  );
+  return terbanyak
+    ? {
+        title: terbanyak.stageName || "Belum ada data",
+        totalValue: terbanyak.totalValue,
+        quantity: terbanyak.quantity,
+      }
+    : { title: "Belum ada data", totalValue: 0, quantity: 0 };
 });
 const ownerOptions = computed(() =>
   [
@@ -704,21 +616,15 @@ function formatTotal(total: number) {
   return new Intl.NumberFormat("id-ID").format(total);
 }
 
-function formatCompactMoney(value: number) {
-  if (!Number.isFinite(value) || value <= 0) return "Rp 0";
-  if (value >= 1_000_000) {
-    const millions = new Intl.NumberFormat("id-ID", {
-      maximumFractionDigits: 1,
-    }).format(value / 1_000_000);
-    return `Rp ${millions} jt`;
-  }
-  if (value >= 1_000) {
-    const thousands = new Intl.NumberFormat("id-ID", {
-      maximumFractionDigits: 1,
-    }).format(value / 1_000);
-    return `Rp ${thousands} rb`;
-  }
-  return `Rp ${new Intl.NumberFormat("id-ID").format(value)}`;
+function formatMoney(value: number) {
+  if (!Number.isFinite(value)) return "Rp 0";
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    currencyDisplay: "narrowSymbol",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 20,
+  }).format(value);
 }
 
 function selectStage(value: string) {
@@ -899,6 +805,14 @@ function selectStage(value: string) {
   padding: 22px 24px 24px;
 }
 
+.overview-metrics--wide-value {
+  grid-template-columns: minmax(230px, 0.75fr) minmax(420px, 1.75fr);
+}
+
+.overview-metrics--wide-value .overview-card--composition {
+  grid-column: 1 / -1;
+}
+
 .overview-card {
   position: relative;
   overflow: hidden;
@@ -943,6 +857,11 @@ function selectStage(value: string) {
   font-size: clamp(25px, 2.6vw, 37px);
   font-weight: 700;
   line-height: 1.05;
+}
+
+.pipeline-total-value {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .overview-value-row > span {
