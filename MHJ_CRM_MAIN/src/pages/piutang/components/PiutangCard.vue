@@ -1,5 +1,5 @@
 <template>
-  <article class="piutang-item">
+  <router-link :to="detailTarget" class="piutang-item" :aria-label="`Lihat detail ${piutang.faskes}`">
     <div class="piutang-item__heading">
       <h3>{{ piutang.faskes }}</h3>
       <strong>{{ formatRupiah(piutang.totalPiutang) }}</strong>
@@ -21,26 +21,38 @@
       />
       <span>{{ formatLabelWaktu(piutang) }}</span>
     </div>
-  </article>
+  </router-link>
 </template>
 
 <script setup lang="ts">
-import type { Piutang } from '@/types/piutang'
+import { computed } from 'vue'
+
+import { routes } from '@/router/routes'
+import type { Piutang, PiutangStatus } from '@/types/piutang'
 import { formatLabelWaktu, formatRupiah, formatTermin } from '@/utils/piutang'
 
-defineProps<{
+const props = defineProps<{
   piutang: Piutang
+  sourceTab: PiutangStatus
 }>()
+
+const detailTarget = computed(() => ({
+  path: routes.CrmAdmin.Piutang,
+  query: { tab: props.sourceTab, detail: props.piutang.id },
+}))
 </script>
 
 <style scoped>
 .piutang-item {
+  display: block;
   height: 100%;
   border: 1px solid var(--bs-border-color, #e2e8f0);
   border-radius: 12px;
   padding: 18px 20px;
   background: var(--bs-card-bg, #ffffff);
   box-shadow: 0 3px 12px rgba(27, 43, 65, 0.05);
+  color: inherit;
+  text-decoration: none;
   transition:
     background-color 0.18s ease,
     border-color 0.18s ease,
@@ -51,6 +63,12 @@ defineProps<{
   border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.3);
   background: var(--bs-tertiary-bg, #f8fafc);
   transform: translateY(-1px);
+}
+
+.piutang-item:focus-visible {
+  border-color: var(--app-primary, var(--theme-default, #18a6e4));
+  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
+  outline-offset: 2px;
 }
 
 .piutang-item__heading {

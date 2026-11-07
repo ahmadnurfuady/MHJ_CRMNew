@@ -722,9 +722,9 @@ async function cancel() {
     return
   }
   if (isEditMode.value && editingId.value) {
-    router.push({ path: routes.Project.ProjectDetailsV2, query: { id: String(editingId.value) } })
+    router.replace({ path: routes.Project.ProjectDetailsV2, query: { id: String(editingId.value) } })
   } else {
-    router.push(routes.Project.ProjectList)
+    router.replace(routes.Project.ProjectList)
   }
 }
 
@@ -1196,7 +1196,7 @@ async function handleSubmit() {
       await projectStore.updateProject(editingId.value, payload)
       await showSaveSuccess({ entity: 'Peluang', action: 'updated' })
       allowEditNavigation = true
-      router.push({
+      router.replace({
         path: routes.Project.ProjectDetailsV2,
         query: { id: String(editingId.value) },
       })
@@ -1206,7 +1206,7 @@ async function handleSubmit() {
       if (props.modalMode) {
         emit('saved', created)
       } else {
-        router.push(routes.Project.ProjectList)
+        router.replace(routes.Project.ProjectList)
       }
     }
   } catch {

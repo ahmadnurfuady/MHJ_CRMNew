@@ -20,6 +20,7 @@
         <router-link
           class="header-edit-button"
           :to="{ path: routes.Project.ProjectEdit, query: { id: String(detailId) } }"
+          replace
           aria-label="Edit peluang"
         >
           <SolarIcon name="fa-pen" :size="14" aria-hidden="true" />
@@ -459,12 +460,17 @@ usePageTitle('Detail Peluang')
 usePageBackHandler(handleBack)
 
 function handleBack(): void {
-  if (window.history.state?.back) {
+  const previousPath = String(window.history.state?.back ?? '')
+  const previousIsProjectForm =
+    previousPath.startsWith(routes.Project.ProjectEdit) ||
+    previousPath.startsWith(routes.Project.ProjectCreate)
+
+  if (previousPath && !previousIsProjectForm) {
     router.back()
     return
   }
 
-  void router.push(backTarget.value)
+  void router.replace(backTarget.value)
 }
 
 function hasValue(value: unknown): boolean {

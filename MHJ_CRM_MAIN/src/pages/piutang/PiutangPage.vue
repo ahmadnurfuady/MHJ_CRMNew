@@ -1,5 +1,21 @@
 <template>
-  <div class="container-fluid piutang-page">
+  <PiutangDetailPreview v-if="selectedPiutang" :piutang="selectedPiutang" />
+
+  <div v-else-if="selectedPiutangId" class="container-fluid piutang-page">
+    <div class="piutang-detail-state card">
+      <span v-if="loading" class="spinner-border text-primary" aria-hidden="true"></span>
+      <SolarIcon
+        v-else
+        name="fa-circle-exclamation"
+        :size="28"
+        color="var(--bs-danger, #dc3545)"
+      />
+      <strong>{{ loading ? 'Memuat detail piutang...' : 'Detail piutang tidak ditemukan' }}</strong>
+      <p v-if="!loading">{{ loadError || 'Data piutang yang dipilih tidak tersedia.' }}</p>
+    </div>
+  </div>
+
+  <div v-else class="container-fluid piutang-page">
     <Card
       card-class="piutang-panel"
       card-body-class="piutang-panel__body"
@@ -28,7 +44,12 @@
       </div>
 
       <div v-else-if="filteredPiutang.length" class="piutang-list" role="tabpanel">
-        <PiutangCard v-for="item in filteredPiutang" :key="item.id" :piutang="item" />
+        <PiutangCard
+          v-for="item in filteredPiutang"
+          :key="item.id"
+          :piutang="item"
+          :source-tab="activeTab"
+        />
       </div>
 
       <div v-else class="piutang-empty" role="status">
@@ -52,18 +73,43 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Card from '@/components/shared/card/Card.vue'
+import { usePageBackRoute, usePageTitle } from '@/composable/usePageHeader'
 import PiutangCard from '@/pages/piutang/components/PiutangCard.vue'
+import PiutangDetailPreview from '@/pages/piutang/PiutangDetailPreview.vue'
+import { routes } from '@/router/routes'
 import { fetchPiutangList } from '@/services/piutangService'
 import type { Piutang, PiutangStatus } from '@/types/piutang'
 
 const route = useRoute()
 const router = useRouter()
-
 const tabs: Array<{ status: PiutangStatus; label: string }> = [
   { status: 'on_progress', label: 'On Progress' },
   { status: 'terlambat', label: 'Terlambat' },
   { status: 'lunas', label: 'Lunas' },
 ]
+
+function isPiutangStatus(value: unknown): value is PiutangStatus {
+  return tabs.some((tab) => tab.status === value)
+}
+
+const selectedPiutangId = computed(() => {
+  const detail = route.query.detail
+  return typeof detail === 'string' && detail ? detail : null
+})
+const selectedPiutang = computed(
+  () => piutangData.value.find((piutang) => piutang.id === selectedPiutangId.value) ?? null,
+)
+const sourceTab = computed<PiutangStatus>(() =>
+  isPiutangStatus(route.query.tab) ? route.query.tab : 'on_progress',
+)
+usePageTitle(computed(() => (selectedPiutangId.value ? 'Detail Piutang' : 'Piutang')))
+usePageBackRoute(
+  computed(() =>
+    selectedPiutangId.value
+      ? { path: routes.CrmAdmin.Piutang, query: { tab: sourceTab.value } }
+      : routes.CrmAdmin.Dashboard,
+  ),
+)
 
 // Data piutang dari backend: GET /api/dashboardpiutang/daftar. Diambil penuh
 // sekali, lalu disaring per tab di sisi FE. Badge tab memakai total_per_status
@@ -74,7 +120,7 @@ const totalPerStatus = ref<Record<PiutangStatus, number>>({
   terlambat: 0,
   lunas: 0,
 })
-const loading = ref(false)
+const loading = ref(true)
 const loadError = ref('')
 
 async function loadPiutang() {
@@ -93,10 +139,6 @@ async function loadPiutang() {
 }
 
 onMounted(loadPiutang)
-
-function isPiutangStatus(value: unknown): value is PiutangStatus {
-  return tabs.some((tab) => tab.status === value)
-}
 
 const activeTab = ref<PiutangStatus>(
   isPiutangStatus(route.query.tab) ? route.query.tab : 'on_progress',
@@ -250,6 +292,24 @@ watch(
 .piutang-empty p {
   margin: 0;
   font-size: 13px;
+}
+
+.piutang-detail-state {
+  display: flex;
+  min-height: 300px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--bs-border-color, #e5eaee);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+}
+
+.piutang-detail-state p {
+  margin: 0;
+  color: var(--bs-secondary-color, #73808d);
 }
 
 :global(body.dark-only) .piutang-page :deep(.piutang-panel) {
