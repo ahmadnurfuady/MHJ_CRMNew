@@ -34,6 +34,9 @@ export function formatRupiah(value: number): string {
 }
 
 export function formatTermin(piutang: Piutang): string {
+  // Label dari backend (detail_termin) dipakai langsung bila ada.
+  if (piutang.detailTermin && piutang.detailTermin.trim()) return piutang.detailTermin.trim()
+
   if (piutang.tipeBayar === 'sekali') return 'Sekali bayar'
   if (piutang.tipeBayar === 'pelunasan') return 'Pelunasan'
 
@@ -44,6 +47,9 @@ export function formatTermin(piutang: Piutang): string {
 }
 
 export function formatLabelWaktu(piutang: Piutang, today = new Date()): string {
+  // Label waktu dari backend (label_timeline) dipakai langsung bila ada.
+  if (piutang.labelWaktu && piutang.labelWaktu.trim()) return piutang.labelWaktu.trim()
+
   if (piutang.status === 'lunas' && piutang.tanggalLunas) {
     return `Lunas ${tanggalFormatter.format(parseIsoDate(piutang.tanggalLunas))}`
   }

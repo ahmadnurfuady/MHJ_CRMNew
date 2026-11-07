@@ -22,7 +22,12 @@
         </button>
       </div>
 
-      <div v-if="filteredPiutang.length" class="piutang-list" role="tabpanel">
+      <div v-if="loading" class="piutang-empty" role="status">
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <p>Memuat data piutang...</p>
+      </div>
+
+      <div v-else-if="filteredPiutang.length" class="piutang-list" role="tabpanel">
         <PiutangCard v-for="item in filteredPiutang" :key="item.id" :piutang="item" />
       </div>
 
@@ -36,18 +41,19 @@
             :secondary-opacity="1"
           />
         </span>
-        <p>Belum ada piutang pada tab ini</p>
+        <p>{{ loadError || 'Belum ada piutang pada tab ini' }}</p>
       </div>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import Card from '@/components/shared/card/Card.vue'
 import PiutangCard from '@/pages/piutang/components/PiutangCard.vue'
+import { fetchPiutangList } from '@/services/piutangService'
 import type { Piutang, PiutangStatus } from '@/types/piutang'
 
 const route = useRoute()
@@ -59,42 +65,34 @@ const tabs: Array<{ status: PiutangStatus; label: string }> = [
   { status: 'lunas', label: 'Lunas' },
 ]
 
-const piutangData: Piutang[] = [
-  {
-    id: 'pt-001',
-    faskes: 'RS Husada Utama',
-    produk: 'CT Scan Siemens SOMATOM go.Top',
-    noNota: 'INV/2026/10/0142',
-    tipeBayar: 'termin',
-    terminKe: 2,
-    terminTotal: 3,
-    totalPiutang: 1295000000,
-    jatuhTempo: '2026-11-10',
-    status: 'on_progress',
-  },
-  {
-    id: 'pt-002',
-    faskes: 'RS Bhayangkara Surabaya',
-    produk: 'Patient Monitor Mindray BeneVision N17',
-    noNota: 'INV/2026/06/0039',
-    tipeBayar: 'pelunasan',
-    totalPiutang: 92500000,
-    jatuhTempo: '2026-10-02',
-    status: 'terlambat',
-  },
-  {
-    id: 'pt-003',
-    faskes: 'RSUD Dr. Soetomo',
-    produk: 'Mesin Hemodialisa Fresenius 5008S',
-    noNota: 'INV/2026/05/0021',
-    tipeBayar: 'termin',
-    terminKe: 3,
-    terminTotal: 3,
-    totalPiutang: 2150000000,
-    tanggalLunas: '2026-10-12',
-    status: 'lunas',
-  },
-]
+// Data piutang dari backend: GET /api/dashboardpiutang/daftar. Diambil penuh
+// sekali, lalu disaring per tab di sisi FE. Badge tab memakai total_per_status
+// dari server supaya jumlahnya tetap benar walau data satu tab kosong.
+const piutangData = ref<Piutang[]>([])
+const totalPerStatus = ref<Record<PiutangStatus, number>>({
+  on_progress: 0,
+  terlambat: 0,
+  lunas: 0,
+})
+const loading = ref(false)
+const loadError = ref('')
+
+async function loadPiutang() {
+  loading.value = true
+  loadError.value = ''
+  try {
+    const result = await fetchPiutangList()
+    piutangData.value = result.items
+    totalPerStatus.value = result.totalPerStatus
+  } catch {
+    loadError.value = 'Gagal memuat data piutang.'
+    piutangData.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadPiutang)
 
 function isPiutangStatus(value: unknown): value is PiutangStatus {
   return tabs.some((tab) => tab.status === value)
@@ -105,11 +103,11 @@ const activeTab = ref<PiutangStatus>(
 )
 
 const filteredPiutang = computed(() =>
-  piutangData.filter((piutang) => piutang.status === activeTab.value),
+  piutangData.value.filter((piutang) => piutang.status === activeTab.value),
 )
 
 function countByStatus(status: PiutangStatus): number {
-  return piutangData.filter((piutang) => piutang.status === status).length
+  return totalPerStatus.value[status] ?? 0
 }
 
 function selectTab(status: PiutangStatus) {
