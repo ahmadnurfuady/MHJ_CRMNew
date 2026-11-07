@@ -21,6 +21,7 @@ import type { ListParams, Pagination } from '@/types/api'
 import type { Select } from '@/types/common'
 import type { Projects } from '@/types/project'
 import type { TaskPayload, TaskUpdatePayload, Task, TaskData, TaskDetails } from '@/types/tasks'
+import { canTask } from '@/module/task/taskPermission'
 
 const projectStageStorageKey = 'mhj-crm-project-stages'
 const CREATED_BY_ME = 'CreatedByMe'
@@ -587,6 +588,7 @@ export const useTask = defineStore('task', () => {
    * Mengembalikan null jika grup CreatedByMe tidak ada; error API dilempar kembali.
    */
   async function createTask(payload: TaskPayload): Promise<TaskDetails | null> {
+    if (!canTask('tambah')) throw new Error('Akses tambah tugas ditolak.')
     const target = createdByMeGroup()
     if (!target?.data) return null
 
@@ -682,6 +684,7 @@ export const useTask = defineStore('task', () => {
 
   /** POST /api/tasks/input dengan choice "u" untuk memperbarui task sesuai tipenya. */
   async function updateTask(payload: TaskUpdatePayload): Promise<TaskDetails | null> {
+    if (!canTask('koreksi')) throw new Error('Akses edit tugas ditolak.')
     return runApiAction({
       flag: submitting,
       error,
@@ -713,6 +716,7 @@ export const useTask = defineStore('task', () => {
   }
 
   const save = () => {
+    if (!canTask('tambah')) return
     taskData.formSubmitted = true
     taskData.errors = []
     if (!taskData.title.trim()) {
@@ -796,6 +800,7 @@ export const useTask = defineStore('task', () => {
    * tidak membaca kolom due_date, jadi nilainya tidak berefek apa pun.
    */
   function deleteTask(id: number) {
+    if (!canTask('hapus')) return Promise.reject(new Error('Akses hapus tugas ditolak.'))
     return runApiAction({
       flag: submitting,
       error,
@@ -811,6 +816,7 @@ export const useTask = defineStore('task', () => {
   }
 
   const warningAlert = async (index: number) => {
+    if (!canTask('hapus')) return
     const target = currentTask.value?.data?.[index]
     if (!target) return
 

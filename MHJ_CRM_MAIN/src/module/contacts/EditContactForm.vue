@@ -401,6 +401,7 @@ import {
 } from "@/services/geocoding";
 import { showSaveSuccess } from "@/utils/feedback";
 import Swal from "sweetalert2";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
 
 const emit = defineEmits<{
   cancel: [];
@@ -421,6 +422,7 @@ const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
+const { canEditContact } = useContactPermissions();
 const {
   fetchContactLookups,
   searchContactProjects,
@@ -935,6 +937,7 @@ function fillForm() {
 }
 
 async function save() {
+  if (!canEditContact.value) return;
   const contact = contactState.value.activeContact;
   if (!contact?.remoteId) return;
 

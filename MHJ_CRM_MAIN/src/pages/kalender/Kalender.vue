@@ -30,7 +30,7 @@
               </div>
             </div>
 
-            <div class="kalender-export-actions">
+            <div v-if="canExportCalendar" class="kalender-export-actions">
               <span class="kalender-export-hint">Ekspor mengikuti filter aktif</span>
               <button
                 class="btn btn-outline-primary kalender-export-button"
@@ -79,12 +79,14 @@ import {
 import { useTask } from '@/store/task'
 // import { useProjectStore } from '@/store/project' // dinonaktifkan: endpoint peluang tidak dipanggil lagi
 import { routes } from '@/router/routes'
+import { useCalendarPermissions } from '@/module/calendar/calendarPermission'
 
 type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 type ExportFormat = 'csv' | 'excel'
 
 const router = useRouter()
 const taskStore = useTask()
+const { canExportCalendar } = useCalendarPermissions()
 // const projectStore = useProjectStore() // dinonaktifkan: endpoint peluang tidak dipanggil lagi
 
 // Hanya ambil state yang kita butuhkan. error state di store global sengaja
@@ -307,7 +309,7 @@ function downloadFile(content: string, mimeType: string, extension: string) {
 }
 
 function exportEntries(format: ExportFormat) {
-  if (!filteredEntries.value.length) return
+  if (!canExportCalendar.value || !filteredEntries.value.length) return
   const rows = exportRows()
 
   if (format === 'csv') {

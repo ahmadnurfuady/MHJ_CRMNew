@@ -128,6 +128,7 @@
           </div>
         </div>
         <button
+          v-if="canAddContact"
           class="btn btn-primary add-contact-header-button mhj-add-button"
           type="button"
           @click="openContactModal"
@@ -378,7 +379,7 @@
     </div>
   </div>
 
-  <AddContactModal v-if="contactState.openAddContactModal" />
+  <AddContactModal v-if="canAddContact && contactState.openAddContactModal" />
 </template>
 
 <script setup lang="ts">
@@ -390,6 +391,7 @@ import { timeAgo } from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
 import type { Contact } from "@/types/contacts";
 import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/contacts/AddContactModal.vue"),
 );
@@ -397,6 +399,7 @@ const router = useRouter();
 const contactStore = useContact();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
 const { openContactModal, searchContacts } = contactStore;
+const { canAddContact } = useContactPermissions();
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 

@@ -21,6 +21,7 @@ import type { Contact } from '@/types/contacts'
 import { normalizeProject } from '@/store/project'
 import { normalizeApiContact } from '@/store/contact'
 import { runApiAction } from '@/store/apiAction'
+import { canHospital } from '@/module/rumahSakit/hospitalPermission'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
 const ENDPOINT = 'company'
@@ -379,6 +380,7 @@ export const useHospitalStore = defineStore('hospital', () => {
 
   /** POST /api/company/input dengan choice "i". */
   function createHospital(payload: HospitalPayload) {
+    if (!canHospital('tambah')) return Promise.reject(new Error('Akses tambah Faskes ditolak.'))
     return runApiAction({
       flag: submitting,
       error,
@@ -401,6 +403,7 @@ export const useHospitalStore = defineStore('hospital', () => {
 
   /** POST /api/company/input dengan choice "u". */
   function updateHospital(id: number, payload: HospitalPayload) {
+    if (!canHospital('koreksi')) return Promise.reject(new Error('Akses edit Faskes ditolak.'))
     return runApiAction({
       flag: submitting,
       error,
@@ -423,6 +426,7 @@ export const useHospitalStore = defineStore('hospital', () => {
 
   /** POST /api/company/input dengan choice "d". */
   function deleteHospital(id: number) {
+    if (!canHospital('hapus')) return Promise.reject(new Error('Akses hapus Faskes ditolak.'))
     return runApiAction({
       flag: submitting,
       error,

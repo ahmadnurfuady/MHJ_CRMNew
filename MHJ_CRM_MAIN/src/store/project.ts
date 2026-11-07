@@ -15,6 +15,7 @@ import { runApiAction } from '@/store/apiAction'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Profile, ProjectContact, ProjectProductDetail, Projects } from '@/types/project'
 import type { Select } from '@/types/common'
+import { canProject } from '@/module/project/projectPermission'
 
 export interface DivisiOption extends Select {
   code: string
@@ -416,6 +417,7 @@ export const useProjectStore = defineStore('project', () => {
   const lastParams = ref<ListParams>({})
 
   function openCreateModal(hospital?: { id: number; name: string }) {
+    if (!canProject('tambah')) return
     createModalHospital.value = hospital ?? null
     createModalOpen.value = true
   }
@@ -566,6 +568,7 @@ export const useProjectStore = defineStore('project', () => {
 
   /** POST /api/project/input dengan choice "i", lalu ambil ulang baris lengkapnya. */
   function createProject(payload: ProjectPayload) {
+    if (!canProject('tambah')) return Promise.reject(new Error('Akses tambah peluang ditolak.'))
     return runApiAction({
       flag: submitting,
       error,
@@ -610,6 +613,7 @@ export const useProjectStore = defineStore('project', () => {
 
   /** POST /api/project/input dengan choice "u", lalu ambil ulang baris lengkapnya. */
   function updateProject(id: number, payload: Partial<ProjectPayload>) {
+    if (!canProject('koreksi')) return Promise.reject(new Error('Akses edit peluang ditolak.'))
     return runApiAction({
       flag: submitting,
       error,
@@ -648,6 +652,7 @@ export const useProjectStore = defineStore('project', () => {
 
   /** POST /api/project/input dengan choice "d". */
   function deleteProject(id: number) {
+    if (!canProject('hapus')) return Promise.reject(new Error('Akses hapus peluang ditolak.'))
     return runApiAction({
       flag: submitting,
       error,

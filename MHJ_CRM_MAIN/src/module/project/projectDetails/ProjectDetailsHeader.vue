@@ -31,6 +31,7 @@
         </li>
       </ul>
       <button
+        v-if="canAddProject"
         class="btn btn-primary mhj-add-button"
         type="button"
         @click="projectStore.openCreateModal()"
@@ -46,8 +47,10 @@
 import { defineAsyncComponent } from 'vue'
 import { projectDetailsHeader } from '@/core/data/project'
 import { useProjectStore } from '@/store/project'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 
 const SvgIcon = defineAsyncComponent(() => import('@/components/shared/SvgIcon.vue'))
 const GroupItem = defineAsyncComponent(() => import('@/components/shared/GroupItem.vue'))
 const projectStore = useProjectStore()
+const { canAddProject } = useProjectPermissions()
 </script>

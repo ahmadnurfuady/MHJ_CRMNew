@@ -105,10 +105,16 @@
           jadi walau tombol dipaksa tampil via DevTools, request-nya tetap ditolak.
         -->
         <template v-if="isOwnActiveContact">
-          <button class="profile-action profile-action--primary" type="button" @click="editContact">
+          <button
+            v-if="canEditContact"
+            class="profile-action profile-action--primary"
+            type="button"
+            @click="editContact"
+          >
             <vue-feather type="edit-2" size="14" />Edit
           </button>
           <button
+            v-if="canDeleteContact"
             class="contact-delete-button"
             type="button"
             title="Hapus kontak"
@@ -529,6 +535,8 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Hospital } from "@/types/hospital";
 import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
+import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 import GoogleMapView from "@/components/GoogleMapView.vue";
 import {
   indonesianPhoneCallUrl,
@@ -543,12 +551,15 @@ const authStore = useAuthStore();
 const hospitalStore = useHospitalStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
 const { editContact, fetchContactSources, showHistory } = contactStore;
+const { canEditContact, canDeleteContact } = useContactPermissions();
+const { canEditHospital } = useHospitalPermissions();
 
 onMounted(() => {
   if (!contactApi.value.sources.length) void fetchContactSources();
 });
 
 async function deleteContact() {
+  if (!canDeleteContact.value) return;
   const deleted = await contactStore.deleteContact();
   if (deleted) await router.push(routes.App.Contacts);
 }
@@ -841,6 +852,7 @@ const canEditCompanyProfile = computed(() =>
 );
 const canEditSelectedCompanyProfile = computed(
   () =>
+    canEditHospital.value &&
     canEditCompanyProfile.value &&
     Boolean(liveCompany.value),
 );

@@ -32,6 +32,7 @@
             <div class="hospital-title-row">
               <h4>{{ hospital.name }}</h4>
               <button
+                v-if="canEditHospital"
                 :class="['status-badge', { unrated: !hospital.financeStatus }]"
                 type="button"
                 title="Perbarui grading/status Finance"
@@ -40,6 +41,13 @@
                 <SolarIcon name="fa-circle" />
                 {{ financeStatusLabel }}
               </button>
+              <span
+                v-else
+                :class="['status-badge', { unrated: !hospital.financeStatus }]"
+              >
+                <SolarIcon name="fa-circle" />
+                {{ financeStatusLabel }}
+              </span>
             </div>
             <p class="hospital-location">
               <MhjIcon name="action_location" />
@@ -247,6 +255,7 @@
               <strong>{{ formatCurrency(totalProjectValue) }}</strong>
             </div>
             <button
+              v-if="canAddProject"
               type="button"
               class="panel-add-button mhj-add-button"
               title="Tambah peluang"
@@ -367,6 +376,7 @@
           <div class="panel-heading-actions">
             <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
             <button
+              v-if="canAddContact"
               type="button"
               class="panel-add-button mhj-add-button"
               title="Tambah kontak"
@@ -512,12 +522,20 @@
           </div>
           <div class="profile-actions">
             <button
-              v-if="!profileEditing"
+              v-if="!profileEditing && canEditHospital"
               class="edit-profile"
               type="button"
               @click="editHospital"
             >
               <SolarIcon name="fa-pen-to-square" />Edit Faskes
+            </button>
+            <button
+              v-if="!profileEditing && canDeleteHospital"
+              class="delete-profile"
+              type="button"
+              @click="confirmDeleteHospital"
+            >
+              Hapus
             </button>
             <button
               class="close-profile"
@@ -654,7 +672,12 @@
           @cancel="cancelHospitalEdit"
         >
           <template #delete>
-            <button class="delete-profile" type="button" @click="confirmDeleteHospital">
+            <button
+              v-if="canDeleteHospital"
+              class="delete-profile"
+              type="button"
+              @click="confirmDeleteHospital"
+            >
               Hapus
             </button>
           </template>
@@ -663,7 +686,7 @@
     </template>
 
     <ContactFormModal
-      v-if="contactStore.contactState.openAddContactModal"
+      v-if="canAddContact && contactStore.contactState.openAddContactModal"
       @saved="handleContactCreated"
     />
 
@@ -762,6 +785,9 @@ import ContactFormModal from "@/module/contacts/AddContactModal.vue";
 import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
 import Modal from "@/components/shared/Modal.vue";
 import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
+import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
+import { useProjectPermissions } from "@/module/project/projectPermission";
 
 const navigableDetailTabs = [
   "projects",
@@ -798,6 +824,9 @@ usePageBackRoute(routes.App.RumahSakit);
 const hospitalStore = useHospitalStore();
 const projectStore = useProjectStore();
 const contactStore = useContact();
+const { canAddContact } = useContactPermissions();
+const { canAddProject } = useProjectPermissions();
+const { canEditHospital, canDeleteHospital } = useHospitalPermissions();
 const { selectedItem: hospital, detailLoading } = storeToRefs(hospitalStore);
 
 function detailTabFromQuery(value: unknown): NavigableDetailTab {
@@ -1193,6 +1222,7 @@ function syncHospitalEditRoute() {
 }
 
 function editHospital() {
+  if (!canEditHospital.value) return;
   prepareProfileForm();
   profileEditing.value = true;
   allowEditNavigation = false;
@@ -1200,6 +1230,7 @@ function editHospital() {
 }
 
 function editHospitalStatus() {
+  if (!canEditHospital.value) return;
   prepareProfileForm();
   activeTab.value = "profile";
   profileEditing.value = true;
@@ -1224,6 +1255,7 @@ function handleHospitalSaved() {
 }
 
 async function confirmDeleteHospital() {
+  if (!canDeleteHospital.value) return;
   if (!hospital.value) return;
   const result = await Swal.fire({
     title: "Hapus faskes?",
@@ -1282,7 +1314,18 @@ onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnloa
 watch(
   [() => route.query.edit, hospital],
   ([edit, currentHospital]) => {
-    if (String(edit ?? "") === "1" && !profileEditing.value && currentHospital) {
+    if (String(edit ?? "") === "1" && !canEditHospital.value) {
+      allowEditNavigation = true;
+      profileEditing.value = false;
+      void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
+      return;
+    }
+    if (
+      String(edit ?? "") === "1" &&
+      canEditHospital.value &&
+      !profileEditing.value &&
+      currentHospital
+    ) {
       prepareProfileForm();
       activeTab.value = "profile";
       profileEditing.value = true;
@@ -1293,6 +1336,14 @@ watch(
   },
   { immediate: true },
 );
+watch(canEditHospital, (allowed) => {
+  if (allowed) return;
+  allowEditNavigation = true;
+  profileEditing.value = false;
+  if (String(route.query.edit ?? "") === "1") {
+    void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
+  }
+});
 
 watch(
   () => route.query.tab,

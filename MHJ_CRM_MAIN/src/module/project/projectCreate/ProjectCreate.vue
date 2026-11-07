@@ -67,6 +67,7 @@
                   />
                 </InputWrapper>
                 <button
+                  v-if="canAddContact"
                   class="btn btn-link btn-sm mt-1 mhj-form-add-button"
                   type="button"
                   :disabled="!isCompanySelected"
@@ -350,7 +351,7 @@
     </div>
 
     <AddContactModal
-      v-if="contactStore.contactState.openAddContactModal"
+      v-if="canAddContact && contactStore.contactState.openAddContactModal"
       @saved="selectCreatedContact"
     />
   </div>
@@ -380,6 +381,8 @@ import type { Contact } from '@/types/contacts'
 import type { InputField as InputFieldState } from '@/types/common'
 import type { Projects } from '@/types/project'
 import { shortProjectTitle } from '@/utils/index'
+import { useContactPermissions } from '@/module/contacts/contactPermission'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 
 interface PipelineStageOption extends DealOption {
   code: string
@@ -492,7 +495,9 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const contactStore = useContact()
+const { canAddContact } = useContactPermissions()
 const projectStore = useProjectStore()
+const { canAddProject, canEditProject } = useProjectPermissions()
 
 const editingId = computed<number | null>(() => {
   const explicitId = Number(props.editProjectId)
@@ -504,6 +509,18 @@ const editingId = computed<number | null>(() => {
 })
 const isEditMode = computed(() => editingId.value !== null)
 let allowEditNavigation = false
+
+watch([canAddProject, canEditProject], () => {
+  const allowed = isEditMode.value ? canEditProject.value : canAddProject.value
+  if (allowed) return
+
+  if (props.modalMode) {
+    projectStore.closeCreateModal()
+    return
+  }
+  allowEditNavigation = true
+  void router.replace(routes.Project.ProjectList)
+})
 const loadingProject = ref(false)
 // Saat prefill berjalan, watcher company/division di bawah tidak boleh ikut mengosongkan field terkait.
 const prefilling = ref(false)
@@ -1057,6 +1074,7 @@ onMounted(async () => {
 })
 
 async function handleSubmit() {
+  if (isEditMode.value ? !canEditProject.value : !canAddProject.value) return
   formSubmitted.value = true
   const form = projectForm.value
   const requiredFields: [string, { data: unknown; errorMessage?: string }][] = [

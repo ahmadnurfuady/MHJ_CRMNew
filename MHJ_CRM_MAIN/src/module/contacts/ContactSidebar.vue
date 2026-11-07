@@ -27,7 +27,7 @@
               class="nav main-menu contact-options custom-scrollbar"
               role="tablist"
             >
-              <li class="nav-item">
+              <li v-if="canAddContact" class="nav-item">
                 <button
                   class="btn btn-primary btn-block btn-mail add-contact-button mhj-add-button w-100"
                   type="button"
@@ -38,7 +38,7 @@
                   <span>Tambah Kontak Baru</span>
                 </button>
               </li>
-              <li class="nav-item">
+              <li v-if="canAddContact" class="nav-item">
                 <span class="main-title"> Tampilan</span>
               </li>
               <li
@@ -84,8 +84,8 @@
     </div>
   </div>
 
-  <AddContactModal v-if="contactState.openAddContactModal" />
-  <ContactCategoryModal v-if="contactState.openCategoryModal" />
+  <AddContactModal v-if="canAddContact && contactState.openAddContactModal" />
+  <ContactCategoryModal v-if="canAddContact && contactState.openCategoryModal" />
 </template>
 
 <script setup lang="ts">
@@ -94,6 +94,7 @@ import { storeToRefs } from "pinia";
 import { user } from "@/core/data/user";
 import { useContact } from "@/store/contact";
 import { getImages } from "@/utils/index";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
 
 const Card = defineAsyncComponent(
   () => import("@/components/shared/card/Card.vue"),
@@ -108,6 +109,7 @@ const ContactCategoryModal = defineAsyncComponent(
 const contactStore = useContact();
 const { contactState } = storeToRefs(contactStore);
 const { handleActiveTab, openContactModal } = contactStore;
+const { canAddContact } = useContactPermissions();
 
 const sidebarOpen = ref<boolean>(false);
 const userDetails = user;

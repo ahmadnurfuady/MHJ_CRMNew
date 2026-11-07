@@ -24,9 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted } from 'vue'
+import { computed, defineAsyncComponent, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useContact } from '@/store/contact'
+import { useContactPermissions } from '@/module/contacts/contactPermission'
 
 const ContactDetails = defineAsyncComponent(() => import('@/module/contacts/ContactDetails.vue'))
 const ContactDetailPage = defineAsyncComponent(
@@ -40,13 +41,19 @@ const contactStore = useContact()
 contactStore.setScope('contact')
 const route = useRoute()
 const router = useRouter()
+const { canAddContact } = useContactPermissions()
 onMounted(() => {
   // Dari pencarian header: /crmAdmin/contacts?add=1 membuka form Tambah Kontak.
-  if (route.query.add) {
+  if (route.query.add && canAddContact.value) {
     contactStore.openContactModal()
+  }
+  if (route.query.add) {
     const { add: _add, ...rest } = route.query
     void router.replace({ query: rest })
   }
+})
+watch(canAddContact, (allowed) => {
+  if (!allowed) contactStore.contactState.openAddContactModal = false
 })
 const detailId = computed(() => {
   const id = Number(route.query.detail)

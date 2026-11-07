@@ -24,12 +24,12 @@
             <SolarIcon name="fa-arrow-up-from-bracket" />
             <span><strong>Upload PO Customer</strong><small>Belum tersedia</small></span>
           </button>
-          <button type="button" @click="openForm('customer-po', $event)">
+          <button v-if="canEditProject" type="button" @click="openForm('customer-po', $event)">
             <SolarIcon name="fa-pen-to-square" />
             <span><strong>Isi Form Data Pelanggan</strong><small>Buat dokumen dari data peluang</small></span>
           </button>
           <button
-            v-if="latestCustomerPo"
+            v-if="latestCustomerPo && canExportProject"
             class="latest-document"
             type="button"
             @click="downloadDocument(latestCustomerPo, $event)"
@@ -46,16 +46,16 @@
           <SolarIcon name="fa-chevron-down" class="menu-chevron" />
         </summary>
         <div class="document-menu__panel document-menu__panel--right">
-          <button type="button" @click="chooseUpload('sales-order', $event)">
+          <button v-if="canEditProject" type="button" @click="chooseUpload('sales-order', $event)">
             <SolarIcon name="fa-arrow-up-from-bracket" />
             <span><strong>Upload Surat Pesanan</strong><small>PDF, Word, Excel, atau gambar</small></span>
           </button>
-          <button type="button" @click="openForm('sales-order', $event)">
+          <button v-if="canEditProject" type="button" @click="openForm('sales-order', $event)">
             <SolarIcon name="fa-pen-to-square" />
             <span><strong>Buat Draft Surat Pesanan</strong><small>Isi lalu unduh sebagai Word</small></span>
           </button>
           <button
-            v-if="latestSalesOrder"
+            v-if="latestSalesOrder && canExportProject"
             class="latest-document"
             type="button"
             @click="downloadDocument(latestSalesOrder, $event)"
@@ -300,10 +300,10 @@
         <div class="modal-footer">
           <button class="btn btn-light" type="button" :disabled="saving" @click="closeForm">Batal</button>
           <div class="footer-actions">
-            <button class="btn btn-outline-danger" type="button" :disabled="saving" @click="downloadDraft('pdf')">
+            <button v-if="canExportProject" class="btn btn-outline-danger" type="button" :disabled="saving" @click="downloadDraft('pdf')">
               <SolarIcon name="fa-file-pdf" /> PDF
             </button>
-            <button class="btn btn-outline-primary" type="button" :disabled="saving" @click="downloadDraft('docx')">
+            <button v-if="canExportProject" class="btn btn-outline-primary" type="button" :disabled="saving" @click="downloadDraft('docx')">
               <SolarIcon name="fa-file-word" /> Word
             </button>
             <button class="btn btn-primary" type="submit" :disabled="saving">
@@ -331,8 +331,10 @@ import {
 } from '@/services/projectDocumentStorage'
 import type { Projects } from '@/types/project'
 import { getUserErrorMessage } from '@/utils/errorParser'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 
 const props = defineProps<{ project: Projects }>()
+const { canEditProject, canExportProject } = useProjectPermissions()
 const emit = defineEmits<{
   'documents-loaded': [documents: StoredProjectDocument[]]
   'sales-order-saved': [document: StoredProjectDocument]
@@ -502,12 +504,14 @@ function closeMenu(event: Event): void {
 }
 
 function chooseUpload(kind: ProjectDocumentKind, event: Event): void {
+  if (!canEditProject.value) return
   closeMenu(event)
   const input = kind === 'customer-po' ? customerPoInput.value : salesOrderInput.value
   input?.click()
 }
 
 function openForm(kind: ProjectDocumentKind, event: Event): void {
+  if (!canEditProject.value) return
   closeMenu(event)
   resetForm()
   formMode.value = kind
@@ -518,6 +522,7 @@ function closeForm(): void {
 }
 
 async function handleUpload(kind: ProjectDocumentKind, event: Event): Promise<void> {
+  if (!canEditProject.value) return
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
   input.value = ''
@@ -593,6 +598,7 @@ async function loadDocuments(): Promise<void> {
 }
 
 function downloadDocument(document: StoredProjectDocument, event: Event): void {
+  if (!canExportProject.value) return
   closeMenu(event)
   downloadStoredDocument(document)
 }
@@ -921,7 +927,7 @@ function safeFileName(value: string): string {
 }
 
 async function generateDocument(): Promise<void> {
-  if (!formMode.value) return
+  if (!canEditProject.value || !formMode.value) return
   saving.value = true
   try {
     const kind = formMode.value
@@ -1031,7 +1037,7 @@ function triggerDownload(blob: Blob, fileName: string): void {
 
 /** Unduh draft langsung dari isi form tanpa menyimpan dulu. */
 function downloadDraft(format: 'pdf' | 'docx'): void {
-  if (!formMode.value) return
+  if (!canExportProject.value || !formMode.value) return
   const kind = formMode.value
   const label = kind === 'customer-po' ? 'Data-Pelanggan' : 'Surat-Pesanan'
   const baseName = `${label}-${safeFileName(form.customer)}-${form.documentDate || today()}`

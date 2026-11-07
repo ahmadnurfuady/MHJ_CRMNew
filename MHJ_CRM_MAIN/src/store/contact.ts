@@ -32,6 +32,8 @@ import {
 import { validateForm } from "@/utils/validators/formValidators";
 import { getUserErrorMessage } from "@/utils/errorParser";
 import { showSaveSuccess } from "@/utils/feedback";
+import { canContact } from "@/module/contacts/contactPermission";
+import { canHospital } from "@/module/rumahSakit/hospitalPermission";
 
 // ID dari backend diberi offset agar data Contact dan Rumah Sakit tidak saling bentrok.
 const HOSPITAL_ID_OFFSET = 1_000_000;
@@ -1125,6 +1127,7 @@ export const useContact = defineStore("contact", () => {
    * Mengembalikan kontak yang baru dibuat, atau undefined jika backend tidak mengembalikan datanya.
    */
   function createRemoteContact(payload: ContactCrudPayload) {
+    if (!canContact("tambah")) return Promise.reject(new Error("Akses tambah kontak ditolak."));
     return runApiAction({
       flag: contactSubmitting,
       error: contactError,
@@ -1158,6 +1161,7 @@ export const useContact = defineStore("contact", () => {
 
   /** POST /api/contact/input dengan choice "u". */
   function updateRemoteContact(remoteId: number, payload: ContactCrudPayload) {
+    if (!canContact("koreksi")) return Promise.reject(new Error("Akses edit kontak ditolak."));
     return runApiAction({
       flag: contactSubmitting,
       error: contactError,
@@ -1189,6 +1193,7 @@ export const useContact = defineStore("contact", () => {
    * tetap harus membawa semua parameter walaupun cabang delete pada SP hanya memakai id.
    */
   function removeRemoteContact(remoteId: number, source?: Contact) {
+    if (!canContact("hapus")) return Promise.reject(new Error("Akses hapus kontak ditolak."));
     return runApiAction({
       flag: contactSubmitting,
       error: contactError,
@@ -1297,11 +1302,13 @@ export const useContact = defineStore("contact", () => {
   }
 
   function editContact() {
+    if (!canContact("koreksi")) return;
     contactState.isEditContact = true;
   }
 
   /** Menghapus kontak aktif. Data dari backend dihapus lewat API, data lokal dihapus dari daftar. */
   async function deleteContact(): Promise<boolean> {
+    if (!canContact("hapus")) return false;
     const target = contactState.activeContact;
 
     if (target?.origin && target.remoteId !== undefined) {
@@ -1402,14 +1409,26 @@ export const useContact = defineStore("contact", () => {
   }
 
   function openContactModal() {
+    if (!canContact("tambah")) return;
     prepareContactModal();
   }
 
+  function openHospitalModal() {
+    if (!canHospital("tambah")) return;
+    contactState.hospitalEditId = null;
+    contactState.hospitalEditLocation = null;
+    contactState.rumahSakitForm = createRumahSakitForm();
+    contactState.formSubmitted = false;
+    contactState.openAddContactModal = true;
+  }
+
   function openContactModalForCompany(company: { id: number; name: string }) {
+    if (!canContact("tambah")) return;
     prepareContactModal(company);
   }
 
   function openHospitalEditModal(hospital: Hospital) {
+    if (!canHospital("koreksi")) return;
     prepareHospitalForm(hospital);
     contactState.openAddContactModal = true;
   }
@@ -1425,6 +1444,7 @@ export const useContact = defineStore("contact", () => {
   }
 
   async function saveContact() {
+    if (!canContact("tambah")) return;
     contactState.formSubmitted = true;
 
     const { phoneNumbers, ...formFields } = contactState.contactForm;
@@ -1532,6 +1552,8 @@ export const useContact = defineStore("contact", () => {
     location?: { lat: number; lng: number } | null,
     closeAfterSave = true,
   ) {
+    const action = contactState.hospitalEditId === null ? "tambah" : "koreksi";
+    if (!canHospital(action)) return false;
     contactState.formSubmitted = true;
 
     const { phoneNumbers, ...formFields } = contactState.rumahSakitForm;
@@ -1724,6 +1746,7 @@ export const useContact = defineStore("contact", () => {
     showHistory,
     printContact,
     openContactModal,
+    openHospitalModal,
     openContactModalForCompany,
     openHospitalEditModal,
     prepareHospitalForm,

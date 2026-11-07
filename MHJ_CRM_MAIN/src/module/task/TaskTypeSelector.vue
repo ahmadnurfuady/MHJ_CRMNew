@@ -52,10 +52,12 @@
 import { nextTick } from 'vue'
 import { Modal } from 'bootstrap'
 import type { TaskKind } from '@/types/tasks'
+import { useTaskPermissions } from '@/module/task/taskPermission'
 
 const emit = defineEmits<{
   select: [type: TaskKind]
 }>()
+const { canAddTask } = useTaskPermissions()
 
 const targetModalIds: Record<TaskKind, string> = {
   sales: 'sales-task-modal',
@@ -63,6 +65,7 @@ const targetModalIds: Record<TaskKind, string> = {
 }
 
 async function openTaskForm(type: TaskKind) {
+  if (!canAddTask.value) return
   const selectorElement = document.getElementById('task-type-selector')
   if (!selectorElement) return
 

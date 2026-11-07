@@ -558,6 +558,7 @@ import {
   type AddressSearchResult,
 } from "@/services/geocoding";
 import { useUserLocation } from "@/composable/useUserLocation";
+import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 import { useContact } from "@/store/contact";
 import {
   indonesianMobilePhoneError,

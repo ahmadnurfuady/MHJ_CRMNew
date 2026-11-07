@@ -18,6 +18,7 @@
     <div v-else class="detail-stack">
       <section class="opportunity-header-card">
         <router-link
+          v-if="canEditProject"
           class="header-edit-button"
           :to="{ path: routes.Project.ProjectEdit, query: { id: String(detailId) } }"
           replace
@@ -176,13 +177,13 @@
                 v-for="(contact, index) in relatedContacts"
                 :key="`${contact.name}-${contact.phone}-${index}`"
                 class="contact-card"
+                :class="{ 'contact-card--external': !contact.isOwnContact }"
               >
                 <span class="contact-avatar" aria-hidden="true">{{ contactInitials(contact.name) }}</span>
                 <div class="contact-card-copy">
                   <strong>{{ contact.name }}</strong>
-                  <span>{{ contact.jobTitle }}</span>
+                  <span v-if="contact.jobTitle !== '-'">{{ contact.jobTitle }}</span>
 
-                  <!-- Kontak milik sendiri: email & telepon aktif (bisa diklik). -->
                   <div
                     v-if="contact.isOwnContact && (contact.phone !== '-' || contact.email !== '-')"
                     class="contact-meta"
@@ -197,18 +198,10 @@
                     </a>
                   </div>
 
-                  <!-- Kontak milik user lain: email/telepon dimasking BE, tanpa link,
-                       plus keterangan pemiliknya (read-only). -->
-                  <div v-else class="contact-locked" :title="`Email & telepon disembunyikan — milik ${contact.ownerName !== '-' ? contact.ownerName : 'user lain'}`">
-                    <span class="contact-locked__owner">
-                      <SolarIcon name="lock-keyhole-minimalistic" :size="13" aria-hidden="true" />
+                  <div v-else-if="!contact.isOwnContact" class="contact-owner-note">
+                    <span>
+                      <SolarIcon name="user" :size="13" aria-hidden="true" />
                       Milik {{ contact.ownerName !== '-' ? contact.ownerName : 'user lain' }}
-                    </span>
-                    <span v-if="contact.phone !== '-'" class="contact-locked__value">
-                      <SolarIcon name="phone" :size="14" aria-hidden="true" />{{ contact.phone }}
-                    </span>
-                    <span v-if="contact.email !== '-'" class="contact-locked__value">
-                      <SolarIcon name="letter" :size="14" aria-hidden="true" />{{ contact.email }}
                     </span>
                   </div>
                 </div>
@@ -398,6 +391,7 @@ import { usePageBackHandler, usePageTitle } from '@/composable/usePageHeader'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
 import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
 import { routes } from '@/router/routes'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 import type { StoredProjectDocument } from '@/services/projectDocumentStorage'
 import { useProjectStore } from '@/store/project'
 
@@ -427,6 +421,7 @@ interface ContactView {
 const route = useRoute()
 const router = useRouter()
 const store = useProjectStore()
+const { canEditProject } = useProjectPermissions()
 const { selectedDetail, selectedItem, selectedTasks, loading } = storeToRefs(store)
 
 const activeTab = ref<'info' | 'activity' | 'order-status'>('info')
@@ -797,26 +792,25 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .faskes-summary dd { margin: 0; color: #102a43; font-size: 15px; font-weight: 500; line-height: 1.45; overflow-wrap: anywhere; }
 .multiline-value { white-space: pre-line; }
 .contact-section { margin-top: 24px; border-top: 1px solid #e8eef2; padding-top: 20px; }
-.contact-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.contact-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .contact-section-heading h3 { margin: 0 0 3px; color: #102a43; font-size: 14px; }
 .contact-section-heading p { margin: 0; color: #829ab1; font-size: 11px; }
-.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
-.contact-card { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: start; gap: 12px; min-width: 0; border: 1px solid #e3ebf0; border-radius: 12px; padding: 14px; background: #fff; box-shadow: 0 4px 14px rgba(31, 52, 73, .035); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.contact-card { display: grid; grid-template-columns: 46px minmax(0, 1fr); align-items: center; gap: 13px; min-width: 0; min-height: 82px; border: 1px solid #e3ebf0; border-radius: 14px; padding: 15px; background: #fff; box-shadow: 0 4px 14px rgba(31, 52, 73, .035); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
 .contact-card:hover { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .32); box-shadow: 0 8px 20px rgba(31, 52, 73, .07); transform: translateY(-1px); }
-.contact-avatar { display: grid; width: 44px; height: 44px; place-items: center; border: 3px solid #fff; border-radius: 13px; color: #fff; background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #75c4ef)); box-shadow: 0 6px 14px rgba(22, 76, 105, .14); font-size: 12px; font-weight: 800; }
+.contact-card--external { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .2); background: linear-gradient(135deg, #fff 35%, rgba(var(--app-primary-rgb, 24, 166, 228), .045)); }
+.contact-avatar { display: grid; width: 46px; height: 46px; place-items: center; border: 3px solid #fff; border-radius: 14px; color: #fff; background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #75c4ef)); box-shadow: 0 6px 14px rgba(22, 76, 105, .14); font-size: 12px; font-weight: 800; }
 .contact-card-copy { min-width: 0; }
 .contact-card-copy > strong, .contact-card-copy > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .contact-card-copy > strong { color: #102a43; font-size: 14px; font-weight: 600; }
 .contact-card-copy > span { margin-top: 3px; color: #718096; font-size: 11px; }
-.contact-meta { display: flex; min-width: 0; flex-wrap: wrap; gap: 5px 10px; margin-top: 9px; }
-.contact-meta a { display: inline-flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: #486581; font-size: 10px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.contact-meta { display: flex; min-width: 0; flex-wrap: wrap; gap: 6px 12px; margin-top: 10px; }
+.contact-meta a { display: inline-flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: #486581; font-size: 11px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .contact-meta a:hover { color: var(--opportunity-blue); }
 .contact-meta a :deep(.solar-icon) { flex: 0 0 auto; color: var(--opportunity-blue); }
-.contact-locked { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 5px 10px; margin-top: 9px; }
-.contact-locked__owner { display: inline-flex; align-items: center; gap: 4px; border-radius: 10px; padding: 2px 8px; background: #fef3c7; color: #92400e; font-size: 10px; font-weight: 700; white-space: nowrap; }
-.contact-locked__value { display: inline-flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: #94a3b8; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.contact-locked :deep(.solar-icon) { flex: 0 0 auto; }
-.contact-locked__owner :deep(.solar-icon) { color: #a16207; }
+.contact-owner-note { margin-top: 10px; }
+.contact-owner-note span { display: inline-flex; max-width: 100%; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 9px; overflow: hidden; color: var(--app-primary-dark, #087cae); background: rgba(var(--app-primary-rgb, 24, 166, 228), .11); font-size: 10px; font-weight: 700; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.contact-owner-note :deep(.solar-icon) { flex: 0 0 auto; color: var(--opportunity-blue); }
 .table-responsive { overflow-x: auto; }
 .products-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .products-table th { padding: 11px 12px; border-bottom: 1px solid #e3ebf0; color: #627d98; background: #f8fbfd; font-size: 11px; letter-spacing: .03em; text-align: left; text-transform: uppercase; white-space: nowrap; }
@@ -877,6 +871,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 :global(body.dark-only) .task-item,
 :global(body.dark-only) .contact-card,
 :global(body.dark-only) .empty-state { background: #25303a; }
+:global(body.dark-only) .contact-card--external { background: linear-gradient(135deg, #25303a 35%, rgba(var(--app-primary-rgb, 24, 166, 228), .08)); }
 :global(body.dark-only) .contact-section { border-color: #34404c; }
 
 @media (max-width: 767.98px) {

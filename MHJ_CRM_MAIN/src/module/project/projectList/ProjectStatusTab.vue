@@ -25,6 +25,7 @@
         </template>
       </ul>
       <button
+        v-if="canAddProject"
         class="btn btn-primary flex-shrink-0 mhj-add-button"
         type="button"
         @click="projectStore.openCreateModal()"
@@ -41,6 +42,7 @@ import { computed, ref, onMounted } from 'vue'
 import { projectTab } from '@/core/data/project'
 import { useProjectStore } from '@/store/project'
 import type { Projects } from '@/types/project'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 
 const props = withDefaults(
   defineProps<{
@@ -53,6 +55,7 @@ const props = withDefaults(
 
 const emit = defineEmits(['activeTabValue'])
 const projectStore = useProjectStore()
+const { canAddProject } = useProjectPermissions()
 
 const activeTab = ref(projectTab[0].value)
 

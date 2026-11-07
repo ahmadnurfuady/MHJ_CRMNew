@@ -41,10 +41,91 @@
             <vue-feather type="x" size="15" />
           </button>
         </div>
+        <div ref="branchFilterRoot" class="hospital-filter">
+          <button
+            class="hospital-filter__trigger"
+            type="button"
+            aria-label="Filter faskes berdasarkan cabang"
+            title="Filter cabang"
+            :aria-expanded="branchFilterOpen"
+            aria-haspopup="true"
+            @click="toggleBranchFilter"
+          >
+            <SolarIcon
+              name="filter"
+              :size="22"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="1"
+            />
+            <b v-if="appliedBranchIds.length">{{ appliedBranchIds.length }}</b>
+          </button>
+          <div v-if="branchFilterOpen" class="hospital-filter__dropdown" role="menu">
+            <div class="hospital-filter__topbar">
+              <div class="hospital-filter__search" role="search">
+                <input
+                  v-model="branchFilterSearch"
+                  type="text"
+                  class="hospital-filter__search-input"
+                  placeholder="Cari cabang..."
+                  autocomplete="off"
+                />
+              </div>
+              <button
+                type="button"
+                class="hospital-filter__select-all"
+                @click="toggleAllVisibleBranches"
+              >
+                {{ allVisibleBranchesSelected ? "Batal Semua" : "Pilih Semua" }}
+              </button>
+            </div>
+            <ul class="hospital-filter__list" role="listbox" aria-multiselectable="true">
+              <li v-for="branch in filteredBranchOptions" :key="branch.id">
+                <label
+                  class="hospital-filter__card"
+                  :class="{ 'hospital-filter__card--active': isBranchSelected(branch.id) }"
+                  :title="branch.name"
+                >
+                  <input
+                    type="checkbox"
+                    class="hospital-filter__checkbox"
+                    :checked="isBranchSelected(branch.id)"
+                    :value="branch.id"
+                    @change="toggleBranch(branch.id)"
+                  />
+                  <span class="hospital-filter__card-content">
+                    <span class="hospital-filter__card-name">{{ branch.name }}</span>
+                    <span class="hospital-filter__card-meta">Cabang</span>
+                  </span>
+                </label>
+              </li>
+              <li v-if="!filteredBranchOptions.length" class="hospital-filter__empty">
+                Tidak ditemukan.
+              </li>
+            </ul>
+            <div class="hospital-filter__footer">
+              <button
+                type="button"
+                class="btn btn-outline-secondary hospital-filter__btn"
+                @click="cancelBranchFilter"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                class="btn btn-primary hospital-filter__btn"
+                @click="applyBranchFilter"
+              >
+                Terapkan
+              </button>
+            </div>
+          </div>
+        </div>
         <button
+          v-if="canAddHospital"
           class="btn btn-primary add-hospital-header-button mhj-add-button"
           type="button"
-          @click="openContactModal"
+          @click="openHospitalModal"
         >
           <SolarIcon
             name="add"
@@ -263,7 +344,7 @@
     </div>
   </div>
 
-  <AddContactModal v-if="contactState.openAddContactModal" />
+  <AddContactModal v-if="canAddHospital && contactState.openAddContactModal" />
 </template>
 
 <script setup lang="ts">
@@ -274,6 +355,7 @@ import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import type { Contact } from "@/types/contacts";
+import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 
 const AddContactModal = defineAsyncComponent(
   () => import("@/module/rumahSakit/AddContactModal.vue"),
@@ -283,9 +365,86 @@ const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const { contactState, filteredContact } = storeToRefs(contactStore);
 const { loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { openContactModal, searchHospitals } = contactStore;
+const { openHospitalModal, searchHospitals } = contactStore;
+const { canAddHospital } = useHospitalPermissions();
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+interface BranchFilterOption {
+  id: string;
+  name: string;
+}
+
+// TODO: Ganti opsi dummy ini dengan daftar cabang dari backend.
+const branchOptions = ref<BranchFilterOption[]>([{ id: "dummy", name: "dummy" }]);
+const branchFilterRoot = ref<HTMLElement | null>(null);
+const branchFilterOpen = ref(false);
+const branchFilterSearch = ref("");
+const appliedBranchIds = ref<string[]>([]);
+const draftBranchIds = ref<string[]>([]);
+
+const filteredBranchOptions = computed(() => {
+  const query = branchFilterSearch.value.trim().toLowerCase();
+  if (!query) return branchOptions.value;
+  return branchOptions.value.filter((branch) => branch.name.toLowerCase().includes(query));
+});
+
+const allVisibleBranchesSelected = computed(() => {
+  if (!filteredBranchOptions.value.length) return false;
+  return filteredBranchOptions.value.every((branch) =>
+    draftBranchIds.value.includes(branch.id),
+  );
+});
+
+function isBranchSelected(id: string) {
+  return draftBranchIds.value.includes(id);
+}
+
+function toggleBranch(id: string) {
+  const index = draftBranchIds.value.indexOf(id);
+  if (index >= 0) draftBranchIds.value.splice(index, 1);
+  else draftBranchIds.value.push(id);
+}
+
+function toggleAllVisibleBranches() {
+  const visibleIds = filteredBranchOptions.value.map((branch) => branch.id);
+  if (allVisibleBranchesSelected.value) {
+    draftBranchIds.value = draftBranchIds.value.filter((id) => !visibleIds.includes(id));
+    return;
+  }
+
+  draftBranchIds.value = [...new Set([...draftBranchIds.value, ...visibleIds])];
+}
+
+function toggleBranchFilter() {
+  if (branchFilterOpen.value) {
+    cancelBranchFilter();
+    return;
+  }
+  draftBranchIds.value = [...appliedBranchIds.value];
+  branchFilterOpen.value = true;
+}
+
+function cancelBranchFilter() {
+  branchFilterOpen.value = false;
+  branchFilterSearch.value = "";
+}
+
+function applyBranchFilter() {
+  appliedBranchIds.value = [...draftBranchIds.value];
+  branchFilterOpen.value = false;
+  branchFilterSearch.value = "";
+  hospitalPage.value = 1;
+  // TODO: Kirim appliedBranchIds ke endpoint daftar Faskes saat backend siap.
+}
+
+function onClickOutsideBranchFilter(event: MouseEvent) {
+  if (!branchFilterOpen.value) return;
+  if (branchFilterRoot.value && !branchFilterRoot.value.contains(event.target as Node)) {
+    cancelBranchFilter();
+  }
+}
+
 // Paginasi daftar Faskes dilakukan di frontend: seluruh data sudah dimuat
 // (lihat fetchAllHospitalsForList di store), di sini tinggal dipotong 10/halaman.
 const HOSPITAL_PAGE_SIZE = 10;
@@ -486,11 +645,13 @@ function openHospitalDetail(
 
 onMounted(() => {
   contactStore.initStore();
+  document.addEventListener("click", onClickOutsideBranchFilter);
 });
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
   stopHospitalColumnResize();
+  document.removeEventListener("click", onClickOutsideBranchFilter);
 });
 </script>
 
@@ -505,7 +666,7 @@ onBeforeUnmount(() => {
 
 .hospital-header-actions {
   display: grid;
-  grid-template-columns: minmax(260px, 420px) max-content;
+  grid-template-columns: minmax(260px, 420px) max-content max-content;
   width: 100%;
   align-items: center;
   justify-content: end;
@@ -589,6 +750,207 @@ onBeforeUnmount(() => {
   padding: 0;
   background: #f1f5f9;
   color: #64748b;
+}
+
+.hospital-filter {
+  position: relative;
+  z-index: 5;
+}
+
+.hospital-filter__trigger {
+  position: relative;
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hospital-filter__trigger:hover,
+.hospital-filter__trigger[aria-expanded="true"] {
+  border-color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+}
+
+.hospital-filter__trigger:hover {
+  transform: translateY(-1px);
+}
+
+.hospital-filter__trigger:focus-visible {
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.4);
+  outline-offset: 2px;
+}
+
+.hospital-filter__trigger b {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  place-items: center;
+  border-radius: 9px;
+  padding: 0 4px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 9px;
+}
+
+.hospital-filter__dropdown {
+  position: absolute;
+  z-index: 1050;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+  border: 1px solid #dbe4ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.hospital-filter__topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.hospital-filter__search {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.hospital-filter__search-input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0 13px;
+  outline: none;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.875rem;
+}
+
+.hospital-filter__search-input:focus {
+  border-color: var(--app-primary, #18a6e4);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+}
+
+.hospital-filter__select-all {
+  flex: 0 0 auto;
+  height: 42px;
+  border: 1px solid var(--app-primary, #18a6e4);
+  border-radius: 10px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: var(--app-primary, #18a6e4);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.hospital-filter__select-all:hover,
+.hospital-filter__select-all:focus-visible {
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
+  outline: none;
+}
+
+.hospital-filter__list {
+  max-height: 290px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 12px;
+  background: #f8fafc;
+  list-style: none;
+}
+
+.hospital-filter__card {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.hospital-filter__card:hover,
+.hospital-filter__card--active {
+  border-color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
+}
+
+.hospital-filter__checkbox {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  margin: 0;
+  accent-color: var(--app-primary, #18a6e4);
+}
+
+.hospital-filter__card-content {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.hospital-filter__card-name,
+.hospital-filter__card-meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hospital-filter__card-name {
+  margin-bottom: 4px;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hospital-filter__card-meta {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.hospital-filter__empty {
+  padding: 20px 12px;
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+}
+
+.hospital-filter__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.hospital-filter__btn {
+  min-width: 96px;
+  height: 38px;
+  border-radius: 10px;
+  padding: 0 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .add-hospital-header-button {
@@ -994,17 +1356,26 @@ onBeforeUnmount(() => {
   }
 
   .hospital-header-actions {
-    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-columns: minmax(0, 1fr) max-content max-content;
   }
 }
 
 @media (max-width: 575.98px) {
   .hospital-header-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+
+  .hospital-search {
+    grid-column: 1 / -1;
+  }
+
+  .hospital-filter {
+    justify-self: start;
   }
 
   .add-hospital-header-button {
-    width: 100%;
+    width: auto;
+    justify-self: end;
   }
 
   /* ── Kartu per faskes (seperti contact list mobile) ─────────────── */

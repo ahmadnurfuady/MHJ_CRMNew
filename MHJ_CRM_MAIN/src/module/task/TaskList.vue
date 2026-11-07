@@ -65,6 +65,7 @@
         </div>
 
         <button
+          v-if="canAddTask"
           class="btn btn-primary add-task-header-button mhj-add-button"
           type="button"
           data-bs-toggle="modal"
@@ -94,7 +95,7 @@
         </div>
       </div>
 
-      <div class="task-export-actions">
+      <div v-if="canExportTask" class="task-export-actions">
         <span class="task-export-hint">Ekspor mengikuti filter aktif</span>
         <button
           class="btn btn-outline-primary task-export-button"
@@ -271,6 +272,7 @@
                     <span>Detail</span>
                   </button>
                   <button
+                    v-if="canDeleteTask"
                     class="task-delete-button"
                     type="button"
                     :aria-label="`Hapus ${item.title}`"
@@ -377,6 +379,7 @@ import { routes } from '@/router/routes'
 import TaskCalendarView from '@/module/task/TaskCalendarView.vue'
 import { parseLocalDate } from '@/module/task/taskCalendar'
 import type { TaskDetails } from '@/types/tasks'
+import { useTaskPermissions } from '@/module/task/taskPermission'
 
 type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 type ExportFormat = 'csv' | 'excel'
@@ -388,6 +391,7 @@ const projectStore = useProjectStore()
 const router = useRouter()
 const route = useRoute()
 const { currentTask, loading, pagination } = storeToRefs(store)
+const { canAddTask, canDeleteTask, canExportTask } = useTaskPermissions()
 const searchQuery = ref('')
 const periodFilter = ref<PeriodFilter>('all')
 const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
@@ -700,7 +704,7 @@ function downloadTaskFile(content: string, mimeType: string, extension: string) 
 }
 
 function exportTasks(format: ExportFormat) {
-  if (!filteredTasks.value.length) return
+  if (!canExportTask.value || !filteredTasks.value.length) return
   const rows = exportRows()
 
   if (format === 'csv') {
@@ -743,6 +747,7 @@ function taskKindLabel(item: TaskDetails) {
 }
 
 function deleteTask(item: TaskDetails) {
+  if (!canDeleteTask.value) return
   const index = currentTask.value?.data?.indexOf(item) ?? -1
   if (index >= 0) store.warningAlert(index)
 }

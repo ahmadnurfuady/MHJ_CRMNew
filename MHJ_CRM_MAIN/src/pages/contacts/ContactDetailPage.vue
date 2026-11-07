@@ -56,6 +56,7 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { confirmEditExit } from "@/utils/confirmEditExit";
 import { getApiErrorMessage } from "@/api/response";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
 
 const GeneralDetails = defineAsyncComponent(
   () => import("@/module/contacts/GeneralDetails.vue"),
@@ -76,6 +77,7 @@ usePageBackHandler(() => handleBack());
 const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
+const { canEditContact } = useContactPermissions();
 const loadError = ref("");
 let allowEditNavigation = false;
 
@@ -148,7 +150,8 @@ async function handleBack() {
 async function loadContact() {
   loadError.value = "";
   contactState.value.activeContact = undefined;
-  contactState.value.isEditContact = String(route.query.edit ?? "") === "1";
+  contactState.value.isEditContact =
+    String(route.query.edit ?? "") === "1" && canEditContact.value;
   contactState.value.historyVisible = false;
 
   try {
@@ -158,7 +161,10 @@ async function loadContact() {
 
     // Tolak mode edit untuk kontak milik user lain, bahkan bila URL punya `edit=1`.
     // Ini sekadar defense-in-depth; BE juga akan mengembalikan 403 pada POST /input.
-    if (contact.isOwnContact === false && contactState.value.isEditContact) {
+    if (
+      (!canEditContact.value || contact.isOwnContact === false) &&
+      String(route.query.edit ?? "") === "1"
+    ) {
       contactState.value.isEditContact = false;
       allowEditNavigation = true;
       await router.replace({ path: routes.App.Contacts, query: detailRouteQuery() });
@@ -176,11 +182,17 @@ async function loadContact() {
 
 watch(() => props.contactId, loadContact, { immediate: true });
 watch(() => route.hash, scrollToRequestedSection);
+watch(canEditContact, (allowed) => {
+  if (allowed || !contactState.value.isEditContact) return;
+  allowEditNavigation = true;
+  contactState.value.isEditContact = false;
+  void router.replace({ path: routes.App.Contacts, query: detailRouteQuery() });
+});
 
 watch(
   () => contactState.value.isEditContact,
   (editing) => {
-    if (editing && String(route.query.edit ?? "") !== "1") {
+    if (editing && canEditContact.value && String(route.query.edit ?? "") !== "1") {
       allowEditNavigation = false;
       void router.push({
         path: routes.App.Contacts,
@@ -197,7 +209,7 @@ watch(
     if (routeIsEditing && activeContact.value) {
       // Kontak bukan milik user login: abaikan `edit=1`. BE pun akan menolak
       // POST /input (403), jadi mode edit dipastikan tidak pernah terbuka.
-      if (activeContact.value.isOwnContact === false) {
+      if (!canEditContact.value || activeContact.value.isOwnContact === false) {
         allowEditNavigation = true;
         contactState.value.isEditContact = false;
         void router.replace({ path: routes.App.Contacts, query: detailRouteQuery() });

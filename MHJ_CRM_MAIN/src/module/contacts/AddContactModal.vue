@@ -419,6 +419,7 @@ import {
 } from "@/services/geocoding";
 import { useUserLocation } from "@/composable/useUserLocation";
 import type { Contact } from "@/types/contacts";
+import { useContactPermissions } from "@/module/contacts/contactPermission";
 
 const emit = defineEmits<{
   saved: [contact: Contact];
@@ -443,6 +444,7 @@ const contactStore = useContact();
 const authStore = useAuthStore();
 const projectStore = useProjectStore();
 const { contactState, contactApi } = storeToRefs(contactStore);
+const { canAddContact } = useContactPermissions();
 const {
   fetchContactLookups,
   searchContactProjects,
@@ -546,6 +548,7 @@ onMounted(async () => {
 });
 
 async function handleSave() {
+  if (!canAddContact.value) return;
   const created = await saveContact();
   if (created) emit("saved", created);
 }

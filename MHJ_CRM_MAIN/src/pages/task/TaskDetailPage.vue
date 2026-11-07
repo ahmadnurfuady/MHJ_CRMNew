@@ -11,7 +11,7 @@
       </router-link>
       <h3 class="detail-toolbar__title">Detail Tugas</h3>
       <button
-        v-if="task"
+        v-if="task && canEditTask"
         class="btn btn-primary edit-task-header"
         type="button"
         data-bs-toggle="modal"
@@ -39,11 +39,15 @@
     <template v-else>
       <TaskDetail :task="task" />
       <SalesTaskForm
-        v-if="task.kind !== 'app-specialist'"
+        v-if="canEditTask && task.kind !== 'app-specialist'"
         :task="task"
         @saved="loadTask"
       />
-      <AppSpecialistTaskForm v-else :task="task" @saved="loadTask" />
+      <AppSpecialistTaskForm
+        v-else-if="canEditTask"
+        :task="task"
+        @saved="loadTask"
+      />
     </template>
   </div>
 </template>
@@ -58,12 +62,14 @@ import { getApiErrorMessage } from '@/api/response'
 import type { TaskDetails } from '@/types/tasks'
 import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
 import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
+import { useTaskPermissions } from '@/module/task/taskPermission'
 
 const TaskDetail = defineAsyncComponent(() => import('@/module/task/TaskDetail.vue'))
 const props = defineProps<{ taskId: number }>()
 const taskStore = useTask()
 const route = useRoute()
 const { currentTask } = storeToRefs(taskStore)
+const { canEditTask } = useTaskPermissions()
 const task = ref<TaskDetails | null>(null)
 const loading = ref(false)
 const loadError = ref('')

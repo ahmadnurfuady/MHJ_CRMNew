@@ -188,8 +188,17 @@
       </section>
     </div>
 
-    <footer v-if="task" class="task-detail-footer">
-      <button class="btn btn-primary download-button" type="button" @click="printDetail">
+    <footer
+      v-if="task"
+      class="task-detail-footer"
+      :class="{ 'task-detail-footer--single': !canExportTask }"
+    >
+      <button
+        v-if="canExportTask"
+        class="btn btn-primary download-button"
+        type="button"
+        @click="printDetail"
+      >
         <svg class="pdf-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M7 2.75h6.8L18.5 7.5v13.75H7z" />
           <path d="M13.5 3v4.75h4.75" />
@@ -232,6 +241,7 @@ import {
 } from '@/services/taskCommentService'
 import { useAuthStore } from '@/store/auth'
 import { storeToRefs } from 'pinia'
+import { useTaskPermissions } from '@/module/task/taskPermission'
 
 const props = defineProps<{
   task: TaskDetails | null
@@ -239,6 +249,7 @@ const props = defineProps<{
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
+const { canExportTask } = useTaskPermissions()
 
 const commentText = ref('')
 const comments = ref<TaskComment[]>([])
@@ -394,6 +405,7 @@ function relativeTime(value: string | null | undefined): string {
 }
 
 function printDetail() {
+  if (!canExportTask.value) return
   window.print()
 }
 
@@ -872,6 +884,10 @@ function preventUnavailableContact(event: MouseEvent) {
   padding: 16px 20px;
   background: #fff;
   box-shadow: 0 7px 24px rgba(31, 52, 73, 0.05);
+}
+
+.task-detail-footer--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .download-button,

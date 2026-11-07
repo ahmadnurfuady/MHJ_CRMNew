@@ -1,5 +1,6 @@
 <template>
   <Modal
+    v-if="canAddProject"
     title="Tambah Peluang"
     :modal-open="projectStore.createModalOpen"
     size-class="modal-xl"
@@ -18,8 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, watch } from 'vue'
 import { useProjectStore } from '@/store/project'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 
 const Modal = defineAsyncComponent(() => import('@/components/shared/Modal.vue'))
 const ProjectCreate = defineAsyncComponent(
@@ -27,6 +29,11 @@ const ProjectCreate = defineAsyncComponent(
 )
 
 const projectStore = useProjectStore()
+const { canAddProject } = useProjectPermissions()
+
+watch(canAddProject, (allowed) => {
+  if (!allowed) projectStore.closeCreateModal()
+})
 
 function closeModal() {
   if (projectStore.submitting) return

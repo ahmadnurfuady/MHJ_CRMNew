@@ -12,6 +12,7 @@
               </p>
             </div>
             <button
+              v-if="canAddProject"
               class="add-project-button mhj-add-button"
               type="button"
               @click="projectStore.openCreateModal()"
@@ -292,11 +293,13 @@ import {
   fetchSuratPesanan,
 } from "@/services/projectOrderService";
 import { useProjectStore } from "@/store/project";
+import { useProjectPermissions } from "@/module/project/projectPermission";
 import type { Projects } from "@/types/project";
 
 const route = useRoute();
 const router = useRouter();
 const projectStore = useProjectStore();
+const { canAddProject } = useProjectPermissions();
 const {
   loading: projectLoading,
   summaryItems,

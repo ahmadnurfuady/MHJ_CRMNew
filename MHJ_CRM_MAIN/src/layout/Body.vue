@@ -36,7 +36,7 @@
     </div>
   </div>
   <Customizer />
-  <ProjectCreateModal v-if="projectStore.createModalOpen" />
+  <ProjectCreateModal v-if="canAddProject && projectStore.createModalOpen" />
 </template>
 <script lang="ts" setup>
 import { useLayout } from '@/store/layout'
@@ -48,6 +48,7 @@ import { useRoute } from 'vue-router'
 import { startPermissionWatcher, stopPermissionWatcher } from '@/services/permissionWatcher'
 import { useProjectStore } from '@/store/project'
 import { useNotificationStore } from '@/store/notification'
+import { useProjectPermissions } from '@/module/project/projectPermission'
 
 const Header = defineAsyncComponent(() => import('@/components/layout/header/Header.vue'))
 const Sidebar = defineAsyncComponent(() => import('@/components/layout/sidebar/Sidebar.vue'))
@@ -73,6 +74,7 @@ const refreshingPage = ref(false)
 let refreshIndicatorTimer: number | undefined
 let headerResizeObserver: ResizeObserver | undefined
 const route = useRoute()
+const { canAddProject } = useProjectPermissions()
 const contentRouteKey = computed(() => {
   const persistentQuery = Object.fromEntries(
     Object.entries(route.query).filter(([key]) => key !== 'edit'),
@@ -92,6 +94,10 @@ const projectStore = useProjectStore()
 const { uiState } = storeToRefs(store)
 const { width } = useWindowSize()
 const isMobileOrTablet = computed(() => width.value <= 991)
+
+watch(canAddProject, (allowed) => {
+  if (!allowed) projectStore.closeCreateModal()
+})
 
 function closeMobileSidebar() {
   if (isMobileOrTablet.value) uiState.value.show = false

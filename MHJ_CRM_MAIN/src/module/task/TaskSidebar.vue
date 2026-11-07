@@ -22,7 +22,7 @@
                   </div>
                 </div>
                 <ul class="nav main-menu" role="tablist">
-                  <li class="nav-item">
+                  <li v-if="canAddTask" class="nav-item">
                     <button
                       class="badge-primary btn-block btn-mail mhj-add-button w-100"
                       type="button"
@@ -76,9 +76,9 @@
         <div class="ps-0">
           <div class="tab-content">
             <TaskList />
-            <TaskTypeSelector @select="selectedTaskType = $event" />
-            <SalesTaskForm v-if="selectedTaskType === 'sales'" />
-            <AppSpecialistTaskForm v-else-if="selectedTaskType === 'app-specialist'" />
+            <TaskTypeSelector v-if="canAddTask" @select="selectedTaskType = $event" />
+            <SalesTaskForm v-if="canAddTask && selectedTaskType === 'sales'" />
+            <AppSpecialistTaskForm v-else-if="canAddTask && selectedTaskType === 'app-specialist'" />
             <CreateTaskTag />
           </div>
         </div>
@@ -94,11 +94,13 @@ import { getImages } from '@/utils/index'
 import type { Task, TaskKind } from '@/types/tasks'
 import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
 import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
+import { useTaskPermissions } from '@/module/task/taskPermission'
 
 const filtered = ref(false)
 const selectedTaskType = ref<TaskKind | null>(null)
 const store = useTask()
 const { taskData } = storeToRefs(store)
+const { canAddTask } = useTaskPermissions()
 const task = computed(() => taskData.value.task)
 const { setActive } = store
 const currentUser = (() => {

@@ -12,9 +12,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useContact } from "@/store/contact";
+import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 
 const ContactDetails = defineAsyncComponent(
   () => import("@/module/rumahSakit/ContactDetails.vue"),
@@ -32,5 +33,12 @@ const detailId = computed(() => {
   return Number.isFinite(id) && id > 0 ? id : 0;
 });
 
-useContact().setScope("hospital");
+const contactStore = useContact();
+const { canAddHospital } = useHospitalPermissions();
+contactStore.setScope("hospital");
+watch(canAddHospital, (allowed) => {
+  if (!allowed && contactStore.contactState.hospitalEditId === null) {
+    contactStore.contactState.openAddContactModal = false;
+  }
+});
 </script>

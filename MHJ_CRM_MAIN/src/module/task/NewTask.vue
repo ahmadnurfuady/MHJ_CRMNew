@@ -739,6 +739,7 @@ import type { TaskDetails, TaskKind, TaskPayload } from "@/types/tasks";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
 import { showSaveSuccess } from "@/utils/feedback";
+import { useTaskPermissions } from "@/module/task/taskPermission";
 
 interface ProjectOption extends DealOption {
   id: number;
@@ -778,6 +779,7 @@ const { projectList } = storeToRefs(taskStore);
 const taskType = computed(() => props.taskType);
 const modalId = computed(() => props.modalId);
 const isEditing = computed(() => Boolean(props.task?.id));
+const { canAddTask, canEditTask } = useTaskPermissions();
 let editModalOpen = false;
 let allowModalClose = false;
 let confirmingModalClose = false;
@@ -1990,6 +1992,7 @@ function validateForm() {
 }
 
 async function submitTask() {
+  if (isEditing.value ? !canEditTask.value : !canAddTask.value) return;
   refreshMinimumSchedule();
   formSubmitted.value = true;
   validationMessage.value = validateForm();
@@ -2118,6 +2121,14 @@ function handleModalHidden() {
 }
 
 function handleModalShow() {
+  const allowed = isEditing.value ? canEditTask.value : canAddTask.value;
+  if (!allowed) {
+    const modalElement = document.getElementById(modalId.value);
+    if (modalElement) {
+      window.setTimeout(() => Modal.getOrCreateInstance(modalElement).hide(), 0);
+    }
+    return;
+  }
   refreshMinimumSchedule();
   if (!props.task) return;
   editModalOpen = true;
@@ -2247,9 +2258,27 @@ onMounted(async () => {
   modalElement?.addEventListener("show.bs.modal", handleModalShow);
   await Promise.allSettled(requests);
   if (props.task) await hydrateForm(props.task);
-  if (props.task && String(route.query.edit ?? "") === "1" && modalElement) {
+  if (
+    props.task &&
+    canEditTask.value &&
+    String(route.query.edit ?? "") === "1" &&
+    modalElement
+  ) {
     Modal.getOrCreateInstance(modalElement).show();
+  } else if (props.task && String(route.query.edit ?? "") === "1") {
+    const query = { ...route.query };
+    delete query.edit;
+    void router.replace({ path: routes.App.Task, query });
   }
+});
+
+watch([canAddTask, canEditTask], () => {
+  const allowed = isEditing.value ? canEditTask.value : canAddTask.value;
+  if (allowed) return;
+
+  allowModalClose = true;
+  const modalElement = document.getElementById(modalId.value);
+  if (modalElement) Modal.getOrCreateInstance(modalElement).hide();
 });
 
 onBeforeUnmount(() => {
