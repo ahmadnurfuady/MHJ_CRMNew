@@ -180,7 +180,12 @@
                 <div class="contact-card-copy">
                   <strong>{{ contact.name }}</strong>
                   <span>{{ contact.jobTitle }}</span>
-                  <div v-if="contact.phone !== '-' || contact.email !== '-'" class="contact-meta">
+
+                  <!-- Kontak milik sendiri: email & telepon aktif (bisa diklik). -->
+                  <div
+                    v-if="contact.isOwnContact && (contact.phone !== '-' || contact.email !== '-')"
+                    class="contact-meta"
+                  >
                     <a v-if="contact.phone !== '-'" :href="`tel:${contact.phone}`">
                       <SolarIcon name="phone" :size="14" aria-hidden="true" />
                       {{ contact.phone }}
@@ -189,6 +194,21 @@
                       <SolarIcon name="letter" :size="14" aria-hidden="true" />
                       {{ contact.email }}
                     </a>
+                  </div>
+
+                  <!-- Kontak milik user lain: email/telepon dimasking BE, tanpa link,
+                       plus keterangan pemiliknya (read-only). -->
+                  <div v-else class="contact-locked" :title="`Email & telepon disembunyikan — milik ${contact.ownerName !== '-' ? contact.ownerName : 'user lain'}`">
+                    <span class="contact-locked__owner">
+                      <SolarIcon name="lock-keyhole-minimalistic" :size="13" aria-hidden="true" />
+                      Milik {{ contact.ownerName !== '-' ? contact.ownerName : 'user lain' }}
+                    </span>
+                    <span v-if="contact.phone !== '-'" class="contact-locked__value">
+                      <SolarIcon name="phone" :size="14" aria-hidden="true" />{{ contact.phone }}
+                    </span>
+                    <span v-if="contact.email !== '-'" class="contact-locked__value">
+                      <SolarIcon name="letter" :size="14" aria-hidden="true" />{{ contact.email }}
+                    </span>
                   </div>
                 </div>
               </article>
@@ -397,6 +417,10 @@ interface ContactView {
   jobTitle: string
   phone: string
   email: string
+  /** false bila kontak milik user lain (email/telepon sudah dimasking BE). */
+  isOwnContact: boolean
+  /** Nama pemilik kontak, untuk keterangan "milik X" pada kontak bukan milik sendiri. */
+  ownerName: string
 }
 
 const route = useRoute()
@@ -535,7 +559,9 @@ const relatedContacts = computed<ContactView[]>(() => {
   const values = sourceKey ? contactValues(source[sourceKey]) : []
   const contacts = values.flatMap((value): ContactView[] => {
     if (typeof value === 'string') {
-      return value.trim() ? [{ name: value.trim(), jobTitle: '-', phone: '-', email: '-' }] : []
+      return value.trim()
+        ? [{ name: value.trim(), jobTitle: '-', phone: '-', email: '-', isOwnContact: true, ownerName: '-' }]
+        : []
     }
     if (!isRecord(value)) return []
     const firstName = firstText(value, ['first_name', 'firstName'])
@@ -549,6 +575,10 @@ const relatedContacts = computed<ContactView[]>(() => {
       jobTitle: firstText(value, ['job_title', 'position', 'jabatan']),
       phone: firstText(value, ['contact_phone', 'phone', 'telephone_1', 'mobile']),
       email: firstText(value, ['email', 'email_address', 'contact_email']),
+      // Kontak milik user lain (is_own_contact === false) sudah dimasking BE.
+      // Data legacy tanpa flag dianggap milik sendiri (fail-open).
+      isOwnContact: value.is_own_contact !== false,
+      ownerName: firstText(value, ['owner_name', 'created_by_name']),
     }]
   })
 
@@ -559,6 +589,8 @@ const relatedContacts = computed<ContactView[]>(() => {
       jobTitle: firstText(source, ['contact_jabatan', 'contact_job_title']),
       phone: firstText(source, ['contact_phone', 'phone', 'telephone_1', 'mobile']),
       email: firstText(source, ['contact_email', 'email']),
+      isOwnContact: true,
+      ownerName: '-',
     })
   }
 
@@ -774,6 +806,11 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .contact-meta a { display: inline-flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: #486581; font-size: 10px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .contact-meta a:hover { color: var(--opportunity-blue); }
 .contact-meta a :deep(.solar-icon) { flex: 0 0 auto; color: var(--opportunity-blue); }
+.contact-locked { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 5px 10px; margin-top: 9px; }
+.contact-locked__owner { display: inline-flex; align-items: center; gap: 4px; border-radius: 10px; padding: 2px 8px; background: #fef3c7; color: #92400e; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.contact-locked__value { display: inline-flex; min-width: 0; align-items: center; gap: 5px; overflow: hidden; color: #94a3b8; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.contact-locked :deep(.solar-icon) { flex: 0 0 auto; }
+.contact-locked__owner :deep(.solar-icon) { color: #a16207; }
 .table-responsive { overflow-x: auto; }
 .products-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .products-table th { padding: 11px 12px; border-bottom: 1px solid #e3ebf0; color: #627d98; background: #f8fbfd; font-size: 11px; letter-spacing: .03em; text-align: left; text-transform: uppercase; white-space: nowrap; }
