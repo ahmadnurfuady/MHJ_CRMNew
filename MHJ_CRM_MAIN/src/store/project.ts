@@ -34,6 +34,29 @@ export interface FaskesOption extends Select {
   kdKelurahan: string
 }
 
+/** Satu baris rekap per tahap dari BE (`stages[]` pada GET /api/project). */
+export interface PeluangStageSummary {
+  status: string
+  stageId: number | null
+  stageName: string
+  quantity: number
+  totalValue: number
+}
+
+/**
+ * Ringkasan peluang dari BE (`ringkasan` pada GET /api/project). Dihitung di BE
+ * atas SELURUH peluang yang bisa diakses user, jadi FE tinggal menampilkan.
+ */
+export interface PeluangRingkasan {
+  totalPeluang: number
+  totalValue: number
+  valueAktif: number
+  totalAktif: number
+  valueLostCancel: number
+  totalLostCancel: number
+  stageTerbanyak: { status: string; stageName: string; quantity: number; totalValue: number } | null
+}
+
 // Gambar placeholder karena tabel projects belum memiliki kolom banner.
 const DEFAULT_BANNER = 'project/list/1.png'
 
@@ -369,6 +392,9 @@ export function normalizeProject(raw: Dict): Projects {
 export const useProjectStore = defineStore('project', () => {
   const items = ref<Projects[]>([])
   const summaryItems = ref<Projects[]>([])
+  // Ringkasan + rekap per tahap dari BE (dihitung atas seluruh peluang user).
+  const ringkasan = ref<PeluangRingkasan | null>(null)
+  const stageSummaries = ref<PeluangStageSummary[]>([])
   const selectedItem = ref<Projects | null>(null)
   const selectedDetail = ref<Dict | null>(null)
   const selectedTasks = ref<Dict[]>([])
@@ -422,6 +448,47 @@ export const useProjectStore = defineStore('project', () => {
     faskes: [],
     contactsByFaskes: []
   })
+  /**
+   * Ambil `ringkasan` + `stages` dari body respons GET /api/project (bila ada)
+   * dan simpan dalam bentuk camelCase. Dipakai kartu Ringkasan Peluang & tab
+   * tahap supaya angkanya memakai hitungan BE (seluruh peluang), bukan hitung
+   * ulang di FE. Aman bila BE belum mengirim field ini (komponen tetap punya
+   * fallback hitung lokal).
+   */
+  function captureSummaryAggregates(data: unknown) {
+    if (!isRecord(data)) return
+
+    const r = isRecord(data.ringkasan) ? data.ringkasan : null
+    if (r) {
+      const t = isRecord(r.stage_terbanyak) ? r.stage_terbanyak : null
+      ringkasan.value = {
+        totalPeluang: Number(r.total_peluang ?? 0) || 0,
+        totalValue: Number(r.total_value ?? 0) || 0,
+        valueAktif: Number(r.value_aktif ?? 0) || 0,
+        totalAktif: Number(r.total_aktif ?? 0) || 0,
+        valueLostCancel: Number(r.value_lostcancel ?? 0) || 0,
+        totalLostCancel: Number(r.total_lostcancel ?? 0) || 0,
+        stageTerbanyak: t
+          ? {
+              status: String(t.status ?? ''),
+              stageName: String(t.stage_name ?? ''),
+              quantity: Number(t.jumlah ?? 0) || 0,
+              totalValue: Number(t.value ?? 0) || 0,
+            }
+          : null,
+      }
+    }
+
+    const list = Array.isArray(data.stages) ? data.stages : []
+    stageSummaries.value = list.filter(isRecord).map((s) => ({
+      status: String(s.status ?? ''),
+      stageId: s.stage_id === null || s.stage_id === undefined ? null : Number(s.stage_id),
+      stageName: String(s.stage_name ?? ''),
+      quantity: Number(s.jumlah ?? 0) || 0,
+      totalValue: Number(s.value ?? 0) || 0,
+    }))
+  }
+
   /** GET /api/project. */
   function fetchProjects(params: ListParams = {}) {
     return runApiAction({
@@ -436,6 +503,7 @@ export const useProjectStore = defineStore('project', () => {
           'companies'
         ])
         items.value = rawItems.filter(isRecord).map(normalizeProject)
+        captureSummaryAggregates(response.data)
         if (meta) Object.assign(pagination, meta)
         lastParams.value = params
         loaded.value = true
@@ -457,6 +525,7 @@ export const useProjectStore = defineStore('project', () => {
       const normalized = rawItems.filter(isRecord).map(normalizeProject)
       summaryItems.value = normalized
       items.value = normalized
+      captureSummaryAggregates(response.data)
       if (meta) Object.assign(pagination, meta)
       loaded.value = true
       return summaryItems.value
@@ -862,6 +931,8 @@ export const useProjectStore = defineStore('project', () => {
   return {
     items,
     summaryItems,
+    ringkasan,
+    stageSummaries,
     selectedItem,
     selectedDetail,
     selectedTasks,

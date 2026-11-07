@@ -300,6 +300,8 @@ const projectStore = useProjectStore();
 const {
   loading: projectLoading,
   summaryItems,
+  ringkasan,
+  stageSummaries,
 } = storeToRefs(projectStore);
 const searchQuery = ref("");
 const ownerFilter = ref("all");
@@ -536,64 +538,116 @@ function parseProjectAmount(project: Projects) {
 
 const summaryProjects = computed(() => summaryItems.value);
 
+// Ringkasan & rekap per tahap memakai hitungan dari BE (`ringkasan` / `stages`)
+// yang mencakup SELURUH peluang milik user. Bila BE belum mengirimnya (mis.
+// belum deploy), komponen jatuh ke hitungan lokal dari daftar yang termuat.
+const stageSummaryMap = computed(() => {
+  const map = new Map<string, { quantity: number; totalValue: number }>();
+  for (const stage of stageSummaries.value) {
+    if (stage.status) {
+      map.set(stage.status, {
+        quantity: stage.quantity,
+        totalValue: stage.totalValue,
+      });
+    }
+  }
+  return map;
+});
+const hasBackendSummary = computed(
+  () => ringkasan.value !== null || stageSummaries.value.length > 0,
+);
+
 const pipelineTotal = computed(() =>
-  summaryProjects.value.reduce(
-    (total, project) => total + parseProjectAmount(project),
-    0,
-  ),
+  ringkasan.value
+    ? ringkasan.value.totalValue
+    : summaryProjects.value.reduce(
+        (total, project) => total + parseProjectAmount(project),
+        0,
+      ),
 );
 
 const stageCards = computed(() => {
   const stages = projectTab
     .filter((stage) => stage.value !== "all")
     .map((stage) => {
-      const projects = summaryProjects.value.filter(
+      const fromBackend = stageSummaryMap.value.get(stage.value);
+      const localProjects = summaryProjects.value.filter(
         (project) => project.status === stage.value,
       );
       return {
         ...stage,
         color: STAGE_COLORS[stage.value] || "#94a3b8",
-        quantity: projects.length,
-        totalValue: projects.reduce(
-          (total, project) => total + parseProjectAmount(project),
-          0,
-        ),
+        quantity: fromBackend
+          ? fromBackend.quantity
+          : hasBackendSummary.value
+            ? 0
+            : localProjects.length,
+        totalValue: fromBackend
+          ? fromBackend.totalValue
+          : hasBackendSummary.value
+            ? 0
+            : localProjects.reduce(
+                (total, project) => total + parseProjectAmount(project),
+                0,
+              ),
       };
     });
   return stages;
 });
 
-const summaryTotal = computed(() => summaryProjects.value.length);
+const summaryTotal = computed(() =>
+  ringkasan.value ? ringkasan.value.totalPeluang : summaryProjects.value.length,
+);
 const closedStatuses = new Set(["closed_won", "closed_lost", "closed_cancel"]);
 const activeProjects = computed(() =>
   summaryProjects.value.filter(
     (project) => !closedStatuses.has(project.status),
   ),
 );
-const activeProjectCount = computed(() => activeProjects.value.length);
-const lostProjectCount = computed(
-  () =>
-    summaryProjects.value.filter((project) => project.status === "closed_lost")
-      .length,
+const activeProjectCount = computed(() =>
+  ringkasan.value ? ringkasan.value.totalAktif : activeProjects.value.length,
 );
+const lostProjectCount = computed(() => {
+  const fromBackend = stageSummaryMap.value.get("closed_lost");
+  if (fromBackend) return fromBackend.quantity;
+  if (hasBackendSummary.value) return 0;
+  return summaryProjects.value.filter(
+    (project) => project.status === "closed_lost",
+  ).length;
+});
 const activePipelineValue = computed(() =>
-  activeProjects.value.reduce(
-    (total, project) => total + parseProjectAmount(project),
-    0,
-  ),
+  ringkasan.value
+    ? ringkasan.value.valueAktif
+    : activeProjects.value.reduce(
+        (total, project) => total + parseProjectAmount(project),
+        0,
+      ),
 );
-const lostPipelineValue = computed(() =>
-  summaryProjects.value
+const lostPipelineValue = computed(() => {
+  const fromBackend = stageSummaryMap.value.get("closed_lost");
+  if (fromBackend) return fromBackend.totalValue;
+  if (hasBackendSummary.value) return 0;
+  return summaryProjects.value
     .filter((project) => project.status === "closed_lost")
-    .reduce((total, project) => total + parseProjectAmount(project), 0),
-);
-const dominantStage = computed(() =>
-  stageCards.value.reduce(
+    .reduce((total, project) => total + parseProjectAmount(project), 0);
+});
+// "Stage terbanyak" = tahap dengan JUMLAH peluang terbanyak (mis. Qualified).
+const dominantStage = computed(() => {
+  const terbanyak = ringkasan.value?.stageTerbanyak;
+  if (terbanyak) {
+    const tab = projectTab.find((stage) => stage.value === terbanyak.status);
+    return {
+      title: tab?.title ?? (terbanyak.stageName || "Belum ada data"),
+      totalValue: terbanyak.totalValue,
+      quantity: terbanyak.quantity,
+    };
+  }
+  return stageCards.value.reduce(
     (dominant, stage) =>
-      stage.totalValue > dominant.totalValue ? stage : dominant,
-    { title: "Belum ada data", totalValue: 0 },
-  ),
-);
+      stage.quantity > dominant.quantity ? stage : dominant,
+    { title: "Belum ada data", totalValue: 0, quantity: 0 },
+  );
+});
 const ownerOptions = computed(() =>
   [
     ...new Set(
