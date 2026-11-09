@@ -12,9 +12,14 @@ export interface AuthUser {
   name: string
   email: string
   role?: string
+  /** Comma-separated KodeCabang semua cabang user (urut assign). Contoh: "12,01,00". */
   branch_id?: string
+  /** Array KodeCabang semua cabang user, urut assign di form user list. */
+  branch_ids?: string[]
   branch_name?: string
+  /** Comma-separated KodeDevisi semua divisi user. */
   division_id?: string
+  division_ids?: string[]
   division_name?: string
   phone_number?: string
   firstname?: string

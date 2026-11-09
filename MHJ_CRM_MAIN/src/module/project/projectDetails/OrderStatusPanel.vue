@@ -43,8 +43,15 @@
                 <span class="step-state">{{ step.label }}</span>
               </div>
               <p v-if="step.description">{{ step.description }}</p>
-              <div v-if="step.completedLabel || step.referensi" class="step-meta">
-                <time v-if="step.completedLabel">{{ step.completedLabel }}</time>
+              <div v-if="step.startedLabel || step.completedLabel || step.referensi" class="step-meta">
+                <span v-if="step.startedLabel" class="step-date step-date--start">
+                  <SolarIcon name="calendar" :size="13" />
+                  Mulai: {{ step.startedLabel }}
+                </span>
+                <span v-if="step.completedLabel" class="step-date step-date--done">
+                  <SolarIcon name="check-circle" :size="13" />
+                  Selesai: {{ step.completedLabel }}
+                </span>
                 <span v-if="step.referensi" class="step-ref">Ref ERP: {{ step.referensi }}</span>
               </div>
             </div>
@@ -110,6 +117,7 @@ interface OrderStep {
   description: string
   state: OrderStepState
   label: string
+  startedLabel: string
   completedLabel: string
   referensi: string | null
 }
@@ -144,11 +152,11 @@ async function loadTracking() {
 
 watch(() => props.project?.id, loadTracking, { immediate: true })
 
-function formatMilestoneDate(milestone: OrderMilestone): string {
-  const source = milestone.completed_at || milestone.completed_date
-  if (!source) return ''
+/** Format "DD MMMM YYYY, HH:mm" dari string tanggal. '' bila kosong/invalid. */
+function formatDateLabel(source?: string | null, fallback?: string | null): string {
+  if (!source) return fallback ?? ''
   const date = new Date(source)
-  if (Number.isNaN(date.getTime())) return milestone.completed_date ?? ''
+  if (Number.isNaN(date.getTime())) return fallback ?? ''
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',
     month: 'long',
@@ -160,22 +168,27 @@ function formatMilestoneDate(milestone: OrderMilestone): string {
 
 const completedStepCount = computed(() => milestones.value.filter((item) => item.is_completed).length)
 
-/** Tahap "sedang berjalan" = milestone pertama yang belum selesai. */
-const currentStepIndex = computed(() => milestones.value.findIndex((item) => !item.is_completed))
-
-const orderSteps = computed<OrderStep[]>(() => milestones.value.map((milestone, index) => {
-  const state: OrderStepState = milestone.is_completed
+const orderSteps = computed<OrderStep[]>(() => milestones.value.map((milestone) => {
+  // State ambil dari BE kalau ada (`status`), fallback ke logic lokal untuk
+  // kompatibilitas bila endpoint belum di-deploy ulang.
+  const state: OrderStepState = milestone.status === 'done' || milestone.is_completed
     ? 'complete'
-    : index === currentStepIndex.value
+    : milestone.status === 'process'
       ? 'current'
       : 'pending'
+
+  const startedLabel = formatDateLabel(milestone.started_at, milestone.started_date)
+  const completedLabel = state === 'complete'
+    ? formatDateLabel(milestone.completed_at, milestone.completed_date)
+    : ''
 
   return {
     title: milestone.nama,
     description: milestone.keterangan ?? '',
     state,
     label: state === 'complete' ? 'Selesai' : state === 'current' ? 'Dalam proses' : 'Belum dimulai',
-    completedLabel: state === 'complete' ? formatMilestoneDate(milestone) : '',
+    startedLabel,
+    completedLabel,
     referensi: milestone.no_referensi_erp,
   }
 }))
@@ -249,10 +262,14 @@ const fileSize = computed(() => {
 .order-step.is-complete:not(:last-child)::before { background: #a8dfc1; }
 .step-marker { z-index: 1; display: grid; place-items: center; width: 42px; height: 42px; border: 2px solid #dce2e6; border-radius: 50%; color: #8d979f; background: #eef1f3; font-size: 11px; font-weight: 700; }
 .order-step.is-complete .step-marker { border-color: #bfe8d2; color: #16884d; background: #e7f8ef; }
-.order-step.is-current .step-marker { border-color: #c9d0d5; color: #56616a; background: #dfe3e6; }
+.order-step.is-current .step-marker { border-color: #facc15; color: #a16207; background: #fef3c7; animation: step-pulse 2s ease-in-out infinite; }
 .step-content { min-width: 0; border: 1px solid #e1e6e9; border-radius: 12px; padding: 13px 14px; background: #eef1f3; }
 .order-step.is-complete .step-content { border-color: #cde9da; background: #fff; box-shadow: 0 4px 13px rgba(35, 75, 53, .05); }
-.order-step.is-current .step-content { border-color: #cfd5d9; background: #e4e7e9; }
+.order-step.is-current .step-content { border-color: #facc15; background: #fffbeb; box-shadow: 0 4px 13px rgba(161, 98, 7, .07); }
+@keyframes step-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, .45); }
+  50%      { box-shadow: 0 0 0 7px rgba(250, 204, 21, 0); }
+}
 .step-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .order-step strong { display: block; color: #34404a; font-size: 13px; line-height: 1.45; }
 .order-step p { margin: 6px 0 5px; font-size: 11px; line-height: 1.55; }
@@ -262,7 +279,12 @@ const fileSize = computed(() => {
 .order-status-note { margin: 4px 0 0; color: #77838e; font-size: 12px; }
 .step-state { flex: 0 0 auto; border-radius: 999px; padding: 4px 8px; background: #dfe3e6; font-weight: 700; white-space: nowrap; }
 .order-step.is-complete .step-state { color: #16884d; background: #e7f8ef; }
-.order-step.is-current .step-state { color: #525d66; background: #d2d7da; }
+.order-step.is-current .step-state { color: #92400e; background: #fde68a; }
+.step-date { display: inline-flex; align-items: center; gap: 4px; border-radius: 8px; padding: 3px 7px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.step-date :deep(.solar-icon) { flex: 0 0 auto; }
+.step-date--start { color: #a16207; background: #fef3c7; }
+.step-date--done { color: #16884d; background: #e7f8ef; }
+.order-step.is-pending .step-date--start { color: #64748b; background: #e2e8f0; }
 .order-details { margin: 0; }
 .order-details > div { display: grid; grid-template-columns: minmax(130px, .8fr) minmax(0, 1fr); align-items: center; gap: 14px; border-bottom: 1px solid #edf1f4; padding: 12px 0; }
 .order-details dt { display: inline-flex; align-items: center; gap: 8px; color: #89949d; font-size: 11px; font-weight: 500; }

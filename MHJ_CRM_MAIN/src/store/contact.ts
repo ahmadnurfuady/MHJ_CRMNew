@@ -520,15 +520,26 @@ export const useContact = defineStore("contact", () => {
     }
 
     const authUser = useAuthStore().user;
-    const branchId = authUser?.branch_id?.trim() || "";
+    // branch_id sekarang bisa "12,01,00" (multi-cabang). Default pilih cabang
+    // pertama (= cabang paling awal di-assign ke user, source of truth).
+    const branchIds = authUser?.branch_ids?.length
+      ? authUser.branch_ids
+      : (authUser?.branch_id || "").split(",").map((v) => v.trim()).filter(Boolean);
+    const branchId = branchIds[0] || "";
     if (!branchId) return selectFieldWithValue();
+
+    // branch_name mungkin agregat ("Bandung · Surabaya · ..."): ambil sebelum
+    // separator pertama agar label dropdown match dengan value cabang pertama.
+    const primaryBranchName = (authUser?.branch_name || "")
+      .split(" · ")[0]
+      ?.trim() || branchId;
 
     return {
       ...initSelectField(),
       data: branchId,
       selected: {
         value: branchId,
-        label: authUser?.branch_name?.trim() || branchId,
+        label: primaryBranchName,
       },
     };
   };

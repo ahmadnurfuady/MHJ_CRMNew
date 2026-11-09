@@ -95,7 +95,9 @@
                   />
                   <span class="hospital-filter__card-content">
                     <span class="hospital-filter__card-name">{{ branch.name }}</span>
-                    <span class="hospital-filter__card-meta">Cabang</span>
+                    <span class="hospital-filter__card-meta">
+                      {{ formatHospitalCount(branch.hospitalCount) }}
+                    </span>
                   </span>
                 </label>
               </li>
@@ -376,12 +378,26 @@ let searchTimer: ReturnType<typeof setTimeout> | undefined;
 interface BranchFilterOption {
   id: string;
   name: string;
+  /** Jumlah faskes aktif di cabang itu. null untuk opsi "Semua Cabang". */
+  hospitalCount: number | null;
 }
 
 // Opsi cabang dari GET /api/company/cabang. Entri pertama "Semua Cabang"
 // (id kosong) memakai filter kode_cabang kosong di backend = seluruh cabang.
 const ALL_BRANCH_ID = "";
 const branchOptions = ref<BranchFilterOption[]>([]);
+
+function pickNumber(raw: Record<string, unknown>, ...keys: string[]): number {
+  for (const key of keys) {
+    const value = raw[key];
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+    if (typeof value === "string" && value.trim() !== "") {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+  }
+  return 0;
+}
 
 async function loadBranchOptions() {
   try {
@@ -392,10 +408,14 @@ async function loadBranchOptions() {
       .map((raw) => ({
         id: pickString(raw, "value", "kode_cabang", "kode", "KodeCabang"),
         name: pickString(raw, "label", "nama_cabang", "name", "NamaCabang"),
+        hospitalCount: pickNumber(raw, "hospital_count", "total_faskes", "jumlah_faskes"),
       }))
       .filter((branch) => branch.id && branch.name);
+
+    // Opsi "Semua Cabang" = total seluruh faskes dari gabungan cabang.
+    const totalFaskes = branches.reduce((sum, b) => sum + (b.hospitalCount ?? 0), 0);
     branchOptions.value = [
-      { id: ALL_BRANCH_ID, name: "Semua Cabang" },
+      { id: ALL_BRANCH_ID, name: "Semua Cabang", hospitalCount: totalFaskes },
       ...branches,
     ];
   } catch (error) {
@@ -424,6 +444,12 @@ const allVisibleBranchesSelected = computed(() => {
 
 function isBranchSelected(id: string) {
   return draftBranchIds.value.includes(id);
+}
+
+/** Label jumlah faskes di dropdown filter. "— Faskes" bila data belum ada. */
+function formatHospitalCount(count: number | null): string {
+  if (count === null || count === undefined) return "— Faskes";
+  return `${count.toLocaleString("id-ID")} Faskes`;
 }
 
 function toggleBranch(id: string) {

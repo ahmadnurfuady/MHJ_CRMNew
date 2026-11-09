@@ -6,11 +6,20 @@ export interface OrderMilestone {
   milestone_id: number | string
   nama: string
   keterangan: string | null
+  /** Departemen in-charge, mis. "Sales" / "Admin" / "Logistik". */
+  department?: string | null
   is_completed: boolean
+  /** Status tahap: 'done' = selesai, 'process' = sedang dikerjakan, 'pending' = belum giliran. */
+  status?: 'done' | 'process' | 'pending'
+  /** Tanggal mulai step (auto-isi saat step sebelumnya selesai, bisa di-override). */
+  started_at?: string | null
+  started_time?: string | null
+  started_date?: string | null
   completed_at: string | null
   completed_time: string | null
   completed_date: string | null
   no_referensi_erp: string | null
+  catatan?: string | null
 }
 
 export interface OrderTrackingResult {
