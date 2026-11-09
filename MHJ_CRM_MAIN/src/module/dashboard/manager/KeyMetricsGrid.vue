@@ -5,7 +5,12 @@
     </div>
 
     <div class="key-metrics-grid">
-      <article v-for="kpi in kpis" :key="kpi.id" class="kpi-card">
+      <article
+        v-for="kpi in kpis"
+        :key="kpi.id"
+        class="kpi-card"
+        :class="{ 'kpi-card--wide-value': isWideValue(kpi.value) }"
+      >
         <div class="kpi-card__icon" aria-hidden="true">
           <SolarIcon
             :name="resolveKpiIcon(kpi.id)"
@@ -17,7 +22,10 @@
         <strong class="kpi-card__value">{{ kpi.value }}</strong>
         <span class="kpi-card__label">{{ kpi.label }}</span>
         <div class="kpi-card__bar">
-          <span class="kpi-card__bar-fill" :style="{ width: `${clampProgress(kpi.progress)}%` }"></span>
+          <span
+            class="kpi-card__bar-fill"
+            :style="{ width: `${clampProgress(kpi.progress)}%` }"
+          ></span>
         </div>
         <span class="kpi-card__sublabel">{{ kpi.sublabel }}</span>
       </article>
@@ -44,6 +52,10 @@ function resolveKpiIcon(id: string): string {
 
 function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, value))
+}
+
+function isWideValue(value: string): boolean {
+  return value.length >= 16
 }
 </script>
 
@@ -74,7 +86,7 @@ function clampProgress(value: number): number {
 
 .key-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
   gap: 14px;
 }
 
@@ -90,6 +102,10 @@ function clampProgress(value: number): number {
   background: #fff;
 }
 
+.kpi-card--wide-value {
+  grid-column: span 2;
+}
+
 .kpi-card__icon {
   display: grid;
   place-items: center;
@@ -97,13 +113,21 @@ function clampProgress(value: number): number {
   height: 40px;
   margin-bottom: 4px;
   border-radius: 12px;
-  color: var(--dashboard-icon-primary, var(--kpi-accent, var(--app-primary, #18a6e4)));
-  background: var(--dashboard-icon-surface, var(--kpi-accent-soft, var(--app-primary-wash, #f0f9ff)));
+  color: var(
+    --dashboard-icon-primary,
+    var(--kpi-accent, var(--app-primary, #18a6e4))
+  );
+  background: var(
+    --dashboard-icon-surface,
+    var(--kpi-accent-soft, var(--app-primary-wash, #f0f9ff))
+  );
 }
 
 .kpi-card__value {
+  max-width: 100%;
+  overflow-wrap: anywhere;
   color: #17212b;
-  font-size: 21px;
+  font-size: clamp(18px, 1.7vw, 25px);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -139,6 +163,10 @@ function clampProgress(value: number): number {
 @media (max-width: 767px) {
   .key-metrics-grid {
     grid-template-columns: 1fr;
+  }
+
+  .kpi-card--wide-value {
+    grid-column: auto;
   }
 }
 

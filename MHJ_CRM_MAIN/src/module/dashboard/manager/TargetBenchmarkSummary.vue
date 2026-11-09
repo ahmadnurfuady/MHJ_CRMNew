@@ -2,11 +2,20 @@
   <div class="benchmark-layout">
     <article class="benchmark-card" aria-labelledby="benchmark-title">
       <div class="benchmark-card__head">
-        <h2 id="benchmark-title" class="section-title">Ringkasan Target &amp; Benchmark</h2>
+        <h2 id="benchmark-title" class="section-title">
+          Ringkasan Target &amp; Benchmark
+        </h2>
       </div>
 
-      <section class="benchmark-bars" aria-label="Perbandingan nilai target dan realisasi">
-        <div v-for="stat in normalizedStats" :key="stat.id" class="benchmark-bar">
+      <section
+        class="benchmark-bars"
+        aria-label="Perbandingan nilai target dan realisasi"
+      >
+        <div
+          v-for="stat in normalizedStats"
+          :key="stat.id"
+          class="benchmark-bar"
+        >
           <div class="benchmark-bar__head">
             <span>{{ stat.label }}</span>
             <strong>{{ stat.value }}</strong>
@@ -18,7 +27,9 @@
               :style="{ width: `${stat.visualPercent}%` }"
             ></span>
           </div>
-          <span v-if="stat.hint" class="benchmark-bar__hint">{{ stat.hint }}</span>
+          <span v-if="stat.hint" class="benchmark-bar__hint">{{
+            stat.hint
+          }}</span>
         </div>
       </section>
     </article>
@@ -26,7 +37,10 @@
     <article class="benchmark-card" aria-labelledby="performance-title">
       <div class="benchmark-card__head">
         <h2 id="performance-title" class="section-title">Capaian Kinerja</h2>
-        <span class="benchmark-card__status" :class="`is-${benchmarkStatus.tone}`">
+        <span
+          class="benchmark-card__status"
+          :class="`is-${benchmarkStatus.tone}`"
+        >
           {{ benchmarkStatus.label }}
         </span>
       </div>
@@ -51,7 +65,11 @@
         </div>
 
         <div class="benchmark-score__progress">
-          <div v-for="stat in benchmark.progressStats" :key="stat.id" class="progress-row">
+          <div
+            v-for="stat in benchmark.progressStats"
+            :key="stat.id"
+            class="progress-row"
+          >
             <div class="progress-row__head">
               <span>{{ shortProgressLabel(stat.label) }}</span>
               <strong>{{ stat.displayValue }}</strong>
@@ -61,7 +79,6 @@
             </div>
           </div>
         </div>
-
       </section>
     </article>
   </div>
@@ -79,13 +96,16 @@ const props = defineProps<{
 const normalizedStats = computed(() => {
   // Panjang bar dari nilai rupiah mentah backend, bukan dari teks "Rp150M"/"Rp617Jt"
   // (parse teks menghilangkan satuan M/Jt sehingga perbandingannya salah).
-  const amounts = props.benchmark.stats.map((stat) => (stat.amount > 0 ? stat.amount : 0))
+  const amounts = props.benchmark.stats.map((stat) =>
+    stat.amount > 0 ? stat.amount : 0,
+  )
   const maximum = Math.max(...amounts, 1)
 
   return props.benchmark.stats.map((stat, index) => ({
     ...stat,
     index,
-    visualPercent: amounts[index] > 0 ? Math.max(2, (amounts[index] / maximum) * 100) : 0,
+    visualPercent:
+      amounts[index] > 0 ? Math.max(2, (amounts[index] / maximum) * 100) : 0,
   }))
 })
 
@@ -103,7 +123,7 @@ function clampProgress(value: number): number {
 }
 
 function formatPercent(value: number): string {
-  return `${value.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`
+  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 20 })}%`
 }
 
 function shortProgressLabel(label: string): string {
@@ -114,7 +134,7 @@ function shortProgressLabel(label: string): string {
 <style scoped>
 .benchmark-layout {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr));
   align-items: stretch;
   gap: 18px;
   min-width: 0;
@@ -213,10 +233,12 @@ function shortProgressLabel(label: string): string {
 }
 
 .benchmark-bar__head strong {
-  flex: 0 0 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: #17212b;
   font-size: 13px;
   font-weight: 700;
+  text-align: right;
 }
 
 .benchmark-bar__track,

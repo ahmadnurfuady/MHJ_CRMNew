@@ -454,10 +454,11 @@ export const useProjectStore = defineStore('project', () => {
    * Ambil `ringkasan` + `stages` dari body respons GET /api/project (bila ada)
    * dan simpan dalam bentuk camelCase. Dipakai kartu Ringkasan Peluang & tab
    * tahap supaya angkanya memakai hitungan BE (seluruh peluang), bukan hitung
-   * ulang di FE. Aman bila BE belum mengirim field ini (komponen tetap punya
-   * fallback hitung lokal).
+   * ulang di FE.
    */
   function captureSummaryAggregates(data: unknown) {
+    ringkasan.value = null
+    stageSummaries.value = []
     if (!isRecord(data)) return
 
     const r = isRecord(data.ringkasan) ? data.ringkasan : null
@@ -483,7 +484,7 @@ export const useProjectStore = defineStore('project', () => {
 
     const list = Array.isArray(data.stages) ? data.stages : []
     stageSummaries.value = list.filter(isRecord).map((s) => ({
-      status: String(s.status ?? ''),
+      status: toSlug(String(s.status ?? '')),
       stageId: s.stage_id === null || s.stage_id === undefined ? null : Number(s.stage_id),
       stageName: String(s.stage_name ?? ''),
       quantity: Number(s.jumlah ?? 0) || 0,
@@ -595,13 +596,7 @@ export const useProjectStore = defineStore('project', () => {
         }
 
         if (created) {
-          items.value = [created, ...items.value]
-          summaryItems.value = [created, ...summaryItems.value.filter((item) => item.id !== created.id)]
-          pagination.total += 1
-          pagination.lastPage = Math.max(
-            1,
-            Math.ceil(pagination.total / Math.max(1, pagination.perPage))
-          )
+          await fetchProjectSummary()
         } else {
           await fetchProjects(lastParams.value)
           await fetchProjectSummary()
@@ -637,10 +632,7 @@ export const useProjectStore = defineStore('project', () => {
         }
 
         if (updated && projectMatchesPayload(updated, payload)) {
-          items.value = items.value.map((item) => (item.id === id ? (updated as Projects) : item))
-          summaryItems.value = summaryItems.value.map((item) =>
-            item.id === id ? (updated as Projects) : item
-          )
+          await fetchProjectSummary()
           if (selectedItem.value?.id === id) selectedItem.value = updated
           return updated
         }
@@ -659,13 +651,7 @@ export const useProjectStore = defineStore('project', () => {
       fallbackMessage: 'Gagal menghapus peluang.',
       task: async () => {
         await api.post(`${ENDPOINT}/input`, { choice: 'd', id })
-        items.value = items.value.filter((item) => item.id !== id)
-        summaryItems.value = summaryItems.value.filter((item) => item.id !== id)
-        pagination.total = Math.max(0, pagination.total - 1)
-        pagination.lastPage = Math.max(
-          1,
-          Math.ceil(pagination.total / Math.max(1, pagination.perPage))
-        )
+        await fetchProjectSummary()
         if (selectedItem.value?.id === id) selectedItem.value = null
       }
     })

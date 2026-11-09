@@ -21,7 +21,7 @@
         >
           <span
             :class="`is-${item.id}`"
-            :style="{ width: `${item.percent}%` }"
+            :style="{ width: `${clampProgress(item.percent)}%` }"
           ></span>
         </div>
         <small>{{ formatPercent(item.percent) }} dari peluang selesai</small>
@@ -45,18 +45,22 @@ const chartItems = computed(() => [
     id: 'win',
     label: 'Win',
     value: props.outcome.won,
-    percent: Math.min(100, Math.max(0, props.outcome.wonPercent)),
+    percent: props.outcome.wonPercent,
   },
   {
     id: 'lost',
     label: 'Lost',
     value: props.outcome.lost,
-    percent: Math.min(100, Math.max(0, props.outcome.lostPercent)),
+    percent: props.outcome.lostPercent,
   },
 ])
 
+function clampProgress(value: number): number {
+  return Math.min(100, Math.max(0, value))
+}
+
 function formatPercent(value: number): string {
-  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%`
+  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 20 })}%`
 }
 </script>
 

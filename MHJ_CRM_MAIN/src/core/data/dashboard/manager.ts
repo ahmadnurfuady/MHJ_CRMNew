@@ -17,15 +17,41 @@ import type {
 const managerDashboardData: ManagerDashboardData = {
   greetingName: '',
   kpis: [],
-  opportunityOutcome: { won: 0, lost: 0, total: 0, wonPercent: 0, lostPercent: 0 },
+  opportunityOutcome: {
+    won: 0,
+    lost: 0,
+    total: 0,
+    wonPercent: 0,
+    lostPercent: 0,
+  },
   quickActions: [
-    { id: 'materi-dokumen', label: 'Materi Dokumen', icon: 'document-text', to: '/app/file_manager' },
-    { id: 'kalender-tugas', label: 'Kalender Tugas', icon: 'calendar', to: '/crmAdmin/calendar' },
+    {
+      id: 'materi-dokumen',
+      label: 'Materi Dokumen',
+      icon: 'document-text',
+      to: '/app/file_manager',
+    },
+    {
+      id: 'kalender-tugas',
+      label: 'Kalender Tugas',
+      icon: 'calendar',
+      to: '/crmAdmin/calendar',
+    },
     { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/promos' },
     { id: 'piutang', label: 'Piutang', icon: 'tag', to: '/crmAdmin/piutang' },
-    { id: 'form-survey', label: 'Form Survey', icon: 'clipboard', comingSoon: true },
+    {
+      id: 'form-survey',
+      label: 'Form Survey',
+      icon: 'clipboard',
+      comingSoon: true,
+    },
   ],
-  benchmark: { stats: [], progressStats: [], winningChance: 0, averageProgress: 0 },
+  benchmark: {
+    stats: [],
+    progressStats: [],
+    winningChance: 0,
+    averageProgress: 0,
+  },
   coverage: {
     stats: [],
     highlight: {
@@ -38,36 +64,22 @@ const managerDashboardData: ManagerDashboardData = {
   activities: [],
 }
 
-/** Format "Rp 12,5M" / "Rp 850Jt" / "Rp 500Rb" dari angka IDR (satuan rupiah). */
-function formatRupiahCompact(amount: number): string {
-  if (!Number.isFinite(amount) || amount <= 0) return 'Rp0'
-  if (amount >= 1_000_000_000) {
-    const miliar = amount / 1_000_000_000
-    const value = miliar >= 10 ? miliar.toFixed(0) : miliar.toFixed(1).replace('.', ',')
-    return `Rp${value}M`
-  }
-  if (amount >= 1_000_000) {
-    return `Rp${Math.round(amount / 1_000_000)}Jt`
-  }
-  if (amount >= 1_000) {
-    return `Rp${Math.round(amount / 1_000)}Rb`
-  }
-  return `Rp${Math.round(amount)}`
+/** Format rupiah lengkap tanpa memadatkan atau membulatkan nilai backend. */
+function formatRupiah(amount: number): string {
+  if (!Number.isFinite(amount)) return 'Rp 0'
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 20,
+  }).format(amount)
 }
 
-/** Format "45,85%" dari angka (0..100). */
-function formatPercent(value: number, digits = 2): string {
+/** Format persen tanpa mengubah presisi nilai backend. */
+function formatPercent(value: number): string {
   if (!Number.isFinite(value)) return '0%'
-  const str = digits > 0 ? value.toFixed(digits) : Math.round(value).toString()
-  return `${str.replace('.', ',')}%`
-}
-
-/** Clamp 0..100 untuk progress bar. */
-function clampProgress(value: number): number {
-  if (!Number.isFinite(value)) return 0
-  if (value < 0) return 0
-  if (value > 100) return 100
-  return Math.round(value * 10) / 10
+  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 20 })}%`
 }
 
 function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
@@ -75,19 +87,19 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
     {
       id: 'target-omset',
       label: 'Target vs Omset',
-      value: formatRupiahCompact(m.realisasi_omset),
-      sublabel: `dari ${formatRupiahCompact(m.target_nominal)}`,
+      value: formatRupiah(m.realisasi_omset),
+      sublabel: `dari ${formatRupiah(m.target_nominal)}`,
       icon: 'graph',
-      progress: clampProgress(m.target_achievement_percent),
+      progress: m.target_achievement_percent,
       accent: 'blue',
     },
     {
       id: 'win-rate',
       label: 'Win Rate',
-      value: `${Math.round(m.global_win_rate_percent)}%`,
+      value: formatPercent(m.global_win_rate_percent),
       sublabel: `${m.qty_po_terbit} deal ditutup`,
       icon: 'star',
-      progress: clampProgress(m.global_win_rate_percent),
+      progress: m.global_win_rate_percent,
       accent: 'amber',
     },
     {
@@ -96,13 +108,15 @@ function buildKpis(m: DashboardMetricsRaw): ManagerKpiCard[] {
       value: `${m.active_projects_count}`,
       sublabel: `${m.stalled_projects_count} stalled`,
       icon: 'filter',
-      progress: clampProgress(m.funnel_progress_percent),
+      progress: m.funnel_progress_percent,
       accent: 'violet',
     },
   ]
 }
 
-function buildOpportunityOutcome(m: DashboardMetricsRaw): ManagerOpportunityOutcome {
+function buildOpportunityOutcome(
+  m: DashboardMetricsRaw,
+): ManagerOpportunityOutcome {
   return {
     won: m.win_count,
     lost: m.lost_count,
@@ -113,14 +127,25 @@ function buildOpportunityOutcome(m: DashboardMetricsRaw): ManagerOpportunityOutc
 }
 
 function rupiahStat(id: string, label: string, amount: number, hint?: string) {
-  return { id, label, value: formatRupiahCompact(amount), amount, ...(hint ? { hint } : {}) }
+  return {
+    id,
+    label,
+    value: formatRupiah(amount),
+    amount,
+    ...(hint ? { hint } : {}),
+  }
 }
 
 function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
   return {
     stats: [
       rupiahStat('target-tahunan', 'Target Tahunan', m.target_tahunan_value),
-      rupiahStat('target-peluang', 'Target Peluang', m.target_peluang_value, 'Target x3'),
+      rupiahStat(
+        'target-peluang',
+        'Target Peluang',
+        m.target_peluang_value,
+        'Target x3',
+      ),
       rupiahStat('real-peluang', 'Real Peluang', m.real_peluang_value),
       rupiahStat('revenue', 'Revenue', m.revenue_value),
     ],
@@ -128,13 +153,13 @@ function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
       {
         id: 'peluang-progres',
         label: 'Peluang Progres',
-        value: clampProgress(m.peluang_progress_percent),
+        value: m.peluang_progress_percent,
         displayValue: formatPercent(m.peluang_progress_percent),
       },
       {
         id: 'target-progres',
         label: 'Target Progres',
-        value: clampProgress(m.target_progress_percent),
+        value: m.target_progress_percent,
         displayValue: formatPercent(m.target_progress_percent),
       },
     ],
@@ -143,14 +168,17 @@ function buildBenchmark(m: DashboardMetricsRaw): ManagerBenchmarkSummary {
   }
 }
 
-function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): ManagerAreaCoverage {
+function buildCoverage(
+  m: DashboardMetricsRaw,
+  highlight: MapHighlight,
+): ManagerAreaCoverage {
   return {
     stats: [
       {
         id: 'area-coverage',
         label: 'Cakupan Wilayah',
         value: `${m.area_visited_count}`,
-        progress: clampProgress(m.area_progress_percent),
+        progress: m.area_progress_percent,
         hint: `dikunjungi dari ${m.area_target_count} faskes target`,
         icon: 'map-point',
       },
@@ -158,7 +186,7 @@ function buildCoverage(m: DashboardMetricsRaw, highlight: MapHighlight): Manager
         id: 'market-coverage',
         label: 'Cakupan Pasar',
         value: `${m.market_buying_count}`,
-        progress: clampProgress(m.market_progress_percent),
+        progress: m.market_progress_percent,
         hint: `membeli dari ${m.market_base_count} faskes`,
         icon: 'cart',
       },
@@ -176,7 +204,8 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
       return [] as ManagerDashboardData['activities']
     }),
   ])
-  const metrics = primaryMetrics ?? await fetchDashboardMetricsFromExistingApis()
+  const metrics =
+    primaryMetrics ?? (await fetchDashboardMetricsFromExistingApis())
 
   const kpis = metrics ? buildKpis(metrics) : []
   const benchmark = metrics

@@ -19,9 +19,14 @@
         </div>
         <span class="coverage-tile__label">{{ stat.label }}</span>
         <div class="coverage-tile__bar">
-          <span class="coverage-tile__bar-fill" :style="{ width: `${clampProgress(stat.progress)}%` }"></span>
+          <span
+            class="coverage-tile__bar-fill"
+            :style="{ width: `${clampProgress(stat.progress)}%` }"
+          ></span>
         </div>
-        <span class="coverage-tile__hint">{{ formatPercent(stat.progress) }} &middot; {{ stat.hint }}</span>
+        <span class="coverage-tile__hint"
+          >{{ formatPercent(stat.progress) }} &middot; {{ stat.hint }}</span
+        >
       </div>
     </div>
   </article>
@@ -39,7 +44,7 @@ function clampProgress(value: number): number {
 }
 
 function formatPercent(value: number): string {
-  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 1 })}%`
+  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 20 })}%`
 }
 </script>
 
@@ -90,7 +95,10 @@ function formatPercent(value: number): string {
   height: 30px;
   border-radius: 9px;
   color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
-  background: var(--dashboard-icon-surface-strong, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14));
+  background: var(
+    --dashboard-icon-surface-strong,
+    rgba(var(--app-primary-rgb, 24, 166, 228), 0.14)
+  );
 }
 
 .coverage-tile__icon :deep(.solar-icon) {

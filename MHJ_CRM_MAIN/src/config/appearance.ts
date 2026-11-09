@@ -24,7 +24,7 @@ export const fontOptions: FontOption[] = [
 
 export const defaultAppearance: AppearanceSettings = {
   primaryColor: '#18A6E4',
-  secondaryColor: '#84D7EB',
+  secondaryColor: '#032A4E',
   fontFamily: 'Montserrat',
   fontSizeOffset: 2,
 }

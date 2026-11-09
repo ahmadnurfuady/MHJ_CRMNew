@@ -1,6 +1,10 @@
 <template>
   <div class="container-fluid manager-dashboard">
-    <div v-if="loading && !data" class="manager-dashboard__loading" role="status">
+    <div
+      v-if="loading && !data"
+      class="manager-dashboard__loading"
+      role="status"
+    >
       <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
       <span>Memuat dashboard...</span>
     </div>
@@ -38,7 +42,11 @@
 
     <div v-else class="manager-dashboard__empty" role="alert">
       Dashboard belum dapat dimuat.
-      <button type="button" class="btn btn-primary btn-sm" @click="loadDashboard">
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        @click="loadDashboard"
+      >
         Coba lagi
       </button>
     </div>
@@ -78,7 +86,10 @@ onMounted(loadDashboard)
 .manager-dashboard {
   --dashboard-icon-primary: var(--app-primary, #18a6e4);
   --dashboard-icon-surface: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
-  --dashboard-icon-surface-strong: rgba(var(--app-primary-rgb, 24, 166, 228), 0.15);
+  --dashboard-icon-surface-strong: rgba(
+    var(--app-primary-rgb, 24, 166, 228),
+    0.15
+  );
   display: grid;
   gap: 22px;
   padding-bottom: 28px;
@@ -87,7 +98,10 @@ onMounted(loadDashboard)
 :global(body.dark-only) .manager-dashboard {
   --dashboard-icon-primary: var(--app-primary, #18a6e4);
   --dashboard-icon-surface: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
-  --dashboard-icon-surface-strong: rgba(var(--app-primary-rgb, 24, 166, 228), 0.24);
+  --dashboard-icon-surface-strong: rgba(
+    var(--app-primary-rgb, 24, 166, 228),
+    0.24
+  );
 }
 
 .manager-dashboard__header {
@@ -120,7 +134,7 @@ onMounted(loadDashboard)
 
 .manager-dashboard__performance {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
   align-items: stretch;
   gap: 18px;
   min-width: 0;
