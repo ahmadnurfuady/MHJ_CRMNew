@@ -112,3 +112,38 @@ export async function fetchSuratPesanan(projectId: number | string) {
   const response = await api.get<{ data?: unknown; exists?: boolean }>(`/project/suratpesanan/${projectId}`)
   return response.data?.data ?? null
 }
+
+/** Satu baris reminder peluang Win yang belum lengkap datanya. */
+export interface WonMissingRequirement {
+  project_id: number
+  id: number
+  projects_name: string | null
+  project_name: string | null
+  company_name: string | null
+  stage_name: string | null
+  status: string | null
+  has_po_customer: boolean
+  has_surat_pesanan: boolean
+  missing_customer: boolean
+  missing_surat_pesanan: boolean
+  missing: string[]
+}
+
+interface WonMissingRequirementResponse {
+  data?: WonMissingRequirement[]
+  total?: number
+  total_missing_customer?: number
+  total_missing_surat_pesanan?: number
+}
+
+/**
+ * `GET /api/project/wonmissingrequirements`
+ *
+ * Satu call untuk mengambil daftar peluang Win milik user yang Data Pelanggan
+ * (PO Customer) dan/atau Surat Pesanannya belum dibuat. Menggantikan N panggilan
+ * `/pocustomer/{id}` + `/suratpesanan/{id}` per peluang di halaman list.
+ */
+export async function fetchWonMissingRequirements(): Promise<WonMissingRequirement[]> {
+  const response = await api.get<WonMissingRequirementResponse>('/project/wonmissingrequirements')
+  return response.data?.data ?? []
+}

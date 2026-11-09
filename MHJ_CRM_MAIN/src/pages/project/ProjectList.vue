@@ -288,10 +288,7 @@ import { useRoute, useRouter } from "vue-router";
 import Swal from "sweetalert2";
 import { projectTab } from "@/core/data/project";
 import { routes } from "@/router/routes";
-import {
-  fetchPoCustomer,
-  fetchSuratPesanan,
-} from "@/services/projectOrderService";
+import { fetchWonMissingRequirements } from "@/services/projectOrderService";
 import { useProjectStore } from "@/store/project";
 import { useProjectPermissions } from "@/module/project/projectPermission";
 import type { Projects } from "@/types/project";
@@ -327,8 +324,8 @@ onMounted(async () => {
       didOpen: () => Swal.showLoading(),
     });
   }
-  const projects = await projectStore.fetchProjectSummary();
-  await loadOpportunityReminder(projects, showAutomaticPopup);
+  await projectStore.fetchProjectSummary();
+  await loadOpportunityReminder(showAutomaticPopup);
 });
 
 function escapeHtml(value: string): string {
@@ -434,41 +431,31 @@ async function showOpportunityReminder(showProjectList = true, allowSessionMute 
   if (result.isConfirmed) await openWonStage();
 }
 
-async function loadOpportunityReminder(projects: Projects[], showAutomaticPopup: boolean): Promise<void> {
-  const wonProjects = projects.filter((project) => {
-    const status = `${project.status} ${project.stageName}`.toLowerCase();
-    return status.includes("closed_won")
-      || status.includes("closed won")
-      || status.includes("berhasil")
-      || /(^|[\s_-])win([\s_-]|$)/.test(status);
-  });
-  const requirementResults = await Promise.all(
-    wonProjects.map(async (project) => {
-      const [customerResult, salesOrderResult] = await Promise.allSettled([
-        fetchPoCustomer(project.id),
-        fetchSuratPesanan(project.id),
-      ]);
-      const missing: string[] = [];
-
-      if (customerResult.status === "rejected" || !customerResult.value) {
-        missing.push("Data customer");
-      }
-      if (salesOrderResult.status === "rejected" || !salesOrderResult.value) {
-        missing.push("Surat Pesanan");
-      }
-
-      return { project, missing };
-    }),
-  );
+async function loadOpportunityReminder(showAutomaticPopup: boolean): Promise<void> {
+  // Reminder diambil dari BE dalam 1 call (`/project/wonmissingrequirements`).
+  // BE sudah memfilter peluang Won sesuai scope user dan mengecek keberadaan
+  // Data Pelanggan + Surat Pesanan, jadi FE tak perlu N call per peluang.
+  let items: Awaited<ReturnType<typeof fetchWonMissingRequirements>> = [];
+  try {
+    items = await fetchWonMissingRequirements();
+  } catch (error) {
+    console.warn("Gagal memuat reminder peluang Win:", error);
+    if (showAutomaticPopup) Swal.close();
+    return;
+  }
 
   wonMissingRequirements.value = Object.fromEntries(
-    requirementResults
-      .filter(({ missing }) => missing.length)
-      .map(({ project, missing }) => [project.id, missing]),
+    items
+      .filter((item) => item.missing.length)
+      .map((item) => [item.project_id, item.missing]),
   );
-  missingCustomerProjects.value = requirementResults.flatMap(({ project, missing }) =>
-    missing.includes("Data customer") ? [project] : [],
-  );
+  missingCustomerProjects.value = items
+    .filter((item) => item.missing_customer)
+    .map((item) => ({
+      id: item.project_id,
+      projectName: item.project_name ?? item.projects_name ?? "",
+      companyName: item.company_name ?? "",
+    } as Projects));
 
   const count = missingCustomerProjects.value.length;
   if (!count) {
