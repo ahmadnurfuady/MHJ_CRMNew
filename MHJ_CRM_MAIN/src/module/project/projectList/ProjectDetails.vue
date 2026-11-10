@@ -11,6 +11,102 @@
     @keydown.enter="openProjectDetail"
     @keydown.space.prevent="openProjectDetail"
   >
+    <template v-if="viewMode === 'list'">
+      <div class="opp-list-layout">
+        <div class="opp-list-project-header">
+          <small>Nama peluang</small>
+          <strong>{{ shortProjectTitle(project.projectName) }}</strong>
+        </div>
+
+        <div class="opp-list-cell opp-list-cell--status">
+          <small>Status</small>
+          <div class="opp-stage-status">
+            <span class="opp-stage-pill">
+              <i class="opp-stage-pill__dot"></i>
+              {{ stageTitle }}
+            </span>
+            <span
+              v-if="hasMissingRequirements"
+              class="opp-requirement-alert"
+              role="img"
+              :aria-label="missingRequirementsLabel"
+              :title="missingRequirementsLabel"
+            >!</span>
+          </div>
+        </div>
+
+        <div
+          class="opp-list-cell opp-list-cell--estimate"
+          :title="`Estimasi selesai: ${formatFullDate(project.expectedCloseDate)}`"
+        >
+          <small>Estimasi Selesai</small>
+          <strong>{{ formatShortDate(project.expectedCloseDate) }}</strong>
+        </div>
+
+        <div class="opp-list-cell opp-list-cell--hospital">
+          <small>Nama RS</small>
+          <strong>{{ project.companyName || 'Faskes belum ditentukan' }}</strong>
+        </div>
+
+        <div class="opp-list-cell opp-list-cell--stage-time">
+          <small>Di stage ini</small>
+          <strong>{{ stageDuration }}</strong>
+        </div>
+
+        <div class="opp-list-cell opp-list-cell--address">
+          <small>Alamat</small>
+          <strong>{{ project.address || 'Alamat belum tersedia' }}</strong>
+        </div>
+
+        <div class="opp-list-cell opp-list-cell--value" :title="formatFullMoney(projectValue)">
+          <small>Nilai peluang</small>
+          <strong>{{ formatMoney(projectValue) }}</strong>
+        </div>
+
+        <div class="opp-list-contact">
+          <small>Kontak Utama</small>
+          <template v-if="projectContacts.length">
+            <div class="opp-list-contact__items">
+              <div
+                v-for="(contact, index) in visibleListContacts"
+                :key="`${contact.id}-${contact.name}`"
+              >
+                <span>{{ index + 1 }}</span>
+                <strong>{{ contact.name }}</strong>
+              </div>
+            </div>
+            <span v-if="hiddenListContactCount" class="opp-list-contact__more">
+              +{{ hiddenListContactCount }} kontak lainnya
+            </span>
+          </template>
+          <template v-else>
+            <span class="opp-list-contact__empty">Belum ada kontak PIC</span>
+          </template>
+        </div>
+      </div>
+
+      <div class="opp-list-footer">
+        <div>
+          <span class="opp-avatar opp-avatar--owner" aria-hidden="true">{{ initials(project.ownerName) }}</span>
+          <span>
+            <small>Owner</small>
+            <strong>{{ project.ownerName || 'Belum ditentukan' }}</strong>
+          </span>
+        </div>
+        <div>
+          <small>Dibuat oleh</small>
+          <strong>{{ createdByName }}</strong>
+          <span class="opp-list-footer__date">{{ formatAuditDate(project.createdAt) }}</span>
+        </div>
+        <div>
+          <small>Diperbarui oleh</small>
+          <strong>{{ updatedByName }}</strong>
+          <span class="opp-list-footer__date">{{ formatAuditDate(project.updatedAt) }}</span>
+        </div>
+      </div>
+    </template>
+
+    <template v-else>
     <div class="opp-card__stage">
       <div class="opp-stage-status">
         <span class="opp-stage-pill">
@@ -25,7 +121,7 @@
           :title="missingRequirementsLabel"
         >!</span>
       </div>
-      <span class="opp-created" :title="formatFullDate(project.createdAt)">
+      <span class="opp-created" :title="`Estimasi selesai: ${formatFullDate(project.expectedCloseDate)}`">
         <SolarIcon
           name="calendar"
           :size="14"
@@ -34,7 +130,7 @@
           :secondary-opacity="1"
           aria-hidden="true"
         />
-        <span>{{ formatShortDate(project.createdAt) }}</span>
+        <span>Estimasi selesai · {{ formatShortDate(project.expectedCloseDate) }}</span>
       </span>
     </div>
 
@@ -61,22 +157,6 @@
       <div class="opp-owner-copy">
         <small>Owner</small>
         <strong>{{ project.ownerName || 'Belum ditentukan' }}</strong>
-
-        <!-- List: dua baris vertikal "Dibuat oleh" + "Diperbarui oleh" di
-             bawah Owner. Board menampilkannya di dalam .opp-card__timing. -->
-        <div
-          v-if="viewMode === 'list'"
-          class="opp-owner-audit opp-owner-audit--list"
-        >
-          <span class="opp-owner-audit__item">
-            <small>Dibuat oleh</small>
-            <strong>{{ createdByName }}</strong>
-          </span>
-          <span class="opp-owner-audit__item">
-            <small>Diperbarui oleh</small>
-            <strong>{{ updatedByName }}</strong>
-          </span>
-        </div>
       </div>
     </div>
 
@@ -89,9 +169,8 @@
       </div>
     </div>
 
-    <!-- Board: Dibuat & Diperbarui ditaruh di baris sendiri DI BAWAH Owner,
-         bentuk pil sama seperti "Di stage ini"/"Update terakhir". -->
-    <div v-if="viewMode === 'board'" class="opp-card__audit">
+    <!-- Pada list blok ini disembunyikan di desktop dan dipakai saat layout mobile. -->
+    <div class="opp-card__audit">
       <div>
         <span><small>Dibuat oleh</small><strong>{{ createdByName }}</strong></span>
       </div>
@@ -143,6 +222,7 @@
         Lihat detail
       </span>
     </div>
+    </template>
   </article>
 </template>
 
@@ -187,6 +267,8 @@ const projectContacts = computed<ProjectContact[]>(() => {
     : []
 })
 const remainingContacts = computed(() => projectContacts.value.slice(1))
+const visibleListContacts = computed(() => projectContacts.value.slice(0, 3))
+const hiddenListContactCount = computed(() => Math.max(projectContacts.value.length - 3, 0))
 const lastUpdated = computed(() => formatRelativeTime(props.project.updatedAt || props.project.createdAt))
 const stageDuration = computed(() => formatDuration(props.project.stageEnteredAt || props.project.updatedAt || props.project.createdAt))
 const createdByName = computed(() => props.project.createdBy || 'Belum tersedia')
@@ -257,6 +339,19 @@ function formatMoney(value: number) {
     style: 'currency', currency: props.project.currency || 'IDR',
     minimumFractionDigits: 0, maximumFractionDigits: 20, currencyDisplay: 'narrowSymbol'
   }).format(value)
+}
+
+function formatAuditDate(value?: string) {
+  const date = parsedDate(value)
+  return date
+    ? new Intl.DateTimeFormat('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(date)
+    : 'Waktu belum tersedia'
 }
 
 function formatFullMoney(value: number) {

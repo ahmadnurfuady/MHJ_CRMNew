@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 import UnifiedCalendarView from '@/module/calendar/UnifiedCalendarView.vue'
 import {
@@ -80,11 +80,13 @@ import { useTask } from '@/store/task'
 // import { useProjectStore } from '@/store/project' // dinonaktifkan: endpoint peluang tidak dipanggil lagi
 import { routes } from '@/router/routes'
 import { useCalendarPermissions } from '@/module/calendar/calendarPermission'
+import { usePageBackRoute } from '@/composable/usePageHeader'
 
 type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 type ExportFormat = 'csv' | 'excel'
 
 const router = useRouter()
+const route = useRoute()
 const taskStore = useTask()
 const { canExportCalendar } = useCalendarPermissions()
 // const projectStore = useProjectStore() // dinonaktifkan: endpoint peluang tidak dipanggil lagi
@@ -100,7 +102,17 @@ const { currentTask } = storeToRefs(taskStore)
 
 const loadError = ref<string | null>(null)
 const periodFilter = ref<PeriodFilter>('all')
+const dashboardBackRoute = computed(() => {
+  if (route.query.from !== 'dashboard') return null
 
+  const returnTo = route.query.returnTo
+  return typeof returnTo === 'string' &&
+    (returnTo.startsWith(routes.Dashboards.Default) || returnTo.startsWith(routes.Dashboards.Manager))
+    ? returnTo
+    : routes.Dashboards.Default
+})
+
+usePageBackRoute(dashboardBackRoute)
 const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
   { value: 'all', label: 'Semua' },
   { value: 'daily', label: 'Harian' },

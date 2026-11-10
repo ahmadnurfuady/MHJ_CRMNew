@@ -9,13 +9,15 @@
         v-for="kpi in kpis"
         :key="kpi.id"
         class="kpi-card"
-        :class="{ 'kpi-card--wide-value': isWideValue(kpi.value) }"
+        :class="{ 'kpi-card--funnel': kpi.id === 'funnel-aktif' }"
       >
         <div class="kpi-card__icon" aria-hidden="true">
           <SolarIcon
             :name="resolveKpiIcon(kpi.id)"
             :size="24"
-            color="currentColor"
+            color="var(--dashboard-icon-main)"
+            secondary-color="var(--dashboard-icon-duotone)"
+            :secondary-opacity="1"
             aria-hidden="true"
           />
         </div>
@@ -29,21 +31,60 @@
         </div>
         <span class="kpi-card__sublabel">{{ kpi.sublabel }}</span>
       </article>
+
+      <article class="kpi-card kpi-card--outcome">
+        <div class="kpi-card__icon" aria-hidden="true">
+          <SolarIcon
+            name="cart-large-2-duotone"
+            :size="24"
+            color="var(--dashboard-icon-main)"
+            secondary-color="var(--dashboard-icon-duotone)"
+            :secondary-opacity="1"
+            aria-hidden="true"
+          />
+        </div>
+        <strong class="kpi-card__value">
+          {{ outcome.won }} Win vs {{ outcome.lost }} Lost
+        </strong>
+        <span class="kpi-card__label">Win vs Lost</span>
+        <div
+          class="kpi-card__bar kpi-card__bar--ratio"
+          role="img"
+          :aria-label="`${outcome.total} peluang, ${formatPercent(outcome.wonPercent)} Win dan ${formatPercent(outcome.lostPercent)} Lost`"
+        >
+          <span
+            class="kpi-card__ratio-segment is-win"
+            :style="{ width: `${clampProgress(outcome.wonPercent)}%` }"
+          ></span>
+          <span
+            class="kpi-card__ratio-segment is-lost"
+            :style="{ width: `${clampProgress(outcome.lostPercent)}%` }"
+          ></span>
+        </div>
+        <span class="kpi-card__sublabel">
+          {{ outcome.total }} peluang ({{ formatPercent(outcome.wonPercent) }} Win
+          &bull; {{ formatPercent(outcome.lostPercent) }} Lost)
+        </span>
+      </article>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import type { ManagerKpiCard } from '@/types/dashboard/manager'
+import type {
+  ManagerKpiCard,
+  ManagerOpportunityOutcome,
+} from '@/types/dashboard/manager'
+
 defineProps<{
   kpis: ManagerKpiCard[]
+  outcome: ManagerOpportunityOutcome
 }>()
 
 const KPI_ICONS: Record<string, string> = {
-  'target-omset': 'cart',
-  'win-rate': 'graph',
-  'cakupan-pasar': 'star',
-  'funnel-aktif': 'pin',
+  'target-omset': 'graph-duotone',
+  'win-rate': 'medal-ribbons-star-duotone',
+  'funnel-aktif': 'pin-list-duotone',
 }
 
 function resolveKpiIcon(id: string): string {
@@ -54,8 +95,8 @@ function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, value))
 }
 
-function isWideValue(value: string): boolean {
-  return value.length >= 16
+function formatPercent(value: number): string {
+  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 20 })}%`
 }
 </script>
 
@@ -86,7 +127,7 @@ function isWideValue(value: string): boolean {
 
 .key-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -102,10 +143,6 @@ function isWideValue(value: string): boolean {
   background: #fff;
 }
 
-.kpi-card--wide-value {
-  grid-column: span 2;
-}
-
 .kpi-card__icon {
   display: grid;
   place-items: center;
@@ -113,10 +150,6 @@ function isWideValue(value: string): boolean {
   height: 40px;
   margin-bottom: 4px;
   border-radius: 12px;
-  color: var(
-    --dashboard-icon-primary,
-    var(--kpi-accent, var(--app-primary, #18a6e4))
-  );
   background: var(
     --dashboard-icon-surface,
     var(--kpi-accent-soft, var(--app-primary-wash, #f0f9ff))
@@ -160,13 +193,36 @@ function isWideValue(value: string): boolean {
   font-size: 11px;
 }
 
+.kpi-card--outcome {
+  order: 3;
+}
+
+.kpi-card--funnel {
+  order: 4;
+}
+
+.kpi-card__bar--ratio {
+  display: flex;
+  background: transparent;
+}
+
+.kpi-card__ratio-segment {
+  display: block;
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.kpi-card__ratio-segment.is-win {
+  background: #22a06b;
+}
+
+.kpi-card__ratio-segment.is-lost {
+  background: #e05252;
+}
+
 @media (max-width: 767px) {
   .key-metrics-grid {
     grid-template-columns: 1fr;
-  }
-
-  .kpi-card--wide-value {
-    grid-column: auto;
   }
 }
 

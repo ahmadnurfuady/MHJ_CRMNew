@@ -8,15 +8,15 @@
       <li v-for="action in actions" :key="action.id">
         <router-link
           v-if="action.to && !action.comingSoon"
-          :to="action.to"
+          :to="resolveActionTo(action)"
           class="quick-actions__item"
         >
           <span class="quick-actions__icon" aria-hidden="true">
             <SolarIcon
               :name="resolveQuickActionIcon(action.id)"
               :size="24"
-              color="currentColor"
-              secondary-color="currentColor"
+              color="var(--dashboard-icon-main)"
+              secondary-color="var(--dashboard-icon-duotone)"
               :secondary-opacity="1"
             />
           </span>
@@ -31,8 +31,8 @@
             <SolarIcon
               :name="resolveQuickActionIcon(action.id)"
               :size="24"
-              color="currentColor"
-              secondary-color="currentColor"
+              color="var(--dashboard-icon-main)"
+              secondary-color="var(--dashboard-icon-duotone)"
               :secondary-opacity="1"
             />
           </span>
@@ -45,22 +45,37 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import type { ManagerQuickAction } from '@/types/dashboard/manager'
 
 defineProps<{
   actions: ManagerQuickAction[]
 }>()
 
+const route = useRoute()
+
 const QUICK_ACTION_ICONS: Record<string, string> = {
-  'materi-dokumen': 'folder',
-  'kalender-tugas': 'calendar',
-  promo: 'ticket-sale',
-  piutang: 'tag',
-  'form-survey': 'document-add',
+  'materi-dokumen': 'folder-duotone',
+  'kalender-tugas': 'calendar-duotone',
+  promo: 'ticket-sale-duotone',
+  piutang: 'tag-price-duotone',
+  'form-survey': 'clipboard-text-duotone',
 }
 
 function resolveQuickActionIcon(id: string): string {
   return QUICK_ACTION_ICONS[id] ?? 'add'
+}
+
+function resolveActionTo(action: ManagerQuickAction) {
+  if (action.id !== 'kalender-tugas' || !action.to) return action.to ?? ''
+
+  return {
+    path: action.to,
+    query: {
+      from: 'dashboard',
+      returnTo: route.fullPath,
+    },
+  }
 }
 </script>
 
@@ -124,7 +139,6 @@ a.quick-actions__item:focus-visible {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
   background: var(--dashboard-icon-surface, rgba(var(--app-primary-rgb, 24, 166, 228), 0.1));
 }
 

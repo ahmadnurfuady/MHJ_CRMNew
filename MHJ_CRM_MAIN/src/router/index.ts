@@ -73,6 +73,16 @@ const router = createRouter({
           },
         },
         {
+          path: routes.CrmAdmin.ProspectSurvey,
+          name: 'ProspectSurvey',
+          component: () => import('@/pages/survey/ProspectSurvey.vue'),
+          meta: {
+            mainTitle: 'Form Survey Prospek',
+            title: 'Form Survey Prospek | MHJ CRM',
+            breadcrumb: [{ text: 'Dashboard' }, { text: 'Form Survey Prospek' }],
+          },
+        },
+        {
           path: routes.CrmAdmin.Piutang,
           name: 'Piutang',
           component: () => import('@/pages/piutang/PiutangPage.vue'),
@@ -80,6 +90,26 @@ const router = createRouter({
             mainTitle: 'Piutang',
             title: 'Piutang | MHJ CRM',
             breadcrumb: [{ text: 'Dashboard' }, { text: 'Piutang' }],
+          },
+        },
+        {
+          path: routes.MateriDokumen.List,
+          name: 'MateriDokumenList',
+          component: () => import('@/pages/materiDokumen/MateriDokumenList.vue'),
+          meta: {
+            mainTitle: 'Materi & Dokumen',
+            title: 'Materi & Dokumen | MHJ CRM',
+            breadcrumb: [{ text: 'Dashboard' }, { text: 'Materi & Dokumen' }],
+          },
+        },
+        {
+          path: routes.MateriDokumen.Preview,
+          name: 'MateriDokumenPreview',
+          component: () => import('@/pages/materiDokumen/MateriDokumenPreview.vue'),
+          meta: {
+            mainTitle: 'Preview Dokumen',
+            title: 'Preview Pricelist Alkes Q2 2026 | MHJ CRM',
+            breadcrumb: [{ text: 'Materi & Dokumen' }, { text: 'Preview Dokumen' }],
           },
         },
         {

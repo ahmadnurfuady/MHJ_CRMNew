@@ -7,12 +7,25 @@
 
     <ul v-if="activities.length" class="activity-list">
       <li v-for="activity in activities" :key="activity.id" class="activity-item">
-        <span class="activity-item__icon" :class="`is-${activity.type}`" aria-hidden="true">
+        <span
+          class="activity-item__icon"
+          :class="activity.action ? `is-${activity.action}` : `is-${activity.type}`"
+          aria-hidden="true"
+        >
+          <MhjIcon
+            v-if="activity.mhjIcon"
+            :name="activity.mhjIcon"
+            :size="24"
+            :color="activityIconColor(activity.action)"
+            :secondary-color="activityIconColor(activity.action)"
+            single-color
+          />
           <SolarIcon
-            name="check-circle"
+            v-else
+            :name="activity.icon"
             :size="20"
-            color="currentColor"
-            secondary-color="currentColor"
+            :color="activityIconColor(activity.action)"
+            :secondary-color="activityIconColor(activity.action)"
             :secondary-opacity="1"
           />
         </span>
@@ -35,6 +48,12 @@ import type { ActivityItem } from '@/types/dashboard/manager'
 defineProps<{
   activities: ActivityItem[]
 }>()
+
+function activityIconColor(action?: ActivityItem['action']): string {
+  if (action === 'i') return '#22b573'
+  if (action === 'd') return '#ef5b68'
+  return 'var(--app-primary, #18a6e4)'
+}
 </script>
 
 <style scoped>
@@ -113,6 +132,21 @@ defineProps<{
 .activity-item__icon:is(.is-task, .is-note) {
   color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
   background: var(--dashboard-icon-surface-strong, rgba(var(--app-primary-rgb, 24, 166, 228), 0.14));
+}
+
+.activity-item__icon.is-i {
+  color: #22b573;
+  background: rgba(34, 181, 115, 0.1);
+}
+
+.activity-item__icon.is-u {
+  color: var(--app-primary-dark, #087fad);
+  background: var(--app-primary-wash, #eaf8fd);
+}
+
+.activity-item__icon.is-d {
+  color: #ef5b68;
+  background: rgba(239, 91, 104, 0.1);
 }
 
 .activity-item__body {

@@ -60,7 +60,7 @@
 
       <section v-else-if="filteredPromos.length" class="promo-grid" aria-label="Daftar promo">
         <router-link
-          v-for="promo in filteredPromos"
+          v-for="promo in pagedPromos"
           :key="promo.id"
           :to="{ name: 'PromoCatalogDetail', params: { id: promo.id } }"
           class="promo-card"
@@ -102,6 +102,15 @@
         <p>{{ search || filter !== 'all' ? 'Coba gunakan kata kunci atau filter yang berbeda.' : 'Promo terbaru akan muncul di halaman ini.' }}</p>
         <button v-if="search || filter !== 'all'" type="button" @click="resetFilter">Reset Filter</button>
       </section>
+
+      <ListPagination
+        v-if="filteredPromos.length"
+        v-model="currentPage"
+        class="promo-pagination"
+        :total-pages="totalPages"
+        :loading="loading"
+        aria-label="Pagination Promo"
+      />
     </section>
   </div>
 </template>
@@ -109,6 +118,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
+import ListPagination from '@/components/shared/ListPagination.vue'
 import { usePageBackRoute } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
 import {
@@ -124,6 +134,8 @@ const { items, counts, loading, error, loadFiltered } = usePromoCatalogFilter()
 const search = ref('')
 const filter = ref<PromoFilter>('all')
 const failedImageIds = ref(new Set<number>())
+const currentPage = ref(1)
+const PAGE_SIZE = 6
 
 usePageBackRoute(routes.Dashboards.Default)
 
@@ -141,6 +153,16 @@ const filteredPromos = computed(() => {
   return items.value.filter((promo) =>
     `${promo.title} ${promo.content}`.toLocaleLowerCase('id-ID').includes(keyword),
   )
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredPromos.value.length / PAGE_SIZE)))
+const pagedPromos = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredPromos.value.slice(start, start + PAGE_SIZE)
+})
+
+watch([search, filter], () => {
+  currentPage.value = 1
 })
 
 function hasImage(promo: PromoCatalogItem): boolean {
@@ -180,6 +202,7 @@ watch(filter, (status) => void loadFiltered(status), { immediate: true })
 .promo-filters button span { display: grid; place-items: center; min-width: 19px; height: 19px; border-radius: 10px; padding: 0 5px; background: #eef2f5; font-size: 9px; }
 .promo-filters button.active { border-color: var(--app-primary-border, #56bce7); color: var(--app-primary-dark, #087fad); background: var(--app-primary-wash, #eaf8fd); }
 .promo-filters button.active span { color: #fff; background: var(--promo-blue); }
+.promo-pagination { margin-top: 20px; }
 .promo-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .promo-card { display: flex; min-width: 0; flex-direction: column; overflow: hidden; border: 1px solid #e2e8ed; border-radius: 16px; color: inherit; background: #fff; box-shadow: 0 5px 18px rgba(31,55,75,.07); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .promo-card:hover { border-color: var(--app-primary-border, #b9dfef); color: inherit; transform: translateY(-3px); box-shadow: 0 12px 28px rgba(31,75,105,.12); }

@@ -295,18 +295,19 @@ export const useAuthStore = defineStore('auth', {
       }
 
       const headers = { Authorization: `Bearer ${token}` }
-      void Promise.allSettled([
-        notificationStore.unregisterToken(token),
-        api.get('/logout', { headers }),
-      ]).then(([notificationResult, logoutResult]) => {
-        if (notificationResult.status === 'rejected') {
-          console.warn('Gagal menghapus FCM token dari backend:', notificationResult.reason)
-        }
-        if (logoutResult.status === 'rejected') {
-          console.error('Logout error:', logoutResult.reason)
-        }
-        notificationStore.stop()
-      })
+      // Unregister harus dikirim sebelum /logout berpeluang menonaktifkan JWT lama.
+      // Cleanup tetap berjalan di background agar kegagalan FCM tidak menahan navigasi user.
+      const unregisterPromise = notificationStore.unregisterToken(token)
+      notificationStore.stop()
+
+      void unregisterPromise
+        .catch((error) => {
+          console.warn('Gagal menghapus FCM token dari backend:', error)
+        })
+        .then(() => api.get('/logout', { headers }))
+        .catch((error) => {
+          console.error('Logout error:', error)
+        })
     }
   }
 })

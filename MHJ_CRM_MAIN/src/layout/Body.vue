@@ -77,7 +77,11 @@ const route = useRoute()
 const { canAddProject } = useProjectPermissions()
 const contentRouteKey = computed(() => {
   const persistentQuery = Object.fromEntries(
-    Object.entries(route.query).filter(([key]) => key !== 'edit'),
+    Object.entries(route.query).filter(([key]) => {
+      if (key === 'edit') return false
+      if (route.name === 'Project List' && key === 'stage') return false
+      return true
+    }),
   )
 
   return JSON.stringify({
