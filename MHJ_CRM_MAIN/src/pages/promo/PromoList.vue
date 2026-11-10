@@ -9,7 +9,7 @@
         <h1>Promo MHJ</h1>
         <p>Temukan penawaran dan informasi promo terbaru untuk mendukung aktivitasmu.</p>
       </div>
-      <span class="promo-catalog__total">{{ publishedItems.length }} promo</span>
+      <span v-if="counts" class="promo-catalog__total">{{ counts.all }} promo</span>
     </section>
 
     <section class="promo-catalog__content-card">
@@ -36,15 +36,16 @@
             :key="option.value"
             type="button"
             :class="{ active: filter === option.value }"
+            :aria-pressed="filter === option.value"
             @click="filter = option.value"
           >
             {{ option.label }}
-            <span>{{ countFor(option.value) }}</span>
+            <span v-if="counts">{{ counts[option.value] }}</span>
           </button>
         </div>
       </section>
 
-      <div v-if="loading && !loaded" class="promo-grid" aria-label="Memuat promo">
+      <div v-if="loading" class="promo-grid" aria-label="Memuat promo">
         <div v-for="index in 6" :key="index" class="promo-skeleton">
           <span></span><i></i><i></i><i></i>
         </div>
@@ -54,7 +55,7 @@
         <span class="promo-state__icon"><SolarIcon name="danger-circle" :size="30" /></span>
         <h2>Promo gagal dimuat</h2>
         <p>{{ error }}</p>
-        <button type="button" @click="loadPromos(true)">Coba Lagi</button>
+        <button type="button" @click="loadFiltered(filter)">Coba Lagi</button>
       </section>
 
       <section v-else-if="filteredPromos.length" class="promo-grid" aria-label="Daftar promo">
@@ -97,8 +98,8 @@
 
       <section v-else class="promo-state">
         <span class="promo-state__icon"><MhjIcon name="action_promo_ticket" :size="32" /></span>
-        <h2>{{ search ? 'Promo tidak ditemukan' : 'Belum ada promo' }}</h2>
-        <p>{{ search ? 'Coba gunakan kata kunci atau filter yang berbeda.' : 'Promo terbaru akan muncul di halaman ini.' }}</p>
+        <h2>{{ search || filter !== 'all' ? 'Promo tidak ditemukan' : 'Belum ada promo' }}</h2>
+        <p>{{ search || filter !== 'all' ? 'Coba gunakan kata kunci atau filter yang berbeda.' : 'Promo terbaru akan muncul di halaman ini.' }}</p>
         <button v-if="search || filter !== 'all'" type="button" @click="resetFilter">Reset Filter</button>
       </section>
     </section>
@@ -106,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { usePageBackRoute } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
@@ -114,14 +115,12 @@ import {
   formatPromoPeriod,
   promoPeriodStatus,
   promoStatusLabel,
-  usePromoCatalog,
+  usePromoCatalogFilter,
   type PromoCatalogItem,
-  type PromoPeriodStatus,
+  type PromoFilter,
 } from '@/composable/usePromoCatalog'
 
-type PromoFilter = 'all' | PromoPeriodStatus
-
-const { publishedItems, loading, loaded, error, loadPromos } = usePromoCatalog()
+const { items, counts, loading, error, loadFiltered } = usePromoCatalogFilter()
 const search = ref('')
 const filter = ref<PromoFilter>('all')
 const failedImageIds = ref(new Set<number>())
@@ -135,21 +134,14 @@ const filterOptions: Array<{ label: string; value: PromoFilter }> = [
   { label: 'Berakhir', value: 'ended' },
 ]
 
+// Filter tab periode sudah diproses backend; di sini hanya pencarian kata kunci.
 const filteredPromos = computed(() => {
   const keyword = search.value.toLocaleLowerCase('id-ID')
-  return publishedItems.value.filter((promo) => {
-    const matchesFilter = filter.value === 'all' || promoPeriodStatus(promo) === filter.value
-    const matchesSearch = `${promo.title} ${promo.content}`
-      .toLocaleLowerCase('id-ID')
-      .includes(keyword)
-    return matchesFilter && matchesSearch
-  })
+  if (!keyword) return items.value
+  return items.value.filter((promo) =>
+    `${promo.title} ${promo.content}`.toLocaleLowerCase('id-ID').includes(keyword),
+  )
 })
-
-function countFor(value: PromoFilter): number {
-  if (value === 'all') return publishedItems.value.length
-  return publishedItems.value.filter((promo) => promoPeriodStatus(promo) === value).length
-}
 
 function hasImage(promo: PromoCatalogItem): boolean {
   return Boolean(promo.imageUrl) && !failedImageIds.value.has(promo.id)
@@ -164,7 +156,7 @@ function resetFilter(): void {
   filter.value = 'all'
 }
 
-onMounted(() => void loadPromos(true))
+watch(filter, (status) => void loadFiltered(status), { immediate: true })
 </script>
 
 <style scoped>

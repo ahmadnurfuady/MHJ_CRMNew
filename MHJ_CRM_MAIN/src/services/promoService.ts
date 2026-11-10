@@ -73,11 +73,42 @@ function buildFormData(payload: PromoPayload, methodOverride?: 'PUT'): FormData 
   return data
 }
 
+export type PromoStatusFilter = 'all' | 'active' | 'upcoming' | 'ended'
+export type PromoStatusCounts = Record<PromoStatusFilter, number>
+
+export interface PromoCatalogResponse {
+  items: PromoApiItem[]
+  /** Jumlah promo per status dari backend (`meta.counts`); null jika backend belum mengirimnya. */
+  counts: PromoStatusCounts | null
+}
+
+function asCounts(payload: unknown): PromoStatusCounts | null {
+  const counts = (payload as { meta?: { counts?: Partial<PromoStatusCounts> } } | null)?.meta?.counts
+  if (!counts || typeof counts !== 'object') return null
+  return {
+    all: Number(counts.all ?? 0),
+    active: Number(counts.active ?? 0),
+    upcoming: Number(counts.upcoming ?? 0),
+    ended: Number(counts.ended ?? 0),
+  }
+}
+
 export const promoService = {
   /** GET /api/master-information-cards */
   async getPromos(): Promise<PromoApiItem[]> {
     const res = await api.get('/master-information-cards')
     return asArray<PromoApiItem>(res.data)
+  },
+
+  /**
+   * GET /api/master-information-cards?published=1&status={status}
+   * Filter periode dihitung di backend; respons juga membawa `meta.counts` untuk badge tab.
+   */
+  async getPromoCatalog(status: PromoStatusFilter = 'all'): Promise<PromoCatalogResponse> {
+    const res = await api.get('/master-information-cards', {
+      params: { published: 1, status },
+    })
+    return { items: asArray<PromoApiItem>(res.data), counts: asCounts(res.data) }
   },
 
   /** POST /api/master-information-cards */

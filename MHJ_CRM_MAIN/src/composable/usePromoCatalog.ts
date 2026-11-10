@@ -1,8 +1,14 @@
 import { computed, ref } from 'vue'
 
-import { promoService, type PromoApiItem } from '@/services/promoService'
+import {
+  promoService,
+  type PromoApiItem,
+  type PromoStatusCounts,
+  type PromoStatusFilter,
+} from '@/services/promoService'
 
 export type PromoPeriodStatus = 'active' | 'upcoming' | 'ended'
+export type PromoFilter = PromoStatusFilter
 
 export interface PromoCatalogItem {
   id: number
@@ -125,5 +131,44 @@ export function usePromoCatalog() {
     loaded,
     error,
     loadPromos,
+  }
+}
+
+/** Daftar promo untuk halaman katalog: filter tab periode diproses oleh backend. */
+export function usePromoCatalogFilter() {
+  const listItems = ref<PromoCatalogItem[]>([])
+  const counts = ref<PromoStatusCounts | null>(null)
+  const listLoading = ref(false)
+  const listLoaded = ref(false)
+  const listError = ref('')
+  let latestRequest = 0
+
+  async function loadFiltered(status: PromoFilter): Promise<void> {
+    const requestId = ++latestRequest
+    listLoading.value = true
+    listError.value = ''
+    try {
+      const response = await promoService.getPromoCatalog(status)
+      // Abaikan respons lama jika user sudah pindah tab sebelum request ini selesai.
+      if (requestId !== latestRequest) return
+      listItems.value = response.items.map(normalizePromo)
+      counts.value = response.counts
+      listLoaded.value = true
+    } catch (loadError) {
+      if (requestId !== latestRequest) return
+      console.error('Gagal memuat katalog promo:', loadError)
+      listError.value = 'Promo belum dapat dimuat. Silakan coba beberapa saat lagi.'
+    } finally {
+      if (requestId === latestRequest) listLoading.value = false
+    }
+  }
+
+  return {
+    items: listItems,
+    counts,
+    loading: listLoading,
+    loaded: listLoaded,
+    error: listError,
+    loadFiltered,
   }
 }
