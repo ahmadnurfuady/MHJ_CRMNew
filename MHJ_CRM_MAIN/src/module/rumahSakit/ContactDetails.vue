@@ -225,7 +225,7 @@
                   :class="`financial-grade-badge--${normalizeGrade(hospital.financialGrade).charAt(0).toLowerCase()}`"
                   :title="`Grade ${normalizeGrade(hospital.financialGrade)}`"
                 >
-                  Grade {{ normalizeGrade(hospital.financialGrade) }}
+                  Grade {{ hospital.financialGrade }}
                 </span>
                 <span v-else class="empty-value">-</span>
               </td>

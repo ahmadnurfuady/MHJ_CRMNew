@@ -71,7 +71,7 @@
             class="progress-row"
           >
             <div class="progress-row__head">
-              <span>{{ shortProgressLabel(stat.label) }}</span>
+              <span>{{ stat.label }}</span>
               <strong>{{ stat.displayValue }}</strong>
             </div>
             <div class="progress-row__track">
@@ -126,9 +126,6 @@ function formatPercent(value: number): string {
   return `${value.toLocaleString("id-ID", { maximumFractionDigits: 20 })}%`;
 }
 
-function shortProgressLabel(label: string): string {
-  return label.replace(" Progres", "");
-}
 </script>
 
 <style scoped>

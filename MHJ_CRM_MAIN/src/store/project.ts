@@ -337,6 +337,7 @@ export function normalizeProject(raw: Dict): Projects {
     id: optionalNumber(raw, 'id', 'ID') ?? 0,
     // API /deals masih memakai nama legacy `deal_name` untuk dbo.m_projects.
     projectName: pickString(raw, 'projects_name', 'deal_name', 'project_name'),
+    dealName: pickString(raw, 'deal_name'),
     projectDescription: companyName,
     projectBanner: DEFAULT_BANNER,
     date: formatDate(createdAt),

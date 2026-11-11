@@ -15,7 +15,7 @@
       <div class="opp-list-layout">
         <div class="opp-list-project-header">
           <small>Nama peluang</small>
-          <strong>{{ shortProjectTitle(project.projectName) }}</strong>
+          <strong>{{ project.dealName }}</strong>
         </div>
 
         <div class="opp-list-cell opp-list-cell--status">
@@ -137,7 +137,7 @@
     <div class="opp-card__main">
       <div class="opp-card__copy">
         <small>Peluang</small>
-        <h5>{{ shortProjectTitle(project.projectName) }}</h5>
+        <h5>{{ project.dealName }}</h5>
         <p>
           <span>{{ project.companyName || 'Faskes belum ditentukan' }}</span>
         </p>
@@ -230,7 +230,6 @@
 import { computed, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
 import { projectTab } from '@/core/data/project'
-import { shortProjectTitle } from '@/utils/index'
 import type { ProjectContact, Projects } from '@/types/project'
 
 const props = withDefaults(

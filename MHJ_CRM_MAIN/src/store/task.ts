@@ -221,12 +221,9 @@ export function normalizeTask(raw: Dict): TaskDetails {
   const contactId = pickNumber(raw, 'contact_id', 'contactId')
   const rawTitle = pickText(raw, 'task_name', 'title', 'judul')
   const explicitProjectName = pickText(raw, 'projects_name', 'project_name', 'projectName')
-  const embeddedProjectMatch =
-    Number.isFinite(projectId) && projectId !== null && projectId > 0
-      ? rawTitle.match(/^(.*?)\s*\(([^()]+)\)\s*$/)
-      : null
-  const title = embeddedProjectMatch?.[1]?.trim() || rawTitle || 'Tugas tanpa judul'
-  const projectName = normalizeText(explicitProjectName || embeddedProjectMatch?.[2]?.trim())
+  // Judul & nama peluang ditampilkan apa adanya dari kolom response.
+  const title = rawTitle || 'Tugas tanpa judul'
+  const projectName = explicitProjectName
   const hospital = pickText(
     raw,
     'hospital_name',

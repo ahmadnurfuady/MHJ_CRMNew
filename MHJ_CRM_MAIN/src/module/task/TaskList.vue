@@ -176,7 +176,7 @@
                       {{ item.title || 'Tanpa nama tugas' }}
                     </strong>
                     <span :title="item.category || 'Kategori belum tersedia'">
-                      {{ item.category || 'Kategori belum tersedia' }} · {{ taskKindLabel(item) }}
+                      {{ item.category || 'Kategori belum tersedia' }} · {{ item.type }}
                     </span>
                   </div>
                   <vue-feather
@@ -241,9 +241,9 @@
 
               <td data-label="Pipeline">
                 <div v-if="item.stageTo" class="pipeline-change">
-                  <span class="pipeline-badge">{{ stageLabel(item.stageTo) }}</span>
+                  <span class="pipeline-badge">{{ item.stageTo }}</span>
                   <small v-if="item.stageFrom && item.stageFrom !== item.stageTo">
-                    dari {{ stageLabel(item.stageFrom) }}
+                    dari {{ item.stageFrom }}
                   </small>
                 </div>
                 <span v-else class="empty-value">Tidak berubah</span>
@@ -374,7 +374,6 @@ import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore } from '@/store/project'
 import { useTask } from '@/store/task'
-import { projectTab } from '@/core/data/project'
 import { routes } from '@/router/routes'
 import TaskCalendarView from '@/module/task/TaskCalendarView.vue'
 import { parseLocalDate } from '@/module/task/taskCalendar'
@@ -531,7 +530,7 @@ const filteredTasks = computed(() => {
       item.serialNumber,
       item.products?.join(' '),
       item.divisions?.join(' '),
-      taskKindLabel(item),
+      item.type,
     ].some((value) => String(value ?? '').toLowerCase().includes(query))
   })
 })
@@ -640,7 +639,7 @@ const exportColumns: Array<{
 }> = [
   { label: 'ID', value: (task) => task.id },
   { label: 'Nama Tugas', value: (task) => task.title || '' },
-  { label: 'Jenis Tugas', value: (task) => taskKindLabel(task) },
+  { label: 'Jenis Tugas', value: (task) => task.type || '' },
   { label: 'Kategori', value: (task) => task.category || '' },
   { label: 'Faskes', value: (task) => task.hospital || task.subtitle || '' },
   { label: 'Kontak', value: (task) => task.contact || '' },
@@ -655,8 +654,8 @@ const exportColumns: Array<{
     value: (task) =>
       task.unrelatedProduct ? 'Tidak terkait produk' : task.products?.join(', ') || '',
   },
-  { label: 'Pipeline Awal', value: (task) => stageLabel(task.stageFrom || '') },
-  { label: 'Pipeline Akhir', value: (task) => stageLabel(task.stageTo || '') },
+  { label: 'Pipeline Awal', value: (task) => task.stageFrom || '' },
+  { label: 'Pipeline Akhir', value: (task) => task.stageTo || '' },
   { label: 'Catatan', value: (task) => task.description || '' },
   { label: 'Alamat Lokasi', value: (task) => task.locationAddress || '' },
   { label: 'Latitude', value: (task) => task.latitude || '' },
@@ -736,14 +735,6 @@ function exportTasks(format: ExportFormat) {
     <Worksheet ss:Name="Tugas"><Table>${tableRows}</Table></Worksheet>
 </Workbook>`
   downloadTaskFile(`\ufeff${workbook}`, 'application/vnd.ms-excel;charset=utf-8', 'xls')
-}
-
-function stageLabel(value: string) {
-  return projectTab.find((stage) => stage.value === value)?.title || value
-}
-
-function taskKindLabel(item: TaskDetails) {
-  return item.kind === 'app-specialist' ? 'App Specialist' : 'Sales'
 }
 
 function deleteTask(item: TaskDetails) {

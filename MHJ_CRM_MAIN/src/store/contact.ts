@@ -257,12 +257,6 @@ function withoutPlaceholder(value: string): string {
   return text === "-" ? "" : value;
 }
 
-function normalizeGender(value: string): string {
-  const lower = value.trim().toLowerCase();
-  if (lower === "l" || lower.includes("laki")) return "Laki-laki";
-  if (lower === "p" || lower.includes("perempuan") || lower.includes("wanita")) return "Perempuan";
-  return value;
-}
 
 function notifyError(message: string) {
   Swal.fire({
@@ -327,7 +321,7 @@ export function normalizeApiContact(raw: Dict): Contact {
     firstName: pickString(raw, "first_name", "First Name", "firstName"),
     lastName: withoutPlaceholder(pickString(raw, "last_name", "Last Name", "lastName")),
     profile: "user/user.png",
-    gender: normalizeGender(pickString(raw, "gender") || "") || "-",
+    gender: pickString(raw, "gender") || "-",
     dob: pickString(raw, "dob", "birthday") || "-",
     personality: "-",
     city: pickString(raw, "city", "City") || "-",

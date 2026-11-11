@@ -284,6 +284,8 @@ export interface Projects {
   id: number
   /** deal_name pada API legacy /deals, ditampilkan sebagai Project Name. */
   projectName: string
+  /** deal_name mentah dari API, ditampilkan apa adanya di kartu peluang. */
+  dealName?: string
   projectDescription: string
   projectBanner: string
   /** created_at, sudah diformat untuk ditampilkan */
