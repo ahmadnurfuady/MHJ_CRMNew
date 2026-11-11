@@ -26,6 +26,42 @@ import { canTask } from '@/module/task/taskPermission'
 const projectStageStorageKey = 'mhj-crm-project-stages'
 const CREATED_BY_ME = 'CreatedByMe'
 
+/** Opsi faskes untuk dropdown form task (GET /api/tasks/faskes). */
+export interface TaskFaskesOption {
+  value: number
+  label: string
+  address: string
+}
+
+/** Opsi kontak untuk dropdown form task (GET /api/tasks/contacts). */
+export interface TaskContactOption {
+  value: number
+  label: string
+  phone: string
+}
+
+/** Opsi produk untuk dropdown form task (GET /api/tasks/produk). */
+export interface TaskProdukOption {
+  value: string
+  label: string
+  /** KodeDevisi pemilik barang; dipakai memfilter produk per divisi. */
+  divisiCode: string
+}
+
+/** Opsi peluang + relasinya untuk form task (GET /api/tasks/project). */
+export interface TaskPeluangOption {
+  value: number
+  label: string
+  companyId: number | null
+  companyName: string
+  contactId: number | null
+  contactName: string
+  divisionCode: string
+  divisionName: string
+  productNames: string
+  stageName: string
+}
+
 /**
  * Slug stage (dipakai form task) ke stage_id di tabel m_projects.
  * Harus sinkron dengan stageOptions di ProjectCreate.vue.
@@ -335,7 +371,89 @@ export const useTask = defineStore('task', () => {
     priority: Select[]
     assignedTo: Select[]
     project: Select[]
-  }>({ status: [], priority: [], assignedTo: [], project: [] })
+    // Dropdown form task dari endpoint khusus task (bukan store global).
+    faskes: TaskFaskesOption[]
+    contact: TaskContactOption[]
+    divisi: Select[]
+    produk: TaskProdukOption[]
+    peluang: TaskPeluangOption[]
+  }>({
+    status: [],
+    priority: [],
+    assignedTo: [],
+    project: [],
+    faskes: [],
+    contact: [],
+    divisi: [],
+    produk: [],
+    peluang: [],
+  })
+
+  /**
+   * Memuat seluruh dropdown form task dari endpoint masing-masing dalam satu
+   * gelombang paralel: faskes, kontak, divisi, produk, dan peluang. Menggantikan
+   * ketergantungan form ke projectStore/contactStore/hospitalStore.
+   */
+  function fetchTaskFormLookups() {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat data pendukung form tugas.',
+      task: async () => {
+        const [faskes, contact, divisi, produk, peluang] = await Promise.all([
+          api.get('tasks/faskes'),
+          api.get('tasks/contacts'),
+          api.get('tasks/divisi'),
+          api.get('tasks/produk'),
+          api.get('tasks/project'),
+        ])
+
+        lookups.faskes = extractList(faskes.data, ['faskes', 'list']).items
+          .filter(isRecord)
+          .map((raw) => ({
+            value: pickNumber(raw, 'value', 'id', 'company_id'),
+            label: pickString(raw, 'label', 'company_name', 'name'),
+            address: pickString(raw, 'address'),
+          }))
+          .filter((option) => option.value > 0 && option.label)
+
+        lookups.contact = extractList(contact.data, ['contacts', 'list']).items
+          .filter(isRecord)
+          .map((raw) => ({
+            value: pickNumber(raw, 'value', 'id'),
+            label: pickString(raw, 'label', 'name', 'full_name'),
+            phone: pickString(raw, 'phone', 'telephone_1'),
+          }))
+          .filter((option) => option.value > 0 && option.label)
+
+        lookups.divisi = normalizeOptions(divisi.data, ['divisi', 'list'])
+        lookups.produk = extractList(produk.data, ['produk', 'list']).items
+          .filter(isRecord)
+          .map((raw) => ({
+            value: pickString(raw, 'value', 'kode', 'id', 'KodeBrg'),
+            label: pickString(raw, 'label', 'name', 'nama_barang', 'NamaBrg'),
+            divisiCode: pickString(raw, 'divisi', 'kode_devisi', 'divisi_code', 'KodeDevisi'),
+          }))
+          .filter((option) => option.value && option.label)
+
+        lookups.peluang = extractList(peluang.data, ['projects', 'list']).items
+          .filter(isRecord)
+          .map((raw) => ({
+            value: pickNumber(raw, 'value', 'id', 'project_id'),
+            label: pickString(raw, 'label', 'project_name', 'projects_name'),
+            companyId: pickNumber(raw, 'company_id') || null,
+            companyName: pickString(raw, 'company_name', 'hospital_name'),
+            contactId: pickNumber(raw, 'contact_id') || null,
+            contactName: pickString(raw, 'contact_name'),
+            divisionCode: pickString(raw, 'division_code'),
+            divisionName: pickString(raw, 'division_name'),
+            productNames: pickString(raw, 'product_names'),
+            stageName: pickString(raw, 'stage_name'),
+          }))
+          .filter((option) => option.value > 0 && option.label)
+      },
+    })
+  }
 
   function createdByMeGroup() {
     return taskData.task.find((group) => group.value === CREATED_BY_ME)
@@ -525,8 +643,11 @@ export const useTask = defineStore('task', () => {
             return true
           })
           .map(normalizeTask)
-        const tasksWithOwners = await resolveTaskOwners(normalizedTasks)
-        salesTasks.value = await resolveTaskProjects(tasksWithOwners)
+        // Daftar tugas cukup 1 endpoint (GET /tasks). sp_view_listtask sudah
+        // mengembalikan nama jadi (owner, peluang/project_name, faskes/
+        // hospital_name, contact_person), jadi FE tinggal render tanpa resolve
+        // ke /project, /project/{id}, /project/leader, atau /tasks/assignedto.
+        salesTasks.value = normalizedTasks
         if (meta) Object.assign(pagination, meta)
         rebuildCreatedByMe()
         return salesTasks.value
@@ -870,6 +991,7 @@ export const useTask = defineStore('task', () => {
     fetchTasks,
     fetchTaskById,
     fetchTaskLookups,
+    fetchTaskFormLookups,
     createTask,
     updateTask,
     deleteTask,

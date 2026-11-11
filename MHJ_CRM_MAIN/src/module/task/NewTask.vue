@@ -35,15 +35,6 @@
           @submit.prevent="submitTask"
         >
           <div class="modal-body pt-4">
-            <div
-              v-if="validationMessage"
-              class="alert alert-danger d-flex align-items-center"
-              role="alert"
-            >
-              <vue-feather type="alert-circle" class="me-2"></vue-feather>
-              <span>{{ validationMessage }}</span>
-            </div>
-
             <section class="form-section">
               <div class="section-heading">
                 <span class="section-icon"
@@ -263,25 +254,70 @@
                   </div>
 
                   <div class="col-12">
-                    <label class="form-label" :for="`${modalId}-task-schedule`">
+                    <label class="form-label">
                       Tanggal dan Waktu Kunjungan
                       <span class="txt-danger">*</span>
                     </label>
-                    <input
-                      :id="`${modalId}-task-schedule`"
-                      v-model="form.scheduledAt"
-                      class="form-control"
-                      :class="{
-                        'is-invalid':
-                          formSubmitted && Boolean(scheduleValidationMessage),
-                      }"
-                      type="datetime-local"
-                      :min="minimumSchedule"
-                      @focus="refreshMinimumSchedule"
-                    />
+                    <div class="row g-2">
+                      <div class="col-sm-7">
+                        <label
+                          class="form-label small text-muted mb-1"
+                          :for="`${modalId}-task-date`"
+                          >Tanggal</label
+                        >
+                        <input
+                          :id="`${modalId}-task-date`"
+                          v-model="scheduleDate"
+                          class="form-control"
+                          :class="{
+                            'is-invalid':
+                              formSubmitted && Boolean(scheduleValidationMessage),
+                          }"
+                          type="date"
+                          :min="minimumScheduleDate"
+                          @focus="refreshMinimumSchedule"
+                        />
+                      </div>
+                      <div class="col-sm-5">
+                        <label class="form-label small text-muted mb-1">Waktu</label>
+                        <div class="d-flex align-items-center gap-1">
+                          <input
+                            :id="`${modalId}-task-hour`"
+                            :value="scheduleHour"
+                            class="form-control text-center"
+                            :class="{
+                              'is-invalid':
+                                formSubmitted && Boolean(scheduleValidationMessage),
+                            }"
+                            type="text"
+                            inputmode="numeric"
+                            maxlength="2"
+                            placeholder="HH"
+                            aria-label="Jam (0-23)"
+                            @input="onHourInput"
+                          />
+                          <span class="fw-bold">:</span>
+                          <input
+                            :id="`${modalId}-task-minute`"
+                            :value="scheduleMinute"
+                            class="form-control text-center"
+                            :class="{
+                              'is-invalid':
+                                formSubmitted && Boolean(scheduleValidationMessage),
+                            }"
+                            type="text"
+                            inputmode="numeric"
+                            maxlength="2"
+                            placeholder="MM"
+                            aria-label="Menit (0-59)"
+                            @input="onMinuteInput"
+                          />
+                        </div>
+                      </div>
+                    </div>
                     <div
                       v-if="formSubmitted && scheduleValidationMessage"
-                      class="invalid-feedback"
+                      class="invalid-feedback d-block"
                     >
                       {{ scheduleValidationMessage }}
                     </div>
@@ -293,7 +329,7 @@
                     >
                     <Select
                       v-model="form.divisions"
-                      :options="projectStore.lookups.divisi"
+                      :options="taskStore.lookups.divisi"
                       placeholder="Pilih Divisi"
                       display-key="label"
                       get-value-key="value"
@@ -578,7 +614,7 @@
                       <button
                         class="btn btn-outline-primary evidence-main-button"
                         type="button"
-                        :disabled="locating || preparingPhotoLocation"
+                        :disabled="locating"
                         @click="captureLocation"
                       >
                         <span
@@ -724,17 +760,12 @@ import { initSelectField } from "@/core/data/common";
 import type { DealOption } from "@/core/data/projectDeal";
 import { projectTab } from "@/core/data/project";
 import { useTask } from "@/store/task";
-import { useContact } from "@/store/contact";
-import { useHospitalStore } from "@/store/hospital";
-import { useProjectStore } from "@/store/project";
 import {
   geolocationErrorMessage,
   getCurrentPosition,
   reverseGeocodeAddress,
 } from "@/services/geocoding";
-import { storeToRefs } from "pinia";
 import type { SelectField } from "@/types/common";
-import type { Contact } from "@/types/contacts";
 import type { TaskDetails, TaskKind, TaskPayload } from "@/types/tasks";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
@@ -772,10 +803,6 @@ const Select = defineAsyncComponent(
 const taskStore = useTask();
 const route = useRoute();
 const router = useRouter();
-const contactStore = useContact();
-const hospitalStore = useHospitalStore();
-const projectStore = useProjectStore();
-const { projectList } = storeToRefs(taskStore);
 const taskType = computed(() => props.taskType);
 const modalId = computed(() => props.modalId);
 const isEditing = computed(() => Boolean(props.task?.id));
@@ -838,7 +865,8 @@ function currentScheduleMinimum() {
 }
 
 function defaultSchedule() {
-  return toLocalDateTimeValue(new Date(Date.now() + 60 * 60 * 1000));
+  // Otomatis terisi waktu user saat membuka form (tetap bisa diubah).
+  return toLocalDateTimeValue(new Date());
 }
 
 function loggedInOwner() {
@@ -882,33 +910,74 @@ const isTaskNameEditable = ref(false);
 const hasManualTaskName = ref(false);
 const manualTaskName = ref("");
 const formSubmitted = ref(false);
-const validationMessage = ref("");
 const minimumSchedule = ref(currentScheduleMinimum());
-const originalScheduledAt = ref("");
+
+// UI memisah tanggal & jam, tapi sumber kebenarannya tetap satu string
+// `form.scheduledAt` (YYYY-MM-DDTHH:mm) supaya validasi & submit tidak berubah.
+const minimumScheduleDate = computed(() => minimumSchedule.value.split("T")[0] ?? "");
+const scheduleDate = computed({
+  get: () => form.scheduledAt.split("T")[0] ?? "",
+  set: (value: string) => {
+    const time = form.scheduledAt.split("T")[1] || "00:00";
+    form.scheduledAt = value ? `${value}T${time}` : "";
+  },
+});
+// Jam & menit dipilih terpisah (format 24 jam: 0-23 / 0-59), bisa diketik manual.
+function applyScheduleTime(hour: number, minute: number) {
+  const hh = String(Math.min(Math.max(hour, 0), 23)).padStart(2, "0");
+  const mm = String(Math.min(Math.max(minute, 0), 59)).padStart(2, "0");
+  const date = form.scheduledAt.split("T")[0] || minimumScheduleDate.value;
+  form.scheduledAt = date ? `${date}T${hh}:${mm}` : "";
+}
+const scheduleHour = computed(() => {
+  const part = (form.scheduledAt.split("T")[1] || "").split(":")[0];
+  return part ? String(Number(part)) : "";
+});
+const scheduleMinute = computed(() => {
+  const part = (form.scheduledAt.split("T")[1] || "").split(":")[1];
+  return part ? String(Number(part)) : "";
+});
+function currentHourPart(): number {
+  const hour = Number.parseInt(
+    (form.scheduledAt.split("T")[1] || "0:0").split(":")[0] || "0",
+    10,
+  );
+  return Number.isNaN(hour) ? 0 : hour;
+}
+function currentMinutePart(): number {
+  const minute = Number.parseInt(
+    (form.scheduledAt.split("T")[1] || "0:0").split(":")[1] || "0",
+    10,
+  );
+  return Number.isNaN(minute) ? 0 : minute;
+}
+// Input jam/menit dikontrol penuh: maksimal 2 digit, langsung di-clamp ke 0-23 /
+// 0-59 di tiap ketikan, dan nilai di DOM dipaksa ikut hasil clamp (perlu karena
+// kalau hasil clamp sama dengan nilai tersimpan, Vue tidak me-render ulang).
+function onHourInput(event: Event) {
+  const el = event.target as HTMLInputElement;
+  const digits = el.value.replace(/\D/g, "").slice(0, 2);
+  const hour = digits === "" ? 0 : Math.min(Number.parseInt(digits, 10), 23);
+  applyScheduleTime(hour, currentMinutePart());
+  el.value = digits === "" ? "" : String(hour);
+}
+function onMinuteInput(event: Event) {
+  const el = event.target as HTMLInputElement;
+  const digits = el.value.replace(/\D/g, "").slice(0, 2);
+  const minute = digits === "" ? 0 : Math.min(Number.parseInt(digits, 10), 59);
+  applyScheduleTime(currentHourPart(), minute);
+  el.value = digits === "" ? "" : String(minute);
+}
 const scheduleValidationMessage = computed(() => {
   if (!form.scheduledAt) return "Tanggal dan waktu kunjungan wajib diisi.";
-
   const selectedTime = new Date(form.scheduledAt).getTime();
-  const minimumTime = new Date(minimumSchedule.value).getTime();
   if (Number.isNaN(selectedTime))
     return "Tanggal dan waktu kunjungan tidak valid.";
-  if (
-    isEditing.value &&
-    originalScheduledAt.value &&
-    form.scheduledAt === originalScheduledAt.value
-  )
-    return "";
-  if (selectedTime < minimumTime) {
-    return "Tanggal dan waktu kunjungan tidak boleh di masa lalu.";
-  }
-
+  // Tanggal & jam yang sudah terisi dengan benar dianggap valid (tidak lagi
+  // memblokir waktu "masa lalu" supaya auto-fill waktu sekarang tidak salah tandai).
   return "";
 });
 const locating = ref(false);
-// Flag khusus untuk fetch GPS yang dipicu capturePhoto (bukan dari tombol
-// "Cari lokasi"). Dipisah supaya UI tombol GPS tidak ikut berubah "Mengambil
-// lokasi..." ketika user klik "Ambil Foto".
-const preparingPhotoLocation = ref(false);
 const locationError = ref("");
 const resolvingAddress = ref(false);
 const photoPreview = ref("");
@@ -936,139 +1005,65 @@ function normalizeRelation(value: string) {
   return value.trim().toLocaleLowerCase("id-ID");
 }
 
-function toContactOption(contact: Contact): DealOption {
-  return {
-    value: contact.remoteId ?? contact.id,
-    label:
-      `${contact.firstName} ${contact.lastName}`.trim() ||
-      contact.contactNumber ||
-      contact.email ||
-      `Kontak #${contact.remoteId ?? contact.id}`,
-  };
-}
-
-const apiContactOptions = computed<DealOption[]>(() =>
-  contactStore.contactApi.items
-    .filter((contact) => contact.origin === "api")
-    .map(toContactOption),
-);
-const contactOptions = computed<DealOption[]>(() => apiContactOptions.value);
-const hospitalOptions = computed<DealOption[]>(() =>
-  hospitalStore.items.map((hospital) => ({
-    value: hospital.id,
-    label: hospital.name,
-  })),
-);
-
-function contactsForProject(projectName: string) {
-  const normalizedProject = normalizeRelation(projectName);
-  const related = contactStore.contactApi.items.filter((contact) => {
-    if (contact.origin !== "api" || !contact.project) return false;
-    const contactProjects = contact.project
-      .split(/[,;|]/)
-      .map(normalizeRelation)
-      .filter(Boolean);
-    return contactProjects.some(
-      (project) =>
-        project === normalizedProject || project.includes(normalizedProject),
-    );
-  });
-
-  if (related.length) return related.map(toContactOption);
-  const hasProjectRelations = contactStore.contactApi.items.some(
-    (contact) => contact.origin === "api" && Boolean(contact.project),
-  );
-  return hasProjectRelations ? [] : contactOptions.value;
-}
-
-function hospitalForProject(projectName: string, fallbackIndex: number) {
-  const normalizedProject = normalizeRelation(projectName);
-  const relatedContact = contactStore.contactApi.items.find(
-    (contact) =>
-      contact.origin === "api" &&
-      contact.project &&
-      normalizeRelation(contact.project).includes(normalizedProject) &&
-      contact.company,
-  );
-  const relatedHospital = relatedContact?.company
-    ? hospitalOptions.value.find(
-        (hospital) =>
-          normalizeRelation(hospital.label) ===
-          normalizeRelation(relatedContact.company || ""),
-      )
-    : undefined;
-  return (
-    relatedHospital ??
-    hospitalOptions.value[fallbackIndex % hospitalOptions.value.length]
-  );
-}
-
-function divisionForProject(projectName: string, fallbackIndex: number) {
-  const normalizedProject = normalizeRelation(projectName);
-  const barang = projectStore.lookups.barang;
-  const divisi = projectStore.lookups.divisi;
-  const relatedProduct = barang.find((product) =>
-    normalizedProject.includes(normalizeRelation(product.label)),
-  );
-  return (
-    divisi.find((division) => division.code === relatedProduct?.divisiCode) ??
-    divisi[fallbackIndex % (divisi.length || 1)]
-  );
-}
+// Opsi dropdown form langsung dari endpoint khusus task (taskStore.lookups),
+// bukan dari projectStore/contactStore/hospitalStore.
+const contactOptions = computed<DealOption[]>(() => taskStore.lookups.contact);
+const hospitalOptions = computed<DealOption[]>(() => taskStore.lookups.faskes);
 
 const projectOptions = computed<ProjectOption[]>(() =>
-  projectList.value.map((project, index) => {
-    const hospital = project.companyName
+  taskStore.lookups.peluang.map((peluang) => {
+    const hospital: DealOption | null = peluang.companyName
       ? {
-          value: project.companyId ?? project.companyName,
-          label: project.companyName,
+          value: peluang.companyId ?? peluang.companyName,
+          label: peluang.companyName,
         }
-      : (hospitalForProject(project.projectName, index) ?? null);
-    const contacts = project.contactName
+      : null;
+    const contacts: DealOption[] = peluang.contactName
       ? [
           {
-            value: project.contactId ?? project.contactName,
-            label: project.contactName,
+            value: peluang.contactId ?? peluang.contactName,
+            label: peluang.contactName,
           },
         ]
-      : contactsForProject(project.projectName);
-    const division = project.divisionCode
-      ? (projectStore.lookups.divisi.find(
-          (item) => item.code === project.divisionCode,
-        ) ?? null)
-      : (divisionForProject(project.projectName, index) ?? null);
-    const divisionProducts = projectStore.lookups.barang.filter(
-      (product) => product.divisiCode === division?.code,
-    );
-    const productNames = project.productDetails?.length
-      ? project.productDetails.map((product) => product.name).filter(Boolean)
-      : normalizeRelation(project.productNames || "") !==
-          normalizeRelation(project.projectName)
-        ? (project.productNames || "")
-            .split(/[,;|]/)
-            .map((product) => product.trim())
-            .filter(Boolean)
-        : [];
-    const products = productNames.length
-      ? productNames.map(
-          (name) =>
-            projectStore.lookups.barang.find(
-              (product) =>
-                normalizeRelation(product.label) === normalizeRelation(name),
-            ) ?? { value: name, label: name },
-        )
-      : divisionProducts;
+      : [];
+    const division: DealOption | null = peluang.divisionCode
+      ? {
+          value: peluang.divisionCode,
+          label: peluang.divisionName || peluang.divisionCode,
+          code: peluang.divisionCode,
+        }
+      : null;
+    // Produk peluang berasal dari product_names (CSV); cocokkan ke opsi produk
+    // bila ada, kalau tidak pakai nama apa adanya.
+    const products: DealOption[] = (peluang.productNames || "")
+      .split(/[,;|]/)
+      .map((name) => name.trim())
+      .filter(Boolean)
+      .map(
+        (name) =>
+          taskStore.lookups.produk.find(
+            (product) =>
+              normalizeRelation(String(product.label)) === normalizeRelation(name),
+          ) ?? { value: name, label: name },
+      );
+    // stage_name (label) dipetakan ke slug stage agar pipeline & auto-fill jalan.
+    const status =
+      stageOptions.find(
+        (stage) =>
+          normalizeRelation(String(stage.label)) ===
+          normalizeRelation(peluang.stageName),
+      )?.value ?? "";
 
     return {
-      id: project.id,
-      value: project.id,
-      label: project.projectName,
-      status: project.status,
+      id: peluang.value,
+      value: peluang.value,
+      label: peluang.label,
+      status: String(status),
       hospital,
       contacts,
       division,
       products,
-      serialNumber: project.serialNumber || "",
+      serialNumber: "",
     };
   }),
 );
@@ -1116,67 +1111,34 @@ const selectedContacts = computed<DealOption[]>(() => {
 const selectedCompanyLabel = computed(() => {
   const selectedHospital = (form.hospital.selected as DealOption | null)?.label;
   if (selectedHospital) return selectedHospital;
-
-  const selectedIds = new Set(
-    selectedContacts.value.map((contact) => String(contact.value)),
-  );
-  const selectedLabels = new Set(
-    selectedContacts.value.map((contact) =>
-      normalizeRelation(String(contact.label)),
-    ),
-  );
-  const relatedContact = contactStore.contactApi.items.find((contact) => {
-    const id = String(contact.remoteId ?? contact.id);
-    const name = normalizeRelation(`${contact.firstName} ${contact.lastName}`);
-    return selectedIds.has(id) || selectedLabels.has(name);
-  });
-
-  return relatedContact?.company || "";
+  // Tanpa faskes terpilih, pakai faskes dari peluang yang dipilih.
+  return selectedProject.value?.hospital?.label || "";
 });
 const selectedContactPhone = computed(() => {
   const selectedIds = new Set(
     selectedContacts.value.map((contact) => String(contact.value)),
   );
-  const selectedLabels = new Set(
-    selectedContacts.value.map((contact) =>
-      normalizeRelation(String(contact.label)),
-    ),
-  );
-
-  const phones = contactStore.contactApi.items
-    .filter((contact) => {
-      const id = String(contact.remoteId ?? contact.id);
-      const name = normalizeRelation(
-        `${contact.firstName} ${contact.lastName}`,
-      );
-      return selectedIds.has(id) || selectedLabels.has(name);
-    })
-    .map(
-      (contact) =>
-        contact.telephone1 ||
-        contact.contactNumber ||
-        contact.phoneNumbers?.[0] ||
-        "",
-    )
-    .map((phone) => phone.trim())
+  const phones = taskStore.lookups.contact
+    .filter((contact) => selectedIds.has(String(contact.value)))
+    .map((contact) => contact.phone.trim())
     .filter(Boolean);
-
   return [...new Set(phones)].join(" ");
 });
 const selectedProducts = computed(
   () => form.products.selectedItems as DealOption[],
 );
-const availableProducts = computed(() => {
+const availableProducts = computed<DealOption[]>(() => {
+  // Tugas terkait peluang (app-specialist): produk mengikuti peluang.
   if (isAppSpecialistProject.value) {
     return selectedProject.value?.products ?? [];
   }
-
-  const divisionCodes = selectedDivisions.value.map(
-    (division) => division.code,
-  );
-  return projectStore.lookups.barang.filter(
-    (product) =>
-      !product.divisiCode || divisionCodes.includes(product.divisiCode),
+  // Produk mengikuti divisi: divisi harus dipilih dulu. Tanpa divisi, kosong.
+  const divisionCodes = selectedDivisions.value
+    .map((division) => String(division.value))
+    .filter(Boolean);
+  if (!divisionCodes.length) return [];
+  return taskStore.lookups.produk.filter((product) =>
+    divisionCodes.includes(String(product.divisiCode)),
   );
 });
 const hasLocation = computed(() => Boolean(form.latitude && form.longitude));
@@ -1319,10 +1281,10 @@ async function hydrateForm(task: TaskDetails) {
     contactLabels(task.contact),
   );
   const divisions = optionsForLabels(
-    projectStore.lookups.divisi,
+    taskStore.lookups.divisi,
     task.divisions,
   );
-  const products = optionsForLabels(projectStore.lookups.barang, task.products);
+  const products = optionsForLabels(taskStore.lookups.produk, task.products);
 
   if (form.hasProject) {
     const project = projectOptions.value.find(
@@ -1349,7 +1311,6 @@ async function hydrateForm(task: TaskDetails) {
     : selectField(contacts[0] ?? null);
   form.contactPhone = task.contactPhone || "";
   form.scheduledAt = toDateTimeLocal(task.scheduledAt || task.dueDate);
-  originalScheduledAt.value = form.scheduledAt;
   form.divisions = form.hasProject
     ? selectField(divisions[0] ?? null)
     : multiSelectField(divisions);
@@ -1387,7 +1348,6 @@ async function hydrateForm(task: TaskDetails) {
   }
   existingPhotoName.value = task.photoName || "";
   photoPreview.value = task.photoUrl || "";
-  validationMessage.value = "";
   formSubmitted.value = false;
 
   await nextTick();
@@ -1511,13 +1471,12 @@ function projectConfirmationSummary(project: ProjectOption) {
 
 watch(
   () => form.hasProject,
-  (hasProject) => {
+  () => {
     if (hydrating.value) return;
     projectConfirmationRequestId += 1;
     confirmedProject.value = null;
     form.project = initSelectField();
     clearProjectDetails();
-    if (!hasProject) validationMessage.value = "";
   },
 );
 
@@ -1655,23 +1614,6 @@ function wrapCanvasText(
   return lines;
 }
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
-  let timeoutId: number | undefined;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<T>((_, reject) => {
-        timeoutId = window.setTimeout(
-          () => reject(new Error("Permintaan melewati batas waktu.")),
-          timeoutMs,
-        );
-      }),
-    ]);
-  } finally {
-    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-  }
-}
-
 function drawPhotoWatermark(
   context: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
@@ -1783,42 +1725,23 @@ function drawPhotoWatermark(
   context.restore();
 }
 
-async function preparePhotoLocation() {
-  const recentlyVerified =
-    hasLocation.value && Date.now() - lastLocationCapturedAt.value <= 30_000;
-  if (!recentlyVerified) {
-    preparingPhotoLocation.value = true;
-    locationError.value = "";
-    try {
-      const position = await getCurrentPosition();
-      form.latitude = position.coords.latitude;
-      form.longitude = position.coords.longitude;
-      form.locationAccuracy = position.coords.accuracy;
-      form.locationAddress = "";
-      lastLocationCapturedAt.value = Date.now();
-    } catch (error) {
-      locationError.value = geolocationErrorMessage(error);
-      return false;
-    } finally {
-      preparingPhotoLocation.value = false;
-    }
+async function primePhotoLocation() {
+  // Dipanggil saat form dibuka: siapkan lokasi (GPS + alamat) untuk watermark
+  // live photo, supaya tombol "Ambil Foto" tinggal memakai lokasi yang sudah ada.
+  if (hasLocation.value) return;
+  try {
+    const position = await getCurrentPosition();
+    form.latitude = position.coords.latitude;
+    form.longitude = position.coords.longitude;
+    form.locationAccuracy = position.coords.accuracy;
+    lastLocationCapturedAt.value = Date.now();
+    await resolveLocationAddress(
+      position.coords.latitude,
+      position.coords.longitude,
+    );
+  } catch {
+    // Diamkan — user masih bisa pakai tombol "Cari lokasi" manual.
   }
-
-  if (!form.locationAddress && hasLocation.value) {
-    resolvingAddress.value = true;
-    try {
-      form.locationAddress = await withTimeout(
-        reverseGeocodeAddress(form.latitude, form.longitude),
-        6000,
-      );
-    } catch {
-      locationError.value =
-        "Koordinat GPS ditemukan, tetapi alamat watermark tidak dapat dimuat.";
-    } finally {
-      resolvingAddress.value = false;
-    }
-  }
-  return true;
 }
 
 async function capturePhoto() {
@@ -1838,9 +1761,10 @@ async function capturePhoto() {
     const context = canvas.getContext("2d");
     if (!context) throw new Error("Canvas tidak tersedia.");
 
-    // Bekukan frame sebelum proses GPS agar foto sesuai saat tombol ditekan.
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const gpsVerified = await preparePhotoLocation();
+    // Foto berdiri sendiri: pakai lokasi yang sudah disiapkan saat form dibuka
+    // atau lewat tombol "Cari lokasi". Tombol foto TIDAK memicu GPS/pin point.
+    const gpsVerified = hasLocation.value;
     drawPhotoWatermark(context, canvas, capturedAt, gpsVerified);
 
     const blob = await new Promise<Blob | null>((resolve) =>
@@ -1988,15 +1912,26 @@ function validateForm() {
     );
   if (pipelineMissing) errors.push("Pipeline peluang wajib dipilih.");
   if (serialNumberMissing) errors.push("Serial number wajib diisi.");
-  return errors[0] ?? "";
+  return errors;
 }
 
 async function submitTask() {
   if (isEditing.value ? !canEditTask.value : !canAddTask.value) return;
   refreshMinimumSchedule();
   formSubmitted.value = true;
-  validationMessage.value = validateForm();
-  if (validationMessage.value) return;
+  const errors = validateForm();
+  if (errors.length) {
+    await Swal.fire({
+      icon: "warning",
+      title: "Lengkapi dulu formnya",
+      html: `<ul style="text-align:left;margin:0;padding-left:1.25em">${errors
+        .map((message) => `<li>${escapeHtml(message)}</li>`)
+        .join("")}</ul>`,
+      confirmButtonText: "Mengerti",
+      confirmButtonColor: "var(--theme-default)",
+    });
+    return;
+  }
 
   const project = selectedProject.value;
   const stageTo =
@@ -2044,18 +1979,26 @@ async function submitTask() {
         ? await taskStore.updateTask({ ...payload, id: props.task.id })
         : await taskStore.createTask(payload);
   } catch {
-    validationMessage.value =
-      taskStore.error ??
-      (isEditing.value
-        ? "Perubahan tugas gagal disimpan. Silakan coba lagi."
-        : "Tugas gagal disimpan. Silakan coba lagi.");
+    await Swal.fire({
+      icon: "error",
+      text:
+        taskStore.error ??
+        (isEditing.value
+          ? "Perubahan tugas gagal disimpan. Silakan coba lagi."
+          : "Tugas gagal disimpan. Silakan coba lagi."),
+      confirmButtonColor: "var(--theme-default)",
+    });
     return;
   }
 
   if (!result) {
-    validationMessage.value = isEditing.value
-      ? "Perubahan tugas gagal disimpan. Silakan coba lagi."
-      : "Tugas gagal disimpan. Silakan coba lagi.";
+    await Swal.fire({
+      icon: "error",
+      text: isEditing.value
+        ? "Perubahan tugas gagal disimpan. Silakan coba lagi."
+        : "Tugas gagal disimpan. Silakan coba lagi.",
+      confirmButtonColor: "var(--theme-default)",
+    });
     return;
   }
 
@@ -2090,7 +2033,6 @@ function resetForm() {
   lastLocationCapturedAt.value = 0;
   photoPreview.value = "";
   existingPhotoName.value = "";
-  validationMessage.value = "";
   locationError.value = "";
   cameraError.value = "";
   formSubmitted.value = false;
@@ -2130,6 +2072,8 @@ function handleModalShow() {
     return;
   }
   refreshMinimumSchedule();
+  // Siapkan lokasi watermark begitu form dibuka (baik tugas baru maupun edit).
+  void primePhotoLocation();
   if (!props.task) return;
   editModalOpen = true;
   allowModalClose = false;
@@ -2243,15 +2187,9 @@ function warnBeforeUnload(event: BeforeUnloadEvent) {
 
 onMounted(async () => {
   const requests: Promise<unknown>[] = [];
-  if (!projectStore.loaded)
-    requests.push(projectStore.fetchProjects({ per_page: 100 }));
-  if (!contactStore.contactApi.items.length) {
-    requests.push(contactStore.fetchRemoteContacts({ per_page: 100 }));
-  }
-  if (!hospitalStore.items.length)
-    requests.push(hospitalStore.fetchHospitals({ per_page: 100 }));
-  if (!projectStore.lookups.divisi.length)
-    requests.push(projectStore.fetchProjectCatalog());
+  // Semua dropdown form (faskes, kontak, divisi, produk, peluang) dimuat dari
+  // endpoint khusus task dalam satu aksi, bukan dari store global.
+  requests.push(taskStore.fetchTaskFormLookups());
   const modalElement = document.getElementById(modalId.value);
   modalElement?.addEventListener("hide.bs.modal", handleModalHide);
   modalElement?.addEventListener("hidden.bs.modal", handleModalHidden);

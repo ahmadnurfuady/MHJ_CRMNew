@@ -367,7 +367,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import { useContact } from '@/store/contact'
@@ -808,16 +808,9 @@ function changePage(page: number) {
   void store.fetchTasks({ page })
 }
 
-onMounted(() => {
-  const requests: Promise<unknown>[] = []
-  if (!hospitalStore.items.length) {
-    requests.push(hospitalStore.fetchHospitals({ per_page: 100 }))
-  }
-  if (!contactStore.contactApi.items.length) {
-    requests.push(contactStore.fetchRemoteContacts({ per_page: 100 }))
-  }
-  void Promise.allSettled(requests)
-})
+// Daftar tugas sengaja TIDAK memprefetch /company & /contact. Halaman list cukup
+// 1 endpoint (GET /tasks); id faskes/kontak untuk navigasi klik baris diambil
+// langsung dari response index (company_id/contact_id dari sp_view_listtask).
 
 onBeforeUnmount(() => {
   stopTaskColumnResize()
