@@ -1,7 +1,6 @@
 import { fetchRecentActivities } from '@/services/managerDashboardService'
 import {
   fetchDashboardMetrics,
-  fetchDashboardMetricsFromExistingApis,
   type DashboardMetricsRaw,
 } from '@/services/analyticsService'
 import type {
@@ -29,7 +28,7 @@ const managerDashboardData: ManagerDashboardData = {
       id: 'materi-dokumen',
       label: 'Materi Dokumen',
       icon: 'document-text',
-      to: '/app/file_manager',
+      to: '/crmAdmin/materi-dokumen',
     },
     {
       id: 'kalender-tugas',
@@ -38,13 +37,13 @@ const managerDashboardData: ManagerDashboardData = {
       to: '/crmAdmin/calendar',
     },
     { id: 'promo', label: 'Promo', icon: 'tag', to: '/crmAdmin/promos' },
-    { id: 'piutang', label: 'Piutang', icon: 'tag', to: '/crmAdmin/piutang' },
     {
       id: 'form-survey',
       label: 'Form Survey',
       icon: 'clipboard',
-      comingSoon: true,
+      to: '/crmAdmin/form-survey-prospek',
     },
+    { id: 'piutang', label: 'Piutang', icon: 'tag', to: '/crmAdmin/piutang' },
   ],
   benchmark: {
     stats: [],
@@ -62,6 +61,43 @@ const managerDashboardData: ManagerDashboardData = {
     },
   },
   activities: [],
+}
+
+const zeroMetrics: DashboardMetricsRaw = {
+  target_nominal: 0,
+  realisasi_omset: 0,
+  target_achievement_percent: 0,
+  global_win_rate_percent: 0,
+  qty_po_terbit: 0,
+  qty_project_masuk: 0,
+  market_coverage_percent: 0,
+  active_visited_hospitals: 0,
+  total_target_hospitals: 0,
+  active_projects_count: 0,
+  stalled_projects_count: 0,
+  backlog_value: 0,
+  total_po_value: 0,
+  invoiced_sales_value: 0,
+  funnel_progress_percent: 0,
+  win_count: 0,
+  lost_count: 0,
+  finished_count: 0,
+  win_percent: 0,
+  lost_percent: 0,
+  target_tahunan_value: 0,
+  target_peluang_value: 0,
+  real_peluang_value: 0,
+  revenue_value: 0,
+  winning_chance_percent: 0,
+  peluang_progress_percent: 0,
+  target_progress_percent: 0,
+  capaian_average_percent: 0,
+  area_visited_count: 0,
+  area_target_count: 0,
+  area_progress_percent: 0,
+  market_buying_count: 0,
+  market_base_count: 0,
+  market_progress_percent: 0,
 }
 
 /** Format rupiah lengkap tanpa memadatkan atau membulatkan nilai backend. */
@@ -204,24 +240,17 @@ export async function fetchManagerDashboardData(): Promise<ManagerDashboardData>
       return [] as ManagerDashboardData['activities']
     }),
   ])
-  const metrics =
-    primaryMetrics ?? (await fetchDashboardMetricsFromExistingApis())
+  const metrics = primaryMetrics ?? zeroMetrics
 
-  const kpis = metrics ? buildKpis(metrics) : []
-  const benchmark = metrics
-    ? buildBenchmark(metrics)
-    : managerDashboardData.benchmark
+  const kpis = buildKpis(metrics)
+  const benchmark = buildBenchmark(metrics)
   const highlight = managerDashboardData.coverage.highlight
-  const coverage = metrics
-    ? buildCoverage(metrics, highlight)
-    : { stats: [], highlight }
+  const coverage = buildCoverage(metrics, highlight)
 
   return {
     ...managerDashboardData,
     kpis,
-    opportunityOutcome: metrics
-      ? buildOpportunityOutcome(metrics)
-      : managerDashboardData.opportunityOutcome,
+    opportunityOutcome: buildOpportunityOutcome(metrics),
     benchmark,
     coverage,
     activities,

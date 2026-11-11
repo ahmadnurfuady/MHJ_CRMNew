@@ -141,6 +141,16 @@ import { CheckReadIcon as CheckReadLinearIcon } from "@solar-icons/vue/linear/ch
 import { EyeIcon as EyeLinearIcon } from "@solar-icons/vue/linear/eye";
 import { ForbiddenCircleIcon as ForbiddenCircleLinearIcon } from "@solar-icons/vue/linear/forbidden-circle";
 import { TuningIcon as TuningLinearIcon } from "@solar-icons/vue/linear/tuning";
+import { CalendarIcon as CalendarDuotoneIcon } from "@solar-icons/vue/bold-duotone/calendar";
+import { CartLarge2Icon as CartLarge2DuotoneIcon } from "@solar-icons/vue/bold-duotone/cart-large-2";
+import { ClipboardTextIcon as ClipboardTextDuotoneIcon } from "@solar-icons/vue/bold-duotone/clipboard-text";
+import { FolderIcon as FolderDuotoneIcon } from "@solar-icons/vue/bold-duotone/folder";
+import { GraphIcon as GraphDuotoneIcon } from "@solar-icons/vue/bold-duotone/graph";
+import { MedalRibbonsStarIcon as MedalRibbonsStarDuotoneIcon } from "@solar-icons/vue/bold-duotone/medal-ribbons-star";
+import { PinListIcon as PinListDuotoneIcon } from "@solar-icons/vue/bold-duotone/pin-list";
+import { PointOnMapIcon as PointOnMapDuotoneIcon } from "@solar-icons/vue/bold-duotone/point-on-map";
+import { TagPriceIcon as TagPriceDuotoneIcon } from "@solar-icons/vue/bold-duotone/tag-price";
+import { TicketSaleIcon as TicketSaleDuotoneIcon } from "@solar-icons/vue/bold-duotone/ticket-sale";
 
 defineOptions({ inheritAttrs: false });
 
@@ -303,6 +313,16 @@ const icons: Record<string, Component> = {
   "eye-linear": EyeLinearIcon,
   "forbidden-linear": ForbiddenCircleLinearIcon,
   "tuning-linear": TuningLinearIcon,
+  "calendar-duotone": CalendarDuotoneIcon,
+  "cart-large-2-duotone": CartLarge2DuotoneIcon,
+  "clipboard-text-duotone": ClipboardTextDuotoneIcon,
+  "folder-duotone": FolderDuotoneIcon,
+  "graph-duotone": GraphDuotoneIcon,
+  "medal-ribbons-star-duotone": MedalRibbonsStarDuotoneIcon,
+  "pin-list-duotone": PinListDuotoneIcon,
+  "point-on-map-duotone": PointOnMapDuotoneIcon,
+  "tag-price-duotone": TagPriceDuotoneIcon,
+  "ticket-sale-duotone": TicketSaleDuotoneIcon,
 };
 
 const aliases: Record<string, string> = {

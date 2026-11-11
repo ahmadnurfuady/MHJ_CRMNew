@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import type { MessagePayload } from 'firebase/messaging'
 import { api } from '@/services/api'
 import { getUserErrorMessage } from '@/utils/errorParser'
 import {
@@ -21,88 +20,188 @@ export type PushStatus =
   | 'denied'
   | 'error'
 
-export interface PushNotificationEntry {
+export interface NotificationEntry {
   id: string
+  type: string
   title: string
   body: string
-  icon?: string
-  url?: string
   receivedAt: number
   read: boolean
+  url?: string
+}
+
+interface BackendNotification {
+  id: string | number
+  type?: string | null
+  message?: string | null
+  is_read?: string | number | boolean | null
+  updated_at?: string | null
+  url?: string | null
+}
+
+interface UnreadCountResponse {
+  count?: string | number | null
 }
 
 interface NotificationState {
-  items: PushNotificationEntry[]
-  fcmToken: string | null
+  items: NotificationEntry[]
+  unreadCount: number
+  loading: boolean
   initialized: boolean
   pushStatus: PushStatus
   backendRegistered: boolean
   pushError: string | null
+  fetchError: string | null
+  fcmToken: string | null
 }
 
-const STORAGE_KEY = 'mhj-crm-push-notifications'
-const MAX_ITEMS = 30
 const TOKEN_ENDPOINT = import.meta.env.VITE_FCM_TOKEN_ENDPOINT || '/fcm/device-token'
+const MESSAGE_PATTERN = /^\[([^\]]+)\]\s*(.*)$/s
 
 let stopForegroundListener: (() => void) | null = null
+let refreshPromise: Promise<void> | null = null
+let lifecycleVersion = 0
 
-function loadFromStorage(): PushNotificationEntry[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch {
-    return []
+function parseReceivedAt(value?: string | null): number {
+  if (!value) return 0
+
+  const normalized = value
+    .trim()
+    .replace(' ', 'T')
+    .replace(/\.(\d{3})\d+$/, '.$1')
+  const timestamp = Date.parse(normalized)
+  return Number.isFinite(timestamp) ? timestamp : 0
+}
+
+function normalizeNotification(item: BackendNotification): NotificationEntry {
+  const message = typeof item.message === 'string' ? item.message : ''
+  const match = message.match(MESSAGE_PATTERN)
+
+  return {
+    id: String(item.id),
+    type: typeof item.type === 'string' && item.type.trim() ? item.type : 'System',
+    title: match?.[1]?.trim() || 'Notifikasi',
+    body: match ? match[2] : message,
+    receivedAt: parseReceivedAt(item.updated_at),
+    read: Number(item.is_read) === 1,
+    ...(typeof item.url === 'string' && item.url.trim() ? { url: item.url.trim() } : {}),
   }
 }
 
-function persist(items: PushNotificationEntry[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-  } catch {
-    // Storage penuh / tidak tersedia (mode privat dsb), abaikan.
+function compareNumericIdsDescending(left: string, right: string): number | null {
+  if (!/^\d+$/.test(left) || !/^\d+$/.test(right)) return null
+
+  const normalizedLeft = left.replace(/^0+(?=\d)/, '')
+  const normalizedRight = right.replace(/^0+(?=\d)/, '')
+  if (normalizedLeft.length !== normalizedRight.length) {
+    return normalizedRight.length - normalizedLeft.length
   }
+  return normalizedRight.localeCompare(normalizedLeft)
+}
+
+function sortNotifications(items: NotificationEntry[]): NotificationEntry[] {
+  return items.sort((left, right) => {
+    const numericComparison = compareNumericIdsDescending(left.id, right.id)
+    return numericComparison ?? right.receivedAt - left.receivedAt
+  })
+}
+
+function safeCount(value: unknown): number {
+  const count = Number(value)
+  return Number.isFinite(count) && count > 0 ? Math.floor(count) : 0
 }
 
 export const useNotificationStore = defineStore('pushNotification', {
   state: (): NotificationState => ({
-    items: loadFromStorage(),
-    fcmToken: null,
+    items: [],
+    unreadCount: 0,
+    loading: false,
     initialized: false,
     pushStatus: 'checking',
     backendRegistered: false,
     pushError: null,
+    fetchError: null,
+    fcmToken: null,
   }),
 
-  getters: {
-    unreadCount: (state) => state.items.filter((item) => !item.read).length,
-  },
-
   actions: {
-    addNotification(payload: { title: string; body: string; icon?: string; url?: string }) {
-      const entry: PushNotificationEntry = {
-        ...payload,
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        receivedAt: Date.now(),
-        read: false,
+    async fetchNotifications() {
+      const requestVersion = lifecycleVersion
+      this.loading = true
+
+      try {
+        const response = await api.get<BackendNotification[]>('/notifications')
+        if (!Array.isArray(response.data)) {
+          throw new Error('Respons daftar notifikasi tidak valid.')
+        }
+        if (requestVersion !== lifecycleVersion) return
+
+        this.items = sortNotifications(response.data.map(normalizeNotification))
+        this.fetchError = null
+      } catch (error) {
+        if (requestVersion !== lifecycleVersion) return
+        this.fetchError = getUserErrorMessage(error, 'Gagal memuat notifikasi.')
+      } finally {
+        if (requestVersion === lifecycleVersion) this.loading = false
       }
-      this.items = [entry, ...this.items].slice(0, MAX_ITEMS)
-      persist(this.items)
     },
 
-    markRead(id: string) {
+    async fetchUnreadCount() {
+      const requestVersion = lifecycleVersion
+
+      try {
+        const response = await api.get<UnreadCountResponse>('/notifications/unreadcount')
+        if (requestVersion !== lifecycleVersion) return
+        this.unreadCount = safeCount(response.data?.count)
+      } catch {
+        if (requestVersion !== lifecycleVersion) return
+        this.unreadCount = this.items.filter((item) => !item.read).length
+      }
+    },
+
+    async refreshNotifications() {
+      if (refreshPromise) return refreshPromise
+
+      const currentPromise = (async () => {
+        await this.fetchNotifications()
+        await this.fetchUnreadCount()
+      })()
+      refreshPromise = currentPromise
+
+      try {
+        await currentPromise
+      } finally {
+        if (refreshPromise === currentPromise) refreshPromise = null
+      }
+    },
+
+    async markRead(id: string) {
       const target = this.items.find((item) => item.id === id)
-      if (target) target.read = true
-      persist(this.items)
+      if (!target || target.read) return
+
+      try {
+        await api.patch(`/notifications/${encodeURIComponent(id)}/read`)
+        target.read = true
+        this.unreadCount = Math.max(0, this.unreadCount - 1)
+        this.fetchError = null
+      } catch (error) {
+        this.fetchError = getUserErrorMessage(error, 'Gagal menandai notifikasi sebagai dibaca.')
+        throw error
+      }
     },
 
-    markAllRead() {
-      this.items.forEach((item) => (item.read = true))
-      persist(this.items)
-    },
+    async markAllRead() {
+      if (this.unreadCount === 0) return
 
-    removeNotification(id: string) {
-      this.items = this.items.filter((item) => item.id !== id)
-      persist(this.items)
+      try {
+        await api.patch('/notifications/markallread')
+        this.items.forEach((item) => (item.read = true))
+        this.unreadCount = 0
+        this.fetchError = null
+      } catch (error) {
+        this.fetchError = getUserErrorMessage(error, 'Gagal menandai semua notifikasi sebagai dibaca.')
+        throw error
+      }
     },
 
     async registerToken(token: string) {
@@ -111,35 +210,41 @@ export const useNotificationStore = defineStore('pushNotification', {
       this.pushError = null
 
       try {
-        await api.post(TOKEN_ENDPOINT, { token, device: 'web' })
+        await api.post(TOKEN_ENDPOINT, { token, platform: 'web' })
         this.backendRegistered = true
-      } catch {
+      } catch (error) {
         this.backendRegistered = false
-        this.pushError =
-          `Browser sudah terhubung ke Firebase, tetapi endpoint backend ${TOKEN_ENDPOINT} belum tersedia.`
+        this.pushError = getUserErrorMessage(
+          error,
+          'Browser terhubung ke Firebase, tetapi token gagal didaftarkan ke backend.',
+        )
       }
     },
 
     /** Hapus token dari backend dan cabut subscription agar login berikutnya memakai token baru. */
     async unregisterToken(authToken?: string | null) {
-      if (!this.fcmToken) return
+      const token = this.fcmToken
+      if (!token) return
 
       let backendError: unknown = null
 
       try {
         await api.delete(TOKEN_ENDPOINT, {
-          data: { token: this.fcmToken, device: 'web' },
+          data: { token },
           headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
         })
       } catch (error) {
         backendError = error
       }
 
-      // Tetap cabut token lokal walaupun request backend gagal. Token yang masih
-      // tersimpan di backend kemudian menjadi invalid dan tidak bisa menerima push.
-      await revokeFcmToken()
-      this.backendRegistered = false
-      this.fcmToken = null
+      try {
+        await revokeFcmToken()
+      } finally {
+        if (this.fcmToken === token) {
+          this.backendRegistered = false
+          this.fcmToken = null
+        }
+      }
 
       if (backendError) throw backendError
     },
@@ -167,33 +272,56 @@ export const useNotificationStore = defineStore('pushNotification', {
       }
     },
 
-    /**
-     * Menyiapkan listener. Prompt izin hanya ditampilkan dari tombol Aktifkan agar
-     * tidak diblokir browser karena bukan hasil interaksi pengguna.
-     */
+    /** Siapkan inbox API dan listener. Permission push hanya diminta melalui enablePush(). */
     async init() {
       if (this.initialized) return
       this.initialized = true
+      const initVersion = lifecycleVersion
+
+      const handleFocus = () => void this.refreshNotifications()
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') void this.refreshNotifications()
+      }
+      window.addEventListener('focus', handleFocus)
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      stopForegroundListener = () => {
+        window.removeEventListener('focus', handleFocus)
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
+
+      void this.refreshNotifications()
 
       if (!isFirebaseMessagingConfigured()) {
         this.pushStatus = 'unconfigured'
         return
       }
 
-      if (!(await isFirebaseMessagingSupported())) {
+      const messagingSupported = await isFirebaseMessagingSupported()
+      if (initVersion !== lifecycleVersion) return
+      if (!messagingSupported) {
         this.pushStatus = 'unsupported'
         return
       }
 
-      stopForegroundListener = await listenForegroundMessages((payload: MessagePayload) => {
-        const notif = payload.notification
-        this.addNotification({
-          title: notif?.title || payload.data?.title || 'Notifikasi Baru',
-          body: notif?.body || payload.data?.body || '',
-          icon: notif?.icon || payload.data?.icon,
-          url: payload.fcmOptions?.link || payload.data?.url,
+      try {
+        const stopFcmListener = await listenForegroundMessages(() => {
+          void this.refreshNotifications()
         })
-      })
+        if (initVersion !== lifecycleVersion) {
+          stopFcmListener()
+          return
+        }
+        const stopBrowserListeners = stopForegroundListener
+        stopForegroundListener = () => {
+          stopFcmListener()
+          stopBrowserListeners?.()
+        }
+      } catch (error) {
+        this.pushStatus = 'error'
+        this.pushError = getUserErrorMessage(error, 'Gagal menyiapkan listener push notification.')
+        return
+      }
 
       if (Notification.permission === 'denied') {
         this.pushStatus = 'denied'
@@ -208,21 +336,33 @@ export const useNotificationStore = defineStore('pushNotification', {
       this.pushStatus = 'checking'
       try {
         const token = await restoreFcmToken()
+        if (initVersion !== lifecycleVersion) return
         if (token) await this.registerToken(token)
-        else this.pushStatus = 'error'
+        else {
+          this.pushStatus = 'error'
+          this.pushError = 'FCM tidak menghasilkan registration token.'
+        }
       } catch (error) {
         this.pushStatus = 'error'
         this.pushError = getUserErrorMessage(error, 'Gagal memulihkan koneksi notifikasi.')
       }
     },
 
-    /** Hentikan listener FCM, dipanggil saat logout. */
+    /** Hentikan seluruh listener dan kosongkan inbox agar sesi berikutnya tetap terisolasi. */
     stop() {
+      lifecycleVersion += 1
+      refreshPromise = null
       stopForegroundListener?.()
       stopForegroundListener = null
+      this.items = []
+      this.unreadCount = 0
+      this.loading = false
       this.initialized = false
+      this.pushStatus = 'checking'
       this.fcmToken = null
       this.backendRegistered = false
+      this.pushError = null
+      this.fetchError = null
     },
   },
 })

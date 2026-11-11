@@ -65,6 +65,8 @@ interface MappedActivity {
   subtitle: string
   type: ActivityType
   icon: string
+  /** Nama ikon MHJ khusus (dipakai jika diisi, menggantikan `icon` Solar). */
+  mhjIcon?: string
 }
 
 function entityLabel(entityName: string): string {
@@ -114,7 +116,8 @@ function mapRow(row: SystemActivityRow, action: ActivityAction): MappedActivity 
             : 'Kontak diperbarui',
         subtitle: pickString(after, ['company_name', 'email']) || 'Kontak CRM',
         type: 'call',
-        icon: 'phone',
+        icon: 'users',
+        mhjIcon: 'contact_card',
       }
     }
     case 'companies': {
@@ -127,7 +130,7 @@ function mapRow(row: SystemActivityRow, action: ActivityAction): MappedActivity 
           : 'Faskes diperbarui',
         subtitle: pickString(after, ['tipemarketing', 'city']) || 'Faskes',
         type: 'meeting',
-        icon: 'camera',
+        icon: 'hospital',
       }
     }
     case 'm_projects': {
@@ -140,7 +143,7 @@ function mapRow(row: SystemActivityRow, action: ActivityAction): MappedActivity 
           : 'Peluang CRM diperbarui',
         subtitle: pickString(after, ['division_code', 'currency']) || 'Peluang penjualan',
         type: 'note',
-        icon: 'letter',
+        icon: 'chart-2',
       }
     }
     case 'master_information_cards': {
@@ -149,7 +152,7 @@ function mapRow(row: SystemActivityRow, action: ActivityAction): MappedActivity 
         title: title || 'Kartu informasi',
         subtitle: 'Promo & informasi',
         type: 'email',
-        icon: 'letter',
+        icon: 'ticket-sale',
       }
     }
     default:
@@ -193,14 +196,28 @@ const ACTIVITY_TYPES: ActivityType[] = ['call', 'email', 'meeting', 'note', 'tas
  */
 export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> {
   const { activities } = await fetchDashboardBundle()
-  return activities.slice(0, limit).map((row) => ({
-    id: row.id,
-    type: ACTIVITY_TYPES.includes(row.type as ActivityType) ? (row.type as ActivityType) : 'note',
-    icon: row.icon,
-    title: row.title,
-    subtitle: row.subtitle,
-    time: timeAgo(row.created_at),
-  }))
+  return activities.slice(0, limit).map((row) => {
+    const mapped = mapRow(
+      {
+        ...row,
+        user_id: null,
+        entity_id: row.id,
+        details: null,
+      },
+      row.action,
+    )
+
+    return {
+      id: row.id,
+      type: ACTIVITY_TYPES.includes(row.type as ActivityType) ? (row.type as ActivityType) : mapped.type,
+      icon: mapped.icon,
+      mhjIcon: mapped.mhjIcon,
+      title: row.title,
+      subtitle: row.subtitle,
+      time: timeAgo(row.created_at),
+      action: row.action,
+    }
+  })
 }
 
 /** Seluruh activity log sistem, diurutkan dari aktivitas terbaru. */
@@ -217,6 +234,7 @@ export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
       id: row.id,
       type: mapped.type,
       icon: mapped.icon,
+      mhjIcon: mapped.mhjIcon,
       title: mapped.title,
       subtitle: mapped.subtitle,
       time: timeAgo(row.created_at),

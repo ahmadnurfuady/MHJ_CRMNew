@@ -37,12 +37,12 @@
     <article class="benchmark-card" aria-labelledby="performance-title">
       <div class="benchmark-card__head">
         <h2 id="performance-title" class="section-title">Capaian Kinerja</h2>
-        <span
+        <!-- <span
           class="benchmark-card__status"
           :class="`is-${benchmarkStatus.tone}`"
         >
           {{ benchmarkStatus.label }}
-        </span>
+        </span> -->
       </div>
 
       <section class="benchmark-score" aria-label="Capaian benchmark">
@@ -60,7 +60,7 @@
           </div>
           <div class="benchmark-score__primary-copy">
             <strong>Peluang Kemenangan</strong>
-            <span>Rasio deal yang berhasil dari seluruh peluang masuk.</span>
+            <span>Rasio peluang yang berhasil dari seluruh peluang masuk.</span>
           </div>
         </div>
 
@@ -85,49 +85,49 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from "vue";
 
-import type { ManagerBenchmarkSummary } from '@/types/dashboard/manager'
+import type { ManagerBenchmarkSummary } from "@/types/dashboard/manager";
 
 const props = defineProps<{
-  benchmark: ManagerBenchmarkSummary
-}>()
+  benchmark: ManagerBenchmarkSummary;
+}>();
 
 const normalizedStats = computed(() => {
   // Panjang bar dari nilai rupiah mentah backend, bukan dari teks "Rp150M"/"Rp617Jt"
   // (parse teks menghilangkan satuan M/Jt sehingga perbandingannya salah).
   const amounts = props.benchmark.stats.map((stat) =>
     stat.amount > 0 ? stat.amount : 0,
-  )
-  const maximum = Math.max(...amounts, 1)
+  );
+  const maximum = Math.max(...amounts, 1);
 
   return props.benchmark.stats.map((stat, index) => ({
     ...stat,
     index,
     visualPercent:
       amounts[index] > 0 ? Math.max(2, (amounts[index] / maximum) * 100) : 0,
-  }))
-})
+  }));
+});
 
 const benchmarkStatus = computed(() => {
-  const average = props.benchmark.averageProgress
+  const average = props.benchmark.averageProgress;
 
-  if (average >= 75) return { label: 'Sangat Baik', tone: 'positive' }
-  if (average >= 50) return { label: 'Bertumbuh', tone: 'positive' }
-  if (average >= 25) return { label: 'Perlu Didorong', tone: 'warning' }
-  return { label: 'Perlu Perhatian', tone: 'danger' }
-})
+  if (average >= 75) return { label: "Sangat Baik", tone: "positive" };
+  if (average >= 50) return { label: "Bertumbuh", tone: "positive" };
+  if (average >= 25) return { label: "Perlu Didorong", tone: "warning" };
+  return { label: "Perlu Perhatian", tone: "danger" };
+});
 
 function clampProgress(value: number): number {
-  return Math.min(100, Math.max(0, value))
+  return Math.min(100, Math.max(0, value));
 }
 
 function formatPercent(value: number): string {
-  return `${value.toLocaleString('id-ID', { maximumFractionDigits: 20 })}%`
+  return `${value.toLocaleString("id-ID", { maximumFractionDigits: 20 })}%`;
 }
 
 function shortProgressLabel(label: string): string {
-  return label.replace(' Progres', '')
+  return label.replace(" Progres", "");
 }
 </script>
 

@@ -6,7 +6,7 @@
       secondary-color="var(--app-primary, #18a6e4)"
     />
   </div>
-  <div class="onhover-show-div notification-dropdown">
+  <div class="onhover-show-div notification-dropdown" @mouseenter="handleDropdownOpen">
     <div class="card mb-0">
       <div class="card-header d-flex align-items-center justify-content-between">
         <h4 class="f-w-600 mb-0">Notifikasi</h4>
@@ -14,8 +14,10 @@
           v-if="unreadCount > 0"
           href="#"
           class="f-12 f-w-500 text-primary"
-          @click.prevent="notificationStore.markAllRead()"
-          >Tandai semua dibaca</a
+          :class="{ disabled: markingAllRead }"
+          :aria-disabled="markingAllRead"
+          @click.prevent="handleMarkAllRead"
+          >{{ markingAllRead ? 'Memproses...' : 'Tandai semua dibaca' }}</a
         >
       </div>
       <div class="card-body">
@@ -66,14 +68,23 @@
 
         <div class="notitications-bar">
           <div class="user-message">
-            <div class="firstcart-empty" v-if="items.length === 0">
+            <div v-if="loading && items.length === 0" class="notif-feedback">
+              <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
+              <span>Memuat notifikasi...</span>
+            </div>
+
+            <div v-if="fetchError" class="notif-error" role="status">
+              {{ fetchError }}
+            </div>
+
+            <div class="firstcart-empty" v-if="!loading && items.length === 0">
               <div class="cart-image">
                 <img class="img-fluid" :src="getImages('ecommerce/cleaning.gif')" alt="empty" />
               </div>
               <h5 class="mb-0 text-center">Belum ada notifikasi</h5>
             </div>
 
-            <ul v-else class="notif-list">
+            <ul v-if="items.length > 0" class="notif-list">
               <li
                 v-for="item in items"
                 :key="item.id"
@@ -83,8 +94,7 @@
               >
                 <div class="user-alerts">
                   <div class="notif-icon-wrap flex-shrink-0">
-                    <img v-if="item.icon" class="user-image rounded-circle img-fluid" :src="item.icon" alt="" />
-                    <vue-feather v-else type="bell" size="16" />
+                    <vue-feather type="bell" size="16" />
                   </div>
 
                   <div class="user-name">
@@ -95,31 +105,36 @@
                       <span class="f-light f-w-500 f-12 d-block">{{ item.body }}</span>
                       <span class="f-light f-10 notif-time">{{ formatTime(item.receivedAt) }}</span>
                     </div>
-
-                    <div class="close-circle" @click.stop="notificationStore.removeNotification(item.id)">
-                      <a class="bg-light"><vue-feather type="x" /></a>
-                    </div>
                   </div>
                 </div>
               </li>
             </ul>
           </div>
         </div>
+
+        <button class="view-all-notifications" type="button" @click="handleViewAll">
+          Lihat seluruh notifikasi
+          <vue-feather type="arrow-right" size="15" />
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
+import { useRouter } from 'vue-router'
+import { routes } from '@/router/routes'
 import { getImages } from '@/utils'
-import { useNotificationStore, type PushNotificationEntry } from '@/store/notification'
+import { useNotificationStore, type NotificationEntry } from '@/store/notification'
 
 const notificationStore = useNotificationStore()
-const { items, unreadCount, pushStatus, backendRegistered, pushError } =
+const router = useRouter()
+const markingAllRead = ref(false)
+const { items, unreadCount, loading, pushStatus, backendRegistered, pushError, fetchError } =
   storeToRefs(notificationStore)
 
 onMounted(() => {
@@ -127,14 +142,47 @@ onMounted(() => {
 })
 
 function formatTime(timestamp: number) {
+  if (!timestamp) return 'Waktu tidak tersedia'
   return formatDistanceToNowStrict(timestamp, { addSuffix: true, locale: idLocale })
 }
 
-function handleItemClick(item: PushNotificationEntry) {
-  notificationStore.markRead(item.id)
-  if (item.url) {
-    window.open(item.url, '_self')
+function handleDropdownOpen() {
+  void notificationStore.refreshNotifications()
+}
+
+async function handleMarkAllRead() {
+  if (markingAllRead.value) return
+
+  markingAllRead.value = true
+  try {
+    await notificationStore.markAllRead()
+  } catch {
+    // Pesan kegagalan ditampilkan melalui fetchError di dalam dropdown.
+  } finally {
+    markingAllRead.value = false
   }
+}
+
+async function handleItemClick(item: NotificationEntry) {
+  try {
+    await notificationStore.markRead(item.id)
+  } catch {
+    return
+  }
+
+  if (!item.url) return
+
+  try {
+    const target = new URL(item.url, window.location.origin)
+    if (target.origin !== window.location.origin) return
+    await router.push(`${target.pathname}${target.search}${target.hash}`)
+  } catch {
+    // URL tidak valid tidak boleh memicu navigasi eksternal.
+  }
+}
+
+function handleViewAll() {
+  void router.push({ path: routes.CrmAdmin.Logs, query: { tab: 'notifications' } })
 }
 
 </script>
@@ -181,6 +229,31 @@ function handleItemClick(item: PushNotificationEntry) {
   line-height: 1.45;
 }
 
+.card-header a.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.notif-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 12px;
+  color: #657784;
+  font-size: 12px;
+}
+
+.notif-error {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(220, 53, 69, 0.08);
+  color: #b02a37;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 .notif-list {
   max-height: 340px;
   overflow-y: auto;
@@ -215,5 +288,26 @@ function handleItemClick(item: PushNotificationEntry) {
 
 .first-product.is-unread {
   background-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.06);
+}
+
+.view-all-notifications {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 14px;
+  color: var(--app-primary-dark, #087fad);
+  background: var(--app-primary-wash, #eaf8fd);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.view-all-notifications:hover {
+  color: #fff;
+  background: var(--app-primary, #18a6e4);
 }
 </style>

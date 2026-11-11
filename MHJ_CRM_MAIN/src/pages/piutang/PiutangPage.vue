@@ -45,7 +45,7 @@
 
       <div v-else-if="filteredPiutang.length" class="piutang-list" role="tabpanel">
         <PiutangCard
-          v-for="item in filteredPiutang"
+          v-for="item in pagedPiutang"
           :key="item.id"
           :piutang="item"
           :source-tab="activeTab"
@@ -64,6 +64,15 @@
         </span>
         <p>{{ loadError || 'Belum ada piutang pada tab ini' }}</p>
       </div>
+
+      <ListPagination
+        v-if="filteredPiutang.length"
+        v-model="currentPage"
+        class="piutang-pagination"
+        :total-pages="totalPages"
+        :loading="loading"
+        aria-label="Pagination Piutang"
+      />
     </Card>
   </div>
 </template>
@@ -72,6 +81,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import ListPagination from '@/components/shared/ListPagination.vue'
 import Card from '@/components/shared/card/Card.vue'
 import { usePageBackRoute, usePageTitle } from '@/composable/usePageHeader'
 import PiutangCard from '@/pages/piutang/components/PiutangCard.vue'
@@ -122,6 +132,8 @@ const totalPerStatus = ref<Record<PiutangStatus, number>>({
 })
 const loading = ref(true)
 const loadError = ref('')
+const currentPage = ref(1)
+const PAGE_SIZE = 6
 
 async function loadPiutang() {
   loading.value = true
@@ -147,6 +159,11 @@ const activeTab = ref<PiutangStatus>(
 const filteredPiutang = computed(() =>
   piutangData.value.filter((piutang) => piutang.status === activeTab.value),
 )
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredPiutang.value.length / PAGE_SIZE)))
+const pagedPiutang = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredPiutang.value.slice(start, start + PAGE_SIZE)
+})
 
 function countByStatus(status: PiutangStatus): number {
   return totalPerStatus.value[status] ?? 0
@@ -157,6 +174,7 @@ function selectTab(status: PiutangStatus) {
 }
 
 watch(activeTab, (status) => {
+  currentPage.value = 1
   if (route.query.tab === status) return
   void router.replace({ query: { ...route.query, tab: status } })
 })
@@ -267,6 +285,10 @@ watch(
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   padding-top: 20px;
+}
+
+.piutang-pagination {
+  margin-top: 20px;
 }
 
 .piutang-empty {

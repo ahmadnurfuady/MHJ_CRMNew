@@ -77,6 +77,7 @@ export interface ManagerAreaCoverage {
 }
 
 export type ActivityType = 'call' | 'email' | 'meeting' | 'note' | 'task'
+export type ActivityAction = 'i' | 'u' | 'd'
 
 export interface ActivityItem {
   id: string | number
@@ -85,9 +86,9 @@ export interface ActivityItem {
   subtitle: string
   time: string
   icon: string
+  action?: ActivityAction
+  mhjIcon?: string
 }
-
-export type ActivityAction = 'i' | 'u' | 'd'
 
 export interface ActivityLogItem extends ActivityItem {
   action: ActivityAction

@@ -8,6 +8,7 @@ export const routes = {
   },
   CrmAdmin: {
     Dashboard: '/crmAdmin',
+    ProspectSurvey: '/crmAdmin/form-survey-prospek',
     Hospitals: '/crmAdmin/hospitals',
     Contacts: '/crmAdmin/contacts',
     ProjectsPipeline: '/crmAdmin/projects-pipeline',
@@ -29,6 +30,10 @@ export const routes = {
   Promo: {
     List: '/crmAdmin/promos',
     Detail: '/crmAdmin/promos/:id',
+  },
+  MateriDokumen: {
+    List: '/crmAdmin/materi-dokumen',
+    Preview: '/crmAdmin/materi-dokumen/preview',
   },
   Master: {
     Root: '/crmAdmin/master',

@@ -7,10 +7,10 @@
         <div class="coverage-tile__head">
           <span class="coverage-tile__icon" aria-hidden="true">
             <SolarIcon
-              :name="stat.id === 'area-coverage' ? 'point-on-map' : 'pin-list'"
+              :name="resolveCoverageIcon(stat.id)"
               :size="20"
-              color="currentColor"
-              secondary-color="currentColor"
+              color="var(--dashboard-icon-main)"
+              secondary-color="var(--dashboard-icon-duotone)"
               :secondary-opacity="1"
             />
           </span>
@@ -38,6 +38,15 @@ import type { ManagerAreaCoverage } from '@/types/dashboard/manager'
 defineProps<{
   coverage: ManagerAreaCoverage
 }>()
+
+const COVERAGE_ICONS: Record<string, string> = {
+  'area-coverage': 'point-on-map-duotone',
+  'market-coverage': 'cart-large-2-duotone',
+}
+
+function resolveCoverageIcon(id: string): string {
+  return COVERAGE_ICONS[id] ?? 'point-on-map-duotone'
+}
 
 function clampProgress(value: number): number {
   return Math.min(100, Math.max(0, value))
@@ -94,7 +103,6 @@ function formatPercent(value: number): string {
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  color: var(--dashboard-icon-primary, var(--app-primary, #18a6e4));
   background: var(
     --dashboard-icon-surface-strong,
     rgba(var(--app-primary-rgb, 24, 166, 228), 0.14)

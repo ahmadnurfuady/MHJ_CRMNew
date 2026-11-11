@@ -23,8 +23,10 @@
       </header>
 
       <div class="manager-dashboard__performance">
-        <KeyMetricsGrid :kpis="data.kpis" />
-        <OpportunityOutcomeChart :outcome="data.opportunityOutcome" />
+        <KeyMetricsGrid
+          :kpis="data.kpis"
+          :outcome="data.opportunityOutcome"
+        />
       </div>
 
       <div class="manager-dashboard__content">
@@ -60,7 +62,6 @@ import { useManagerDashboard } from '@/composable/useManagerDashboard'
 import AreaMarketCoverage from '@/module/dashboard/manager/AreaMarketCoverage.vue'
 import HospitalDistributionMap from '@/module/dashboard/manager/HospitalDistributionMap.vue'
 import KeyMetricsGrid from '@/module/dashboard/manager/KeyMetricsGrid.vue'
-import OpportunityOutcomeChart from '@/module/dashboard/manager/OpportunityOutcomeChart.vue'
 import PromoCarousel from '@/module/dashboard/manager/PromoCarousel.vue'
 import QuickActions from '@/module/dashboard/manager/QuickActions.vue'
 import RecentActivity from '@/module/dashboard/manager/RecentActivity.vue'
@@ -84,7 +85,8 @@ onMounted(loadDashboard)
 
 <style scoped>
 .manager-dashboard {
-  --dashboard-icon-primary: var(--app-primary, #18a6e4);
+  --dashboard-icon-main: var(--app-secondary, #18a6e4);
+  --dashboard-icon-duotone: var(--app-primary, #032a4e);
   --dashboard-icon-surface: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
   --dashboard-icon-surface-strong: rgba(
     var(--app-primary-rgb, 24, 166, 228),
@@ -96,7 +98,8 @@ onMounted(loadDashboard)
 }
 
 :global(body.dark-only) .manager-dashboard {
-  --dashboard-icon-primary: var(--app-primary, #18a6e4);
+  --dashboard-icon-main: var(--app-secondary, #18a6e4);
+  --dashboard-icon-duotone: var(--app-primary, #032a4e);
   --dashboard-icon-surface: rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
   --dashboard-icon-surface-strong: rgba(
     var(--app-primary-rgb, 24, 166, 228),
@@ -133,10 +136,6 @@ onMounted(loadDashboard)
 }
 
 .manager-dashboard__performance {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
-  align-items: stretch;
-  gap: 18px;
   min-width: 0;
 }
 
@@ -177,8 +176,7 @@ onMounted(loadDashboard)
 }
 
 @media (max-width: 1199px) {
-  .manager-dashboard__row,
-  .manager-dashboard__performance {
+  .manager-dashboard__row {
     grid-template-columns: 1fr;
   }
 }
