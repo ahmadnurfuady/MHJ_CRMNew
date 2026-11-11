@@ -5,6 +5,13 @@ export interface ListParams {
   search?: string
   /** Filter cabang (dbCabang.KodeCabang). '' = semua cabang; undefined = default cabang user. */
   kode_cabang?: string
+  installed_base?: string
+  visit_urgency?: string
+  grading?: string
+  tipe_rs?: string
+  penyelenggara?: string
+  provinsi?: string
+  kota?: string
 }
 
 /** Status pagination yang dipakai store. */

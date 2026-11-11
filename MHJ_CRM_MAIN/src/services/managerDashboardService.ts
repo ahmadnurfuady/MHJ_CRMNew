@@ -21,10 +21,24 @@ interface SystemActivityRow {
   entity_id: number | string
   details: string | null
   created_at: string
+  filter?: string | null
+  filter_value?: string | null
+  activity_filter?: string | null
+  activity_type?: string | null
+  category?: string | null
 }
 
 interface SystemActivityResponse {
   data: SystemActivityRow[]
+}
+
+export interface ActivityFilterOption {
+  value: string
+  label: string
+}
+
+interface ActivityFilterResponse {
+  data?: ActivityFilterOption[]
 }
 
 interface ActivityDetails {
@@ -220,6 +234,50 @@ export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> 
   })
 }
 
+function normalizeFilterValue(value: unknown): string {
+  return typeof value === 'string' ? value.trim().toLowerCase() : ''
+}
+
+function activityFilterValue(row: SystemActivityRow, details: ActivityDetails): string {
+  const explicitValues = [
+    row.filter,
+    row.filter_value,
+    row.activity_filter,
+    row.activity_type,
+    row.category,
+  ]
+  for (const value of explicitValues) {
+    const normalized = normalizeFilterValue(value)
+    if (normalized) return normalized
+  }
+
+  const detailValues = details as Record<string, unknown>
+  for (const key of ['filter', 'filter_value', 'activity_filter', 'activity_type', 'category']) {
+    const normalized = normalizeFilterValue(detailValues[key])
+    if (normalized) return normalized
+  }
+
+  const entityFilters: Record<string, string> = {
+    contacts: 'kontak',
+    m_projects: 'peluang',
+    tasks: 'tugas',
+    master_information_cards: 'dokumen',
+    documents: 'dokumen',
+  }
+  return entityFilters[row.entity_name] || normalizeFilterValue(row.entity_name)
+}
+
+/** Opsi kategori untuk filter log aktivitas. */
+export async function fetchActivityFilterOptions(): Promise<ActivityFilterOption[]> {
+  const response = await api.get<ActivityFilterResponse>('/dashboard/activity-filters')
+  const options = response.data?.data ?? []
+  return options.flatMap((option) => {
+    const value = normalizeFilterValue(option?.value)
+    const label = typeof option?.label === 'string' ? option.label.trim() : ''
+    return value && label ? [{ value, label }] : []
+  })
+}
+
 /** Seluruh activity log sistem, diurutkan dari aktivitas terbaru. */
 export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
   const response = await api.get<SystemActivityResponse>('/dashboard/systemactivity')
@@ -229,6 +287,7 @@ export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
   for (const row of rows) {
     const action = normalizeAction(row.action)
     if (!action) continue
+    const details = parseDetails(row.details)
     const mapped = mapRow(row, action)
     items.push({
       id: row.id,
@@ -241,6 +300,7 @@ export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
       action,
       entityName: row.entity_name,
       createdAt: row.created_at,
+      filterValue: activityFilterValue(row, details),
     })
   }
   return items.sort((a, b) => {

@@ -41,15 +41,15 @@
             <vue-feather type="x" size="15" />
           </button>
         </div>
-        <div ref="branchFilterRoot" class="hospital-filter">
+        <div ref="filterRoot" class="hospital-filter">
           <button
             class="hospital-filter__trigger"
             type="button"
-            aria-label="Filter faskes berdasarkan cabang"
-            title="Filter cabang"
-            :aria-expanded="branchFilterOpen"
+            aria-label="Filter daftar faskes"
+            title="Filter faskes"
+            :aria-expanded="filterOpen"
             aria-haspopup="true"
-            @click="toggleBranchFilter"
+            @click="toggleFilter"
           >
             <SolarIcon
               name="filter"
@@ -58,70 +58,71 @@
               secondary-color="var(--app-primary, #18a6e4)"
               :secondary-opacity="1"
             />
-            <b v-if="appliedBranchIds.length">{{ appliedBranchIds.length }}</b>
+            <b v-if="activeFilterCount">{{ activeFilterCount }}</b>
           </button>
-          <div v-if="branchFilterOpen" class="hospital-filter__dropdown" role="menu">
-            <div class="hospital-filter__topbar">
-              <div class="hospital-filter__search" role="search">
-                <input
-                  v-model="branchFilterSearch"
-                  type="text"
-                  class="hospital-filter__search-input"
-                  placeholder="Cari cabang..."
-                  autocomplete="off"
-                />
+          <aside v-if="filterOpen" class="hospital-filter__dropdown" aria-label="Filter faskes">
+            <header class="hospital-filter__header">
+              <div>
+                <small>FILTER FASKES</small>
+                <strong>Daftar Faskes</strong>
               </div>
               <button
                 type="button"
-                class="hospital-filter__select-all"
-                @click="toggleAllVisibleBranches"
+                class="hospital-filter__reset"
+                :disabled="filterLoading || hospitalLoading"
+                @click="resetFilters"
               >
-                {{ allVisibleBranchesSelected ? "Batal Semua" : "Pilih Semua" }}
-              </button>
-            </div>
-            <ul class="hospital-filter__list" role="listbox" aria-multiselectable="true">
-              <li v-for="branch in filteredBranchOptions" :key="branch.id">
-                <label
-                  class="hospital-filter__card"
-                  :class="{ 'hospital-filter__card--active': isBranchSelected(branch.id) }"
-                  :title="branch.name"
-                >
-                  <input
-                    type="checkbox"
-                    class="hospital-filter__checkbox"
-                    :checked="isBranchSelected(branch.id)"
-                    :value="branch.id"
-                    @change="toggleBranch(branch.id)"
-                  />
-                  <span class="hospital-filter__card-content">
-                    <span class="hospital-filter__card-name">{{ branch.name }}</span>
-                    <span class="hospital-filter__card-meta">
-                      {{ formatHospitalCount(branch.hospitalCount) }}
-                    </span>
-                  </span>
-                </label>
-              </li>
-              <li v-if="!filteredBranchOptions.length" class="hospital-filter__empty">
-                Tidak ditemukan.
-              </li>
-            </ul>
-            <div class="hospital-filter__footer">
-              <button
-                type="button"
-                class="btn btn-outline-secondary hospital-filter__btn"
-                @click="cancelBranchFilter"
-              >
-                Batal
+                Reset
               </button>
               <button
                 type="button"
-                class="btn btn-primary hospital-filter__btn"
-                @click="applyBranchFilter"
+                class="hospital-filter__close"
+                aria-label="Tutup filter"
+                @click="cancelFilter"
               >
-                Terapkan
+                <SolarIcon name="close" :size="20" color="currentColor" secondary-color="currentColor" />
               </button>
+            </header>
+
+            <div class="hospital-filter__body">
+              <div v-if="filterLoading" class="hospital-filter__state" role="status">
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                Memuat pilihan filter...
+              </div>
+              <div v-else-if="filterError" class="hospital-filter__state hospital-filter__state--error">
+                <span>{{ filterError }}</span>
+                <button type="button" @click="loadFilterOptions">Coba Lagi</button>
+              </div>
+              <fieldset v-for="group in filterGroups" v-else :key="group.key">
+                <legend>{{ group.label }}</legend>
+                <div class="hospital-filter__chips">
+                  <button
+                    v-for="option in filterOptions[group.key]"
+                    :key="`${group.key}-${option.value}`"
+                    type="button"
+                    :class="{ active: draftFilters[group.key] === option.value }"
+                    :title="option.label"
+                    @click="draftFilters[group.key] = option.value"
+                  >
+                    <span>{{ option.label }}</span>
+                    <small v-if="option.count !== null">{{ formatTotal(option.count) }}</small>
+                  </button>
+                </div>
+              </fieldset>
             </div>
-          </div>
+
+            <footer class="hospital-filter__footer">
+              <button
+                type="button"
+                class="hospital-filter__apply"
+                :disabled="filterLoading || hospitalLoading"
+                @click="applyFilters"
+              >
+                <span v-if="hospitalLoading" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                Terapkan Filter
+              </button>
+            </footer>
+          </aside>
         </div>
         <button
           v-if="canAddHospital"
@@ -357,7 +358,7 @@ import { routes } from "@/router/routes";
 import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { api } from "@/api";
-import { extractList, isRecord, pickString } from "@/api/response";
+import { isRecord, pickString } from "@/api/response";
 import type { Contact } from "@/types/contacts";
 import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 
@@ -369,135 +370,117 @@ const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const { contactState, filteredContact } = storeToRefs(contactStore);
 const { loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { openHospitalModal, searchHospitals, filterHospitalsByBranch } =
+const { openHospitalModal, searchHospitals, filterHospitals } =
   contactStore;
 const { canAddHospital } = useHospitalPermissions();
 const searchQuery = ref("");
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
-interface BranchFilterOption {
-  id: string;
-  name: string;
-  /** Jumlah faskes aktif di cabang itu. null untuk opsi "Semua Cabang". */
-  hospitalCount: number | null;
+type FilterKey =
+  | "installed_base"
+  | "visit_urgency"
+  | "grading"
+  | "tipe_rs"
+  | "penyelenggara"
+  | "cabang"
+  | "provinsi"
+  | "kota";
+interface FilterOption { value: string; label: string; count: number | null }
+type FilterSelection = Record<FilterKey, string>;
+type FilterOptions = Record<FilterKey, FilterOption[]>;
+
+const filterGroups: Array<{ key: FilterKey; label: string }> = [
+  { key: "installed_base", label: "Status Kepemilikan Alat" },
+  { key: "visit_urgency", label: "Urgensi Kunjungan" },
+  { key: "grading", label: "Grading / Kelayakan Finansial" },
+  { key: "tipe_rs", label: "Tipe Rumah Sakit" },
+  { key: "penyelenggara", label: "Penyelenggara" },
+  { key: "cabang", label: "Cabang" },
+  { key: "provinsi", label: "Provinsi" },
+  { key: "kota", label: "Kota / Kabupaten" },
+];
+function createDefaultFilters(): FilterSelection {
+  return { installed_base: "all", visit_urgency: "all", grading: "all", tipe_rs: "all", penyelenggara: "all", cabang: "all", provinsi: "all", kota: "all" };
 }
-
-// Opsi cabang dari GET /api/company/cabang. Entri pertama "Semua Cabang"
-// (id kosong) memakai filter kode_cabang kosong di backend = seluruh cabang.
-const ALL_BRANCH_ID = "";
-const branchOptions = ref<BranchFilterOption[]>([]);
-
-function pickNumber(raw: Record<string, unknown>, ...keys: string[]): number {
-  for (const key of keys) {
-    const value = raw[key];
-    if (typeof value === "number" && Number.isFinite(value)) return value;
-    if (typeof value === "string" && value.trim() !== "") {
-      const parsed = Number(value);
-      if (Number.isFinite(parsed)) return parsed;
-    }
-  }
-  return 0;
+function createEmptyFilterOptions(): FilterOptions {
+  return { installed_base: [], visit_urgency: [], grading: [], tipe_rs: [], penyelenggara: [], cabang: [], provinsi: [], kota: [] };
 }
+const filterRoot = ref<HTMLElement | null>(null);
+const filterOpen = ref(false);
+const filterLoading = ref(false);
+const filterError = ref("");
+const filterOptions = ref<FilterOptions>(createEmptyFilterOptions());
+const appliedFilters = ref<FilterSelection>(createDefaultFilters());
+const draftFilters = ref<FilterSelection>(createDefaultFilters());
+const activeFilterCount = computed(() => Object.values(appliedFilters.value).filter((value) => value !== "all").length);
 
-async function loadBranchOptions() {
+function optionCount(raw: Record<string, unknown>): number | null {
+  const value = raw.hospital_count ?? raw.total_faskes;
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+async function loadFilterOptions() {
+  filterLoading.value = true;
+  filterError.value = "";
   try {
-    const response = await api.get("company/cabang");
-    const { items } = extractList(response.data);
-    const branches = items
-      .filter(isRecord)
-      .map((raw) => ({
-        id: pickString(raw, "value", "kode_cabang", "kode", "KodeCabang"),
-        name: pickString(raw, "label", "nama_cabang", "name", "NamaCabang"),
-        hospitalCount: pickNumber(raw, "hospital_count", "total_faskes", "jumlah_faskes"),
-      }))
-      .filter((branch) => branch.id && branch.name);
-
-    // Opsi "Semua Cabang" = total seluruh faskes dari gabungan cabang.
-    const totalFaskes = branches.reduce((sum, b) => sum + (b.hospitalCount ?? 0), 0);
-    branchOptions.value = [
-      { id: ALL_BRANCH_ID, name: "Semua Cabang", hospitalCount: totalFaskes },
-      ...branches,
-    ];
+    const response = await api.get("company/filters");
+    const payload = isRecord(response.data) && isRecord(response.data.data) ? response.data.data : response.data;
+    if (!isRecord(payload)) throw new Error("Format opsi filter tidak valid.");
+    const nextOptions = createEmptyFilterOptions();
+    const hospitalTypeValues = new Set(["A", "B", "C", "D", "D Pratama"]);
+    filterGroups.forEach(({ key }) => {
+      let items = Array.isArray(payload[key]) ? payload[key] : [];
+      if (key === "tipe_rs" || key === "penyelenggara") {
+        const mixedOptions = Array.isArray(payload.tipe_penyelenggara) ? payload.tipe_penyelenggara : [];
+        items = mixedOptions.filter((item) => {
+          if (!isRecord(item)) return false;
+          const value = pickString(item, "value");
+          return value === "all" || (key === "tipe_rs" ? hospitalTypeValues.has(value) : !hospitalTypeValues.has(value));
+        });
+      }
+      nextOptions[key] = items.filter(isRecord).map((raw) => ({ value: pickString(raw, "value"), label: pickString(raw, "label"), count: optionCount(raw) })).filter((option) => option.value && option.label);
+    });
+    filterOptions.value = nextOptions;
   } catch (error) {
-    console.error("Gagal memuat daftar cabang.", error);
+    console.error("Gagal memuat opsi filter Faskes.", error);
+    filterError.value = "Pilihan filter gagal dimuat.";
+  } finally {
+    filterLoading.value = false;
   }
 }
-
-const branchFilterRoot = ref<HTMLElement | null>(null);
-const branchFilterOpen = ref(false);
-const branchFilterSearch = ref("");
-const appliedBranchIds = ref<string[]>([]);
-const draftBranchIds = ref<string[]>([]);
-
-const filteredBranchOptions = computed(() => {
-  const query = branchFilterSearch.value.trim().toLowerCase();
-  if (!query) return branchOptions.value;
-  return branchOptions.value.filter((branch) => branch.name.toLowerCase().includes(query));
-});
-
-const allVisibleBranchesSelected = computed(() => {
-  if (!filteredBranchOptions.value.length) return false;
-  return filteredBranchOptions.value.every((branch) =>
-    draftBranchIds.value.includes(branch.id),
-  );
-});
-
-function isBranchSelected(id: string) {
-  return draftBranchIds.value.includes(id);
+function toggleFilter() {
+  if (filterOpen.value) return cancelFilter();
+  draftFilters.value = { ...appliedFilters.value };
+  filterOpen.value = true;
+  if (!filterOptions.value.installed_base.length && !filterLoading.value) void loadFilterOptions();
 }
-
-/** Label jumlah faskes di dropdown filter. "— Faskes" bila data belum ada. */
-function formatHospitalCount(count: number | null): string {
-  if (count === null || count === undefined) return "— Faskes";
-  return `${count.toLocaleString("id-ID")} Faskes`;
-}
-
-function toggleBranch(id: string) {
-  const index = draftBranchIds.value.indexOf(id);
-  if (index >= 0) draftBranchIds.value.splice(index, 1);
-  else draftBranchIds.value.push(id);
-}
-
-function toggleAllVisibleBranches() {
-  const visibleIds = filteredBranchOptions.value.map((branch) => branch.id);
-  if (allVisibleBranchesSelected.value) {
-    draftBranchIds.value = draftBranchIds.value.filter((id) => !visibleIds.includes(id));
-    return;
-  }
-
-  draftBranchIds.value = [...new Set([...draftBranchIds.value, ...visibleIds])];
-}
-
-function toggleBranchFilter() {
-  if (branchFilterOpen.value) {
-    cancelBranchFilter();
-    return;
-  }
-  draftBranchIds.value = [...appliedBranchIds.value];
-  branchFilterOpen.value = true;
-}
-
-function cancelBranchFilter() {
-  branchFilterOpen.value = false;
-  branchFilterSearch.value = "";
-}
-
-function applyBranchFilter() {
-  appliedBranchIds.value = [...draftBranchIds.value];
-  branchFilterOpen.value = false;
-  branchFilterSearch.value = "";
+function resetFilters() {
+  const defaults = createDefaultFilters();
+  draftFilters.value = { ...defaults };
+  appliedFilters.value = { ...defaults };
   hospitalPage.value = 1;
-  // Kirim kode cabang terpilih ke daftar Faskes:
-  // []         = default (cabang user), ['']  = semua cabang,
-  // ['00',...] = cabang tertentu. Lihat filterHospitalsByBranch di store.
-  void filterHospitalsByBranch(appliedBranchIds.value);
+  void filterHospitals({ kode_cabang: "" });
 }
-
-function onClickOutsideBranchFilter(event: MouseEvent) {
-  if (!branchFilterOpen.value) return;
-  if (branchFilterRoot.value && !branchFilterRoot.value.contains(event.target as Node)) {
-    cancelBranchFilter();
-  }
+function cancelFilter() { filterOpen.value = false; draftFilters.value = { ...appliedFilters.value }; }
+function applyFilters() {
+  appliedFilters.value = { ...draftFilters.value };
+  filterOpen.value = false;
+  hospitalPage.value = 1;
+  const filters = appliedFilters.value;
+  void filterHospitals({
+    ...(filters.installed_base !== "all" ? { installed_base: filters.installed_base } : {}),
+    ...(filters.visit_urgency !== "all" ? { visit_urgency: filters.visit_urgency } : {}),
+    ...(filters.grading !== "all" ? { grading: filters.grading } : {}),
+    ...(filters.tipe_rs !== "all" ? { tipe_rs: filters.tipe_rs } : {}),
+    ...(filters.penyelenggara !== "all" ? { penyelenggara: filters.penyelenggara } : {}),
+    kode_cabang: filters.cabang === "all" ? "" : filters.cabang,
+    ...(filters.provinsi !== "all" ? { provinsi: filters.provinsi } : {}),
+    ...(filters.kota !== "all" ? { kota: filters.kota } : {}),
+  });
+}
+function onClickOutsideFilter(event: MouseEvent) {
+  if (filterOpen.value && filterRoot.value && !filterRoot.value.contains(event.target as Node)) cancelFilter();
 }
 
 // Paginasi daftar Faskes dilakukan di frontend: seluruh data sudah dimuat
@@ -700,14 +683,14 @@ function openHospitalDetail(
 
 onMounted(() => {
   contactStore.initStore();
-  void loadBranchOptions();
-  document.addEventListener("click", onClickOutsideBranchFilter);
+  void loadFilterOptions();
+  document.addEventListener("click", onClickOutsideFilter);
 });
 
 onBeforeUnmount(() => {
   if (searchTimer) clearTimeout(searchTimer);
   stopHospitalColumnResize();
-  document.removeEventListener("click", onClickOutsideBranchFilter);
+  document.removeEventListener("click", onClickOutsideFilter);
 });
 </script>
 
@@ -865,149 +848,97 @@ onBeforeUnmount(() => {
   z-index: 1050;
   top: calc(100% + 10px);
   right: 0;
-  width: 360px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(460px, calc(100vw - 32px));
+  max-height: min(680px, calc(100vh - 120px));
   max-width: calc(100vw - 32px);
   overflow: hidden;
-  border: 1px solid #dbe4ee;
-  border-radius: 14px;
-  background: #ffffff;
+  border: 1px solid #e1e8ed;
+  border-radius: 16px;
+  color: #263442;
+  background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16), 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
-.hospital-filter__topbar {
-  display: flex;
+.hospital-filter__header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 10px;
-  padding: 14px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf1f4;
 }
-
-.hospital-filter__search {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.hospital-filter__search-input {
-  width: 100%;
-  height: 42px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  padding: 0 13px;
-  outline: none;
-  background: #f8fafc;
-  color: #0f172a;
-  font-size: 0.875rem;
-}
-
-.hospital-filter__search-input:focus {
-  border-color: var(--app-primary, #18a6e4);
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
-}
-
-.hospital-filter__select-all {
-  flex: 0 0 auto;
-  height: 42px;
-  border: 1px solid var(--app-primary, #18a6e4);
-  border-radius: 10px;
-  padding: 0 14px;
-  background: #ffffff;
-  color: var(--app-primary, #18a6e4);
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-.hospital-filter__select-all:hover,
-.hospital-filter__select-all:focus-visible {
-  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
-  outline: none;
-}
-
-.hospital-filter__list {
-  max-height: 290px;
+.hospital-filter__header > div { display: grid; gap: 2px; }
+.hospital-filter__header small { color: var(--app-primary, #18a6e4); font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+.hospital-filter__header strong { color: #263442; font-size: 15px; }
+.hospital-filter__reset, .hospital-filter__close { border: 0; background: transparent; cursor: pointer; }
+.hospital-filter__reset { color: #e15b64; font-size: 11px; font-weight: 700; }
+.hospital-filter__close { display: grid; width: 28px; height: 28px; place-items: center; padding: 0; color: #82909c; }
+.hospital-filter__body {
+  display: grid;
+  align-content: start;
+  gap: 16px;
   overflow-y: auto;
-  margin: 0;
-  padding: 12px;
-  background: #f8fafc;
-  list-style: none;
+  padding: 14px 16px;
 }
-
-.hospital-filter__card {
-  display: flex;
-  width: 100%;
-  min-height: 62px;
+.hospital-filter__body fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
+.hospital-filter__body legend { margin-bottom: 8px; color: #334155; font-size: 11.5px; font-weight: 700; }
+.hospital-filter__chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.hospital-filter__chips button {
+  display: inline-flex;
+  max-width: 100%;
+  min-height: 32px;
   align-items: center;
-  gap: 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: #ffffff;
+  gap: 7px;
+  border: 1px solid #e1e7ed;
+  border-radius: 17px;
+  padding: 6px 11px;
+  color: #647180;
+  background: #f5f7f9;
+  font-size: 10px;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 }
-
-.hospital-filter__card:hover,
-.hospital-filter__card--active {
+.hospital-filter__chips button.active {
   border-color: var(--app-primary, #18a6e4);
-  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
-}
-
-.hospital-filter__checkbox {
-  width: 18px;
-  height: 18px;
-  flex: 0 0 18px;
-  margin: 0;
-  accent-color: var(--app-primary, #18a6e4);
-}
-
-.hospital-filter__card-content {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.hospital-filter__card-name,
-.hospital-filter__card-meta {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hospital-filter__card-name {
-  margin-bottom: 4px;
-  color: #0f172a;
-  font-size: 14px;
+  color: var(--app-primary-dark, #0e7490);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
   font-weight: 700;
 }
-
-.hospital-filter__card-meta {
-  color: #64748b;
+.hospital-filter__chips button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hospital-filter__chips button small { flex: 0 0 auto; border-radius: 10px; padding: 1px 5px; color: #71808c; background: rgba(255,255,255,.75); font-size: 8.5px; font-weight: 700; }
+.hospital-filter__state {
+  display: flex;
+  min-height: 120px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #71808c;
   font-size: 12px;
-}
-
-.hospital-filter__empty {
-  padding: 20px 12px;
-  color: #94a3b8;
-  font-size: 13px;
   text-align: center;
 }
-
+.hospital-filter__state--error { flex-direction: column; }
+.hospital-filter__state button { border: 0; color: var(--app-primary, #18a6e4); background: transparent; font-size: 11px; font-weight: 700; }
 .hospital-filter__footer {
+  padding: 12px 16px;
+  border-top: 1px solid #edf1f4;
+}
+.hospital-filter__apply {
   display: flex;
-  justify-content: flex-end;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding: 12px 14px;
-  border-top: 1px solid #e2e8f0;
-}
-
-.hospital-filter__btn {
-  min-width: 96px;
-  height: 38px;
+  border: 0;
   border-radius: 10px;
-  padding: 0 16px;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  padding: 10px 14px;
+  color: #fff;
+  background: var(--app-primary, #18a6e4);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
 }
+.hospital-filter__apply:disabled, .hospital-filter__reset:disabled { cursor: wait; opacity: .65; }
 
 .add-hospital-header-button {
   display: inline-flex;

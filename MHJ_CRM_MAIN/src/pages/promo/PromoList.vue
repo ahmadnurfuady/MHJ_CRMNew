@@ -2,7 +2,11 @@
   <div class="container-fluid promo-catalog">
     <section class="promo-catalog__hero">
       <div class="promo-catalog__hero-icon" aria-hidden="true">
-        <MhjIcon name="action_promo_ticket" :size="34" />
+        <SolarIcon
+          name="ticket-sale"
+          :size="34"
+          color="var(--app-primary, #18A6E4)"
+        />
       </div>
       <div>
         <span class="promo-catalog__eyebrow">INFORMASI TERBARU</span>
@@ -75,7 +79,11 @@
             />
             <div v-else class="promo-card__fallback" aria-hidden="true">
               <span></span><span></span>
-              <MhjIcon name="action_promo_ticket" :size="42" />
+              <SolarIcon
+                name="ticket-sale"
+                :size="42"
+                color="var(--app-primary, #18A6E4)"
+              />
             </div>
             <span class="promo-card__status" :class="`is-${promoPeriodStatus(promo)}`">
               <i></i>{{ promoStatusLabel(promoPeriodStatus(promo)) }}
@@ -97,7 +105,13 @@
       </section>
 
       <section v-else class="promo-state">
-        <span class="promo-state__icon"><MhjIcon name="action_promo_ticket" :size="32" /></span>
+        <span class="promo-state__icon">
+          <SolarIcon
+            name="ticket-sale"
+            :size="32"
+            color="var(--app-primary, #18A6E4)"
+          />
+        </span>
         <h2>{{ search || filter !== 'all' ? 'Promo tidak ditemukan' : 'Belum ada promo' }}</h2>
         <p>{{ search || filter !== 'all' ? 'Coba gunakan kata kunci atau filter yang berbeda.' : 'Promo terbaru akan muncul di halaman ini.' }}</p>
         <button v-if="search || filter !== 'all'" type="button" @click="resetFilter">Reset Filter</button>

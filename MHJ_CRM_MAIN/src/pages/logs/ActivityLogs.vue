@@ -72,7 +72,7 @@
             :key="option.value"
             type="button"
             :class="{ active: filter === option.value }"
-            @click="filter = option.value"
+            @click="selectFilter(option.value)"
           >
             {{ option.label }}
             <span>{{ countFor(option.value) }}</span>
@@ -232,15 +232,20 @@ import { id as idLocale } from 'date-fns/locale'
 import ListPagination from '@/components/shared/ListPagination.vue'
 import { usePageBackRoute } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
-import { fetchSystemActivities } from '@/services/managerDashboardService'
+import {
+  fetchActivityFilterOptions,
+  fetchSystemActivities,
+  type ActivityFilterOption,
+} from '@/services/managerDashboardService'
 import { useNotificationStore, type NotificationEntry } from '@/store/notification'
 import type { ActivityAction, ActivityLogItem } from '@/types/dashboard/manager'
 
-type ActivityFilter = 'all' | ActivityAction
+type ActivityFilter = string
 type LogsTab = 'activities' | 'notifications'
 
 const PAGE_SIZE = 12
 const activities = ref<ActivityLogItem[]>([])
+const filterOptions = ref<ActivityFilterOption[]>([{ label: 'Semua', value: 'all' }])
 const loading = ref(true)
 const error = ref('')
 const search = ref('')
@@ -261,17 +266,10 @@ const activeTab = ref<LogsTab>(route.query.tab === 'notifications' ? 'notificati
 
 usePageBackRoute(routes.Dashboards.Default)
 
-const filterOptions: Array<{ label: string; value: ActivityFilter }> = [
-  { label: 'Semua', value: 'all' },
-  { label: 'Ditambahkan', value: 'i' },
-  { label: 'Diperbarui', value: 'u' },
-  { label: 'Dihapus', value: 'd' },
-]
-
 const filteredActivities = computed(() => {
   const keyword = search.value.toLocaleLowerCase('id-ID')
   return activities.value.filter((activity) => {
-    const matchesFilter = filter.value === 'all' || activity.action === filter.value
+    const matchesFilter = filter.value === 'all' || activity.filterValue === filter.value
     const haystack = `${activity.title} ${activity.subtitle} ${entityLabel(activity.entityName)}`
       .toLocaleLowerCase('id-ID')
     return matchesFilter && haystack.includes(keyword)
@@ -311,7 +309,7 @@ watch(
 
 function countFor(value: ActivityFilter): number {
   if (value === 'all') return activities.value.length
-  return activities.value.filter((activity) => activity.action === value).length
+  return activities.value.filter((activity) => activity.filterValue === value).length
 }
 
 function actionLabel(action: ActivityAction): string {
@@ -351,7 +349,12 @@ function formatDateTime(value: string): string {
 
 function resetFilters(): void {
   search.value = ''
-  filter.value = 'all'
+  selectFilter('all')
+}
+
+function selectFilter(value: ActivityFilter): void {
+  if (filter.value === value) return
+  filter.value = value
 }
 
 function selectTab(tab: LogsTab): void {
@@ -415,7 +418,20 @@ async function loadActivities(): Promise<void> {
   }
 }
 
+async function loadActivityFilters(): Promise<void> {
+  try {
+    const options = await fetchActivityFilterOptions()
+    const uniqueOptions = new Map<string, ActivityFilterOption>()
+    for (const option of options) uniqueOptions.set(option.value, option)
+    if (!uniqueOptions.has('all')) uniqueOptions.set('all', { value: 'all', label: 'Semua' })
+    filterOptions.value = Array.from(uniqueOptions.values())
+  } catch (loadError) {
+    console.error('Gagal memuat filter log aktivitas.', loadError)
+  }
+}
+
 onMounted(() => {
+  void loadActivityFilters()
   void loadActivities()
   void notificationStore.init()
   if (activeTab.value === 'notifications') void notificationStore.refreshNotifications()

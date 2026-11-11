@@ -739,16 +739,22 @@ export const useContact = defineStore("contact", () => {
     resolveContactCompanyNames();
   }
 
-  // Filter cabang untuk daftar Faskes.
-  // - []            => default: pakai cabang user (backend tak diberi kode_cabang).
-  // - ['']          => Semua Cabang (kirim kode_cabang kosong).
-  // - ['00','01']   => cabang-cabang tertentu (dimuat per cabang lalu digabung).
-  const hospitalBranchFilter = ref<string[]>([]);
-  const ALL_BRANCHES = "";
+  type HospitalListFilters = Pick<
+    ListParams,
+    | "kode_cabang"
+    | "installed_base"
+    | "visit_urgency"
+    | "grading"
+    | "tipe_rs"
+    | "penyelenggara"
+    | "provinsi"
+    | "kota"
+  >;
+  const hospitalListFilters = ref<HospitalListFilters>({});
 
   /** Memuat seluruh halaman untuk satu set parameter (search / kode_cabang). */
   async function loadHospitalPages(
-    extra: { search?: string; kode_cabang?: string },
+    extra: ListParams,
     append = false,
   ) {
     await hospitalStore.fetchHospitals(
@@ -770,52 +776,24 @@ export const useContact = defineStore("contact", () => {
   /**
    * Memuat seluruh halaman Faskes dari backend supaya daftar Faskes bisa
    * dipaginasi 10 per halaman di frontend, lepas dari page size backend.
-   *
-   * Menghormati hospitalBranchFilter. Saat search aktif, filter cabang
-   * diabaikan karena pencarian bersifat GENERAL (lintas cabang).
    */
   async function fetchAllHospitalsForList(search?: string) {
-    const codes = hospitalBranchFilter.value;
-
-    // Pencarian general: abaikan filter cabang.
-    if (search) {
-      await loadHospitalPages({ search });
-      return;
-    }
-
-    // Default (cabang user): jangan kirim kode_cabang.
-    if (codes.length === 0) {
-      await loadHospitalPages({});
-      return;
-    }
-
-    // Semua Cabang: kirim kode_cabang kosong satu kali.
-    if (codes.includes(ALL_BRANCHES)) {
-      await loadHospitalPages({ kode_cabang: ALL_BRANCHES });
-      return;
-    }
-
-    // Beberapa cabang tertentu: muat per cabang lalu gabungkan (append).
-    let append = false;
-    for (const code of codes) {
-      await loadHospitalPages({ kode_cabang: code }, append);
-      append = true;
-    }
+    await loadHospitalPages({
+      ...hospitalListFilters.value,
+      ...(search ? { search } : {}),
+    });
   }
 
-  /**
-   * Set filter cabang daftar Faskes lalu muat ulang.
-   * @param codes [] = cabang user (default), [''] = semua cabang, selain itu kode cabang terpilih.
-   */
-  async function filterHospitalsByBranch(codes: string[]) {
-    hospitalBranchFilter.value = [...codes];
+  /** Set seluruh filter daftar Faskes lalu muat ulang. */
+  async function filterHospitals(filters: HospitalListFilters) {
+    hospitalListFilters.value = { ...filters };
 
     try {
       await fetchAllHospitalsForList(hospitalSearch.value || undefined);
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
-      notifyError(hospitalStore.error ?? "Gagal memfilter Faskes per cabang.");
+      notifyError(hospitalStore.error ?? "Gagal memfilter Faskes.");
     }
   }
 
@@ -1873,7 +1851,7 @@ export const useContact = defineStore("contact", () => {
     handleActiveTab,
     changeContactPage,
     searchHospitals,
-    filterHospitalsByBranch,
+    filterHospitals,
     searchContacts,
     refreshContacts,
     filteredContact,

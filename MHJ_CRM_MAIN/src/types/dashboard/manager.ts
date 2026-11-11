@@ -94,6 +94,7 @@ export interface ActivityLogItem extends ActivityItem {
   action: ActivityAction
   entityName: string
   createdAt: string
+  filterValue: string
 }
 
 export interface PromoSlide {

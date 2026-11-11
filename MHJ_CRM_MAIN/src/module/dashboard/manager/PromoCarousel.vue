@@ -21,21 +21,30 @@
     <Swiper
       v-else
       class="promo-swiper"
-      :slides-per-view="1"
-      :space-between="12"
+      slides-per-view="auto"
+      :centered-slides="true"
+      :space-between="16"
       :loop="slides.length > 1"
+      :initial-slide="loopStartIndex"
+      :speed="650"
       :autoplay="{ delay: 4000, disableOnInteraction: false }"
-      :pagination="{ el: '.promo-swiper-pagination', clickable: true }"
       :modules="modules"
+      @swiper="setSwiper"
+      @slide-change="syncActivePromo"
     >
-      <SwiperSlide v-for="slide in slides" :key="slide.id">
-        <div class="promo-slide" :class="{ 'has-image': hasRenderableImage(slide) }">
+      <SwiperSlide v-for="slide in displaySlides" :key="slide.key">
+        <router-link
+          :to="{ name: 'PromoCatalogDetail', params: { id: slide.promo.id } }"
+          class="promo-slide"
+          :class="{ 'has-image': hasRenderableImage(slide.promo) }"
+          :aria-label="`Lihat detail ${slide.promo.title || 'promo MHJ'}`"
+        >
           <img
-            v-if="hasRenderableImage(slide)"
-            :src="slide.imageUrl!"
-            :alt="slide.title"
+            v-if="hasRenderableImage(slide.promo)"
+            :src="slide.promo.imageUrl!"
+            :alt="slide.promo.title"
             loading="lazy"
-            @error="markImageAsFailed(slide.id)"
+            @error="markImageAsFailed(slide.promo.id)"
           />
           <div class="promo-slide__decoration" aria-hidden="true">
             <span class="promo-slide__orb promo-slide__orb--large"></span>
@@ -49,12 +58,13 @@
             />
           </div>
           <span class="promo-slide__overlay" aria-hidden="true"></span>
+          <span class="promo-slide__preview-overlay" aria-hidden="true"></span>
           <div class="promo-slide__caption">
             <span class="promo-slide__badge">Promo Pilihan</span>
-            <strong>{{ slide.title || 'Promo Spesial MHJ' }}</strong>
-            <p>{{ slide.content || 'Temukan informasi promo terbaru dari MHJ.' }}</p>
+            <strong>{{ slide.promo.title || 'Promo Spesial MHJ' }}</strong>
+            <p>{{ slide.promo.content || 'Temukan informasi promo terbaru dari MHJ.' }}</p>
           </div>
-        </div>
+        </router-link>
       </SwiperSlide>
     </Swiper>
 
@@ -62,24 +72,64 @@
       v-if="!loading && slides.length > 1"
       class="promo-swiper-pagination"
       aria-label="Navigasi slide promo"
-    ></div>
+    >
+      <button
+        v-for="(_, index) in slides"
+        :key="index"
+        type="button"
+        class="promo-swiper-pagination__bullet"
+        :class="{ active: activePromoIndex === index }"
+        :aria-label="`Tampilkan promo ${index + 1}`"
+        :aria-current="activePromoIndex === index ? 'true' : undefined"
+        @click="goToPromo(index)"
+      ></button>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { Autoplay, Pagination } from 'swiper/modules'
-import { ref } from 'vue'
+import type { Swiper as SwiperInstance } from 'swiper'
+import { Autoplay } from 'swiper/modules'
+import { computed, ref } from 'vue'
 
 import { routes } from '@/router/routes'
 import type { PromoSlide } from '@/types/dashboard/manager'
 
-defineProps<{
+const props = defineProps<{
   slides: PromoSlide[]
   loading?: boolean
 }>()
 
-const modules = [Autoplay, Pagination]
+const modules = [Autoplay]
 const failedImageIds = ref(new Set<PromoSlide['id']>())
+const swiperInstance = ref<SwiperInstance | null>(null)
+const activePromoIndex = ref(0)
+
+const displaySlides = computed(() => {
+  const repetitions = props.slides.length > 1 && props.slides.length < 4 ? 3 : 1
+  return Array.from({ length: repetitions }, (_, repetition) =>
+    props.slides.map((promo, promoIndex) => ({
+      key: `${repetition}-${promo.id}`,
+      promo,
+      promoIndex,
+    })),
+  ).flat()
+})
+
+const loopStartIndex = computed(() => (displaySlides.value.length > props.slides.length ? props.slides.length : 0))
+
+function setSwiper(swiper: SwiperInstance): void {
+  swiperInstance.value = swiper
+  syncActivePromo(swiper)
+}
+
+function syncActivePromo(swiper: SwiperInstance): void {
+  activePromoIndex.value = displaySlides.value[swiper.realIndex]?.promoIndex ?? 0
+}
+
+function goToPromo(index: number): void {
+  swiperInstance.value?.slideToLoop(loopStartIndex.value + index)
+}
 
 function hasRenderableImage(slide: PromoSlide): boolean {
   return Boolean(slide.imageUrl) && !failedImageIds.value.has(slide.id)
@@ -146,30 +196,44 @@ function markImageAsFailed(id: PromoSlide['id']) {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: 100%;
-  min-height: 210px;
+  height: auto;
   overflow: hidden;
   border-radius: 16px;
 }
 
 .promo-swiper :deep(.swiper-wrapper) {
+  align-items: center;
   height: 100%;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .promo-swiper :deep(.swiper-slide) {
+  width: min(72%, 432px);
   height: auto;
+  aspect-ratio: 4 / 5;
+  transform: scale(0.92);
+  transition:
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.65s ease;
+}
+
+.promo-swiper :deep(.swiper-slide-active) {
+  z-index: 2;
+  transform: scale(1);
 }
 
 .promo-slide {
   position: relative;
+  display: block;
   overflow: hidden;
   isolation: isolate;
   height: 100%;
-  min-height: 210px;
   border-radius: 16px;
+  color: inherit;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 55%),
     linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #84d7eb));
+  text-decoration: none;
 }
 
 .promo-slide img {
@@ -226,6 +290,24 @@ function markImageAsFailed(id: PromoSlide['id']) {
   z-index: 2;
   background: linear-gradient(180deg, transparent 18%, rgba(5, 34, 55, 0.84) 100%);
   pointer-events: none;
+}
+
+.promo-slide__preview-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: linear-gradient(
+    145deg,
+    var(--app-primary, #18a6e4),
+    var(--app-secondary, #84d7eb)
+  );
+  opacity: 0.78;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.promo-swiper :deep(.swiper-slide-active) .promo-slide__preview-overlay {
+  opacity: 0;
 }
 
 .promo-slide:not(.has-image) .promo-slide__overlay {
@@ -291,26 +373,26 @@ function markImageAsFailed(id: PromoSlide['id']) {
   text-align: center;
 }
 
-.promo-swiper-pagination :deep(.swiper-pagination-bullet) {
+.promo-swiper-pagination__bullet {
   width: 7px;
   height: 7px;
-  margin: 0 !important;
+  border: 0;
+  border-radius: 999px;
+  padding: 0;
   background: var(--app-primary, #18a6e4);
   opacity: 0.25;
   transition: width 0.2s ease, opacity 0.2s ease;
 }
 
-.promo-swiper-pagination :deep(.swiper-pagination-bullet-active) {
+.promo-swiper-pagination__bullet.active {
   width: 18px;
-  border-radius: 999px;
   background: var(--app-primary, #18a6e4);
   opacity: 1;
 }
 
 @media (max-width: 420px) {
-  .promo-swiper,
-  .promo-slide {
-    min-height: 176px;
+  .promo-swiper :deep(.swiper-slide) {
+    width: 78%;
   }
 
   .promo-slide__caption {

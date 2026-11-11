@@ -1,9 +1,5 @@
 <template>
   <div class="container-fluid promo-detail">
-    <router-link :to="routes.Promo.List" class="promo-detail__back">
-      <SolarIcon name="alt-arrow-left" :size="18" /> Kembali ke Daftar Promo
-    </router-link>
-
     <div v-if="loading && !loaded" class="promo-detail__loading" role="status">
       <span class="spinner-border" aria-hidden="true"></span>
       <p>Memuat detail promo...</p>
@@ -17,7 +13,13 @@
     </section>
 
     <section v-else-if="!promo" class="promo-detail__state">
-      <span><MhjIcon name="action_promo_ticket" :size="34" /></span>
+      <span>
+        <SolarIcon
+          name="ticket-sale"
+          :size="34"
+          color="var(--app-primary, #18A6E4)"
+        />
+      </span>
       <h1>Promo tidak ditemukan</h1>
       <p>Promo mungkin sudah tidak tersedia atau tautannya tidak sesuai.</p>
       <router-link :to="routes.Promo.List">Lihat Promo Lainnya</router-link>
@@ -33,7 +35,11 @@
         />
         <div v-else class="promo-detail__fallback" aria-hidden="true">
           <i></i><i></i>
-          <MhjIcon name="action_promo_ticket" :size="60" />
+          <SolarIcon
+            name="ticket-sale"
+            :size="60"
+            color="var(--app-primary, #18A6E4)"
+          />
         </div>
         <span class="promo-detail__status" :class="`is-${status}`">
           <i></i>{{ promoStatusLabel(status) }}
@@ -78,7 +84,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import {
   formatPromoPeriod,
@@ -87,9 +93,12 @@ import {
   promoTargetLabel,
   usePromoCatalog,
 } from '@/composable/usePromoCatalog'
+import { usePageBackHandler } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
 
 const route = useRoute()
+const router = useRouter()
+usePageBackHandler(handleBack)
 const { publishedItems, loading, loaded, error, loadPromos } = usePromoCatalog()
 const imageFailed = ref(false)
 
@@ -97,14 +106,20 @@ const promoId = computed(() => Number(Array.isArray(route.params.id) ? route.par
 const promo = computed(() => publishedItems.value.find((item) => item.id === promoId.value) ?? null)
 const status = computed(() => promo.value ? promoPeriodStatus(promo.value) : 'active')
 
+function handleBack(): void {
+  if (window.history.state?.back) {
+    router.back()
+    return
+  }
+  void router.push(routes.Promo.List)
+}
+
 watch(promoId, () => { imageFailed.value = false })
 onMounted(() => void loadPromos(true))
 </script>
 
 <style scoped>
 .promo-detail { --promo-blue: var(--app-primary,#18a6e4); --promo-ink: #243240; padding-bottom: 36px; }
-.promo-detail__back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 15px; color: #627483; font-size: 11px; font-weight: 650; text-decoration: none; }
-.promo-detail__back:hover { color: var(--app-primary-dark, #0788bd); }
 .promo-detail__content { overflow: hidden; border: 1px solid #e0e8ed; border-radius: 18px; background: #fff; box-shadow: 0 8px 28px rgba(31,60,82,.08); }
 .promo-detail__cover { position: relative; overflow: hidden; width: 100%; height: clamp(240px,34vw,400px); background: var(--app-primary-wash, #e8f7fd); }
 .promo-detail__cover > img { display: block; width: 100%; height: 100%; object-fit: cover; }
