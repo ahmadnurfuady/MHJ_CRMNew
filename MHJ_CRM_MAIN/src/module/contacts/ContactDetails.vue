@@ -39,6 +39,21 @@
             <vue-feather type="x" size="15" />
           </button>
         </div>
+        <button
+          class="contact-refresh"
+          type="button"
+          aria-label="Muat ulang data kontak"
+          title="Muat ulang data"
+          :disabled="refreshing || contactApi.loading"
+          @click="handleRefresh"
+        >
+          <span
+            v-if="refreshing"
+            class="spinner-border spinner-border-sm"
+            aria-hidden="true"
+          ></span>
+          <vue-feather v-else type="refresh-cw" size="18" />
+        </button>
         <div ref="filterRoot" class="contact-filter">
           <button
             class="contact-filter__trigger"
@@ -398,9 +413,22 @@ const AddContactModal = defineAsyncComponent(
 const router = useRouter();
 const contactStore = useContact();
 const { contactState, contactApi, filteredContact } = storeToRefs(contactStore);
-const { openContactModal, searchContacts } = contactStore;
+const { openContactModal, searchContacts, refreshContacts } = contactStore;
 const { canAddContact } = useContactPermissions();
 const searchQuery = ref("");
+const refreshing = ref(false);
+
+/** Muat ulang daftar kontak dari endpoint (tombol "Muat ulang" di header). */
+async function handleRefresh() {
+  if (refreshing.value) return;
+  refreshing.value = true;
+  try {
+    await refreshContacts();
+    currentContactPage.value = 1;
+  } finally {
+    refreshing.value = false;
+  }
+}
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 
 // ── Filter user (dropdown) ──────────────────────────────────────────
@@ -717,8 +745,18 @@ function activityLabel(contact: Contact) {
   return contact.lastActivity || "";
 }
 
+/**
+ * Waktu aktivitas terakhir: tampilkan relatif ("1 hari lalu") sampai 7 hari,
+ * setelah itu tampilkan tanggalnya (mis. "03 Nov 2026") supaya "123 hari lalu"
+ * tidak sulit dibaca.
+ */
 function activityTime(contact: Contact) {
-  return contact.lastContactedAt ? timeAgo(contact.lastContactedAt) : "";
+  const value = contact.lastContactedAt;
+  if (!value) return "";
+  const date = parseContactDate(value);
+  if (!date) return "";
+  const diffInDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  return diffInDays > 7 ? formatContactDate(value) : timeAgo(value);
 }
 
 function activityTooltip(contact: Contact) {
@@ -831,12 +869,51 @@ onBeforeUnmount(() => {
 
 .contact-header-actions {
   display: grid;
-  grid-template-columns: minmax(260px, 420px) max-content max-content;
+  grid-template-columns: minmax(240px, 420px) max-content max-content max-content;
   width: 100%;
   min-width: 0;
   align-items: center;
   justify-content: end;
   gap: 10px;
+}
+
+.contact-refresh {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0;
+  background: #ffffff;
+  color: var(--app-primary, #18a6e4);
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.contact-refresh:hover:not(:disabled),
+.contact-refresh:focus-visible:not(:disabled) {
+  border-color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.07);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.contact-refresh:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.contact-refresh .spinner-border {
+  width: 18px;
+  height: 18px;
 }
 
 .contact-search {
@@ -1393,7 +1470,7 @@ onBeforeUnmount(() => {
   }
 
   .contact-header-actions {
-    grid-template-columns: minmax(0, 1fr) max-content max-content;
+    grid-template-columns: minmax(0, 1fr) max-content max-content max-content;
     justify-content: stretch;
   }
 

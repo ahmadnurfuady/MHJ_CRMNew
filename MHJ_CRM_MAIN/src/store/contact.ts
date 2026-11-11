@@ -885,6 +885,30 @@ export const useContact = defineStore("contact", () => {
     }
   }
 
+  /**
+   * Muat ulang daftar sesuai scope aktif tanpa mengubah filter/pencarian.
+   * Dipakai tombol "Muat ulang" di header daftar kontak/Faskes agar data
+   * (termasuk kolom agregat seperti jumlah peluang) ikut ter-refresh.
+   */
+  async function refreshContacts() {
+    if (scope.value === "contact") {
+      try {
+        await fetchAllRemoteContacts(contactApi.search || undefined);
+        syncRemoteContacts();
+      } catch {
+        notifyError(contactError.value ?? "Gagal memuat data kontak.");
+      }
+      return;
+    }
+
+    try {
+      await fetchAllHospitalsForList(hospitalSearch.value || undefined);
+      syncRemoteContacts();
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal memuat data Faskes.");
+    }
+  }
+
   /** Mencari kontak melalui endpoint list dan kembali ke halaman pertama. */
   async function searchContacts(query: string) {
     contactApi.search = query.trim();
@@ -1241,22 +1265,18 @@ export const useContact = defineStore("contact", () => {
         const raw = findContactRecord(response.data);
         const createdId = raw ? pickNumber(raw, "id", "ID") : 0;
 
-        if (createdId > 0) {
-          try {
-            const createdContact = await fetchRemoteContactById(createdId);
-            if (createdContact) applySavedContactPayload(createdContact, payload);
-            return createdContact;
-          } catch {
-            await fetchAllRemoteContacts(contactApi.search || undefined);
-            const createdContact = contactApi.items.find((item) => item.remoteId === createdId);
-            if (createdContact) applySavedContactPayload(createdContact, payload);
-            syncRemoteContacts();
-            return createdContact;
-          }
-        }
-
+        // Selalu muat ulang seluruh daftar dari sp_view_listcontact supaya kolom
+        // agregat (total_peluang, aktifitas_terakhir) pada kontak baru ikut terisi.
+        // Endpoint detail by-id tidak membawa kolom agregat itu, jadi kalau hanya
+        // mengandalkan detail, kolom Peluang & Aktivitas baris baru tampil kosong.
         await fetchAllRemoteContacts(contactApi.search || undefined);
         syncRemoteContacts();
+
+        if (createdId > 0) {
+          const createdContact = contactApi.items.find((item) => item.remoteId === createdId);
+          if (createdContact) applySavedContactPayload(createdContact, payload);
+          return createdContact;
+        }
         return undefined;
       },
     });
@@ -1855,6 +1875,7 @@ export const useContact = defineStore("contact", () => {
     searchHospitals,
     filterHospitalsByBranch,
     searchContacts,
+    refreshContacts,
     filteredContact,
     handleContact,
     editContact,
