@@ -139,7 +139,7 @@
                   autocomplete="off"
                 />
                 <span
-                  v-if="projectLoading"
+                  v-if="projectLoading || remoteSearching"
                   class="spinner-border spinner-border-sm project-search__loading"
                   aria-hidden="true"
                 ></span>
@@ -232,8 +232,7 @@
                 <span>{{ activeStageLabel }}</span>
               </div>
               <span class="project-result-count">
-                {{ formatTotal(filteredProjects.length) }} ditampilkan
-              </span>
+                {{ formatTotal(filteredProjects.length) }} ditampilkan              </span>
             </div>
             <div class="tab-content" id="top-tabContent">
               <div class="tab-pane fade show active">
@@ -258,7 +257,7 @@
                     />
                   </div>
                   <div
-                    v-if="!projectLoading && !filteredProjects.length"
+                    v-if="!projectLoading && !remoteSearching && !filteredProjects.length"
                     class="col-12 project-empty-state"
                   >
                     <MhjIcon name="action_folder" />
@@ -566,37 +565,56 @@ const activeStageLabel = computed(() =>
         ?.title || "Tahap peluang",
 );
 
-const filteredProjects = computed(() => {
-  const source = summaryProjects.value;
-  const query = searchQuery.value.trim().toLocaleLowerCase("id-ID");
-
+// Filter stage & owner di FE. Kata kunci pencarian TIDAK difilter di FE —
+// pencarian sepenuhnya dilakukan BE (sp_view_listproject_v2).
+function applyFilters(source: Projects[]): Projects[] {
   return source.filter((project) => {
     const matchesStage =
       activeTab.value === "all" || project.status === activeTab.value;
     const matchesOwner =
       ownerFilter.value === "all" || project.ownerName === ownerFilter.value;
-    const contactNames = (project.contacts ?? [])
-      .map((contact) => contact?.name ?? "")
-      .filter((name) => name.trim() !== "");
-    const primaryContactName = contactNames[0] ?? project.contactName ?? "";
-    const searchableValues: Array<string | number | undefined> = [
-      project.projectName,
-      project.productNames,
-      project.companyName,
-      project.ownerName,
-      primaryContactName,
-      ...contactNames,
-    ];
-    const matchesSearch =
-      !query ||
-      searchableValues.some((value) =>
-        String(value || "")
-          .toLocaleLowerCase("id-ID")
-          .includes(query),
-      );
-    return matchesStage && matchesOwner && matchesSearch;
+    return matchesStage && matchesOwner;
   });
+}
+
+// ── Pencarian via BE ───────────────────────────────────────────────────────
+// Setiap kata kunci dikirim ke GET /api/project?search=... (debounce supaya
+// tidak memanggil API di setiap ketikan). Kosong → kembali ke daftar awal.
+const SEARCH_DEBOUNCE_MS = 400;
+const SEARCH_LIMIT = 1000;
+const searchResults = ref<Projects[]>([]);
+const remoteSearching = ref(false);
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+let searchSeq = 0;
+
+const activeKeyword = computed(() => searchQuery.value.trim());
+
+watch(activeKeyword, (keyword) => {
+  clearTimeout(searchTimer);
+  const seq = ++searchSeq;
+  searchResults.value = [];
+
+  if (!keyword) {
+    remoteSearching.value = false;
+    return;
+  }
+
+  remoteSearching.value = true;
+  searchTimer = setTimeout(async () => {
+    try {
+      const results = await projectStore.searchProjects(keyword, SEARCH_LIMIT);
+      if (seq === searchSeq) searchResults.value = results;
+    } catch (error) {
+      console.warn("Gagal mencari peluang:", error);
+    } finally {
+      if (seq === searchSeq) remoteSearching.value = false;
+    }
+  }, SEARCH_DEBOUNCE_MS);
 });
+
+const filteredProjects = computed(() =>
+  applyFilters(activeKeyword.value ? searchResults.value : summaryProjects.value),
+);
 
 
 function formatTotal(total: number) {

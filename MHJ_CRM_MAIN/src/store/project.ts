@@ -540,6 +540,17 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  /**
+   * Cari peluang langsung ke BE (GET /api/project?search=...). Dipakai sebagai
+   * fallback ketika kata kunci tidak ditemukan di data yang sudah dimuat.
+   * Sengaja tidak mengubah state store (items/summary/ringkasan/pagination).
+   */
+  async function searchProjects(search: string, perPage = 100): Promise<Projects[]> {
+    const response = await api.getbydata(ENDPOINT, { page: 1, per_page: perPage, search })
+    const { items: rawItems } = extractList(response.data, ['deals', 'projects', 'companies'])
+    return rawItems.filter(isRecord).map(normalizeProject)
+  }
+
   /** GET /api/project/fetchprojectbyid. */
   function fetchProjectById(id: number) {
     return runApiAction({
@@ -941,6 +952,7 @@ export const useProjectStore = defineStore('project', () => {
     closeCreateModal,
     fetchProjects,
     fetchProjectSummary,
+    searchProjects,
     fetchProjectLeaders,
     fetchOwnerCandidates,
     fetchProjectById,
