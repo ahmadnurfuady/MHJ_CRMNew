@@ -812,6 +812,28 @@ let allowModalClose = false;
 let confirmingModalClose = false;
 let navigatingAway = false;
 
+// Dropdown form (faskes, kontak, divisi, produk, peluang) di-hit sekali saja dan
+// hanya saat modal dibuka — bukan saat halaman detail dibuka — supaya membuka
+// detail tugas tidak ikut memanggil endpoint-endpoint khusus form ini.
+let lookupsLoaded = false;
+let lookupsRequest: Promise<unknown> | null = null;
+function ensureTaskFormLookups() {
+  if (lookupsLoaded) return Promise.resolve();
+  if (!lookupsRequest) {
+    lookupsRequest = Promise.resolve(taskStore.fetchTaskFormLookups())
+      .then((result) => {
+        lookupsLoaded = true;
+        return result;
+      })
+      .catch((error) => {
+        // Reset supaya pembukaan modal berikutnya bisa mencoba memuat ulang.
+        lookupsRequest = null;
+        throw error;
+      });
+  }
+  return lookupsRequest;
+}
+
 const formMeta = computed(() =>
   taskType.value === "sales"
     ? {
@@ -2062,7 +2084,7 @@ function handleModalHidden() {
   resetForm();
 }
 
-function handleModalShow() {
+async function handleModalShow() {
   const allowed = isEditing.value ? canEditTask.value : canAddTask.value;
   if (!allowed) {
     const modalElement = document.getElementById(modalId.value);
@@ -2074,17 +2096,29 @@ function handleModalShow() {
   refreshMinimumSchedule();
   // Siapkan lokasi watermark begitu form dibuka (baik tugas baru maupun edit).
   void primePhotoLocation();
-  if (!props.task) return;
+  // Muat opsi dropdown form tepat saat modal dibuka. Untuk tugas baru tidak perlu
+  // ditunggu (field mulai kosong), untuk edit harus selesai dulu sebelum hydrate.
+  const lookupsReady = ensureTaskFormLookups();
+  if (!props.task) {
+    void lookupsReady;
+    return;
+  }
   editModalOpen = true;
   allowModalClose = false;
   navigatingAway = false;
-  void hydrateForm(props.task);
   if (String(route.query.edit ?? "") !== "1") {
     void router.push({
       path: routes.App.Task,
       query: { ...route.query, edit: "1" },
     });
   }
+  try {
+    await lookupsReady;
+  } catch {
+    // Error sudah ditangani di store (state error); tetap lanjut hydrate dengan
+    // data yang ada supaya form tidak macet.
+  }
+  await hydrateForm(props.task);
 }
 
 /** True kalau user sudah mengisi minimal satu field selain default awal. */
@@ -2185,17 +2219,16 @@ function warnBeforeUnload(event: BeforeUnloadEvent) {
   event.returnValue = "";
 }
 
-onMounted(async () => {
-  const requests: Promise<unknown>[] = [];
-  // Semua dropdown form (faskes, kontak, divisi, produk, peluang) dimuat dari
-  // endpoint khusus task dalam satu aksi, bukan dari store global.
-  requests.push(taskStore.fetchTaskFormLookups());
+onMounted(() => {
+  // Dropdown form TIDAK di-hit di sini. Endpoint lookup hanya dipanggil saat modal
+  // benar-benar dibuka (lihat handleModalShow), sehingga membuka halaman detail
+  // tugas tidak ikut memicu endpoint faskes/kontak/divisi/produk/peluang.
   const modalElement = document.getElementById(modalId.value);
   modalElement?.addEventListener("hide.bs.modal", handleModalHide);
   modalElement?.addEventListener("hidden.bs.modal", handleModalHidden);
   modalElement?.addEventListener("show.bs.modal", handleModalShow);
-  await Promise.allSettled(requests);
-  if (props.task) await hydrateForm(props.task);
+  // Deep-link ke mode edit (?edit=1): cukup tampilkan modal; event "show.bs.modal"
+  // akan memuat lookups lalu hydrate form lewat handleModalShow.
   if (
     props.task &&
     canEditTask.value &&
