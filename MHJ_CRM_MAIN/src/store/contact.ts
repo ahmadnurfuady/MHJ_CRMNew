@@ -1852,6 +1852,9 @@ export const useContact = defineStore("contact", () => {
     changeContactPage,
     searchHospitals,
     filterHospitals,
+    // Diekspос agar komponen bisa memulihkan tampilan filter (badge/jumlah)
+    // setelah remount, mis. kembali dari halaman detail Faskes.
+    hospitalListFilters,
     searchContacts,
     refreshContacts,
     filteredContact,

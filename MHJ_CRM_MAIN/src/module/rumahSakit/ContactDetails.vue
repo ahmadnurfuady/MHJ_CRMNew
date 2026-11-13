@@ -91,7 +91,7 @@
               </div>
               <div v-else-if="filterError" class="hospital-filter__state hospital-filter__state--error">
                 <span>{{ filterError }}</span>
-                <button type="button" @click="loadFilterOptions">Coba Lagi</button>
+                <button type="button" @click="loadFilterOptions()">Coba Lagi</button>
               </div>
               <fieldset v-for="group in filterGroups" v-else :key="group.key">
                 <legend>{{ group.label }}</legend>
@@ -100,9 +100,9 @@
                     v-for="option in filterOptions[group.key]"
                     :key="`${group.key}-${option.value}`"
                     type="button"
-                    :class="{ active: draftFilters[group.key] === option.value }"
+                    :class="{ active: isOptionActive(group.key, option.value) }"
                     :title="option.label"
-                    @click="draftFilters[group.key] = option.value"
+                    @click="selectFilter(group.key, option.value)"
                   >
                     <span>{{ option.label }}</span>
                     <small v-if="option.count !== null">{{ formatTotal(option.count) }}</small>
@@ -386,7 +386,8 @@ type FilterKey =
   | "provinsi"
   | "kota";
 interface FilterOption { value: string; label: string; count: number | null }
-type FilterSelection = Record<FilterKey, string>;
+// Multi-pilih: tiap grup menyimpan daftar value terpilih. Array kosong = "Semua".
+type FilterSelection = Record<FilterKey, string[]>;
 type FilterOptions = Record<FilterKey, FilterOption[]>;
 
 const filterGroups: Array<{ key: FilterKey; label: string }> = [
@@ -400,10 +401,15 @@ const filterGroups: Array<{ key: FilterKey; label: string }> = [
   { key: "kota", label: "Kota / Kabupaten" },
 ];
 function createDefaultFilters(): FilterSelection {
-  return { installed_base: "all", visit_urgency: "all", grading: "all", tipe_rs: "all", penyelenggara: "all", cabang: "all", provinsi: "all", kota: "all" };
+  return { installed_base: [], visit_urgency: [], grading: [], tipe_rs: [], penyelenggara: [], cabang: [], provinsi: [], kota: [] };
 }
 function createEmptyFilterOptions(): FilterOptions {
   return { installed_base: [], visit_urgency: [], grading: [], tipe_rs: [], penyelenggara: [], cabang: [], provinsi: [], kota: [] };
+}
+function cloneFilters(source: FilterSelection): FilterSelection {
+  return Object.fromEntries(
+    Object.entries(source).map(([key, values]) => [key, [...values]]),
+  ) as FilterSelection;
 }
 const filterRoot = ref<HTMLElement | null>(null);
 const filterOpen = ref(false);
@@ -412,7 +418,40 @@ const filterError = ref("");
 const filterOptions = ref<FilterOptions>(createEmptyFilterOptions());
 const appliedFilters = ref<FilterSelection>(createDefaultFilters());
 const draftFilters = ref<FilterSelection>(createDefaultFilters());
-const activeFilterCount = computed(() => Object.values(appliedFilters.value).filter((value) => value !== "all").length);
+const activeFilterCount = computed(() => Object.values(appliedFilters.value).filter((values) => values.length > 0).length);
+
+/** Chip aktif: "Semua" (value 'all') aktif saat grup kosong; selain itu saat value ada di daftar terpilih. */
+function isOptionActive(key: FilterKey, value: string): boolean {
+  const selected = draftFilters.value[key];
+  return value === "all" ? selected.length === 0 : selected.includes(value);
+}
+
+/**
+ * Pulihkan tampilan filter (badge jumlah & chip terpilih) dari filter yang masih
+ * tersimpan di store. Dipanggil saat mount supaya saat komponen di-remount (mis.
+ * kembali dari halaman detail Faskes) badge tidak hilang walau datanya memang
+ * masih terfilter. Store menyimpan nilai sebagai CSV; cabang ada di kode_cabang.
+ */
+function restoreFiltersFromStore() {
+  const stored = contactStore.hospitalListFilters;
+  if (!stored) return;
+  const split = (value: unknown): string[] =>
+    value === undefined || value === null || value === ""
+      ? []
+      : String(value).split(",").map((item) => item.trim()).filter(Boolean);
+  const restored: FilterSelection = {
+    installed_base: split(stored.installed_base),
+    visit_urgency: split(stored.visit_urgency),
+    grading: split(stored.grading),
+    tipe_rs: split(stored.tipe_rs),
+    penyelenggara: split(stored.penyelenggara),
+    cabang: split(stored.kode_cabang),
+    provinsi: split(stored.provinsi),
+    kota: split(stored.kota),
+  };
+  appliedFilters.value = restored;
+  draftFilters.value = cloneFilters(restored);
+}
 
 function optionCount(raw: Record<string, unknown>): number | null {
   const value = raw.hospital_count ?? raw.total_faskes;
@@ -420,11 +459,21 @@ function optionCount(raw: Record<string, unknown>): number | null {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
-async function loadFilterOptions() {
-  filterLoading.value = true;
+async function loadFilterOptions(options: { background?: boolean } = {}) {
+  // Cascading: kirim cabang & provinsi yang sedang dipilih supaya BE mengembalikan
+  // daftar provinsi (sesuai cabang) & kota (sesuai provinsi) beserta jumlahnya.
+  const params: Record<string, string> = {};
+  if (draftFilters.value.cabang.length)
+    params.cabang = draftFilters.value.cabang.join(",");
+  if (draftFilters.value.provinsi.length)
+    params.provinsi = draftFilters.value.provinsi.join(",");
+
+  // background = true dipakai saat reload akibat ganti cabang/provinsi, supaya
+  // chip yang sudah tampil tidak hilang diganti state "Memuat...".
+  if (!options.background) filterLoading.value = true;
   filterError.value = "";
   try {
-    const response = await api.get("company/filters");
+    const response = await api.getbydata("company/filters", params);
     const payload = isRecord(response.data) && isRecord(response.data.data) ? response.data.data : response.data;
     if (!isRecord(payload)) throw new Error("Format opsi filter tidak valid.");
     const nextOptions = createEmptyFilterOptions();
@@ -446,37 +495,71 @@ async function loadFilterOptions() {
     console.error("Gagal memuat opsi filter Faskes.", error);
     filterError.value = "Pilihan filter gagal dimuat.";
   } finally {
-    filterLoading.value = false;
+    if (!options.background) filterLoading.value = false;
+  }
+}
+
+/**
+ * Pilih satu opsi filter. Untuk cabang & provinsi, pemilihan memicu reload opsi
+ * (cascading): ganti cabang -> reset & muat ulang provinsi + kota; ganti provinsi
+ * -> reset & muat ulang kota. Group lain cukup set nilainya.
+ */
+function selectFilter(key: FilterKey, value: string) {
+  const selected = draftFilters.value[key];
+  if (value === "all") {
+    // "Semua" = bersihkan pilihan grup ini.
+    if (!selected.length) return;
+    draftFilters.value[key] = [];
+  } else {
+    // Toggle: tambah bila belum ada, buang bila sudah terpilih (multi-pilih).
+    draftFilters.value[key] = selected.includes(value)
+      ? selected.filter((item) => item !== value)
+      : [...selected, value];
+  }
+  if (key === "cabang") {
+    draftFilters.value.provinsi = [];
+    draftFilters.value.kota = [];
+    void loadFilterOptions({ background: true });
+  } else if (key === "provinsi") {
+    draftFilters.value.kota = [];
+    void loadFilterOptions({ background: true });
   }
 }
 function toggleFilter() {
   if (filterOpen.value) return cancelFilter();
-  draftFilters.value = { ...appliedFilters.value };
+  draftFilters.value = cloneFilters(appliedFilters.value);
   filterOpen.value = true;
-  if (!filterOptions.value.installed_base.length && !filterLoading.value) void loadFilterOptions();
+  if (filterLoading.value) return;
+  // Muat ulang tiap kali dibuka supaya daftar provinsi/kota sinkron dengan cabang/
+  // provinsi yang sedang diterapkan. Hanya pemuatan pertama yang menampilkan state
+  // "Memuat..."; berikutnya di-background agar chip tidak berkedip.
+  const firstLoad = !filterOptions.value.installed_base.length;
+  void loadFilterOptions({ background: !firstLoad });
 }
 function resetFilters() {
-  const defaults = createDefaultFilters();
-  draftFilters.value = { ...defaults };
-  appliedFilters.value = { ...defaults };
+  draftFilters.value = createDefaultFilters();
+  appliedFilters.value = createDefaultFilters();
   hospitalPage.value = 1;
   void filterHospitals({ kode_cabang: "" });
+  // Kembalikan daftar provinsi/kota ke penuh (tanpa scope cabang/provinsi).
+  void loadFilterOptions({ background: true });
 }
-function cancelFilter() { filterOpen.value = false; draftFilters.value = { ...appliedFilters.value }; }
+function cancelFilter() { filterOpen.value = false; draftFilters.value = cloneFilters(appliedFilters.value); }
 function applyFilters() {
-  appliedFilters.value = { ...draftFilters.value };
+  appliedFilters.value = cloneFilters(draftFilters.value);
   filterOpen.value = false;
   hospitalPage.value = 1;
   const filters = appliedFilters.value;
+  // Multi-pilih dikirim sebagai CSV (mis. "Bali,Jawa Timur"); array kosong = tanpa filter.
   void filterHospitals({
-    ...(filters.installed_base !== "all" ? { installed_base: filters.installed_base } : {}),
-    ...(filters.visit_urgency !== "all" ? { visit_urgency: filters.visit_urgency } : {}),
-    ...(filters.grading !== "all" ? { grading: filters.grading } : {}),
-    ...(filters.tipe_rs !== "all" ? { tipe_rs: filters.tipe_rs } : {}),
-    ...(filters.penyelenggara !== "all" ? { penyelenggara: filters.penyelenggara } : {}),
-    kode_cabang: filters.cabang === "all" ? "" : filters.cabang,
-    ...(filters.provinsi !== "all" ? { provinsi: filters.provinsi } : {}),
-    ...(filters.kota !== "all" ? { kota: filters.kota } : {}),
+    ...(filters.installed_base.length ? { installed_base: filters.installed_base.join(",") } : {}),
+    ...(filters.visit_urgency.length ? { visit_urgency: filters.visit_urgency.join(",") } : {}),
+    ...(filters.grading.length ? { grading: filters.grading.join(",") } : {}),
+    ...(filters.tipe_rs.length ? { tipe_rs: filters.tipe_rs.join(",") } : {}),
+    ...(filters.penyelenggara.length ? { penyelenggara: filters.penyelenggara.join(",") } : {}),
+    kode_cabang: filters.cabang.length ? filters.cabang.join(",") : "",
+    ...(filters.provinsi.length ? { provinsi: filters.provinsi.join(",") } : {}),
+    ...(filters.kota.length ? { kota: filters.kota.join(",") } : {}),
   });
 }
 function onClickOutsideFilter(event: MouseEvent) {
@@ -683,6 +766,8 @@ function openHospitalDetail(
 
 onMounted(() => {
   contactStore.initStore();
+  // Pulihkan badge/chip filter dari store (bertahan walau komponen remount).
+  restoreFiltersFromStore();
   void loadFilterOptions();
   document.addEventListener("click", onClickOutsideFilter);
 });
