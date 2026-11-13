@@ -1980,6 +1980,12 @@ async function submitTask() {
     scheduledAt: form.scheduledAt,
     divisions: selectedDivisions.value.map((item) => String(item.label)),
     products: selectedProducts.value.map((item) => String(item.label)),
+    // Kirim pasangan kode+nama untuk tabel anak task_barangs di BE. value produk =
+    // KodeBrg, label = NamaBrg (dari taskStore.lookups.produk).
+    productItems: selectedProducts.value.map((item) => ({
+      kode: String(item.value ?? ""),
+      nama: String(item.label ?? ""),
+    })),
     unrelatedProduct: form.unrelatedProduct,
     stageFrom: form.hasProject
       ? (project?.status ?? props.task?.stageFrom ?? "")

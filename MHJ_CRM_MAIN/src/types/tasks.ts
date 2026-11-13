@@ -60,6 +60,8 @@ export interface TaskPayload {
   scheduledAt: string
   divisions: string[]
   products: string[]
+  /** Pasangan kode+nama produk terpilih; dikirim ke BE untuk tabel anak task_barangs. */
+  productItems: { kode: string; nama: string }[]
   unrelatedProduct: boolean
   stageFrom: string
   stageTo: string

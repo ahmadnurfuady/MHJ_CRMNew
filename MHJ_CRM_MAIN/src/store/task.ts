@@ -222,6 +222,11 @@ function buildTaskRequestData(
     product: payload.unrelatedProduct
       ? 'Tidak terkait produk'
       : nullableText(payload.products.join(', ')),
+    // Detail produk (kode+nama) untuk tabel anak task_barangs. Saat "tidak terkait
+    // produk" kirim array kosong supaya BE menghapus baris produk lama task ini.
+    product_items: JSON.stringify(
+      payload.unrelatedProduct ? [] : (payload.productItems ?? []),
+    ),
     pipeline_stage_from: nullableText(payload.stageFrom),
     pipeline_stage: nullableText(payload.stageTo),
     category: nullableText(payload.category),
