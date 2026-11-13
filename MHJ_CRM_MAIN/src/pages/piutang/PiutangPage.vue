@@ -43,11 +43,11 @@
         <p>Memuat data piutang...</p>
       </div>
 
-      <div v-else-if="filteredPiutang.length" class="piutang-list" role="tabpanel">
-        <PiutangCard
-          v-for="item in pagedPiutang"
-          :key="item.id"
-          :piutang="item"
+      <div v-else-if="groupedPiutang.length" class="piutang-list" role="tabpanel">
+        <PiutangGroupCard
+          v-for="group in pagedGroups"
+          :key="group.faskes"
+          :group="group"
           :source-tab="activeTab"
         />
       </div>
@@ -66,7 +66,7 @@
       </div>
 
       <ListPagination
-        v-if="filteredPiutang.length"
+        v-if="groupedPiutang.length"
         v-model="currentPage"
         class="piutang-pagination"
         :total-pages="totalPages"
@@ -84,7 +84,8 @@ import { useRoute, useRouter } from 'vue-router'
 import ListPagination from '@/components/shared/ListPagination.vue'
 import Card from '@/components/shared/card/Card.vue'
 import { usePageBackRoute, usePageTitle } from '@/composable/usePageHeader'
-import PiutangCard from '@/pages/piutang/components/PiutangCard.vue'
+import PiutangGroupCard from '@/pages/piutang/components/PiutangGroupCard.vue'
+import type { PiutangGroup } from '@/pages/piutang/components/PiutangGroupCard.vue'
 import PiutangDetailPreview from '@/pages/piutang/PiutangDetailPreview.vue'
 import { routes } from '@/router/routes'
 import { fetchPiutangList } from '@/services/piutangService'
@@ -159,10 +160,30 @@ const activeTab = ref<PiutangStatus>(
 const filteredPiutang = computed(() =>
   piutangData.value.filter((piutang) => piutang.status === activeTab.value),
 )
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredPiutang.value.length / PAGE_SIZE)))
-const pagedPiutang = computed(() => {
+
+// Kelompokkan nota/faktur per faskes: satu faskes = satu kartu, nota-notanya
+// jadi list di dalam kartu (mengikuti pola UI APK). Urutan grup mengikuti
+// kemunculan pertama faskes pada data. Pagination dihitung per grup, bukan
+// per nota, supaya satu faskes tidak terbelah antar halaman.
+const groupedPiutang = computed<PiutangGroup[]>(() => {
+  const groups = new Map<string, PiutangGroup>()
+  for (const item of filteredPiutang.value) {
+    const key = item.faskes || '—'
+    const existing = groups.get(key)
+    if (existing) {
+      existing.items.push(item)
+      existing.total += item.totalPiutang
+    } else {
+      groups.set(key, { faskes: item.faskes, items: [item], total: item.totalPiutang })
+    }
+  }
+  return [...groups.values()]
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(groupedPiutang.value.length / PAGE_SIZE)))
+const pagedGroups = computed(() => {
   const start = (currentPage.value - 1) * PAGE_SIZE
-  return filteredPiutang.value.slice(start, start + PAGE_SIZE)
+  return groupedPiutang.value.slice(start, start + PAGE_SIZE)
 })
 
 function countByStatus(status: PiutangStatus): number {
@@ -337,12 +358,6 @@ watch(
 :global(body.dark-only) .piutang-page :deep(.piutang-panel) {
   border-color: var(--bs-border-color, #34404c);
   box-shadow: none;
-}
-
-@media (min-width: 1200px) {
-  .piutang-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 575.98px) {
