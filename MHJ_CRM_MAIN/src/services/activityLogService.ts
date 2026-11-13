@@ -12,7 +12,7 @@ export type ActivityLogEntity =
 export type ActivityLogRawAction = string
 
 /** Action yang sudah dinormalkan untuk pemakaian FE. */
-export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'pic' | 'other'
+export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'pic' | 'kunjungan' | 'other'
 
 export interface ActivityLogRow {
   id: number
@@ -137,9 +137,10 @@ function buildActivityTitle(entity: ActivityLogEntity, action: NormalizedAction,
   }
   const bucket = base[entity]
   if (!bucket) return 'Aktivitas tercatat'
-  // 'pic' ditangani khusus di activityToTimelineItem (tidak pernah sampai sini),
-  // tapi tetap di-guard agar tipe `action` menyempit ke i|u|d|r untuk indexing.
-  if (action === 'other' || action === 'pic') return 'Aktivitas tercatat'
+  // 'pic' & 'kunjungan' ditangani khusus di activityToTimelineItem (tidak pernah
+  // sampai sini), tapi tetap di-guard agar tipe `action` menyempit ke i|u|d|r
+  // untuk indexing bucket.
+  if (action === 'other' || action === 'pic' || action === 'kunjungan') return 'Aktivitas tercatat'
   return bucket[action] ?? 'Aktivitas tercatat'
 }
 
@@ -195,6 +196,26 @@ function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow):
     }
   }
 
+  // Aktivitas sintetik "Kunjungan" (entity faskes): action 'kunjungan' dengan
+  // details { task_id, task_name }. Dibedakan di sini supaya judulnya memakai
+  // nama tugas, bukan "Aktivitas tercatat". Row ini tidak punya id activity_logs.
+  if ((row.action || '').toString().trim().toLowerCase() === 'kunjungan') {
+    const info = parseActivityDetails(row.details) as unknown as Record<string, unknown>
+    const taskName = typeof info.task_name === 'string' ? info.task_name.trim() : ''
+    const taskId = info.task_id
+    return {
+      key: row.id != null
+        ? `a-${row.id}`
+        : `visit-${row.entity_id}-${String(taskId ?? '')}-${row.created_at}`,
+      kind: 'activity',
+      type: 'kunjungan',
+      title: taskName ? `Kunjungan: ${taskName}` : 'Kunjungan ke Faskes',
+      authorName: row.user_name || 'Pengguna sistem',
+      createdAt: row.created_at,
+      source: normalizeSource(row.frmdvc),
+    }
+  }
+
   const action = normalizeAction(row.action)
   const details = parseActivityDetails(row.details)
   return {
@@ -244,6 +265,8 @@ export function timelineIcon(type: TimelineItem['type']): string {
       return 'eye'
     case 'pic':
       return 'briefcase'
+    case 'kunjungan':
+      return 'map-pin'
     default:
       return 'activity'
   }
@@ -261,6 +284,8 @@ export function timelineTone(type: TimelineItem['type']): 'success' | 'warning' 
       return 'muted'
     case 'pic':
       return 'info'
+    case 'kunjungan':
+      return 'success'
     default:
       return 'muted'
   }
