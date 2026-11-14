@@ -11,17 +11,14 @@ import {
   type Dict,
 } from '@/api/response'
 import type { ListParams, Pagination } from '@/types/api'
-import type {
-  Hospital,
-  HospitalContactAssociation,
-  HospitalPayload,
-} from '@/types/hospital'
+import type { Hospital, HospitalContactAssociation, HospitalPayload } from '@/types/hospital'
 import type { Projects } from '@/types/project'
 import type { Contact } from '@/types/contacts'
 import { normalizeProject } from '@/store/project'
 import { normalizeApiContact } from '@/store/contact'
 import { runApiAction } from '@/store/apiAction'
 import { canHospital } from '@/module/rumahSakit/hospitalPermission'
+import { activityToTimelineItem, type ActivityLogRow, type TimelineItem } from '@/services/activityLogService'
 
 // Rumah Sakit memakai endpoint Company di backend (nama endpoint tidak diganti).
 const ENDPOINT = 'company'
@@ -36,9 +33,10 @@ function pickOptionalNumber(raw: Dict, ...keys: string[]): number | undefined {
 
 /** Mendukung koordinat langsung maupun object bersarang seperti coordinates/location. */
 function pickCoordinate(raw: Dict, axis: 'latitude' | 'longitude'): number | undefined {
-  const directKeys = axis === 'latitude'
-    ? ['Latitude', 'latitude', 'lat', 'Lat', 'LAT', 'coordinate_lat', 'coordinate_latitude']
-    : ['Longitude', 'longitude', 'lng', 'Lng', 'LNG', 'lon', 'long', 'coordinate_lng', 'coordinate_longitude']
+  const directKeys =
+    axis === 'latitude'
+      ? ['Latitude', 'latitude', 'lat', 'Lat', 'LAT', 'coordinate_lat', 'coordinate_latitude']
+      : ['Longitude', 'longitude', 'lng', 'Lng', 'LNG', 'lon', 'long', 'coordinate_lng', 'coordinate_longitude']
   const direct = pickOptionalNumber(raw, ...directKeys)
   if (direct !== undefined) return direct
 
@@ -75,6 +73,47 @@ function findCompanyRecord(payload: unknown, depth = 0): Dict | null {
   }
 
   return null
+}
+
+/** Mengambil array bernama tertentu tanpa fallback ke array company utama. */
+function findNamedList(payload: unknown, keys: string[], depth = 0): unknown[] {
+  if (!isRecord(payload) || depth > 4) return []
+
+  const normalizedKeys = new Set(keys.map((key) => key.toLowerCase()))
+  for (const [key, value] of Object.entries(payload)) {
+    if (!normalizedKeys.has(key.toLowerCase())) continue
+    if (Array.isArray(value)) return value
+    if (isRecord(value) && Array.isArray(value.data)) return value.data
+  }
+
+  for (const key of ['data', 'company', 'companies', 'item']) {
+    const nested = payload[key]
+    if (isRecord(nested)) {
+      const found = findNamedList(nested, keys, depth + 1)
+      if (found.length) return found
+    }
+  }
+  return []
+}
+
+function normalizeActivityDetails(value: unknown): string | null {
+  if (value === undefined || value === null || value === '') return null
+  return typeof value === 'string' ? value : JSON.stringify(value)
+}
+
+function normalizeHospitalActivity(raw: Dict, companyId: number): ActivityLogRow {
+  const userId = pickOptionalNumber(raw, 'user_id', 'userId', 'created_by', 'created_by_id')
+  return {
+    id: pickNumber(raw, 'id', 'ID', 'activity_id', 'log_id'),
+    user_id: userId ?? null,
+    user_name: pickString(raw, 'user_name', 'userName', 'created_by_name', 'author_name', 'author') || null,
+    action: pickString(raw, 'action', 'activity', 'activity_type', 'type'),
+    entity_name: pickString(raw, 'entity_name', 'entityName') || 'companies',
+    entity_id: pickOptionalNumber(raw, 'entity_id', 'entityId', 'company_id') ?? companyId,
+    details: normalizeActivityDetails(pick(raw, 'details', 'detail', 'activity_details')),
+    frmdvc: pickString(raw, 'frmdvc', 'source', 'device') || null,
+    created_at: pickString(raw, 'created_at', 'createdAt', 'activity_date', 'date', 'timestamp'),
+  }
 }
 
 /**
@@ -125,12 +164,7 @@ export function normalizeHospital(raw: Dict): Hospital {
       'rs_class',
       'class_name',
     ),
-    financialGrade: pickString(
-      raw,
-      'financial_grade',
-      'financialGrade',
-      'Financial Grade',
-    ),
+    financialGrade: pickString(raw, 'financial_grade', 'financialGrade', 'Financial Grade'),
     hospitalType: pickString(
       raw,
       'Hospital Type',
@@ -144,17 +178,7 @@ export function normalizeHospital(raw: Dict): Hospital {
       'type_name',
     ),
     jenis: pickString(raw, 'Jenis', 'jenis', 'jenis_rs_name', 'jenis_rs', 'Industry', 'industry', 'industry_name'),
-    tipe: pickString(
-      raw,
-      'Tipe',
-      'tipe',
-      'tipe_rs_name',
-      'tipe_rs',
-      'Type',
-      'type',
-      'Hospital Type',
-      'hospital_type',
-    ),
+    tipe: pickString(raw, 'Tipe', 'tipe', 'tipe_rs_name', 'tipe_rs', 'Type', 'type', 'Hospital Type', 'hospital_type'),
     penyelenggara: pickString(
       raw,
       'Penyelenggara',
@@ -270,12 +294,14 @@ function hospitalMatchesPayload(hospital: Hospital, payload: HospitalPayload): b
     ['sirs', 'sirs'],
   ]
 
-  return textFields.every(([hospitalKey, payloadKey]) => {
-    const expected = payload[payloadKey]
-    return expected === undefined || normalizedText(hospital[hospitalKey]) === normalizedText(expected)
-  })
-    && sameCoordinate(hospital.latitude, payload.latitude)
-    && sameCoordinate(hospital.longitude, payload.longitude)
+  return (
+    textFields.every(([hospitalKey, payloadKey]) => {
+      const expected = payload[payloadKey]
+      return expected === undefined || normalizedText(hospital[hospitalKey]) === normalizedText(expected)
+    }) &&
+    sameCoordinate(hospital.latitude, payload.latitude) &&
+    sameCoordinate(hospital.longitude, payload.longitude)
+  )
 }
 
 export const useHospitalStore = defineStore('hospital', () => {
@@ -284,11 +310,17 @@ export const useHospitalStore = defineStore('hospital', () => {
   const contactAssociations = ref<HospitalContactAssociation[]>([])
   const detailProjects = ref<Projects[]>([])
   const detailContacts = ref<Contact[]>([])
+  const detailActivities = ref<TimelineItem[]>([])
   const loading = ref(false)
   const detailLoading = ref(false)
   const submitting = ref(false)
   const error = ref<string | null>(null)
-  const pagination = reactive<Pagination>({ page: 1, perPage: 10, total: 0, lastPage: 1 })
+  const pagination = reactive<Pagination>({
+    page: 1,
+    perPage: 10,
+    total: 0,
+    lastPage: 1,
+  })
   const lastParams = ref<ListParams>({})
 
   /**
@@ -338,12 +370,12 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal memuat detail Faskes.',
       task: async () => {
-        const response = await api.getbydata(`${ENDPOINT}/fetchcompanybyid`, { id })
+        const response = await api.getbydata(`${ENDPOINT}/fetchcompanybyid`, {
+          id,
+        })
         const raw = findCompanyRecord(response.data)
         const { items: rawContacts } = extractList(response.data, ['contactassoc'])
-        const normalizedContacts = rawContacts
-          .filter(isRecord)
-          .map(normalizeContactAssociation)
+        const normalizedContacts = rawContacts.filter(isRecord).map(normalizeContactAssociation)
         contactAssociations.value = normalizedContacts
         selectedItem.value = raw ? normalizeHospital(raw) : null
 
@@ -353,11 +385,29 @@ export const useHospitalStore = defineStore('hospital', () => {
         const { items: rawApiContacts } = extractList(response.data, ['contacts'])
         detailContacts.value = rawApiContacts.filter(isRecord).map(normalizeApiContact)
 
+        const rawActivities = findNamedList(response.data, [
+          'activities',
+          'activity_logs',
+          'activitylogs',
+          'activityassoc',
+          'activitiesassoc',
+          'aktifitas',
+          'aktivitas',
+        ])
+        detailActivities.value = rawActivities
+          .filter(isRecord)
+          .map((activity) => activityToTimelineItem('companies', normalizeHospitalActivity(activity, id)))
+          .sort((left, right) => {
+            const leftTime = new Date(left.createdAt).getTime() || 0
+            const rightTime = new Date(right.createdAt).getTime() || 0
+            return rightTime - leftTime
+          })
+
         // Sebagian response detail menyimpan koordinat hanya pada contactassoc.
         // Gunakan koordinat asosiasi sebagai fallback yang sama seperti halaman detail RS.
         if (
-          selectedItem.value
-          && (selectedItem.value.latitude === undefined || selectedItem.value.longitude === undefined)
+          selectedItem.value &&
+          (selectedItem.value.latitude === undefined || selectedItem.value.longitude === undefined)
         ) {
           const locationFallback = normalizedContacts.find(
             (contact) => contact.latitude !== undefined && contact.longitude !== undefined,
@@ -371,9 +421,7 @@ export const useHospitalStore = defineStore('hospital', () => {
           }
         }
         if (selectedItem.value) {
-          items.value = items.value.map((item) =>
-            item.id === id ? selectedItem.value as Hospital : item,
-          )
+          items.value = items.value.map((item) => (item.id === id ? (selectedItem.value as Hospital) : item))
         }
         return selectedItem.value
       },
@@ -388,7 +436,10 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal menyimpan Faskes.',
       task: async () => {
-        const response = await api.post(`${ENDPOINT}/input`, { choice: 'i', ...payload })
+        const response = await api.post(`${ENDPOINT}/input`, {
+          choice: 'i',
+          ...payload,
+        })
         const raw = findCompanyRecord(response.data)
         const created = raw ? normalizeHospital(raw) : null
 
@@ -411,7 +462,11 @@ export const useHospitalStore = defineStore('hospital', () => {
       error,
       fallbackMessage: 'Gagal memperbarui Faskes.',
       task: async () => {
-        const response = await api.post(`${ENDPOINT}/input`, { choice: 'u', id, ...payload })
+        const response = await api.post(`${ENDPOINT}/input`, {
+          choice: 'u',
+          id,
+          ...payload,
+        })
         assertApiOperationSucceeded(response.data)
 
         const updated = await fetchHospitalById(id)
@@ -447,6 +502,7 @@ export const useHospitalStore = defineStore('hospital', () => {
     contactAssociations,
     detailProjects,
     detailContacts,
+    detailActivities,
     loading,
     detailLoading,
     submitting,

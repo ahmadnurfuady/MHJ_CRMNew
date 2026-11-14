@@ -1826,6 +1826,16 @@ export const totalProjects = {
   ],
 }
 
+export const PROJECT_STAGE_COLORS: Record<string, string> = {
+  qualified: '#3B85FB',
+  presentation_demo: '#F5C000',
+  quotation: '#C5BA16',
+  negotiation: '#AF0EF4',
+  closed_won: '#41C599',
+  closed_lost: '#ef5056',
+  closed_cancel: '#A8A13B',
+}
+
 // Tab stage mengikuti Kerangka Menu - 3. Menu Project (Pipeline Sales).
 export const projectTab: Tabs[] = [
   {

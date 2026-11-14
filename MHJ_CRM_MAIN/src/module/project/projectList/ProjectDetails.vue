@@ -229,7 +229,7 @@
 <script setup lang="ts">
 import { computed, type CSSProperties } from 'vue'
 import { useRouter } from 'vue-router'
-import { projectTab } from '@/core/data/project'
+import { PROJECT_STAGE_COLORS, projectTab } from '@/core/data/project'
 import type { ProjectContact, Projects } from '@/types/project'
 
 const props = withDefaults(
@@ -243,20 +243,10 @@ const props = withDefaults(
 )
 const router = useRouter()
 
-const STAGE_COLORS: Record<string, string> = {
-  qualified: '#2563eb',
-  presentation_demo: '#0891b2',
-  quotation: '#d97706',
-  negotiation: '#7c3aed',
-  closed_won: '#16a34a',
-  closed_lost: '#dc2626',
-  closed_cancel: '#64748b'
-}
-
 const stage = computed(() => projectTab.find((tab) => tab.value === props.project.status))
 const stageTitle = computed(() => stage.value?.title || titleCase(props.project.stageName || props.project.status))
 const stageCssVariables = computed<CSSProperties>(() => ({
-  '--opp-stage': STAGE_COLORS[props.project.status] || '#64748b'
+  '--opp-stage': PROJECT_STAGE_COLORS[props.project.status] || '#64748b'
 } as CSSProperties))
 const projectValue = computed(() => props.project.amountValue ?? props.project.projectValue ?? 0)
 const projectContacts = computed<ProjectContact[]>(() => {
