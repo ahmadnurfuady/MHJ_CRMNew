@@ -45,6 +45,12 @@ if (encodedConfig) {
   })
 }
 
+// Fetch handler minimal — SYARAT agar aplikasi memenuhi kriteria installable
+// (PWA), supaya tombol "Install" muncul dan notifikasi tampil sebagai "MHJ CRM"
+// (bukan "Google Chrome") setelah di-install. Tidak meng-intercept apa pun:
+// request tetap berjalan normal ke network.
+self.addEventListener('fetch', () => {})
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
 
