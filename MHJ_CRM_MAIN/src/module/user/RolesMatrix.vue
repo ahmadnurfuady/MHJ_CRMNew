@@ -92,33 +92,51 @@
                 <small v-if="row.pathfile" class="d-block f-m-light">{{ row.pathfile }}</small>
               </td>
               <td>{{ parentTitle(row) }}</td>
-              <td v-for="action in PERMISSION_COLUMNS" :key="action" class="permission-column">
-                <div class="permission-control">
+
+              <!-- Menu induk: hak akses diatur di submenunya, tidak diduplikasi di sini. -->
+              <td
+                v-if="isParentRow(row)"
+                :colspan="PERMISSION_COLUMNS.length + 1"
+                class="permission-column text-muted fst-italic ps-3"
+              >
+                Menu induk — atur hak akses pada submenunya.
+              </td>
+              <template v-else>
+                <td v-for="action in PERMISSION_COLUMNS" :key="action" class="permission-column">
+                  <div v-if="showCheckbox(row, action)" class="permission-control">
+                    <input
+                      v-model="row[action]"
+                      class="form-check-input"
+                      type="checkbox"
+                      :true-value="1"
+                      :false-value="0"
+                      :aria-label="`${action} ${menuTitle(row)}`"
+                    />
+                    <SelectInput
+                      v-if="showScope(row, action)"
+                      :model-value="scopeValue(row, action)"
+                      :options="cakupanSelectOptions"
+                      :searchable="false"
+                      placeholder="-- Pilih --"
+                      :disabled="row[action] !== 1"
+                      class="permission-scope-select"
+                      @update:model-value="onScopeChange(row, action, $event)"
+                    />
+                  </div>
+                  <span v-else class="text-muted">—</span>
+                </td>
+                <td class="text-center permission-column permission-column--all">
                   <input
-                    v-model="row[action]"
+                    v-if="!isViewOnly(row)"
                     class="form-check-input"
                     type="checkbox"
-                    :true-value="1"
-                    :false-value="0"
-                    :aria-label="`${action} ${menuTitle(row)}`"
+                    :checked="isRowFullyChecked(row)"
+                    :aria-label="`Pilih semua izin ${menuTitle(row)}`"
+                    @change="toggleRow(row, ($event.target as HTMLInputElement).checked)"
                   />
-                  <select
-                    class="form-select form-select-sm permission-scope-select"
-                    :aria-label="`Pilihan ${action} ${menuTitle(row)}`"
-                  >
-                    <option value=""></option>
-                  </select>
-                </div>
-              </td>
-              <td class="text-center permission-column permission-column--all">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  :checked="isRowFullyChecked(row)"
-                  :aria-label="`Pilih semua izin ${menuTitle(row)}`"
-                  @change="toggleRow(row, ($event.target as HTMLInputElement).checked)"
-                />
-              </td>
+                  <span v-else class="text-muted">—</span>
+                </td>
+              </template>
             </tr>
           </tbody>
         </table>
@@ -137,7 +155,7 @@ import { userFullName, userService } from '@/services/userService'
 import { useAuthStore } from '@/store/auth'
 import SelectInput from '@/components/ui/SelectInput.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
-import type { FlMenuRawItem } from '@/types/menu'
+import type { CakupanAksesOption, FlMenuRawItem } from '@/types/menu'
 import type { MasterOption, UserCrmItem } from '@/types/user'
 
 import { DEFAULT_CRM_MENU_TEMPLATE } from '@/core/data/defaultMenuTemplate'
@@ -145,6 +163,21 @@ import { DEFAULT_CRM_MENU_TEMPLATE } from '@/core/data/defaultMenuTemplate'
 /** Kolom izin yang dirender sebagai checkbox, urut sesuai tabel. */
 const PERMISSION_COLUMNS = ['akses', 'tambah', 'koreksi', 'hapus', 'export'] as const
 type PermissionColumn = (typeof PERMISSION_COLUMNS)[number]
+
+/** Kolom cakupan ("data siapa") di dbFlMenuWebcrm, dipasangkan ke saklar izin. */
+type ScopeColumn = 'cakupan_tampil' | 'cakupan_tambah' | 'cakupan_koreksi' | 'cakupan_hapus'
+const SCOPE_COLUMN_OF: Partial<Record<PermissionColumn, ScopeColumn>> = {
+  akses: 'cakupan_tampil',
+  tambah: 'cakupan_tambah',
+  koreksi: 'cakupan_koreksi',
+  hapus: 'cakupan_hapus',
+}
+const SCOPE_COLUMNS: ScopeColumn[] = [
+  'cakupan_tampil',
+  'cakupan_tambah',
+  'cakupan_koreksi',
+  'cakupan_hapus',
+]
 
 type RolePermissionPreset = {
   label: string
@@ -165,6 +198,18 @@ const ROLE_PERMISSION_PRESETS: RolePermissionPreset[] = [
   { label: 'Legal', description: 'Menu Legal', menus: ['legal'] },
 ]
 
+/**
+ * Cakupan standar per modul (sesuai tabel spesifikasi hak akses) yang ikut
+ * diterapkan saat sebuah preset jabatan dipilih. Nilai = id m_cakupan_akses:
+ * 1 sendiri, 2 tim (sendiri+atasan), 3 semua, 4 khusus superadmin.
+ */
+const MODULE_SCOPE_PRESET: Record<string, Record<ScopeColumn, number>> = {
+  kontak: { cakupan_tampil: 2, cakupan_tambah: 1, cakupan_koreksi: 1, cakupan_hapus: 1 },
+  faskes: { cakupan_tampil: 3, cakupan_tambah: 4, cakupan_koreksi: 4, cakupan_hapus: 4 },
+  peluang: { cakupan_tampil: 2, cakupan_tambah: 2, cakupan_koreksi: 2, cakupan_hapus: 1 },
+  tugas: { cakupan_tampil: 2, cakupan_tambah: 1, cakupan_koreksi: 1, cakupan_hapus: 1 },
+}
+
 /** Baris matriks: izin dinormalkan ke 0/1 agar bisa di-v-model langsung. */
 type PermissionRow = FlMenuRawItem & Record<PermissionColumn, number>
 
@@ -173,6 +218,7 @@ const authStore = useAuthStore()
 
 const users = ref<UserCrmItem[]>([])
 const rows = ref<PermissionRow[]>([])
+const cakupanOptions = ref<CakupanAksesOption[]>([])
 const selectedUserId = ref('')
 const loadingUsers = ref(false)
 const loadingRows = ref(false)
@@ -184,6 +230,14 @@ const userOptions = computed<MasterOption[]>(() =>
     value: String(user.id),
     label: `${userFullName(user)}${user.email ? ` (${user.email})` : ''}`,
   })),
+)
+
+/**
+ * Opsi dropdown cakupan untuk SelectInput — murni dari endpoint
+ * /berkas/cakupanakses (tabel m_cakupan_akses), bukan daftar hardcode.
+ */
+const cakupanSelectOptions = computed<MasterOption[]>(() =>
+  cakupanOptions.value.map((opt) => ({ value: String(opt.id), label: opt.nama })),
 )
 
 const selectedUser = computed(
@@ -238,6 +292,64 @@ function depthOf(row: PermissionRow): number {
     parentId = parentIdById.value.get(parentId) ?? ''
   }
   return depth
+}
+
+/** Kolom cakupan yang dipasangkan ke sebuah saklar izin (export tidak punya cakupan). */
+function scopeColumnOf(action: PermissionColumn): ScopeColumn | undefined {
+  return SCOPE_COLUMN_OF[action]
+}
+
+/** Nilai select cakupan sebagai string (kosong = Bawaan). */
+function scopeValue(row: PermissionRow, action: PermissionColumn): string {
+  const col = scopeColumnOf(action)
+  const value = col ? row[col] : null
+  return value == null ? '' : String(value)
+}
+
+function onScopeChange(row: PermissionRow, action: PermissionColumn, value: string): void {
+  const col = scopeColumnOf(action)
+  if (!col) return
+  row[col] = value === '' ? null : Number(value)
+}
+
+// --- Klasifikasi baris menu untuk tampilan kontrol -------------------------
+
+/** Id menu yang menjadi induk (punya submenu). */
+const parentRowIds = computed(() => {
+  const set = new Set<string>()
+  rows.value.forEach((r) => {
+    const pid = parentIdOf(r)
+    if (pid) set.add(pid)
+  })
+  return set
+})
+
+/** Menu induk: hak akses diatur di submenunya, jadi tidak diberi kontrol sendiri. */
+function isParentRow(row: PermissionRow): boolean {
+  const id = String(row.id ?? row.L1 ?? '').trim()
+  return id !== '' && parentRowIds.value.has(id)
+}
+
+/** Menu "lihat saja" (tidak ada tambah/edit/hapus): Dashboard, Report, Kalender, dsb. */
+const VIEW_ONLY_KEYS = ['report', 'laporan', 'kalender', 'calendar', 'piutang', 'beranda']
+function isViewOnly(row: PermissionRow): boolean {
+  if (isParentRow(row)) return false
+  const path = String(row.pathfile ?? '').trim().toLowerCase()
+  if (path === '/crmadmin') return true // Dashboard
+  const name = menuTitle(row).toLowerCase()
+  return VIEW_ONLY_KEYS.some((k) => name.includes(k) || path.includes(k))
+}
+
+/** Checkbox izin ditampilkan? Induk: tidak. Lihat-saja: hanya Akses. Lainnya: ya. */
+function showCheckbox(row: PermissionRow, action: PermissionColumn): boolean {
+  if (isParentRow(row)) return false
+  if (isViewOnly(row)) return action === 'akses'
+  return true
+}
+
+/** Dropdown cakupan ditampilkan untuk tiap kolom yang punya cakupan & checkbox-nya tampil. */
+function showScope(row: PermissionRow, action: PermissionColumn): boolean {
+  return scopeColumnOf(action) !== undefined && showCheckbox(row, action)
 }
 
 function isRowFullyChecked(row: PermissionRow): boolean {
@@ -321,6 +433,16 @@ function applyRolePreset(preset: RolePermissionPreset): void {
     PERMISSION_COLUMNS.forEach((column) => {
       row[column] = enabled ? 1 : 0
     })
+    // Terapkan cakupan standar modul (gambar spesifikasi) untuk menu yang
+    // diaktifkan preset. Menu non-modul / yang tidak aktif tidak disentuh.
+    if (enabled) {
+      const scope = MODULE_SCOPE_PRESET[normalizedMenuName(row)]
+      if (scope) {
+        SCOPE_COLUMNS.forEach((col) => {
+          row[col] = scope[col]
+        })
+      }
+    }
   })
 
   const matchedMenus = new Set(
@@ -341,6 +463,13 @@ function toFlag(value: unknown): number {
   return Number(value) === 1 ? 1 : 0
 }
 
+/** Normalkan nilai cakupan ke id positif atau null (= bawaan modul). */
+function toScope(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  return Number.isFinite(n) && n > 0 ? n : null
+}
+
 function toPermissionRow(raw: FlMenuRawItem): PermissionRow {
   return {
     ...raw,
@@ -349,6 +478,10 @@ function toPermissionRow(raw: FlMenuRawItem): PermissionRow {
     koreksi: toFlag(raw.koreksi),
     hapus: toFlag(raw.hapus),
     export: toFlag(raw.export),
+    cakupan_tampil: toScope(raw.cakupan_tampil),
+    cakupan_tambah: toScope(raw.cakupan_tambah),
+    cakupan_koreksi: toScope(raw.cakupan_koreksi),
+    cakupan_hapus: toScope(raw.cakupan_hapus),
   }
 }
 
@@ -521,7 +654,10 @@ async function loadPermissions() {
     rows.value = buildTreeOrder(loadedRows)
   } catch (error) {
     console.error('Gagal memuat hak akses:', error)
-    feedback.value = { type: 'danger', text: 'Gagal memuat hak akses pengguna.' }
+    feedback.value = {
+      type: 'danger',
+      text: backendMessage(error, 'Gagal memuat hak akses pengguna.'),
+    }
   } finally {
     loadingRows.value = false
   }
@@ -547,7 +683,24 @@ async function savePermissions() {
     const payload: FlMenuRawItem[] = rows.value.map((row) => {
       const id = String(row.id ?? row.L1 ?? '').trim()
       const parentId = String(row.parendId ?? row.Parent ?? '').trim()
-      const accessStr = `${row.tambah ? '1' : '0'}${row.koreksi ? '1' : '0'}${row.hapus ? '1' : '0'}${row.export ? '1' : '0'}`
+
+      // Nilai izin akhir, dirapikan sesuai jenis menu:
+      // - Induk: akses mengikuti ada tidaknya submenu yang aktif; aksi = 0.
+      // - Lihat-saja: hanya akses; tambah/koreksi/hapus/export = 0.
+      let akses = Number(row.akses) === 1 ? 1 : 0
+      let tambah = Number(row.tambah) === 1 ? 1 : 0
+      let koreksi = Number(row.koreksi) === 1 ? 1 : 0
+      let hapus = Number(row.hapus) === 1 ? 1 : 0
+      let ekspor = Number(row.export) === 1 ? 1 : 0
+
+      if (isParentRow(row)) {
+        akses = rows.value.some((r) => parentIdOf(r) === id && Number(r.akses) === 1) ? 1 : 0
+        tambah = koreksi = hapus = ekspor = 0
+      } else if (isViewOnly(row)) {
+        tambah = koreksi = hapus = ekspor = 0
+      }
+
+      const accessStr = `${tambah}${koreksi}${hapus}${ekspor}`
 
       return {
         ...row,
@@ -557,17 +710,22 @@ async function savePermissions() {
         L1: id,
         parendId: parentId || '0',
         Parent: parentId === '0' ? '' : parentId,
-        akses: Number(row.akses),
-        HASACCESS: Number(row.akses),
-        tambah: Number(row.tambah),
-        koreksi: Number(row.koreksi),
-        hapus: Number(row.hapus),
-        export: Number(row.export),
+        akses,
+        HASACCESS: akses,
+        tambah,
+        koreksi,
+        hapus,
+        export: ekspor,
         ACCESS: accessStr,
         ACCESSlama: accessStr,
         L1lama: id,
         Status: row.Status || '1',
         FLAGKRM: row.FLAGKRM || '0',
+        // Cakupan "data siapa" per aksi (null = bawaan / belum dipilih).
+        cakupan_tampil: row.cakupan_tampil ?? null,
+        cakupan_tambah: row.cakupan_tambah ?? null,
+        cakupan_koreksi: row.cakupan_koreksi ?? null,
+        cakupan_hapus: row.cakupan_hapus ?? null,
       }
     })
 
@@ -590,14 +748,33 @@ async function savePermissions() {
     })
   } catch (error) {
     console.error('Gagal menyimpan hak akses:', error)
-    feedback.value = { type: 'danger', text: 'Gagal menyimpan hak akses. Silakan coba lagi.' }
+    // Surface pesan backend (403 bukan superadmin / 422 cakupan tidak valid).
+    feedback.value = {
+      type: 'danger',
+      text: backendMessage(error, 'Gagal menyimpan hak akses. Silakan coba lagi.'),
+    }
   } finally {
     saving.value = false
   }
 }
 
+/** Ambil pesan error dari response backend, jatuh ke teks cadangan bila tidak ada. */
+function backendMessage(error: unknown, fallback: string): string {
+  const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+  return typeof message === 'string' && message.trim() !== '' ? message : fallback
+}
+
 onMounted(async () => {
   loadingUsers.value = true
+
+  // Pilihan cakupan dimuat sekali; kegagalannya tidak memblokir halaman
+  // (dropdown hanya menyisakan opsi "Bawaan").
+  try {
+    cakupanOptions.value = await menuRoleService.getCakupanAkses()
+  } catch (error) {
+    console.error('Gagal memuat pilihan cakupan akses:', error)
+  }
+
   try {
     users.value = await userService.getAllUsers()
   } catch (error) {
@@ -708,7 +885,7 @@ onMounted(async () => {
 
 /* ─── Kontrol izin: checkbox + scope dinamis dari backend ───────────────── */
 .permission-column {
-  min-width: 118px;
+  min-width: 160px;
   border-left: 1px solid #e2e8f0;
 }
 
@@ -728,11 +905,11 @@ onMounted(async () => {
   margin-top: 0;
 }
 
+/* Dropdown cakupan: komponen SelectInput (sama dengan dropdown Pengguna) tanpa
+   kotak pencarian. Dibuat cukup lebar agar label "Superadmin" tidak terpotong. */
 .permission-scope-select {
-  width: 72px;
-  min-width: 72px;
-  min-height: 31px;
-  padding-right: 1.75rem;
+  flex: 1 1 auto;
+  min-width: 140px;
 }
 
 :global(body.dark-only .permission-column) {
