@@ -2,7 +2,7 @@
   <div class="container-fluid">
     <div class="page-title">
       <div class="row">
-        <div class="col-6">
+        <div :class="pageDescription ? 'col-auto' : 'col-6'">
           <div class="page-title__heading">
             <button
               v-if="backHandler"
@@ -34,7 +34,10 @@
             <h4>{{ pageTitle }}</h4>
           </div>
         </div>
-        <div class="col-6 p-0 page-title__action">
+        <div :class="[pageDescription ? 'col' : 'col-6', 'p-0', 'page-title__action']">
+          <span v-if="pageDescription" class="page-title__description">
+            {{ pageDescription }}
+          </span>
           <button
             type="button"
             class="page-refresh-button"
@@ -81,6 +84,7 @@ const route = useRoute()
 const pageTitle = computed(
   () => pageTitleOverride.value ?? (route.meta.mainTitle as string) ?? '',
 )
+const pageDescription = computed(() => (route.meta.pageDescription as string) ?? '')
 // Rute untuk tombol kembali opsional di sebelah kiri judul (jika di-set
 // halaman via usePageBackRoute).
 const backRoute = computed(() => pageBackRoute.value)
@@ -127,6 +131,15 @@ function handleBackClick() {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 14px;
+}
+
+.page-title__description {
+  max-width: 520px;
+  color: #6b7f90;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: right;
 }
 
 .page-refresh-button {
@@ -181,6 +194,10 @@ function handleBackClick() {
   color: var(--mhj-dark-text, #f1f5f9) !important;
 }
 
+:global(body.dark-only .page-title__description) {
+  color: var(--mhj-dark-text-muted, #a8b6c5);
+}
+
 :global(body.dark-only .page-refresh-button .solar-icon),
 :global(body.dark-only .page-title__back .solar-icon) {
   color: var(--app-primary-soft-light, #b9e8fa);
@@ -200,6 +217,7 @@ function handleBackClick() {
 }
 
 @media (max-width: 575.98px) {
+  .page-title__description { display: none; }
   .page-refresh-button span { display: none; }
   .page-refresh-button { width: 38px; padding: 0; }
 }

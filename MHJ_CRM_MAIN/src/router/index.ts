@@ -57,9 +57,9 @@ const router = createRouter({
           component: () => import('@/pages/dashboard/ManagerDashboard.vue'),
           alias: ['/dashboards/dashboard_default', '/dashboards/default'],
           meta: {
-            mainTitle: 'Dashboard',
-            title: 'Dashboard | MHJ CRM',
-            breadcrumb: [{ text: 'Dashboard' }],
+            mainTitle: 'Beranda',
+            title: 'Beranda | MHJ CRM',
+            breadcrumb: [{ text: 'Beranda' }],
           },
         },
         {
@@ -510,9 +510,10 @@ const router = createRouter({
           component: () => import('@/pages/user/RolesPermission.vue'),
           alias: ['/user/roles-permission'],
           meta: {
-            mainTitle: 'Roles & Permission',
-            title: 'Roles & Permission | MHJ CRM',
-            breadcrumb: [{ text: 'Users', subText: 'Roles & Permission' }],
+            mainTitle: 'Peran & Hak Akses',
+            pageDescription: 'Pilih pengguna, lalu tentukan menu dan hak aksi yang boleh digunakan.',
+            title: 'Peran & Hak Akses | MHJ CRM',
+            breadcrumb: [{ text: 'Pengguna', subText: 'Peran & Hak Akses' }],
           },
         },
         {

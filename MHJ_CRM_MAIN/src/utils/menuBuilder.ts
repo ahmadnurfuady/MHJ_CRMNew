@@ -66,6 +66,7 @@ function resolveMenuTitle(rawTitle: string, fallback: string): string {
   const title = rawTitle.trim() || fallback
   return title
     .replace(/^Settings$/i, 'Setting')
+    .replace(/^Roles?\s*&\s*Permissions?$/i, 'Peran & Hak Akses')
     .replace(/\brumah\s+sakit\b|\b(?:compan(?:y|ies)|hospitals?|rs)\b/gi, 'Faskes')
     .replace(/\bcontacts?\b/gi, 'Kontak')
     .replace(/\b(?:projects?|pro(?:y|j)ek|peluang|deals?)\b/gi, 'Peluang')

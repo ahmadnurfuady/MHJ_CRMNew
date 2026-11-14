@@ -1,12 +1,5 @@
 <template>
   <div class="card">
-    <div class="card-header card-no-border">
-      <h4 class="mb-0">Roles &amp; Permission</h4>
-      <p class="f-m-light mt-1 mb-0">
-        Pilih pengguna, lalu tentukan menu dan hak aksi yang boleh digunakan.
-      </p>
-    </div>
-
     <div class="card-body">
       <div class="row g-2 mb-3">
         <div class="col-md-6">
@@ -32,54 +25,40 @@
 
       <div v-if="feedback" :class="`alert alert-${feedback.type}`">{{ feedback.text }}</div>
 
-      <!-- Toolbar Aksi Cepat Izin Menu -->
+      <!-- Preset izin berdasarkan jabatan -->
       <div
         v-if="rows.length > 0 && !loadingRows"
-        class="d-flex flex-wrap gap-2 mb-3 align-items-center p-2 rounded quick-actions-toolbar"
+        class="mb-3 p-2 rounded quick-actions-toolbar"
       >
-        <span class="f-w-600 f-13 text-secondary me-1 quick-actions-label">
-          <SolarIcon name="tuning-linear" :size="14" />
-          Aksi Cepat:
-        </span>
-        <button
-          type="button"
-          class="btn btn-outline-primary quick-action-btn"
-          @click="setAllPermissions(true)"
-        >
-          <SolarIcon
-            name="check-linear"
-            :size="16"
-            color="currentColor"
-            class="quick-action-btn__icon"
-          />
-          Beri Semua Hak Akses
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-info quick-action-btn"
-          @click="setReadOnlyAccess()"
-        >
-          <SolarIcon
-            name="eye-linear"
-            :size="16"
-            color="currentColor"
-            class="quick-action-btn__icon"
-          />
-          Hanya Akses Baca (View)
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-secondary quick-action-btn"
-          @click="setAllPermissions(false)"
-        >
-          <SolarIcon
-            name="forbidden-linear"
-            :size="16"
-            color="currentColor"
-            class="quick-action-btn__icon"
-          />
-          Kosongkan Semua
-        </button>
+        <div class="quick-role-presets">
+          <span class="f-w-600 f-13 text-secondary me-1 quick-actions-label">
+            <SolarIcon name="shield-user" :size="14" />
+            Preset Jabatan:
+          </span>
+          <button
+            v-for="preset in ROLE_PERMISSION_PRESETS"
+            :key="preset.label"
+            type="button"
+            class="btn btn-outline-primary quick-action-btn quick-role-preset-btn"
+            :title="`${preset.label}: ${preset.description}`"
+            @click="applyRolePreset(preset)"
+          >
+            {{ preset.label }}
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-secondary quick-action-btn quick-role-preset-btn"
+            @click="setAllPermissions(false)"
+          >
+            <SolarIcon
+              name="forbidden-linear"
+              :size="16"
+              color="currentColor"
+              class="quick-action-btn__icon"
+            />
+            Kosongkan Semua
+          </button>
+        </div>
       </div>
 
       <div v-if="loadingRows" class="text-center py-5">
@@ -97,12 +76,12 @@
               <th scope="col">No</th>
               <th scope="col">Nama Menu</th>
               <th scope="col">Parent</th>
-              <th scope="col" class="text-center">Akses</th>
-              <th scope="col" class="text-center">Tambah</th>
-              <th scope="col" class="text-center">Koreksi</th>
-              <th scope="col" class="text-center">Hapus</th>
-              <th scope="col" class="text-center">Export</th>
-              <th scope="col" class="text-center">Semua</th>
+              <th scope="col" class="text-center permission-column">Akses</th>
+              <th scope="col" class="text-center permission-column">Tambah</th>
+              <th scope="col" class="text-center permission-column">Koreksi</th>
+              <th scope="col" class="text-center permission-column">Hapus</th>
+              <th scope="col" class="text-center permission-column">Export</th>
+              <th scope="col" class="text-center permission-column permission-column--all">Semua</th>
             </tr>
           </thead>
           <tbody>
@@ -113,17 +92,25 @@
                 <small v-if="row.pathfile" class="d-block f-m-light">{{ row.pathfile }}</small>
               </td>
               <td>{{ parentTitle(row) }}</td>
-              <td v-for="action in PERMISSION_COLUMNS" :key="action" class="text-center">
-                <input
-                  v-model="row[action]"
-                  class="form-check-input"
-                  type="checkbox"
-                  :true-value="1"
-                  :false-value="0"
-                  :aria-label="`${action} ${menuTitle(row)}`"
-                />
+              <td v-for="action in PERMISSION_COLUMNS" :key="action" class="permission-column">
+                <div class="permission-control">
+                  <input
+                    v-model="row[action]"
+                    class="form-check-input"
+                    type="checkbox"
+                    :true-value="1"
+                    :false-value="0"
+                    :aria-label="`${action} ${menuTitle(row)}`"
+                  />
+                  <select
+                    class="form-select form-select-sm permission-scope-select"
+                    :aria-label="`Pilihan ${action} ${menuTitle(row)}`"
+                  >
+                    <option value=""></option>
+                  </select>
+                </div>
               </td>
-              <td class="text-center">
+              <td class="text-center permission-column permission-column--all">
                 <input
                   class="form-check-input"
                   type="checkbox"
@@ -158,6 +145,25 @@ import { DEFAULT_CRM_MENU_TEMPLATE } from '@/core/data/defaultMenuTemplate'
 /** Kolom izin yang dirender sebagai checkbox, urut sesuai tabel. */
 const PERMISSION_COLUMNS = ['akses', 'tambah', 'koreksi', 'hapus', 'export'] as const
 type PermissionColumn = (typeof PERMISSION_COLUMNS)[number]
+
+type RolePermissionPreset = {
+  label: string
+  description: string
+  menus: string[]
+}
+
+const STANDARD_SALES_MENUS = ['dashboard', 'kontak', 'faskes', 'peluang', 'tugas']
+const ROLE_PERMISSION_PRESETS: RolePermissionPreset[] = [
+  { label: 'Direktur', description: 'Dashboard, Faskes', menus: ['dashboard', 'faskes'] },
+  { label: 'BDM', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'BDE', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'Kepala Cabang', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'Wakil Kepala Cabang', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'Product Specialist', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'Sales Area', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'Application Specialist', description: 'Kontak, Tugas', menus: ['kontak', 'tugas'] },
+  { label: 'Legal', description: 'Menu Legal', menus: ['legal'] },
+]
 
 /** Baris matriks: izin dinormalkan ke 0/1 agar bisa di-v-model langsung. */
 type PermissionRow = FlMenuRawItem & Record<PermissionColumn, number>
@@ -253,14 +259,82 @@ function setAllPermissions(enable: boolean): void {
   })
 }
 
-function setReadOnlyAccess(): void {
+const MENU_NAME_ALIASES: Record<string, string> = {
+  companies: 'faskes',
+  company: 'faskes',
+  contact: 'kontak',
+  contacts: 'kontak',
+  hospital: 'faskes',
+  hospitals: 'faskes',
+  'menu legal': 'legal',
+  project: 'peluang',
+  projects: 'peluang',
+  'rumah sakit': 'faskes',
+  task: 'tugas',
+  tasks: 'tugas',
+}
+
+function normalizedMenuName(row: PermissionRow): string {
+  const name = menuTitle(row).trim().toLowerCase().replace(/\s+/g, ' ')
+  return MENU_NAME_ALIASES[name] ?? name
+}
+
+function applyRolePreset(preset: RolePermissionPreset): void {
+  const targetMenus = new Set(preset.menus)
+  const enabledIds = new Set<string>()
+
   rows.value.forEach((row) => {
-    row.akses = 1
-    row.tambah = 0
-    row.koreksi = 0
-    row.hapus = 0
-    row.export = 0
+    const id = String(row.id ?? row.L1 ?? '').trim()
+    if (id && targetMenus.has(normalizedMenuName(row))) enabledIds.add(id)
   })
+
+  // Menu induk ikut aktif agar target yang berupa submenu tetap muncul di navigasi.
+  let addedParent = true
+  while (addedParent) {
+    addedParent = false
+    rows.value.forEach((row) => {
+      const id = String(row.id ?? row.L1 ?? '').trim()
+      const parentId = parentIdOf(row)
+      if (id && enabledIds.has(id) && parentId && !enabledIds.has(parentId)) {
+        enabledIds.add(parentId)
+        addedParent = true
+      }
+    })
+  }
+
+  // Menu turunan ikut aktif agar halaman detail/list di bawah menu utama tetap dapat dibuka.
+  let addedChild = true
+  while (addedChild) {
+    addedChild = false
+    rows.value.forEach((row) => {
+      const id = String(row.id ?? row.L1 ?? '').trim()
+      if (id && enabledIds.has(parentIdOf(row)) && !enabledIds.has(id)) {
+        enabledIds.add(id)
+        addedChild = true
+      }
+    })
+  }
+
+  rows.value.forEach((row) => {
+    const id = String(row.id ?? row.L1 ?? '').trim()
+    const enabled = enabledIds.has(id)
+    PERMISSION_COLUMNS.forEach((column) => {
+      row[column] = enabled ? 1 : 0
+    })
+  })
+
+  const matchedMenus = new Set(
+    rows.value
+      .filter((row) => targetMenus.has(normalizedMenuName(row)))
+      .map((row) => normalizedMenuName(row))
+  )
+  const missingMenus = preset.menus.filter((menu) => !matchedMenus.has(menu))
+  feedback.value = missingMenus.length
+    ? {
+        type: 'info',
+        text: `Preset ${preset.label} diterapkan, tetapi menu ${missingMenus.join(', ')} tidak ditemukan pada data menu pengguna ini.`,
+      }
+    : { type: 'info', text: `Preset ${preset.label} diterapkan. Klik "Simpan Hak Akses" untuk menyimpan perubahan.` }
 }
 
 function toFlag(value: unknown): number {
@@ -276,6 +350,55 @@ function toPermissionRow(raw: FlMenuRawItem): PermissionRow {
     hapus: toFlag(raw.hapus),
     export: toFlag(raw.export),
   }
+}
+
+function blankPermissionRow(raw: FlMenuRawItem): PermissionRow {
+  const row = toPermissionRow(raw)
+  PERMISSION_COLUMNS.forEach((column) => {
+    row[column] = 0
+  })
+  return row
+}
+
+function menuMatchKeys(row: FlMenuRawItem): string[] {
+  const id = String(row.id ?? row.L1 ?? '').trim()
+  const path = String(row.pathfile ?? '').trim().toLowerCase()
+  return [id ? `id:${id}` : '', path ? `path:${path}` : ''].filter(Boolean)
+}
+
+/**
+ * Struktur tabel selalu memakai katalog menu lengkap frontend. Respons backend
+ * hanya menimpa metadata dan nilai checkbox menu yang sudah tersimpan. Baris
+ * baru yang belum ada di katalog frontend tetap dipertahankan dari backend.
+ */
+function mergeWithCompleteMenu(rawRows: FlMenuRawItem[]): PermissionRow[] {
+  const backendRows = rawRows.map(toPermissionRow)
+  const backendIndexByKey = new Map<string, number>()
+  backendRows.forEach((row, index) => {
+    menuMatchKeys(row).forEach((key) => backendIndexByKey.set(key, index))
+  })
+
+  const usedBackendIndexes = new Set<number>()
+  const mergedRows = DEFAULT_CRM_MENU_TEMPLATE.map((templateRow) => {
+    const backendIndex = menuMatchKeys(templateRow)
+      .map((key) => backendIndexByKey.get(key))
+      .find((index): index is number => index !== undefined)
+
+    const emptyTemplateRow = blankPermissionRow(templateRow)
+    if (backendIndex === undefined) return emptyTemplateRow
+
+    usedBackendIndexes.add(backendIndex)
+    return {
+      ...emptyTemplateRow,
+      ...backendRows[backendIndex],
+    }
+  })
+
+  backendRows.forEach((row, index) => {
+    if (!usedBackendIndexes.has(index)) mergedRows.push(row)
+  })
+
+  return mergedRows
 }
 
 /**
@@ -355,7 +478,7 @@ async function loadPermissions() {
     }
 
     if (raw.length === 0) {
-      const templateRows = DEFAULT_CRM_MENU_TEMPLATE.map(toPermissionRow)
+      const templateRows = DEFAULT_CRM_MENU_TEMPLATE.map(blankPermissionRow)
       // Secara default modul Dashboard langsung dicentang semua agar pengguna
       // baru dapat membuka halaman beranda tanpa pengaturan manual terlebih
       // dahulu. Baris Dashboard dikenali dari CAPTION/name "Dashboard"
@@ -377,7 +500,7 @@ async function loadPermissions() {
       return
     }
 
-    const loadedRows = raw.map(toPermissionRow)
+    const loadedRows = mergeWithCompleteMenu(raw)
     // Pastikan modul Dashboard otomatis tercentang semua saat pertama kali
     // dibuka: jika seluruh izin baris Dashboard masih 0 (nilai awal yang
     // di-seed sp_users_crud untuk user baru), set semua kolom ke 1. Jika
@@ -494,7 +617,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* ─── Toolbar Aksi Cepat: ikon & teks sejajar tengah, hover lebih kontras ── */
+/* ─── Preset jabatan: ikon & teks sejajar tengah, hover lebih kontras ───── */
 .quick-actions-toolbar {
   row-gap: 0.5rem;
   background-color: #ffffff !important;
@@ -506,6 +629,17 @@ onMounted(async () => {
   align-items: center;
   gap: 6px;
   line-height: 1;
+}
+
+.quick-role-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quick-role-preset-btn {
+  padding-inline: 0.75rem;
 }
 
 .quick-action-btn {
@@ -552,14 +686,6 @@ onMounted(async () => {
   color: var(--app-primary-dark, #0369a1) !important;
 }
 
-.quick-action-btn.btn-outline-info,
-.quick-action-btn.btn-outline-info:focus,
-.quick-action-btn.btn-outline-info:active {
-  background-color: rgba(var(--app-primary-dark-rgb, 14, 116, 144), 0.08) !important;
-  border-color: rgba(var(--app-primary-dark-rgb, 14, 116, 144), 0.4) !important;
-  color: var(--app-primary-dark, #0b5a70) !important;
-}
-
 .quick-action-btn.btn-outline-secondary,
 .quick-action-btn.btn-outline-secondary:focus,
 .quick-action-btn.btn-outline-secondary:active {
@@ -574,16 +700,43 @@ onMounted(async () => {
   color: #ffffff !important;
 }
 
-.quick-action-btn.btn-outline-info:hover {
-  background-color: var(--app-primary-dark, #0b5a70) !important;
-  border-color: var(--app-primary-dark, #0b5a70) !important;
-  color: #ffffff !important;
-}
-
 .quick-action-btn.btn-outline-secondary:hover {
   background-color: #475569 !important;
   border-color: #475569 !important;
   color: #ffffff !important;
+}
+
+/* ─── Kontrol izin: checkbox + scope dinamis dari backend ───────────────── */
+.permission-column {
+  min-width: 118px;
+  border-left: 1px solid #e2e8f0;
+}
+
+.permission-column--all {
+  min-width: 76px;
+}
+
+.permission-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.permission-control .form-check-input {
+  flex: 0 0 auto;
+  margin-top: 0;
+}
+
+.permission-scope-select {
+  width: 72px;
+  min-width: 72px;
+  min-height: 31px;
+  padding-right: 1.75rem;
+}
+
+:global(body.dark-only .permission-column) {
+  border-left-color: var(--mhj-dark-border, rgba(148, 163, 184, 0.25));
 }
 
 /* ─── Sticky table header ───────────────────────────────────────────────── */

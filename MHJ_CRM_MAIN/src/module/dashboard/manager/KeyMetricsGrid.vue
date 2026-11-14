@@ -44,7 +44,8 @@
           />
         </div>
         <strong class="kpi-card__value">
-          {{ outcome.won }} Win vs {{ outcome.lost }} Lost
+          {{ formatPercent(outcome.wonPercent) }} Win vs
+          {{ formatPercent(outcome.lostPercent) }} Lost
         </strong>
         <span class="kpi-card__label">Win vs Lost</span>
         <div
@@ -62,8 +63,7 @@
           ></span>
         </div>
         <span class="kpi-card__sublabel">
-          {{ outcome.total }} peluang ({{ formatPercent(outcome.wonPercent) }} Win
-          &bull; {{ formatPercent(outcome.lostPercent) }} Lost)
+          {{ outcome.total }} peluang ({{ outcome.won }} Win vs {{ outcome.lost }} Lost)
         </span>
       </article>
     </div>

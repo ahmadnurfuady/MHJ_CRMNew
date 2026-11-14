@@ -1,6 +1,18 @@
 import { api } from '@/services/api'
 import type { Piutang, PiutangStatus } from '@/types/piutang'
 
+export interface PiutangListParams {
+  search?: string
+  installed_base?: string
+  visit_urgency?: string
+  grading?: string
+  tipe_rs?: string
+  penyelenggara?: string
+  kode_cabang?: string
+  provinsi?: string
+  kota?: string
+}
+
 /** Satu baris dari `GET /api/dashboardpiutang/daftar`. */
 interface PiutangApiRow {
   id: number | string
@@ -56,24 +68,68 @@ function mapRow(row: PiutangApiRow): Piutang {
 
 /**
  * `GET /api/dashboardpiutang/daftar` — daftar piutang + jumlah per status.
- * Tanpa argumen mengambil semua status sekaligus (FE menyaring per tab lokal);
- * `status` opsional memfilter di sisi server.
  */
-export async function fetchPiutangList(status?: PiutangStatus): Promise<PiutangListResult> {
-  const response = await api.getbydata<PiutangApiResponse>(
-    'dashboardpiutang/daftar',
-    status ? { status } : {},
+function extractHospitalNames(payload: unknown): Set<string> {
+  if (!payload || typeof payload !== 'object') return new Set()
+
+  const root = payload as Record<string, unknown>
+  const companies = root.companies
+  const rows = Array.isArray(companies)
+    ? companies
+    : companies && typeof companies === 'object' && Array.isArray((companies as Record<string, unknown>).data)
+      ? ((companies as Record<string, unknown>).data as unknown[])
+      : Array.isArray(root.list)
+        ? root.list
+        : []
+
+  return new Set(
+    rows
+      .filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
+      .map((row) => String(row.company_name ?? row.name ?? '').trim().toLocaleLowerCase('id-ID'))
+      .filter(Boolean),
   )
+}
+
+/**
+ * Ambil daftar Piutang. Filter Faskes menggunakan endpoint company yang sudah ada,
+ * lalu hasil Piutang dicocokkan berdasarkan nama pelanggan tanpa perubahan backend.
+ */
+export async function fetchPiutangList(params: PiutangListParams = {}): Promise<PiutangListResult> {
+  const search = params.search?.trim()
+  const filterParams = Object.fromEntries(
+    Object.entries(params).filter(([key, value]) => key !== 'search' && value !== undefined),
+  )
+  const hasHospitalFilters = Object.values(filterParams).some((value) => String(value).trim() !== '')
+
+  const [response, hospitalResponse] = await Promise.all([
+    api.getbydata<PiutangApiResponse>('dashboardpiutang/daftar', search ? { search } : {}),
+    hasHospitalFilters
+      ? api.getbydata('company', { ...filterParams, per_page: 1000, limit: 1000 })
+      : Promise.resolve(null),
+  ])
 
   const rows = Array.isArray(response.data?.data) ? response.data!.data! : []
   const counts = response.data?.total_per_status ?? {}
+  const hospitalNames = hospitalResponse ? extractHospitalNames(hospitalResponse.data) : null
+  const items = rows
+    .map(mapRow)
+    .filter((item) => !hospitalNames || hospitalNames.has(item.faskes.toLocaleLowerCase('id-ID')))
+
+  const filteredCounts: Record<PiutangStatus, number> = {
+    on_progress: 0,
+    terlambat: 0,
+    lunas: 0,
+  }
+  items.forEach((item) => filteredCounts[item.status]++)
 
   return {
-    items: rows.map(mapRow),
-    totalPerStatus: {
-      on_progress: toNumber(counts.on_progress),
-      terlambat: toNumber(counts.terlambat),
-      lunas: toNumber(counts.lunas),
-    },
+    items,
+    totalPerStatus: hospitalNames
+      ? filteredCounts
+      : {
+          on_progress: toNumber(counts.on_progress),
+          terlambat: toNumber(counts.terlambat),
+          lunas: toNumber(counts.lunas),
+        },
   }
 }
