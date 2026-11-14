@@ -62,18 +62,15 @@
               }}</span>
             </div>
           </div>
-          <button
-            class="profile-link"
-            type="button"
-            @click="openProfile"
-          >
+          <button class="profile-link" type="button" @click="openProfile">
             <SolarIcon
               name="hospital"
               color="#18A6E4"
               secondary-color="#18A6E4"
               :secondary-opacity="1"
             />
-            <span class="profile-link-text">Profil Faskes</span><SolarIcon name="fa-chevron-right" />
+            <span class="profile-link-text">Profil Faskes</span
+            ><SolarIcon name="fa-chevron-right" />
           </button>
         </div>
 
@@ -128,7 +125,10 @@
         </div>
       </section>
 
-      <section class="purchase-cycle card" aria-labelledby="purchase-cycle-title">
+      <section
+        class="purchase-cycle card"
+        aria-labelledby="purchase-cycle-title"
+      >
         <div class="purchase-cycle-heading">
           <div class="purchase-cycle-title">
             <div class="purchase-cycle-title-line">
@@ -203,10 +203,7 @@
           v-for="tab in tabs"
           :key="tab.value"
           type="button"
-          :class="[
-            `${tab.value}-tab`,
-            { active: activeTab === tab.value },
-          ]"
+          :class="[`${tab.value}-tab`, { active: activeTab === tab.value }]"
           @click="selectDetailTab(tab.value)"
         >
           <SolarIcon
@@ -233,7 +230,9 @@
           <MhjIcon
             v-else
             :name="tab.mhjIcon"
-            :color="tab.mhjIcon === 'contact_card' ? 'var(--primary)' : undefined"
+            :color="
+              tab.mhjIcon === 'contact_card' ? 'var(--primary)' : undefined
+            "
             :secondary-color="
               tab.mhjIcon === 'contact_card' ? 'var(--primary)' : undefined
             "
@@ -261,7 +260,14 @@
               title="Tambah peluang"
               @click="createOpportunity"
             >
-              <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
+              <SolarIcon
+                name="add"
+                :size="19"
+                color="#fff"
+                secondary-color="#fff"
+                :secondary-opacity="1"
+                aria-hidden="true"
+              />
               Tambah Peluang
             </button>
           </div>
@@ -374,7 +380,9 @@
             <h5>Kontak Faskes</h5>
           </div>
           <div class="panel-heading-actions">
-            <span class="panel-count">{{ hospitalContacts.length }} kontak</span>
+            <span class="panel-count"
+              >{{ hospitalContacts.length }} kontak</span
+            >
             <button
               v-if="canAddContact"
               type="button"
@@ -382,7 +390,14 @@
               title="Tambah kontak"
               @click="createHospitalContact"
             >
-              <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
+              <SolarIcon
+                name="add"
+                :size="19"
+                color="#fff"
+                secondary-color="#fff"
+                :secondary-opacity="1"
+                aria-hidden="true"
+              />
               Tambah Kontak
             </button>
           </div>
@@ -428,13 +443,13 @@
                   { muted: !contact.lastActivity },
                 ]"
               >
-                <SolarIcon :name="
+                <SolarIcon
+                  :name="
                     contact.lastActivity
                       ? 'fa-solid fa-user-group'
                       : 'fa-regular fa-clock'
                   "
-
-                 />
+                />
               </div>
               <div>
                 <strong>{{
@@ -502,6 +517,7 @@
           <ActivityTimeline
             entity="companies"
             :entity-id="hospital?.id ?? null"
+            :items="hospitalActivities"
             :title="`Aktivitas ${hospital?.name || 'Faskes'}`"
             heading="Timeline Terbaru"
             @loaded="(n) => (activityTimelineCount = n)"
@@ -555,7 +571,9 @@
             </div>
             <div class="hospital-info-item">
               <span>Penyelenggara</span>
-              <strong>{{ displayValue(hospital.penyelenggara || hospital.owner) }}</strong>
+              <strong>{{
+                displayValue(hospital.penyelenggara || hospital.owner)
+              }}</strong>
             </div>
             <div class="hospital-info-item">
               <span>Nomor Telepon</span>
@@ -608,11 +626,15 @@
             </div>
             <div class="hospital-info-item">
               <span>Jenis</span>
-              <strong>{{ displayValue(hospital.jenis || hospital.industry) }}</strong>
+              <strong>{{
+                displayValue(hospital.jenis || hospital.industry)
+              }}</strong>
             </div>
             <div class="hospital-info-item">
               <span>Tipe</span>
-              <strong>{{ displayValue(hospital.tipe || hospital.hospitalType) }}</strong>
+              <strong>{{
+                displayValue(hospital.tipe || hospital.hospitalType)
+              }}</strong>
             </div>
             <div class="hospital-info-item">
               <span>Tipe Marketing G0500</span>
@@ -639,13 +661,17 @@
           <div class="hospital-map-section">
             <div class="hospital-info-item">
               <span>Alamat Google Maps</span>
-              <strong>{{ displayValue(hospital.mapAddress || hospital.address) }}</strong>
+              <strong>{{
+                displayValue(hospital.mapAddress || hospital.address)
+              }}</strong>
             </div>
             <div v-if="profileLocation" class="hospital-profile-map">
               <GoogleMapView
                 :center="profileLocation!"
                 :zoom="16"
-                :markers="[{ lat: profileLocation!.lat, lng: profileLocation!.lng }]"
+                :markers="[
+                  { lat: profileLocation!.lat, lng: profileLocation!.lng },
+                ]"
                 style="height: 310px"
               />
             </div>
@@ -729,13 +755,13 @@
               <strong class="purchase-history-title">
                 Pembelian {{ index + 1 }}
               </strong>
-              <span class="purchase-history-date">{{ purchase.dateLabel }}</span>
+              <span class="purchase-history-date">{{
+                purchase.dateLabel
+              }}</span>
             </div>
             <span class="purchase-history-amount">
               {{
-                purchase.amount
-                  ? formatCompactCurrency(purchase.amount)
-                  : "—"
+                purchase.amount ? formatCompactCurrency(purchase.amount) : "—"
               }}
             </span>
           </li>
@@ -749,7 +775,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from "vue";
 import {
   onBeforeRouteLeave,
   onBeforeRouteUpdate,
@@ -761,6 +794,7 @@ import { storeToRefs } from "pinia";
 import Swal from "sweetalert2";
 import GoogleMapView from "@/components/GoogleMapView.vue";
 import type { InstalledProduct } from "@/core/data/contactCrm";
+import { PROJECT_STAGE_COLORS } from "@/core/data/project";
 import { routes } from "@/router/routes";
 import { confirmEditExit } from "@/utils/confirmEditExit";
 import { searchAddress } from "@/services/geocoding";
@@ -773,14 +807,10 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import ActivityTimeline from "@/components/shared/ActivityTimeline.vue";
 
-import { fetchUnifiedTimeline } from "@/services/activityLogService";
 import { useProjectStore } from "@/store/project";
 import type { Contact } from "@/types/contacts";
 import HospitalForm from "@/module/rumahSakit/AddContactModal.vue";
-import {
-  usePageBackRoute,
-  usePageTitle,
-} from "@/composable/usePageHeader";
+import { usePageBackRoute, usePageTitle } from "@/composable/usePageHeader";
 import ContactFormModal from "@/module/contacts/AddContactModal.vue";
 import HospitalEmptyState from "@/module/rumahSakit/HospitalEmptyState.vue";
 import Modal from "@/components/shared/Modal.vue";
@@ -830,7 +860,7 @@ const { canEditHospital, canDeleteHospital } = useHospitalPermissions();
 const { selectedItem: hospital, detailLoading } = storeToRefs(hospitalStore);
 
 function detailTabFromQuery(value: unknown): NavigableDetailTab {
-  const normalized = String(Array.isArray(value) ? value[0] : value ?? "");
+  const normalized = String(Array.isArray(value) ? value[0] : (value ?? ""));
   return navigableDetailTabs.includes(normalized as NavigableDetailTab)
     ? (normalized as NavigableDetailTab)
     : "projects";
@@ -854,6 +884,8 @@ const hospitalProjects = computed(() => hospitalStore.detailProjects);
 
 const hospitalContacts = computed(() => hospitalStore.detailContacts);
 
+const hospitalActivities = computed(() => hospitalStore.detailActivities);
+
 const installedProducts = computed<InstalledProduct[]>(() => []);
 
 const totalProjectValue = computed(() =>
@@ -874,25 +906,16 @@ const installedCount = computed(
 
 const activityTimelineCount = ref(0);
 
-watch(
-  () => hospital.value?.id,
-  (id) => {
-    if (!id) return;
-    fetchUnifiedTimeline('companies', id, 100)
-      .then((items) => { activityTimelineCount.value = items.length })
-      .catch(() => {});
-  },
-  { immediate: true },
-);
-
 const wonProjectPurchases = computed<PurchaseTimelineItem[]>(() =>
   hospitalProjects.value
     .filter((project) => {
-      const stage = `${project.status} ${project.stageName || ""}`.toLowerCase();
+      const stage =
+        `${project.status} ${project.stageName || ""}`.toLowerCase();
       return /closed[_\s-]?won|\bwon\b|menang/.test(stage);
     })
     .map((project) => {
-      const rawDate = project.expectedCloseDate || project.createdAt || project.date;
+      const rawDate =
+        project.expectedCloseDate || project.createdAt || project.date;
       const date = parsePurchaseDate(rawDate);
       return {
         id: `project-${project.id}`,
@@ -948,7 +971,8 @@ const purchaseTimeline = computed<PurchaseTimelineItem[]>(() => {
 
 const datedPurchases = computed(() =>
   purchaseRecords.value.filter(
-    (purchase): purchase is PurchaseTimelineItem & { date: Date } => Boolean(purchase.date),
+    (purchase): purchase is PurchaseTimelineItem & { date: Date } =>
+      Boolean(purchase.date),
   ),
 );
 
@@ -959,7 +983,9 @@ const averagePurchaseLabel = computed(() => {
   if (dates.length < 2) return "belum tersedia";
   const totalMonths = dates.slice(1).reduce((total, date, index) => {
     const previous = dates[index];
-    return total + Math.max(0, date.getTime() - previous.getTime()) / 2_629_746_000;
+    return (
+      total + Math.max(0, date.getTime() - previous.getTime()) / 2_629_746_000
+    );
   }, 0);
   return `${Math.max(1, Math.round(totalMonths / (dates.length - 1)))} bulan`;
 });
@@ -1008,13 +1034,37 @@ const lastVisitLabel = computed(() =>
 );
 
 const stageConfig = [
-  { value: "qualified", label: "Qualified", color: "#3295f6" },
-  { value: "presentation_demo", label: "Presentation/Demo", color: "#efb51d" },
-  { value: "quotation", label: "Quotation", color: "#cad100" },
-  { value: "negotiation", label: "Negotiation", color: "#b620ea" },
-  { value: "closed_won", label: "Won", color: "#24b968" },
-  { value: "closed_lost", label: "Lost", color: "#ef5056" },
-  { value: "closed_cancel", label: "Cancel", color: "#aaa432" },
+  {
+    value: "qualified",
+    label: "Qualified",
+    color: PROJECT_STAGE_COLORS.qualified,
+  },
+  {
+    value: "presentation_demo",
+    label: "Presentation/Demo",
+    color: PROJECT_STAGE_COLORS.presentation_demo,
+  },
+  {
+    value: "quotation",
+    label: "Quotation",
+    color: PROJECT_STAGE_COLORS.quotation,
+  },
+  {
+    value: "negotiation",
+    label: "Negotiation",
+    color: PROJECT_STAGE_COLORS.negotiation,
+  },
+  { value: "closed_won", label: "Won", color: PROJECT_STAGE_COLORS.closed_won },
+  {
+    value: "closed_lost",
+    label: "Lost",
+    color: PROJECT_STAGE_COLORS.closed_lost,
+  },
+  {
+    value: "closed_cancel",
+    label: "Cancel",
+    color: PROJECT_STAGE_COLORS.closed_cancel,
+  },
 ];
 
 const stageGroups = computed(() =>
@@ -1121,7 +1171,10 @@ function openProject(id: number) {
 function openContactDetail(contact: Contact) {
   const id = contact.remoteId ?? contact.id;
   if (!Number.isFinite(id) || id <= 0) return;
-  void router.push({ path: routes.App.Contacts, query: { detail: String(id) } });
+  void router.push({
+    path: routes.App.Contacts,
+    query: { detail: String(id) },
+  });
 }
 
 function createOpportunity() {
@@ -1175,7 +1228,9 @@ async function loadProfileMap() {
     return;
   }
 
-  const address = (currentHospital.mapAddress || currentHospital.address).trim();
+  const address = (
+    currentHospital.mapAddress || currentHospital.address
+  ).trim();
   profileLocation.value = null;
   if (!address) return;
 
@@ -1209,7 +1264,10 @@ function editRouteQuery() {
 }
 
 function detailRouteQuery() {
-  const query = { ...route.query, detail: String(props.hospitalId) } as LocationQueryRaw & {
+  const query = {
+    ...route.query,
+    detail: String(props.hospitalId),
+  } as LocationQueryRaw & {
     edit?: unknown;
   };
   delete query.edit;
@@ -1243,14 +1301,20 @@ async function cancelHospitalEdit() {
   allowEditNavigation = true;
   prepareProfileForm();
   profileEditing.value = false;
-  await router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
+  await router.replace({
+    path: routes.App.RumahSakit,
+    query: detailRouteQuery(),
+  });
 }
 
 function handleHospitalSaved() {
   allowEditNavigation = true;
   prepareProfileForm();
   profileEditing.value = false;
-  void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
+  void router.replace({
+    path: routes.App.RumahSakit,
+    query: detailRouteQuery(),
+  });
   void loadProfileMap();
 }
 
@@ -1297,7 +1361,9 @@ async function confirmHospitalNavigation() {
 }
 
 onBeforeRouteUpdate((to, from) => {
-  const leavingEdit = String(from.query.edit ?? "") === "1" && String(to.query.edit ?? "") !== "1";
+  const leavingEdit =
+    String(from.query.edit ?? "") === "1" &&
+    String(to.query.edit ?? "") !== "1";
   return leavingEdit ? confirmHospitalNavigation() : true;
 });
 onBeforeRouteLeave((_to, _from) => confirmHospitalNavigation());
@@ -1309,7 +1375,9 @@ function warnBeforeUnload(event: BeforeUnloadEvent) {
 }
 
 onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
-onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnload));
+onBeforeUnmount(() =>
+  window.removeEventListener("beforeunload", warnBeforeUnload),
+);
 
 watch(
   [() => route.query.edit, hospital],
@@ -1317,7 +1385,10 @@ watch(
     if (String(edit ?? "") === "1" && !canEditHospital.value) {
       allowEditNavigation = true;
       profileEditing.value = false;
-      void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
+      void router.replace({
+        path: routes.App.RumahSakit,
+        query: detailRouteQuery(),
+      });
       return;
     }
     if (
@@ -1330,7 +1401,11 @@ watch(
       activeTab.value = "profile";
       profileEditing.value = true;
       allowEditNavigation = false;
-    } else if (String(edit ?? "") !== "1" && profileEditing.value && allowEditNavigation) {
+    } else if (
+      String(edit ?? "") !== "1" &&
+      profileEditing.value &&
+      allowEditNavigation
+    ) {
       profileEditing.value = false;
     }
   },
@@ -1341,7 +1416,10 @@ watch(canEditHospital, (allowed) => {
   allowEditNavigation = true;
   profileEditing.value = false;
   if (String(route.query.edit ?? "") === "1") {
-    void router.replace({ path: routes.App.RumahSakit, query: detailRouteQuery() });
+    void router.replace({
+      path: routes.App.RumahSakit,
+      query: detailRouteQuery(),
+    });
   }
 });
 
@@ -1430,7 +1508,9 @@ function parsePurchaseDate(value?: string): Date | null {
     nov: 10,
     des: 11,
   };
-  const match = normalized.toLocaleLowerCase("id-ID").match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+  const match = normalized
+    .toLocaleLowerCase("id-ID")
+    .match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
   if (!match) return null;
   const month = months[match[2].slice(0, 3)];
   if (month === undefined) return null;
@@ -1488,8 +1568,7 @@ async function loadDetail() {
   ]);
 
   if (results[0]?.status === "rejected" || !hospitalStore.selectedItem) {
-    loadError.value =
-      hospitalStore.error || "Data faskes tidak ditemukan.";
+    loadError.value = hospitalStore.error || "Data faskes tidak ditemukan.";
   }
 
   const firstPopulatedStage = stageGroups.value.find(
@@ -1886,7 +1965,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   width: 100%;
   height: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--app-secondary, #75d1ef), var(--app-primary, #23aee1));
+  background: linear-gradient(
+    90deg,
+    var(--app-secondary, #75d1ef),
+    var(--app-primary, #23aee1)
+  );
   content: "";
 }
 .purchase-dot {
@@ -1905,7 +1988,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   width: 16px;
   height: 16px;
   border-color: color-mix(in srgb, var(--primary) 24%, #fff);
-  background: color-mix(in srgb, var(--primary) 82%, var(--app-primary-deep, #032a4e));
+  background: color-mix(
+    in srgb,
+    var(--primary) 82%,
+    var(--app-primary-deep, #032a4e)
+  );
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent);
 }
 .purchase-step strong {
@@ -2462,7 +2549,11 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   height: 46px;
   border-radius: 50%;
   color: #fff;
-  background: linear-gradient(145deg, var(--app-primary, #2299f5), var(--app-secondary, #8dc8ff));
+  background: linear-gradient(
+    145deg,
+    var(--app-primary, #2299f5),
+    var(--app-secondary, #8dc8ff)
+  );
   font-weight: 700;
 }
 .contact-identity {

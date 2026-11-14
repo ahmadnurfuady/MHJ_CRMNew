@@ -1,12 +1,7 @@
 import { api } from '@/services/api'
 
 /** Entity yang didukung backend (whitelist di ActivityLogController). */
-export type ActivityLogEntity =
-  | 'contacts'
-  | 'companies'
-  | 'm_projects'
-  | 'tasks'
-  | 'master_information_cards'
+export type ActivityLogEntity = 'contacts' | 'companies' | 'm_projects' | 'tasks' | 'master_information_cards'
 
 /** Action tersimpan di DB bisa single-letter (web lama) atau full-word (APK). */
 export type ActivityLogRawAction = string
@@ -172,7 +167,7 @@ function normalizeSource(frmdvc: string | null | undefined): 'APK' | 'WEB' | nul
   return null
 }
 
-function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow): TimelineItem {
+export function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow): TimelineItem {
   // Aktivitas sintetik "Didaftarkan sebagai PIC Peluang": action 'pic_peluang'
   // dengan details { project_id, project_name } (bukan struktur before/after).
   // Dibedakan di sini supaya judulnya memakai nama peluang, bukan "Aktivitas
@@ -182,14 +177,10 @@ function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow):
     const projectName = typeof info.project_name === 'string' ? info.project_name.trim() : ''
     const projectId = info.project_id
     return {
-      key: row.id != null
-        ? `a-${row.id}`
-        : `pic-${row.entity_id}-${String(projectId ?? '')}-${row.created_at}`,
+      key: row.id != null ? `a-${row.id}` : `pic-${row.entity_id}-${String(projectId ?? '')}-${row.created_at}`,
       kind: 'activity',
       type: 'pic',
-      title: projectName
-        ? `Didaftarkan sebagai PIC Peluang: ${projectName}`
-        : 'Didaftarkan sebagai PIC Peluang',
+      title: projectName ? `Didaftarkan sebagai PIC Peluang: ${projectName}` : 'Didaftarkan sebagai PIC Peluang',
       authorName: row.user_name || 'Pengguna sistem',
       createdAt: row.created_at,
       source: normalizeSource(row.frmdvc),
@@ -204,9 +195,7 @@ function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityLogRow):
     const taskName = typeof info.task_name === 'string' ? info.task_name.trim() : ''
     const taskId = info.task_id
     return {
-      key: row.id != null
-        ? `a-${row.id}`
-        : `visit-${row.entity_id}-${String(taskId ?? '')}-${row.created_at}`,
+      key: row.id != null ? `a-${row.id}` : `visit-${row.entity_id}-${String(taskId ?? '')}-${row.created_at}`,
       kind: 'activity',
       type: 'kunjungan',
       title: taskName ? `Kunjungan: ${taskName}` : 'Kunjungan ke Faskes',

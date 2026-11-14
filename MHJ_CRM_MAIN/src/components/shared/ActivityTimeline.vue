@@ -21,9 +21,7 @@
     <div v-else-if="loadError" class="timeline-state timeline-state--error">
       <vue-feather type="alert-circle" size="18" />
       <span>{{ loadError }}</span>
-      <button class="btn btn-sm btn-outline-primary" type="button" @click="load">
-        Coba lagi
-      </button>
+      <button class="btn btn-sm btn-outline-primary" type="button" @click="load">Coba lagi</button>
     </div>
 
     <div v-else-if="!items.length" class="timeline-empty">
@@ -81,6 +79,8 @@ const props = defineProps<{
   entityId: number | null | undefined
   title: string
   heading?: string
+  /** Jika diberikan, timeline memakai data induk tanpa request /activity-logs. */
+  items?: TimelineItem[]
   /** Diterima untuk kompatibilitas; tidak lagi dipakai di tampilan baru. */
   createdDescription?: string
 }>()
@@ -100,6 +100,13 @@ const countLabel = computed(() => {
 })
 
 async function load() {
+  if (props.items !== undefined) {
+    items.value = props.items
+    loadError.value = null
+    emit('loaded', items.value.length)
+    return
+  }
+
   const id = Number(props.entityId)
   if (!Number.isFinite(id) || id <= 0) {
     items.value = []
@@ -120,7 +127,7 @@ async function load() {
 }
 
 watch(
-  () => [props.entity, props.entityId],
+  () => [props.entity, props.entityId, props.items],
   () => {
     void load()
   },

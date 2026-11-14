@@ -288,7 +288,7 @@ import {
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import Swal from "sweetalert2";
-import { projectTab } from "@/core/data/project";
+import { PROJECT_STAGE_COLORS, projectTab } from "@/core/data/project";
 import { routes } from "@/router/routes";
 import { fetchWonMissingRequirements } from "@/services/projectOrderService";
 import { useProjectStore } from "@/store/project";
@@ -497,16 +497,6 @@ watch(
   },
 );
 
-const STAGE_COLORS: Record<string, string> = {
-  qualified: "#2563eb",
-  presentation_demo: "#0891b2",
-  quotation: "#d97706",
-  negotiation: "#7c3aed",
-  closed_won: "#16a34a",
-  closed_lost: "#dc2626",
-  closed_cancel: "#64748b",
-};
-
 const summaryProjects = computed(() => summaryItems.value);
 
 // Seluruh angka ringkasan dan tahap merupakan hasil final dari backend.
@@ -527,7 +517,7 @@ const stageCards = computed(() =>
       return {
         value: stage.value,
         title: backendStage?.stageName || stage.title,
-        color: STAGE_COLORS[stage.value] || "#94a3b8",
+        color: PROJECT_STAGE_COLORS[stage.value] || "#94a3b8",
         quantity: backendStage?.quantity ?? 0,
         totalValue: backendStage?.totalValue ?? 0,
       };
