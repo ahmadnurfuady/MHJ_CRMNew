@@ -227,6 +227,7 @@
                       :options="hospitalOptions"
                       placeholder="Cari dan pilih faskes"
                       display-key="label"
+                      subtitle-key="address"
                       get-value-key="value"
                       :form-submitted="formSubmitted"
                       :disabled="form.hasProject"

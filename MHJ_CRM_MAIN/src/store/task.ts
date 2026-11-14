@@ -307,7 +307,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
     hospital,
     contactId: contactId || undefined,
     contact: pickText(raw, 'contact_person', 'contact_name', 'contact'),
-    scheduledAt: pickText(raw, 'scheduled_at', 'scheduledAt', 'due_date'),
+    scheduledAt: pickText(raw, 'waktu_kunjungan', 'scheduled_at', 'scheduledAt', 'due_date'),
     dueDate: pickText(raw, 'due_date', 'dueDate'),
     divisions: toStringArray(pick(raw, 'divisions', 'division')),
     products: toStringArray(pick(raw, 'products', 'product')),
