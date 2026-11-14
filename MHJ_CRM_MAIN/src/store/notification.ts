@@ -8,6 +8,7 @@ import {
   requestFcmToken,
   revokeFcmToken,
   restoreFcmToken,
+  showSystemNotification,
 } from '@/firebase/messaging'
 
 export type PushStatus =
@@ -61,6 +62,38 @@ const MESSAGE_PATTERN = /^\[([^\]]+)\]\s*(.*)$/s
 let stopForegroundListener: (() => void) | null = null
 let refreshPromise: Promise<void> | null = null
 let lifecycleVersion = 0
+let pollTimer: ReturnType<typeof setInterval> | null = null
+
+// Polling ringan untuk menyegarkan isi lonceng + MEMUNCULKAN notifikasi OS saat
+// ada tab terbuka (fallback bila push FCM tidak terkirim ke service worker).
+const POLL_INTERVAL_MS = 20_000
+
+// Dedup: id notifikasi yang sudah dimunculkan halaman agar tidak kembar
+// antar-polling. Background (tab tertutup) ditangani service worker Firebase
+// secara terpisah, jadi tidak saling tumpang-tindih dengan jalur foreground ini.
+const shownIds = new Set<string>()
+let shownPrimed = false
+
+/**
+ * Munculkan notifikasi OS untuk notifikasi BARU yang belum dibaca & belum pernah
+ * ditampilkan. Saat load pertama, backlog lama hanya ditandai "sudah dilihat"
+ * supaya layar tidak dibanjiri notif lama. `tag = id` disamakan dengan service
+ * worker agar tidak kembar bila kedua jalur kebetulan tampil.
+ */
+function presentNewNotifications(items: NotificationEntry[]) {
+  if (!shownPrimed) {
+    items.forEach((item) => shownIds.add(item.id))
+    shownPrimed = true
+    return
+  }
+
+  const fresh = items.filter((item) => !item.read && !shownIds.has(item.id))
+  fresh.forEach((item) => shownIds.add(item.id))
+  fresh
+    .slice()
+    .reverse()
+    .forEach((item) => void showSystemNotification(item.title, item.body, item.id))
+}
 
 function parseReceivedAt(value?: string | null): number {
   if (!value) return 0
@@ -137,6 +170,7 @@ export const useNotificationStore = defineStore('pushNotification', {
         if (requestVersion !== lifecycleVersion) return
 
         this.items = sortNotifications(response.data.map(normalizeNotification))
+        presentNewNotifications(this.items)
         this.fetchError = null
       } catch (error) {
         if (requestVersion !== lifecycleVersion) return
@@ -285,9 +319,19 @@ export const useNotificationStore = defineStore('pushNotification', {
       window.addEventListener('focus', handleFocus)
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
+      // Polling berkala: cek notifikasi baru otomatis selagi tab aktif.
+      if (pollTimer) clearInterval(pollTimer)
+      pollTimer = setInterval(() => {
+        if (document.visibilityState === 'visible') void this.refreshNotifications()
+      }, POLL_INTERVAL_MS)
+
       stopForegroundListener = () => {
         window.removeEventListener('focus', handleFocus)
         document.removeEventListener('visibilitychange', handleVisibilityChange)
+        if (pollTimer) {
+          clearInterval(pollTimer)
+          pollTimer = null
+        }
       }
 
       void this.refreshNotifications()
@@ -304,7 +348,12 @@ export const useNotificationStore = defineStore('pushNotification', {
         return
       }
 
+      // Saat service worker menerima push FCM, ia mem-postMessage ke tab ini agar
+      // isi lonceng langsung disegarkan. Notifikasi OS-nya sudah ditampilkan SW,
+      // jadi di sini TIDAK ada showNotification (mencegah duplikasi).
       try {
+        // Saat tab aktif & push FCM masuk, segarkan lonceng; popup OS-nya
+        // dimunculkan oleh presentNewNotifications (jalur foreground).
         const stopFcmListener = await listenForegroundMessages(() => {
           void this.refreshNotifications()
         })
@@ -352,6 +401,12 @@ export const useNotificationStore = defineStore('pushNotification', {
     stop() {
       lifecycleVersion += 1
       refreshPromise = null
+      shownIds.clear()
+      shownPrimed = false
+      if (pollTimer) {
+        clearInterval(pollTimer)
+        pollTimer = null
+      }
       stopForegroundListener?.()
       stopForegroundListener = null
       this.items = []
