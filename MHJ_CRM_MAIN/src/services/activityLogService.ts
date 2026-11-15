@@ -7,7 +7,18 @@ export type ActivityLogEntity = 'contacts' | 'companies' | 'm_projects' | 'tasks
 export type ActivityLogRawAction = string
 
 /** Action yang sudah dinormalkan untuk pemakaian FE. */
-export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'pic' | 'kunjungan' | 'tugas' | 'other'
+export type NormalizedAction =
+  | 'i'
+  | 'u'
+  | 'd'
+  | 'r'
+  | 'pic'
+  | 'kunjungan'
+  | 'tugas'
+  | 'kontak'
+  | 'peluang'
+  | 'faskes'
+  | 'other'
 
 export interface ActivityLogRow {
   id: number
@@ -135,7 +146,9 @@ function buildActivityTitle(entity: ActivityLogEntity, action: NormalizedAction,
   // 'pic' & 'kunjungan' ditangani khusus di activityToTimelineItem (tidak pernah
   // sampai sini), tapi tetap di-guard agar tipe `action` menyempit ke i|u|d|r
   // untuk indexing bucket.
-  if (action === 'other' || action === 'pic' || action === 'kunjungan' || action === 'tugas') return 'Aktivitas tercatat'
+  // Hanya i/u/d/r yang punya judul di bucket; tipe lain (kunjungan/kontak/peluang/
+  // faskes/tugas/pic/other) ditangani di cabang khusus activityToTimelineItem.
+  if (action !== 'i' && action !== 'u' && action !== 'd' && action !== 'r') return 'Aktivitas tercatat'
   return bucket[action] ?? 'Aktivitas tercatat'
 }
 
@@ -195,10 +208,52 @@ export function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityL
     const taskName = typeof info.task_name === 'string' ? info.task_name.trim() : ''
     const taskId = info.task_id
     return {
-      key: row.id != null ? `a-${row.id}` : `visit-${row.entity_id}-${String(taskId ?? '')}-${row.created_at}`,
+      // Baris kunjungan selalu sintetik (tanpa id activity_logs). Di jalur detail
+      // faskes, id null dinormalkan jadi 0, jadi key WAJIB komposit (task_id +
+      // waktu) supaya tidak bentrok antar-kunjungan ("a-0").
+      key: `visit-${row.entity_id}-${String(taskId ?? '')}-${row.created_at}`,
       kind: 'activity',
       type: 'kunjungan',
       title: taskName ? `Kunjungan: ${taskName}` : 'Kunjungan ke Faskes',
+      authorName: row.user_name || 'Pengguna sistem',
+      createdAt: row.created_at,
+      source: normalizeSource(row.frmdvc),
+    }
+  }
+
+  // Aktivitas KONTAK pada timeline faskes: action 'kontak' dengan details
+  // { contact_id, contact_name, mode: 'add'|'update' } (diturunkan CompanyController
+  // dari activity_logs kontak milik faskes). Judul bedakan tambah vs update.
+  if ((row.action || '').toString().trim().toLowerCase() === 'kontak') {
+    const info = parseActivityDetails(row.details) as unknown as Record<string, unknown>
+    const name = typeof info.contact_name === 'string' ? info.contact_name.trim() : ''
+    const isUpdate = info.mode === 'update'
+    return {
+      key: row.id != null ? `a-${row.id}` : `kontak-${row.entity_id}-${String(info.contact_id ?? '')}-${row.created_at}`,
+      kind: 'activity',
+      type: 'kontak',
+      title: name
+        ? (isUpdate ? `Kontak diperbarui: ${name}` : `Kontak ditambahkan: ${name}`)
+        : (isUpdate ? 'Kontak diperbarui' : 'Kontak ditambahkan'),
+      authorName: row.user_name || 'Pengguna sistem',
+      createdAt: row.created_at,
+      source: normalizeSource(row.frmdvc),
+    }
+  }
+
+  // Aktivitas PELUANG pada timeline faskes: action 'peluang' dengan details
+  // { project_id, project_name, mode }. Judul bedakan tambah vs update.
+  if ((row.action || '').toString().trim().toLowerCase() === 'peluang') {
+    const info = parseActivityDetails(row.details) as unknown as Record<string, unknown>
+    const name = typeof info.project_name === 'string' ? info.project_name.trim() : ''
+    const isUpdate = info.mode === 'update'
+    return {
+      key: row.id != null ? `a-${row.id}` : `peluang-${row.entity_id}-${String(info.project_id ?? '')}-${row.created_at}`,
+      kind: 'activity',
+      type: 'peluang',
+      title: name
+        ? (isUpdate ? `Peluang diperbarui: ${name}` : `Peluang ditambahkan: ${name}`)
+        : (isUpdate ? 'Peluang diperbarui' : 'Peluang ditambahkan'),
       authorName: row.user_name || 'Pengguna sistem',
       createdAt: row.created_at,
       source: normalizeSource(row.frmdvc),
@@ -228,10 +283,14 @@ export function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityL
 
   const action = normalizeAction(row.action)
   const details = parseActivityDetails(row.details)
+  // Create/update Faskes di timeline faskes → tipe 'faskes' agar ikonnya khusus
+  // (gedung rumah sakit), beda dari kontak/peluang/kunjungan di timeline yang sama.
+  const resolvedType: NormalizedAction =
+    entity === 'companies' && (action === 'i' || action === 'u' || action === 'd') ? 'faskes' : action
   return {
     key: `a-${row.id}`,
     kind: 'activity',
-    type: action,
+    type: resolvedType,
     title: buildActivityTitle(entity, action, details),
     authorName: row.user_name || 'Pengguna sistem',
     createdAt: row.created_at,
@@ -276,11 +335,17 @@ export function timelineIcon(type: TimelineItem['type']): string {
     case 'pic':
       return 'briefcase'
     case 'kunjungan':
-      return 'map-pin'
+      return 'map-point'
     case 'tugas':
       return 'check-square'
+    case 'kontak':
+      return 'user'
+    case 'peluang':
+      return 'chart-2'
+    case 'faskes':
+      return 'hospital'
     default:
-      return 'activity'
+      return 'document-text'
   }
 }
 
@@ -300,6 +365,12 @@ export function timelineTone(type: TimelineItem['type']): 'success' | 'warning' 
       return 'success'
     case 'tugas':
       return 'info'
+    case 'kontak':
+      return 'info'
+    case 'peluang':
+      return 'info'
+    case 'faskes':
+      return 'muted'
     default:
       return 'muted'
   }

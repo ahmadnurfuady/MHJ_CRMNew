@@ -1140,7 +1140,10 @@ const tabs = computed(() => [
   {
     value: "activities" as const,
     label: "Aktivitas",
-    count: activityTimelineCount.value,
+    // Pakai panjang data dari fetchcompanybyid langsung supaya badge sudah benar
+    // tanpa harus membuka tab dulu. activityTimelineCount (dari event @loaded
+    // ActivityTimeline) hanya terisi setelah komponen timeline ter-mount.
+    count: Math.max(activityTimelineCount.value, hospitalActivities.value.length),
     mhjIcon: "hospital_activity",
   },
 ]);
