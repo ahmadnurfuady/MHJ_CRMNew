@@ -107,13 +107,24 @@ function mapRow(row: SystemActivityRow, action: ActivityAction): MappedActivity 
 
   switch (row.entity_name) {
     case 'tasks': {
+      // Tugas yang terkait faskes = kunjungan ke faskes tsb. Judul
+      // "Kunjungan: [faskes]", subjudul = nama/jenis tugas. Tanpa faskes jatuh
+      // ke label tugas biasa.
       const name = pickString(after, ['task_name', 'task_subject'])
       const hospital = pickString(after, ['hospital_name', 'company_name'])
+      if (hospital) {
+        return {
+          title: `Kunjungan: ${hospital}`,
+          subtitle: name || pickString(after, ['type', 'category']) || 'Kunjungan faskes',
+          type: 'task',
+          icon: 'map-point',
+        }
+      }
       return {
         title: name || `Tugas ${actionLabel(action)}`,
-        subtitle: hospital || 'Tugas CRM',
+        subtitle: 'Tugas CRM',
         type: 'task',
-        icon: 'check-square',
+        icon: 'map-point',
       }
     }
     case 'contacts': {
@@ -221,10 +232,15 @@ export async function fetchRecentActivities(limit = 5): Promise<ActivityItem[]> 
       row.action,
     )
 
+    // Aktivitas tugas-terkait-peluang: BE menandainya dengan entity 'm_projects' +
+    // type 'task' (lihat DashboardController::mapActivityRow). Pakai ikon checklist
+    // dari BE supaya BEDA dari peluang (chart) & kunjungan (pin) di kartu dashboard.
+    const isPeluangTask = row.entity_name === 'm_projects' && row.type === 'task'
+
     return {
       id: row.id,
       type: ACTIVITY_TYPES.includes(row.type as ActivityType) ? (row.type as ActivityType) : mapped.type,
-      icon: mapped.icon,
+      icon: isPeluangTask ? row.icon || 'checklist' : mapped.icon,
       mhjIcon: mapped.mhjIcon,
       title: row.title,
       subtitle: row.subtitle,

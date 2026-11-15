@@ -7,7 +7,7 @@ export type ActivityLogEntity = 'contacts' | 'companies' | 'm_projects' | 'tasks
 export type ActivityLogRawAction = string
 
 /** Action yang sudah dinormalkan untuk pemakaian FE. */
-export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'pic' | 'kunjungan' | 'other'
+export type NormalizedAction = 'i' | 'u' | 'd' | 'r' | 'pic' | 'kunjungan' | 'tugas' | 'other'
 
 export interface ActivityLogRow {
   id: number
@@ -135,7 +135,7 @@ function buildActivityTitle(entity: ActivityLogEntity, action: NormalizedAction,
   // 'pic' & 'kunjungan' ditangani khusus di activityToTimelineItem (tidak pernah
   // sampai sini), tapi tetap di-guard agar tipe `action` menyempit ke i|u|d|r
   // untuk indexing bucket.
-  if (action === 'other' || action === 'pic' || action === 'kunjungan') return 'Aktivitas tercatat'
+  if (action === 'other' || action === 'pic' || action === 'kunjungan' || action === 'tugas') return 'Aktivitas tercatat'
   return bucket[action] ?? 'Aktivitas tercatat'
 }
 
@@ -205,6 +205,27 @@ export function activityToTimelineItem(entity: ActivityLogEntity, row: ActivityL
     }
   }
 
+  // Aktivitas peluang yang BERASAL dari tugas: TaskController menulis baris
+  // entity 'm_projects' dengan details.after.activity_source='task' saat tugas
+  // terkait peluang. Dibedakan di sini supaya judulnya "Tugas: [nama tugas]"
+  // dengan ikon & warna khusus, bukan "Peluang Diperbarui" generik.
+  if (entity === 'm_projects') {
+    const info = parseActivityDetails(row.details)
+    const after = (info.after && typeof info.after === 'object' ? info.after : {}) as Record<string, unknown>
+    if (after.activity_source === 'task') {
+      const taskName = typeof after.task_name === 'string' ? after.task_name.trim() : ''
+      return {
+        key: `a-${row.id}`,
+        kind: 'activity',
+        type: 'tugas',
+        title: taskName ? `Tugas: ${taskName}` : 'Tugas terkait peluang',
+        authorName: row.user_name || 'Pengguna sistem',
+        createdAt: row.created_at,
+        source: normalizeSource(row.frmdvc),
+      }
+    }
+  }
+
   const action = normalizeAction(row.action)
   const details = parseActivityDetails(row.details)
   return {
@@ -256,6 +277,8 @@ export function timelineIcon(type: TimelineItem['type']): string {
       return 'briefcase'
     case 'kunjungan':
       return 'map-pin'
+    case 'tugas':
+      return 'check-square'
     default:
       return 'activity'
   }
@@ -275,6 +298,8 @@ export function timelineTone(type: TimelineItem['type']): 'success' | 'warning' 
       return 'info'
     case 'kunjungan':
       return 'success'
+    case 'tugas':
+      return 'info'
     default:
       return 'muted'
   }
