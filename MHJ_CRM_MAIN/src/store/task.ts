@@ -59,6 +59,8 @@ export interface TaskPeluangOption {
   divisionCode: string
   divisionName: string
   productNames: string
+  /** CSV KodeBrg dari project_barang; dipakai mencocokkan produk by value. */
+  productCodes: string
   stageName: string
 }
 
@@ -394,6 +396,140 @@ export const useTask = defineStore('task', () => {
     peluang: [],
   })
 
+  /** Normalisasi response GET /api/tasks/produk jadi opsi dropdown. */
+  function mapProdukOptions(payload: unknown): TaskProdukOption[] {
+    return extractList(payload, ['produk', 'list']).items
+      .filter(isRecord)
+      .map((raw) => ({
+        value: pickString(raw, 'value', 'kode', 'id', 'KodeBrg'),
+        label: pickString(raw, 'label', 'name', 'nama_barang', 'NamaBrg'),
+        divisiCode: pickString(raw, 'divisi', 'kode_devisi', 'divisi_code', 'KodeDevisi'),
+      }))
+      .filter((option) => option.value && option.label)
+  }
+
+  /** Normalisasi response GET /api/tasks/project jadi opsi dropdown peluang. */
+  function mapPeluangOptions(payload: unknown): TaskPeluangOption[] {
+    return extractList(payload, ['projects', 'list']).items
+      .filter(isRecord)
+      .map((raw) => ({
+        value: pickNumber(raw, 'value', 'id', 'project_id'),
+        label: pickString(raw, 'label', 'project_name', 'projects_name'),
+        companyId: pickNumber(raw, 'company_id') || null,
+        companyName: pickString(raw, 'company_name', 'hospital_name'),
+        contactId: pickNumber(raw, 'contact_id') || null,
+        contactName: pickString(raw, 'contact_name'),
+        divisionCode: pickString(raw, 'division_code'),
+        divisionName: pickString(raw, 'division_name'),
+        productNames: pickString(raw, 'product_names'),
+        productCodes: pickString(raw, 'product_codes'),
+        stageName: pickString(raw, 'stage_name'),
+      }))
+      .filter((option) => option.value > 0 && option.label)
+  }
+
+  /**
+   * Status "sedang mencari" per dropdown remoteSearch. Dipakai prop `searching`
+   * komponen Select supaya user tahu hasil masih dimuat dari server.
+   */
+  const lookupSearching = reactive({ peluang: false, produk: false })
+
+  // Guard urutan: hanya respons permintaan TERAKHIR yang dipakai, supaya ketikan
+  // cepat tidak tertimpa hasil request lama yang datang belakangan.
+  let peluangSearchSeq = 0
+  let produkSearchSeq = 0
+
+  /**
+   * Cari peluang di server (GET /api/tasks/project?search=). Pencarian TIDAK
+   * dilakukan di FE karena endpoint hanya mengembalikan TOP-N baris, jadi peluang
+   * di luar halaman pertama tidak akan pernah ketemu kalau difilter lokal.
+   * Hirarki tetap diberlakukan backend.
+   */
+  async function searchTaskPeluang(search?: string) {
+    const term = (search ?? '').trim()
+    const seq = ++peluangSearchSeq
+    lookupSearching.peluang = true
+    try {
+      const response = await api.get('tasks/project', {
+        params: { ...(term ? { search: term } : {}), limit: 100 },
+      })
+      if (seq !== peluangSearchSeq) return lookups.peluang
+      lookups.peluang = mapPeluangOptions(response.data)
+      return lookups.peluang
+    } catch {
+      return lookups.peluang
+    } finally {
+      if (seq === peluangSearchSeq) lookupSearching.peluang = false
+    }
+  }
+
+  /**
+   * Muat produk dari server sesuai divisi terpilih dan/atau kata kunci.
+   * dbBarang terlalu besar untuk dimuat seluruhnya (endpoint dibatasi limit dan
+   * diurutkan nama), jadi produk divisi tertentu bisa terpotong kalau difilter
+   * di FE. `codes` memaksa kode barang tertentu (produk sebuah peluang) ikut
+   * terambil walau di luar batas limit.
+   */
+  async function searchTaskProduk(
+    params: { search?: string; divisiCodes?: string[]; codes?: string[] } = {}
+  ) {
+    const term = (params.search ?? '').trim()
+    const divisiCodes = (params.divisiCodes ?? []).filter(Boolean)
+    const codes = (params.codes ?? []).filter(Boolean)
+    const seq = ++produkSearchSeq
+    lookupSearching.produk = true
+    try {
+      const response = await api.get('tasks/produk', {
+        params: {
+          ...(term ? { search: term } : {}),
+          ...(divisiCodes.length ? { divisi: divisiCodes.join(',') } : {}),
+          ...(codes.length ? { codes: codes.join(',') } : {}),
+          // Satu divisi bisa punya ratusan barang; jangan dipotong kecil supaya
+          // pencocokan produk tersimpan tidak gagal.
+          limit: 1000,
+        },
+      })
+      if (seq !== produkSearchSeq) return lookups.produk
+      lookups.produk = mapProdukOptions(response.data)
+      return lookups.produk
+    } catch {
+      return lookups.produk
+    } finally {
+      if (seq === produkSearchSeq) lookupSearching.produk = false
+    }
+  }
+
+  /** Normalisasi response GET /api/tasks/contacts jadi opsi dropdown. */
+  function mapContactOptions(payload: unknown): TaskContactOption[] {
+    return extractList(payload, ['contacts', 'list']).items
+      .filter(isRecord)
+      .map((raw) => ({
+        value: pickNumber(raw, 'value', 'id'),
+        label: pickString(raw, 'label', 'name', 'full_name'),
+        phone: pickString(raw, 'phone', 'telephone_1'),
+      }))
+      .filter((option) => option.value > 0 && option.label)
+  }
+
+  /**
+   * Muat ulang dropdown kontak form tugas, difilter faskes bila diberikan.
+   * Tetap hanya kontak milik sendiri (backend memfilter created_by = user login);
+   * company_id hanya mempersempit ke kontak yang terhubung ke faskes itu,
+   * baik via contacts.company_id maupun pivot contact_company.
+   */
+  function fetchTaskContacts(companyId?: number | null) {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat data kontak.',
+      task: async () => {
+        const params = companyId && companyId > 0 ? { company_id: companyId } : undefined
+        const response = await api.get('tasks/contacts', { params })
+        lookups.contact = mapContactOptions(response.data)
+      },
+    })
+  }
+
   /**
    * Memuat seluruh dropdown form task dari endpoint masing-masing dalam satu
    * gelombang paralel: faskes, kontak, divisi, produk, dan peluang. Menggantikan
@@ -405,12 +541,14 @@ export const useTask = defineStore('task', () => {
       error,
       fallbackMessage: 'Gagal memuat data pendukung form tugas.',
       task: async () => {
-        const [faskes, contact, divisi, produk, peluang] = await Promise.all([
+        // Produk TIDAK dimuat di sini: dbBarang terlalu besar untuk diambil semua
+        // (endpoint dibatasi limit + urut nama, jadi produk divisi tertentu bisa
+        // terpotong). Produk dimuat per divisi lewat searchTaskProduk().
+        const [faskes, contact, divisi, peluang] = await Promise.all([
           api.get('tasks/faskes'),
           api.get('tasks/contacts'),
           api.get('tasks/divisi'),
-          api.get('tasks/produk'),
-          api.get('tasks/project'),
+          api.get('tasks/project', { params: { limit: 100 } }),
         ])
 
         lookups.faskes = extractList(faskes.data, ['faskes', 'list']).items
@@ -422,40 +560,10 @@ export const useTask = defineStore('task', () => {
           }))
           .filter((option) => option.value > 0 && option.label)
 
-        lookups.contact = extractList(contact.data, ['contacts', 'list']).items
-          .filter(isRecord)
-          .map((raw) => ({
-            value: pickNumber(raw, 'value', 'id'),
-            label: pickString(raw, 'label', 'name', 'full_name'),
-            phone: pickString(raw, 'phone', 'telephone_1'),
-          }))
-          .filter((option) => option.value > 0 && option.label)
+        lookups.contact = mapContactOptions(contact.data)
 
         lookups.divisi = normalizeOptions(divisi.data, ['divisi', 'list'])
-        lookups.produk = extractList(produk.data, ['produk', 'list']).items
-          .filter(isRecord)
-          .map((raw) => ({
-            value: pickString(raw, 'value', 'kode', 'id', 'KodeBrg'),
-            label: pickString(raw, 'label', 'name', 'nama_barang', 'NamaBrg'),
-            divisiCode: pickString(raw, 'divisi', 'kode_devisi', 'divisi_code', 'KodeDevisi'),
-          }))
-          .filter((option) => option.value && option.label)
-
-        lookups.peluang = extractList(peluang.data, ['projects', 'list']).items
-          .filter(isRecord)
-          .map((raw) => ({
-            value: pickNumber(raw, 'value', 'id', 'project_id'),
-            label: pickString(raw, 'label', 'project_name', 'projects_name'),
-            companyId: pickNumber(raw, 'company_id') || null,
-            companyName: pickString(raw, 'company_name', 'hospital_name'),
-            contactId: pickNumber(raw, 'contact_id') || null,
-            contactName: pickString(raw, 'contact_name'),
-            divisionCode: pickString(raw, 'division_code'),
-            divisionName: pickString(raw, 'division_name'),
-            productNames: pickString(raw, 'product_names'),
-            stageName: pickString(raw, 'stage_name'),
-          }))
-          .filter((option) => option.value > 0 && option.label)
+        lookups.peluang = mapPeluangOptions(peluang.data)
       },
     })
   }
@@ -997,6 +1105,10 @@ export const useTask = defineStore('task', () => {
     fetchTaskById,
     fetchTaskLookups,
     fetchTaskFormLookups,
+    fetchTaskContacts,
+    lookupSearching,
+    searchTaskPeluang,
+    searchTaskProduk,
     createTask,
     updateTask,
     deleteTask,

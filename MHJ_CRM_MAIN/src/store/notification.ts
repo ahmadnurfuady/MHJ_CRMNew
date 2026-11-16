@@ -62,14 +62,12 @@ const MESSAGE_PATTERN = /^\[([^\]]+)\]\s*(.*)$/s
 let stopForegroundListener: (() => void) | null = null
 let refreshPromise: Promise<void> | null = null
 let lifecycleVersion = 0
-let pollTimer: ReturnType<typeof setInterval> | null = null
 
-// Polling ringan untuk menyegarkan isi lonceng + MEMUNCULKAN notifikasi OS saat
-// ada tab terbuka (fallback bila push FCM tidak terkirim ke service worker).
-const POLL_INTERVAL_MS = 20_000
+// Tidak ada polling berkala: penyegaran lonceng dipicu oleh push FCM
+// (listenForegroundMessages / service worker), plus saat tab kembali aktif.
 
 // Dedup: id notifikasi yang sudah dimunculkan halaman agar tidak kembar
-// antar-polling. Background (tab tertutup) ditangani service worker Firebase
+// antar-penyegaran. Background (tab tertutup) ditangani service worker Firebase
 // secara terpisah, jadi tidak saling tumpang-tindih dengan jalur foreground ini.
 const shownIds = new Set<string>()
 let shownPrimed = false
@@ -319,19 +317,9 @@ export const useNotificationStore = defineStore('pushNotification', {
       window.addEventListener('focus', handleFocus)
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
-      // Polling berkala: cek notifikasi baru otomatis selagi tab aktif.
-      if (pollTimer) clearInterval(pollTimer)
-      pollTimer = setInterval(() => {
-        if (document.visibilityState === 'visible') void this.refreshNotifications()
-      }, POLL_INTERVAL_MS)
-
       stopForegroundListener = () => {
         window.removeEventListener('focus', handleFocus)
         document.removeEventListener('visibilitychange', handleVisibilityChange)
-        if (pollTimer) {
-          clearInterval(pollTimer)
-          pollTimer = null
-        }
       }
 
       void this.refreshNotifications()
@@ -403,10 +391,6 @@ export const useNotificationStore = defineStore('pushNotification', {
       refreshPromise = null
       shownIds.clear()
       shownPrimed = false
-      if (pollTimer) {
-        clearInterval(pollTimer)
-        pollTimer = null
-      }
       stopForegroundListener?.()
       stopForegroundListener = null
       this.items = []

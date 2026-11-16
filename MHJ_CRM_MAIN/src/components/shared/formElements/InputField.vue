@@ -21,6 +21,8 @@
     :pattern="inputType === 'tel' ? '[+]?[0-9]*' : undefined"
     :list="props.datalist?.length ? `datalistOptions-${inputId}` : undefined"
     :maxlength="props.maxLength"
+    :min="props.min"
+    :max="props.max"
   />
   <datalist v-if="props.datalist?.length" :id="`datalistOptions-${inputId}`">
     <option v-for="item in props.datalist" :key="item.label" :value="item.label" />
