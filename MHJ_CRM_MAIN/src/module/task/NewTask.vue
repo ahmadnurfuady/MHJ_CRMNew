@@ -243,12 +243,12 @@
 
                   <div class="col-12">
                     <label class="form-label"
-                      >Kontak <span class="txt-danger">*</span></label
+                      >Kontak Person <span class="txt-danger">*</span></label
                     >
                     <Select
                       v-model="form.contact"
                       :options="availableContacts"
-                      placeholder="Nama Kontak / Dokter / PIC"
+                      placeholder="Pilih satu atau lebih kontak / dokter / PIC"
                       display-key="label"
                       get-value-key="value"
                       :multi-select="true"
@@ -1131,8 +1131,6 @@ const availableContacts = computed(() => {
   if (!form.hasProject) return contactOptions.value;
 
   const projectContacts = selectedProject.value?.contacts ?? [];
-  if (!isAppSpecialistProject.value) return projectContacts;
-
   const seen = new Set<string>();
   return [...projectContacts, ...contactOptions.value].filter((contact) => {
     const key = String(contact.value);
@@ -1158,14 +1156,13 @@ const selectedCompanyLabel = computed(() => {
   return selectedProject.value?.hospital?.label || "";
 });
 const selectedContactPhone = computed(() => {
-  const selectedIds = new Set(
-    selectedContacts.value.map((contact) => String(contact.value)),
-  );
-  const phones = taskStore.lookups.contact
-    .filter((contact) => selectedIds.has(String(contact.value)))
-    .map((contact) => contact.phone.trim())
-    .filter(Boolean);
-  return [...new Set(phones)].join(" ");
+  return selectedContacts.value
+    .map((contact) =>
+      taskStore.lookups.contact.find(
+        (option) => String(option.value) === String(contact.value),
+      )?.phone.trim() || "",
+    )
+    .join(", ");
 });
 const selectedProducts = computed(
   () => form.products.selectedItems as DealOption[],
@@ -1612,7 +1609,7 @@ watch(
       validValues.has(String(contact.value)),
     );
     if (stillValid.length === selectedContacts.value.length) return;
-    form.contact = selectField(stillValid[0] ?? null);
+    form.contact = multiSelectField(stillValid);
   },
 );
 
@@ -2092,7 +2089,7 @@ async function submitTask() {
     contact: selectedContacts.value
       .map((item) => String(item.label))
       .join(", "),
-    contactPhone: form.contactPhone,
+    contactPhone: selectedContactPhone.value,
     scheduledAt: form.scheduledAt,
     divisions: selectedDivisions.value.map((item) => String(item.label)),
     products: selectedProducts.value.map((item) => String(item.label)),

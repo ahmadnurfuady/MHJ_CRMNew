@@ -56,6 +56,8 @@
               <InputField
                 :inputId="'tel'"
                 :inputType="'tel'"
+                v-model="telephone"
+                :validator="indonesianMobilePhoneError"
                 :placeholder="'91-(999)-999-999'"
                 :required="false"
               />
@@ -195,6 +197,8 @@
 import { ref, defineAsyncComponent } from 'vue'
 
 import { states } from '@/core/data/country'
+import { initInputField } from '@/core/data/common'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 
 const Card = defineAsyncComponent(() => import('@/components/shared/card/Card.vue'))
 const InputWrapper = defineAsyncComponent(
@@ -205,4 +209,5 @@ const InputField = defineAsyncComponent(
 )
 
 const colorPicker = ref({ data: '#006666', errorMessage: '' })
+const telephone = ref(initInputField())
 </script>

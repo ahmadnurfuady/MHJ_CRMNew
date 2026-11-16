@@ -108,7 +108,9 @@
           <InputWrapper :title="'Phone Number:'">
             <InputField
               :inputId="'job-personal-details-number'"
-              :inputType="'number'"
+              :inputType="'tel'"
+              v-model="phone"
+              :validator="indonesianMobilePhoneError"
               :placeholder="'Enter phone no.'"
               :required="false"
             />
@@ -122,7 +124,8 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent, reactive, onMounted } from 'vue'
 
-import { initSelectField } from '@/core/data/common'
+import { initInputField, initSelectField } from '@/core/data/common'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 import { month } from '@/core/data/jobs/applyForm'
 import type { Select } from '@/types/common'
 
@@ -143,6 +146,7 @@ const values = reactive<Values>({
   year: [],
 })
 
+const phone = ref(initInputField())
 const dob = ref({
   date: initSelectField(),
   month: initSelectField(),

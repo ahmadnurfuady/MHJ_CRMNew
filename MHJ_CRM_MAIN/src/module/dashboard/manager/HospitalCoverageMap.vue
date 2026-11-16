@@ -1106,9 +1106,7 @@ onBeforeUnmount(() => {
   .hospital-map--expanded { width: calc(100vw - 24px); height: min(680px, calc(100vh - 48px)); }
   .hospital-map__legend { top: 10px; left: 10px; padding: 9px 10px; }
   .hospital-map__top-actions { top: 10px; right: 10px; }
-  .map-action--wide { min-width: 42px; width: 42px; padding: 0; }
-  .map-action--wide span { display: none; }
-  .hospital-map__layer-menu { top: 56px; right: 10px; }
+  .hospital-map__layer-menu { top: 56px; right: 58px; width: min(250px, calc(100% - 68px)); }
   .hospital-map__search { top: 56px; right: 10px; width: calc(100% - 20px); }
   .hospital-map__filter { top: 56px; right: 10px; bottom: 10px; width: calc(100% - 20px); }
   .hospital-map__detail { left: 10px; bottom: 10px; width: calc(100% - 66px); }

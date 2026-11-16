@@ -47,6 +47,7 @@
                   :formSubmitted="props.formSubmitted"
                   :errorMessage="'Contact number is required.'"
                   v-model:modelValue="props.form.contactNumber"
+                  :validator="(value: string) => indonesianMobilePhoneError(value, true)"
                   :inputId="'contact-number'"
                   :placeholder="'Enter number'"
                 />
@@ -74,6 +75,7 @@
 import { defineAsyncComponent } from 'vue'
 
 import { notificationPlatform } from '@/core/data/forms/formLayout'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 import type { CustomWizardInquiries } from '@/types/forms/formLayout'
 
 const InputWrapper = defineAsyncComponent(

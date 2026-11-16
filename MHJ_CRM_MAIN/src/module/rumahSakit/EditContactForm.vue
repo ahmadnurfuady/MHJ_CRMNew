@@ -47,6 +47,7 @@
                 v-model:modelValue="contactForm.contactNumber"
                 :inputId="'contact-number'"
                 inputType="tel"
+                :validator="(value: string) => indonesianMobilePhoneError(value, true)"
                 :maxLength="15"
                 :placeholder="'Masukkan nomor telepon faskes'"
               />
@@ -232,6 +233,7 @@ import { initInputField, initSelectField } from '@/core/data/common'
 import { contactTypes, urlTypes } from '@/core/data/contacts'
 import { useContact } from '@/store/contact'
 import { assignFormFieldValue } from '@/utils/index'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 import { storeToRefs } from 'pinia'
 
 const InputWrapper = defineAsyncComponent(

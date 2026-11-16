@@ -202,13 +202,12 @@ function pickTaskContacts(raw: Dict): TaskContact[] {
     'contact_names',
   ].find((key) => raw[key] !== undefined && raw[key] !== null && raw[key] !== '')
   const contacts = sourceKey ? taskContacts(raw[sourceKey]) : []
+  const phones = pickString(raw, 'contactPhone', 'contact_phone', 'telephone_1', 'phone')
+    .split(/[,;|]\s*|\s+/)
+    .map((phone) => phone.trim())
 
   if (!contacts.length) {
     const names = taskContacts(pick(raw, 'contact_person', 'contact_name', 'contact'))
-    const phones = pickString(raw, 'contactPhone', 'contact_phone', 'telephone_1', 'phone')
-      .split(/[,;|]/)
-      .map((phone) => phone.trim())
-      .filter(Boolean)
     const isOwnContact = ownContactFlag(raw.is_own_contact)
     const ownerName = pickText(raw, 'contact_owner_name', 'contact_created_by_name')
     names.forEach((contact, index) => {
@@ -217,6 +216,10 @@ function pickTaskContacts(raw: Dict): TaskContact[] {
       contact.ownerName = ownerName
     })
     contacts.push(...names)
+  } else {
+    contacts.forEach((contact, index) => {
+      if (!contact.phone) contact.phone = phones[index] || ''
+    })
   }
 
   return contacts.filter((contact, index, items) => items.findIndex((candidate) =>
@@ -388,6 +391,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
     hospital,
     contactId: contactId || undefined,
     contact: pickText(raw, 'contact_person', 'contact_name', 'contact'),
+    contacts,
     scheduledAt: pickText(raw, 'waktu_kunjungan', 'scheduled_at', 'scheduledAt', 'due_date'),
     dueDate: pickText(raw, 'due_date', 'dueDate'),
     divisions: toStringArray(pick(raw, 'divisions', 'division')),

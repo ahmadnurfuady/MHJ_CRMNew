@@ -352,7 +352,9 @@
                   v-if="isEditingCompany"
                   v-model="companyDraft.phone"
                   class="form-control form-control-sm"
+                  :class="{ 'is-invalid': companyPhoneError }"
                 />
+                <div v-if="isEditingCompany && companyPhoneError" class="invalid-feedback d-block">{{ companyPhoneError }}</div>
                 <strong v-else>{{ companyDetail.phone }}</strong>
               </div>
               <div class="col-md-6">
@@ -537,6 +539,7 @@ import type { Hospital } from "@/types/hospital";
 import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
 import { useContactPermissions } from "@/module/contacts/contactPermission";
 import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
+import { indonesianMobilePhoneError } from "@/utils/indonesianPhone";
 import GoogleMapView from "@/components/GoogleMapView.vue";
 import {
   indonesianPhoneCallUrl,
@@ -863,12 +866,13 @@ const companyEditTitle = computed(() =>
 );
 const isEditingCompany = ref(false);
 const companyDraft = reactive({ phone: "", email: "", address: "" });
+const companyPhoneError = computed(() => indonesianMobilePhoneError(companyDraft.phone));
 
 watch(
   companyDetail,
   (company) => {
     isEditingCompany.value = false;
-    companyDraft.phone = company?.phone || "";
+    companyDraft.phone = company?.phone && company.phone !== "-" ? company.phone : "";
     companyDraft.email = company?.email || "";
     companyDraft.address = company?.address || "";
   },
@@ -990,6 +994,7 @@ async function toggleCompanyEdit() {
   if (!canEditSelectedCompanyProfile.value || !companyDetail.value) return;
 
   if (isEditingCompany.value) {
+    if (companyPhoneError.value) return;
     const company = liveCompany.value;
     if (company) {
       try {

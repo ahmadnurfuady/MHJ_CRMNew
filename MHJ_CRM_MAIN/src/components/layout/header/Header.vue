@@ -17,7 +17,7 @@
         <li class="d-md-block d-none">
           <SearchBar />
         </li>
-        <li class="d-md-none d-block">
+        <li class="mobile-search-action d-md-none d-block">
           <SearchInput />
         </li>
         <li class="fullscreen-body">
@@ -69,5 +69,31 @@ const SettingsAction = defineAsyncComponent(
 <style scoped>
 .notification-down::before {
   display: none !important;
+}
+
+:global(.page-wrapper .page-header .header-wrapper .nav-right > ul > li.fullscreen-body),
+:global(.page-wrapper .page-header .header-wrapper .nav-right > ul > li.notification-down),
+:global(.page-wrapper .page-header .header-wrapper .nav-right > ul > li.settings-nav),
+:global(.page-wrapper .page-header .header-wrapper .nav-right > ul > li.mobile-search-action) {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  text-align: center;
+}
+
+:global(.page-wrapper .page-header .header-wrapper .nav-right > ul > li.mobile-search-action) {
+  background-color: #fff;
+}
+
+@media (max-width: 767.98px) {
+  :global(.page-wrapper .page-header .header-wrapper .nav-right > ul > li.mobile-search-action) {
+    display: inline-flex !important;
+  }
 }
 </style>

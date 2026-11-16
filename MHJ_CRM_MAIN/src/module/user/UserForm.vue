@@ -95,7 +95,9 @@
               v-model.trim="form.no_handphone"
               type="tel"
               class="form-control"
+              :class="{ 'is-invalid': phoneError }"
             />
+            <div v-if="phoneError" class="invalid-feedback">{{ phoneError }}</div>
           </div>
         </div>
 
@@ -166,6 +168,7 @@ import SelectInput from '@/components/ui/SelectInput.vue'
 import LoadingSpinner from '@/components/ui/LoadingSpinner.vue'
 import MultiSelectInput from '@/components/ui/MultiSelectInput.vue'
 import type { MasterOption, UserCrudPayload, UserMasterOptions } from '@/types/user'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 
 const route = useRoute()
 const router = useRouter()
@@ -188,6 +191,7 @@ const masterOptions = ref<UserMasterOptions>({
 const loadingUser = ref(false)
 const saving = ref(false)
 const parsedError = ref<ParsedError | null>(null)
+const phoneError = computed(() => indonesianMobilePhoneError(form.no_handphone))
 
 const form = reactive({
   firstname: '',
@@ -213,6 +217,7 @@ function validate(): string {
   if (!form.email) return 'Email wajib diisi.'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return 'Format email tidak valid.'
   if (!form.no_handphone) return 'No. Handphone wajib diisi.'
+  if (phoneError.value) return phoneError.value
   if (!isEditMode.value && form.password.length < 6) {
     return 'Sandi wajib diisi minimal 6 karakter.'
   }
@@ -330,4 +335,3 @@ onMounted(async () => {
   }
 })
 </script>
-

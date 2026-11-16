@@ -88,6 +88,7 @@
                     />
                     {{ contact.phone }}
                   </a>
+                  <small v-else-if="contact.isOwnContact" class="task-contact-missing-phone">Nomor HP belum tersedia</small>
                   <div v-else-if="!contact.isOwnContact" class="task-contact-owner-note">
                     <span>
                       <SolarIcon name="user" :size="13" aria-hidden="true" />
@@ -276,12 +277,11 @@
         </svg>
         Download PDF
       </button>
-      <a
+      <button
         class="btn btn-outline-dark contact-button"
-        :class="{ disabled: !task.contactPhone }"
-        :href="task.contactPhone ? `tel:${task.contactPhone}` : undefined"
-        :aria-disabled="!task.contactPhone"
-        @click="preventUnavailableContact"
+        type="button"
+        :disabled="!callableContacts.length"
+        @click="callContact"
       >
         <SolarIcon
           name="phone"
@@ -292,7 +292,7 @@
           aria-hidden="true"
         />
         Hubungi Kontak
-      </a>
+      </button>
     </footer>
   </div>
 </template>
@@ -376,9 +376,8 @@ const taskContacts = computed(() => {
     .map((name) => name.trim())
     .filter(Boolean)
   const phones = (props.task?.contactPhone || '')
-    .split(/[,;|]/)
+    .split(/[,;|]\s*|\s+/)
     .map((phone) => phone.trim())
-    .filter(Boolean)
 
   return names.map((name, index) => ({
     name,
@@ -387,6 +386,9 @@ const taskContacts = computed(() => {
     ownerName: '',
   }))
 })
+const callableContacts = computed(() =>
+  taskContacts.value.filter((contact) => contact.isOwnContact && contact.phone),
+)
 
 const taskLocation = computed(() => {
   const latitude = props.task?.latitude
@@ -504,8 +506,29 @@ function printDetail() {
   window.print()
 }
 
-function preventUnavailableContact(event: MouseEvent) {
-  if (!props.task?.contactPhone) event.preventDefault()
+async function callContact() {
+  if (callableContacts.value.length === 1) {
+    window.location.href = `tel:${callableContacts.value[0]!.phone}`
+    return
+  }
+  if (!callableContacts.value.length) return
+
+  const result = await Swal.fire({
+    title: 'Hubungi Kontak',
+    input: 'select',
+    inputOptions: Object.fromEntries(
+      callableContacts.value.map((contact, index) => [index, `${contact.name} - ${contact.phone}`]),
+    ),
+    inputPlaceholder: 'Pilih kontak yang ingin dihubungi',
+    showCancelButton: true,
+    confirmButtonText: 'Telepon',
+    cancelButtonText: 'Batal',
+    inputValidator: (value) => value === '' ? 'Pilih kontak terlebih dahulu.' : undefined,
+  })
+  if (result.isConfirmed) {
+    const contact = callableContacts.value[Number(result.value)]
+    if (contact) window.location.href = `tel:${contact.phone}`
+  }
 }
 </script>
 

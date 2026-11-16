@@ -133,6 +133,7 @@ import { UserBlockIcon } from "@solar-icons/vue/bold/user-block";
 import { UserCheckIcon } from "@solar-icons/vue/bold/user-check";
 import { UserIcon } from "@solar-icons/vue/bold/user";
 import { UserPlusIcon } from "@solar-icons/vue/bold/user-plus";
+import { UserRoundedIcon } from "@solar-icons/vue/bold/user-rounded";
 import { UsersGroupRoundedIcon } from "@solar-icons/vue/bold/users-group-rounded";
 import { WalletIcon } from "@solar-icons/vue/bold/wallet";
 import { WidgetIcon } from "@solar-icons/vue/bold/widget";
@@ -305,6 +306,7 @@ const icons: Record<string, Component> = {
   "user-check": UserCheckIcon,
   user: UserIcon,
   "user-plus": UserPlusIcon,
+  "user-rounded": UserRoundedIcon,
   users: UsersGroupRoundedIcon,
   wallet: WalletIcon,
   widget: WidgetIcon,

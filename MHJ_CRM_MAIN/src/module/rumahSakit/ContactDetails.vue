@@ -1434,20 +1434,12 @@ onBeforeUnmount(() => {
 
 @media (max-width: 575.98px) {
   .hospital-header-actions {
-    grid-template-columns: minmax(0, 1fr) max-content;
-  }
-
-  .hospital-search {
-    grid-column: 1 / -1;
-  }
-
-  .hospital-filter {
-    justify-self: start;
+    grid-template-columns: minmax(0, 1fr) 44px;
   }
 
   .add-hospital-header-button {
-    width: auto;
-    justify-self: end;
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   /* ── Kartu per faskes (seperti contact list mobile) ─────────────── */

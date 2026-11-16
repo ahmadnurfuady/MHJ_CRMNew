@@ -18,22 +18,24 @@
     aria-label="Pengaturan akun"
   >
     <li class="settings-heading">
-      <vue-feather type="settings" aria-hidden="true" />
+      <SolarIcon name="settings" :size="22" color="var(--app-primary, #18a6e4)" aria-hidden="true" />
       <span>Pengaturan Akun &amp; Sinkronisasi</span>
     </li>
 
     <li class="settings-item profile-item">
       <router-link class="settings-row profile-row" :to="routes.User.AkunSaya">
         <span class="settings-item-icon profile-icon">
-          <vue-feather type="user" aria-hidden="true" />
+          <SolarIcon name="user-rounded" :size="26" color="var(--app-primary, #18a6e4)" aria-hidden="true" />
         </span>
         <span class="settings-copy">
           <strong>Profil Saya ({{ roleLabel }})</strong>
           <small>{{ profileDetail }}</small>
         </span>
-        <vue-feather
+        <SolarIcon
           class="row-chevron"
-          type="chevron-right"
+          name="alt-arrow-right"
+          :size="18"
+          color="var(--app-primary, #18a6e4)"
           aria-hidden="true"
         />
       </router-link>
@@ -42,15 +44,17 @@
     <li class="settings-item">
       <router-link class="settings-row" :to="routes.Pages.Faq">
         <span class="settings-item-icon">
-          <vue-feather type="help-circle" aria-hidden="true" />
+          <SolarIcon name="question" :size="26" color="var(--app-primary, #18a6e4)" aria-hidden="true" />
         </span>
         <span class="settings-copy">
           <strong>Pusat Bantuan</strong>
           <small>Panduan dan pertanyaan umum</small>
         </span>
-        <vue-feather
+        <SolarIcon
           class="row-chevron"
-          type="chevron-right"
+          name="alt-arrow-right"
+          :size="18"
+          color="var(--app-primary, #18a6e4)"
           aria-hidden="true"
         />
       </router-link>
@@ -187,7 +191,17 @@ async function syncServerData() {
   color: var(--app-primary, #18a6e4) !important;
 }
 
-.settings-dropdown :deep(svg *) {
+.settings-dropdown :deep(.solar-icon),
+.settings-dropdown :deep(.solar-icon *) {
+  stroke: none !important;
+}
+
+.settings-dropdown :deep(.solar-icon path) {
+  color: var(--app-primary, #18a6e4) !important;
+  fill: var(--app-primary, #18a6e4) !important;
+}
+
+.settings-dropdown :deep(.sync-item svg *) {
   color: inherit !important;
   stroke: currentColor !important;
 }
@@ -212,13 +226,9 @@ async function syncServerData() {
   width: 22px !important;
   height: 22px !important;
   color: var(--app-primary, #18a6e4) !important;
-  fill: none !important;
-  stroke: currentColor !important;
 }
 
-.settings-heading svg *,
-.settings-row svg *,
-.logout-button svg * {
+.sync-item svg * {
   fill: none !important;
   stroke: currentColor !important;
 }
@@ -258,17 +268,19 @@ async function syncServerData() {
   line-height: 0;
 }
 
-.settings-item-icon svg {
+.settings-item-icon :deep(svg) {
   position: static !important;
   display: block;
   width: 22px !important;
   height: 22px !important;
   margin: 0 !important;
   padding: 0 !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+}
+
+.settings-item:not(.sync-item) .settings-item-icon :deep(svg) {
+  width: 26px !important;
+  height: 26px !important;
+  color: var(--app-primary, #18a6e4) !important;
 }
 
 .settings-copy {
@@ -307,8 +319,6 @@ async function syncServerData() {
   width: 18px !important;
   height: 18px !important;
   color: var(--app-primary, #18a6e4) !important;
-  fill: none !important;
-  stroke: currentColor !important;
 }
 
 .embedded-control {

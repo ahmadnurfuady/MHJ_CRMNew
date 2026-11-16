@@ -8,7 +8,7 @@
     @click.stop="toggleTheme"
   >
     <span class="mode-menu-icon">
-      <vue-feather :type="isDarkMode ? 'sun' : 'moon'" aria-hidden="true" />
+      <SolarIcon name="settings" :size="26" color="var(--app-primary, #18a6e4)" aria-hidden="true" />
     </span>
     <span class="mode-menu-copy">
       <strong>Mode Gelap</strong>
@@ -91,17 +91,16 @@ useHead({
 .mode-menu-icon svg {
   position: static !important;
   display: block;
-  width: 22px !important;
-  height: 22px !important;
+  width: 26px !important;
+  height: 26px !important;
   margin: 0 !important;
   padding: 0 !important;
-  fill: none !important;
-  stroke: currentColor !important;
+  color: var(--app-primary, #18a6e4) !important;
 }
 
-.mode-menu-icon svg * {
-  fill: none !important;
-  stroke: currentColor !important;
+.mode-menu-icon :deep(.solar-icon),
+.mode-menu-icon :deep(.solar-icon *) {
+  stroke: none !important;
 }
 
 .mode-menu-copy {

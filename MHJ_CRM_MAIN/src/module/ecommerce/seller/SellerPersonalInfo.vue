@@ -14,7 +14,9 @@
         <InputField
           :inputId="'phone'"
           :placeholder="'Enter your phone number'"
-          :inputType="'number'"
+          :inputType="'tel'"
+          v-model="phone"
+          :validator="indonesianMobilePhoneError"
           :required="false"
         />
       </InputWrapper>
@@ -83,7 +85,8 @@
 <script setup lang="ts">
 import { ref, defineAsyncComponent } from 'vue'
 
-import { initSelectField } from '@/core/data/common'
+import { initInputField, initSelectField } from '@/core/data/common'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 import { country } from '@/core/data/country'
 import type { Select, SelectField } from '@/types/common'
 
@@ -95,6 +98,7 @@ const InputField = defineAsyncComponent(
 )
 const Select = defineAsyncComponent(() => import('@/components/shared/formElements/Select.vue'))
 
+const phone = ref(initInputField())
 const infoForm = ref({
   country: initSelectField(),
   state: initSelectField(),

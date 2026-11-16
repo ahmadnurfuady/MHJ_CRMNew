@@ -165,7 +165,8 @@
               </label>
               <label>
                 <span>Nomor telepon</span>
-                <input v-model.trim="form.phone" class="form-control" type="text" />
+                <input v-model.trim="form.phone" class="form-control" :class="{ 'is-invalid': phoneError }" type="text" />
+                <span v-if="phoneError" class="invalid-feedback d-block">{{ phoneError }}</span>
               </label>
               <label class="full-column">
                 <span>Alamat</span>
@@ -185,7 +186,8 @@
               </label>
               <label>
                 <span>HP</span>
-                <input v-model.trim="form.mobile" class="form-control" type="text" />
+                <input v-model.trim="form.mobile" class="form-control" :class="{ 'is-invalid': mobileError }" type="text" />
+                <span v-if="mobileError" class="invalid-feedback d-block">{{ mobileError }}</span>
               </label>
 
               <h6 class="form-section-title full-column">Cara Pembayaran</h6>
@@ -331,6 +333,7 @@ import {
 } from '@/services/projectDocumentStorage'
 import type { Projects } from '@/types/project'
 import { getUserErrorMessage } from '@/utils/errorParser'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
 import { useProjectPermissions } from '@/module/project/projectPermission'
 
 const props = defineProps<{ project: Projects }>()
@@ -424,6 +427,8 @@ const form = reactive({
   productSpecialistName: '',
   marketingName: '',
 })
+const phoneError = computed(() => indonesianMobilePhoneError(form.phone))
+const mobileError = computed(() => indonesianMobilePhoneError(form.mobile))
 
 const latestCustomerPo = computed(() => documents.value.find((item) => item.kind === 'customer-po'))
 const latestSalesOrder = computed(() => documents.value.find((item) => item.kind === 'sales-order'))
@@ -928,6 +933,7 @@ function safeFileName(value: string): string {
 
 async function generateDocument(): Promise<void> {
   if (!canEditProject.value || !formMode.value) return
+  if (phoneError.value || mobileError.value) return
   saving.value = true
   try {
     const kind = formMode.value

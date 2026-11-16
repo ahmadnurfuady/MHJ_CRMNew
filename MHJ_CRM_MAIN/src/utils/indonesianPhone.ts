@@ -1,4 +1,4 @@
-// Minimal 8 digit total (termasuk prefix). Prefix wajib: 08 atau 62.
+// Minimal 8 digit total (termasuk prefix). Prefix wajib: 08.
 const PHONE_MIN_DIGITS = 8;
 const PHONE_INPUT_PATTERN = /^\d+$/;
 
@@ -64,12 +64,8 @@ export function indonesianMobilePhoneError(
     return "Nomor telepon hanya boleh berisi angka.";
   }
 
-  // Prefix wajib: 08 atau 62.
-  const hasValidPrefix =
-    phone.startsWith("08") ||
-    phone.startsWith("62");
-  if (!hasValidPrefix) {
-    return "Nomor telepon harus diawali 08 atau 62.";
+  if (!phone.startsWith("08")) {
+    return "Nomor telepon harus diawali 08.";
   }
 
   // Minimal 8 digit total.

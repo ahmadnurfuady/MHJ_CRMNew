@@ -1718,10 +1718,11 @@ onBeforeUnmount(() => {
 
 @media (max-width: 575.98px) {
   .contact-header-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) 44px;
   }
 
   .add-contact-header-button {
+    grid-column: 1 / -1;
     width: 100%;
   }
 

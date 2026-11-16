@@ -34,7 +34,9 @@
         <InputField
           :inputId="'phone'"
           :placeholder="'Enter your phone number'"
-          :inputType="'number'"
+          :inputType="'tel'"
+          v-model="phone"
+          :validator="indonesianMobilePhoneError"
           :required="false"
         />
       </InputWrapper>
@@ -72,7 +74,9 @@
         <InputField
           :inputId="'contact-person-phone'"
           :placeholder="'Enter your contact person phone'"
-          :inputType="'number'"
+          :inputType="'tel'"
+          v-model="contactPersonPhone"
+          :validator="indonesianMobilePhoneError"
           :required="false"
         />
       </InputWrapper>
@@ -81,7 +85,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
+import { initInputField } from '@/core/data/common'
+import { indonesianMobilePhoneError } from '@/utils/indonesianPhone'
+
+const phone = ref(initInputField())
+const contactPersonPhone = ref(initInputField())
 
 const InputWrapper = defineAsyncComponent(
   () => import('@/components/shared/formElements/InputWrapper.vue')
