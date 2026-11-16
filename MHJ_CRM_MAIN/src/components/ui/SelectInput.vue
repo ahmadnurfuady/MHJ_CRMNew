@@ -1,6 +1,7 @@
 <template>
   <div ref="wrapperRef" class="select-wrapper">
     <button
+      ref="buttonRef"
       type="button"
       class="form-select text-start text-truncate"
       :class="{ 'text-muted': !modelValue }"
@@ -10,38 +11,42 @@
       {{ selectedLabel || placeholder }}
     </button>
 
-    <ul v-show="isOpen" class="select-menu" :class="placement" role="listbox">
-      <li class="select-search">
-        <input
-          ref="searchInputRef"
-          v-model="searchQuery"
-          type="text"
-          class="select-search-input"
-          placeholder="Cari..."
-          @click.stop
-          @keydown.stop
-        />
-      </li>
-      <li>
-        <button type="button" class="select-item text-muted" @click="select('')">
-          {{ placeholder }}
-        </button>
-      </li>
-      <li v-for="opt in filteredOptions" :key="opt.value">
-        <button
-          type="button"
-          class="select-item"
-          :class="{ active: modelValue === opt.value }"
-          :title="opt.label"
-          @click="select(opt.value)"
-        >
-          {{ opt.label }}
-        </button>
-      </li>
-      <li v-if="!filteredOptions.length" class="select-empty text-muted">
-        Tidak ditemukan.
-      </li>
-    </ul>
+    <!-- Menu di-teleport ke body + posisi fixed mengikuti tombol, supaya tidak
+         terpotong / tertindih header saat berada di dalam tabel yang di-scroll. -->
+    <Teleport to="body">
+      <ul v-if="isOpen" ref="menuRef" class="select-menu" :style="menuStyle" role="listbox">
+        <li v-if="searchable" class="select-search">
+          <input
+            ref="searchInputRef"
+            v-model="searchQuery"
+            type="text"
+            class="select-search-input"
+            placeholder="Cari..."
+            @click.stop
+            @keydown.stop
+          />
+        </li>
+        <li>
+          <button type="button" class="select-item text-muted" @click="select('')">
+            {{ placeholder }}
+          </button>
+        </li>
+        <li v-for="opt in filteredOptions" :key="opt.value">
+          <button
+            type="button"
+            class="select-item"
+            :class="{ active: modelValue === opt.value }"
+            :title="opt.label"
+            @click="select(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </li>
+        <li v-if="!filteredOptions.length" class="select-empty text-muted">
+          Tidak ditemukan.
+        </li>
+      </ul>
+    </Teleport>
   </div>
 </template>
 
@@ -49,24 +54,51 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { MasterOption } from '@/types/user'
 
-const props = defineProps<{
-  modelValue: string
-  options: MasterOption[]
-  placeholder?: string
-  disabled?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: string
+    options: MasterOption[]
+    placeholder?: string
+    disabled?: boolean
+    /** Tampilkan kotak pencarian di dalam menu (default true). */
+    searchable?: boolean
+  }>(),
+  { searchable: true },
+)
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
 const isOpen = ref(false)
-const placement = ref<'bottom' | 'top'>('bottom')
 const wrapperRef = ref<HTMLElement | null>(null)
+const buttonRef = ref<HTMLElement | null>(null)
+const menuRef = ref<HTMLElement | null>(null)
 const searchInputRef = ref<HTMLInputElement | null>(null)
 const searchQuery = ref('')
 
 const MENU_HEIGHT = 200
+
+// Posisi menu (fixed, relatif viewport). Dihitung dari rect tombol.
+const menuPos = ref<{ left: number; width: number; top: number | null; bottom: number | null }>({
+  left: 0,
+  width: 0,
+  top: null,
+  bottom: null,
+})
+
+const menuStyle = computed(() => {
+  const p = menuPos.value
+  const style: Record<string, string> = {
+    position: 'fixed',
+    left: `${p.left}px`,
+    width: `${p.width}px`,
+    zIndex: '1080',
+  }
+  if (p.top !== null) style.top = `${p.top}px`
+  if (p.bottom !== null) style.bottom = `${p.bottom}px`
+  return style
+})
 
 const selectedLabel = computed(
   () => props.options.find((o) => o.value === props.modelValue)?.label ?? '',
@@ -78,18 +110,34 @@ const filteredOptions = computed(() => {
   return props.options.filter((opt) => opt.label.toLocaleLowerCase('id-ID').includes(keyword))
 })
 
-function toggle() {
-  if (!isOpen.value && wrapperRef.value) {
-    const rect = wrapperRef.value.getBoundingClientRect()
-    placement.value = window.innerHeight - rect.bottom < MENU_HEIGHT ? 'top' : 'bottom'
+function updateMenuPosition() {
+  const btn = buttonRef.value
+  if (!btn) return
+  const rect = btn.getBoundingClientRect()
+  const spaceBelow = window.innerHeight - rect.bottom
+  // Buka ke atas kalau ruang bawah sempit dan ruang atas lebih lega.
+  const openUp = spaceBelow < MENU_HEIGHT && rect.top > spaceBelow
+  menuPos.value = {
+    left: rect.left,
+    width: rect.width,
+    top: openUp ? null : rect.bottom + 2,
+    bottom: openUp ? window.innerHeight - rect.top + 2 : null,
   }
+}
+
+function toggle() {
+  if (props.disabled) return
+  if (!isOpen.value) updateMenuPosition() // hitung posisi sebelum menu dirender
   isOpen.value = !isOpen.value
 }
 
 watch(isOpen, (open) => {
   if (open) {
     searchQuery.value = ''
-    nextTick(() => searchInputRef.value?.focus())
+    nextTick(() => {
+      updateMenuPosition()
+      if (props.searchable) searchInputRef.value?.focus()
+    })
   }
 })
 
@@ -99,22 +147,32 @@ function select(value: string) {
 }
 
 function onDocumentClick(e: MouseEvent) {
-  if (wrapperRef.value && !wrapperRef.value.contains(e.target as Node)) {
-    isOpen.value = false
-  }
+  const target = e.target as Node
+  const inWrapper = wrapperRef.value?.contains(target)
+  const inMenu = menuRef.value?.contains(target)
+  if (!inWrapper && !inMenu) isOpen.value = false
 }
 
 function onDocumentKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape') isOpen.value = false
 }
 
+// Saat halaman / tabel di-scroll atau ukuran berubah, menu mengikuti tombol.
+function onReposition() {
+  if (isOpen.value) updateMenuPosition()
+}
+
 onMounted(() => {
   document.addEventListener('click', onDocumentClick)
   document.addEventListener('keydown', onDocumentKeydown)
+  window.addEventListener('scroll', onReposition, true)
+  window.addEventListener('resize', onReposition)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('click', onDocumentClick)
   document.removeEventListener('keydown', onDocumentKeydown)
+  window.removeEventListener('scroll', onReposition, true)
+  window.removeEventListener('resize', onReposition)
 })
 </script>
 
@@ -128,13 +186,8 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
+/* Posisi (fixed/left/top/width) di-set inline via menuStyle; di sini hanya tampilan. */
 .select-menu {
-  position: absolute;
-  top: calc(100% + 2px);
-  bottom: auto;
-  left: 0;
-  right: 0;
-  z-index: 1050;
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 0.375rem;
@@ -172,11 +225,6 @@ onBeforeUnmount(() => {
 .select-item.active {
   background-color: var(--theme-default, #7366ff);
   color: #fff;
-}
-
-.select-menu.top {
-  top: auto;
-  bottom: calc(100% + 2px);
 }
 
 .select-search {

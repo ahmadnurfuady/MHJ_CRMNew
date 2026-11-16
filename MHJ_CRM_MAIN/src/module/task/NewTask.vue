@@ -207,6 +207,9 @@
                     "
                     get-value-key="value"
                     :form-submitted="formSubmitted"
+                    :remote-search="taskType !== 'app-specialist'"
+                    :searching="taskStore.lookupSearching.peluang"
+                    @search="onPeluangSearch"
                   />
                   <small
                     v-if="taskType === 'app-specialist'"
@@ -227,6 +230,7 @@
                       :options="hospitalOptions"
                       placeholder="Cari dan pilih faskes"
                       display-key="label"
+                      subtitle-key="address"
                       get-value-key="value"
                       :form-submitted="formSubmitted"
                       :disabled="form.hasProject"
@@ -372,6 +376,9 @@
                       :required="true"
                       :form-submitted="formSubmitted"
                       :removable-tags="true"
+                      :remote-search="true"
+                      :searching="taskStore.lookupSearching.produk"
+                      @search="onProdukSearch"
                     />
                     <div
                       v-if="!form.hasProject"
@@ -749,6 +756,7 @@ import {
   defineAsyncComponent,
 } from "vue";
 import { Modal } from "bootstrap";
+import { useDebounceFn } from "@vueuse/core";
 import {
   onBeforeRouteLeave,
   onBeforeRouteUpdate,
@@ -1055,19 +1063,34 @@ const projectOptions = computed<ProjectOption[]>(() =>
           code: peluang.divisionCode,
         }
       : null;
-    // Produk peluang berasal dari product_names (CSV); cocokkan ke opsi produk
-    // bila ada, kalau tidak pakai nama apa adanya.
-    const products: DealOption[] = (peluang.productNames || "")
-      .split(/[,;|]/)
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map(
-        (name) =>
-          taskStore.lookups.produk.find(
+    // Produk peluang: utamakan product_codes (KodeBrg dari project_barang)
+    // supaya value produk cocok dengan opsi master; kalau tidak ada, pakai
+    // product_names (CSV) dan cocokkan by nama.
+    const splitCsv = (value: string) =>
+      value
+        .split(/[,;|]/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    const productCodes = splitCsv(peluang.productCodes || "");
+    const productLabels = splitCsv(peluang.productNames || "");
+
+    const products: DealOption[] = productCodes.length
+      ? productCodes.map((code, index) => {
+          const master = taskStore.lookups.produk.find(
             (product) =>
-              normalizeRelation(String(product.label)) === normalizeRelation(name),
-          ) ?? { value: name, label: name },
-      );
+              normalizeRelation(String(product.value)) === normalizeRelation(code),
+          );
+          if (master) return master;
+          return { value: code, label: productLabels[index] || code };
+        })
+      : productLabels.map(
+          (name) =>
+            taskStore.lookups.produk.find(
+              (product) =>
+                normalizeRelation(String(product.label)) === normalizeRelation(name),
+            ) ?? { value: name, label: name },
+        );
     // stage_name (label) dipetakan ke slug stage agar pipeline & auto-fill jalan.
     const status =
       stageOptions.find(
@@ -1147,7 +1170,9 @@ const selectedContactPhone = computed(() => {
 const selectedProducts = computed(
   () => form.products.selectedItems as DealOption[],
 );
-const availableProducts = computed<DealOption[]>(() => {
+// Daftar produk yang benar-benar sah untuk konteks saat ini (tanpa produk
+// terpilih). Dipakai watcher divisi untuk memangkas pilihan yang tidak cocok.
+const allowedProducts = computed<DealOption[]>(() => {
   // Tugas terkait peluang (app-specialist): produk mengikuti peluang.
   if (isAppSpecialistProject.value) {
     return selectedProject.value?.products ?? [];
@@ -1161,6 +1186,54 @@ const availableProducts = computed<DealOption[]>(() => {
     divisionCodes.includes(String(product.divisiCode)),
   );
 });
+
+// Opsi yang ditampilkan: produk sah + produk yang sudah terpilih, supaya tag
+// pilihan tetap tampil walau field produk dinonaktifkan (edit / terkait peluang)
+// dan produknya tidak ada di daftar divisi/peluang saat ini.
+const availableProducts = computed<DealOption[]>(() => {
+  const options = allowedProducts.value;
+  const seen = new Set(options.map((product) => String(product.value)));
+  const extras = selectedProducts.value.filter(
+    (product) => !seen.has(String(product.value)),
+  );
+  return extras.length ? [...options, ...extras] : options;
+});
+// Pencarian peluang & produk dijalankan di SERVER (prop remoteSearch pada Select).
+// Endpoint tasks/project dan tasks/produk hanya mengembalikan sebagian baris
+// (TOP-N / limit), jadi memfilter di FE akan melewatkan data yang memang tidak
+// ikut terambil. Hirarki & hak akses tetap diberlakukan backend.
+const debouncedPeluangSearch = useDebounceFn(
+  (term: string) => void taskStore.searchTaskPeluang(term),
+  400,
+);
+function onPeluangSearch(term: string) {
+  void debouncedPeluangSearch(term);
+}
+
+const selectedDivisionCodes = computed(() =>
+  selectedDivisions.value.map((division) => String(division.value)).filter(Boolean),
+);
+
+/**
+ * Muat produk dari server sesuai divisi terpilih. Tanpa kata kunci, kode produk
+ * yang sedang terpilih ikut diminta agar tag pilihan selalu punya opsi master
+ * walau di luar batas limit.
+ */
+function loadProduk(term = "") {
+  return taskStore.searchTaskProduk({
+    search: term,
+    divisiCodes: selectedDivisionCodes.value,
+    codes: term
+      ? []
+      : selectedProducts.value.map((product) => String(product.value)).filter(Boolean),
+  });
+}
+
+const debouncedProdukSearch = useDebounceFn((term: string) => void loadProduk(term), 400);
+function onProdukSearch(term: string) {
+  void debouncedProdukSearch(term);
+}
+
 const hasLocation = computed(() => Boolean(form.latitude && form.longitude));
 const isCustomCategory = computed(
   () => form.category.selected?.value === "lainnya",
@@ -1304,6 +1377,14 @@ async function hydrateForm(task: TaskDetails) {
     taskStore.lookups.divisi,
     task.divisions,
   );
+  // Produk dimuat per divisi dari server, jadi muat dulu produk divisi tugas ini
+  // sebelum mencocokkan nama produk yang tersimpan.
+  const taskDivisionCodes = divisions
+    .map((division) => String(division.value))
+    .filter(Boolean);
+  if (taskDivisionCodes.length) {
+    await taskStore.searchTaskProduk({ divisiCodes: taskDivisionCodes });
+  }
   const products = optionsForLabels(taskStore.lookups.produk, task.products);
 
   if (form.hasProject) {
@@ -1332,7 +1413,14 @@ async function hydrateForm(task: TaskDetails) {
   form.divisions = form.hasProject
     ? selectField(divisions[0] ?? null)
     : multiSelectField(divisions);
-  form.products = multiSelectField(products);
+  // Tugas terkait peluang: field produk dinonaktifkan (mengikuti peluang), jadi
+  // kalau tugas belum menyimpan produknya sendiri, isi dari produk peluang
+  // supaya form tidak terjebak "wajib diisi" tanpa bisa diubah.
+  const projectProducts =
+    (form.project.selected as ProjectOption | null)?.products ?? [];
+  form.products = multiSelectField(
+    products.length || !form.hasProject ? products : projectProducts,
+  );
   form.unrelatedProduct = form.hasProject
     ? false
     : Boolean(task.unrelatedProduct);
@@ -1502,12 +1590,44 @@ watch(selectedContactPhone, (phone) => {
   if (!hydrating.value) form.contactPhone = phone;
 });
 
+// Dropdown kontak difilter faskes terpilih (tetap kontak milik sendiri).
+// Faskes kosong => kembali ke seluruh kontak milik sendiri.
 watch(
-  () => [form.divisions.selected, form.divisions.selectedItems],
-  () => {
+  () => (form.hospital.selected as DealOption | null)?.value ?? null,
+  async (hospitalValue) => {
     if (hydrating.value) return;
+    const companyId = Number(hospitalValue);
+    await taskStore.fetchTaskContacts(
+      Number.isFinite(companyId) && companyId > 0 ? companyId : null,
+    );
+
+    // Tugas terkait peluang: kontaknya mengikuti peluang, jangan dipangkas.
+    if (form.hasProject) return;
+
+    // Buang kontak terpilih yang tidak lagi tersedia untuk faskes ini.
     const validValues = new Set(
-      availableProducts.value.map((product) => product.value),
+      contactOptions.value.map((contact) => String(contact.value)),
+    );
+    const stillValid = selectedContacts.value.filter((contact) =>
+      validValues.has(String(contact.value)),
+    );
+    if (stillValid.length === selectedContacts.value.length) return;
+    form.contact = selectField(stillValid[0] ?? null);
+  },
+);
+
+// Divisi berubah => muat produk divisi itu dari server LEBIH DULU, baru pangkas
+// produk terpilih yang tidak cocok. Kalau dipangkas sebelum opsi baru tiba,
+// pilihan yang sebenarnya sah akan terhapus karena daftar opsi masih kosong.
+watch(
+  () => selectedDivisionCodes.value.join(","),
+  async (codes) => {
+    if (hydrating.value) return;
+    if (codes) await loadProduk();
+    if (hydrating.value) return;
+
+    const validValues = new Set(
+      allowedProducts.value.map((product) => product.value),
     );
     const validSelection = selectedProducts.value.filter((product) =>
       validValues.has(product.value),

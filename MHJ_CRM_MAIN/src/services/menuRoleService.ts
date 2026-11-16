@@ -1,5 +1,5 @@
 import { api } from '@/services/api'
-import type { FlMenuRawItem } from '@/types/menu'
+import type { CakupanAksesOption, FlMenuRawItem } from '@/types/menu'
 
 /** Batas waktu lebih pendek dari default: sidebar punya menu statis sebagai cadangan. */
 const MENU_TIMEOUT_MS = 6000
@@ -34,5 +34,16 @@ export const menuRoleService = {
   async savePermissions(rows: FlMenuRawItem[]): Promise<{ message?: string }> {
     const response = await api.post<{ message?: string }>('/berkas/saveedit', rows)
     return response.data
+  },
+
+  /**
+   * GET /api/berkas/cakupanakses — pilihan cakupan data ("aksi kena data siapa")
+   * untuk dropdown di halaman Roles & Permission. Sumber: tabel m_cakupan_akses.
+   */
+  async getCakupanAkses(): Promise<CakupanAksesOption[]> {
+    const response = await api.get<{ data?: CakupanAksesOption[] }>('/berkas/cakupanakses', {
+      timeout: MENU_TIMEOUT_MS,
+    })
+    return response.data?.data ?? []
   },
 }

@@ -204,6 +204,7 @@
                     :inputId="'estimated-po'"
                     :placeholder="'Pilih tanggal'"
                     :inputType="'date'"
+                    :min="minEstimatedPoDate"
                   />
                 </InputWrapper>
               </div>
@@ -453,6 +454,12 @@ function todayForDateInput() {
   const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60_000)
   return localToday.toISOString().slice(0, 10)
 }
+
+// Estimasi PO tidak boleh sebelum hari ini (tanggal lokal user). Dipakai sebagai
+// atribut min input date sekaligus acuan validasi submit.
+const minEstimatedPoDate = ref(todayForDateInput())
+/** Estimasi PO yang tersimpan saat mode edit (boleh dipertahankan walau lampau). */
+const originalEstimatedPo = ref('')
 
 function selectedField(option?: DealOption) {
   const field = initSelectField()
@@ -954,10 +961,16 @@ async function prefillForm(project: Projects) {
   })
   customProjectName.value = project.projectName
   usesCustomProjectName.value = true
-  projectForm.value.estimatedPo = {
-    data: (project.expectedCloseDate ?? '').slice(0, 10),
-    errorMessage: '',
-  }
+  const savedEstimatedPo = (project.expectedCloseDate ?? '').slice(0, 10)
+  projectForm.value.estimatedPo = { data: savedEstimatedPo, errorMessage: '' }
+  // Peluang lama bisa punya estimasi PO yang sudah lewat. Tanggal tersimpan itu
+  // tetap boleh dipertahankan saat edit, tapi tanggal lampau yang BARU dipilih
+  // tetap ditolak.
+  originalEstimatedPo.value = savedEstimatedPo
+  minEstimatedPoDate.value =
+    savedEstimatedPo && savedEstimatedPo < todayForDateInput()
+      ? savedEstimatedPo
+      : todayForDateInput()
 
   const competitor =
     findOptionById(projectStore.lookups.competitor, project.competitorId) ??
@@ -1102,6 +1115,23 @@ async function handleSubmit() {
     })
     return
   }
+
+  // Estimasi PO wajib hari ini atau setelahnya (cegah input manual tanggal lampau).
+  // Pengecualian: tanggal lampau yang sudah tersimpan sebelumnya saat mode edit.
+  const today = todayForDateInput()
+  const estimatedPoDate = String(form.estimatedPo.data || '').slice(0, 10)
+  const keepsSavedDate =
+    isEditMode.value && Boolean(originalEstimatedPo.value) && estimatedPoDate === originalEstimatedPo.value
+  if (estimatedPoDate < today && !keepsSavedDate) {
+    form.estimatedPo.errorMessage = 'Estimasi PO tidak boleh sebelum hari ini.'
+    await Swal.fire({
+      icon: 'error',
+      text: 'Tanggal Estimasi PO tidak boleh sebelum hari ini.',
+      confirmButtonColor: 'var(--theme-default)',
+    })
+    return
+  }
+  form.estimatedPo.errorMessage = ''
 
   const invalidQuantity = productLines.value.find(
     (line) => !Number.isInteger(Number(line.quantity.data)) || Number(line.quantity.data) < 1

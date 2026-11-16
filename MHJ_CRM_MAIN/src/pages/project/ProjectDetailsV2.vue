@@ -179,7 +179,11 @@
                 class="contact-card"
                 :class="{ 'contact-card--external': !contact.isOwnContact }"
               >
-                <span class="contact-avatar" aria-hidden="true">{{ contactInitials(contact.name) }}</span>
+                <span
+                  class="contact-avatar"
+                  :style="genderAvatarColorStyle(contact.gender)"
+                  aria-hidden="true"
+                >{{ contactInitials(contact.name) }}</span>
                 <div class="contact-card-copy">
                   <strong>{{ contact.name }}</strong>
                   <span v-if="contact.jobTitle !== '-'">{{ contact.jobTitle }}</span>
@@ -394,6 +398,7 @@ import { routes } from '@/router/routes'
 import { useProjectPermissions } from '@/module/project/projectPermission'
 import type { StoredProjectDocument } from '@/services/projectDocumentStorage'
 import { useProjectStore } from '@/store/project'
+import { genderAvatarColorStyle } from '@/utils/avatar'
 
 interface CommentInfo { id: number; author: string; message: string }
 
@@ -416,6 +421,8 @@ interface ContactView {
   isOwnContact: boolean
   /** Nama pemilik kontak, untuk keterangan "milik X" pada kontak bukan milik sendiri. */
   ownerName: string
+  /** 'L' | 'P' dari backend; dipakai genderAvatarColorStyle untuk warna ikon. */
+  gender: string
 }
 
 const route = useRoute()
@@ -561,7 +568,7 @@ const relatedContacts = computed<ContactView[]>(() => {
   const contacts = values.flatMap((value): ContactView[] => {
     if (typeof value === 'string') {
       return value.trim()
-        ? [{ name: value.trim(), jobTitle: '-', phone: '-', email: '-', isOwnContact: true, ownerName: '-' }]
+        ? [{ name: value.trim(), jobTitle: '-', phone: '-', email: '-', isOwnContact: true, ownerName: '-', gender: '' }]
         : []
     }
     if (!isRecord(value)) return []
@@ -580,6 +587,7 @@ const relatedContacts = computed<ContactView[]>(() => {
       // Data legacy tanpa flag dianggap milik sendiri (fail-open).
       isOwnContact: value.is_own_contact !== false,
       ownerName: firstText(value, ['owner_name', 'created_by_name']),
+      gender: genderText(value, ['gender', 'jenis_kelamin']),
     }]
   })
 
@@ -592,6 +600,7 @@ const relatedContacts = computed<ContactView[]>(() => {
       email: firstText(source, ['contact_email', 'email']),
       isOwnContact: true,
       ownerName: '-',
+      gender: genderText(source, ['contact_gender', 'gender']),
     })
   }
 
@@ -600,6 +609,13 @@ const relatedContacts = computed<ContactView[]>(() => {
     && candidate.phone === contact.phone
   ) === index)
 })
+
+/** Seperti firstText, tetapi mengembalikan string kosong (bukan '-') bila tidak
+ *  ada, karena genderAvatarColorStyle memakai nilai kosong untuk warna netral. */
+function genderText(source: Dict, keys: string[]): string {
+  const value = firstText(source, keys)
+  return value === '-' ? '' : value
+}
 
 function contactInitials(name: string): string {
   return name.split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
@@ -799,7 +815,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .contact-card { display: grid; grid-template-columns: 46px minmax(0, 1fr); align-items: center; gap: 13px; min-width: 0; min-height: 82px; border: 1px solid #e3ebf0; border-radius: 14px; padding: 15px; background: #fff; box-shadow: 0 4px 14px rgba(31, 52, 73, .035); transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
 .contact-card:hover { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .32); box-shadow: 0 8px 20px rgba(31, 52, 73, .07); transform: translateY(-1px); }
 .contact-card--external { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .2); background: linear-gradient(135deg, #fff 35%, rgba(var(--app-primary-rgb, 24, 166, 228), .045)); }
-.contact-avatar { display: grid; width: 46px; height: 46px; place-items: center; border: 3px solid #fff; border-radius: 14px; color: #fff; background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #75c4ef)); box-shadow: 0 6px 14px rgba(22, 76, 105, .14); font-size: 12px; font-weight: 800; }
+.contact-avatar { display: grid; width: 46px; height: 46px; place-items: center; border: 3px solid #fff; border-radius: 14px; color: #6b7280; background: #f3f4f6; box-shadow: 0 6px 14px rgba(22, 76, 105, .14); font-size: 12px; font-weight: 800; }
 .contact-card-copy { min-width: 0; }
 .contact-card-copy > strong, .contact-card-copy > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .contact-card-copy > strong { color: #102a43; font-size: 14px; font-weight: 600; }

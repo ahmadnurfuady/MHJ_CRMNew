@@ -221,7 +221,8 @@ function normalizeProjectContacts(raw: Dict): ProjectContact[] {
       id: optionalNumber(value, 'contact_id', 'id', 'ID'),
       name,
       phone: pickString(value, 'contact_phone', 'phone', 'telephone_1', 'mobile'),
-      jobTitle: pickString(value, 'job_title', 'position', 'jabatan') || undefined
+      jobTitle: pickString(value, 'job_title', 'position', 'jabatan') || undefined,
+      gender: pickString(value, 'gender', 'jenis_kelamin') || undefined
     })
   })
 
@@ -230,7 +231,8 @@ function normalizeProjectContacts(raw: Dict): ProjectContact[] {
     result.unshift({
       id: optionalNumber(raw, 'contact_id'),
       name: contactName,
-      phone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile')
+      phone: pickString(raw, 'contact_phone', 'phone', 'telephone_1', 'mobile'),
+      gender: pickString(raw, 'contact_gender', 'gender') || undefined
     })
   }
 

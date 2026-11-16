@@ -60,6 +60,8 @@ function encodeServiceWorkerConfig(): string {
 }
 
 async function registerMessagingServiceWorker(): Promise<ServiceWorkerRegistration> {
+  // Config Firebase dikirim via query string agar SW punya config yang sama
+  // dengan .env, termasuk saat SW di-restart (push dalam keadaan tab tertutup).
   const serviceWorkerUrl = new URL(
     `${import.meta.env.BASE_URL}firebase-messaging-sw.js`,
     window.location.origin,
@@ -127,6 +129,10 @@ export async function requestFcmToken(): Promise<string | null> {
     ? { vapidKey: VAPID_KEY, serviceWorkerRegistration: registration }
     : { serviceWorkerRegistration: registration }
   const token = await getToken(instance, tokenOptions)
+  if (import.meta.env.DEV && token) {
+    // Bantu debug: salin token ini untuk "Send test message" di Firebase Console.
+    console.info('[FCM] web registration token:', token)
+  }
   return token || null
 }
 
@@ -143,7 +149,59 @@ export async function revokeFcmToken(): Promise<boolean> {
   return deleteToken(instance)
 }
 
-/** Mendaftarkan listener notifikasi FCM saat tab CRM sedang aktif (foreground). */
+/**
+ * Tampilkan notifikasi tingkat SISTEM OPERASI (pojok layar laptop) dari halaman.
+ * Dipakai sebagai FALLBACK saat ada tab terbuka: kalau push FCM belum/tidak
+ * terkirim ke service worker, notifikasi tetap muncul. `tag` disamakan dengan
+ * yang dipakai service worker (= id notifikasi), jadi bila keduanya kebetulan
+ * menampilkan, OS menggabungkannya menjadi SATU (tidak kembar).
+ *
+ * Catatan: pada notifikasi web desktop, browser (Chrome) selalu menempel badge
+ * kecil miliknya di sudut — itu branding browser, tidak bisa dihapus lewat web.
+ */
+export async function showSystemNotification(
+  title: string,
+  body?: string,
+  tag?: string,
+): Promise<boolean> {
+  if (typeof window === 'undefined' || typeof Notification === 'undefined') return false
+  if (Notification.permission !== 'granted') return false
+
+  const icon = `${import.meta.env.BASE_URL}images/logo/logo-icon.png`
+  const options: NotificationOptions = {
+    body: body || undefined,
+    icon,
+    badge: icon,
+    ...(tag ? { tag, renotify: true } : {}),
+  }
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const registration =
+        (await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL)) ||
+        (await navigator.serviceWorker.getRegistration())
+      if (registration) {
+        await registration.showNotification(title, options)
+        return true
+      }
+    }
+  } catch {
+    // Jatuh ke Notification API biasa di bawah.
+  }
+
+  try {
+    new Notification(title, options)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Listener pesan FCM saat tab sedang aktif (foreground). FCM TIDAK otomatis
+ * menampilkan notifikasi di foreground, jadi callback dipakai untuk menyegarkan
+ * inbox lonceng; penampilan popup OS-nya dilakukan store via showSystemNotification.
+ */
 export async function listenForegroundMessages(
   callback: (payload: MessagePayload) => void,
 ): Promise<() => void> {

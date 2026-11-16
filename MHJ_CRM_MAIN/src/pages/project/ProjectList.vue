@@ -316,16 +316,10 @@ const viewMode = ref<"board" | "list">("list");
 
 onMounted(async () => {
   const showAutomaticPopup = sessionStorage.getItem(reminderSessionKey) !== "1";
-  if (showAutomaticPopup) {
-    Swal.fire({
-      title: "Memeriksa peluang win...",
-      text: "Menyiapkan reminder data pelanggan.",
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      showConfirmButton: false,
-      didOpen: () => Swal.showLoading(),
-    });
-  }
+  // Pengecekan peluang win dilakukan DIAM-DIAM (tanpa modal loading blocking).
+  // Modal loading sebelumnya muncul lalu langsung tertutup saat tidak ada peluang
+  // win yang kurang data — terlihat seperti "pop up berkedip". Reminder hanya
+  // ditampilkan bila benar ada data (lihat loadOpportunityReminder).
   await projectStore.fetchProjectSummary();
   await loadOpportunityReminder(showAutomaticPopup);
 });
@@ -442,7 +436,6 @@ async function loadOpportunityReminder(showAutomaticPopup: boolean): Promise<voi
     items = await fetchWonMissingRequirements();
   } catch (error) {
     console.warn("Gagal memuat reminder peluang Win:", error);
-    if (showAutomaticPopup) Swal.close();
     return;
   }
 
@@ -461,7 +454,6 @@ async function loadOpportunityReminder(showAutomaticPopup: boolean): Promise<voi
 
   const count = missingCustomerProjects.value.length;
   if (!count) {
-    if (showAutomaticPopup) Swal.close();
     return;
   }
   if (showAutomaticPopup) await showOpportunityReminder(false, true);

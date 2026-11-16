@@ -218,7 +218,7 @@
                 <span v-else class="empty-value">Tanpa peluang</span>
               </td>
 
-              <td data-label="Jadwal">
+              <td data-label="Waktu Kunjungan">
                 <div v-if="item.scheduledAt" class="task-schedule">
                   <span>{{ formatDate(item.scheduledAt) }}</span>
                   <small>{{ formatTime(item.scheduledAt) }}</small>
@@ -399,7 +399,7 @@ const taskTableColumns = [
   { label: 'Nama Tugas', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Faskes', defaultWidth: 220, minWidth: 140, center: false },
   { label: 'Peluang', defaultWidth: 180, minWidth: 120, center: false },
-  { label: 'Jadwal', defaultWidth: 170, minWidth: 140, center: false },
+  { label: 'Waktu Kunjungan', defaultWidth: 170, minWidth: 140, center: false },
   { label: 'Owner', defaultWidth: 170, minWidth: 130, center: false },
   { label: 'Pipeline', defaultWidth: 180, minWidth: 140, center: false },
   { label: 'Catatan', defaultWidth: 240, minWidth: 150, center: false },
@@ -642,7 +642,7 @@ const exportColumns: Array<{
   { label: 'Telepon / WA', value: (task) => task.contactPhone || '' },
   { label: 'Peluang Sales', value: (task) => task.projectName || '' },
   { label: 'Serial Number', value: (task) => task.serialNumber || '' },
-  { label: 'Jadwal', value: (task) => formatExportDateTime(task.scheduledAt || task.dueDate) },
+  { label: 'Waktu Kunjungan', value: (task) => formatExportDateTime(task.scheduledAt || task.dueDate) },
   { label: 'Owner', value: (task) => task.owner || '' },
   { label: 'Divisi', value: (task) => task.divisions?.join(', ') || '' },
   {

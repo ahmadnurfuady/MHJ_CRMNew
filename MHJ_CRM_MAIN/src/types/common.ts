@@ -328,6 +328,9 @@ export interface InputProps {
   validator?: ((value: string) => string | { valid: boolean; errorMessage: string }) | null
   minDate?: Date
   maxDate?: Date
+  /** Atribut native min/max input (mis. batas tanggal untuk inputType 'date'). */
+  min?: string | number
+  max?: string | number
 }
 
 export interface SelectField {

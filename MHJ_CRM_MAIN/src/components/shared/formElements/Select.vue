@@ -88,7 +88,11 @@
           ref="searchInput"
           @keydown.stop="handleKeydown($event)"
         />
-        <ul class="custom-scrollbar" @scroll="handleListScroll">
+        <ul
+          class="custom-scrollbar"
+          :class="{ 'has-subtitles': Boolean(subtitleKey) }"
+          @scroll="handleListScroll"
+        >
           <template v-for="(option, index) in filteredOptions" :key="index">
             <template
               v-if="
@@ -402,6 +406,25 @@ function toggleWithPlacement(event: Event) {
   gap: 2px;
   padding: 8px 12px;
   line-height: 1.3;
+}
+
+/* Garis pemisah antar opsi di dropdown bersub-teks (mis. Faskes/Peluang).
+   Dipasang ke SEMUA item di list, bukan hanya yang punya sub-teks, supaya
+   faskes tanpa alamat tetap punya pemisah dan tampilan tidak belang.
+   Item terakhir tanpa garis. */
+.dropdown ul.has-subtitles > li:not(:last-child) {
+  border-bottom: 1px solid #eef2f7;
+}
+
+/* Samakan tinggi & layout tiap baris agar opsi tanpa alamat tidak terlihat
+   gepeng dibanding yang beralamat (dua baris). Baris pilih-banyak (checkbox)
+   dikecualikan karena pakai layout baris sendiri. */
+.dropdown ul.has-subtitles > li:not(.has-checkbox) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 12px;
 }
 
 /* Mode pilih-banyak: checkbox di kiri, label (dan sub-teksnya) di kanan. */
