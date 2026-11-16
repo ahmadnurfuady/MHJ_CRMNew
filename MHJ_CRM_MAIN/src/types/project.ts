@@ -151,6 +151,8 @@ export interface ProjectContact {
   name: string
   phone?: string
   jobTitle?: string
+  /** 'L' | 'P' dari backend; dipakai genderAvatarColorStyle untuk warna ikon. */
+  gender?: string
 }
 
 export interface ProjectProductDetail {

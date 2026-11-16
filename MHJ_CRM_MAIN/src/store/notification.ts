@@ -63,8 +63,14 @@ let stopForegroundListener: (() => void) | null = null
 let refreshPromise: Promise<void> | null = null
 let lifecycleVersion = 0
 
-// Tidak ada polling berkala: penyegaran lonceng dipicu oleh push FCM
-// (listenForegroundMessages / service worker), plus saat tab kembali aktif.
+let pollTimer: ReturnType<typeof setInterval> | null = null
+
+// Penyegaran normal dipicu push FCM (listenForegroundMessages / service worker)
+// dan saat tab kembali aktif. Interval di bawah HANYA jaring pengaman: ia
+// bekerja ketika push FCM tidak bisa sampai (belum diizinkan, tidak didukung,
+// error, atau token gagal didaftarkan ke backend). Saat FCM aktif, tick-nya
+// langsung keluar tanpa memanggil endpoint apa pun.
+const FALLBACK_POLL_INTERVAL_MS = 60_000
 
 // Dedup: id notifikasi yang sudah dimunculkan halaman agar tidak kembar
 // antar-penyegaran. Background (tab tertutup) ditangani service worker Firebase
@@ -317,9 +323,24 @@ export const useNotificationStore = defineStore('pushNotification', {
       window.addEventListener('focus', handleFocus)
       document.addEventListener('visibilitychange', handleVisibilityChange)
 
+      // Jaring pengaman bila push FCM tidak aktif. Sengaja TIDAK dibatasi
+      // visibilityState: justru saat user sedang di tab/aplikasi lain notifikasi
+      // paling perlu muncul, dan browser sudah otomatis melambatkan timer di tab
+      // yang tidak terlihat.
+      if (pollTimer) clearInterval(pollTimer)
+      pollTimer = setInterval(() => {
+        const pushActive = this.pushStatus === 'enabled' && this.backendRegistered
+        if (pushActive) return
+        void this.refreshNotifications()
+      }, FALLBACK_POLL_INTERVAL_MS)
+
       stopForegroundListener = () => {
         window.removeEventListener('focus', handleFocus)
         document.removeEventListener('visibilitychange', handleVisibilityChange)
+        if (pollTimer) {
+          clearInterval(pollTimer)
+          pollTimer = null
+        }
       }
 
       void this.refreshNotifications()
@@ -391,6 +412,10 @@ export const useNotificationStore = defineStore('pushNotification', {
       refreshPromise = null
       shownIds.clear()
       shownPrimed = false
+      if (pollTimer) {
+        clearInterval(pollTimer)
+        pollTimer = null
+      }
       stopForegroundListener?.()
       stopForegroundListener = null
       this.items = []
