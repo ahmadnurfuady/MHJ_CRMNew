@@ -160,7 +160,7 @@
               </td>
             </tr>
 
-            <tr v-for="(item, index) in filteredTasks" :key="`${item.kind ?? 'task'}-${item.id}-${index}`">
+            <tr v-for="(item, index) in paginatedTasks" :key="`${item.kind ?? 'task'}-${item.id}-${index}`">
               <td data-label="Nama Tugas">
                 <button
                   class="task-identity task-identity-button"
@@ -169,7 +169,12 @@
                   @click="openTaskDetail(item)"
                 >
                   <div class="task-icon">
-                    <MhjIcon name="action_checklist" :size="18" />
+                    <SolarIcon
+                      name="check-square"
+                      :size="20"
+                      color="var(--app-primary, #18a6e4)"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div class="task-identity__text">
                     <strong :title="item.title || 'Tanpa nama tugas'">
@@ -203,17 +208,6 @@
                   <span v-else class="cell-primary" :title="item.hospital || item.subtitle || '-'">
                     {{ item.hospital || item.subtitle || '-' }}
                   </span>
-                  <small v-if="item.contact" :title="`Kontak: ${item.contact}`">
-                    Kontak:
-                    <button
-                      v-if="contactDetailId(item)"
-                      class="task-context-link task-contact-link"
-                      type="button"
-                      :aria-label="`Buka detail kontak ${item.contact}`"
-                      @click="openContactDetail(item)"
-                    >{{ item.contact }}</button>
-                    <span v-else>{{ item.contact }}</span>
-                  </small>
                 </div>
               </td>
 
@@ -318,18 +312,18 @@
     </div>
 
     <div
-      v-if="activeView === 'list' && paginationEnabled && (taskRows.length || pagination.page > 1)"
+      v-if="activeView === 'list' && filteredTasks.length"
       class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2"
     >
       <span class="text-muted f-14">
-        Halaman {{ pagination.page }} dari {{ effectiveLastPage }}
+        Halaman {{ currentTaskPage }} dari {{ taskLastPage }}
       </span>
       <div class="pagination-actions" role="group" aria-label="Pagination Tugas">
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
-          :disabled="loading || pagination.page <= 1"
-          @click="changePage(pagination.page - 1)"
+          :disabled="loading || currentTaskPage <= 1"
+          @click="changePage(currentTaskPage - 1)"
         >
           <vue-feather type="chevron-left" size="15" class="me-1" />Sebelumnya
         </button>
@@ -341,10 +335,10 @@
             <button
               v-else
               class="btn btn-sm pagination-page-button"
-              :class="{ 'pagination-page-button--active': item === pagination.page }"
+              :class="{ 'pagination-page-button--active': item === currentTaskPage }"
               type="button"
-              :disabled="loading || item === pagination.page"
-              :aria-current="item === pagination.page ? 'page' : undefined"
+              :disabled="loading || item === currentTaskPage"
+              :aria-current="item === currentTaskPage ? 'page' : undefined"
               :aria-label="`Ke halaman ${item}`"
               @click="changePage(item)"
             >
@@ -355,8 +349,8 @@
         <button
           class="btn btn-outline-primary btn-sm pagination-button"
           type="button"
-          :disabled="loading || pagination.page >= effectiveLastPage"
-          @click="changePage(pagination.page + 1)"
+          :disabled="loading || currentTaskPage >= taskLastPage"
+          @click="changePage(currentTaskPage + 1)"
         >
           Berikutnya<vue-feather type="chevron-right" size="15" class="ms-1" />
         </button>
@@ -370,7 +364,6 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
-import { useContact } from '@/store/contact'
 import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore } from '@/store/project'
 import { useTask } from '@/store/task'
@@ -384,12 +377,11 @@ type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 type ExportFormat = 'csv' | 'excel'
 
 const store = useTask()
-const contactStore = useContact()
 const hospitalStore = useHospitalStore()
 const projectStore = useProjectStore()
 const router = useRouter()
 const route = useRoute()
-const { currentTask, loading, pagination } = storeToRefs(store)
+const { currentTask, loading } = storeToRefs(store)
 const { canAddTask, canDeleteTask, canExportTask } = useTaskPermissions()
 const searchQuery = ref('')
 const periodFilter = ref<PeriodFilter>('all')
@@ -401,7 +393,8 @@ const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
   { value: 'yearly', label: 'Tahunan' },
 ]
 const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'calendar' : 'list')
-const paginationEnabled = false
+const TASKS_PER_PAGE = 10
+const currentTaskPage = ref(1)
 const taskTableColumns = [
   { label: 'Nama Tugas', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Faskes', defaultWidth: 220, minWidth: 140, center: false },
@@ -418,18 +411,17 @@ const taskTableWidth = computed(() =>
 )
 
 const taskRows = computed(() => currentTask.value?.data ?? [])
-const usesClientPagination = computed(
-  () => taskRows.value.length > pagination.value.perPage,
+const taskLastPage = computed(() =>
+  Math.max(1, Math.ceil(filteredTasks.value.length / TASKS_PER_PAGE)),
 )
-const effectiveLastPage = computed(() =>
-  usesClientPagination.value
-    ? Math.max(1, Math.ceil(filteredTasks.value.length / pagination.value.perPage))
-    : Math.max(1, pagination.value.lastPage),
-)
+const paginatedTasks = computed(() => {
+  const start = (currentTaskPage.value - 1) * TASKS_PER_PAGE
+  return filteredTasks.value.slice(start, start + TASKS_PER_PAGE)
+})
 
 const visibleTaskPages = computed<Array<number | string>>(() => {
-  const totalPages = effectiveLastPage.value
-  const currentPage = Math.min(Math.max(1, pagination.value.page), totalPages)
+  const totalPages = taskLastPage.value
+  const currentPage = Math.min(Math.max(1, currentTaskPage.value), totalPages)
 
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -536,7 +528,11 @@ const filteredTasks = computed(() => {
 })
 
 watch([searchQuery, periodFilter], () => {
-  pagination.value.page = 1
+  currentTaskPage.value = 1
+})
+
+watch(taskLastPage, (lastPage) => {
+  if (currentTaskPage.value > lastPage) currentTaskPage.value = lastPage
 })
 
 function localDayStart(date = new Date()) {
@@ -770,42 +766,15 @@ function hospitalDetailId(item: TaskDetails): number | undefined {
   )?.id
 }
 
-function contactDetailId(item: TaskDetails): number | undefined {
-  const relationId = item.contactId ?? relatedProject(item)?.contactId
-  if (relationId) return relationId
-
-  const contactNames = (item.contact || '')
-    .split(/[,;|]/)
-    .map(normalizeRelationName)
-    .filter(Boolean)
-  if (!contactNames.length) return undefined
-
-  const contact = contactStore.contactApi.items.find((candidate) => {
-    const fullName = normalizeRelationName(`${candidate.firstName} ${candidate.lastName}`)
-    return contactNames.includes(fullName)
-  })
-  return contact?.remoteId
-}
-
 function openHospitalDetail(item: TaskDetails) {
   const id = hospitalDetailId(item)
   if (!id) return
   void router.push({ path: routes.App.RumahSakit, query: { detail: String(id) } })
 }
 
-function openContactDetail(item: TaskDetails) {
-  const id = contactDetailId(item)
-  if (!id) return
-  void router.push({ path: routes.App.Contacts, query: { detail: String(id) } })
-}
-
 function changePage(page: number) {
-  if (page < 1 || page > effectiveLastPage.value || page === pagination.value.page) return
-  if (usesClientPagination.value) {
-    pagination.value.page = page
-    return
-  }
-  void store.fetchTasks({ page })
+  if (page < 1 || page > taskLastPage.value || page === currentTaskPage.value) return
+  currentTaskPage.value = page
 }
 
 // Daftar tugas sengaja TIDAK memprefetch /company & /contact. Halaman list cukup
@@ -1515,8 +1484,14 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 575.98px) {
+  .task-list-header {
+    gap: 16px;
+    padding: 18px 16px;
+  }
+
   .task-header-actions {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .task-view-switch {
@@ -1543,6 +1518,11 @@ onBeforeUnmount(() => {
     flex-direction: column;
   }
 
+  .task-list-toolbar {
+    gap: 14px;
+    padding: 14px 16px;
+  }
+
   .task-period-options {
     width: 100%;
     overflow-x: auto;
@@ -1562,11 +1542,13 @@ onBeforeUnmount(() => {
   }
 
   .task-table-wrap {
-    padding: 12px;
+    padding: 16px 14px;
     overflow: visible;
+    background: #f1f5f9;
   }
 
   .task-table {
+    display: block;
     width: 100% !important;
     min-width: 0;
     table-layout: auto;
@@ -1589,64 +1571,189 @@ onBeforeUnmount(() => {
   }
 
   .task-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     overflow: hidden;
     border: 1px solid var(--border-subtle, #e2e8f0);
-    border-radius: 10px;
-    margin-bottom: 12px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .task-table tbody tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .task-table tbody tr:hover {
+    background: #ffffff;
   }
 
   .task-table tbody td {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    border-bottom: 1px solid #f1f5f9;
-    padding: 11px 13px;
-    text-align: right;
+    min-width: 0;
+    border-bottom: 0;
+    padding: 11px 16px;
+    text-align: left;
   }
 
   .task-table tbody td::before {
+    display: block;
     content: attr(data-label);
-    flex: 0 0 34%;
+    margin-bottom: 5px;
     color: #64748b;
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.45px;
     text-align: left;
-    text-transform: capitalize;
+    text-transform: uppercase;
   }
 
   .task-table tbody td:first-child {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid #edf2f7;
+    padding: 15px 16px;
+    background: linear-gradient(110deg, #ffffff 0%, var(--app-primary-wash, #f5fbfe) 100%);
+  }
+
+  .task-table tbody td:first-child::before {
+    display: none;
+  }
+
+  .task-table tbody td[data-label="Faskes"],
+  .task-table tbody td[data-label="Catatan"],
+  .task-table tbody td[data-label="Aksi"] {
+    grid-column: 1 / -1;
+  }
+
+  .task-table tbody td[data-label="Faskes"] {
+    padding-top: 13px;
+    padding-bottom: 8px;
+  }
+
+  .task-table tbody td[data-label="Peluang"],
+  .task-table tbody td[data-label="Jadwal"],
+  .task-table tbody td[data-label="Owner"],
+  .task-table tbody td[data-label="Pipeline"] {
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .task-table tbody td[data-label="Peluang"],
+  .task-table tbody td[data-label="Owner"] {
+    border-right: 1px solid #f1f5f9;
+  }
+
+  .task-table tbody td[data-label="Catatan"] {
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .task-table tbody td[data-label="Aksi"] {
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 16px;
     background: #f8fafc;
   }
 
-  .task-table tbody td:last-child {
-    border-bottom: 0;
+  .task-table tbody td[data-label="Aksi"]::before {
+    display: none;
   }
 
   .task-identity {
+    width: 100%;
     min-width: 0;
-    justify-content: flex-end;
-    text-align: right;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .task-identity__text strong {
+    font-size: 14px;
+    white-space: normal;
+  }
+
+  .task-identity__text span {
+    margin-top: 3px;
+    font-size: 11px;
   }
 
   .task-context-link {
-    margin-left: auto;
-    text-align: right;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .task-context small,
+  .task-context-link,
+  .cell-primary,
+  .owner-label,
+  .task-notes {
+    max-width: 100%;
+  }
+
+  .task-context small,
+  .task-notes,
+  .task-products {
+    white-space: normal;
+  }
+
+  .task-schedule span,
+  .owner-label span,
+  .pipeline-change small {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .project-badge,
+  .pipeline-badge {
+    white-space: normal;
   }
 
   .task-row-actions {
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    display: flex;
+    width: 100%;
+    justify-content: stretch;
+    gap: 10px;
+  }
+
+  .task-detail-button {
+    min-height: 38px;
+    flex: 1 1 auto;
+  }
+
+  .task-delete-button {
+    width: 40px;
+    height: 38px;
+    flex: 0 0 40px;
   }
 
   .task-table-state {
-    display: table-cell !important;
+    display: flex !important;
+    grid-column: 1 / -1;
     height: 180px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 24px !important;
+    background: #ffffff !important;
   }
 
   .task-table-state::before {
     display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .task-list-header,
+  .task-list-toolbar {
+    padding-inline: 14px;
+  }
+
+  .task-table-wrap {
+    padding: 12px 8px;
+  }
+
+  .task-table tbody td {
+    padding-inline: 13px;
+  }
+
+  .task-table tbody td:first-child {
+    padding-inline: 13px;
   }
 }
 </style>

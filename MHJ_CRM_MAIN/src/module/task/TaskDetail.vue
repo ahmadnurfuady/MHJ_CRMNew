@@ -12,7 +12,19 @@
             <span><vue-feather type="user" size="14" />{{ task.owner || '-' }}</span>
           </div>
         </div>
-        <span class="task-type-badge">{{ taskTypeLabel }}</span>
+        <div class="task-name-card__actions">
+          <span class="task-type-badge">{{ taskTypeLabel }}</span>
+          <button
+            v-if="canEditTask"
+            class="btn btn-primary edit-task-button"
+            type="button"
+            data-bs-toggle="modal"
+            :data-bs-target="editModalTarget"
+          >
+            <vue-feather type="edit-2" size="16" />
+            <span>Edit Tugas</span>
+          </button>
+        </div>
       </section>
 
       <section class="detail-card">
@@ -51,9 +63,41 @@
             <span>Faskes</span>
             <strong>{{ task.hospital || task.subtitle || '-' }}</strong>
           </div>
-          <div class="detail-field">
+          <div class="detail-field detail-field--wide">
             <span>Kontak Person</span>
-            <strong>{{ task.contact || '-' }}</strong>
+            <div v-if="taskContacts.length" class="task-contact-grid">
+              <article
+                v-for="(contact, index) in taskContacts"
+                :key="`${contact.name}-${contact.phone}-${index}`"
+                class="task-contact-card"
+                :class="{ 'task-contact-card--external': !contact.isOwnContact }"
+              >
+                <span class="task-contact-avatar" aria-hidden="true">
+                  {{ initials(contact.name) }}
+                </span>
+                <div class="task-contact-copy">
+                  <strong>{{ contact.name }}</strong>
+                  <a v-if="contact.isOwnContact && contact.phone" :href="`tel:${contact.phone}`">
+                    <SolarIcon
+                      name="phone"
+                      :size="14"
+                      color="var(--app-primary, #18a6e4)"
+                      secondary-color="var(--app-primary, #18a6e4)"
+                      :secondary-opacity="1"
+                      aria-hidden="true"
+                    />
+                    {{ contact.phone }}
+                  </a>
+                  <div v-else-if="!contact.isOwnContact" class="task-contact-owner-note">
+                    <span>
+                      <SolarIcon name="user" :size="13" aria-hidden="true" />
+                      Milik {{ contact.ownerName || 'user lain' }}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <strong v-else>-</strong>
           </div>
           <div class="detail-field">
             <span>Waktu Kunjungan</span>
@@ -88,7 +132,15 @@
         </div>
 
         <div class="evidence-title">
-          <span class="detail-card-icon"><MhjIcon name="action_camera" :size="18" /></span>
+          <span class="detail-card-icon">
+            <SolarIcon
+              name="camera"
+              :size="18"
+              color="var(--app-primary, #18a6e4)"
+              secondary-color="var(--app-primary, #18a6e4)"
+              :secondary-opacity="1"
+            />
+          </span>
           <div>
             <strong>Live Photo &amp; GPS Location</strong>
             <small>Bukti kunjungan dan titik lokasi aktivitas.</small>
@@ -98,7 +150,13 @@
           <div class="evidence-preview">
             <img v-if="task.photoUrl" :src="task.photoUrl" alt="Live photo kunjungan" />
             <div v-else class="evidence-empty">
-              <MhjIcon name="action_camera" />
+              <SolarIcon
+                name="camera"
+                :size="24"
+                color="var(--app-primary, #18a6e4)"
+                secondary-color="var(--app-primary, #18a6e4)"
+                :secondary-opacity="1"
+              />
               <span>{{ task.photoName || 'Live photo belum tersedia' }}</span>
             </div>
           </div>
@@ -112,7 +170,13 @@
               :zoom-control="false"
             />
             <div v-else class="evidence-empty">
-              <MhjIcon name="action_location" />
+              <SolarIcon
+                name="map-point"
+                :size="24"
+                color="var(--app-primary, #18a6e4)"
+                secondary-color="var(--app-primary, #18a6e4)"
+                :secondary-opacity="1"
+              />
               <span>Lokasi belum tersedia</span>
             </div>
             <a v-if="mapPageUrl" :href="mapPageUrl" target="_blank" rel="noopener noreferrer">
@@ -121,7 +185,13 @@
           </div>
         </div>
         <p v-if="task.locationAddress" class="location-address">
-          <MhjIcon name="action_location" :size="15" />
+          <SolarIcon
+            name="map-point"
+            :size="15"
+            color="var(--app-primary, #18a6e4)"
+            secondary-color="var(--app-primary, #18a6e4)"
+            :secondary-opacity="1"
+          />
           <span>{{ task.locationAddress }}</span>
         </p>
       </section>
@@ -249,7 +319,7 @@ const props = defineProps<{
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
-const { canExportTask } = useTaskPermissions()
+const { canEditTask, canExportTask } = useTaskPermissions()
 
 const commentText = ref('')
 const comments = ref<TaskComment[]>([])
@@ -258,6 +328,11 @@ const submitting = ref(false)
 const deletingId = ref<string | null>(null)
 const taskTypeLabel = computed(() =>
   props.task?.kind === 'app-specialist' ? 'App Specialist' : 'Sales',
+)
+const editModalTarget = computed(() =>
+  props.task?.kind === 'app-specialist'
+    ? '#app-specialist-task-modal'
+    : '#sales-task-modal',
 )
 
 const currentUser = computed(() => {
@@ -291,6 +366,26 @@ const pipelineLabel = computed(() => {
 const productLabel = computed(() => {
   if (props.task?.unrelatedProduct) return 'Tidak terkait produk'
   return props.task?.products?.join(', ') || '-'
+})
+
+const taskContacts = computed(() => {
+  if (props.task?.contacts?.length) return props.task.contacts
+
+  const names = (props.task?.contact || '')
+    .split(/[,;|]/)
+    .map((name) => name.trim())
+    .filter(Boolean)
+  const phones = (props.task?.contactPhone || '')
+    .split(/[,;|]/)
+    .map((phone) => phone.trim())
+    .filter(Boolean)
+
+  return names.map((name, index) => ({
+    name,
+    phone: phones[index] || (names.length === 1 ? phones[0] || '' : ''),
+    isOwnContact: true,
+    ownerName: '',
+  }))
 })
 
 const taskLocation = computed(() => {
@@ -515,8 +610,16 @@ function preventUnavailableContact(event: MouseEvent) {
   font-size: 11px;
 }
 
+.task-name-card__actions {
+  display: flex;
+  align-self: stretch;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .task-type-badge {
-  align-self: start;
   border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
   border-radius: 999px;
   padding: 6px 11px;
@@ -524,6 +627,18 @@ function preventUnavailableContact(event: MouseEvent) {
   background: rgba(255, 255, 255, 0.82);
   font-size: 11px;
   font-weight: 700;
+}
+
+.edit-task-button {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 10px;
+  padding: 8px 15px;
+  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
+  white-space: nowrap;
 }
 
 .detail-card {
@@ -585,6 +700,141 @@ function preventUnavailableContact(event: MouseEvent) {
   font-weight: 500;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.task-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.task-contact-card {
+  display: grid;
+  min-width: 0;
+  min-height: 76px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  border: 1px solid #e3ebf0;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(31, 52, 73, 0.035);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.task-contact-card:hover {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.32);
+  box-shadow: 0 8px 20px rgba(31, 52, 73, 0.07);
+  transform: translateY(-1px);
+}
+
+.task-contact-card--external {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
+  background: linear-gradient(
+    135deg,
+    #fff 35%,
+    rgba(var(--app-primary-rgb, 24, 166, 228), 0.045)
+  );
+}
+
+.task-contact-avatar {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 14px;
+  color: #fff;
+  background: linear-gradient(
+    145deg,
+    var(--app-primary, #18a6e4),
+    var(--app-secondary, #75c4ef)
+  );
+  box-shadow: 0 6px 14px rgba(22, 76, 105, 0.14);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.task-contact-copy {
+  min-width: 0;
+}
+
+.task-contact-copy strong {
+  overflow: hidden;
+  color: #102a43;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-contact-copy a {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  overflow: hidden;
+  color: #486581;
+  font-size: 11px;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-contact-copy a:hover {
+  color: var(--app-primary-dark, #087cae);
+}
+
+.task-contact-owner-note {
+  margin-top: 10px;
+}
+
+.task-contact-owner-note span {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding: 4px 9px;
+  overflow: hidden;
+  color: var(--app-primary-dark, #087cae);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.11);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-contact-owner-note :deep(.solar-icon) {
+  flex: 0 0 auto;
+  color: var(--app-primary, #18a6e4);
+}
+
+:global(body.dark-only .task-contact-card) {
+  border-color: #3a4652;
+  background: #25303a;
+}
+
+:global(body.dark-only .task-contact-card--external) {
+  background: linear-gradient(
+    135deg,
+    #25303a 35%,
+    rgba(var(--app-primary-rgb, 24, 166, 228), 0.08)
+  );
+}
+
+:global(body.dark-only .task-contact-copy strong) {
+  color: #eef3f6;
+}
+
+:global(body.dark-only .task-contact-copy a) {
+  color: #a8b6c5;
 }
 
 .opportunity-status {
@@ -948,9 +1198,18 @@ function preventUnavailableContact(event: MouseEvent) {
     font-size: 17px;
   }
 
-  .task-type-badge {
+  .task-name-card__actions {
     grid-column: 2;
-    justify-self: start;
+    align-self: auto;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .edit-task-button {
+    min-height: 34px;
+    padding: 6px 10px;
+    font-size: 11px;
   }
 
   .detail-card {

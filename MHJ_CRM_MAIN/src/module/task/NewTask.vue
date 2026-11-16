@@ -247,9 +247,9 @@
                       placeholder="Nama Kontak / Dokter / PIC"
                       display-key="label"
                       get-value-key="value"
-                      :multi-select="form.hasProject"
+                      :multi-select="true"
                       :form-submitted="formSubmitted"
-                      :removable-tags="form.hasProject"
+                      :removable-tags="true"
                     />
                   </div>
 
@@ -1126,9 +1126,7 @@ const selectedDivisions = computed<DealOption[]>(() => {
   return form.divisions.selectedItems as DealOption[];
 });
 const selectedContacts = computed<DealOption[]>(() => {
-  if (form.hasProject) return form.contact.selectedItems as DealOption[];
-  const contact = form.contact.selected as DealOption | null;
-  return contact ? [contact] : [];
+  return form.contact.selectedItems as DealOption[];
 });
 const selectedCompanyLabel = computed(() => {
   const selectedHospital = (form.hospital.selected as DealOption | null)?.label;
@@ -1328,9 +1326,7 @@ async function hydrateForm(task: TaskDetails) {
   }
 
   form.hospital = selectField(hospital);
-  form.contact = form.hasProject
-    ? multiSelectField(contacts)
-    : selectField(contacts[0] ?? null);
+  form.contact = multiSelectField(contacts);
   form.contactPhone = task.contactPhone || "";
   form.scheduledAt = toDateTimeLocal(task.scheduledAt || task.dueDate);
   form.divisions = form.hasProject
@@ -2138,7 +2134,7 @@ function isFormDirty(): boolean {
   if (form.category.selected) return true;
   if (form.project.selected) return true;
   if (form.hospital.selected) return true;
-  if (form.contact.selected) return true;
+  if (form.contact.selectedItems.length) return true;
   if (form.pipeline.selected) return true;
   const divisionsSelected = form.divisions.selected;
   if (
@@ -2391,8 +2387,8 @@ onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
   height: 38px;
   flex: 0 0 38px;
   border-radius: 10px;
-  color: var(--theme-default);
-  background: rgba(0, 102, 102, 0.1);
+  color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
 }
 
 .project-choice {

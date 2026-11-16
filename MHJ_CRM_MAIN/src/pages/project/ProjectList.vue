@@ -2758,5 +2758,12 @@ function selectStage(value: string) {
   :deep(.opp-list-footer strong) {
     font-size: 11px;
   }
+
+  :deep(.opp-list-footer > div:first-child strong) {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
 }
 </style>

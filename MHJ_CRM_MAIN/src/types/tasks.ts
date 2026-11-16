@@ -26,6 +26,7 @@ export interface TaskDetails {
   hospital?: string
   contactId?: number
   contact?: string
+  contacts?: TaskContact[]
   scheduledAt?: string
   dueDate?: string
   divisions?: string[]
@@ -42,6 +43,13 @@ export interface TaskDetails {
   contactPhone?: string
   serialNumber?: string
   createdAt?: string
+}
+
+export interface TaskContact {
+  name: string
+  phone: string
+  isOwnContact: boolean
+  ownerName: string
 }
 
 export type TaskKind = 'sales' | 'app-specialist'

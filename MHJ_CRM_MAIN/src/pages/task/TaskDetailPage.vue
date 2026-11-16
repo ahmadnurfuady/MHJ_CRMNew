@@ -1,27 +1,5 @@
 <template>
   <div class="task-detail-page">
-    <div class="detail-toolbar">
-      <router-link :to="backTarget" class="back-button" aria-label="Kembali ke daftar tugas">
-        <SolarIcon
-          name="arrow-left-linear"
-          :size="26"
-          color="var(--app-primary-dark, #087cae)"
-          :stroke-width="2.5"
-        />
-      </router-link>
-      <h3 class="detail-toolbar__title">Detail Tugas</h3>
-      <button
-        v-if="task && canEditTask"
-        class="btn btn-primary edit-task-header"
-        type="button"
-        data-bs-toggle="modal"
-        :data-bs-target="editModalTarget"
-      >
-        <vue-feather type="edit-2" size="17" />
-        <span>Edit Tugas</span>
-      </button>
-    </div>
-
     <div v-if="loading && !task" class="task-detail-state card">
       <span class="spinner-border text-primary" aria-hidden="true"></span>
       <strong>Memuat detail tugas...</strong>
@@ -63,6 +41,7 @@ import type { TaskDetails } from '@/types/tasks'
 import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
 import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
 import { useTaskPermissions } from '@/module/task/taskPermission'
+import { usePageBackRoute, usePageTitle } from '@/composable/usePageHeader'
 
 const TaskDetail = defineAsyncComponent(() => import('@/module/task/TaskDetail.vue'))
 const props = defineProps<{ taskId: number }>()
@@ -77,11 +56,9 @@ const backTarget = computed(() => ({
   path: routes.App.Task,
   query: route.query.view === 'calendar' ? { view: 'calendar' } : undefined,
 }))
-const editModalTarget = computed(() =>
-  task.value?.kind === 'app-specialist'
-    ? '#app-specialist-task-modal'
-    : '#sales-task-modal',
-)
+
+usePageTitle('Detail Tugas')
+usePageBackRoute(backTarget)
 
 function mergeTaskDetail(base: TaskDetails, detail: TaskDetails) {
   const merged = { ...base }
@@ -125,72 +102,6 @@ watch(() => props.taskId, loadTask, { immediate: true })
   padding-bottom: 28px;
 }
 
-.detail-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-
-.detail-toolbar__title {
-  margin: 0;
-  color: #17212b;
-  font-size: 23px;
-}
-
-.back-button {
-  display: grid;
-  width: 50px;
-  height: 50px;
-  place-items: center;
-  box-sizing: border-box;
-  border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.28);
-  border-radius: 12px;
-  padding: 0;
-  background: #fff;
-  box-shadow: none;
-  transition:
-    border-color 0.18s ease,
-    background-color 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.back-button :deep(.solar-icon) {
-  transition:
-    color 0.18s ease,
-    transform 0.18s ease;
-}
-
-.back-button:hover :deep(.solar-icon),
-.back-button:focus-visible :deep(.solar-icon) {
-  color: #fff !important;
-  transform: translateX(-2px);
-}
-
-.back-button:hover,
-.back-button:focus-visible {
-  border-color: var(--task-primary);
-  background: var(--task-primary);
-  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
-}
-
-.back-button:focus-visible {
-  outline: 3px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
-  outline-offset: 2px;
-}
-
-.edit-task-header {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-left: auto;
-  padding: 9px 18px;
-  border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(var(--app-primary-rgb, 24, 166, 228), 0.2);
-}
-
 .task-detail-state {
   display: flex;
   min-height: 330px;
@@ -220,24 +131,4 @@ watch(() => props.taskId, loadTask, { immediate: true })
   font-size: 19px;
 }
 
-@media (max-width: 575.98px) {
-  .detail-toolbar h3 {
-    font-size: 19px;
-  }
-
-  .edit-task-header {
-    width: 42px;
-    padding: 0;
-  }
-
-  .edit-task-header span {
-    display: none;
-  }
-}
-
-@media print {
-  .detail-toolbar {
-    display: none;
-  }
-}
 </style>

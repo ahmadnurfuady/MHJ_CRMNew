@@ -20,7 +20,14 @@ import { useProjectStore } from '@/store/project'
 import type { ListParams, Pagination } from '@/types/api'
 import type { Select } from '@/types/common'
 import type { Projects } from '@/types/project'
-import type { TaskPayload, TaskUpdatePayload, Task, TaskData, TaskDetails } from '@/types/tasks'
+import type {
+  TaskPayload,
+  TaskUpdatePayload,
+  Task,
+  TaskContact,
+  TaskData,
+  TaskDetails,
+} from '@/types/tasks'
 import { canTask } from '@/module/task/taskPermission'
 
 const projectStageStorageKey = 'mhj-crm-project-stages'
@@ -143,6 +150,77 @@ function toStringArray(value: unknown): string[] {
   }
 
   return value.split(',').map((item) => item.trim()).filter(Boolean)
+}
+
+function ownContactFlag(value: unknown): boolean {
+  if (value === undefined || value === null || value === '') return true
+  if (typeof value === 'boolean') return value
+  if (typeof value === 'number') return value === 1
+  return ['true', '1'].includes(String(value).trim().toLowerCase())
+}
+
+function taskContacts(value: unknown): TaskContact[] {
+  if (Array.isArray(value)) return value.flatMap(taskContacts)
+
+  if (isRecord(value)) {
+    const name = pickText(value, 'contact_name', 'contact_person', 'full_name', 'name', 'label')
+    if (!name) return Object.values(value).flatMap(taskContacts)
+    return [{
+      name,
+      phone: pickString(value, 'contact_phone', 'phone', 'telephone_1', 'mobile'),
+      isOwnContact: ownContactFlag(value.is_own_contact),
+      ownerName: pickText(value, 'owner_name', 'created_by_name'),
+    }]
+  }
+
+  if (typeof value !== 'string') return []
+  const normalized = normalizeText(value)
+  if (!normalized) return []
+
+  try {
+    const parsed: unknown = JSON.parse(normalized)
+    if (Array.isArray(parsed) || isRecord(parsed)) return taskContacts(parsed)
+  } catch {
+    // Nama kontak teks biasa diproses di bawah.
+  }
+
+  return normalized
+    .split(/[,;|]/)
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .map((name) => ({ name, phone: '', isOwnContact: true, ownerName: '' }))
+}
+
+function pickTaskContacts(raw: Dict): TaskContact[] {
+  const sourceKey = [
+    'contacts',
+    'project_contacts',
+    'deal_contacts',
+    'contact_list',
+    'contact_names',
+  ].find((key) => raw[key] !== undefined && raw[key] !== null && raw[key] !== '')
+  const contacts = sourceKey ? taskContacts(raw[sourceKey]) : []
+
+  if (!contacts.length) {
+    const names = taskContacts(pick(raw, 'contact_person', 'contact_name', 'contact'))
+    const phones = pickString(raw, 'contactPhone', 'contact_phone', 'telephone_1', 'phone')
+      .split(/[,;|]/)
+      .map((phone) => phone.trim())
+      .filter(Boolean)
+    const isOwnContact = ownContactFlag(raw.is_own_contact)
+    const ownerName = pickText(raw, 'contact_owner_name', 'contact_created_by_name')
+    names.forEach((contact, index) => {
+      contact.phone = phones[index] || (names.length === 1 ? phones[0] || '' : '')
+      contact.isOwnContact = isOwnContact
+      contact.ownerName = ownerName
+    })
+    contacts.push(...names)
+  }
+
+  return contacts.filter((contact, index, items) => items.findIndex((candidate) =>
+    candidate.name.toLocaleLowerCase('id-ID') === contact.name.toLocaleLowerCase('id-ID')
+    && candidate.phone === contact.phone
+  ) === index)
 }
 
 function nullableText(value: string): string | null {
@@ -278,6 +356,7 @@ export function normalizeTask(raw: Dict): TaskDetails {
   const gpsLongitude = Number(gpsCoordinates[1])
   const rawTaskType = pickText(raw, 'type', 'task_type').toLowerCase()
   const isAppSpecialist = /app(?:lication)?[-_\s]?specialist/.test(rawTaskType)
+  const contacts = pickTaskContacts(raw)
 
   return {
     id: pickNumber(raw, 'id', 'ID') || Date.now(),
@@ -306,7 +385,8 @@ export function normalizeTask(raw: Dict): TaskDetails {
     hospitalId: hospitalId || undefined,
     hospital,
     contactId: contactId || undefined,
-    contact: pickText(raw, 'contact_person', 'contact_name', 'contact'),
+    contact: contacts.map((contact) => contact.name).join(', '),
+    contacts,
     scheduledAt: pickText(raw, 'scheduled_at', 'scheduledAt', 'due_date'),
     dueDate: pickText(raw, 'due_date', 'dueDate'),
     divisions: toStringArray(pick(raw, 'divisions', 'division')),
