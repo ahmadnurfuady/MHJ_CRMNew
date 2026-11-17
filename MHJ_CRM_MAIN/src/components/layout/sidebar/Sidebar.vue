@@ -43,6 +43,12 @@
         <NavMenu v-for="(menuItem, index) in menu" :key="index" :menu-item="menuItem" />
       </ul>
     </div>
+    <footer class="sidebar-footer">
+      <button class="sidebar-logout" type="button" @click="handleLogout">
+        <SolarIcon name="logout" :size="18" color="#ffffff" secondary-color="#ffffff" aria-hidden="true" />
+        <span class="sidebar-logout-label">Keluar</span>
+      </button>
+    </footer>
     <li class="right-arrow" :class="{ disabled: sidebar.hideRightArrow }" @click="arrowRight">
       <vue-feather type="arrow-right"></vue-feather>
     </li>
@@ -57,8 +63,12 @@ import { useMenu } from '@/store/menu'
 import { storeToRefs } from 'pinia'
 import { useLayout } from '@/store/layout'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/store/auth'
 
 const { t } = useI18n()
+const router = useRouter()
+const authStore = useAuthStore()
 
 const Logo = defineAsyncComponent(() => import('@/components/layout/sidebar/Logo.vue'))
 
@@ -115,6 +125,11 @@ function arrowLeft() {
   }
 }
 
+async function handleLogout() {
+  await authStore.logout()
+  router.replace('/auth/login')
+}
+
 onMounted(() => {
   timeoutId = window.setTimeout(() => {
     if (sidebarRef.value) {
@@ -138,3 +153,56 @@ onUnmounted(() => {
 })
 </script>
 
+<style scoped>
+.sidebar-footer {
+  flex: 0 0 auto;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dc3545;
+  border-radius: 10px;
+  background: #dc3545;
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-logout:hover,
+.sidebar-logout:focus-visible {
+  border-color: #b02a37;
+  background: #b02a37;
+}
+
+.sidebar-logout-label {
+  color: #fff !important;
+}
+
+.sidebar-logout :deep(svg) {
+  flex: 0 0 18px;
+}
+
+:global(.sidebar-wrapper.close_icon) .sidebar-footer {
+  padding-right: 12px;
+  padding-left: 12px;
+}
+
+:global(.sidebar-wrapper.close_icon) .sidebar-logout {
+  justify-content: center;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+:global(.sidebar-wrapper.close_icon) .sidebar-logout-label,
+:global(.horizontal-wrapper) .sidebar-footer {
+  display: none;
+}
+</style>
