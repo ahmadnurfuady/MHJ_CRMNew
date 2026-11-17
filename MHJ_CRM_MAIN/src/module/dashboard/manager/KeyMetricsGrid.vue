@@ -1,5 +1,5 @@
 <template>
-  <section class="key-metrics" aria-labelledby="key-metrics-title">
+  <section class="key-metrics" aria-labelledby="key-metrics-title" :style="{ '--win-color': PROJECT_STAGE_COLORS.closed_won, '--lost-color': PROJECT_STAGE_COLORS.closed_lost }">
     <div class="key-metrics__head">
       <h2 id="key-metrics-title" class="section-title">Kinerja Utama</h2>
     </div>
@@ -71,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+import { PROJECT_STAGE_COLORS } from '@/core/data/project'
 import type {
   ManagerKpiCard,
   ManagerOpportunityOutcome,
@@ -213,11 +214,11 @@ function formatPercent(value: number): string {
 }
 
 .kpi-card__ratio-segment.is-win {
-  background: #22a06b;
+  background: var(--win-color);
 }
 
 .kpi-card__ratio-segment.is-lost {
-  background: #e05252;
+  background: var(--lost-color);
 }
 
 @media (max-width: 767px) {

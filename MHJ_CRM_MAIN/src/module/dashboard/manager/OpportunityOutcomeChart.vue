@@ -1,5 +1,5 @@
 <template>
-  <article class="outcome-card" aria-labelledby="outcome-title">
+  <article class="outcome-card" aria-labelledby="outcome-title" :style="{ '--win-color': PROJECT_STAGE_COLORS.closed_won, '--lost-color': PROJECT_STAGE_COLORS.closed_lost }">
     <div class="outcome-card__head">
       <h2 id="outcome-title" class="section-title">Peluang Win vs Lost</h2>
       <span class="outcome-card__total">{{ total }} peluang</span>
@@ -32,6 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { PROJECT_STAGE_COLORS } from '@/core/data/project'
 
 import type { ManagerOpportunityOutcome } from '@/types/dashboard/manager'
 
@@ -150,12 +151,12 @@ function formatPercent(value: number): string {
 
 .outcome-chart__label i.is-win,
 .outcome-chart__track span.is-win {
-  background: #22a06b;
+  background: var(--win-color);
 }
 
 .outcome-chart__label i.is-lost,
 .outcome-chart__track span.is-lost {
-  background: #e05252;
+  background: var(--lost-color);
 }
 
 .outcome-chart__row small {

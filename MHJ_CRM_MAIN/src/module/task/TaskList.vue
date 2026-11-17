@@ -235,7 +235,7 @@
 
               <td data-label="Pipeline">
                 <div v-if="item.stageTo" class="pipeline-change">
-                  <span class="pipeline-badge">{{ item.stageTo }}</span>
+                  <span class="pipeline-badge" :style="{ '--stage-color': projectStageColor(item.stageTo) || '#64748b' }">{{ item.stageTo }}</span>
                   <small v-if="item.stageFrom && item.stageFrom !== item.stageTo">
                     dari {{ item.stageFrom }}
                   </small>
@@ -364,6 +364,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
+import { projectStageColor } from '@/core/data/project'
 import { useHospitalStore } from '@/store/hospital'
 import { useProjectStore } from '@/store/project'
 import { useTask } from '@/store/task'
@@ -1257,8 +1258,8 @@ onBeforeUnmount(() => {
 }
 
 .pipeline-badge {
-  background: rgba(34, 197, 94, 0.1);
-  color: #15803d;
+  background: color-mix(in srgb, var(--stage-color) 12%, transparent);
+  color: var(--stage-color);
 }
 
 .owner-label {

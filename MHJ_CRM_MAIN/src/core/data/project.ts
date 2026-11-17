@@ -1836,6 +1836,27 @@ export const PROJECT_STAGE_COLORS: Record<string, string> = {
   closed_cancel: '#A8A13B',
 }
 
+export function projectStageColor(stage: string): string | undefined {
+  const value = stage.trim().toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ')
+  const aliases: Record<string, string> = {
+    qualification: 'qualified',
+    'presentation/demo': 'presentation_demo',
+    'presentation demo': 'presentation_demo',
+    demo: 'presentation_demo',
+    proposal: 'quotation',
+    'closed won': 'closed_won',
+    won: 'closed_won',
+    win: 'closed_won',
+    'closed lost': 'closed_lost',
+    lost: 'closed_lost',
+    'closed cancel': 'closed_cancel',
+    'closed cancelled': 'closed_cancel',
+    cancel: 'closed_cancel',
+    cancelled: 'closed_cancel',
+  }
+  return PROJECT_STAGE_COLORS[aliases[value] ?? value.replace(/\s+/g, '_')]
+}
+
 // Tab stage mengikuti Kerangka Menu - 3. Menu Project (Pipeline Sales).
 export const projectTab: Tabs[] = [
   {

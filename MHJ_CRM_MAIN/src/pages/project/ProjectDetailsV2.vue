@@ -30,7 +30,7 @@
           <span class="section-kicker">Peluang</span>
           <h1>{{ text(detail.deal_name) }}</h1>
           <div class="badge-list">
-            <span class="opportunity-badge stage-badge">
+            <span class="opportunity-badge stage-badge" :style="{ '--stage-color': projectStageColor(String(detail.stage_name ?? selectedItem?.stageName ?? '')) || '#64748b' }">
               {{ text(detail.stage_name) }}
             </span>
             <span class="opportunity-badge">{{ text(detail.division_name) }}</span>
@@ -391,6 +391,7 @@ import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiErrorMessage, isRecord, type Dict } from '@/api/response'
 import ActivityTimeline from '@/components/shared/ActivityTimeline.vue'
+import { projectStageColor } from '@/core/data/project'
 import { usePageBackHandler, usePageTitle } from '@/composable/usePageHeader'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
 import WonProjectDocuments from '@/module/project/projectDetails/WonProjectDocuments.vue'
@@ -783,7 +784,7 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .badge-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .opportunity-badge { display: inline-flex; min-width: 0; align-items: center; gap: 6px; border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), .13); border-radius: 999px; padding: 6px 10px; color: #486581; background: rgba(255,255,255,.78); font-size: 11px; line-height: 1.2; }
 .item-count { display: inline-flex; flex: 0 0 auto; align-items: center; border-radius: 999px; padding: 6px 10px; color: #52677a; background: rgba(var(--app-primary-rgb, 24, 166, 228), .08); font-size: 11px; font-weight: 700; }
-.stage-badge { border-color: rgba(var(--app-primary-rgb, 24, 166, 228), .24); color: var(--app-primary-dark, #087cae); background: rgba(var(--app-primary-rgb, 24, 166, 228), .09); }
+.stage-badge { border-color: var(--stage-color); color: var(--stage-color); background: color-mix(in srgb, var(--stage-color) 12%, transparent); }
 .stage-duration-badge { border-color: #dce8ee; color: #486581; background: rgba(255,255,255,.82); }
 .priority-badge { border-color: #efd9a7; color: #8b650d; background: #fff7df; }
 .card-heading { display: flex; min-width: 0; align-items: center; gap: 12px; border-bottom: 1px solid #e8eef2; padding: 18px 20px; background: linear-gradient(90deg, #fff 0%, var(--app-primary-wash, #f8fcfe) 100%); }

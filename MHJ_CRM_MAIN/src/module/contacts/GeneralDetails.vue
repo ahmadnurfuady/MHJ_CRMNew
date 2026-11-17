@@ -426,7 +426,7 @@
             >
               <span
                 class="badge stage-summary-badge"
-                :class="stageBadgeClass(summary.stage)"
+                :style="{ '--stage-color': projectStageColor(summary.stage) || '#64748b' }"
               >{{ summary.stage }}</span>
               <span class="stage-summary-count">({{ summary.quantity }})</span>
             </div>
@@ -451,7 +451,10 @@
               <div
                 class="d-flex justify-content-between align-items-center mb-2"
               >
-                <span class="badge" :class="stageBadgeClass(group.stage)">{{
+                <span
+                  class="badge opportunity-stage-badge"
+                  :style="{ '--stage-color': projectStageColor(group.stage) || '#64748b' }"
+                >{{
                   group.stage
                 }}</span>
                 <small class="text-muted"
@@ -531,6 +534,7 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import type { CompanyDetail, CompanyProject } from "@/core/data/contactCrm";
+import { projectStageColor } from "@/core/data/project";
 import { routes } from "@/router/routes";
 import { useAuthStore } from "@/store/auth";
 import { useContact } from "@/store/contact";
@@ -979,15 +983,6 @@ function projectRoute(projectId: string) {
 
 function titleCase(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function stageBadgeClass(stage: string) {
-  if (stage === "Closed Won") return "badge-light-success";
-  if (stage === "Closed Lost") return "badge-light-danger";
-  if (stage === "Closed Cancel") return "badge-light-secondary";
-  if (stage === "Negotiation") return "badge-light-warning";
-  if (stage === "Quotation") return "badge-light-primary";
-  return "badge-light-info";
 }
 
 async function toggleCompanyEdit() {
@@ -1675,6 +1670,13 @@ async function toggleCompanyEdit() {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+.stage-summary-badge,
+.opportunity-stage-badge {
+  border: 1px solid var(--stage-color);
+  color: var(--stage-color);
+  background: color-mix(in srgb, var(--stage-color) 12%, transparent);
 }
 
 .stage-summary-badge {

@@ -7,6 +7,7 @@
             <a
               class="nav-link"
               :class="{ active: activeTab == tab.value }"
+              :style="{ '--stage-color': PROJECT_STAGE_COLORS[tab.value] || 'var(--theme-default, var(--bs-primary))' }"
               href="#"
               @click.prevent
             >
@@ -39,7 +40,7 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
-import { projectTab } from '@/core/data/project'
+import { PROJECT_STAGE_COLORS, projectTab } from '@/core/data/project'
 import { useProjectStore } from '@/store/project'
 import type { Projects } from '@/types/project'
 import { useProjectPermissions } from '@/module/project/projectPermission'
@@ -205,11 +206,11 @@ function handleTab(value: string) {
   font-weight: 600;
 }
 
-/* Tab aktif: teks dan garis tepi memakai warna tema, latar biru tipis. */
+/* Tab aktif mengikuti warna stage. */
 .project-tab-grid .nav-link.active {
-  color: var(--theme-default, var(--bs-primary));
-  border-color: var(--theme-default, var(--bs-primary));
-  background-color: color-mix(in srgb, var(--theme-default, var(--bs-primary)) 10%, transparent);
+  color: var(--stage-color);
+  border-color: var(--stage-color);
+  background-color: color-mix(in srgb, var(--stage-color) 10%, transparent);
 }
 
 .project-tab-grid .nav-link.active .project-tab-summary,
