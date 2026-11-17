@@ -48,6 +48,7 @@ interface NotificationState {
   items: NotificationEntry[]
   unreadCount: number
   loading: boolean
+  hasLoadedNotifications: boolean
   initialized: boolean
   pushStatus: PushStatus
   backendRegistered: boolean
@@ -153,6 +154,7 @@ export const useNotificationStore = defineStore('pushNotification', {
     items: [],
     unreadCount: 0,
     loading: false,
+    hasLoadedNotifications: false,
     initialized: false,
     pushStatus: 'checking',
     backendRegistered: false,
@@ -180,7 +182,10 @@ export const useNotificationStore = defineStore('pushNotification', {
         if (requestVersion !== lifecycleVersion) return
         this.fetchError = getUserErrorMessage(error, 'Gagal memuat notifikasi.')
       } finally {
-        if (requestVersion === lifecycleVersion) this.loading = false
+        if (requestVersion === lifecycleVersion) {
+          this.loading = false
+          this.hasLoadedNotifications = true
+        }
       }
     },
 
@@ -421,6 +426,7 @@ export const useNotificationStore = defineStore('pushNotification', {
       this.items = []
       this.unreadCount = 0
       this.loading = false
+      this.hasLoadedNotifications = false
       this.initialized = false
       this.pushStatus = 'checking'
       this.fcmToken = null

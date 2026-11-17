@@ -68,7 +68,7 @@
 
         <div class="notitications-bar">
           <div class="user-message">
-            <div v-if="loading && items.length === 0" class="notif-feedback">
+            <div v-if="loading && !hasLoadedNotifications && unreadItems.length === 0" class="notif-feedback">
               <span class="spinner-border spinner-border-sm text-primary" aria-hidden="true"></span>
               <span>Memuat notifikasi...</span>
             </div>
@@ -77,16 +77,16 @@
               {{ fetchError }}
             </div>
 
-            <div class="firstcart-empty" v-if="!loading && items.length === 0">
+            <div class="firstcart-empty" v-if="(!loading || hasLoadedNotifications) && unreadItems.length === 0">
               <div class="cart-image">
                 <img class="img-fluid" :src="getImages('ecommerce/cleaning.gif')" alt="empty" />
               </div>
-              <h5 class="mb-0 text-center">Belum ada notifikasi</h5>
+              <h5 class="mb-0 text-center">Tidak ada notifikasi belum dibaca</h5>
             </div>
 
-            <ul v-if="items.length > 0" class="notif-list">
+            <ul v-if="unreadItems.length > 0" class="notif-list">
               <li
-                v-for="item in items"
+                v-for="item in unreadItems"
                 :key="item.id"
                 class="first-product"
                 :class="{ 'is-unread': !item.read }"
@@ -94,7 +94,14 @@
               >
                 <div class="user-alerts">
                   <div class="notif-icon-wrap flex-shrink-0">
-                    <vue-feather type="bell" size="16" />
+                    <SolarIcon
+                      name="bell"
+                      :size="16"
+                      color="var(--app-primary, #18a6e4)"
+                      secondary-color="var(--app-primary, #18a6e4)"
+                      :secondary-opacity="1"
+                      aria-hidden="true"
+                    />
                   </div>
 
                   <div class="user-name">
@@ -122,7 +129,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
@@ -134,8 +141,9 @@ import { useNotificationStore, type NotificationEntry } from '@/store/notificati
 const notificationStore = useNotificationStore()
 const router = useRouter()
 const markingAllRead = ref(false)
-const { items, unreadCount, loading, pushStatus, backendRegistered, pushError, fetchError } =
+const { items, unreadCount, loading, hasLoadedNotifications, pushStatus, backendRegistered, pushError, fetchError } =
   storeToRefs(notificationStore)
+const unreadItems = computed(() => items.value.filter((item) => !item.read))
 
 onMounted(() => {
   notificationStore.init()
@@ -257,6 +265,20 @@ function handleViewAll() {
 .notif-list {
   max-height: 340px;
   overflow-y: auto;
+  align-items: stretch !important;
+  text-align: left;
+}
+
+.notif-list .user-alerts {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.notif-list .user-name,
+.notif-list .user-name > div,
+.notif-list .user-name h6,
+.notif-list .user-name span {
+  text-align: left !important;
 }
 
 .notif-icon-wrap {
@@ -269,6 +291,13 @@ function handleViewAll() {
   background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
   color: var(--app-primary, #18a6e4);
   margin-right: 10px;
+}
+
+.notif-icon-wrap :deep(svg),
+.notif-icon-wrap :deep(svg path) {
+  stroke: none !important;
+  fill: var(--app-primary, #18a6e4) !important;
+  filter: none !important;
 }
 
 .notif-icon-wrap img {

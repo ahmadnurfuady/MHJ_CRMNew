@@ -212,34 +212,64 @@
         </div>
 
         <div v-else-if="comments.length" class="comment-list">
-          <div v-for="comment in comments" :key="comment.id" class="comment-item">
-            <span class="comment-avatar">{{ comment.initial || initials(comment.author) }}</span>
-            <div class="comment-item__body">
-              <div class="comment-item__top">
-                <strong>
-                  {{ comment.author }}
-                  <small>· {{ relativeTime(comment.created_at) }}</small>
-                </strong>
-                <span
-                  v-if="comment.frmdvc"
-                  class="comment-source"
-                  :class="`comment-source--${(comment.frmdvc || '').toLowerCase()}`"
+          <div
+            v-for="group in commentGroups"
+            :key="group.messages[0]!.id"
+            class="comment-item"
+            :class="{ 'comment-item--own': group.own }"
+          >
+            <div v-if="group.own" class="comment-item__own-content">
+              <div class="comment-item__own-meta">
+                <time :datetime="group.messages[0]!.created_at">{{ commentClock(group.messages[0]!.created_at) }}</time>
+                <strong class="comment-item__own-name">Anda</strong>
+              </div>
+              <div v-for="comment in group.messages" :key="comment.id" class="comment-item__own-message">
+                <button
+                  type="button"
+                  class="comment-delete"
+                  :disabled="deletingId === comment.id"
+                  aria-label="Hapus komentar"
+                  title="Hapus komentar"
+                  @click="handleDelete(comment)"
                 >
-                  {{ comment.frmdvc }}
+                  <vue-feather type="trash-2" size="14" />
+                </button>
+                <p class="comment-item__own-bubble">{{ comment.message }}</p>
+              </div>
+              <div v-if="group.messages[0]!.frmdvc" class="comment-item__actions">
+                <span
+                  class="comment-source"
+                  :class="`comment-source--${group.messages[0]!.frmdvc!.toLowerCase()}`"
+                >
+                  {{ group.messages[0]!.frmdvc!.toLowerCase() === 'apk' ? 'Mobile' : group.messages[0]!.frmdvc }}
                 </span>
               </div>
-              <p>{{ comment.message }}</p>
-              <button
-                v-if="canDelete(comment)"
-                type="button"
-                class="comment-delete"
-                :disabled="deletingId === comment.id"
-                @click="handleDelete(comment)"
-              >
-                <vue-feather type="trash-2" size="12" />
-                Hapus
-              </button>
             </div>
+            <template v-else>
+              <span class="comment-avatar" aria-hidden="true">
+                {{ group.messages[0]!.initial || initials(group.messages[0]!.author) }}
+              </span>
+              <div class="comment-item__body">
+                <div class="comment-item__top">
+                  <strong>{{ group.messages[0]!.author }}</strong>
+                  <time :datetime="group.messages[0]!.created_at">{{ commentClock(group.messages[0]!.created_at) }}</time>
+                </div>
+                <p
+                  v-for="comment in group.messages"
+                  :key="comment.id"
+                  class="comment-item__other-bubble"
+                >{{ comment.message }}</p>
+                <div class="comment-item__actions">
+                  <span
+                    v-if="group.messages[0]!.frmdvc"
+                    class="comment-source"
+                    :class="`comment-source--${group.messages[0]!.frmdvc!.toLowerCase()}`"
+                  >
+                    {{ group.messages[0]!.frmdvc!.toLowerCase() === 'apk' ? 'Mobile' : group.messages[0]!.frmdvc }}
+                  </span>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
         <p v-else class="comment-empty">Belum ada komentar pada tugas ini.</p>
@@ -335,13 +365,28 @@ const editModalTarget = computed(() =>
     : '#sales-task-modal',
 )
 
-const currentUser = computed(() => {
-  try {
-    const user = JSON.parse(localStorage.getItem('user') || 'null') as { name?: string } | null
-    return user?.name || 'User'
-  } catch {
-    return 'User'
+const currentUser = computed(() => user.value?.name || 'User')
+
+const commentGroups = computed(() => {
+  const groups: { messages: TaskComment[]; own: boolean }[] = []
+  for (const comment of comments.value) {
+    const own = isOwnComment(comment)
+    const previous = groups[groups.length - 1]
+    const last = previous?.messages[previous.messages.length - 1]
+    const elapsed = last ? new Date(comment.created_at).getTime() - new Date(last.created_at).getTime() : NaN
+    const sameAuthor = last && (comment.author_id != null && last.author_id != null
+      ? String(comment.author_id) === String(last.author_id)
+      : comment.author_id == null && last.author_id == null && comment.author === last.author)
+
+    if (previous && previous.own === own && last && sameAuthor
+      && comment.frmdvc?.toLowerCase() === last.frmdvc?.toLowerCase()
+      && elapsed >= 0 && elapsed <= 2 * 60 * 1000) {
+      previous.messages.push(comment)
+    } else {
+      groups.push({ messages: [comment], own })
+    }
   }
+  return groups
 })
 
 const formattedSchedule = computed(() => {
@@ -451,9 +496,9 @@ async function addComment() {
   }
 }
 
-function canDelete(comment: TaskComment): boolean {
-  const authorId = typeof comment.author_id === 'number' ? comment.author_id : null
-  return authorId !== null && authorId === (user.value?.id ?? -1)
+function isOwnComment(comment: TaskComment): boolean {
+  return comment.author_id != null && user.value?.id != null
+    && String(comment.author_id) === String(user.value.id)
 }
 
 async function handleDelete(comment: TaskComment) {
@@ -481,24 +526,10 @@ async function handleDelete(comment: TaskComment) {
   }
 }
 
-function relativeTime(value: string | null | undefined): string {
-  if (!value) return ''
+function commentClock(value: string): string {
   const date = new Date(value)
-  const ts = date.getTime()
-  if (!Number.isFinite(ts)) return ''
-  const diffMs = Date.now() - ts
-  if (diffMs < 0) return 'Baru saja'
-  const sec = Math.floor(diffMs / 1000)
-  if (sec < 45) return 'Baru saja'
-  const min = Math.floor(sec / 60)
-  if (min < 60) return `${min} menit lalu`
-  const hour = Math.floor(min / 60)
-  if (hour < 24) return `${hour} jam lalu`
-  const day = Math.floor(hour / 24)
-  if (day < 30) return `${day} hari lalu`
-  const month = Math.floor(day / 30)
-  if (month < 12) return `${month} bulan lalu`
-  return `${Math.floor(day / 365)} tahun lalu`
+  if (!Number.isFinite(date.getTime())) return '-'
+  return new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(date)
 }
 
 function printDetail() {
@@ -1024,6 +1055,10 @@ async function callContact() {
   gap: 10px;
 }
 
+.comment-item--own {
+  justify-content: flex-end;
+}
+
 .comment-avatar {
   display: inline-flex;
   width: 34px;
@@ -1039,15 +1074,84 @@ async function callContact() {
 }
 
 .comment-item__body {
-  flex: 1;
+  display: flex;
+  max-width: min(75%, 560px);
   min-width: 0;
+  align-items: flex-start;
+  flex-direction: column;
 }
 
+.comment-item__own-content {
+  display: flex;
+  max-width: min(75%, 560px);
+  min-width: 0;
+  align-items: flex-end;
+  flex-direction: column;
+}
+
+.comment-item__own-meta,
 .comment-item__top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+.comment-item__own-meta time,
+.comment-item__top time {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+.comment-item__own-name {
+  border-left: 1px solid #cbd5e1;
+  padding-left: 7px;
+}
+
+.comment-item p.comment-item__own-bubble,
+.comment-item p.comment-item__other-bubble {
+  margin: 0;
+  padding: 9px 12px;
+  color: #102a43;
+  text-align: left;
+}
+
+.comment-item p.comment-item__own-bubble {
+  border-radius: 12px 12px 3px 12px;
+  background: rgba(var(--app-secondary-rgb, 117, 196, 239), 0.18);
+}
+
+.comment-item__own-message {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.comment-item__own-message .comment-delete {
+  flex: 0 0 24px;
+}
+
+.comment-item__own-message + .comment-item__own-message {
+  margin-top: 4px;
+}
+
+.comment-item p.comment-item__other-bubble {
+  border-radius: 12px 12px 12px 3px;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
+}
+
+.comment-item p.comment-item__other-bubble + .comment-item__other-bubble {
+  margin-top: 4px;
+}
+
+.comment-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
 }
 
 .comment-item strong {
@@ -1055,14 +1159,9 @@ async function callContact() {
   font-size: 12px;
 }
 
-.comment-item strong small {
-  color: #94a3b8;
-  font-weight: 400;
-}
-
 .comment-item p {
   margin: 2px 0 0;
-  color: #6b7280;
+  color: #334155;
   font-size: 12px;
   white-space: pre-wrap;
   word-break: break-word;
@@ -1090,9 +1189,10 @@ async function callContact() {
 .comment-delete {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  padding: 2px 8px;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
   border: 0;
   background: transparent;
   color: #94a3b8;
@@ -1127,6 +1227,13 @@ async function callContact() {
   border-radius: 999px;
   padding: 9px 14px;
   outline: 0;
+  color: #102a43;
+  caret-color: #102a43;
+  cursor: text;
+}
+
+:global(body.dark-only) .comment-form input {
+  caret-color: var(--app-primary-soft-light, #b9e8fa);
 }
 
 .comment-form input:focus {
