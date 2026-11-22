@@ -154,7 +154,7 @@
           </thead>
           <tbody>
             <tr v-if="loading && !filteredTasks.length">
-              <td colspan="8" class="task-table-state">
+              <td colspan="9" class="task-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 Memuat data tugas...
               </td>
@@ -209,6 +209,22 @@
                     {{ item.hospital || item.subtitle || '-' }}
                   </span>
                 </div>
+              </td>
+
+              <td data-label="Kontak">
+                <div v-if="taskContactNames(item)" class="task-contacts">
+                  <span class="cell-primary" :title="taskContactNames(item)">
+                    {{ taskContactPrimary(item) }}
+                  </span>
+                  <small
+                    v-if="taskContactExtra(item) > 0"
+                    class="task-contacts__extra"
+                    :title="taskContactNames(item)"
+                  >
+                    +{{ taskContactExtra(item) }} kontak
+                  </small>
+                </div>
+                <span v-else class="empty-value">Belum ada kontak</span>
               </td>
 
               <td data-label="Peluang">
@@ -289,7 +305,7 @@
             </tr>
 
             <tr v-if="!loading && !filteredTasks.length">
-              <td colspan="8" class="task-table-state">
+              <td colspan="9" class="task-table-state">
                 <div class="empty-state-icon">
                   <vue-feather type="check-square" size="22" />
                 </div>
@@ -399,6 +415,7 @@ const currentTaskPage = ref(1)
 const taskTableColumns = [
   { label: 'Nama Tugas', defaultWidth: 280, minWidth: 220, center: false },
   { label: 'Faskes', defaultWidth: 220, minWidth: 140, center: false },
+  { label: 'Kontak', defaultWidth: 200, minWidth: 140, center: false },
   { label: 'Peluang', defaultWidth: 180, minWidth: 120, center: false },
   { label: 'Waktu Kunjungan', defaultWidth: 170, minWidth: 140, center: false },
   { label: 'Owner', defaultWidth: 170, minWidth: 130, center: false },
@@ -754,6 +771,29 @@ function normalizeRelationName(value: string) {
 function relatedProject(item: TaskDetails) {
   if (!item.projectId) return undefined
   return projectStore.items.find((project) => project.id === item.projectId)
+}
+
+function taskContactList(item: TaskDetails): string[] {
+  const fromContacts = (item.contacts ?? [])
+    .map((contact) => contact.name?.trim() ?? '')
+    .filter(Boolean)
+  if (fromContacts.length) return fromContacts
+  return (item.contact ?? '')
+    .split(/[,;|]/)
+    .map((name) => name.trim())
+    .filter((name) => Boolean(name) && name !== '-')
+}
+
+function taskContactNames(item: TaskDetails): string {
+  return taskContactList(item).join(', ')
+}
+
+function taskContactPrimary(item: TaskDetails): string {
+  return taskContactList(item)[0] ?? ''
+}
+
+function taskContactExtra(item: TaskDetails): number {
+  return Math.max(0, taskContactList(item).length - 1)
 }
 
 function hospitalDetailId(item: TaskDetails): number | undefined {
@@ -1289,6 +1329,25 @@ onBeforeUnmount(() => {
   font-size: 12px;
 }
 
+.task-contacts {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-contacts .cell-primary {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-contacts__extra {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 .task-row-actions {
   display: inline-flex;
   align-items: center;
@@ -1621,6 +1680,7 @@ onBeforeUnmount(() => {
   }
 
   .task-table tbody td[data-label="Faskes"],
+  .task-table tbody td[data-label="Kontak"],
   .task-table tbody td[data-label="Catatan"],
   .task-table tbody td[data-label="Aksi"] {
     grid-column: 1 / -1;
@@ -1629,6 +1689,10 @@ onBeforeUnmount(() => {
   .task-table tbody td[data-label="Faskes"] {
     padding-top: 13px;
     padding-bottom: 8px;
+  }
+
+  .task-table tbody td[data-label="Kontak"] {
+    border-top: 1px solid #f1f5f9;
   }
 
   .task-table tbody td[data-label="Peluang"],
