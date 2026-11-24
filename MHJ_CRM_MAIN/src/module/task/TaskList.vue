@@ -118,6 +118,90 @@
       </div>
     </div>
 
+    <div class="task-filter-row" role="group" aria-label="Filter tugas">
+      <div class="task-filter-field">
+        <label class="task-filter-label" for="task-filter-divisi">Divisi</label>
+        <select
+          id="task-filter-divisi"
+          v-model="divisiFilter"
+          class="form-select form-select-sm task-filter-select"
+        >
+          <option value="">Semua Divisi</option>
+          <option
+            v-for="option in filterOptions.divisi"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="task-filter-field">
+        <label class="task-filter-label" for="task-filter-cabang">Cabang</label>
+        <select
+          id="task-filter-cabang"
+          v-model="cabangFilter"
+          class="form-select form-select-sm task-filter-select"
+        >
+          <option value="">Semua Cabang</option>
+          <option
+            v-for="option in filterOptions.cabang"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="task-filter-field">
+        <label class="task-filter-label" for="task-filter-faskes">Faskes</label>
+        <select
+          id="task-filter-faskes"
+          v-model="faskesFilter"
+          class="form-select form-select-sm task-filter-select"
+        >
+          <option :value="0">Semua Faskes</option>
+          <option
+            v-for="option in visibleFaskesOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="task-filter-field">
+        <label class="task-filter-label" for="task-filter-owner">Owner</label>
+        <select
+          id="task-filter-owner"
+          v-model="ownerFilter"
+          class="form-select form-select-sm task-filter-select"
+        >
+          <option :value="0">Semua Owner</option>
+          <option
+            v-for="option in filterOptions.owner"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <button
+        v-if="hasActiveFilter"
+        class="btn btn-link btn-sm task-filter-reset"
+        type="button"
+        @click="resetFilters"
+      >
+        <vue-feather type="x" size="14" />
+        <span>Reset filter</span>
+      </button>
+    </div>
+
     <div class="card-body p-0">
       <div v-if="activeView === 'list'" class="table-responsive task-table-wrap">
         <table
@@ -377,7 +461,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import { projectStageColor } from '@/core/data/project'
@@ -410,6 +494,70 @@ const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
   { value: 'yearly', label: 'Tahunan' },
 ]
 const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'calendar' : 'list')
+
+// Filter dropdown: divisi/cabang pakai string kosong = "Semua", faskes/owner
+// pakai 0 karena nilainya id numerik dari master data.
+const divisiFilter = ref<string>('')
+const cabangFilter = ref<string>('')
+const faskesFilter = ref<number>(0)
+const ownerFilter = ref<number>(0)
+const filterOptions = computed(() => store.lookups.filters)
+
+// Faskes dipersempit sesuai cabang terpilih (cascade di FE pakai field
+// kode_cabang yang sudah dibawa /api/tasks/filters per baris faskes).
+const visibleFaskesOptions = computed(() => {
+  const kode = cabangFilter.value
+  if (!kode) return filterOptions.value.faskes
+  return filterOptions.value.faskes.filter((opt) => opt.kodeCabang === kode)
+})
+
+// Peta id faskes -> kode cabang untuk memfilter tugas per cabang berdasarkan
+// hospitalId di baris tugas (SP list tugas tidak membawa KodeCabang).
+const hospitalCabangMap = computed(() => {
+  const map = new Map<number, string>()
+  filterOptions.value.faskes.forEach((opt) => {
+    if (opt.kodeCabang) map.set(opt.value, opt.kodeCabang)
+  })
+  return map
+})
+
+const hasActiveFilter = computed(() =>
+  Boolean(divisiFilter.value) ||
+  Boolean(cabangFilter.value) ||
+  faskesFilter.value > 0 ||
+  ownerFilter.value > 0,
+)
+
+function resetFilters() {
+  divisiFilter.value = ''
+  cabangFilter.value = ''
+  faskesFilter.value = 0
+  ownerFilter.value = 0
+}
+
+// Divisi di baris tugas disimpan sebagai array nama (`task.divisions`),
+// sedangkan nilai dropdown adalah KodeDevisi. Resolve kode -> label sekali
+// supaya pencocokan cepat dan toleran case/whitespace.
+function normalizeDivisionText(value: string) {
+  return value.trim().toLocaleLowerCase('id-ID')
+}
+
+const selectedDivisiLabel = computed(() => {
+  if (!divisiFilter.value) return ''
+  const match = filterOptions.value.divisi.find((opt) => opt.value === divisiFilter.value)
+  return match ? normalizeDivisionText(match.label) : ''
+})
+
+// Jika cabang berubah, batalkan pilihan faskes bila tidak lagi masuk cabang itu.
+watch(cabangFilter, (kode) => {
+  if (!kode || !faskesFilter.value) return
+  const selectedFaskes = filterOptions.value.faskes.find(
+    (opt) => opt.value === faskesFilter.value,
+  )
+  if (selectedFaskes && selectedFaskes.kodeCabang !== kode) {
+    faskesFilter.value = 0
+  }
+})
 const TASKS_PER_PAGE = 10
 const currentTaskPage = ref(1)
 const taskTableColumns = [
@@ -520,12 +668,33 @@ function resetTaskColumnWidth(index: number) {
 const filteredTasks = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
   const range = activePeriodRange(periodFilter.value)
+  const divisiLabel = selectedDivisiLabel.value
+  const cabang = cabangFilter.value
+  const faskesId = faskesFilter.value
+  const ownerId = ownerFilter.value
+  const cabangMap = hospitalCabangMap.value
 
   return taskRows.value.filter((item) => {
     if (range) {
       const taskDate = parseDate(item.scheduledAt || item.dueDate || item.createdAt || '')
       if (!taskDate || taskDate < range.start || taskDate >= range.end) return false
     }
+
+    if (divisiLabel) {
+      const divisions = (item.divisions ?? []).map(normalizeDivisionText)
+      if (!divisions.some((name) => name === divisiLabel || name.includes(divisiLabel))) {
+        return false
+      }
+    }
+
+    if (faskesId && item.hospitalId !== faskesId) return false
+
+    if (cabang) {
+      const hospitalId = item.hospitalId ?? 0
+      if (!hospitalId || cabangMap.get(hospitalId) !== cabang) return false
+    }
+
+    if (ownerId && item.assignedId !== ownerId) return false
 
     if (!query) return true
     return [
@@ -545,9 +714,12 @@ const filteredTasks = computed(() => {
   })
 })
 
-watch([searchQuery, periodFilter], () => {
-  currentTaskPage.value = 1
-})
+watch(
+  [searchQuery, periodFilter, divisiFilter, cabangFilter, faskesFilter, ownerFilter],
+  () => {
+    currentTaskPage.value = 1
+  },
+)
 
 watch(taskLastPage, (lastPage) => {
   if (currentTaskPage.value > lastPage) currentTaskPage.value = lastPage
@@ -822,6 +994,12 @@ function changePage(page: number) {
 // 1 endpoint (GET /tasks); id faskes/kontak untuk navigasi klik baris diambil
 // langsung dari response index (company_id/contact_id dari sp_view_listtask).
 
+onMounted(() => {
+  // Opsi filter divisi/faskes/cabang/owner dipanggil sekali per kunjungan.
+  // Error diam-diam: filter tetap bisa dipakai lewat pencarian teks.
+  store.fetchTaskFilters().catch(() => undefined)
+})
+
 onBeforeUnmount(() => {
   stopTaskColumnResize()
 })
@@ -875,6 +1053,63 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid #e2e8f0;
   padding: 12px 24px;
   background: #f8fafc;
+}
+
+.task-filter-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 24px;
+  background: #ffffff;
+}
+
+.task-filter-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-filter-label {
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.task-filter-select {
+  border-color: #cbd5e1;
+  border-radius: 7px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.task-filter-select:focus {
+  border-color: var(--app-primary, #18a6e4);
+  box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
+}
+
+.task-filter-reset {
+  display: inline-flex;
+  grid-column: 1 / -1;
+  width: fit-content;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  color: var(--app-primary-dark, #0369a1);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.task-filter-reset:hover {
+  color: var(--app-primary, #18a6e4);
+  text-decoration: underline;
 }
 
 .task-period-filter,
@@ -1541,6 +1776,11 @@ onBeforeUnmount(() => {
     flex-wrap: wrap;
     padding: 12px 18px;
   }
+
+  .task-filter-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 12px 18px;
+  }
 }
 
 @media (max-width: 575.98px) {
@@ -1580,6 +1820,12 @@ onBeforeUnmount(() => {
 
   .task-list-toolbar {
     gap: 14px;
+    padding: 14px 16px;
+  }
+
+  .task-filter-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
     padding: 14px 16px;
   }
 

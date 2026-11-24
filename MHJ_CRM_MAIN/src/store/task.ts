@@ -72,6 +72,29 @@ export interface TaskPeluangOption {
 }
 
 /**
+ * Opsi dropdown filter list tugas (GET /api/tasks/filters).
+ *
+ * Divisi memakai `value=KodeDevisi` dan `label=NamaDevisi`; filter dilakukan
+ * dengan mencocokkan label terhadap `task.divisions` karena SP tugas hanya
+ * menyimpan nama divisi (CSV), bukan kodenya. Faskes membawa `kodeCabang`
+ * agar FE bisa memfilter tugas per cabang lewat id faskesnya tanpa panggilan
+ * tambahan ke master companies.
+ */
+export interface TaskFilterOption<V = string | number> {
+  value: V
+  label: string
+  kodeCabang?: string
+  hospitalCount?: number | null
+}
+
+export interface TaskFilterLookups {
+  divisi: TaskFilterOption<string>[]
+  faskes: TaskFilterOption<number>[]
+  cabang: TaskFilterOption<string>[]
+  owner: TaskFilterOption<number>[]
+}
+
+/**
  * Slug stage (dipakai form task) ke stage_id di tabel m_projects.
  * Harus sinkron dengan stageOptions di ProjectCreate.vue.
  */
@@ -467,6 +490,8 @@ export const useTask = defineStore('task', () => {
     divisi: Select[]
     produk: TaskProdukOption[]
     peluang: TaskPeluangOption[]
+    // Opsi dropdown filter halaman list tugas (GET /api/tasks/filters).
+    filters: TaskFilterLookups
   }>({
     status: [],
     priority: [],
@@ -477,6 +502,7 @@ export const useTask = defineStore('task', () => {
     divisi: [],
     produk: [],
     peluang: [],
+    filters: { divisi: [], faskes: [], cabang: [], owner: [] },
   })
 
   /** Normalisasi response GET /api/tasks/produk jadi opsi dropdown. */
@@ -876,6 +902,59 @@ export const useTask = defineStore('task', () => {
     })
   }
 
+  /**
+   * GET /api/tasks/filters
+   *
+   * Memuat opsi dropdown filter halaman list tugas: divisi, faskes, cabang,
+   * dan owner. Opsi "Semua" dari BE dilewati karena FE memakai string kosong
+   * sebagai nilai "tanpa filter" di select native. Faskes dapat dibatasi
+   * cabang (cascade) lewat parameter opsional.
+   */
+  function fetchTaskFilters(params: { cabang?: string } = {}) {
+    return runApiAction({
+      flag: loading,
+      error,
+      fallbackMessage: 'Gagal memuat opsi filter tugas.',
+      task: async () => {
+        const response = await api.get('tasks/filters', {
+          params: {
+            ...(params.cabang ? { cabang: params.cabang } : {}),
+          },
+        })
+        const payload = isRecord(response.data) ? response.data : {}
+
+        const pickValueLabel = <V extends string | number>(
+          key: 'divisi' | 'faskes' | 'cabang' | 'owner',
+          valueKey: 'value' | 'id',
+          caster: (raw: unknown) => V,
+        ): TaskFilterOption<V>[] =>
+          extractList(payload, [key]).items
+            .filter(isRecord)
+            .filter((raw) => String(pick(raw, valueKey, 'value')).toLowerCase() !== 'all')
+            .map((raw) => ({
+              value: caster(pick(raw, valueKey, 'value')),
+              label: pickString(raw, 'label', 'name'),
+              kodeCabang: pickString(raw, 'kode_cabang', 'kodeCabang') || undefined,
+              hospitalCount: pickNumber(raw, 'hospital_count') || null,
+            }))
+            .filter((opt) => opt.label)
+
+        lookups.filters.divisi = pickValueLabel<string>('divisi', 'value', (raw) =>
+          String(raw ?? '').trim(),
+        ).filter((opt) => opt.value)
+        lookups.filters.faskes = pickValueLabel<number>('faskes', 'value', (raw) =>
+          Number(raw ?? 0),
+        ).filter((opt) => opt.value > 0)
+        lookups.filters.cabang = pickValueLabel<string>('cabang', 'value', (raw) =>
+          String(raw ?? '').trim(),
+        ).filter((opt) => opt.value)
+        lookups.filters.owner = pickValueLabel<number>('owner', 'value', (raw) =>
+          Number(raw ?? 0),
+        ).filter((opt) => opt.value > 0)
+      },
+    })
+  }
+
   /** GET data pendukung: status, priority, assignedto, project. */
   function fetchTaskLookups() {
     return runApiAction({
@@ -1187,6 +1266,7 @@ export const useTask = defineStore('task', () => {
     fetchTasks,
     fetchTaskById,
     fetchTaskLookups,
+    fetchTaskFilters,
     fetchTaskFormLookups,
     fetchTaskContacts,
     lookupSearching,
