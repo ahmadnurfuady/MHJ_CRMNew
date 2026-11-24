@@ -14,13 +14,23 @@ import type {
  * normalisasi dilakukan di sisi FE.
  */
 interface SystemActivityRow {
-  id: number | string
+  id: number | string | null
   user_id: number | string | null
+  user_name?: string | null
   action: string
   entity_name: string
   entity_id: number | string
   details: string | null
   created_at: string
+  frmdvc?: string | null
+  /**
+   * Judul siap tampil yang sudah dibentuk oleh BE (mis.
+   * "Didaftarkan sebagai PIC Peluang"). FE memprioritaskan kolom ini daripada
+   * membentuk ulang dari details.
+   */
+  Title?: string | null
+  /** Warna badge yang disarankan BE (info/success/warning/danger/secondary). */
+  BadgeColor?: string | null
   filter?: string | null
   filter_value?: string | null
   activity_filter?: string | null
@@ -294,6 +304,19 @@ export async function fetchActivityFilterOptions(): Promise<ActivityFilterOption
   })
 }
 
+/**
+ * Membentuk key unik untuk ActivityLogItem.
+ *
+ * Baris aktivitas sintetik (mis. `pic_peluang`, `kunjungan`) tidak punya id
+ * di tabel `activity_logs`, jadi kolom `id` bisa null. Gabungan action +
+ * entity + waktu memastikan rekaman berbeda tidak bentrok di key Vue.
+ */
+function buildActivityItemId(row: SystemActivityRow): string | number {
+  if (row.id !== null && row.id !== undefined && row.id !== '') return row.id
+  const action = (row.action || 'row').toString().trim().toLowerCase() || 'row'
+  return `${action}-${row.entity_name}-${row.entity_id}-${row.created_at}`
+}
+
 /** Seluruh activity log sistem, diurutkan dari aktivitas terbaru. */
 export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
   const response = await api.get<SystemActivityResponse>('/dashboard/systemactivity')
@@ -301,19 +324,39 @@ export async function fetchSystemActivities(): Promise<ActivityLogItem[]> {
 
   const items: ActivityLogItem[] = []
   for (const row of rows) {
+    // BE sekarang mengirim `Title` yang sudah siap tampil (termasuk untuk
+    // action non-standar seperti `pic_peluang`/`kunjungan`). Baris dengan
+    // judul BE tetap diloloskan walau normalizeAction mengembalikan null.
+    const beTitle = typeof row.Title === 'string' ? row.Title.trim() : ''
     const action = normalizeAction(row.action)
-    if (!action) continue
+    if (!action && !beTitle) continue
+
+    const resolvedAction: ActivityAction = action ?? 'u'
     const details = parseDetails(row.details)
-    const mapped = mapRow(row, action)
+    const mapped = mapRow(row, resolvedAction)
+
+    const badgeColor = typeof row.BadgeColor === 'string'
+      ? row.BadgeColor.trim().toLowerCase()
+      : ''
+    const authorName = typeof row.user_name === 'string'
+      ? row.user_name.trim()
+      : ''
+    const rawAction = typeof row.action === 'string' ? row.action.trim() : ''
+
     items.push({
-      id: row.id,
+      id: buildActivityItemId(row),
       type: mapped.type,
       icon: mapped.icon,
       mhjIcon: mapped.mhjIcon,
-      title: mapped.title,
+      // BE-first: pakai Title dari server bila ada supaya aktivitas custom
+      // (pic_peluang, dsb.) tampil persis seperti yang diputuskan server.
+      title: beTitle || mapped.title,
       subtitle: mapped.subtitle,
       time: timeAgo(row.created_at),
-      action,
+      action: resolvedAction,
+      rawAction: rawAction || undefined,
+      authorName: authorName || undefined,
+      badgeColor: badgeColor || undefined,
       entityName: row.entity_name,
       createdAt: row.created_at,
       filterValue: activityFilterValue(row, details),

@@ -116,13 +116,20 @@
             <div class="log-item__content">
               <div class="log-item__title-row">
                 <h2>{{ activity.title }}</h2>
-                <span class="log-item__action" :class="`is-${activity.action}`">
-                  {{ actionLabel(activity.action) }}
+                <span
+                  class="log-item__action"
+                  :class="badgeClass(activity)"
+                >
+                  {{ actionLabel(activity) }}
                 </span>
               </div>
               <p>{{ activity.subtitle }}</p>
               <div class="log-item__meta">
                 <span>{{ entityLabel(activity.entityName) }}</span>
+                <template v-if="activity.authorName">
+                  <span aria-hidden="true">&bull;</span>
+                  <span class="log-item__author">{{ activity.authorName }}</span>
+                </template>
                 <span aria-hidden="true">&bull;</span>
                 <time :datetime="activity.createdAt">{{ formatDateTime(activity.createdAt) }}</time>
                 <span aria-hidden="true">&bull;</span>
@@ -312,10 +319,36 @@ function countFor(value: ActivityFilter): number {
   return activities.value.filter((activity) => activity.filterValue === value).length
 }
 
-function actionLabel(action: ActivityAction): string {
-  if (action === 'i') return 'Ditambahkan'
-  if (action === 'u') return 'Diperbarui'
+/**
+ * Label badge aksi. Aktivitas sintetik yang namanya sudah deskriptif (mis.
+ * `pic_peluang`, `kunjungan`) memakai label khusus supaya tidak jatuh ke
+ * triad standar yang menyesatkan ("Diperbarui" untuk PIC Peluang).
+ */
+function actionLabel(activity: ActivityLogItem): string {
+  const raw = (activity.rawAction || '').toLowerCase()
+  if (raw === 'pic_peluang') return 'PIC Peluang'
+  if (raw === 'kunjungan') return 'Kunjungan'
+  if (raw === 'peluang') return 'Peluang'
+  if (raw === 'kontak') return 'Kontak'
+  if (raw === 'tugas') return 'Tugas'
+  if (activity.action === 'i') return 'Ditambahkan'
+  if (activity.action === 'u') return 'Diperbarui'
   return 'Dihapus'
+}
+
+/**
+ * Kelas badge: pakai BadgeColor dari BE bila ada, jatuh balik ke mapping
+ * bawaan berdasarkan action (i=success, u=info, d=danger). Dipetakan ke
+ * token warna yang sudah dipakai di stylesheet (`.log-item__action.is-*`).
+ */
+function badgeClass(activity: ActivityLogItem): string {
+  const color = (activity.badgeColor || '').toLowerCase()
+  if (color === 'success') return 'is-i'
+  if (color === 'warning') return 'is-u'
+  if (color === 'danger') return 'is-d'
+  if (color === 'info') return 'is-info'
+  if (color === 'secondary' || color === 'muted') return 'is-muted'
+  return `is-${activity.action}`
 }
 
 function activityIconColor(action: ActivityAction): string {
@@ -492,6 +525,9 @@ onMounted(() => {
 .log-item__action { flex: 0 0 auto; border-radius: 999px; padding: 4px 8px; color: #087a5c; background: #e7f7f1; font-size: 9px; font-weight: 700; }
 .log-item__action.is-u { color: var(--app-primary-dark, #087fad); background: var(--app-primary-wash, #eaf8fd); }
 .log-item__action.is-d { color: #aa3e4b; background: #ffeaed; }
+.log-item__action.is-info { color: var(--app-primary-dark, #087fad); background: var(--app-primary-wash, #eaf8fd); }
+.log-item__action.is-muted { color: #5c6b78; background: #eef2f5; }
+.log-item__author { color: #4a5663; font-weight: 600; }
 .log-item__content > p { margin: 5px 0 7px; color: #71808d; font-size: 11.5px; }
 .log-item__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: #9aa5ae; font-size: 10px; }
 .log-item__meta span:first-child { color: var(--app-primary-dark, #087fad); font-weight: 650; text-transform: capitalize; }

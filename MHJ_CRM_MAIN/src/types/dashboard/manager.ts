@@ -95,6 +95,23 @@ export interface ActivityLogItem extends ActivityItem {
   entityName: string
   createdAt: string
   filterValue: string
+  /**
+   * Nama user pelaku aktivitas (kolom `user_name` dari BE). Diisi saat tersedia
+   * agar FE bisa menampilkan siapa yang memicu aktivitas tersebut.
+   */
+  authorName?: string
+  /**
+   * Kode warna badge dari BE (mis. "info", "success", "warning", "danger").
+   * Dipakai FE untuk mewarnai badge aksi; FE memetakannya ke token Bootstrap
+   * yang sudah dipakai di tempat lain.
+   */
+  badgeColor?: string
+  /**
+   * Nilai mentah kolom `action` dari BE sebelum dinormalkan (mis. `pic_peluang`,
+   * `kunjungan`). Berguna untuk cabang khusus di UI yang tidak pas dengan
+   * triad i/u/d standar.
+   */
+  rawAction?: string
 }
 
 export interface PromoSlide {
