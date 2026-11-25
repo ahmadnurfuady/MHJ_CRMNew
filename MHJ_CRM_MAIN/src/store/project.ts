@@ -383,6 +383,7 @@ export function normalizeProject(raw: Dict): Projects {
     createdAt,
     updatedAt: updatedAt || createdAt,
     stageEnteredAt: stageEnteredAt || updatedAt || createdAt,
+    stalledDays: optionalNumber(raw, 'stalled_days', 'stalledDays'),
     quantity: optionalNumber(raw, 'quantity', 'qty'),
     unitPrice: optionalNumber(raw, 'unit_price', 'price', 'harga'),
     notes: pickString(raw, 'notes', 'note', 'description'),

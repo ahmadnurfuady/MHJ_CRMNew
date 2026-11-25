@@ -15,7 +15,10 @@
       <strong>Urgensi Kunjungan</strong>
       <span v-for="status in urgencyOptions" :key="status.id">
         <i class="urgency-dot" :style="{ backgroundColor: status.color }"></i>
-        {{ status.label }}
+        <span class="urgency-label">{{ status.label }}</span>
+        <b class="urgency-count" :title="`${urgencyCounts[status.id]} faskes`">
+          {{ urgencyCounts[status.id] }}
+        </b>
       </span>
     </div>
 
@@ -581,6 +584,11 @@ const typeOptions = computed(() => [...new Set(hospitalPoints.value
 const missingCoordinateCount = computed(() =>
   mapPoints.value.filter((point) => !pointCoordinate(point)).length,
 )
+const urgencyCounts = computed(() => {
+  const counts: Record<UrgencyId, number> = { fresh: 0, attention: 0, overdue: 0, unvisited: 0 }
+  hospitalPoints.value.forEach((entry) => { counts[entry.urgency.id] += 1 })
+  return counts
+})
 const activeFilterCount = computed(() => [
   urgencyFilter.value !== 'all',
   equipmentFilter.value !== 'all',
@@ -934,7 +942,23 @@ onBeforeUnmount(() => {
 
 .hospital-map__legend strong { margin-bottom: 1px; font-size: 11.5px; }
 .hospital-map__legend span { display: flex; align-items: center; gap: 7px; color: #52606d; }
+.hospital-map__legend .urgency-label { flex: 1 1 auto; min-width: 0; }
 .urgency-dot { display: inline-block; flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; }
+.urgency-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 17px;
+  flex: 0 0 auto;
+  padding: 0 6px;
+  border-radius: 9px;
+  color: #334155;
+  background: #eef2f6;
+  font-size: 10px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+}
 
 .hospital-map__top-actions {
   position: absolute;

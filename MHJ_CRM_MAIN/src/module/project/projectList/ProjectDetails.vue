@@ -33,6 +33,15 @@
               :title="missingRequirementsLabel"
             >!</span>
           </div>
+          <span
+            v-if="stalledInfo"
+            class="opp-stalled-badge"
+            :class="`opp-stalled-badge--${stalledInfo.variant}`"
+            :title="stalledTooltip"
+          >
+            <vue-feather type="clock" size="12" aria-hidden="true" />
+            {{ stalledInfo.label }}
+          </span>
         </div>
 
         <div
@@ -120,6 +129,15 @@
           :aria-label="missingRequirementsLabel"
           :title="missingRequirementsLabel"
         >!</span>
+        <span
+          v-if="stalledInfo"
+          class="opp-stalled-badge"
+          :class="`opp-stalled-badge--${stalledInfo.variant}`"
+          :title="stalledTooltip"
+        >
+          <vue-feather type="clock" size="12" aria-hidden="true" />
+          {{ stalledInfo.label }}
+        </span>
       </div>
       <span class="opp-created" :title="`Estimasi selesai: ${formatFullDate(project.expectedCloseDate)}`">
         <SolarIcon
@@ -267,6 +285,29 @@ const missingRequirementsLabel = computed(() =>
   `Belum lengkap: ${props.missingRequirements.join(' dan ')}`
 )
 
+/**
+ * Badge "Peluang tidak bergerak" di kartu peluang.
+ * Bucket mengikuti arahan user:
+ *   - < 30 hari  → hijau "< 1 bulan"
+ *   - 31-60 hari → kuning "> 1 bulan"
+ *   - 61-90 hari → kuning "> 2 bulan"
+ *   - > 90 hari  → merah "> 3 bulan"
+ * stalled_days = 0 (peluang baru / baru pindah stage) tidak menampilkan badge.
+ */
+type StalledVariant = 'green' | 'yellow' | 'red'
+const stalledInfo = computed<{ label: string; variant: StalledVariant } | null>(() => {
+  const days = Number(props.project.stalledDays ?? 0)
+  if (!Number.isFinite(days) || days <= 0) return null
+  if (days < 30) return { label: 'Peluang tidak bergerak < 1 bulan', variant: 'green' }
+  if (days <= 60) return { label: 'Peluang tidak bergerak > 1 bulan', variant: 'yellow' }
+  if (days <= 90) return { label: 'Peluang tidak bergerak > 2 bulan', variant: 'yellow' }
+  return { label: 'Peluang tidak bergerak > 3 bulan', variant: 'red' }
+})
+const stalledTooltip = computed(() => {
+  const days = Number(props.project.stalledDays ?? 0)
+  return `Diam di stage ini selama ${days} hari`
+})
+
 function titleCase(value: string) {
   return value.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()) || 'Tanpa stage'
 }
@@ -360,3 +401,53 @@ function openProjectDetail() {
   })
 }
 </script>
+
+<style scoped>
+.opp-stalled-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 4px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.opp-card__stage .opp-stage-status .opp-stalled-badge {
+  margin-top: 0;
+}
+
+.opp-stalled-badge > :deep(svg) {
+  flex: 0 0 12px;
+  stroke: currentColor;
+}
+
+.opp-stalled-badge--green {
+  color: #0f7b56;
+  background: #e3f8ef;
+  border-color: #b7e8d4;
+}
+
+.opp-stalled-badge--yellow {
+  color: #8a5a00;
+  background: #fff4d6;
+  border-color: #f2d98a;
+}
+
+.opp-stalled-badge--red {
+  color: #b31d1d;
+  background: #fde4e4;
+  border-color: #f5b6b6;
+}
+
+@media (max-width: 640px) {
+  .opp-stalled-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+</style>

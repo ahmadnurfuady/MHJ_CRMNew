@@ -9,38 +9,130 @@
       </div>
 
       <div class="task-header-actions">
-        <div class="task-search" role="search">
-          <label class="visually-hidden" for="task-search-input">Cari tugas</label>
-          <SolarIcon
-            name="magnifier"
-            class="crm-search-icon"
-            :size="18"
-            color="var(--app-primary-deep, #032A4E)"
-            secondary-color="var(--app-primary, #18A6E4)"
-            :secondary-opacity="0.75"
-            aria-hidden="true"
-          />
-          <input
-            id="task-search-input"
-            v-model="searchQuery"
-            type="search"
-            placeholder="Cari tugas, faskes, peluang, atau owner..."
-            autocomplete="off"
-          />
-          <span
-            v-if="loading"
-            class="spinner-border spinner-border-sm task-search__loading"
-            aria-hidden="true"
-          ></span>
-          <button
-            v-else-if="searchQuery"
-            class="task-search__clear"
-            type="button"
-            aria-label="Hapus pencarian"
-            @click="searchQuery = ''"
-          >
-            <vue-feather type="x" size="15" />
-          </button>
+        <div class="task-search-group">
+          <div class="task-search" role="search">
+            <label class="visually-hidden" for="task-search-input">Cari tugas</label>
+            <SolarIcon
+              name="magnifier"
+              class="crm-search-icon"
+              :size="18"
+              color="var(--app-primary-deep, #032A4E)"
+              secondary-color="var(--app-primary, #18A6E4)"
+              :secondary-opacity="0.75"
+              aria-hidden="true"
+            />
+            <input
+              id="task-search-input"
+              v-model="searchQuery"
+              type="search"
+              placeholder="Cari tugas, faskes, peluang, atau owner..."
+              autocomplete="off"
+            />
+            <span
+              v-if="loading"
+              class="spinner-border spinner-border-sm task-search__loading"
+              aria-hidden="true"
+            ></span>
+            <button
+              v-else-if="searchQuery"
+              class="task-search__clear"
+              type="button"
+              aria-label="Hapus pencarian"
+              @click="searchQuery = ''"
+            >
+              <vue-feather type="x" size="15" />
+            </button>
+          </div>
+
+          <div ref="filterPanelRoot" class="task-filter-anchor">
+            <button
+              type="button"
+              class="task-filter-trigger"
+              :class="{ 'task-filter-trigger--active': hasActiveFilter, 'task-filter-trigger--open': showFilterPanel }"
+              :aria-expanded="showFilterPanel"
+              aria-haspopup="dialog"
+              @click="toggleFilterPanel"
+            >
+              <SolarIcon
+                name="filter"
+                :size="18"
+                color="currentColor"
+                secondary-color="currentColor"
+                :secondary-opacity="1"
+                aria-hidden="true"
+              />
+              <span>Filter</span>
+              <b v-if="activeFilterCount" class="task-filter-trigger__count">{{ activeFilterCount }}</b>
+            </button>
+
+            <div
+              v-if="showFilterPanel"
+              class="task-filter-panel"
+              role="dialog"
+              aria-label="Filter tugas"
+            >
+              <header class="task-filter-panel__head">
+                <strong>Filter Tugas</strong>
+                <button
+                  v-if="hasActiveFilter"
+                  type="button"
+                  class="task-filter-panel__reset"
+                  @click="resetFilters"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  class="task-filter-panel__close"
+                  aria-label="Tutup filter"
+                  @click="showFilterPanel = false"
+                >
+                  <vue-feather type="x" size="16" />
+                </button>
+              </header>
+
+              <div class="task-filter-panel__grid">
+                <TaskSearchableSelect
+                  v-model="divisiFilter"
+                  :options="filterOptions.divisi"
+                  label="Divisi"
+                  placeholder="Semua Divisi"
+                  search-placeholder="Cari divisi..."
+                  control-id="task-filter-divisi"
+                />
+                <TaskSearchableSelect
+                  v-model="cabangFilter"
+                  :options="filterOptions.cabang"
+                  label="Cabang"
+                  placeholder="Semua Cabang"
+                  search-placeholder="Cari cabang..."
+                  control-id="task-filter-cabang"
+                />
+                <TaskSearchableSelect
+                  v-model="faskesFilter"
+                  :options="visibleFaskesOptions"
+                  label="Faskes"
+                  placeholder="Semua Faskes"
+                  search-placeholder="Cari faskes..."
+                  control-id="task-filter-faskes"
+                />
+                <TaskSearchableSelect
+                  v-model="ownerFilter"
+                  :options="filterOptions.owner"
+                  label="Owner"
+                  placeholder="Semua Owner"
+                  search-placeholder="Cari owner..."
+                  control-id="task-filter-owner"
+                />
+              </div>
+
+              <footer class="task-filter-panel__foot">
+                <button type="button" class="task-filter-panel__apply" @click="showFilterPanel = false">
+                  Terapkan
+                </button>
+              </footer>
+            </div>
+          </div>
         </div>
 
         <div class="task-view-switch" role="group" aria-label="Mode tampilan tugas">
@@ -116,90 +208,6 @@
           Excel
         </button>
       </div>
-    </div>
-
-    <div class="task-filter-row" role="group" aria-label="Filter tugas">
-      <div class="task-filter-field">
-        <label class="task-filter-label" for="task-filter-divisi">Divisi</label>
-        <select
-          id="task-filter-divisi"
-          v-model="divisiFilter"
-          class="form-select form-select-sm task-filter-select"
-        >
-          <option value="">Semua Divisi</option>
-          <option
-            v-for="option in filterOptions.divisi"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="task-filter-field">
-        <label class="task-filter-label" for="task-filter-cabang">Cabang</label>
-        <select
-          id="task-filter-cabang"
-          v-model="cabangFilter"
-          class="form-select form-select-sm task-filter-select"
-        >
-          <option value="">Semua Cabang</option>
-          <option
-            v-for="option in filterOptions.cabang"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="task-filter-field">
-        <label class="task-filter-label" for="task-filter-faskes">Faskes</label>
-        <select
-          id="task-filter-faskes"
-          v-model="faskesFilter"
-          class="form-select form-select-sm task-filter-select"
-        >
-          <option :value="0">Semua Faskes</option>
-          <option
-            v-for="option in visibleFaskesOptions"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
-
-      <div class="task-filter-field">
-        <label class="task-filter-label" for="task-filter-owner">Owner</label>
-        <select
-          id="task-filter-owner"
-          v-model="ownerFilter"
-          class="form-select form-select-sm task-filter-select"
-        >
-          <option :value="0">Semua Owner</option>
-          <option
-            v-for="option in filterOptions.owner"
-            :key="option.value"
-            :value="option.value"
-          >
-            {{ option.label }}
-          </option>
-        </select>
-      </div>
-
-      <button
-        v-if="hasActiveFilter"
-        class="btn btn-link btn-sm task-filter-reset"
-        type="button"
-        @click="resetFilters"
-      >
-        <vue-feather type="x" size="14" />
-        <span>Reset filter</span>
-      </button>
     </div>
 
     <div class="card-body p-0">
@@ -470,6 +478,7 @@ import { useProjectStore } from '@/store/project'
 import { useTask } from '@/store/task'
 import { routes } from '@/router/routes'
 import TaskCalendarView from '@/module/task/TaskCalendarView.vue'
+import TaskSearchableSelect from '@/module/task/TaskSearchableSelect.vue'
 import { parseLocalDate } from '@/module/task/taskCalendar'
 import type { TaskDetails } from '@/types/tasks'
 import { useTaskPermissions } from '@/module/task/taskPermission'
@@ -495,13 +504,33 @@ const periodOptions: Array<{ value: PeriodFilter; label: string }> = [
 ]
 const activeView = ref<'list' | 'calendar'>(route.query.view === 'calendar' ? 'calendar' : 'list')
 
-// Filter dropdown: divisi/cabang pakai string kosong = "Semua", faskes/owner
-// pakai 0 karena nilainya id numerik dari master data.
-const divisiFilter = ref<string>('')
-const cabangFilter = ref<string>('')
-const faskesFilter = ref<number>(0)
-const ownerFilter = ref<number>(0)
+// Filter dropdown: null = "Semua" untuk semua field (divisi/cabang pakai
+// string KodeDevisi/KodeCabang, faskes/owner pakai id numerik dari master data).
+const divisiFilter = ref<string | null>(null)
+const cabangFilter = ref<string | null>(null)
+const faskesFilter = ref<number | null>(null)
+const ownerFilter = ref<number | null>(null)
 const filterOptions = computed(() => store.lookups.filters)
+
+// Popover filter: button di samping search membuka panel 4 dropdown pencarian.
+const showFilterPanel = ref(false)
+const filterPanelRoot = ref<HTMLElement | null>(null)
+
+function toggleFilterPanel() {
+  showFilterPanel.value = !showFilterPanel.value
+}
+
+function handleFilterOutsideClick(event: MouseEvent) {
+  if (!showFilterPanel.value) return
+  const target = event.target as Node | null
+  if (target && filterPanelRoot.value && !filterPanelRoot.value.contains(target)) {
+    showFilterPanel.value = false
+  }
+}
+
+function handleFilterEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape' && showFilterPanel.value) showFilterPanel.value = false
+}
 
 // Faskes dipersempit sesuai cabang terpilih (cascade di FE pakai field
 // kode_cabang yang sudah dibawa /api/tasks/filters per baris faskes).
@@ -510,6 +539,13 @@ const visibleFaskesOptions = computed(() => {
   if (!kode) return filterOptions.value.faskes
   return filterOptions.value.faskes.filter((opt) => opt.kodeCabang === kode)
 })
+
+const activeFilterCount = computed(() => [
+  Boolean(divisiFilter.value),
+  Boolean(cabangFilter.value),
+  Boolean(faskesFilter.value),
+  Boolean(ownerFilter.value),
+].filter(Boolean).length)
 
 // Peta id faskes -> kode cabang untuk memfilter tugas per cabang berdasarkan
 // hospitalId di baris tugas (SP list tugas tidak membawa KodeCabang).
@@ -521,18 +557,13 @@ const hospitalCabangMap = computed(() => {
   return map
 })
 
-const hasActiveFilter = computed(() =>
-  Boolean(divisiFilter.value) ||
-  Boolean(cabangFilter.value) ||
-  faskesFilter.value > 0 ||
-  ownerFilter.value > 0,
-)
+const hasActiveFilter = computed(() => activeFilterCount.value > 0)
 
 function resetFilters() {
-  divisiFilter.value = ''
-  cabangFilter.value = ''
-  faskesFilter.value = 0
-  ownerFilter.value = 0
+  divisiFilter.value = null
+  cabangFilter.value = null
+  faskesFilter.value = null
+  ownerFilter.value = null
 }
 
 // Divisi di baris tugas disimpan sebagai array nama (`task.divisions`),
@@ -555,7 +586,7 @@ watch(cabangFilter, (kode) => {
     (opt) => opt.value === faskesFilter.value,
   )
   if (selectedFaskes && selectedFaskes.kodeCabang !== kode) {
-    faskesFilter.value = 0
+    faskesFilter.value = null
   }
 })
 const TASKS_PER_PAGE = 10
@@ -998,10 +1029,14 @@ onMounted(() => {
   // Opsi filter divisi/faskes/cabang/owner dipanggil sekali per kunjungan.
   // Error diam-diam: filter tetap bisa dipakai lewat pencarian teks.
   store.fetchTaskFilters().catch(() => undefined)
+  document.addEventListener('mousedown', handleFilterOutsideClick)
+  document.addEventListener('keydown', handleFilterEscape)
 })
 
 onBeforeUnmount(() => {
   stopTaskColumnResize()
+  document.removeEventListener('mousedown', handleFilterOutsideClick)
+  document.removeEventListener('keydown', handleFilterEscape)
 })
 </script>
 
@@ -1055,61 +1090,154 @@ onBeforeUnmount(() => {
   background: #f8fafc;
 }
 
-.task-filter-row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  align-items: end;
-  gap: 12px;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 12px 24px;
-  background: #ffffff;
-}
-
-.task-filter-field {
+.task-search-group {
   display: flex;
   min-width: 0;
-  flex-direction: column;
-  gap: 4px;
+  align-items: stretch;
+  gap: 8px;
 }
 
-.task-filter-label {
+.task-search-group > .task-search {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.task-filter-anchor {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.task-filter-trigger {
+  display: inline-flex;
+  height: 44px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0 14px;
   color: #475569;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-
-.task-filter-select {
-  border-color: #cbd5e1;
-  border-radius: 7px;
-  background-color: #ffffff;
-  color: #0f172a;
+  background: #ffffff;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.task-filter-select:focus {
+.task-filter-trigger:hover,
+.task-filter-trigger:focus-visible,
+.task-filter-trigger--open {
   border-color: var(--app-primary, #18a6e4);
+  color: var(--app-primary-dark, #0369a1);
+  outline: none;
   box-shadow: 0 0 0 3px rgba(var(--app-primary-rgb, 24, 166, 228), 0.14);
 }
 
-.task-filter-reset {
-  display: inline-flex;
-  grid-column: 1 / -1;
-  width: fit-content;
-  align-items: center;
-  gap: 4px;
-  padding: 0;
+.task-filter-trigger--active {
+  border-color: var(--app-primary, #18a6e4);
   color: var(--app-primary-dark, #0369a1);
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.08);
 }
 
-.task-filter-reset:hover {
-  color: var(--app-primary, #18a6e4);
-  text-decoration: underline;
+.task-filter-trigger__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: var(--app-primary, #18a6e4);
+  font-size: 10px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+}
+
+.task-filter-panel {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(520px, calc(100vw - 32px));
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.18);
+}
+
+.task-filter-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #eef2f7;
+  padding: 12px 16px;
+}
+
+.task-filter-panel__head strong {
+  flex: 1 1 auto;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.task-filter-panel__reset {
+  border: 0;
+  padding: 0;
+  color: var(--app-primary-dark, #0369a1);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.task-filter-panel__reset:hover { text-decoration: underline; }
+
+.task-filter-panel__close {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+}
+
+.task-filter-panel__close:hover { color: #0f172a; background: #f1f5f9; }
+
+.task-filter-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px;
+}
+
+.task-filter-panel__foot {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #eef2f7;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-radius: 0 0 12px 12px;
+}
+
+.task-filter-panel__apply {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 18px;
+  color: #ffffff;
+  background: var(--app-primary, #18a6e4);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.task-filter-panel__apply:hover {
+  background: var(--app-primary-dark, #0369a1);
 }
 
 .task-period-filter,
@@ -1777,9 +1905,8 @@ onBeforeUnmount(() => {
     padding: 12px 18px;
   }
 
-  .task-filter-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 12px 18px;
+  .task-filter-panel {
+    width: min(460px, calc(100vw - 24px));
   }
 }
 
@@ -1823,10 +1950,27 @@ onBeforeUnmount(() => {
     padding: 14px 16px;
   }
 
-  .task-filter-row {
+  .task-search-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-filter-trigger {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .task-filter-panel {
+    position: fixed;
+    top: auto;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+
+  .task-filter-panel__grid {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 14px 16px;
+    gap: 12px;
   }
 
   .task-period-options {

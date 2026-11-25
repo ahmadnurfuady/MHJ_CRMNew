@@ -337,6 +337,11 @@ export interface Projects {
   updatedAt?: string
   /** Waktu peluang terakhir kali masuk/pindah ke stage yang aktif. */
   stageEnteredAt?: string
+  /**
+   * Jumlah hari peluang diam di stage saat ini (kolom `stalled_days` dari BE).
+   * Dipakai FE untuk menampilkan badge "Peluang tidak bergerak > N bulan".
+   */
+  stalledDays?: number
   quantity?: number
   unitPrice?: number
   notes?: string
