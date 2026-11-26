@@ -193,6 +193,10 @@
             <span>Dibuat Oleh</span>
             <strong>{{ contactState.activeContact.owner || "-" }}</strong>
           </div>
+          <div class="col-md-6">
+            <span>Terakhir Interaksi</span>
+            <strong :title="lastInteractionTooltip">{{ lastInteractionText }}</strong>
+          </div>
           <div class="col-12 contact-phone-field">
             <span>Nomor Telepon</span>
             <template v-if="isOwnActiveContact">
@@ -784,6 +788,55 @@ const liveCompany = computed(() => {
     return company?.name.trim().toLowerCase() === normalizedName;
   });
 });
+/**
+ * Interaksi terakhir kontak. `last_activity_at` + `last_activity_text` kini
+ * ikut dikirim `fetchcontactbyid` (OUTER APPLY act_last), formatnya sama dengan
+ * yang dipakai kolom "Terakhir Interaksi" di halaman daftar kontak.
+ */
+const lastInteractionAt = computed(() => {
+  const value = contactState.value.activeContact?.lastContactedAt;
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+});
+
+const lastInteractionText = computed(() => {
+  const date = lastInteractionAt.value;
+  if (!date) return "Belum ada interaksi";
+
+  const stamp = new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+
+  const diffInDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  let relative: string;
+  if (diffInDays <= 0) relative = "Hari ini";
+  else if (diffInDays === 1) relative = "Kemarin";
+  else if (diffInDays < 30) relative = `${diffInDays} hari lalu`;
+  else {
+    const diffInMonths = Math.floor(diffInDays / 30);
+    relative =
+      diffInMonths < 12
+        ? `${diffInMonths} bulan lalu`
+        : `${Math.floor(diffInMonths / 12)} tahun lalu`;
+  }
+
+  return `${stamp} · ${relative}`;
+});
+
+const lastInteractionTooltip = computed(() => {
+  const date = lastInteractionAt.value;
+  if (!date) return "Belum ada interaksi tercatat untuk kontak ini";
+  const stamp = new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(date);
+  const label = contactState.value.activeContact?.lastActivity;
+  return label ? `${label} · ${stamp}` : stamp;
+});
+
 const sourceLabel = computed(() => {
   const contact = contactState.value.activeContact;
   const source = contactApi.value.sources.find(

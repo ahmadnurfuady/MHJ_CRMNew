@@ -380,6 +380,7 @@
         v-else-if="activeTab === 'order-status' && project && latestSalesOrder"
         :project="project"
         :sales-order="latestSalesOrder"
+        :documents="projectDocuments"
       />
     </div>
   </div>
@@ -436,6 +437,9 @@ const activeTab = ref<'info' | 'activity' | 'order-status'>('info')
 const newComment = ref('')
 const comments = ref<CommentInfo[]>([])
 const latestSalesOrder = ref<StoredProjectDocument | null>(null)
+// Seluruh dokumen peluang disimpan supaya panel Status Pemesanan bisa
+// menampilkannya per tahap lewat tombol "Detail".
+const projectDocuments = ref<StoredProjectDocument[]>([])
 
 /** Objek peluang ternormalisasi (dipakai WonProjectDocuments & OrderStatusPanel). */
 const project = computed(() => selectedItem.value)
@@ -715,17 +719,23 @@ function addComment() {
 }
 
 function handleDocumentsLoaded(documents: StoredProjectDocument[]): void {
+  projectDocuments.value = documents
   latestSalesOrder.value = documents.find((document) => document.kind === 'sales-order') ?? null
 }
 
 function handleSalesOrderSaved(document: StoredProjectDocument): void {
   latestSalesOrder.value = document
+  projectDocuments.value = [
+    document,
+    ...projectDocuments.value.filter((item) => item.id !== document.id),
+  ]
   activeTab.value = 'order-status'
 }
 
 async function loadProject(): Promise<void> {
   activeTab.value = 'info'
   latestSalesOrder.value = null
+  projectDocuments.value = []
   comments.value = []
   store.selectedItem = null
   store.selectedDetail = null

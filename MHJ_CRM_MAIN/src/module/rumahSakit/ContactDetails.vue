@@ -95,7 +95,19 @@
               </div>
               <fieldset v-for="group in filterGroups" v-else :key="group.key">
                 <legend>{{ group.label }}</legend>
-                <div class="hospital-filter__chips">
+                <!--
+                  Provinsi & Kota punya ratusan opsi, jadi memakai dropdown ber-search
+                  (MultiSelectInput) alih-alih deretan chip seperti grup lainnya.
+                -->
+                <MultiSelectInput
+                  v-if="isSearchableGroup(group.key)"
+                  :model-value="draftFilters[group.key]"
+                  :options="searchableOptions(group.key)"
+                  :placeholder="`Semua ${group.label}`"
+                  class="hospital-filter__select"
+                  @update:model-value="setFilterValues(group.key, $event)"
+                />
+                <div v-else class="hospital-filter__chips">
                   <button
                     v-for="option in filterOptions[group.key]"
                     :key="`${group.key}-${option.value}`"
@@ -267,11 +279,24 @@
                 </button>
               </td>
               <td data-label="Kunjungan Terakhir">
-                <div v-if="hospital.lastVisitAt" class="last-visit">
-                  <span>{{ formatVisitDate(hospital.lastVisitAt) }}</span>
+                <div
+                  v-if="hospital.lastVisitAt"
+                  class="last-visit"
+                  :class="`last-visit--${visitUrgency(hospital.lastVisitAt)}`"
+                  :title="visitUrgencyLabel(hospital.lastVisitAt)"
+                >
+                  <span class="last-visit__date">
+                    <i class="last-visit__dot" aria-hidden="true"></i>
+                    {{ formatVisitDate(hospital.lastVisitAt) }}
+                  </span>
                   <small>{{ relativeVisitDate(hospital.lastVisitAt) }}</small>
                 </div>
-                <span v-else class="empty-value">Belum pernah</span>
+                <div v-else class="last-visit last-visit--never" title="Belum pernah dikunjungi">
+                  <span class="last-visit__date">
+                    <i class="last-visit__dot" aria-hidden="true"></i>
+                    Belum pernah
+                  </span>
+                </div>
               </td>
               <td data-label="Detail" class="text-center">
                 <button
@@ -359,7 +384,9 @@ import { useContact } from "@/store/contact";
 import { useHospitalStore } from "@/store/hospital";
 import { api } from "@/api";
 import { isRecord, pickString } from "@/api/response";
+import MultiSelectInput from "@/components/ui/MultiSelectInput.vue";
 import type { Contact } from "@/types/contacts";
+import type { MasterOption } from "@/types/user";
 import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
 
 const AddContactModal = defineAsyncComponent(
@@ -424,6 +451,43 @@ const activeFilterCount = computed(() => Object.values(appliedFilters.value).fil
 function isOptionActive(key: FilterKey, value: string): boolean {
   const selected = draftFilters.value[key];
   return value === "all" ? selected.length === 0 : selected.includes(value);
+}
+
+/**
+ * Grup dengan daftar opsi panjang (provinsi & kota) dirender sebagai dropdown
+ * ber-pencarian, bukan chip. Grup lain tetap chip karena opsinya sedikit.
+ */
+const SEARCHABLE_FILTER_GROUPS: FilterKey[] = ["provinsi", "kota"];
+
+function isSearchableGroup(key: FilterKey): boolean {
+  return SEARCHABLE_FILTER_GROUPS.includes(key);
+}
+
+/**
+ * Opsi untuk dropdown: sentinel 'all' dibuang (array kosong sudah berarti
+ * "Semua"), dan jumlah faskes ditempel ke label supaya informasi count dari
+ * chip tidak hilang.
+ */
+function searchableOptions(key: FilterKey): MasterOption[] {
+  return filterOptions.value[key]
+    .filter((option) => option.value !== "all")
+    .map((option) => ({
+      value: option.value,
+      label: option.count !== null ? `${option.label} (${formatTotal(option.count)})` : option.label,
+    }));
+}
+
+/** Terima nilai baru dari dropdown lalu jalankan cascade yang sama dengan chip. */
+function setFilterValues(key: FilterKey, values: string[]) {
+  draftFilters.value[key] = values;
+  if (key === "cabang") {
+    draftFilters.value.provinsi = [];
+    draftFilters.value.kota = [];
+    void loadFilterOptions({ background: true });
+  } else if (key === "provinsi") {
+    draftFilters.value.kota = [];
+    void loadFilterOptions({ background: true });
+  }
 }
 
 /**
@@ -751,6 +815,32 @@ function relativeVisitDate(value: string) {
   const diffInMonths = Math.floor(diffInDays / 30);
   if (diffInMonths < 12) return `${diffInMonths} bulan lalu`;
   return `${Math.floor(diffInMonths / 12)} tahun lalu`;
+}
+
+/**
+ * Bucket urgensi kunjungan — ambang batasnya disamakan dengan filter
+ * `visit_urgency` di BE (lt_30 / 30_90 / gt_90 / never) dan dengan legenda
+ * "Urgensi Kunjungan" pada peta sebaran faskes di dashboard.
+ */
+type VisitUrgency = "fresh" | "attention" | "overdue" | "never";
+
+function visitUrgency(value?: string): VisitUrgency {
+  const date = value ? parseVisitDate(value) : null;
+  if (!date) return "never";
+  const diffInDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (diffInDays < 30) return "fresh";
+  if (diffInDays <= 90) return "attention";
+  return "overdue";
+}
+
+function visitUrgencyLabel(value?: string): string {
+  const labels: Record<VisitUrgency, string> = {
+    fresh: "Dikunjungi < 30 hari lalu",
+    attention: "Dikunjungi 30 - 90 hari lalu",
+    overdue: "Dikunjungi > 90 hari lalu",
+    never: "Belum pernah dikunjungi",
+  };
+  return labels[visitUrgency(value)];
 }
 
 function openHospitalDetail(
@@ -1213,6 +1303,40 @@ onBeforeUnmount(() => {
   font-size: 11px;
 }
 
+/*
+ * Warna urgensi kunjungan mengikuti legenda "Urgensi Kunjungan" pada peta
+ * sebaran faskes di dashboard supaya kedua tampilan terbaca sebagai satu bahasa.
+ */
+.last-visit {
+  --visit-color: #64748b;
+}
+
+.last-visit--fresh { --visit-color: #14b88a; }
+.last-visit--attention { --visit-color: #f59e0b; }
+.last-visit--overdue { --visit-color: #ef4444; }
+.last-visit--never { --visit-color: #111827; }
+
+.last-visit .last-visit__date {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--visit-color);
+  font-weight: 600;
+}
+
+.last-visit__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: var(--visit-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--visit-color) 16%, transparent);
+}
+
+.last-visit--never .last-visit__date {
+  font-weight: 500;
+}
+
 .metric-badge {
   display: inline-flex;
   min-width: 34px;
@@ -1582,6 +1706,10 @@ onBeforeUnmount(() => {
 
   .hospital-table .last-visit {
     text-align: right;
+  }
+
+  .hospital-table .last-visit .last-visit__date {
+    justify-content: flex-end;
   }
 
   /* Tombol detail full-width di bawah kartu */

@@ -182,7 +182,7 @@
           </thead>
           <tbody>
             <tr v-if="contactApi.loading && !paginatedContacts.length">
-              <td colspan="7" class="contact-table-state">
+              <td colspan="8" class="contact-table-state">
                 <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                 Memuat data kontak...
               </td>
@@ -287,11 +287,21 @@
                     <span class="activity-dot"></span>
                     <span class="activity-label__text">{{ activityLabel(contact) }}</span>
                   </span>
-                  <small v-if="activityTime(contact)" class="activity-time">
-                    {{ activityTime(contact) }}
-                  </small>
                 </div>
                 <span v-else class="empty-value">Belum ada aktivitas</span>
+              </td>
+              <td data-label="Terakhir Interaksi">
+                <div
+                  v-if="lastInteractionDate(contact)"
+                  class="last-contacted"
+                  :title="lastInteractionTooltip(contact)"
+                >
+                  <span class="last-contacted__date">{{ lastInteractionDate(contact) }}</span>
+                  <small class="last-contacted__relative">
+                    {{ lastInteractionRelative(contact) }}
+                  </small>
+                </div>
+                <span v-else class="empty-value">Belum ada interaksi</span>
               </td>
               <td data-label="Detail" class="text-center contact-detail-cell">
                 <button
@@ -305,7 +315,7 @@
               </td>
             </tr>
             <tr v-if="!contactApi.loading && !filteredContact.length">
-              <td colspan="7" class="contact-table-state">
+              <td colspan="8" class="contact-table-state">
                 <div class="empty-state-icon">
                   <svg
                     width="22"
@@ -387,7 +397,6 @@ import { computed, defineAsyncComponent, onBeforeUnmount, onMounted, ref, watch 
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { routes } from "@/router/routes";
-import { timeAgo } from "@/services/activityLogService";
 import { useContact } from "@/store/contact";
 import type { Contact } from "@/types/contacts";
 import { genderAvatarColorStyle, personInitials } from "@/utils/avatar";
@@ -545,7 +554,7 @@ const contactTableColumns = [
   { label: "Dibuat Oleh", defaultWidth: 180, minWidth: 140 },
   { label: "Peluang", defaultWidth: 130, minWidth: 110 },
   { label: "Aktivitas", defaultWidth: 230, minWidth: 170 },
-  // Kolom "Terakhir Dihubungi" sementara disembunyikan.
+  { label: "Terakhir Interaksi", defaultWidth: 180, minWidth: 150 },
   { label: "Detail", defaultWidth: 180, minWidth: 160 },
 ] as const;
 const contactColumnWidths = ref<number[]>(
@@ -720,22 +729,36 @@ function activityLabel(contact: Contact) {
   return contact.lastActivity || "";
 }
 
-/**
- * Waktu aktivitas terakhir: tampilkan relatif ("1 hari lalu") sampai 7 hari,
- * setelah itu tampilkan tanggalnya (mis. "03 Nov 2026") supaya "123 hari lalu"
- * tidak sulit dibaca.
- */
-function activityTime(contact: Contact) {
-  const value = contact.lastContactedAt;
-  if (!value) return "";
-  const date = parseContactDate(value);
-  if (!date) return "";
-  const diffInDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
-  return diffInDays > 7 ? formatContactDate(value) : timeAgo(value);
-}
-
 function activityTooltip(contact: Contact) {
   return contact.lastActivity || "";
+}
+
+/**
+ * Kolom "Terakhir Interaksi": tanggal aktivitas terakhir (`last_activity_at`)
+ * dipisah dari kolom Aktivitas supaya label aksi dan waktunya tidak berdesakan
+ * dalam satu sel.
+ */
+function lastInteractionDate(contact: Contact) {
+  const value = contact.lastContactedAt;
+  if (!value || !parseContactDate(value)) return "";
+  return formatContactDate(value);
+}
+
+function lastInteractionRelative(contact: Contact) {
+  const value = contact.lastContactedAt;
+  if (!value) return "";
+  return relativeContactDate(value);
+}
+
+function lastInteractionTooltip(contact: Contact) {
+  const value = contact.lastContactedAt;
+  const date = value ? parseContactDate(value) : null;
+  if (!date) return "Belum ada interaksi";
+  const stamp = new Intl.DateTimeFormat("id-ID", {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(date);
+  return contact.lastActivity ? `${contact.lastActivity} · ${stamp}` : stamp;
 }
 
 function parseContactDate(value: string) {
@@ -1638,19 +1661,20 @@ onBeforeUnmount(() => {
     font-size: 12px;
   }
 
-  .contact-table .activity-cell .activity-time {
-    flex: 0 0 auto;
-    margin: 0;
-    font-size: 12px;
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  /* ── Terakhir dihubungi - tanggal ───────────────────────────────── */
-  .contact-table tbody td[data-label="Terakhir Dihubungi"] {
+  /* ── Terakhir Interaksi - tanggal ───────────────────────────────── */
+  .contact-table tbody td[data-label="Terakhir Interaksi"] {
     order: 4;
     border-bottom: 0;
     padding: 8px 16px 0;
+  }
+
+  .contact-table tbody td[data-label="Terakhir Interaksi"]::before {
+    content: "Terakhir interaksi";
+    display: block;
+    margin-bottom: 2px;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
   }
 
   .contact-table .last-contacted {

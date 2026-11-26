@@ -28,7 +28,7 @@
         <ol v-if="orderSteps.length" class="order-steps">
           <li
             v-for="(step, index) in orderSteps"
-            :key="step.title"
+            :key="step.key"
             class="order-step"
             :class="`is-${step.state}`"
           >
@@ -40,7 +40,21 @@
             <div class="step-content">
               <div class="step-title-row">
                 <strong>{{ step.title }}</strong>
-                <span class="step-state">{{ step.label }}</span>
+                <div class="step-title-actions">
+                  <span class="step-state">{{ step.label }}</span>
+                  <button
+                    type="button"
+                    class="step-detail-button"
+                    :aria-label="`Lihat dokumen tahap ${step.title}`"
+                    @click="openStepDetail(step)"
+                  >
+                    <SolarIcon name="eye" :size="13" />
+                    Detail
+                    <b v-if="step.documentCount" class="step-detail-button__count">
+                      {{ step.documentCount }}
+                    </b>
+                  </button>
+                </div>
               </div>
               <p v-if="step.description">{{ step.description }}</p>
               <div v-if="step.startedLabel || step.completedLabel || step.referensi" class="step-meta">
@@ -101,31 +115,112 @@
         </div>
       </article>
     </div>
+
+    <Modal
+      :modal-open="Boolean(activeStep)"
+      :title="`Dokumen · ${activeStep?.title ?? ''}`"
+      size-class="modal-lg"
+      modal-centered
+      @close-modal="closeStepDetail"
+    >
+      <div v-if="activeStep" class="step-modal">
+        <div class="step-modal__meta">
+          <span class="step-modal__state" :class="`is-${activeStep.state}`">{{ activeStep.label }}</span>
+          <span v-if="activeStep.department" class="step-modal__dept">
+            <SolarIcon name="users-group" :size="13" />
+            {{ activeStep.department }}
+          </span>
+        </div>
+
+        <p v-if="activeStep.description" class="step-modal__desc">{{ activeStep.description }}</p>
+
+        <div v-if="activeStepDocuments.length" class="step-modal__docs">
+          <article
+            v-for="document in activeStepDocuments"
+            :key="document.id"
+            class="step-doc"
+          >
+            <header class="step-doc__head">
+              <span class="step-doc__icon">
+                <SolarIcon :name="isImage(document) ? 'gallery' : 'document-text'" :size="20" />
+              </span>
+              <div class="step-doc__copy">
+                <strong>{{ documentLabel(document) }}</strong>
+                <small>{{ document.fileName }} · {{ formatBytes(document.size) }}</small>
+              </div>
+              <button
+                type="button"
+                class="step-doc__download"
+                :aria-label="`Unduh ${document.fileName}`"
+                @click="downloadStoredDocument(document)"
+              >
+                <SolarIcon name="download" :size="18" />
+              </button>
+            </header>
+
+            <div class="step-doc__preview">
+              <img v-if="isImage(document)" :src="previewUrl(document)" :alt="document.fileName" />
+              <iframe
+                v-else-if="isPdf(document)"
+                :src="previewUrl(document)"
+                :title="document.fileName"
+              ></iframe>
+              <p v-else class="step-doc__no-preview">
+                Pratinjau tidak tersedia untuk tipe berkas ini. Gunakan tombol unduh di atas.
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <div v-else class="step-modal__empty">
+          <span class="step-modal__empty-icon"><SolarIcon name="folder" :size="30" /></span>
+          <strong>Belum ada dokumen</strong>
+          <span>
+            Tahap ini belum memiliki dokumen atau gambar yang diunggah
+            {{ activeStep.department ? `oleh ${activeStep.department}` : 'oleh departemen terkait' }}.
+          </span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @click="closeStepDetail">Tutup</button>
+      </div>
+    </Modal>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
+import Modal from '@/components/shared/Modal.vue'
 import { downloadStoredDocument, type StoredProjectDocument } from '@/services/projectDocumentStorage'
 import { fetchOrderTracking, type OrderMilestone } from '@/services/projectOrderService'
 import type { Projects } from '@/types/project'
 
 type OrderStepState = 'complete' | 'current' | 'pending'
 interface OrderStep {
+  key: string
+  urutan: number
+  milestoneId: number | null
   title: string
   description: string
+  department: string
   state: OrderStepState
   label: string
   startedLabel: string
   completedLabel: string
   referensi: string | null
+  documentCount: number
 }
 
-const props = defineProps<{
-  project: Projects
-  salesOrder: StoredProjectDocument
-}>()
+const props = withDefaults(
+  defineProps<{
+    project: Projects
+    salesOrder: StoredProjectDocument
+    documents?: StoredProjectDocument[]
+  }>(),
+  { documents: () => [] },
+)
 
 // Status pesanan diambil real dari BE (GET /api/project/ordertracking/{id})
 // yang membaca P_order_tracking + m_order_milestones. Tidak lagi hardcode.
@@ -168,7 +263,7 @@ function formatDateLabel(source?: string | null, fallback?: string | null): stri
 
 const completedStepCount = computed(() => milestones.value.filter((item) => item.is_completed).length)
 
-const orderSteps = computed<OrderStep[]>(() => milestones.value.map((milestone) => {
+const orderSteps = computed<OrderStep[]>(() => milestones.value.map((milestone, index) => {
   // State ambil dari BE kalau ada (`status`), fallback ke logic lokal untuk
   // kompatibilitas bila endpoint belum di-deploy ulang.
   const state: OrderStepState = milestone.status === 'done' || milestone.is_completed
@@ -182,16 +277,90 @@ const orderSteps = computed<OrderStep[]>(() => milestones.value.map((milestone) 
     ? formatDateLabel(milestone.completed_at, milestone.completed_date)
     : ''
 
+  const milestoneId = Number(milestone.milestone_id)
+  const urutan = Number(milestone.urut) || index + 1
+
   return {
+    key: `${milestone.milestone_id ?? 'step'}-${urutan}`,
+    urutan,
+    milestoneId: Number.isFinite(milestoneId) ? milestoneId : null,
     title: milestone.nama,
     description: milestone.keterangan ?? '',
+    department: milestone.department ?? '',
     state,
     label: state === 'complete' ? 'Selesai' : state === 'current' ? 'Dalam proses' : 'Belum dimulai',
     startedLabel,
     completedLabel,
     referensi: milestone.no_referensi_erp,
+    documentCount: documentsForStep(urutan).length,
   }
 }))
+
+/**
+ * Dokumen per tahap.
+ *
+ * Saat ini DB belum punya tabel dokumen per-milestone, jadi yang bisa
+ * ditampilkan hanya dokumen level-peluang yang sudah ada: PO Customer dan
+ * Surat Pesanan — keduanya milik tahap 1 ("Data pelanggan + surat pesanan
+ * diupload"). Tahap lain sengaja menampilkan empty state sampai BE
+ * menyediakan penyimpanan dokumen per tahap.
+ */
+function documentsForStep(urutan: number): StoredProjectDocument[] {
+  if (urutan !== 1) return []
+  const order: Record<string, number> = { 'customer-po': 0, 'sales-order': 1 }
+  return [...props.documents].sort((first, second) => (order[first.kind] ?? 9) - (order[second.kind] ?? 9))
+}
+
+const activeStep = ref<OrderStep | null>(null)
+const activeStepDocuments = computed(() =>
+  activeStep.value ? documentsForStep(activeStep.value.urutan) : [],
+)
+
+// Object URL dibuat lazy per dokumen dan dibersihkan saat modal ditutup supaya
+// blob tidak menumpuk di memori selama halaman dibuka.
+const previewUrls = new Map<string, string>()
+
+function previewUrl(document: StoredProjectDocument): string {
+  const cached = previewUrls.get(document.id)
+  if (cached) return cached
+  const url = URL.createObjectURL(document.blob)
+  previewUrls.set(document.id, url)
+  return url
+}
+
+function releasePreviewUrls(): void {
+  previewUrls.forEach((url) => URL.revokeObjectURL(url))
+  previewUrls.clear()
+}
+
+function openStepDetail(step: OrderStep): void {
+  activeStep.value = step
+}
+
+function closeStepDetail(): void {
+  activeStep.value = null
+  releasePreviewUrls()
+}
+
+onBeforeUnmount(releasePreviewUrls)
+
+function isImage(document: StoredProjectDocument): boolean {
+  return document.mimeType.startsWith('image/')
+}
+
+function isPdf(document: StoredProjectDocument): boolean {
+  return document.mimeType === 'application/pdf'
+}
+
+function documentLabel(document: StoredProjectDocument): string {
+  return document.kind === 'customer-po' ? 'PO Customer' : 'Surat Pesanan'
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
 const isOrderComplete = computed(
   () => milestones.value.length > 0 && completedStepCount.value === milestones.value.length,
@@ -235,12 +404,7 @@ const orderValue = computed(() => {
   }).format(value)
 })
 
-const fileSize = computed(() => {
-  const bytes = props.salesOrder.size
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-})
+const fileSize = computed(() => formatBytes(props.salesOrder.size))
 </script>
 
 <style scoped>
@@ -285,6 +449,40 @@ const fileSize = computed(() => {
 .step-date--start { color: #a16207; background: #fef3c7; }
 .step-date--done { color: #16884d; background: #e7f8ef; }
 .order-step.is-pending .step-date--start { color: #64748b; background: #e2e8f0; }
+
+/* ── Tombol Detail per tahap + modal dokumennya ─────────────────────── */
+.step-title-actions { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 7px; }
+.step-detail-button { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #d5dde3; border-radius: 999px; padding: 4px 10px; color: #4a5a66; background: #fff; font-size: 10px; font-weight: 700; white-space: nowrap; transition: border-color .15s ease, color .15s ease, background-color .15s ease; }
+.step-detail-button:hover, .step-detail-button:focus-visible { border-color: var(--app-primary, #18a6e4); color: var(--app-primary-dark, #087fae); background: var(--app-primary-wash, #e5f5fc); outline: none; }
+.step-detail-button__count { display: inline-grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; color: #fff; background: var(--app-primary, #18a6e4); font-size: 9px; font-weight: 700; font-style: normal; line-height: 1; }
+
+.step-modal { padding: 18px 20px; }
+.step-modal__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.step-modal__state { border-radius: 999px; padding: 4px 10px; background: #dfe3e6; color: #5f6972; font-size: 10px; font-weight: 700; }
+.step-modal__state.is-complete { color: #16884d; background: #e7f8ef; }
+.step-modal__state.is-current { color: #92400e; background: #fde68a; }
+.step-modal__dept { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 10px; color: var(--app-primary-dark, #087fae); background: var(--app-primary-wash, #e5f5fc); font-size: 10px; font-weight: 700; }
+.step-modal__desc { margin: 0 0 16px; color: #77838e; font-size: 12px; line-height: 1.55; }
+
+.step-modal__docs { display: grid; gap: 14px; }
+.step-doc { border: 1px solid #e1e8ed; border-radius: 12px; overflow: hidden; background: #fff; }
+.step-doc__head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 11px; border-bottom: 1px solid #edf1f4; padding: 11px 13px; background: #f8fbfd; }
+.step-doc__icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; color: var(--app-primary, #159ed8); background: var(--app-primary-wash, #e5f5fc); }
+.step-doc__copy { min-width: 0; }
+.step-doc__copy strong, .step-doc__copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.step-doc__copy strong { color: #33414c; font-size: 12px; }
+.step-doc__copy small { margin-top: 2px; color: #93a0aa; font-size: 10px; }
+.step-doc__download { display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; color: var(--app-primary-dark, #087fae); background: var(--app-primary-wash, #e4f4fb); }
+.step-doc__download:hover { background: var(--app-primary-soft, #d3edf8); }
+.step-doc__preview { display: grid; place-items: center; max-height: 420px; overflow: auto; padding: 12px; background: #f4f7f9; }
+.step-doc__preview img { max-width: 100%; max-height: 396px; border-radius: 8px; object-fit: contain; }
+.step-doc__preview iframe { width: 100%; height: 396px; border: 0; border-radius: 8px; background: #fff; }
+.step-doc__no-preview { margin: 0; padding: 22px 12px; color: #77838e; font-size: 12px; text-align: center; }
+
+.step-modal__empty { display: grid; justify-items: center; gap: 6px; border: 1px dashed #d8e1e7; border-radius: 12px; padding: 32px 20px; text-align: center; }
+.step-modal__empty-icon { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 4px; border-radius: 14px; color: #93a4b0; background: #eef2f5; }
+.step-modal__empty strong { color: #34404a; font-size: 13px; }
+.step-modal__empty > span:last-child { max-width: 380px; color: #87929c; font-size: 11px; line-height: 1.55; }
 .order-details { margin: 0; }
 .order-details > div { display: grid; grid-template-columns: minmax(130px, .8fr) minmax(0, 1fr); align-items: center; gap: 14px; border-bottom: 1px solid #edf1f4; padding: 12px 0; }
 .order-details dt { display: inline-flex; align-items: center; gap: 8px; color: #89949d; font-size: 11px; font-weight: 500; }
@@ -307,6 +505,8 @@ const fileSize = computed(() => {
   .status-heading { align-items: flex-start; }
   .step-title-row { display: grid; gap: 7px; }
   .step-state { justify-self: start; }
+  .step-title-actions { justify-self: start; }
+  .step-doc__preview iframe { height: 300px; }
 }
 
 @media (max-width: 420px) {
