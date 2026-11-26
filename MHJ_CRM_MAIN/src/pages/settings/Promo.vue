@@ -216,7 +216,9 @@
             </div>
 
             <div class="col-12">
-              <label class="form-label">Banner promo</label>
+              <label class="form-label">
+                Banner promo <span class="txt-danger">*</span>
+              </label>
               <input
                 ref="fileInput"
                 class="d-none"
@@ -226,7 +228,10 @@
               />
               <button
                 class="promo-upload"
-                :class="{ 'has-image': form.image_path }"
+                :class="{
+                  'has-image': form.image_path,
+                  'is-invalid-upload': submitted && !isImageValid,
+                }"
                 type="button"
                 @click="fileInput?.click()"
                 @dragover.prevent
@@ -257,22 +262,43 @@
               <div v-if="imageError" class="text-danger small mt-2">
                 {{ imageError }}
               </div>
+              <div v-else-if="submitted && !isImageValid" class="text-danger small mt-2">
+                Banner promo wajib diunggah.
+              </div>
             </div>
 
             <div class="col-12">
               <label for="promo-target-type" class="form-label">
                 Target promo <span class="txt-danger">*</span>
               </label>
-              <select
+              <!--
+                Memakai SelectInput (dropdown standar aplikasi yang punya fitur
+                pencarian) dengan search disembunyikan, karena pilihannya sedikit.
+              -->
+              <SelectInput
                 id="promo-target-type"
-                v-model="form.target_type"
-                class="form-select"
-                @change="resetUnusedTargets"
-              >
-                <option v-for="target in targetTypes" :key="target.value" :value="target.value">
-                  {{ target.label }}
-                </option>
-              </select>
+                :model-value="form.target_type"
+                :options="targetTypeOptions"
+                :searchable="false"
+                placeholder="Pilih target promo"
+                @update:model-value="changeTargetType"
+              />
+            </div>
+            <div v-if="needsDivision" class="col-12">
+              <label for="promo-division" class="form-label">
+                Divisi <span class="txt-danger">*</span>
+              </label>
+              <SelectInput
+                id="promo-division"
+                v-model="form.target_division_code"
+                :options="divisionOptions"
+                :searchable="false"
+                :disabled="lookupsLoading"
+                :placeholder="lookupsLoading ? 'Memuat divisi...' : 'Pilih divisi'"
+              />
+              <div v-if="submitted && !form.target_division_code" class="text-danger small mt-1">
+                Divisi target wajib dipilih.
+              </div>
             </div>
             <div v-if="needsBranch" :class="needsJabatan ? 'col-md-6' : 'col-12'">
               <label for="promo-branch" class="form-label"
@@ -389,9 +415,11 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import Swal from 'sweetalert2'
 
 import Modal from '@/components/shared/Modal.vue'
+import SelectInput from '@/components/ui/SelectInput.vue'
 import { masterDataService } from '@/services/masterDataService'
 import { promoService, type PromoPayload } from '@/services/promoService'
 import type { MasterCabangItem } from '@/types/master'
+import type { MasterOption } from '@/types/user'
 import { parseBackendError } from '@/utils/errorParser'
 
 interface PromoItem {
@@ -405,13 +433,17 @@ interface PromoItem {
   target_type: TargetType
   target_branch_id: number | null
   target_jabatan_id: number | null
+  /** KodeDevisi target promo saat target_type = 'division'. */
+  target_division_code: string
+  /** Snapshot NamaDevisi dari backend; dipakai label tabel tanpa join master. */
+  target_division_name: string
   created_at: string
   updated_at: string
   sort_order: number
 }
 
 type PromoFilter = 'all' | 'active' | 'inactive'
-type TargetType = 'all' | 'branch' | 'jabatan' | 'branch_jabatan'
+type TargetType = 'all' | 'branch' | 'jabatan' | 'branch_jabatan' | 'division'
 
 interface PromoForm {
   id: number | null
@@ -424,6 +456,7 @@ interface PromoForm {
   target_type: TargetType
   target_branch_id: number | null
   target_jabatan_id: number | null
+  target_division_code: string
   sort_order: number
 }
 
@@ -439,7 +472,14 @@ const targetTypes: { value: TargetType; label: string }[] = [
   { value: 'branch', label: 'Cabang tertentu' },
   { value: 'jabatan', label: 'Jabatan tertentu' },
   { value: 'branch_jabatan', label: 'Cabang dan jabatan tertentu' },
+  { value: 'division', label: 'Divisi tertentu' },
 ]
+
+/** Bentuk opsi untuk SelectInput, yang nilainya selalu string. */
+const targetTypeOptions: MasterOption[] = targetTypes.map((target) => ({
+  value: target.value,
+  label: target.label,
+}))
 
 function toNumberOrNull(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null
@@ -477,6 +517,8 @@ function normalizePromo(value: unknown, index: number): PromoItem {
     target_type,
     target_branch_id: toNumberOrNull(raw.target_branch_id),
     target_jabatan_id: toNumberOrNull(raw.target_jabatan_id),
+    target_division_code: String(raw.target_division_code ?? '').trim(),
+    target_division_name: String(raw.target_division_name ?? '').trim(),
     created_at: String(raw.created_at ?? now),
     updated_at: String(raw.updated_at ?? now),
     sort_order: toNumberOrNull(raw.sort_order) ?? index + 1,
@@ -498,6 +540,7 @@ const selectedImageFile = ref<File | null>(null)
 const removeExistingImage = ref(false)
 const branchOptions = ref<LookupOption[]>([])
 const jabatanOptions = ref<LookupOption[]>([])
+const divisionOptions = ref<MasterOption[]>([])
 const lookupsLoading = ref(false)
 const lookupError = ref('')
 
@@ -510,10 +553,18 @@ const filterOptions: { label: string; value: PromoFilter }[] = [
 const activeCount = computed(() => promos.value.filter((promo) => promo.is_active).length)
 const needsBranch = computed(() => ['branch', 'branch_jabatan'].includes(form.target_type))
 const needsJabatan = computed(() => ['jabatan', 'branch_jabatan'].includes(form.target_type))
+const needsDivision = computed(() => form.target_type === 'division')
 const isDateRangeValid = computed(
   () => !form.start_date || !form.end_date || form.end_date >= form.start_date
 )
 const isSortOrderValid = computed(() => Number.isInteger(form.sort_order) && form.sort_order >= 0)
+/**
+ * Banner wajib ada. `form.image_path` berisi data URL pratinjau untuk file baru,
+ * atau URL banner lama saat mengedit — jadi cukup memeriksa satu nilai ini.
+ * Menekan "Hapus gambar" mengosongkannya, sehingga promo tidak bisa disimpan
+ * tanpa banner (aturan yang sama juga dipaksakan di backend).
+ */
+const isImageValid = computed(() => Boolean(form.image_path))
 const filteredPromos = computed(() => {
   const keyword = search.value.toLocaleLowerCase('id-ID')
   return promos.value
@@ -541,6 +592,7 @@ function emptyForm(): PromoForm {
     target_type: 'all',
     target_branch_id: null,
     target_jabatan_id: null,
+    target_division_code: '',
     sort_order: promos.value?.length ?? 0,
   }
 }
@@ -571,6 +623,7 @@ function openEdit(promo: PromoItem) {
     target_type: promo.target_type,
     target_branch_id: promo.target_branch_id,
     target_jabatan_id: promo.target_jabatan_id,
+    target_division_code: promo.target_division_code,
     sort_order: promo.sort_order,
   })
   modalOpen.value = true
@@ -609,6 +662,16 @@ function formatDateRange(start: string, end: string): string {
 
 function targetLabel(promo: PromoItem): string {
   if (promo.target_type === 'all') return 'Semua pengguna'
+  if (promo.target_type === 'division') {
+    const division = divisionOptions.value.find(
+      (option) => option.value === promo.target_division_code,
+    )
+    return (
+      promo.target_division_name ||
+      division?.label ||
+      `Divisi ${promo.target_division_code || '-'}`
+    )
+  }
 
   const branch = branchOptions.value.find((option) => option.value === promo.target_branch_id)
   const jabatan = jabatanOptions.value.find((option) => option.value === promo.target_jabatan_id)
@@ -626,6 +689,19 @@ function targetLabel(promo: PromoItem): string {
 function resetUnusedTargets() {
   if (!needsBranch.value) form.target_branch_id = null
   if (!needsJabatan.value) form.target_jabatan_id = null
+  if (!needsDivision.value) form.target_division_code = ''
+}
+
+/**
+ * SelectInput mengirim string, sedangkan form.target_type bertipe union.
+ * Nilai yang tidak dikenal (mis. saat placeholder dipilih) dikembalikan ke 'all'
+ * supaya target promo tidak pernah kosong.
+ */
+function changeTargetType(value: string) {
+  form.target_type = targetTypes.some((target) => target.value === value)
+    ? (value as TargetType)
+    : 'all'
+  resetUnusedTargets()
 }
 
 function onFileChange(event: Event) {
@@ -694,6 +770,7 @@ function buildPayload(): PromoPayload {
     target_type: form.target_type,
     target_branch_id: form.target_branch_id,
     target_jabatan_id: form.target_jabatan_id,
+    target_division_code: form.target_division_code || null,
     sort_order: form.sort_order,
     image: selectedImageFile.value,
     removeImage: removeExistingImage.value,
@@ -704,8 +781,15 @@ async function savePromo() {
   submitted.value = true
   const targetInvalid =
     (needsBranch.value && form.target_branch_id === null) ||
-    (needsJabatan.value && form.target_jabatan_id === null)
-  if (!form.title || !isSortOrderValid.value || !isDateRangeValid.value || targetInvalid) {
+    (needsJabatan.value && form.target_jabatan_id === null) ||
+    (needsDivision.value && !form.target_division_code)
+  if (
+    !form.title ||
+    !isImageValid.value ||
+    !isSortOrderValid.value ||
+    !isDateRangeValid.value ||
+    targetInvalid
+  ) {
     return
   }
 
@@ -749,6 +833,7 @@ async function toggleStatus(promo: PromoItem) {
       target_type: promo.target_type,
       target_branch_id: promo.target_branch_id,
       target_jabatan_id: promo.target_jabatan_id,
+      target_division_code: promo.target_division_code || null,
       sort_order: promo.sort_order,
     })
   } catch (error) {
@@ -802,9 +887,10 @@ async function loadTargetLookups() {
   lookupsLoading.value = true
   lookupError.value = ''
   try {
-    const [branches, positions] = await Promise.all([
+    const [branches, positions, divisions] = await Promise.all([
       masterDataService.getCabang(),
       masterDataService.getJabatan(),
+      masterDataService.getDevisi(),
     ])
     branchOptions.value = branches
       .map((branch) => ({
@@ -816,9 +902,16 @@ async function loadTargetLookups() {
       value: position.id,
       label: position.nama_jabatan,
     }))
+    // Divisi dikunci pakai KodeDevisi (string), bukan integer id seperti jabatan.
+    divisionOptions.value = divisions
+      .map((division) => ({
+        value: String(division.KodeDevisi ?? '').trim(),
+        label: String(division.NamaDevisi ?? '').trim() || String(division.KodeDevisi ?? '').trim(),
+      }))
+      .filter((division) => division.value !== '')
   } catch (error) {
     console.error('Gagal memuat target promo:', error)
-    lookupError.value = 'Daftar cabang atau jabatan gagal dimuat.'
+    lookupError.value = 'Daftar cabang, jabatan, atau divisi gagal dimuat.'
   } finally {
     lookupsLoading.value = false
   }
@@ -1305,6 +1398,12 @@ onMounted(() => {
 
 .promo-upload.has-image {
   border-style: solid;
+}
+
+/* Banner wajib: tandai area upload saat form dikirim tanpa gambar. */
+.promo-upload.is-invalid-upload {
+  border-color: var(--bs-danger, #dc3545);
+  background: #fff6f6;
 }
 .promo-upload > img {
   display: block;

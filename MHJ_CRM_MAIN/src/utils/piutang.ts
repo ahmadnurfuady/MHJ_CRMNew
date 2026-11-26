@@ -46,6 +46,37 @@ export function formatTermin(piutang: Piutang): string {
   return `Termin ${piutang.terminKe ?? 0} dari ${total}`
 }
 
+/**
+ * Warna label jatuh tempo:
+ * - `paid`    : sudah lunas (hijau centang, tampilan lama)
+ * - `overdue` : sudah lewat jatuh tempo (merah)
+ * - `soon`    : jatuh tempo <= 7 hari dari hari ini, termasuk hari ini (kuning)
+ * - `safe`    : masih lebih dari 7 hari (hijau)
+ * - `unknown` : jatuh tempo belum ditentukan (abu-abu, netral)
+ *
+ * Ambang 7 hari dipakai sebagai batas "dekat hari". Dihitung dari `jatuhTempo`,
+ * bukan dari `labelWaktu`, supaya tetap benar walau backend mengirim label
+ * siap-tampil.
+ */
+export type PiutangDueTone = 'paid' | 'overdue' | 'soon' | 'safe' | 'unknown'
+
+const DUE_SOON_DAYS = 7
+
+export function piutangDueTone(piutang: Piutang, today = new Date()): PiutangDueTone {
+  if (piutang.status === 'lunas') return 'paid'
+  if (piutang.status === 'terlambat') return 'overdue'
+  if (!piutang.jatuhTempo) return 'unknown'
+
+  const millisecondsPerDay = 24 * 60 * 60 * 1000
+  const difference = Math.round(
+    (parseIsoDate(piutang.jatuhTempo).getTime() - startOfDay(today).getTime()) /
+      millisecondsPerDay,
+  )
+
+  if (difference < 0) return 'overdue'
+  return difference <= DUE_SOON_DAYS ? 'soon' : 'safe'
+}
+
 export function formatLabelWaktu(piutang: Piutang, today = new Date()): string {
   // Label waktu dari backend (label_timeline) dipakai langsung bila ada.
   if (piutang.labelWaktu && piutang.labelWaktu.trim()) return piutang.labelWaktu.trim()

@@ -17,7 +17,7 @@
       {{ formatTermin(group.items[0]) }}
     </p>
 
-    <div class="piutang-item__time" :class="`is-${group.items[0].status}`">
+    <div class="piutang-item__time" :class="`is-${dueTone(group.items[0])}`">
       <SolarIcon
         :name="group.items[0].status === 'lunas' ? 'check-circle' : 'clock'"
         :size="17"
@@ -30,9 +30,19 @@
     </div>
   </router-link>
 
-  <!-- Banyak nota pada satu faskes: header faskes + daftar nota di dalamnya. -->
-  <div v-else class="piutang-item piutang-group">
-    <div class="piutang-group__heading">
+  <!--
+    Banyak nota pada satu faskes: header faskes sebagai tombol buka/tutup, dan
+    daftar notanya tertutup secara default supaya satu faskes tetap satu baris
+    di daftar. Daftar nota baru tampil setelah header diklik.
+  -->
+  <div v-else class="piutang-item piutang-group" :class="{ 'is-open': expanded }">
+    <button
+      type="button"
+      class="piutang-group__heading"
+      :aria-expanded="expanded"
+      :aria-label="`${expanded ? 'Tutup' : 'Buka'} ${group.items.length} faktur ${group.faskes}`"
+      @click="expanded = !expanded"
+    >
       <div class="piutang-group__title">
         <h3>{{ group.faskes }}</h3>
         <span class="piutang-group__badge">{{ group.items.length }} Invoice</span>
@@ -41,9 +51,20 @@
         <strong>{{ formatRupiah(group.total) }}</strong>
         <span>Total Piutang</span>
       </div>
-    </div>
+      <span class="piutang-group__toggle">
+        <span class="piutang-group__toggle-text">
+          {{ expanded ? 'Tutup faktur' : `Lihat ${group.items.length} faktur` }}
+        </span>
+        <vue-feather
+          class="piutang-group__chevron"
+          :type="expanded ? 'chevron-up' : 'chevron-down'"
+          size="16"
+          aria-hidden="true"
+        />
+      </span>
+    </button>
 
-    <ul class="piutang-group__list">
+    <ul v-if="expanded" class="piutang-group__list">
       <li v-for="item in group.items" :key="item.id">
         <router-link
           :to="detailTarget(item)"
@@ -69,7 +90,7 @@
           </div>
           <div class="piutang-invoice__bottom">
             <span class="piutang-invoice__termin">{{ formatTermin(item) }}</span>
-            <span class="piutang-invoice__time" :class="`is-${item.status}`">
+            <span class="piutang-invoice__time" :class="`is-${dueTone(item)}`">
               <SolarIcon
                 :name="item.status === 'lunas' ? 'check-circle' : 'clock'"
                 :size="14"
@@ -88,11 +109,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { routes } from '@/router/routes'
 import type { Piutang, PiutangStatus } from '@/types/piutang'
-import { formatLabelWaktu, formatRupiah, formatTermin } from '@/utils/piutang'
+import {
+  formatLabelWaktu,
+  formatRupiah,
+  formatTermin,
+  piutangDueTone,
+  type PiutangDueTone,
+} from '@/utils/piutang'
 
 export interface PiutangGroup {
   faskes: string
@@ -106,6 +133,12 @@ const props = defineProps<{
 }>()
 
 const isSingle = computed(() => props.group.items.length === 1)
+/** Daftar faktur tertutup secara default; dibuka lewat header kartu. */
+const expanded = ref(false)
+
+function dueTone(item: Piutang): PiutangDueTone {
+  return piutangDueTone(item)
+}
 
 function detailTarget(item: Piutang) {
   return {
@@ -195,20 +228,55 @@ a.piutang-item:focus-visible {
   font-weight: 600;
 }
 
-.piutang-item__time.is-terlambat {
+/* Warna jatuh tempo: merah terlambat, kuning <= 7 hari, hijau masih jauh. */
+.piutang-item__time.is-overdue {
   color: var(--bs-danger, #dc3545);
 }
 
-.piutang-item__time.is-lunas {
+.piutang-item__time.is-soon {
+  color: #b45309;
+}
+
+.piutang-item__time.is-safe,
+.piutang-item__time.is-paid {
   color: var(--bs-success, #198754);
 }
 
 /* ── Kartu grup (banyak nota) ── */
 .piutang-group__heading {
   display: flex;
+  width: 100%;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.piutang-group__heading:focus-visible {
+  outline: 2px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.35);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.piutang-group__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--app-primary, var(--theme-default, #18a6e4));
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.piutang-group__heading:hover .piutang-group__toggle {
+  color: var(--app-primary-dark, #0e7490);
 }
 
 .piutang-group__title {
@@ -351,11 +419,16 @@ a.piutang-item:focus-visible {
   font-weight: 600;
 }
 
-.piutang-invoice__time.is-terlambat {
+.piutang-invoice__time.is-overdue {
   color: var(--bs-danger, #dc3545);
 }
 
-.piutang-invoice__time.is-lunas {
+.piutang-invoice__time.is-soon {
+  color: #b45309;
+}
+
+.piutang-invoice__time.is-safe,
+.piutang-invoice__time.is-paid {
   color: var(--bs-success, #198754);
 }
 
@@ -384,6 +457,19 @@ a.piutang-item:focus-visible {
   .piutang-item__heading {
     flex-direction: column;
     gap: 5px;
+  }
+
+  .piutang-group__heading {
+    flex-wrap: wrap;
+  }
+
+  .piutang-group__toggle {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .piutang-group__toggle-text {
+    font-size: 11px;
   }
 }
 </style>

@@ -30,15 +30,39 @@
       </div>
 
       <div class="manager-dashboard__content">
-        <div class="manager-dashboard__row manager-dashboard__row--overview">
-          <TargetBenchmarkSummary :benchmark="data.benchmark" />
-        </div>
         <div class="manager-dashboard__row manager-dashboard__row--coverage">
           <AreaMarketCoverage :coverage="data.coverage" />
         </div>
-        <div class="manager-dashboard__row manager-dashboard__row--activity">
-          <RecentActivity :activities="data.activities" />
+
+        <!--
+          Ringkasan Target & Benchmark (beserta Capaian Kinerja di sampingnya)
+          dan Aktivitas Terbaru disembunyikan secara default; dibuka lewat
+          tombol "See More" di bawah card Jangkauan Area dan Pasar.
+        -->
+        <div class="manager-dashboard__more">
+          <button
+            type="button"
+            class="btn btn-outline-primary manager-dashboard__more-button"
+            :aria-expanded="showMoreSections"
+            @click="showMoreSections = !showMoreSections"
+          >
+            <span>{{ showMoreSections ? 'See Less' : 'See More' }}</span>
+            <vue-feather
+              :type="showMoreSections ? 'chevron-up' : 'chevron-down'"
+              size="16"
+              aria-hidden="true"
+            />
+          </button>
         </div>
+
+        <template v-if="showMoreSections">
+          <div class="manager-dashboard__row manager-dashboard__row--overview">
+            <TargetBenchmarkSummary :benchmark="data.benchmark" />
+          </div>
+          <div class="manager-dashboard__row manager-dashboard__row--activity">
+            <RecentActivity :activities="data.activities" />
+          </div>
+        </template>
       </div>
     </template>
 
@@ -56,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { useManagerDashboard } from '@/composable/useManagerDashboard'
 import AreaMarketCoverage from '@/module/dashboard/manager/AreaMarketCoverage.vue'
@@ -75,6 +99,9 @@ const {
   loadManagerDashboard,
   loadPromoSlides,
 } = useManagerDashboard()
+
+/** Default tertutup: Ringkasan Target & Benchmark + Aktivitas Terbaru. */
+const showMoreSections = ref(false)
 
 function loadDashboard() {
   void Promise.all([loadManagerDashboard(), loadPromoSlides()])
@@ -137,6 +164,22 @@ onMounted(loadDashboard)
 
 .manager-dashboard__performance {
   min-width: 0;
+}
+
+.manager-dashboard__more {
+  display: flex;
+  justify-content: center;
+}
+
+.manager-dashboard__more-button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding-inline: 20px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .manager-dashboard__row--coverage,

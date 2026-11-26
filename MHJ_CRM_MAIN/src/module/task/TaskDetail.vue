@@ -57,7 +57,42 @@
           </div>
           <div class="detail-field">
             <span>Nama Peluang</span>
-            <strong>{{ task.projectName || '-' }}</strong>
+            <!--
+              Kartu peluang memakai gaya kartu yang sama dengan "Kontak Person"
+              (.task-contact-card) supaya konsisten, dan tetap berada di posisi
+              grid yang sama seperti sebelumnya. Hanya bisa diklik saat tugas
+              benar-benar punya id peluang terkait.
+            -->
+            <router-link
+              v-if="projectDetailRoute"
+              :to="projectDetailRoute"
+              class="task-relation-card"
+              :title="`Buka detail peluang ${task.projectName || ''}`.trim()"
+            >
+              <span class="task-relation-icon" aria-hidden="true">
+                <vue-feather type="briefcase" size="18" />
+              </span>
+              <div class="task-relation-copy">
+                <strong>{{ task.projectName || 'Peluang terkait' }}</strong>
+                <small>Lihat detail peluang</small>
+              </div>
+              <vue-feather
+                class="task-relation-chevron"
+                type="chevron-right"
+                size="17"
+                aria-hidden="true"
+              />
+            </router-link>
+            <div v-else-if="task.projectName" class="task-relation-card task-relation-card--static">
+              <span class="task-relation-icon" aria-hidden="true">
+                <vue-feather type="briefcase" size="18" />
+              </span>
+              <div class="task-relation-copy">
+                <strong>{{ task.projectName }}</strong>
+                <small>Detail peluang belum tersedia</small>
+              </div>
+            </div>
+            <strong v-else>-</strong>
           </div>
           <div class="detail-field">
             <span>Faskes</span>
@@ -289,13 +324,8 @@
       </section>
     </div>
 
-    <footer
-      v-if="task"
-      class="task-detail-footer"
-      :class="{ 'task-detail-footer--single': !canExportTask }"
-    >
+    <footer v-if="task && canExportTask" class="task-detail-footer">
       <button
-        v-if="canExportTask"
         class="btn btn-primary download-button"
         type="button"
         @click="printDetail"
@@ -307,22 +337,6 @@
         </svg>
         Download PDF
       </button>
-      <button
-        class="btn btn-outline-dark contact-button"
-        type="button"
-        :disabled="!callableContacts.length"
-        @click="callContact"
-      >
-        <SolarIcon
-          name="phone"
-          :size="18"
-          color="currentColor"
-          secondary-color="currentColor"
-          :secondary-opacity="1"
-          aria-hidden="true"
-        />
-        Hubungi Kontak
-      </button>
     </footer>
   </div>
 </template>
@@ -330,8 +344,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
+import { useRoute } from 'vue-router'
 import GoogleMapView from '@/components/GoogleMapView.vue'
 import { projectTab } from '@/core/data/project'
+import { routes } from '@/router/routes'
 import type { TaskDetails } from '@/types/tasks'
 import {
   fetchTaskComments,
@@ -348,6 +364,7 @@ const props = defineProps<{
 }>()
 
 const authStore = useAuthStore()
+const route = useRoute()
 const { user } = storeToRefs(authStore)
 const { canEditTask, canExportTask } = useTaskPermissions()
 
@@ -408,6 +425,20 @@ const pipelineLabel = computed(() => {
   return projectTab.find((stage) => stage.value === value)?.title || value
 })
 
+/**
+ * Target navigasi kartu "Nama Peluang". `backTo` diisi path halaman detail
+ * tugas ini supaya tombol "Kembali" di halaman detail peluang balik ke sini,
+ * bukan ke daftar peluang (pola sama dengan detail kontak → detail peluang).
+ */
+const projectDetailRoute = computed(() => {
+  const projectId = Number(props.task?.projectId)
+  if (!Number.isFinite(projectId) || projectId <= 0) return null
+  return {
+    path: routes.Project.ProjectDetailsV2,
+    query: { id: String(projectId), backTo: route.fullPath },
+  }
+})
+
 const productLabel = computed(() => {
   if (props.task?.unrelatedProduct) return 'Tidak terkait produk'
   return props.task?.products?.join(', ') || '-'
@@ -431,10 +462,6 @@ const taskContacts = computed(() => {
     ownerName: '',
   }))
 })
-const callableContacts = computed(() =>
-  taskContacts.value.filter((contact) => contact.isOwnContact && contact.phone),
-)
-
 const taskLocation = computed(() => {
   const latitude = props.task?.latitude
   const longitude = props.task?.longitude
@@ -535,31 +562,6 @@ function commentClock(value: string): string {
 function printDetail() {
   if (!canExportTask.value) return
   window.print()
-}
-
-async function callContact() {
-  if (callableContacts.value.length === 1) {
-    window.location.href = `tel:${callableContacts.value[0]!.phone}`
-    return
-  }
-  if (!callableContacts.value.length) return
-
-  const result = await Swal.fire({
-    title: 'Hubungi Kontak',
-    input: 'select',
-    inputOptions: Object.fromEntries(
-      callableContacts.value.map((contact, index) => [index, `${contact.name} - ${contact.phone}`]),
-    ),
-    inputPlaceholder: 'Pilih kontak yang ingin dihubungi',
-    showCancelButton: true,
-    confirmButtonText: 'Telepon',
-    cancelButtonText: 'Batal',
-    inputValidator: (value) => value === '' ? 'Pilih kontak terlebih dahulu.' : undefined,
-  })
-  if (result.isConfirmed) {
-    const contact = callableContacts.value[Number(result.value)]
-    if (contact) window.location.href = `tel:${contact.phone}`
-  }
 }
 </script>
 
@@ -760,6 +762,90 @@ async function callContact() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
+}
+
+/* Kartu relasi "Nama Peluang": border & shadow identik dengan kartu kontak. */
+.task-relation-card {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #e3ebf0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(31, 52, 73, 0.035);
+  text-decoration: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+a.task-relation-card:hover {
+  border-color: rgba(var(--app-primary-rgb, 24, 166, 228), 0.32);
+  box-shadow: 0 8px 20px rgba(31, 52, 73, 0.07);
+  transform: translateY(-1px);
+}
+
+.task-relation-card--static {
+  background: #fbfdfe;
+  cursor: default;
+}
+
+.task-relation-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 13px;
+  color: var(--app-primary, #18a6e4);
+  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.1);
+}
+
+.task-relation-copy {
+  min-width: 0;
+}
+
+.task-relation-copy strong {
+  display: block;
+  overflow: hidden;
+  color: #102a43;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-relation-copy small {
+  display: block;
+  margin-top: 3px;
+  color: #7b8ea0;
+  font-size: 11px;
+}
+
+a.task-relation-card .task-relation-copy small {
+  color: var(--app-primary-dark, #087cae);
+  font-weight: 600;
+}
+
+.task-relation-chevron {
+  flex: 0 0 auto;
+  color: #9aabb9;
+}
+
+a.task-relation-card:hover .task-relation-chevron {
+  color: var(--app-primary, #18a6e4);
+}
+
+:global(body.dark-only .task-relation-card) {
+  border-color: #3a4652;
+  background: #25303a;
+}
+
+:global(body.dark-only .task-relation-copy strong) {
+  color: #eef3f6;
 }
 
 .task-contact-card {
@@ -1256,7 +1342,7 @@ async function callContact() {
 
 .task-detail-footer {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   margin-top: 16px;
   border: 1px solid #e5eaee;
@@ -1266,12 +1352,7 @@ async function callContact() {
   box-shadow: 0 7px 24px rgba(31, 52, 73, 0.05);
 }
 
-.task-detail-footer--single {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.download-button,
-.contact-button {
+.download-button {
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -1381,8 +1462,7 @@ async function callContact() {
     padding: 12px;
   }
 
-  .download-button,
-  .contact-button {
+  .download-button {
     padding-inline: 8px;
     font-size: 12px;
   }

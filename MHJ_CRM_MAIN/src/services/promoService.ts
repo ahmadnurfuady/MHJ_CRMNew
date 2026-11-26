@@ -13,6 +13,10 @@ export interface PromoApiItem {
   target_type: string
   target_branch_id: number | null
   target_jabatan_id: number | null
+  /** KodeDevisi target promo saat `target_type = 'division'`. */
+  target_division_code?: string | null
+  /** Snapshot NamaDevisi dari backend; dipakai label tanpa perlu join master. */
+  target_division_name?: string | null
   sort_order: number
   created_at?: string
   updated_at?: string
@@ -27,6 +31,8 @@ export interface PromoPayload {
   target_type: string
   target_branch_id: number | null
   target_jabatan_id: number | null
+  /** KodeDevisi target promo; kosong jika target_type bukan 'division'. */
+  target_division_code: string | null
   sort_order: number
   /** File gambar baru yang dipilih user. Kosongkan jika gambar tidak diubah. */
   image?: File | null
@@ -62,6 +68,7 @@ function buildFormData(payload: PromoPayload, methodOverride?: 'PUT'): FormData 
     'target_jabatan_id',
     payload.target_jabatan_id === null ? '' : String(payload.target_jabatan_id)
   )
+  data.append('target_division_code', payload.target_division_code ?? '')
   data.append('sort_order', String(payload.sort_order))
 
   if (payload.image) {

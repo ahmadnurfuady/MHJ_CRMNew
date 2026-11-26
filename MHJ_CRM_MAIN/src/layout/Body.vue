@@ -80,6 +80,11 @@ const contentRouteKey = computed(() => {
     Object.entries(route.query).filter(([key]) => {
       if (key === 'edit') return false
       if (route.name === 'Project List' && key === 'stage') return false
+      // Halaman piutang memuat seluruh data sekali lalu menyaringnya di FE.
+      // Kalau `tab` / `detail` ikut jadi bagian key, setiap pindah tab atau
+      // membuka satu nota akan me-remount komponen dan memanggil ulang endpoint
+      // daftar piutang + opsi filter, padahal datanya sudah ada di memori.
+      if (route.name === 'Piutang' && (key === 'tab' || key === 'detail')) return false
       return true
     }),
   )

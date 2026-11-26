@@ -21,6 +21,10 @@ export interface PromoCatalogItem {
   targetType: string
   targetBranchId: number | null
   targetJabatanId: number | null
+  /** KodeDevisi target promo; kosong berarti promo tidak dibatasi per divisi. */
+  targetDivisionCode: string
+  /** NamaDevisi target promo dari backend; dipakai sebagai label badge. */
+  targetDivisionName: string
   sortOrder: number
   createdAt: string
   updatedAt: string
@@ -47,6 +51,8 @@ function normalizePromo(promo: PromoApiItem): PromoCatalogItem {
     targetType: String(promo.target_type || 'all'),
     targetBranchId: promo.target_branch_id ?? null,
     targetJabatanId: promo.target_jabatan_id ?? null,
+    targetDivisionCode: String(promo.target_division_code || '').trim(),
+    targetDivisionName: String(promo.target_division_name || '').trim(),
     sortOrder: Number(promo.sort_order || 0),
     createdAt: String(promo.created_at || ''),
     updatedAt: String(promo.updated_at || ''),
@@ -94,6 +100,9 @@ export function formatPromoPeriod(promo: PromoCatalogItem): string {
 }
 
 export function promoTargetLabel(promo: PromoCatalogItem): string {
+  if (promo.targetType === 'division') {
+    return promo.targetDivisionName || `Divisi ${promo.targetDivisionCode || '-'}`
+  }
   if (promo.targetType === 'branch') return `Cabang #${promo.targetBranchId ?? '-'}`
   if (promo.targetType === 'jabatan') return `Jabatan #${promo.targetJabatanId ?? '-'}`
   if (promo.targetType === 'branch_jabatan') {

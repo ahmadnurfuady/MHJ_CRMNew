@@ -93,33 +93,32 @@
                 <span>{{ filterError }}</span>
                 <button type="button" @click="loadFilterOptions()">Coba Lagi</button>
               </div>
+              <!--
+                Semua grup filter dirender sebagai dropdown. Jumlah faskes per
+                opsi ditempel ke label supaya informasi count tetap terlihat di
+                dalam dropdown. "Status Kepemilikan Alat" sengaja single-select
+                (satu faskes tidak mungkin dua status sekaligus) dan kotak
+                pencariannya disembunyikan karena opsinya cuma beberapa.
+              -->
               <fieldset v-for="group in filterGroups" v-else :key="group.key">
                 <legend>{{ group.label }}</legend>
-                <!--
-                  Provinsi & Kota punya ratusan opsi, jadi memakai dropdown ber-search
-                  (MultiSelectInput) alih-alih deretan chip seperti grup lainnya.
-                -->
+                <SelectInput
+                  v-if="isSingleSelectGroup(group.key)"
+                  :model-value="singleFilterValue(group.key)"
+                  :options="searchableOptions(group.key)"
+                  :searchable="false"
+                  :placeholder="`Semua ${group.label}`"
+                  class="hospital-filter__select"
+                  @update:model-value="setSingleFilterValue(group.key, $event)"
+                />
                 <MultiSelectInput
-                  v-if="isSearchableGroup(group.key)"
+                  v-else
                   :model-value="draftFilters[group.key]"
                   :options="searchableOptions(group.key)"
                   :placeholder="`Semua ${group.label}`"
                   class="hospital-filter__select"
                   @update:model-value="setFilterValues(group.key, $event)"
                 />
-                <div v-else class="hospital-filter__chips">
-                  <button
-                    v-for="option in filterOptions[group.key]"
-                    :key="`${group.key}-${option.value}`"
-                    type="button"
-                    :class="{ active: isOptionActive(group.key, option.value) }"
-                    :title="option.label"
-                    @click="selectFilter(group.key, option.value)"
-                  >
-                    <span>{{ option.label }}</span>
-                    <small v-if="option.count !== null">{{ formatTotal(option.count) }}</small>
-                  </button>
-                </div>
               </fieldset>
             </div>
 
@@ -385,6 +384,7 @@ import { useHospitalStore } from "@/store/hospital";
 import { api } from "@/api";
 import { isRecord, pickString } from "@/api/response";
 import MultiSelectInput from "@/components/ui/MultiSelectInput.vue";
+import SelectInput from "@/components/ui/SelectInput.vue";
 import type { Contact } from "@/types/contacts";
 import type { MasterOption } from "@/types/user";
 import { useHospitalPermissions } from "@/module/rumahSakit/hospitalPermission";
@@ -447,26 +447,10 @@ const appliedFilters = ref<FilterSelection>(createDefaultFilters());
 const draftFilters = ref<FilterSelection>(createDefaultFilters());
 const activeFilterCount = computed(() => Object.values(appliedFilters.value).filter((values) => values.length > 0).length);
 
-/** Chip aktif: "Semua" (value 'all') aktif saat grup kosong; selain itu saat value ada di daftar terpilih. */
-function isOptionActive(key: FilterKey, value: string): boolean {
-  const selected = draftFilters.value[key];
-  return value === "all" ? selected.length === 0 : selected.includes(value);
-}
-
-/**
- * Grup dengan daftar opsi panjang (provinsi & kota) dirender sebagai dropdown
- * ber-pencarian, bukan chip. Grup lain tetap chip karena opsinya sedikit.
- */
-const SEARCHABLE_FILTER_GROUPS: FilterKey[] = ["provinsi", "kota"];
-
-function isSearchableGroup(key: FilterKey): boolean {
-  return SEARCHABLE_FILTER_GROUPS.includes(key);
-}
-
 /**
  * Opsi untuk dropdown: sentinel 'all' dibuang (array kosong sudah berarti
- * "Semua"), dan jumlah faskes ditempel ke label supaya informasi count dari
- * chip tidak hilang.
+ * "Semua"), dan jumlah faskes ditempel ke label supaya informasi count tetap
+ * terbaca di dalam dropdown.
  */
 function searchableOptions(key: FilterKey): MasterOption[] {
   return filterOptions.value[key]
@@ -477,7 +461,29 @@ function searchableOptions(key: FilterKey): MasterOption[] {
     }));
 }
 
-/** Terima nilai baru dari dropdown lalu jalankan cascade yang sama dengan chip. */
+/**
+ * Grup yang hanya boleh satu pilihan. "Status Kepemilikan Alat" masuk sini
+ * karena statusnya saling eksklusif, jadi memilih dua sekaligus tidak ada
+ * artinya. Nilainya tetap disimpan sebagai array agar seragam dengan grup lain.
+ */
+const SINGLE_SELECT_FILTER_GROUPS: FilterKey[] = ["installed_base"];
+
+function isSingleSelectGroup(key: FilterKey): boolean {
+  return SINGLE_SELECT_FILTER_GROUPS.includes(key);
+}
+
+function singleFilterValue(key: FilterKey): string {
+  return draftFilters.value[key][0] ?? "";
+}
+
+function setSingleFilterValue(key: FilterKey, value: string) {
+  setFilterValues(key, value ? [value] : []);
+}
+
+/**
+ * Terima nilai baru dari dropdown. Cascading tetap jalan: ganti cabang -> reset
+ * & muat ulang provinsi + kota; ganti provinsi -> reset & muat ulang kota.
+ */
 function setFilterValues(key: FilterKey, values: string[]) {
   draftFilters.value[key] = values;
   if (key === "cabang") {
@@ -563,32 +569,6 @@ async function loadFilterOptions(options: { background?: boolean } = {}) {
   }
 }
 
-/**
- * Pilih satu opsi filter. Untuk cabang & provinsi, pemilihan memicu reload opsi
- * (cascading): ganti cabang -> reset & muat ulang provinsi + kota; ganti provinsi
- * -> reset & muat ulang kota. Group lain cukup set nilainya.
- */
-function selectFilter(key: FilterKey, value: string) {
-  const selected = draftFilters.value[key];
-  if (value === "all") {
-    // "Semua" = bersihkan pilihan grup ini.
-    if (!selected.length) return;
-    draftFilters.value[key] = [];
-  } else {
-    // Toggle: tambah bila belum ada, buang bila sudah terpilih (multi-pilih).
-    draftFilters.value[key] = selected.includes(value)
-      ? selected.filter((item) => item !== value)
-      : [...selected, value];
-  }
-  if (key === "cabang") {
-    draftFilters.value.provinsi = [];
-    draftFilters.value.kota = [];
-    void loadFilterOptions({ background: true });
-  } else if (key === "provinsi") {
-    draftFilters.value.kota = [];
-    void loadFilterOptions({ background: true });
-  }
-}
 function toggleFilter() {
   if (filterOpen.value) return cancelFilter();
   draftFilters.value = cloneFilters(appliedFilters.value);
@@ -1059,29 +1039,6 @@ onBeforeUnmount(() => {
 }
 .hospital-filter__body fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
 .hospital-filter__body legend { margin-bottom: 8px; color: #334155; font-size: 11.5px; font-weight: 700; }
-.hospital-filter__chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.hospital-filter__chips button {
-  display: inline-flex;
-  max-width: 100%;
-  min-height: 32px;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid #e1e7ed;
-  border-radius: 17px;
-  padding: 6px 11px;
-  color: #647180;
-  background: #f5f7f9;
-  font-size: 10px;
-  cursor: pointer;
-}
-.hospital-filter__chips button.active {
-  border-color: var(--app-primary, #18a6e4);
-  color: var(--app-primary-dark, #0e7490);
-  background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16);
-  font-weight: 700;
-}
-.hospital-filter__chips button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hospital-filter__chips button small { flex: 0 0 auto; border-radius: 10px; padding: 1px 5px; color: #71808c; background: rgba(255,255,255,.75); font-size: 8.5px; font-weight: 700; }
 .hospital-filter__state {
   display: flex;
   min-height: 120px;

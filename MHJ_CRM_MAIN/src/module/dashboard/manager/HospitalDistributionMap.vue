@@ -1,6 +1,6 @@
 <template>
   <article class="map-card" aria-labelledby="distribution-map-title">
-    <h2 id="distribution-map-title" class="section-title">Sebaran Fasilitas Kesehatan</h2>
+    <h2 id="distribution-map-title" class="section-title">Sales Map</h2>
     <HospitalCoverageMap
       :initial-center="[highlight.lat, highlight.lng]"
       :initial-zoom="highlight.zoom ?? 11"
