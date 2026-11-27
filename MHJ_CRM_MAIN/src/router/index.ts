@@ -510,10 +510,10 @@ const router = createRouter({
           component: () => import('@/pages/user/RolesPermission.vue'),
           alias: ['/user/roles-permission'],
           meta: {
-            mainTitle: 'Peran & Hak Akses',
+            mainTitle: 'Jabatan & Hak Akses',
             pageDescription: 'Pilih pengguna, lalu tentukan menu dan hak aksi yang boleh digunakan.',
-            title: 'Peran & Hak Akses | MHJ CRM',
-            breadcrumb: [{ text: 'Pengguna', subText: 'Peran & Hak Akses' }],
+            title: 'Jabatan & Hak Akses | MHJ CRM',
+            breadcrumb: [{ text: 'Pengguna', subText: 'Jabatan & Hak Akses' }],
           },
         },
         {

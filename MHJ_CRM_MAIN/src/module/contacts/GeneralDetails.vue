@@ -24,9 +24,18 @@
         </span>
 
         <h4 class="contact-identity__row mb-0">{{ fullName }}</h4>
-        <p class="contact-identity__row contact-role mb-0">
-          {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
-        </p>
+        <div class="contact-identity-subtitle">
+          <p
+            class="contact-identity__row contact-role mb-0"
+            :title="contactState.activeContact.jobTitle || 'Jabatan belum diisi'"
+          >
+            {{ contactState.activeContact.jobTitle || "Jabatan belum diisi" }}
+          </p>
+          <span class="contact-last-interaction" :title="lastInteractionTooltip">
+            <span class="contact-last-interaction__separator" aria-hidden="true">·</span>
+            Terakhir Interaksi: {{ lastInteractionText }}
+          </span>
+        </div>
         <div class="contact-profile-meta">
           <button
             class="contact-meta-jump"
@@ -192,10 +201,6 @@
           <div class="col-md-6">
             <span>Dibuat Oleh</span>
             <strong>{{ contactState.activeContact.owner || "-" }}</strong>
-          </div>
-          <div class="col-md-6">
-            <span>Terakhir Interaksi</span>
-            <strong :title="lastInteractionTooltip">{{ lastInteractionText }}</strong>
           </div>
           <div class="col-12 contact-phone-field">
             <span>Nomor Telepon</span>
@@ -804,26 +809,17 @@ const lastInteractionText = computed(() => {
   const date = lastInteractionAt.value;
   if (!date) return "Belum ada interaksi";
 
+  const diffInDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
+  if (diffInDays <= 0) return "Hari ini";
+  if (diffInDays === 1) return "Kemarin";
+  if (diffInDays < 7) return `${diffInDays} hari lalu`;
+
   const stamp = new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   }).format(date);
-
-  const diffInDays = Math.floor((Date.now() - date.getTime()) / 86_400_000);
-  let relative: string;
-  if (diffInDays <= 0) relative = "Hari ini";
-  else if (diffInDays === 1) relative = "Kemarin";
-  else if (diffInDays < 30) relative = `${diffInDays} hari lalu`;
-  else {
-    const diffInMonths = Math.floor(diffInDays / 30);
-    relative =
-      diffInMonths < 12
-        ? `${diffInMonths} bulan lalu`
-        : `${Math.floor(diffInMonths / 12)} tahun lalu`;
-  }
-
-  return `${stamp} · ${relative}`;
+  return stamp;
 });
 
 const lastInteractionTooltip = computed(() => {
@@ -1180,6 +1176,26 @@ async function toggleCompanyEdit() {
 .contact-role {
   color: #627d98;
   font-size: 13px;
+}
+
+.contact-identity-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.contact-last-interaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #627d98;
+  font-size: 12px;
+}
+
+.contact-last-interaction__separator {
+  color: #9fb3c8;
+  font-weight: 800;
 }
 
 .contact-profile-meta {

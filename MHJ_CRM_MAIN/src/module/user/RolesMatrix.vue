@@ -192,7 +192,7 @@ const ROLE_PERMISSION_PRESETS: RolePermissionPreset[] = [
   { label: 'BDE', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
   { label: 'Kepala Cabang', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
   { label: 'Wakil Kepala Cabang', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
-  { label: 'Product Specialist', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
+  { label: 'Product Specialist', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas, Pengaturan Promo', menus: [...STANDARD_SALES_MENUS, 'promo'] },
   { label: 'Sales Area', description: 'Dashboard, Kontak, Faskes, Peluang, Tugas', menus: STANDARD_SALES_MENUS },
   { label: 'Application Specialist', description: 'Kontak, Tugas', menus: ['kontak', 'tugas'] },
   { label: 'Legal', description: 'Menu Legal', menus: ['legal'] },
@@ -400,6 +400,20 @@ function applyRolePreset(preset: RolePermissionPreset): void {
     if (id && targetMenus.has(normalizedMenuName(row))) enabledIds.add(id)
   })
 
+  // Turunan hanya diwariskan dari menu yang dipilih, bukan dari induk yang aktif
+  // sekadar untuk navigasi (misalnya Settings > Promo tidak membuka Target).
+  let addedChild = true
+  while (addedChild) {
+    addedChild = false
+    rows.value.forEach((row) => {
+      const id = String(row.id ?? row.L1 ?? '').trim()
+      if (id && enabledIds.has(parentIdOf(row)) && !enabledIds.has(id)) {
+        enabledIds.add(id)
+        addedChild = true
+      }
+    })
+  }
+
   // Menu induk ikut aktif agar target yang berupa submenu tetap muncul di navigasi.
   let addedParent = true
   while (addedParent) {
@@ -410,19 +424,6 @@ function applyRolePreset(preset: RolePermissionPreset): void {
       if (id && enabledIds.has(id) && parentId && !enabledIds.has(parentId)) {
         enabledIds.add(parentId)
         addedParent = true
-      }
-    })
-  }
-
-  // Menu turunan ikut aktif agar halaman detail/list di bawah menu utama tetap dapat dibuka.
-  let addedChild = true
-  while (addedChild) {
-    addedChild = false
-    rows.value.forEach((row) => {
-      const id = String(row.id ?? row.L1 ?? '').trim()
-      if (id && enabledIds.has(parentIdOf(row)) && !enabledIds.has(id)) {
-        enabledIds.add(id)
-        addedChild = true
       }
     })
   }

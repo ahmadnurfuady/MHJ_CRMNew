@@ -36,7 +36,7 @@
       </span>
     </div>
 
-    <ul v-show="isOpen" class="select-menu" :class="placement" role="listbox" aria-multiselectable="true">
+    <ul v-show="isOpen" class="select-menu select-menu--checkboxes" :class="placement" role="listbox" aria-multiselectable="true">
       <li class="select-search">
         <input
           ref="searchInputRef"
@@ -61,8 +61,10 @@
           :aria-selected="isSelected(opt.value)"
           @click="toggleOption(opt.value)"
         >
+          <span class="multiselect-checkbox" :class="{ 'is-checked': isSelected(opt.value) }" aria-hidden="true">
+            <span v-if="isSelected(opt.value)">&check;</span>
+          </span>
           <span class="text-truncate">{{ opt.label }}</span>
-          <span v-if="isSelected(opt.value)" class="multiselect-check">&check;</span>
         </button>
       </li>
     </ul>
@@ -82,6 +84,7 @@ const props = defineProps<{
   options: MasterOption[]
   placeholder?: string
   disabled?: boolean
+  checkboxOptions?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -297,10 +300,26 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 
-.multiselect-check {
-  flex-shrink: 0;
-  font-weight: 600;
+.select-menu--checkboxes .multiselect-item { justify-content: flex-start; }
+.select-menu--checkboxes .select-item.active { background: transparent; color: inherit; }
+.select-menu--checkboxes .select-item.active:hover,
+.select-menu--checkboxes .select-item.active:focus { background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.12); }
+.multiselect-checkbox {
+  display: inline-flex;
+  flex: 0 0 17px;
+  align-items: center;
+  justify-content: center;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #aab6c2;
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
 }
+.multiselect-checkbox.is-checked { border-color: var(--app-primary, #18A6E4); background: var(--app-primary, #18A6E4); }
+.multiselect-checkbox.is-checked > span { color: #fff; }
 
 .select-search {
   position: sticky;

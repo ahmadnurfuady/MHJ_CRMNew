@@ -101,11 +101,13 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import ListPagination from '@/components/shared/ListPagination.vue'
+import { usePageBackRoute } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
 
 type DocumentCategory = 'Semua' | 'Harga' | 'Brosur' | 'Presentasi'
 
 const router = useRouter()
+usePageBackRoute(routes.Dashboards.Default)
 const searchQuery = ref('')
 const selectedCategory = ref<DocumentCategory>('Semua')
 const currentPage = ref(1)

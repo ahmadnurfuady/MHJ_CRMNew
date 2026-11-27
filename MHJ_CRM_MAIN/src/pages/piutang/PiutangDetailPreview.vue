@@ -46,12 +46,12 @@
             </div>
             <div>
               <dt>Status waktu</dt>
-              <dd class="time-value" :class="`is-${piutang.status}`">
-                <SolarIcon
-                  name="calendar"
-                  :size="17"
-                  color="currentColor"
-                />
+              <dd class="time-value" :class="`is-${piutangDueTone(piutang)}`">
+                <SolarIcon v-if="piutang.status === 'lunas'" name="check-circle" :size="17" color="currentColor" secondary-color="currentColor" />
+                <svg v-else width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 2" />
+                </svg>
                 {{ formatLabelWaktu(piutang) }}
               </dd>
             </div>
@@ -72,7 +72,7 @@
 import { computed } from 'vue'
 
 import type { Piutang } from '@/types/piutang'
-import { formatLabelWaktu, formatRupiah, formatTermin } from '@/utils/piutang'
+import { formatLabelWaktu, formatRupiah, formatTermin, piutangDueTone } from '@/utils/piutang'
 
 const props = defineProps<{
   piutang: Piutang
@@ -255,16 +255,21 @@ const statusLabel = computed(() => {
   gap: 7px;
 }
 
-.time-value.is-on_progress {
-  color: var(--piutang-primary);
+.time-value :deep(.solar-icon) {
+  color: currentColor;
 }
 
-.time-value.is-terlambat {
-  color: var(--bs-danger, #dc3545);
+.detail-list dd.time-value.is-soon {
+  color: #b45309;
 }
 
-.time-value.is-lunas {
-  color: var(--bs-success, #198754);
+.detail-list dd.time-value.is-overdue {
+  color: #dc3545;
+}
+
+.detail-list dd.time-value.is-safe,
+.detail-list dd.time-value.is-paid {
+  color: #198754;
 }
 
 .amount-card {

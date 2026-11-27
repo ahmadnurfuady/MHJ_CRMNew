@@ -1725,6 +1725,10 @@
             width: auto;
             transition: all 0.3s ease;
 
+            .sidebar-logout-label {
+              display: none;
+            }
+
             .badge {
               opacity: 0;
               width: 0;
@@ -1771,6 +1775,10 @@
             &:hover {
               width: 265px;
               transition: all 0.3s ease;
+
+              .sidebar-logout-label {
+                display: inline-block;
+              }
 
               .badge {
                 opacity: 1;

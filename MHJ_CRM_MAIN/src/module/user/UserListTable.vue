@@ -117,8 +117,8 @@
                   </a>
                   <a
                     class="user-action-button user-action-button--permission"
-                    title="Peran & Izin"
-                    aria-label="Peran & Izin"
+                    title="Jabatan & Hak Akses"
+                    aria-label="Jabatan & Hak Akses"
                     href="#"
                     @click.prevent="openRoles(user)"
                   >

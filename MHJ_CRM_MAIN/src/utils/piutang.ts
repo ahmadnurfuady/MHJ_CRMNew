@@ -64,8 +64,7 @@ const DUE_SOON_DAYS = 7
 
 export function piutangDueTone(piutang: Piutang, today = new Date()): PiutangDueTone {
   if (piutang.status === 'lunas') return 'paid'
-  if (piutang.status === 'terlambat') return 'overdue'
-  if (!piutang.jatuhTempo) return 'unknown'
+  if (!piutang.jatuhTempo) return piutang.status === 'terlambat' ? 'overdue' : 'unknown'
 
   const millisecondsPerDay = 24 * 60 * 60 * 1000
   const difference = Math.round(
@@ -94,7 +93,7 @@ export function formatLabelWaktu(piutang: Piutang, today = new Date()): string {
   )
   const duration = formatDuration(Math.abs(difference))
 
-  if (piutang.status === 'terlambat' || difference < 0) return `Terlambat ${duration}`
+  if (difference < 0) return `Terlambat ${duration}`
   if (difference === 0) return 'Jatuh tempo hari ini'
   return `${duration} lagi jatuh tempo`
 }

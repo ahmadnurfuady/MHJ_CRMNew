@@ -44,7 +44,7 @@
       </ul>
     </div>
     <footer class="sidebar-footer">
-      <button class="sidebar-logout" type="button" @click="handleLogout">
+      <button class="sidebar-logout" type="button" aria-label="Keluar" @click="handleLogout">
         <SolarIcon name="logout" :size="18" color="#ffffff" secondary-color="#ffffff" aria-hidden="true" />
         <span class="sidebar-logout-label">Keluar</span>
       </button>
@@ -166,9 +166,9 @@ onUnmounted(() => {
   gap: 10px;
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #dc3545;
+  border: 1px solid transparent;
   border-radius: 10px;
-  background: #dc3545;
+  background: transparent;
   color: #fff !important;
   font-size: 14px;
   font-weight: 600;
@@ -178,8 +178,8 @@ onUnmounted(() => {
 
 .sidebar-logout:hover,
 .sidebar-logout:focus-visible {
-  border-color: #b02a37;
-  background: #b02a37;
+  border-color: #dc3545;
+  background: #dc3545;
 }
 
 .sidebar-logout-label {
@@ -201,7 +201,6 @@ onUnmounted(() => {
   padding-left: 10px;
 }
 
-:global(.sidebar-wrapper.close_icon) .sidebar-logout-label,
 :global(.horizontal-wrapper) .sidebar-footer {
   display: none;
 }

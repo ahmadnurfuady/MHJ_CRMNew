@@ -26,8 +26,8 @@ const managerDashboardData: ManagerDashboardData = {
   quickActions: [
     {
       id: 'materi-dokumen',
-      label: 'Materi Dokumen',
-      icon: 'document-text',
+      label: 'Marketing Tools',
+      icon: 'rocket',
       to: '/crmAdmin/materi-dokumen',
     },
     {
