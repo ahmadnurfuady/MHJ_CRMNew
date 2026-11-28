@@ -277,11 +277,19 @@ async function handleDelete(comment: Comment) {
   try {
     await deleteComment(comment.id, props.parentType, id)
     await load()
-  } catch {
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status
+    const beMessage = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+    let text = 'Coba lagi beberapa saat.'
+    if (status === 403) text = beMessage || 'Anda tidak berhak menghapus komentar ini.'
+    else if (status === 404) text = beMessage || 'Komentar sudah tidak tersedia.'
+    else if (beMessage) text = beMessage
     Swal.fire({
       icon: 'error',
       title: 'Gagal menghapus komentar',
+      text,
     })
+    if (status === 404) await load()
   } finally {
     deletingId.value = null
   }

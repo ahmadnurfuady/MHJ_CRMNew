@@ -25,7 +25,14 @@ export interface CommentRow {
   notes: string | null
   body?: string | null
   visibility: number | null
-  created_by: number | null
+  created_by?: number | null
+  createdby?: number | null
+  sender_id?: number | null
+  senderid?: number | null
+  user_id?: number | null
+  userid?: number | null
+  inputby?: number | null
+  insertedby?: number | null
   sender_name: string | null
   created_at: string
   updated_at?: string | null
@@ -110,10 +117,22 @@ export async function deleteComment(
 }
 
 function normalizeComment(row: CommentRow): Comment {
+  // View dbvnotes me-rename kolom author berbeda antar versi DB,
+  // jadi ambil nilai pertama yang ada di antara kandidat umum.
+  const authorId =
+    row.created_by ??
+    row.createdby ??
+    row.sender_id ??
+    row.senderid ??
+    row.user_id ??
+    row.userid ??
+    row.inputby ??
+    row.insertedby ??
+    null
   return {
     id: row.id,
     body: (row.notes ?? row.body ?? '').toString(),
-    authorId: row.created_by,
+    authorId: authorId != null ? Number(authorId) : null,
     authorName: row.sender_name?.trim() || 'Pengguna',
     createdAt: row.created_at,
     attachments: normalizeAttachments(row.attachments ?? row.attachment ?? null),
