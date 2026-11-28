@@ -80,7 +80,7 @@ export const menu: MenuItem[] = [
       },
       {
         path: routes.User.Roles,
-        title: 'Roles & Permission',
+        title: 'Jabatan & Hak Akses',
         type: 'link',
       },
     ],

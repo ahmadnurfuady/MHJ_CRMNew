@@ -12,14 +12,25 @@
     aria-label="Peta cakupan faskes"
   >
     <div class="hospital-map__legend">
-      <strong>Urgensi Kunjungan</strong>
-      <span v-for="status in urgencyOptions" :key="status.id">
-        <i class="urgency-dot" :style="{ backgroundColor: status.color }"></i>
-        <span class="urgency-label">{{ status.label }}</span>
-        <b class="urgency-count" :title="`${urgencyCounts[status.id]} faskes`">
-          {{ urgencyCounts[status.id] }}
-        </b>
-      </span>
+      <button
+        type="button"
+        class="hospital-map__legend-toggle"
+        :aria-expanded="legendOpen"
+        aria-controls="hospital-map-legend-items"
+        @click="legendOpen = !legendOpen"
+      >
+        <strong>{{ mode === 'sales' ? 'Usia Pembelian' : 'Urgensi Kunjungan' }}</strong>
+        <SolarIcon :name="legendOpen ? 'alt-arrow-up' : 'alt-arrow-down'" :size="14" color="currentColor" secondary-color="currentColor" />
+      </button>
+      <div v-if="legendOpen" id="hospital-map-legend-items" class="hospital-map__legend-items">
+        <span v-for="status in activeOptions" :key="status.id">
+          <i class="urgency-dot" :style="{ backgroundColor: status.color }"></i>
+          <span class="urgency-label">{{ status.label }}</span>
+          <b class="urgency-count" :title="`${urgencyCounts[status.id]} faskes`">
+            {{ urgencyCounts[status.id] }}
+          </b>
+        </span>
+      </div>
     </div>
 
     <div class="hospital-map__top-actions">
@@ -263,61 +274,42 @@
 
       <div class="filter-body">
         <fieldset>
-          <legend>Urgensi Kunjungan</legend>
-          <div class="filter-chips">
-            <button type="button" :class="{ active: urgencyFilter === 'all' }" @click="urgencyFilter = 'all'">Semua</button>
-            <button
-              v-for="status in urgencyOptions"
-              :key="status.id"
-              type="button"
-              :class="{ active: urgencyFilter === status.id }"
-              @click="urgencyFilter = status.id"
-            >
-              <i class="urgency-dot" :style="{ backgroundColor: status.color }"></i>{{ status.label }}
-            </button>
-          </div>
+          <legend>{{ mode === 'sales' ? 'Usia Pembelian' : 'Urgensi Kunjungan' }}</legend>
+          <MultiSelectInput v-model="urgencyFilter" :options="urgencySelectOptions" placeholder="Semua" checkbox-options />
+        </fieldset>
+
+        <fieldset>
+          <legend>Divisi</legend>
+          <MultiSelectInput v-model="divisionFilter" :options="divisionSelectOptions" placeholder="Semua" checkbox-options />
+          <small v-if="divisionLoading">Memuat divisi...</small>
+          <small v-else-if="divisionError">{{ divisionError }}</small>
+        </fieldset>
+
+        <fieldset v-if="teamUsers.length || teamLoading || teamError">
+          <legend>Nama User Tim</legend>
+          <MultiSelectInput v-model="userFilter" :options="teamSelectOptions" placeholder="Semua anggota tim" checkbox-options />
+          <small v-if="teamLoading">Memuat anggota tim...</small>
+          <small v-else-if="teamError">{{ teamError }}</small>
         </fieldset>
 
         <fieldset>
           <legend>Status Kepemilikan Alat</legend>
-          <div class="filter-chips">
-            <button type="button" :class="{ active: equipmentFilter === 'all' }" @click="equipmentFilter = 'all'">Semua</button>
-            <button type="button" :class="{ active: equipmentFilter === 'mhj' }" @click="equipmentFilter = 'mhj'">Ada Alat MHJ</button>
-            <button type="button" :class="{ active: equipmentFilter === 'none' }" @click="equipmentFilter = 'none'">Belum Ada Alat</button>
-          </div>
+          <MultiSelectInput v-model="equipmentFilter" :options="equipmentSelectOptions" placeholder="Semua" checkbox-options />
         </fieldset>
 
         <fieldset v-if="cityOptions.length">
           <legend>Kota / Wilayah</legend>
-          <div class="filter-chips">
-            <button type="button" :class="{ active: cityFilter === 'all' }" @click="cityFilter = 'all'">Semua</button>
-            <button
-              v-for="city in cityOptions"
-              :key="city"
-              type="button"
-              :class="{ active: cityFilter === city }"
-              @click="cityFilter = city"
-            >{{ city }}</button>
-          </div>
+          <MultiSelectInput v-model="cityFilter" :options="citySelectOptions" placeholder="Semua" checkbox-options />
         </fieldset>
 
         <fieldset v-if="typeOptions.length">
           <legend>Tipe Faskes</legend>
-          <div class="filter-chips">
-            <button type="button" :class="{ active: typeFilter === 'all' }" @click="typeFilter = 'all'">Semua</button>
-            <button
-              v-for="type in typeOptions"
-              :key="type"
-              type="button"
-              :class="{ active: typeFilter === type }"
-              @click="typeFilter = type"
-            >{{ type }}</button>
-          </div>
+          <MultiSelectInput v-model="typeFilter" :options="typeSelectOptions" placeholder="Semua" checkbox-options />
         </fieldset>
       </div>
 
       <footer>
-        <button type="button" @click="applyFilters">Terapkan Filter ({{ filteredPoints.length }} faskes)</button>
+        <button type="button" :disabled="mapLoading" @click="applyFilters">{{ mapLoading ? 'Memuat faskes...' : `Terapkan Filter (${filteredPoints.length} faskes)` }}</button>
       </footer>
     </aside>
 
@@ -343,13 +335,17 @@
       </div>
       <div class="detail-badges">
         <span v-if="selectedHospital?.financeStatus" class="grade">{{ selectedHospital.financeStatus }}</span>
-        <span :class="`urgency urgency--${getUrgency(selectedPoint, selectedHospital).id}`">
-          <i
-            class="urgency-dot"
-            :style="{ backgroundColor: getUrgency(selectedPoint, selectedHospital).color }"
-          ></i>
-          {{ getUrgency(selectedPoint, selectedHospital).label }}
-        </span>
+        <div class="detail-badges__status">
+          <span :class="`urgency urgency--${getStatus(selectedPoint, selectedHospital).id}`">
+            <i class="urgency-dot" :style="{ backgroundColor: getStatus(selectedPoint, selectedHospital).color }"></i>
+            {{ getStatus(selectedPoint, selectedHospital).label }}
+          </span>
+          <span class="distance" role="status">
+            <template v-if="distanceToSelected">Jarak: {{ distanceToSelected }}</template>
+            <template v-else-if="distanceLoading">Jarak: mencari lokasi...</template>
+            <template v-else>Jarak: <button type="button" @click="requestDistanceLocation">Coba lagi</button></template>
+          </span>
+        </div>
       </div>
       <div class="detail-location">
         <MhjIcon
@@ -392,20 +388,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import GoogleMapView from '@/components/GoogleMapView.vue'
+import MultiSelectInput from '@/components/ui/MultiSelectInput.vue'
 import type { GoogleMapMarker } from '@/components/GoogleMapView.vue'
 
 import { fetchHospitalMap, type HospitalMapPoint } from '@/services/analyticsService'
+import { masterDataService } from '@/services/masterDataService'
+import { getUserHierarchy } from '@/services/userService'
+import { useAuthStore } from '@/store/auth'
 import { useHospitalStore } from '@/store/hospital'
 import type { Hospital } from '@/types/hospital'
+import type { HierarchyUser } from '@/types/user'
 
 type MapLayer = 'standard' | 'satellite' | 'hybrid'
 type UrgencyId = 'fresh' | 'attention' | 'overdue' | 'unvisited'
-type UrgencyFilter = UrgencyId | 'all'
-type EquipmentFilter = 'all' | 'mhj' | 'none'
 
 interface UrgencyOption {
   id: UrgencyId
@@ -416,6 +415,7 @@ interface UrgencyOption {
 const props = defineProps<{
   initialCenter: [number, number]
   initialZoom: number
+  mode: 'visit' | 'sales'
 }>()
 
 const router = useRouter()
@@ -433,6 +433,7 @@ const mapPoints = ref<HospitalMapPoint[]>([])
 const mapViewRef = ref<InstanceType<typeof GoogleMapView> | null>(null)
 const mapLoading = ref(false)
 const isExpanded = ref(false)
+const legendOpen = ref(true)
 const showLayers = ref(false)
 const showFilter = ref(false)
 const showSearch = ref(false)
@@ -443,11 +444,22 @@ const selectedHospital = ref<Hospital | null>(null)
 const selectedDetailLoading = ref(false)
 const userLocation = ref<{ lat: number; lng: number } | null>(null)
 const locating = ref(false)
+const distanceLoading = ref(false)
 const mapMessage = ref('')
-const urgencyFilter = ref<UrgencyFilter>('all')
-const equipmentFilter = ref<EquipmentFilter>('all')
-const cityFilter = ref('all')
-const typeFilter = ref('all')
+const urgencyFilter = ref<string[]>([])
+const equipmentFilter = ref<string[]>([])
+const cityFilter = ref<string[]>([])
+const typeFilter = ref<string[]>([])
+const divisionFilter = ref<string[]>([])
+const userFilter = ref<string[]>([])
+const appliedUserFilter = ref<string[]>([])
+const teamUsers = ref<HierarchyUser[]>([])
+const teamLoading = ref(false)
+const teamError = ref('')
+const divisionOptions = ref<{ code: string; name: string; label: string }[]>([])
+const divisionLoading = ref(false)
+const divisionError = ref('')
+let loadSequence = 0
 let messageTimer: number | undefined
 const detailHydrationAttempted = new Set<number>()
 
@@ -456,6 +468,20 @@ const urgencyOptions: UrgencyOption[] = [
   { id: 'attention', label: '30 - 90 Hari', color: '#f59e0b' },
   { id: 'overdue', label: '> 90 Hari', color: '#ef4444' },
   { id: 'unvisited', label: 'Belum pernah dikunjungi', color: '#111827' },
+]
+const salesOptions: UrgencyOption[] = [
+  { id: 'fresh', label: '< 1 Tahun', color: '#14b88a' },
+  { id: 'attention', label: '1 - 2 Tahun', color: '#f59e0b' },
+  { id: 'overdue', label: '> 2 Tahun', color: '#ef4444' },
+  { id: 'unvisited', label: 'Belum pernah beli', color: '#111827' },
+]
+const activeOptions = computed(() => props.mode === 'sales' ? salesOptions : urgencyOptions)
+const urgencySelectOptions = computed(() => activeOptions.value.map(({ id, label }) => ({ value: id, label })))
+const divisionSelectOptions = computed(() => divisionOptions.value.map(({ code, label }) => ({ value: code, label })))
+const teamSelectOptions = computed(() => teamUsers.value.map(({ id, name }) => ({ value: String(id), label: name })))
+const equipmentSelectOptions = [
+  { value: 'mhj', label: 'Ada Alat MHJ' },
+  { value: 'none', label: 'Belum Ada Alat' },
 ]
 
 const layerOptions: Array<{ id: MapLayer; label: string; description: string; icon: string }> = [
@@ -513,8 +539,18 @@ function pointLastVisit(point: HospitalMapPoint | null): string {
     || ''
 }
 
+function divisionDate(dates: Record<string, string> | undefined): string {
+  if (!dates) return ''
+  const keys = divisionOptions.value.filter((item) => divisionFilter.value.includes(item.code))
+    .flatMap((item) => [item.code, item.name, item.label].map((key) => key.toLocaleLowerCase('id-ID')))
+  return Object.entries(dates).reduce((latest, [key, date]) =>
+    keys.includes(key.trim().toLocaleLowerCase('id-ID')) && date > latest ? date : latest, '')
+}
+
 function getUrgency(point: HospitalMapPoint | null, hospital: Hospital | null): UrgencyOption {
-  const lastVisitAt = hospital?.lastVisitAt || pointLastVisit(point)
+  const lastVisitAt = !divisionFilter.value.length
+    ? pointLastVisit(point) || hospital?.lastVisitAt
+    : divisionDate(point?.division_visits)
   if (!lastVisitAt) return urgencyOptions[3]!
   const parsedDate = new Date(lastVisitAt.replace(' ', 'T'))
   if (Number.isNaN(parsedDate.getTime())) return urgencyOptions[3]!
@@ -522,6 +558,22 @@ function getUrgency(point: HospitalMapPoint | null, hospital: Hospital | null): 
   if (elapsedDays < 30) return urgencyOptions[0]!
   if (elapsedDays <= 90) return urgencyOptions[1]!
   return urgencyOptions[2]!
+}
+
+function getStatus(point: HospitalMapPoint | null, hospital: Hospital | null): UrgencyOption {
+  if (props.mode === 'visit') return getUrgency(point, hospital)
+  const raw = !divisionFilter.value.length ? point?.last_purchase_at : divisionDate(point?.division_sales)
+  if (!raw) return salesOptions[3]!
+  const date = new Date(raw.replace(' ', 'T'))
+  if (Number.isNaN(date.getTime())) return salesOptions[3]!
+  const now = new Date()
+  const oneYearAgo = new Date(now)
+  const twoYearsAgo = new Date(now)
+  oneYearAgo.setFullYear(now.getFullYear() - 1)
+  twoYearsAgo.setFullYear(now.getFullYear() - 2)
+  if (date > oneYearAgo) return salesOptions[0]!
+  if (date >= twoYearsAgo) return salesOptions[1]!
+  return salesOptions[2]!
 }
 
 const hospitalPoints = computed(() => mapPoints.value
@@ -534,7 +586,7 @@ const hospitalPoints = computed(() => mapPoints.value
       hospital,
       lat: coord.lat,
       lng: coord.lng,
-      urgency: getUrgency(point, hospital),
+      urgency: getStatus(point, hospital),
     }
   })
   .filter((entry): entry is {
@@ -557,11 +609,11 @@ const filteredPoints = computed(() => hospitalPoints.value.filter((entry) => {
     ]
     if (!haystack.some((value) => value.toLocaleLowerCase('id-ID').includes(query))) return false
   }
-  if (urgencyFilter.value !== 'all' && entry.urgency.id !== urgencyFilter.value) return false
-  if (equipmentFilter.value === 'mhj' && !(hospital?.totalInstalledEquipment && hospital.totalInstalledEquipment > 0)) return false
-  if (equipmentFilter.value === 'none' && (hospital?.totalInstalledEquipment ?? 0) > 0) return false
-  if (cityFilter.value !== 'all' && (point.city ?? '') !== cityFilter.value) return false
-  if (typeFilter.value !== 'all' && pointType(point) !== typeFilter.value) return false
+  if (urgencyFilter.value.length && !urgencyFilter.value.includes(entry.urgency.id)) return false
+  const hasEquipment = (hospital?.totalInstalledEquipment ?? 0) > 0
+  if (equipmentFilter.value.length && !equipmentFilter.value.includes(hasEquipment ? 'mhj' : 'none')) return false
+  if (cityFilter.value.length && !cityFilter.value.includes(point.city ?? '')) return false
+  if (typeFilter.value.length && !typeFilter.value.includes(pointType(point))) return false
   return true
 }))
 
@@ -581,6 +633,8 @@ const typeOptions = computed(() => [...new Set(hospitalPoints.value
   .map((entry) => pointType(entry.point))
   .filter((value) => value && value !== 'Tidak diketahui'))]
   .sort((a, b) => a.localeCompare(b, 'id-ID')))
+const citySelectOptions = computed(() => cityOptions.value.map((city) => ({ value: city, label: city })))
+const typeSelectOptions = computed(() => typeOptions.value.map((type) => ({ value: type, label: type })))
 const missingCoordinateCount = computed(() =>
   mapPoints.value.filter((point) => !pointCoordinate(point)).length,
 )
@@ -590,10 +644,12 @@ const urgencyCounts = computed(() => {
   return counts
 })
 const activeFilterCount = computed(() => [
-  urgencyFilter.value !== 'all',
-  equipmentFilter.value !== 'all',
-  cityFilter.value !== 'all',
-  typeFilter.value !== 'all',
+  urgencyFilter.value.length > 0,
+  equipmentFilter.value.length > 0,
+  cityFilter.value.length > 0,
+  typeFilter.value.length > 0,
+  divisionFilter.value.length > 0,
+  appliedUserFilter.value.length > 0,
 ].filter(Boolean).length)
 const selectedCoordinates = computed(() => {
   const point = selectedPoint.value
@@ -601,6 +657,20 @@ const selectedCoordinates = computed(() => {
   const coord = pointCoordinate(point)
   if (!coord) return 'Koordinat belum tersedia'
   return `${coord.lat.toFixed(5)}, ${coord.lng.toFixed(5)}`
+})
+const distanceToSelected = computed(() => {
+  const destination = selectedPoint.value ? pointCoordinate(selectedPoint.value) : null
+  const origin = userLocation.value
+  if (!destination || !origin) return ''
+  const radians = Math.PI / 180
+  const latDifference = (destination.lat - origin.lat) * radians
+  const lngDifference = (destination.lng - origin.lng) * radians
+  const a = Math.sin(latDifference / 2) ** 2
+    + Math.cos(origin.lat * radians) * Math.cos(destination.lat * radians) * Math.sin(lngDifference / 2) ** 2
+  const kilometers = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return kilometers < 1
+    ? `${Math.round(kilometers * 1000)} m`
+    : `${kilometers.toLocaleString('id-ID', { maximumFractionDigits: 1 })} km`
 })
 const locationControlLabel = computed(() => {
   if (locating.value) return 'Mencari lokasi...'
@@ -669,13 +739,24 @@ function openFilter(): void {
 }
 
 function resetFilters(): void {
-  urgencyFilter.value = 'all'
-  equipmentFilter.value = 'all'
-  cityFilter.value = 'all'
-  typeFilter.value = 'all'
+  urgencyFilter.value = []
+  equipmentFilter.value = []
+  cityFilter.value = []
+  typeFilter.value = []
+  divisionFilter.value = []
+  userFilter.value = []
+  if (appliedUserFilter.value.length) {
+    appliedUserFilter.value = []
+    void loadHospitals()
+  }
 }
 
-function applyFilters(): void {
+async function applyFilters(): Promise<void> {
+  if (userFilter.value.join(',') !== appliedUserFilter.value.join(',')) {
+    appliedUserFilter.value = [...userFilter.value]
+    mapPoints.value = []
+    await loadHospitals()
+  }
   showFilter.value = false
   selectedPoint.value = null
   selectedHospital.value = null
@@ -684,6 +765,7 @@ function applyFilters(): void {
 
 async function selectPoint(point: HospitalMapPoint): Promise<void> {
   selectedPoint.value = point
+  if (!userLocation.value) void requestDistanceLocation()
   showFilter.value = false
   showLayers.value = false
   showSearch.value = false
@@ -780,6 +862,19 @@ function requestCurrentPosition(options: PositionOptions): Promise<GeolocationPo
   })
 }
 
+async function requestDistanceLocation(): Promise<void> {
+  if (distanceLoading.value || userLocation.value || !navigator.geolocation || !window.isSecureContext) return
+  distanceLoading.value = true
+  try {
+    const position = await requestCurrentPosition({ enableHighAccuracy: false, timeout: 15_000, maximumAge: 300_000 })
+    userLocation.value = { lat: position.coords.latitude, lng: position.coords.longitude }
+  } catch {
+    // Panel tetap menyediakan tombol coba lagi bila izin lokasi ditolak atau timeout.
+  } finally {
+    distanceLoading.value = false
+  }
+}
+
 function focusUserLocation(position: GeolocationPosition): void {
   const { latitude, longitude } = position.coords
   userLocation.value = { lat: latitude, lng: longitude }
@@ -854,9 +949,12 @@ async function locateUser(): Promise<void> {
  * `selectPoint()` ketika marker-nya di-klik.
  */
 async function loadHospitals(): Promise<void> {
+  const sequence = ++loadSequence
   mapLoading.value = true
   try {
-    const points = await fetchHospitalMap('visit')
+    const mode = props.mode
+    const points = await fetchHospitalMap(mode, appliedUserFilter.value.map(Number))
+    if (sequence !== loadSequence) return
     mapPoints.value = points
     await nextTick()
     fitHospitals()
@@ -864,7 +962,39 @@ async function loadHospitals(): Promise<void> {
     console.error('Gagal memuat peta cakupan faskes.', error)
     showMapMessage('Data faskes gagal dimuat.')
   } finally {
-    mapLoading.value = false
+    if (sequence === loadSequence) mapLoading.value = false
+  }
+}
+
+async function loadDivisions(): Promise<void> {
+  divisionLoading.value = true
+  try {
+    const divisions = await masterDataService.getDevisi()
+    divisionOptions.value = divisions.map((item) => ({
+      code: String(item.KodeDevisi ?? '').trim(),
+      name: String(item.NamaDevisi ?? '').trim(),
+      label: String(item.NamaAlias || item.NamaDevisi || item.KodeDevisi || '').trim(),
+    })).filter((item) => item.code && item.label && item.label.toLowerCase() !== 'none')
+    divisionError.value = ''
+  } catch {
+    divisionError.value = 'Daftar divisi gagal dimuat.'
+  } finally {
+    divisionLoading.value = false
+  }
+}
+
+async function loadTeamUsers(): Promise<void> {
+  const id = Number(useAuthStore().user?.id)
+  if (!Number.isInteger(id) || id <= 0) return
+  teamLoading.value = true
+  try {
+    const hierarchy = await getUserHierarchy(id)
+    teamUsers.value = hierarchy.bawahan ?? []
+    teamError.value = ''
+  } catch {
+    teamError.value = 'Daftar anggota tim gagal dimuat.'
+  } finally {
+    teamLoading.value = false
   }
 }
 
@@ -874,6 +1004,21 @@ function handleKeydown(event: KeyboardEvent): void {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  void loadDivisions()
+  void loadTeamUsers()
+  void loadHospitals()
+})
+
+watch(divisionFilter, () => {
+  clearSelection()
+  void nextTick(fitHospitals)
+})
+
+watch(() => props.mode, () => {
+  mapPoints.value = []
+  urgencyFilter.value = []
+  clearSelection()
+  showFilter.value = false
   void loadHospitals()
 })
 
@@ -940,8 +1085,11 @@ onBeforeUnmount(() => {
   font-size: 11px;
 }
 
-.hospital-map__legend strong { margin-bottom: 1px; font-size: 11.5px; }
-.hospital-map__legend span { display: flex; align-items: center; gap: 7px; color: #52606d; }
+.hospital-map__legend-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; border: 0; padding: 0; color: #263442; background: transparent; text-align: left; cursor: pointer; }
+.hospital-map__legend-toggle strong { font-size: 11.5px; }
+.hospital-map__legend-toggle:focus-visible { outline: 2px solid var(--app-primary, #18a6e4); outline-offset: 3px; }
+.hospital-map__legend-items { display: grid; gap: 6px; }
+.hospital-map__legend-items > span { display: flex; align-items: center; gap: 7px; color: #52606d; }
 .hospital-map__legend .urgency-label { flex: 1 1 auto; min-width: 0; }
 .urgency-dot { display: inline-block; flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; }
 .urgency-count {
@@ -1075,9 +1223,7 @@ onBeforeUnmount(() => {
 .filter-body { display: grid; align-content: start; gap: 16px; overflow-y: auto; padding: 14px 16px; }
 .filter-body fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
 .filter-body legend { margin-bottom: 8px; color: #334155; font-size: 11.5px; font-weight: 700; }
-.filter-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.filter-chips button { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; border: 1px solid #e1e7ed; border-radius: 17px; padding: 6px 11px; color: #647180; background: #f5f7f9; font-size: 10px; cursor: pointer; }
-.filter-chips button.active { border-color: var(--app-primary, #18a6e4); color: var(--app-primary-dark, #0e7490); background: rgba(var(--app-primary-rgb, 24, 166, 228), 0.16); font-weight: 700; }
+.filter-body :deep(.select-wrapper) { width: 100%; }
 .hospital-map__filter footer { border-top: 1px solid #edf1f4; padding: 12px 16px; }
 .hospital-map__filter footer button,.detail-button { width: 100%; border: 0; border-radius: 10px; padding: 10px 14px; color: #fff; background: var(--app-primary, #18a6e4); font-size: 11.5px; font-weight: 700; cursor: pointer; }
 .detail-button { font-size: 12.5px; line-height: 1.25; }
@@ -1089,10 +1235,13 @@ onBeforeUnmount(() => {
 .detail-heading > div { display: grid; gap: 3px; min-width: 0; }
 .detail-heading strong { overflow: hidden; color: #243240; font-size: 15.5px; font-weight: 700; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
 .detail-heading small { color: #768591; font-size: 11px; font-weight: 500; line-height: 1.3; }
-.detail-badges { display: flex; justify-content: space-between; gap: 8px; margin: 12px 0; }
-.detail-badges > span { display: inline-flex; align-items: center; gap: 5px; border-radius: 12px; padding: 4px 8px; font-size: 10px; font-weight: 650; line-height: 1.2; }
+.detail-badges { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.detail-badges__status { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail-badges .grade,.detail-badges__status > span { display: inline-flex; align-items: center; gap: 5px; border-radius: 12px; padding: 4px 8px; font-size: 10px; font-weight: 650; line-height: 1.2; }
 .detail-badges .grade { color: #15966e; background: #e3f8f0; }
 .detail-badges .urgency { color: #6d7882; background: #f3f5f7; }
+.detail-badges .distance { color: #52606d; background: #eef2f6; }
+.detail-badges .distance button { border: 0; padding: 0; color: var(--app-primary-dark, #0e7490); background: transparent; font: inherit; cursor: pointer; }
 .detail-location { display: flex; align-items: center; gap: 7px; min-width: 0; margin: -2px 0 12px; color: #71808c; }
 .detail-location span { overflow: hidden; font-size: 10.5px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
 .detail-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-bottom: 12px; }
@@ -1134,7 +1283,6 @@ onBeforeUnmount(() => {
   .hospital-map__search { top: 56px; right: 10px; width: calc(100% - 20px); }
   .hospital-map__filter { top: 56px; right: 10px; bottom: 10px; width: calc(100% - 20px); }
   .hospital-map__detail { left: 10px; bottom: 10px; width: calc(100% - 66px); }
-  .hospital-map:not(.hospital-map--expanded) .hospital-map__legend { display: none; }
 }
 
 @media (max-width: 480px) {

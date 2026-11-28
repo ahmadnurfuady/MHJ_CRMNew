@@ -158,10 +158,11 @@
 
         <button
           v-if="canAddTask"
+          :disabled="!taskFormReady"
           class="btn btn-primary add-task-header-button mhj-add-button"
           type="button"
           data-bs-toggle="modal"
-          data-bs-target="#task-type-selector"
+          :data-bs-target="taskFormTarget"
         >
           <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />
           <span>Buat Tugas Baru</span>
@@ -482,6 +483,7 @@ import TaskSearchableSelect from '@/module/task/TaskSearchableSelect.vue'
 import { parseLocalDate } from '@/module/task/taskCalendar'
 import type { TaskDetails } from '@/types/tasks'
 import { useTaskPermissions } from '@/module/task/taskPermission'
+import { useTaskFormTarget } from '@/module/task/useTaskFormTarget'
 
 type PeriodFilter = 'all' | 'daily' | 'weekly' | 'monthly' | 'yearly'
 type ExportFormat = 'csv' | 'excel'
@@ -493,6 +495,7 @@ const router = useRouter()
 const route = useRoute()
 const { currentTask, loading } = storeToRefs(store)
 const { canAddTask, canDeleteTask, canExportTask } = useTaskPermissions()
+const { taskFormTarget, taskFormReady } = useTaskFormTarget()
 const searchQuery = ref('')
 const periodFilter = ref<PeriodFilter>('all')
 const periodOptions: Array<{ value: PeriodFilter; label: string }> = [

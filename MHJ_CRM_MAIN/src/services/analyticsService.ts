@@ -76,6 +76,9 @@ export interface HospitalMapPoint {
   last_visit?: string | null
   last_visited_at?: string | null
   latest_visit_at?: string | null
+  last_purchase_at?: string | null
+  division_sales?: Record<string, string>
+  division_visits?: Record<string, string>
 }
 
 /**
@@ -130,9 +133,12 @@ export async function fetchDashboardMetrics(params?: {
 }
 
 /** Bagian hospital map `GET /api/dashboard` untuk daftar faskes + peluang aktif. */
-export async function fetchHospitalMap(mode: 'visit' | 'sales' = 'visit'): Promise<HospitalMapPoint[]> {
+export async function fetchHospitalMap(mode: 'visit' | 'sales' = 'visit', userIds: number[] = []): Promise<HospitalMapPoint[]> {
   try {
-    return (await fetchDashboardBundle({ mode })).hospitals
+    const response = await api.get<{ data?: HospitalMapPoint[] }>('/dashboard/hospital-map', {
+      params: { mode, user_id: userIds.length === 1 ? userIds[0] : undefined, user_ids: userIds.length > 1 ? userIds.join(',') : undefined },
+    })
+    return Array.isArray(response.data?.data) ? response.data.data : []
   } catch (error) {
     console.error('Gagal memuat hospital map.', error)
     return []

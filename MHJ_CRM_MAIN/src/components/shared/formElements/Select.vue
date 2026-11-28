@@ -460,6 +460,8 @@ function toggleWithPlacement(event: Event) {
 .dropdown li.has-checkbox .option-checkbox:checked {
   border-color: var(--app-primary, #18a6e4);
   background-color: var(--app-primary, #18a6e4);
+  --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m3 8 3.5 3.5L13 5'/%3e%3c/svg%3e");
+  background-image: var(--bs-form-check-bg-image);
 }
 
 .dropdown li .option-text {

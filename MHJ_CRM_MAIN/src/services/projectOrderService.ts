@@ -37,40 +37,10 @@ interface OrderTrackingResponse {
   is_complete?: boolean
 }
 
-/** Label fallback agar timeline tetap menampilkan 11 tahapan saat master kosong. */
-const MILESTONE_LABELS = [
-  'Data pelanggan telah dibuat dan surat pesanan telah diupload',
-  'Surat pesanan telah dibuat',
-  'Pembayaran DP',
-  'SPJB telah disetujui',
-  'Delivery order telah dibuat',
-  'Produk dalam proses pengiriman',
-  'Produk telah tiba di alamat tujuan',
-  'Produk dalam proses install',
-  'Produk sudah ter-install',
-  'Training & BAST',
-  'Penerimaan Surat Setoran Pajak (SSP)',
-]
-
-function placeholderMilestones(): OrderMilestone[] {
-  return MILESTONE_LABELS.map((nama, index) => ({
-    urut: index + 1,
-    milestone_id: index + 1,
-    nama,
-    keterangan: null,
-    is_completed: false,
-    completed_at: null,
-    completed_time: null,
-    completed_date: null,
-    no_referensi_erp: null,
-  }))
-}
-
-/** `GET /api/project/ordertracking/{projectId}` → 11 tahapan terurut. */
+/** `GET /api/project/ordertracking/{projectId}` → tahapan dari API. */
 export async function fetchOrderTracking(projectId: number | string): Promise<OrderTrackingResult> {
   const response = await api.get<OrderTrackingResponse>(`/project/ordertracking/${projectId}`)
-  const rows = response.data?.milestones ?? response.data?.data ?? []
-  const milestones = rows.length ? rows : placeholderMilestones()
+  const milestones = response.data?.milestones ?? response.data?.data ?? []
   const completedSteps = response.data?.completed_steps
     ?? milestones.filter((item) => item.is_completed).length
 

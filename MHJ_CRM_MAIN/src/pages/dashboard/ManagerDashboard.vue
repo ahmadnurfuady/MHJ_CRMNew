@@ -37,7 +37,7 @@
         <!--
           Ringkasan Target & Benchmark (beserta Capaian Kinerja di sampingnya)
           dan Aktivitas Terbaru disembunyikan secara default; dibuka lewat
-          tombol "See More" di bawah card Jangkauan Area dan Pasar.
+          tombol di bawah card Jangkauan Area dan Pasar.
         -->
         <div class="manager-dashboard__more">
           <button
@@ -46,7 +46,7 @@
             :aria-expanded="showMoreSections"
             @click="showMoreSections = !showMoreSections"
           >
-            <span>{{ showMoreSections ? 'See Less' : 'See More' }}</span>
+            <span>{{ locale === 'English' ? (showMoreSections ? 'See Less' : 'See More') : (showMoreSections ? 'Lihat Lebih Sedikit' : 'Lihat Selengkapnya') }}</span>
             <vue-feather
               :type="showMoreSections ? 'chevron-up' : 'chevron-down'"
               size="16"
@@ -81,6 +81,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { useManagerDashboard } from '@/composable/useManagerDashboard'
 import AreaMarketCoverage from '@/module/dashboard/manager/AreaMarketCoverage.vue'
@@ -102,6 +103,7 @@ const {
 
 /** Default tertutup: Ringkasan Target & Benchmark + Aktivitas Terbaru. */
 const showMoreSections = ref(false)
+const { locale } = useI18n()
 
 function loadDashboard() {
   void Promise.all([loadManagerDashboard(), loadPromoSlides()])

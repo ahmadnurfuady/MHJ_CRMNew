@@ -26,8 +26,9 @@
                     <button
                       class="badge-primary btn-block btn-mail mhj-add-button w-100"
                       type="button"
+                      :disabled="!taskFormReady"
                       data-bs-toggle="modal"
-                      data-bs-target="#task-type-selector"
+                      :data-bs-target="taskFormTarget"
                     >
             <SolarIcon name="add" :size="19" color="#fff" secondary-color="#fff" :secondary-opacity="1" aria-hidden="true" />Buat Tugas
                     </button>
@@ -76,9 +77,8 @@
         <div class="ps-0">
           <div class="tab-content">
             <TaskList />
-            <TaskTypeSelector v-if="canAddTask" @select="selectedTaskType = $event" />
-            <SalesTaskForm v-if="canAddTask && selectedTaskType === 'sales'" />
-            <AppSpecialistTaskForm v-else-if="canAddTask && selectedTaskType === 'app-specialist'" />
+            <SalesTaskForm v-if="canAddTask" />
+            <AppSpecialistTaskForm v-if="canAddTask" />
             <CreateTaskTag />
           </div>
         </div>
@@ -91,13 +91,14 @@ import { computed, ref, defineAsyncComponent } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useTask } from '@/store/task'
 import { getImages } from '@/utils/index'
-import type { Task, TaskKind } from '@/types/tasks'
+import type { Task } from '@/types/tasks'
 import SalesTaskForm from '@/module/task/SalesTaskForm.vue'
 import AppSpecialistTaskForm from '@/module/task/AppSpecialistTaskForm.vue'
 import { useTaskPermissions } from '@/module/task/taskPermission'
+import { useTaskFormTarget } from '@/module/task/useTaskFormTarget'
 
 const filtered = ref(false)
-const selectedTaskType = ref<TaskKind | null>(null)
+const { taskFormTarget, taskFormReady } = useTaskFormTarget()
 const store = useTask()
 const { taskData } = storeToRefs(store)
 const { canAddTask } = useTaskPermissions()
@@ -118,7 +119,6 @@ const currentUser = (() => {
 })()
 
 const TaskList = defineAsyncComponent(() => import('@/module/task/TaskList.vue'))
-const TaskTypeSelector = defineAsyncComponent(() => import('@/module/task/TaskTypeSelector.vue'))
 const CreateTaskTag = defineAsyncComponent(() => import('@/module/task/CreateTaskTag.vue'))
 
 function setActiveTask(task: Task) {

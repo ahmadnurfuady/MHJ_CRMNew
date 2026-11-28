@@ -57,7 +57,7 @@ export const DEFAULT_CRM_MENU_TEMPLATE: FlMenuRawItem[] = [
   row('08', 'Kalender', '/crmAdmin/calendar', 'Calendar'),
   row('09', 'User', '/crmAdmin/users', 'Users'),
   row('0901', 'User list', '/crmAdmin/users/list', 'Users', '09'),
-  row('0902', 'Roles & Permission', '/crmAdmin/roles', 'Shield', '09'),
+  row('0902', 'Jabatan & Hak Akses', '/crmAdmin/roles', 'Shield', '09'),
   row('10', 'Settings', '/crmAdmin/settings', 'Settings'),
   row('1001', 'Promo', '/crmAdmin/settings/promo', 'Tag', '10'),
   row('1002', 'Target', '/crmAdmin/settings/target', 'Target', '10'),

@@ -18,14 +18,11 @@
     </p>
 
     <div class="piutang-item__time" :class="`is-${dueTone(group.items[0])}`">
-      <SolarIcon
-        :name="group.items[0].status === 'lunas' ? 'check-circle' : 'clock'"
-        :size="17"
-        color="currentColor"
-        secondary-color="currentColor"
-        :secondary-opacity="1"
-        aria-hidden="true"
-      />
+      <SolarIcon v-if="group.items[0].status === 'lunas'" name="check-circle" :size="17" color="currentColor" secondary-color="currentColor" aria-hidden="true" />
+      <svg v-else width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 2" />
+      </svg>
       <span>{{ formatLabelWaktu(group.items[0]) }}</span>
     </div>
   </router-link>
@@ -91,14 +88,11 @@
           <div class="piutang-invoice__bottom">
             <span class="piutang-invoice__termin">{{ formatTermin(item) }}</span>
             <span class="piutang-invoice__time" :class="`is-${dueTone(item)}`">
-              <SolarIcon
-                :name="item.status === 'lunas' ? 'check-circle' : 'clock'"
-                :size="14"
-                color="currentColor"
-                secondary-color="currentColor"
-                :secondary-opacity="1"
-                aria-hidden="true"
-              />
+              <SolarIcon v-if="item.status === 'lunas'" name="check-circle" :size="14" color="currentColor" secondary-color="currentColor" aria-hidden="true" />
+              <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
               {{ formatLabelWaktu(item) }}
             </span>
           </div>
@@ -230,7 +224,7 @@ a.piutang-item:focus-visible {
 
 /* Warna jatuh tempo: merah terlambat, kuning <= 7 hari, hijau masih jauh. */
 .piutang-item__time.is-overdue {
-  color: var(--bs-danger, #dc3545);
+  color: #dc3545;
 }
 
 .piutang-item__time.is-soon {
@@ -239,7 +233,12 @@ a.piutang-item:focus-visible {
 
 .piutang-item__time.is-safe,
 .piutang-item__time.is-paid {
-  color: var(--bs-success, #198754);
+  color: #198754;
+}
+
+.piutang-item__time :deep(.solar-icon),
+.piutang-invoice__time :deep(.solar-icon) {
+  color: currentColor;
 }
 
 /* ── Kartu grup (banyak nota) ── */
@@ -420,7 +419,7 @@ a.piutang-item:focus-visible {
 }
 
 .piutang-invoice__time.is-overdue {
-  color: var(--bs-danger, #dc3545);
+  color: #dc3545;
 }
 
 .piutang-invoice__time.is-soon {
@@ -429,7 +428,7 @@ a.piutang-item:focus-visible {
 
 .piutang-invoice__time.is-safe,
 .piutang-invoice__time.is-paid {
-  color: var(--bs-success, #198754);
+  color: #198754;
 }
 
 /* ── Dark mode ── */

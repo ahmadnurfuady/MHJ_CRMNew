@@ -102,7 +102,7 @@
             />
           </span>
           <span class="opportunity-reminder__copy">
-            <strong>{{ missingCustomerProjects.length }} peluang win perlu data pelanggan</strong>
+            <strong>Segera buat data pelanggan</strong>
             <small>Ketuk untuk lihat dan perbarui sekarang</small>
           </span>
           <SolarIcon name="arrow-right" class="opportunity-reminder__arrow" :size="20" aria-hidden="true" />
@@ -350,7 +350,8 @@ function openProjectDetail(projectId: number): void {
 
 async function showOpportunityReminder(showProjectList = true, allowSessionMute = false): Promise<void> {
   const count = missingCustomerProjects.value.length;
-  if (!count) return;
+  const expiring = expiringProjects.value;
+  if (showProjectList ? !count : !count && !expiring.length) return;
   let muteForSession = false;
   const projectCards = missingCustomerProjects.value
     .map((project) => `
@@ -369,7 +370,7 @@ async function showOpportunityReminder(showProjectList = true, allowSessionMute 
 
   if (showProjectList) {
     await Swal.fire({
-      title: `${count} peluang win perlu data pelanggan`,
+      title: "Segera buat data pelanggan",
       html: `<ul style="max-height:340px;margin:0;padding:2px 3px 0 0;overflow-y:auto;list-style:none;text-align:left">${projectCards}</ul>`,
       showConfirmButton: false,
       showCloseButton: true,
@@ -395,18 +396,13 @@ async function showOpportunityReminder(showProjectList = true, allowSessionMute 
     return;
   }
 
-  const popupContent = showProjectList
-    ? `
-      <p style="margin:0 0 10px;color:#64748b;font-size:13px">Peluang berikut sudah Win tetapi Data Pelanggannya belum dilengkapi:</p>
-      <ul style="max-height:280px;margin:0;padding:0 3px 0 0;overflow-y:auto;list-style:none;text-align:left">${projectCards}</ul>
-    `
-    : '<p style="margin:0;color:#64748b;font-size:13px">Segera lengkapi Data Pelanggan agar proses pesanan dapat dilanjutkan.</p>';
+  const popupContent = `${count ? '<p style="margin:0;color:#64748b;font-size:13px">Segera buat Data Pelanggan agar proses pesanan dapat dilanjutkan.</p>' : ''}${expiring.length ? `<p style="margin:12px 0 6px;color:#b31d1d;font-size:13px;font-weight:700">${expiring.length} peluang mendekati 3 bulan tanpa pindah stage. Segera tindak lanjuti sebelum dihapus permanen:</p><ul style="max-height:180px;margin:0;padding-left:20px;text-align:left">${expiring.map((project) => `<li>${escapeHtml(project.projectName || 'Peluang tanpa nama')} (${90 - Math.floor(Number(project.stalledDays))} hari tersisa)</li>`).join('')}</ul>` : ''}`;
 
   const result = await Swal.fire({
     icon: "info",
-    title: `${count} peluang win perlu data pelanggan`,
+    title: count ? "Segera buat data pelanggan" : "Peluang mendekati batas 3 bulan",
     html: popupContent,
-    confirmButtonText: "Lihat dan perbarui sekarang",
+    confirmButtonText: count ? "Lihat dan perbarui sekarang" : "Lihat peluang",
     showCancelButton: true,
     cancelButtonText: "Nanti",
     confirmButtonColor: "var(--theme-default)",
@@ -424,7 +420,14 @@ async function showOpportunityReminder(showProjectList = true, allowSessionMute 
   });
 
   if (muteForSession) sessionStorage.setItem(reminderSessionKey, "1");
-  if (result.isConfirmed) await openWonStage();
+  if (result.isConfirmed) {
+    if (count) await openWonStage();
+    else {
+      activeTab.value = "all";
+      await nextTick();
+      stagePanel.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
 }
 
 async function loadOpportunityReminder(showAutomaticPopup: boolean): Promise<void> {
@@ -436,7 +439,6 @@ async function loadOpportunityReminder(showAutomaticPopup: boolean): Promise<voi
     items = await fetchWonMissingRequirements();
   } catch (error) {
     console.warn("Gagal memuat reminder peluang Win:", error);
-    return;
   }
 
   wonMissingRequirements.value = Object.fromEntries(
@@ -453,7 +455,7 @@ async function loadOpportunityReminder(showAutomaticPopup: boolean): Promise<voi
     } as Projects));
 
   const count = missingCustomerProjects.value.length;
-  if (!count) {
+  if (!count && !expiringProjects.value.length) {
     return;
   }
   if (showAutomaticPopup) await showOpportunityReminder(false, true);
@@ -490,6 +492,11 @@ watch(
 );
 
 const summaryProjects = computed(() => summaryItems.value);
+const expiringProjects = computed(() => summaryProjects.value.filter((project) =>
+  !['closed_won', 'closed_lost', 'closed_cancel'].includes(project.status) &&
+  Number.isFinite(Number(project.stalledDays)) &&
+  Number(project.stalledDays) >= 83 && Number(project.stalledDays) < 90,
+));
 
 // Seluruh angka ringkasan dan tahap merupakan hasil final dari backend.
 const pipelineTotal = computed(() => ringkasan.value?.totalValue ?? 0);
@@ -964,7 +971,6 @@ function selectStage(value: string) {
 
 .view-switcher {
   display: flex;
-  gap: 7px;
 }
 
 .view-switcher button {
@@ -1262,15 +1268,6 @@ function selectStage(value: string) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-:deep(.opp-stage-pill__dot) {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 7px;
-  border-radius: 50%;
-  background: var(--opp-stage);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--opp-stage) 13%, transparent);
 }
 
 :deep(.opp-created) {
@@ -1729,7 +1726,7 @@ function selectStage(value: string) {
 
 :deep(.opp-list-cell--estimate) {
   grid-column: 1;
-  grid-row: 3;
+  grid-row: 4;
 }
 
 :deep(.opp-list-cell--address) {
@@ -1739,7 +1736,7 @@ function selectStage(value: string) {
 
 :deep(.opp-list-cell--stage-time) {
   grid-column: 1;
-  grid-row: 4;
+  grid-row: 3;
 }
 
 :deep(.opp-list-cell--value) {
@@ -1803,6 +1800,13 @@ function selectStage(value: string) {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+
+:deep(.opp-list-cell--stage-time > .opp-stalled-badge--green),
+:deep(.opp-card__timing .opp-stalled-badge--green) { color: #0f7b56; }
+:deep(.opp-list-cell--stage-time > .opp-stalled-badge--yellow),
+:deep(.opp-card__timing .opp-stalled-badge--yellow) { color: #8a5a00; }
+:deep(.opp-list-cell--stage-time > .opp-stalled-badge--red),
+:deep(.opp-card__timing .opp-stalled-badge--red) { color: #b31d1d; }
 
 :deep(.opp-list-cell--status .opp-stage-status) {
   width: fit-content;
@@ -2641,7 +2645,7 @@ function selectStage(value: string) {
 
   :deep(.opp-list-cell--estimate) {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 4;
   }
 
   :deep(.opp-list-cell--address) {
@@ -2651,7 +2655,7 @@ function selectStage(value: string) {
 
   :deep(.opp-list-cell--stage-time) {
     grid-column: 1;
-    grid-row: 4;
+    grid-row: 3;
   }
 
   :deep(.opp-list-cell--value) {

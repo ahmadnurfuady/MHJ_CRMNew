@@ -22,7 +22,6 @@
           <small>Status</small>
           <div class="opp-stage-status">
             <span class="opp-stage-pill">
-              <i class="opp-stage-pill__dot"></i>
               {{ stageTitle }}
             </span>
             <span
@@ -33,23 +32,6 @@
               :title="missingRequirementsLabel"
             >!</span>
           </div>
-          <span
-            v-if="stalledInfo"
-            class="opp-stalled-badge"
-            :class="`opp-stalled-badge--${stalledInfo.variant}`"
-            :title="stalledTooltip"
-          >
-            <vue-feather type="clock" size="12" aria-hidden="true" />
-            {{ stalledInfo.label }}
-          </span>
-        </div>
-
-        <div
-          class="opp-list-cell opp-list-cell--estimate"
-          :title="`Estimasi selesai: ${formatFullDate(project.expectedCloseDate)}`"
-        >
-          <small>Estimasi Selesai</small>
-          <strong>{{ formatShortDate(project.expectedCloseDate) }}</strong>
         </div>
 
         <div class="opp-list-cell opp-list-cell--hospital">
@@ -59,7 +41,15 @@
 
         <div class="opp-list-cell opp-list-cell--stage-time">
           <small>Di stage ini</small>
-          <strong>{{ stageDuration }}</strong>
+          <strong class="opp-stage-duration" :class="stalledInfo && `opp-stalled-badge--${stalledInfo.variant}`" :style="stalledInfo?.style" :title="stalledInfo ? stalledTooltip : undefined">{{ stageDuration }}</strong>
+        </div>
+
+        <div
+          class="opp-list-cell opp-list-cell--estimate"
+          :title="`Estimasi selesai: ${formatFullDate(project.expectedCloseDate)}`"
+        >
+          <small>Estimasi Selesai</small>
+          <strong class="opp-estimate-pill" :style="estimateStyle">{{ formatShortDate(project.expectedCloseDate) }}</strong>
         </div>
 
         <div class="opp-list-cell opp-list-cell--address">
@@ -119,7 +109,6 @@
     <div class="opp-card__stage">
       <div class="opp-stage-status">
         <span class="opp-stage-pill">
-          <i class="opp-stage-pill__dot"></i>
           {{ stageTitle }}
         </span>
         <span
@@ -129,15 +118,6 @@
           :aria-label="missingRequirementsLabel"
           :title="missingRequirementsLabel"
         >!</span>
-        <span
-          v-if="stalledInfo"
-          class="opp-stalled-badge"
-          :class="`opp-stalled-badge--${stalledInfo.variant}`"
-          :title="stalledTooltip"
-        >
-          <vue-feather type="clock" size="12" aria-hidden="true" />
-          {{ stalledInfo.label }}
-        </span>
       </div>
       <span class="opp-created" :title="`Estimasi selesai: ${formatFullDate(project.expectedCloseDate)}`">
         <SolarIcon
@@ -148,7 +128,7 @@
           :secondary-opacity="1"
           aria-hidden="true"
         />
-        <span>Estimasi selesai · {{ formatShortDate(project.expectedCloseDate) }}</span>
+        <span>Estimasi selesai · <strong class="opp-estimate-pill" :style="estimateStyle">{{ formatShortDate(project.expectedCloseDate) }}</strong></span>
       </span>
     </div>
 
@@ -180,7 +160,7 @@
 
     <div class="opp-card__timing">
       <div>
-        <span><small>Di stage ini</small><strong>{{ stageDuration }}</strong></span>
+        <span><small>Di stage ini</small><strong class="opp-stage-duration" :class="stalledInfo && `opp-stalled-badge--${stalledInfo.variant}`" :style="stalledInfo?.style" :title="stalledInfo ? stalledTooltip : undefined">{{ stageDuration }}</strong></span>
       </div>
       <div>
         <span><small>Update terakhir</small><strong>{{ lastUpdated }}</strong></span>
@@ -286,26 +266,50 @@ const missingRequirementsLabel = computed(() =>
 )
 
 /**
- * Badge "Peluang tidak bergerak" di kartu peluang.
- * Bucket mengikuti arahan user:
- *   - < 30 hari  → hijau "< 1 bulan"
- *   - 31-60 hari → kuning "> 1 bulan"
- *   - 61-90 hari → kuning "> 2 bulan"
- *   - > 90 hari  → merah "> 3 bulan"
- * stalled_days = 0 (peluang baru / baru pindah stage) tidak menampilkan badge.
+ * Warna durasi di stage: hijau < 30 hari, kuning sampai 60 hari,
+ * lalu berangsur merah tiap hari hingga hari ke-90.
  */
-type StalledVariant = 'green' | 'yellow' | 'red'
-const stalledInfo = computed<{ label: string; variant: StalledVariant } | null>(() => {
-  const days = Number(props.project.stalledDays ?? 0)
-  if (!Number.isFinite(days) || days <= 0) return null
-  if (days < 30) return { label: 'Peluang tidak bergerak < 1 bulan', variant: 'green' }
-  if (days <= 60) return { label: 'Peluang tidak bergerak > 1 bulan', variant: 'yellow' }
-  if (days <= 90) return { label: 'Peluang tidak bergerak > 2 bulan', variant: 'yellow' }
-  return { label: 'Peluang tidak bergerak > 3 bulan', variant: 'red' }
+type StalledVariant = 'green' | 'yellow' | 'warming' | 'red'
+const stalledInfo = computed<{ variant: StalledVariant; style?: CSSProperties } | null>(() => {
+  const entered = parsedDate(props.project.stageEnteredAt || props.project.createdAt)
+  const days = props.project.stalledDays != null
+    ? Number(props.project.stalledDays)
+    : entered ? Math.floor(Math.max(0, Date.now() - entered.getTime()) / 86_400_000) : NaN
+  if (!Number.isFinite(days) || days < 0) return null
+  if (days < 30) return { variant: 'green' }
+  if (days <= 60) return { variant: 'yellow' }
+  if (days < 90) {
+    const progress = (days - 60) / 30
+    return {
+      variant: 'warming',
+      style: {
+        color: `hsl(${38 - progress * 38} 85% 30%)`,
+        backgroundColor: `hsl(${44 - progress * 44} 95% 92%)`,
+        borderColor: `hsl(${42 - progress * 42} 80% 76%)`,
+      },
+    }
+  }
+  return { variant: 'red' }
 })
 const stalledTooltip = computed(() => {
-  const days = Number(props.project.stalledDays ?? 0)
-  return `Diam di stage ini selama ${days} hari`
+  return `Peluang tidak bergerak: ${stageDuration.value} di stage ini`
+})
+
+const estimateStyle = computed<CSSProperties | undefined>(() => {
+  const deadline = parsedDate(props.project.expectedCloseDate)
+  if (!deadline) return undefined
+  const today = new Date()
+  const daysLeft = Math.round((
+    Date.UTC(deadline.getFullYear(), deadline.getMonth(), deadline.getDate()) -
+    Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
+  ) / 86_400_000)
+  const progress = 1 - Math.min(Math.max(daysLeft, 0), 90) / 90
+  const hue = 150 * (1 - progress)
+  return {
+    color: `hsl(${hue} 75% 30%)`,
+    backgroundColor: `hsl(${hue} 80% 94%)`,
+    borderColor: `hsl(${hue} 65% 78%)`,
+  }
 })
 
 function titleCase(value: string) {
@@ -403,11 +407,9 @@ function openProjectDetail() {
 </script>
 
 <style scoped>
-.opp-stalled-badge {
+.opp-stage-duration {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  margin-top: 8px;
   padding: 4px 9px;
   border: 1px solid transparent;
   border-radius: 999px;
@@ -417,13 +419,24 @@ function openProjectDetail() {
   white-space: nowrap;
 }
 
-.opp-card__stage .opp-stage-status .opp-stalled-badge {
-  margin-top: 0;
+.opp-estimate-pill {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  border: 1px solid #dbe3ea;
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
-.opp-stalled-badge > :deep(svg) {
-  flex: 0 0 12px;
-  stroke: currentColor;
+.opp-list-cell--stage-time .opp-stage-duration {
+  display: inline-flex;
+  align-self: flex-start;
 }
 
 .opp-stalled-badge--green {
@@ -445,7 +458,8 @@ function openProjectDetail() {
 }
 
 @media (max-width: 640px) {
-  .opp-stalled-badge {
+  .opp-stage-duration,
+  .opp-estimate-pill {
     font-size: 10px;
     padding: 3px 8px;
   }

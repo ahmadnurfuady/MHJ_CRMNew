@@ -49,8 +49,8 @@
                 {{ financeStatusLabel }}
               </span>
             </div>
-            <p class="hospital-location">
-              <MhjIcon name="action_location" />
+            <p class="hospital-location" :title="locationLabel">
+              <SolarIcon name="map-point" color="var(--primary)" />
               {{ locationLabel }}
             </p>
             <div class="hospital-tags">
@@ -1738,9 +1738,6 @@ watch(() => props.hospitalId, loadDetail, { immediate: true });
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.hospital-location i {
-  color: var(--primary);
 }
 .hospital-tags {
   display: flex;
