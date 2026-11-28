@@ -523,7 +523,7 @@ export const useProjectStore = defineStore('project', () => {
   async function fetchProjectSummary() {
     summaryLoading.value = true
     try {
-      const response = await api.getbydata(ENDPOINT, { page: 1, per_page: 1000 })
+      const response = await api.getbydata(ENDPOINT)
       const { items: rawItems, meta } = extractList(response.data, [
         'deals',
         'projects',

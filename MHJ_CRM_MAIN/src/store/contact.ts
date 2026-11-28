@@ -40,8 +40,6 @@ import { canHospital } from "@/module/rumahSakit/hospitalPermission";
 const HOSPITAL_ID_OFFSET = 1_000_000;
 const CONTACT_ID_OFFSET = 2_000_000;
 const CONTACT_ENDPOINT = "contact";
-const CONTACT_LIST_FETCH_LIMIT = 1000;
-const HOSPITAL_LIST_FETCH_LIMIT = 1000;
 const DEFAULT_CONTACT_STATUS = "1";
 export const INDONESIA_COUNTRY = "Indonesia";
 
@@ -655,6 +653,22 @@ export const useContact = defineStore("contact", () => {
     handleActiveTab(contactState.currentTab);
   }
 
+  /**
+   * Kosongkan filter & pencarian daftar. Dipanggil halaman Faskes/Kontak saat
+   * pertama kali dibuka (dari menu/link) supaya tidak membawa filter kunjungan
+   * sebelumnya. Kembali dari detail (?detail=) tidak memanggil ini karena
+   * komponen halaman tidak dibuat ulang, jadi filter tetap dipertahankan.
+   */
+  function resetListFilters(target: "contact" | "hospital") {
+    if (target === "hospital") {
+      hospitalListFilters.value = {};
+      hospitalSearch.value = "";
+    } else {
+      contactApi.subordinateFilter = [];
+      contactApi.search = "";
+    }
+  }
+
   const filteredContact = computed(() => {
     const contacts = contactState.contactList.filter((contact) =>
       scope.value === "hospital"
@@ -757,19 +771,16 @@ export const useContact = defineStore("contact", () => {
     extra: ListParams,
     append = false,
   ) {
-    await hospitalStore.fetchHospitals(
-      { page: 1, per_page: HOSPITAL_LIST_FETCH_LIMIT, ...extra },
-      { append },
-    );
+    // Request pertama tanpa page/per_page: backend memakai default-nya.
+    await hospitalStore.fetchHospitals({ ...extra }, { append });
     while (hospitalStore.pagination.page < hospitalStore.pagination.lastPage) {
+      const before = hospitalStore.items.length;
       await hospitalStore.fetchHospitals(
-        {
-          page: hospitalStore.pagination.page + 1,
-          per_page: HOSPITAL_LIST_FETCH_LIMIT,
-          ...extra,
-        },
+        { page: hospitalStore.pagination.page + 1, ...extra },
         { append: true },
       );
+      // Cegah loop tanpa akhir bila backend tidak memaginasi.
+      if (hospitalStore.items.length === before) break;
     }
   }
 
@@ -951,9 +962,9 @@ export const useContact = defineStore("contact", () => {
       fallbackMessage: "Gagal memuat seluruh data kontak.",
       task: async () => {
         const requestPage = async (page: number) => {
+          // Halaman 1 tanpa page/per_page: backend memakai default-nya.
           const response = await api.getbydata(CONTACT_ENDPOINT, {
-            page,
-            per_page: CONTACT_LIST_FETCH_LIMIT,
+            page: page > 1 ? page : undefined,
             search,
             subordinate_ids: subordinateIdsParam(),
           });
@@ -1848,6 +1859,7 @@ export const useContact = defineStore("contact", () => {
 
     initStore,
     setScope,
+    resetListFilters,
     handleActiveTab,
     changeContactPage,
     searchHospitals,

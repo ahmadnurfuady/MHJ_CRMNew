@@ -584,7 +584,7 @@ function resetFilters() {
   draftFilters.value = createDefaultFilters();
   appliedFilters.value = createDefaultFilters();
   hospitalPage.value = 1;
-  void filterHospitals({ kode_cabang: "" });
+  void filterHospitals({});
   // Kembalikan daftar provinsi/kota ke penuh (tanpa scope cabang/provinsi).
   void loadFilterOptions({ background: true });
 }
@@ -601,7 +601,7 @@ function applyFilters() {
     ...(filters.grading.length ? { grading: filters.grading.join(",") } : {}),
     ...(filters.tipe_rs.length ? { tipe_rs: filters.tipe_rs.join(",") } : {}),
     ...(filters.penyelenggara.length ? { penyelenggara: filters.penyelenggara.join(",") } : {}),
-    kode_cabang: filters.cabang.length ? filters.cabang.join(",") : "",
+    ...(filters.cabang.length ? { kode_cabang: filters.cabang.join(",") } : {}),
     ...(filters.provinsi.length ? { provinsi: filters.provinsi.join(",") } : {}),
     ...(filters.kota.length ? { kota: filters.kota.join(",") } : {}),
   });

@@ -827,10 +827,8 @@ export const useTask = defineStore('task', () => {
       error,
       fallbackMessage: 'Gagal memuat data tugas.',
       task: async () => {
-        const requestParams = {
-          per_page: 100,
-          ...params,
-        }
+        // Tanpa per_page default: request pertama polos, ikut default backend.
+        const requestParams: ListParams = { ...params }
         const response = await api.getbydata('tasks', requestParams)
         const firstPage = extractTasks(response.data)
         let rawItems = firstPage.items
@@ -839,7 +837,7 @@ export const useTask = defineStore('task', () => {
         // List dan Calendar berbagi state lengkap yang sama. Jika backend memaginasi,
         // ambil halaman sisanya lewat endpoint yang sama (bukan loader Calendar baru).
         if (!params.page && meta?.total && meta.total > rawItems.length) {
-          const perPage = meta.perPage || requestParams.per_page
+          const perPage = meta.perPage || rawItems.length || 1
           const lastPage = meta.lastPage || Math.ceil(meta.total / perPage)
           const remainingPages = Array.from(
             { length: Math.max(0, lastPage - 1) },

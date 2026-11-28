@@ -36,6 +36,8 @@ const detailId = computed(() => {
 const contactStore = useContact();
 const { canAddHospital } = useHospitalPermissions();
 contactStore.setScope("hospital");
+// Buka halaman dari menu/link = mulai tanpa filter sama sekali.
+contactStore.resetListFilters("hospital");
 watch(canAddHospital, (allowed) => {
   if (!allowed && contactStore.contactState.hospitalEditId === null) {
     contactStore.contactState.openAddContactModal = false;

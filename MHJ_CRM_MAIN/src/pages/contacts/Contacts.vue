@@ -39,6 +39,8 @@ const PrintContactModal = defineAsyncComponent(
 
 const contactStore = useContact()
 contactStore.setScope('contact')
+// Buka halaman dari menu/link = mulai tanpa filter sama sekali.
+contactStore.resetListFilters('contact')
 const route = useRoute()
 const router = useRouter()
 const { canAddContact } = useContactPermissions()
