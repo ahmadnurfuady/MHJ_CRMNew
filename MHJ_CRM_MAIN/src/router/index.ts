@@ -97,9 +97,9 @@ const router = createRouter({
           name: 'MateriDokumenList',
           component: () => import('@/pages/materiDokumen/MateriDokumenList.vue'),
           meta: {
-            mainTitle: 'Materi & Dokumen',
-            title: 'Materi & Dokumen | MHJ CRM',
-            breadcrumb: [{ text: 'Dashboard' }, { text: 'Materi & Dokumen' }],
+            mainTitle: 'Marketing Tools',
+            title: 'Marketing Tools | MHJ CRM',
+            breadcrumb: [{ text: 'Dashboard' }, { text: 'Marketing Tools' }],
           },
         },
         {
@@ -109,7 +109,7 @@ const router = createRouter({
           meta: {
             mainTitle: 'Preview Dokumen',
             title: 'Preview Pricelist Alkes Q2 2026 | MHJ CRM',
-            breadcrumb: [{ text: 'Materi & Dokumen' }, { text: 'Preview Dokumen' }],
+            breadcrumb: [{ text: 'Marketing Tools' }, { text: 'Preview Dokumen' }],
           },
         },
         {

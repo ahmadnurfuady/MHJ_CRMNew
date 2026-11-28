@@ -766,33 +766,23 @@ export const useContact = defineStore("contact", () => {
   >;
   const hospitalListFilters = ref<HospitalListFilters>({});
 
-  /** Memuat seluruh halaman untuk satu set parameter (search / kode_cabang). */
-  async function loadHospitalPages(
-    extra: ListParams,
-    append = false,
-  ) {
-    // Request pertama tanpa page/per_page: backend memakai default-nya.
-    await hospitalStore.fetchHospitals({ ...extra }, { append });
-    while (hospitalStore.pagination.page < hospitalStore.pagination.lastPage) {
-      const before = hospitalStore.items.length;
-      await hospitalStore.fetchHospitals(
-        { page: hospitalStore.pagination.page + 1, ...extra },
-        { append: true },
-      );
-      // Cegah loop tanpa akhir bila backend tidak memaginasi.
-      if (hospitalStore.items.length === before) break;
-    }
-  }
-
-  /**
-   * Memuat seluruh halaman Faskes dari backend supaya daftar Faskes bisa
-   * dipaginasi 10 per halaman di frontend, lepas dari page size backend.
-   */
-  async function fetchAllHospitalsForList(search?: string) {
-    await loadHospitalPages({
+  /** Halaman pertama tanpa query page; halaman berikutnya memakai page API. */
+  async function fetchHospitalsForList(page = 1, search?: string) {
+    await hospitalStore.fetchHospitals({
       ...hospitalListFilters.value,
       ...(search ? { search } : {}),
+      ...(page > 1 ? { page } : {}),
     });
+    syncRemoteContacts();
+  }
+
+  async function changeHospitalPage(page: number) {
+    if (page < 1 || page > hospitalStore.pagination.lastPage || page === hospitalStore.pagination.page) return;
+    try {
+      await fetchHospitalsForList(page, hospitalSearch.value || undefined);
+    } catch {
+      notifyError(hospitalStore.error ?? "Gagal memuat halaman Faskes.");
+    }
   }
 
   /** Set seluruh filter daftar Faskes lalu muat ulang. */
@@ -800,7 +790,7 @@ export const useContact = defineStore("contact", () => {
     hospitalListFilters.value = { ...filters };
 
     try {
-      await fetchAllHospitalsForList(hospitalSearch.value || undefined);
+      await fetchHospitalsForList(1, hospitalSearch.value || undefined);
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
@@ -822,10 +812,10 @@ export const useContact = defineStore("contact", () => {
       return;
     }
 
-    // Scope "hospital": cukup GET /api/company?page=1&per_page=1000.
+    // Scope "hospital": ambil halaman pertama dari GET /api/company.
     // Response sudah lengkap (total_contacts, count_active_projects, dsb).
     try {
-      await fetchAllHospitalsForList();
+      await fetchHospitalsForList();
     } catch {
       notifyError(hospitalStore.error ?? "Gagal memuat data Faskes.");
     }
@@ -866,7 +856,7 @@ export const useContact = defineStore("contact", () => {
     hospitalSearch.value = query.trim();
 
     try {
-      await fetchAllHospitalsForList(hospitalSearch.value || undefined);
+      await fetchHospitalsForList(1, hospitalSearch.value || undefined);
       contactState.activeContact = undefined;
       syncRemoteContacts();
     } catch {
@@ -891,7 +881,7 @@ export const useContact = defineStore("contact", () => {
     }
 
     try {
-      await fetchAllHospitalsForList(hospitalSearch.value || undefined);
+      await fetchHospitalsForList(hospitalStore.pagination.page, hospitalSearch.value || undefined);
       syncRemoteContacts();
     } catch {
       notifyError(hospitalStore.error ?? "Gagal memuat data Faskes.");
@@ -1862,6 +1852,7 @@ export const useContact = defineStore("contact", () => {
     resetListFilters,
     handleActiveTab,
     changeContactPage,
+    changeHospitalPage,
     searchHospitals,
     filterHospitals,
     // Diekspос agar komponen bisa memulihkan tampilan filter (badge/jumlah)

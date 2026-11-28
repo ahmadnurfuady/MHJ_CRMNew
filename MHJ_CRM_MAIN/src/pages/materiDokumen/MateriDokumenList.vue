@@ -3,18 +3,25 @@
     <section class="material-documents-card">
       <header class="material-documents-card__header">
         <div>
-          <span class="material-documents-card__eyebrow">PUSAT INFORMASI</span>
-          <h1>Materi &amp; Dokumen</h1>
-          <p>Akses materi pendukung dan dokumen internal untuk kebutuhan penawaran.</p>
-        </div>
-        <div class="material-documents-card__icon" aria-hidden="true">
-          <SolarIcon name="documents" :size="30" color="currentColor" />
+          <span class="material-documents-card__eyebrow">MARKETING TOOLS</span>
+          <h1>{{ selectedDivision ? selectedDivision.label : 'Pilih Divisi' }}</h1>
+          <p>
+            {{ selectedDivision
+              ? 'Materi dan dokumen untuk divisi ini.'
+              : 'Pilih divisi untuk melihat marketing tools yang tersedia.' }}
+          </p>
         </div>
       </header>
 
       <div class="material-documents-toolbar">
+        <button v-if="selectedDivision" type="button" class="division-back" @click="clearDivision">
+          <SolarIcon name="alt-arrow-left" :size="18" aria-hidden="true" />
+          Pilih divisi lain
+        </button>
         <label class="document-search">
-          <span class="visually-hidden">Cari materi atau dokumen</span>
+          <span class="visually-hidden">
+            {{ selectedDivision ? 'Cari materi atau dokumen' : 'Cari divisi' }}
+          </span>
           <SolarIcon
             name="magnifier"
             :size="19"
@@ -24,25 +31,38 @@
           <input
             v-model="searchQuery"
             type="search"
-            placeholder="Cari materi atau dokumen"
+            :placeholder="selectedDivision ? 'Cari materi atau dokumen' : 'Cari divisi'"
           />
         </label>
-
-        <div class="category-filter" role="group" aria-label="Filter kategori dokumen">
-          <button
-            v-for="category in categories"
-            :key="category"
-            type="button"
-            :class="{ active: selectedCategory === category }"
-            :aria-pressed="selectedCategory === category"
-            @click="selectedCategory = category"
-          >
-            {{ category }}
-          </button>
-        </div>
       </div>
 
-      <div v-if="filteredDocuments.length" class="document-list" aria-label="Daftar dokumen">
+      <div
+        v-if="!selectedDivision && filteredDivisions.length"
+        class="document-list"
+        aria-label="Daftar divisi"
+      >
+        <button
+          v-for="division in pagedDivisions"
+          :key="division.value"
+          type="button"
+          class="document-row"
+          @click="selectDivision(division)"
+        >
+          <span class="document-row__icon" aria-hidden="true">
+            <SolarIcon name="folder-duotone" :size="25" color="var(--app-primary, #18a6e4)" />
+          </span>
+          <span class="document-row__content">
+            <strong>{{ division.label }}</strong>
+            <small>Kode divisi: {{ division.value }}</small>
+          </span>
+        </button>
+      </div>
+
+      <div
+        v-else-if="selectedDivision && filteredDocuments.length"
+        class="document-list"
+        aria-label="Daftar dokumen"
+      >
         <button
           v-for="document in pagedDocuments"
           :key="document.id"
@@ -65,15 +85,7 @@
             <small>{{ document.date }}</small>
           </span>
 
-          <span class="document-row__meta">
-            <span class="confidential-badge">{{ document.status }}</span>
-            <SolarIcon
-              name="alt-arrow-right"
-              :size="20"
-              color="#8a98a5"
-              aria-hidden="true"
-            />
-          </span>
+          <span class="confidential-badge">{{ document.status }}</span>
         </button>
       </div>
 
@@ -81,72 +93,121 @@
         <span class="document-empty__icon" aria-hidden="true">
           <SolarIcon name="document-text" :size="29" color="currentColor" />
         </span>
-        <strong>Dokumen tidak ditemukan</strong>
-        <p>Coba gunakan kata kunci atau kategori yang berbeda.</p>
+        <strong>{{ divisionError || (divisionLoading ? 'Memuat divisi...' : selectedDivision ? 'Dokumen tidak ditemukan' : 'Divisi tidak ditemukan') }}</strong>
+        <p v-if="!divisionError && !divisionLoading">
+          {{ selectedDivision
+            ? 'Belum ada dokumen untuk divisi ini atau kata kunci yang dicari.'
+            : 'Coba gunakan kata kunci divisi yang berbeda.' }}
+        </p>
       </div>
 
       <ListPagination
-        v-if="filteredDocuments.length"
+        v-if="selectedDivision ? filteredDocuments.length : filteredDivisions.length"
         v-model="currentPage"
         class="material-documents-pagination"
         :total-pages="totalPages"
-        aria-label="Pagination Materi dan Dokumen"
+        :aria-label="selectedDivision ? 'Pagination dokumen' : 'Pagination divisi'"
       />
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import ListPagination from '@/components/shared/ListPagination.vue'
 import { usePageBackRoute } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
+import { masterDataService } from '@/services/masterDataService'
 
-type DocumentCategory = 'Semua' | 'Harga' | 'Brosur' | 'Presentasi'
+type Division = { value: string; label: string }
 
 const router = useRouter()
 usePageBackRoute(routes.Dashboards.Default)
 const searchQuery = ref('')
-const selectedCategory = ref<DocumentCategory>('Semua')
+const selectedDivision = ref<Division | null>(null)
+const divisions = ref<Division[]>([])
+const divisionLoading = ref(true)
+const divisionError = ref('')
 const currentPage = ref(1)
 const PAGE_SIZE = 10
-const categories: DocumentCategory[] = ['Semua', 'Harga', 'Brosur', 'Presentasi']
 
 const documents = [
   {
     id: 'pricelist-alkes-q2-2026',
     title: 'Pricelist Alkes Q2 2026',
     date: '12 Mei 2026',
-    category: 'Harga' as const,
+    division: 'alkes',
     status: 'Rahasia',
   },
 ]
+
+const filteredDivisions = computed(() => {
+  const keyword = searchQuery.value.trim().toLocaleLowerCase('id-ID')
+  return divisions.value.filter((division) =>
+    division.label.toLocaleLowerCase('id-ID').includes(keyword),
+  )
+})
 
 const filteredDocuments = computed(() => {
   const keyword = searchQuery.value.trim().toLocaleLowerCase('id-ID')
 
   return documents.filter((document) => {
-    const matchesCategory =
-      selectedCategory.value === 'Semua' || document.category === selectedCategory.value
-    const matchesSearch = `${document.title} ${document.date} ${document.category}`
+    const matchesDivision = selectedDivision.value?.label
+      .toLocaleLowerCase('id-ID')
+      .includes(document.division)
+    const matchesSearch = `${document.title} ${document.date}`
       .toLocaleLowerCase('id-ID')
       .includes(keyword)
 
-    return matchesCategory && matchesSearch
+    return matchesDivision && matchesSearch
   })
 })
 
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredDocuments.value.length / PAGE_SIZE)))
+const totalPages = computed(() =>
+  Math.max(1, Math.ceil((selectedDivision.value ? filteredDocuments.value : filteredDivisions.value).length / PAGE_SIZE)),
+)
+const pagedDivisions = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredDivisions.value.slice(start, start + PAGE_SIZE)
+})
 const pagedDocuments = computed(() => {
   const start = (currentPage.value - 1) * PAGE_SIZE
   return filteredDocuments.value.slice(start, start + PAGE_SIZE)
 })
 
-watch([searchQuery, selectedCategory], () => {
+watch(searchQuery, () => {
   currentPage.value = 1
 })
+
+onMounted(async () => {
+  try {
+    divisions.value = (await masterDataService.getDevisi())
+      .map((division) => ({
+        value: String(division.KodeDevisi ?? '').trim(),
+        label: String(division.NamaDevisi ?? '').trim() || String(division.KodeDevisi ?? '').trim(),
+      }))
+      .filter((division) => division.value !== '')
+  } catch (error) {
+    console.error('Gagal memuat daftar divisi:', error)
+    divisionError.value = 'Daftar divisi gagal dimuat.'
+  } finally {
+    divisionLoading.value = false
+  }
+})
+
+function selectDivision(division: Division) {
+  selectedDivision.value = division
+  searchQuery.value = ''
+  currentPage.value = 1
+}
+
+function clearDivision() {
+  selectedDivision.value = null
+  searchQuery.value = ''
+  currentPage.value = 1
+}
 
 function openDocument() {
   void router.push(routes.MateriDokumen.Preview)
@@ -182,7 +243,7 @@ function openDocument() {
 .material-documents-card__header::after {
   position: absolute;
   top: -76px;
-  right: 100px;
+  right: 24px;
   width: 170px;
   height: 170px;
   border: 30px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.055);
@@ -210,19 +271,6 @@ function openDocument() {
   margin: 6px 0 0;
   color: #748391;
   font-size: 12px;
-}
-
-.material-documents-card__icon {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  width: 58px;
-  height: 58px;
-  flex: 0 0 58px;
-  place-items: center;
-  border-radius: 17px;
-  color: var(--app-primary, #18a6e4);
-  background: var(--app-primary-soft, #dff4fc);
 }
 
 .material-documents-toolbar {
@@ -266,34 +314,17 @@ function openDocument() {
   color: #98a5af;
 }
 
-.category-filter {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.category-filter button {
-  min-height: 36px;
+.division-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   border: 0;
-  border-radius: 999px;
-  padding: 7px 15px;
-  color: #526170;
-  background: #f1f5f9;
-  font-size: 11px;
+  padding: 8px 0;
+  color: var(--app-primary-dark, #087cae);
+  background: transparent;
+  font-size: 12px;
   font-weight: 700;
-  transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
-}
-
-.category-filter button:hover {
-  color: var(--app-primary-dark, #087cae);
-  background: #e7f5fb;
-}
-
-.category-filter button.active {
-  color: var(--app-primary-dark, #087cae);
-  background: #e0f2fe;
-  box-shadow: inset 0 0 0 1px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
+  cursor: pointer;
 }
 
 .document-list {
@@ -362,12 +393,6 @@ function openDocument() {
   font-weight: 550;
 }
 
-.document-row__meta {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
 .confidential-badge {
   display: inline-flex;
   align-items: center;
@@ -418,10 +443,6 @@ function openDocument() {
     align-items: stretch;
     flex-direction: column;
   }
-
-  .category-filter {
-    justify-content: flex-start;
-  }
 }
 
 @media (max-width: 575px) {
@@ -433,21 +454,6 @@ function openDocument() {
   .material-documents-card__header,
   .material-documents-toolbar {
     padding: 18px;
-  }
-
-  .material-documents-card__icon {
-    display: none;
-  }
-
-  .category-filter {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 3px;
-  }
-
-  .category-filter button {
-    flex: 0 0 auto;
   }
 
   .document-list {
@@ -462,10 +468,6 @@ function openDocument() {
   .document-row__icon {
     width: 43px;
     height: 43px;
-  }
-
-  .document-row__meta {
-    gap: 7px;
   }
 
   .confidential-badge {

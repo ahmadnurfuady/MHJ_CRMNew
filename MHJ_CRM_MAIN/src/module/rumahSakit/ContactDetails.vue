@@ -397,7 +397,7 @@ const contactStore = useContact();
 const hospitalStore = useHospitalStore();
 const { contactState, filteredContact } = storeToRefs(contactStore);
 const { loading: hospitalLoading } = storeToRefs(hospitalStore);
-const { openHospitalModal, searchHospitals, filterHospitals } =
+const { openHospitalModal, searchHospitals, filterHospitals, changeHospitalPage: fetchHospitalPage } =
   contactStore;
 const { canAddHospital } = useHospitalPermissions();
 const searchQuery = ref("");
@@ -583,7 +583,6 @@ function toggleFilter() {
 function resetFilters() {
   draftFilters.value = createDefaultFilters();
   appliedFilters.value = createDefaultFilters();
-  hospitalPage.value = 1;
   void filterHospitals({});
   // Kembalikan daftar provinsi/kota ke penuh (tanpa scope cabang/provinsi).
   void loadFilterOptions({ background: true });
@@ -592,7 +591,6 @@ function cancelFilter() { filterOpen.value = false; draftFilters.value = cloneFi
 function applyFilters() {
   appliedFilters.value = cloneFilters(draftFilters.value);
   filterOpen.value = false;
-  hospitalPage.value = 1;
   const filters = appliedFilters.value;
   // Multi-pilih dikirim sebagai CSV (mis. "Bali,Jawa Timur"); array kosong = tanpa filter.
   void filterHospitals({
@@ -610,25 +608,14 @@ function onClickOutsideFilter(event: MouseEvent) {
   if (filterOpen.value && filterRoot.value && !filterRoot.value.contains(event.target as Node)) cancelFilter();
 }
 
-// Paginasi daftar Faskes dilakukan di frontend: seluruh data sudah dimuat
-// (lihat fetchAllHospitalsForList di store), di sini tinggal dipotong 10/halaman.
-const HOSPITAL_PAGE_SIZE = 10;
-const hospitalPage = ref(1);
-const hospitalTotalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredContact.value.length / HOSPITAL_PAGE_SIZE)),
-);
-const pagedHospitals = computed(() => {
-  const start = (hospitalPage.value - 1) * HOSPITAL_PAGE_SIZE;
-  return filteredContact.value.slice(start, start + HOSPITAL_PAGE_SIZE);
-});
+const hospitalPage = computed(() => hospitalStore.pagination.page);
+const hospitalTotalPages = computed(() => hospitalStore.pagination.lastPage);
+const pagedHospitals = computed(() => filteredContact.value);
 function changeHospitalPage(page: number) {
   const target = Math.min(Math.max(1, page), hospitalTotalPages.value);
   if (target === hospitalPage.value) return;
-  hospitalPage.value = target;
+  void fetchHospitalPage(target);
 }
-watch(hospitalTotalPages, (totalPages) => {
-  if (hospitalPage.value > totalPages) hospitalPage.value = totalPages;
-});
 const hospitalTableColumns = [
   { label: "Nama Faskes", defaultWidth: 280, minWidth: 220, center: false },
   { label: "Provinsi", defaultWidth: 150, minWidth: 110, center: false },
@@ -647,7 +634,7 @@ const hospitalColumnWidths = ref<number[]>(
 const hospitalTableWidth = computed(() =>
   hospitalColumnWidths.value.reduce((total, width) => total + width, 0),
 );
-const hospitalDisplayTotal = computed(() => filteredContact.value.length);
+const hospitalDisplayTotal = computed(() => hospitalStore.pagination.total);
 const visibleHospitalPages = computed<Array<number | string>>(() => {
   const totalPages = hospitalTotalPages.value;
   const currentPage = Math.min(Math.max(1, hospitalPage.value), totalPages);
@@ -732,7 +719,6 @@ function resetHospitalColumnWidth(index: number) {
 watch(searchQuery, (query) => {
   if (searchTimer) clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
-    hospitalPage.value = 1;
     void searchHospitals(query);
   }, 350);
 });
