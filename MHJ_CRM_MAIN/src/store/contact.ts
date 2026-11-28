@@ -753,6 +753,9 @@ export const useContact = defineStore("contact", () => {
     resolveContactCompanyNames();
   }
 
+  /** Jumlah faskes per halaman di daftar Faskes (web). */
+  const HOSPITAL_PAGE_SIZE = 10;
+
   type HospitalListFilters = Pick<
     ListParams,
     | "kode_cabang"
@@ -766,12 +769,16 @@ export const useContact = defineStore("contact", () => {
   >;
   const hospitalListFilters = ref<HospitalListFilters>({});
 
-  /** Halaman pertama tanpa query page; halaman berikutnya memakai page API. */
+  /**
+   * Paginasi server-side: selalu kirim per_page (tanpa per_page backend
+   * mengembalikan SEMUA faskes). Halaman 1 tidak perlu query page.
+   */
   async function fetchHospitalsForList(page = 1, search?: string) {
     await hospitalStore.fetchHospitals({
       ...hospitalListFilters.value,
       ...(search ? { search } : {}),
       ...(page > 1 ? { page } : {}),
+      per_page: HOSPITAL_PAGE_SIZE,
     });
     syncRemoteContacts();
   }
