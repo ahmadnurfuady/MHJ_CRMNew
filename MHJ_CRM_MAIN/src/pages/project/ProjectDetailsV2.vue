@@ -363,14 +363,31 @@
         <article class="detail-card comments-card">
           <div class="card-body-content">
             <h5><SolarIcon name="fa-comment" /> Komentar</h5>
-            <p v-if="!comments.length" class="empty-comment">Belum ada komentar.</p>
-            <div v-for="comment in comments" :key="comment.id" class="comment-item">
-              <div class="comment-avatar">{{ contactInitials(comment.author) }}</div>
-              <div><strong>{{ comment.author }}</strong><p>{{ comment.message }}</p></div>
+            <p v-if="loadingComments" class="comment-empty">Memuat komentar...</p>
+            <p v-else-if="commentsError" class="comment-empty">{{ commentsError }} <button type="button" @click="loadComments">Coba lagi</button></p>
+            <div v-else-if="comments.length" class="comment-list">
+              <div v-for="group in commentGroups" :key="group.messages[0]!.id" class="comment-item" :class="{ 'comment-item--own': group.own }">
+                <div v-if="group.own" class="comment-item__content">
+                  <div class="comment-item__meta"><time :datetime="group.messages[0]!.createdAt">{{ commentClock(group.messages[0]!.createdAt) }}</time><strong>Anda</strong></div>
+                  <div v-for="comment in group.messages" :key="comment.id" class="comment-item__message">
+                    <button type="button" class="comment-delete" aria-label="Hapus komentar" :disabled="deletingId === comment.id" @click="handleDelete(comment)"><vue-feather type="trash-2" size="14" /></button>
+                    <p class="comment-bubble">{{ comment.body }}</p>
+                  </div>
+                </div>
+                <template v-else>
+                  <span class="comment-avatar" aria-hidden="true">{{ contactInitials(group.messages[0]!.authorName) }}</span>
+                  <div class="comment-item__content">
+                    <div class="comment-item__meta"><strong>{{ group.messages[0]!.authorName }}</strong><time :datetime="group.messages[0]!.createdAt">{{ commentClock(group.messages[0]!.createdAt) }}</time></div>
+                    <p v-for="comment in group.messages" :key="comment.id" class="comment-bubble">{{ comment.body }}</p>
+                  </div>
+                </template>
+              </div>
             </div>
+            <p v-else class="comment-empty">Belum ada komentar pada peluang ini.</p>
             <form class="comment-form" @submit.prevent="addComment">
-              <input v-model.trim="newComment" type="text" placeholder="Tambahkan komentar..." aria-label="Komentar baru" />
-              <button type="submit" :disabled="!newComment">Kirim</button>
+              <span class="comment-avatar" aria-hidden="true">{{ contactInitials(currentUser) }}</span>
+              <input v-model.trim="newComment" type="text" placeholder="Tambahkan komentar..." aria-label="Komentar baru" :disabled="submitting" />
+              <button type="submit" :disabled="!newComment || submitting">{{ submitting ? '...' : 'Kirim' }}</button>
             </form>
           </div>
         </article>
@@ -388,10 +405,13 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import Swal from 'sweetalert2'
 import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
 import { getApiErrorMessage, isRecord, type Dict } from '@/api/response'
 import ActivityTimeline from '@/components/shared/ActivityTimeline.vue'
+import { fetchComments, saveComment, deleteComment, type Comment } from '@/services/commentService'
+import { useAuthStore } from '@/store/auth'
 import { projectStageColor } from '@/core/data/project'
 import { usePageBackHandler, usePageTitle } from '@/composable/usePageHeader'
 import OrderStatusPanel from '@/module/project/projectDetails/OrderStatusPanel.vue'
@@ -401,8 +421,6 @@ import { useProjectPermissions } from '@/module/project/projectPermission'
 import type { StoredProjectDocument } from '@/services/projectDocumentStorage'
 import { useProjectStore } from '@/store/project'
 import { genderAvatarColorStyle } from '@/utils/avatar'
-
-interface CommentInfo { id: number; author: string; message: string }
 
 interface BarangView {
   idbarang: string
@@ -430,12 +448,17 @@ interface ContactView {
 const route = useRoute()
 const router = useRouter()
 const store = useProjectStore()
+const { user } = storeToRefs(useAuthStore())
 const { canEditProject } = useProjectPermissions()
 const { selectedDetail, selectedItem, selectedTasks, loading } = storeToRefs(store)
 
 const activeTab = ref<'info' | 'activity' | 'order-status'>('info')
 const newComment = ref('')
-const comments = ref<CommentInfo[]>([])
+const comments = ref<Comment[]>([])
+const loadingComments = ref(false)
+const commentsError = ref('')
+const submitting = ref(false)
+const deletingId = ref<number | null>(null)
 const latestSalesOrder = ref<StoredProjectDocument | null>(null)
 // Seluruh dokumen peluang disimpan supaya panel Status Pemesanan bisa
 // menampilkannya per tahap lewat tombol "Detail".
@@ -457,6 +480,23 @@ const detail = computed<Dict | null>(() => selectedDetail.value)
 const tasks = computed<Dict[]>(() => selectedTasks.value)
 const loadError = computed(() => store.error || '')
 const detailId = computed(() => Number(detail.value?.id) || Number(route.query.id) || 0)
+const currentUser = computed(() => user.value?.name || 'User')
+const commentGroups = computed(() => {
+  const groups: { messages: Comment[]; own: boolean }[] = []
+  for (const comment of comments.value) {
+    const own = isOwnComment(comment)
+    const previous = groups[groups.length - 1]
+    const last = previous?.messages[previous.messages.length - 1]
+    const elapsed = last ? new Date(comment.createdAt).getTime() - new Date(last.createdAt).getTime() : NaN
+    if (previous && previous.own === own && last && comment.authorId != null
+      && comment.authorId === last.authorId && elapsed >= 0 && elapsed <= 2 * 60 * 1000) {
+      previous.messages.push(comment)
+    } else {
+      groups.push({ messages: [comment], own })
+    }
+  }
+  return groups
+})
 const backTarget = computed(() => {
   const raw = route.query.backTo
   const path = Array.isArray(raw) ? raw[0] : raw
@@ -712,10 +752,66 @@ function taskAssignee(task: Dict): string {
   return firstText(task, ['assigned_to_name', 'owner_name', 'pic_name', 'assignee_name'])
 }
 
-function addComment() {
-  if (!newComment.value) return
-  comments.value.push({ id: Date.now(), author: 'Saya', message: newComment.value })
-  newComment.value = ''
+async function loadComments(): Promise<void> {
+  const id = detailId.value
+  if (!id) { comments.value = []; return }
+  loadingComments.value = true
+  commentsError.value = ''
+  try {
+    const loaded = await fetchComments('project', id)
+    if (id !== detailId.value) return
+    comments.value = loaded.reverse()
+  } catch {
+    if (id !== detailId.value) return
+    comments.value = []
+    commentsError.value = 'Gagal memuat komentar.'
+  } finally {
+    if (id === detailId.value) loadingComments.value = false
+  }
+}
+
+function isOwnComment(comment: Comment): boolean {
+  return comment.authorId != null && user.value?.id != null
+    && String(comment.authorId) === String(user.value.id)
+}
+
+function commentClock(value: string): string {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? '-' : new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(date)
+}
+
+async function addComment(): Promise<void> {
+  const message = newComment.value.trim()
+  const id = detailId.value
+  if (!message || !id || submitting.value) return
+  submitting.value = true
+  try {
+    await saveComment({ parentType: 'project', parentId: id, body: message })
+    newComment.value = ''
+    await loadComments()
+  } catch {
+    void Swal.fire({ icon: 'error', title: 'Gagal mengirim komentar' })
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function handleDelete(comment: Comment): Promise<void> {
+  if (!isOwnComment(comment) || !detailId.value) return
+  const confirmed = await Swal.fire({
+    icon: 'warning', title: 'Hapus komentar?', text: 'Komentar ini akan dihapus permanen.',
+    showCancelButton: true, confirmButtonText: 'Hapus', cancelButtonText: 'Batal', confirmButtonColor: '#ef4444',
+  })
+  if (!confirmed.isConfirmed) return
+  deletingId.value = comment.id
+  try {
+    await deleteComment(comment.id, 'project', detailId.value)
+    await loadComments()
+  } catch {
+    void Swal.fire({ icon: 'error', title: 'Gagal menghapus komentar' })
+  } finally {
+    deletingId.value = null
+  }
 }
 
 function handleDocumentsLoaded(documents: StoredProjectDocument[]): void {
@@ -734,9 +830,12 @@ function handleSalesOrderSaved(document: StoredProjectDocument): void {
 
 async function loadProject(): Promise<void> {
   activeTab.value = 'info'
+  comments.value = []
+  newComment.value = ''
+  commentsError.value = ''
+  loadingComments.value = false
   latestSalesOrder.value = null
   projectDocuments.value = []
-  comments.value = []
   store.selectedItem = null
   store.selectedDetail = null
   store.selectedTasks = []
@@ -751,6 +850,9 @@ async function loadProject(): Promise<void> {
 }
 
 watch(() => route.query.id, loadProject, { immediate: true })
+watch(() => [activeTab.value, detailId.value], () => {
+  if (activeTab.value === 'activity') void loadComments()
+})
 </script>
 
 <style scoped>
@@ -766,13 +868,27 @@ watch(() => route.query.id, loadProject, { immediate: true })
 .detail-tabs button.active::after { background: var(--opportunity-blue); }
 .activity-panel { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
 .comments-card h5 { margin: 0 0 14px; color: #102a43; font-size: 15px; }
-.empty-comment { color: #90969d; font-size: 12px; }
-.comment-item { display: grid; grid-template-columns: 36px 1fr; gap: 10px; margin-bottom: 12px; }
-.comment-item strong { color: #102a43; font-size: 13px; }
-.comment-item p { margin: 3px 0 0; color: #718096; font-size: 12px; }
-.comment-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: #fff; background: linear-gradient(145deg, var(--app-primary, #18a6e4), var(--app-secondary, #75c4ef)); font-size: 11px; font-weight: 700; }
-.comment-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 16px; }
+.comment-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; }
+.comment-item { display: flex; align-items: flex-start; gap: 10px; }
+.comment-item--own { justify-content: flex-end; }
+.comment-item__content { display: flex; max-width: min(75%, 560px); min-width: 0; flex-direction: column; align-items: flex-start; }
+.comment-item--own .comment-item__content { align-items: flex-end; }
+.comment-item__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 5px; }
+.comment-item__meta strong { color: #111827; font-size: 12px; }
+.comment-item__meta time { color: #94a3b8; font-size: 11px; }
+.comment-item--own .comment-item__meta strong { border-left: 1px solid #cbd5e1; padding-left: 7px; }
+.comment-item__message { display: flex; max-width: 100%; align-items: center; gap: 6px; }
+.comment-bubble { margin: 0; padding: 9px 12px; border-radius: 12px 12px 12px 3px; background: rgba(var(--app-primary-rgb, 24, 166, 228), .16); color: #102a43; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.comment-item--own .comment-bubble { border-radius: 12px 12px 3px 12px; background: rgba(var(--app-secondary-rgb, 117, 196, 239), .18); }
+.comment-bubble + .comment-bubble, .comment-item__message + .comment-item__message { margin-top: 4px; }
+.comment-delete { display: inline-flex; flex: 0 0 24px; align-items: center; justify-content: center; width: 24px; height: 24px; border: 0; border-radius: 6px; padding: 0; background: transparent; color: #94a3b8; cursor: pointer; }
+.comment-delete:hover:not(:disabled) { color: #b91c1c; background: rgba(239, 68, 68, .08); }
+.comment-delete:disabled { opacity: .6; cursor: not-allowed; }
+.comment-avatar { display: inline-flex; flex: 0 0 34px; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: var(--app-primary-dark, #1d4ed8); background: var(--app-primary-soft, #dbeafe); font-size: 11px; font-weight: 700; }
+.comment-empty { color: #94a3b8; font-size: 12px; }
+.comment-form { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
 .comment-form input { min-width: 0; padding: 10px 14px; border: 1px solid #dce1e6; border-radius: 999px; outline: none; font-size: 13px; }
+.comment-form input { width: 100%; }
 .comment-form input:focus { border-color: var(--opportunity-blue); }
 .comment-form button { border: 0; color: var(--opportunity-blue); background: transparent; font-size: 12px; font-weight: 600; }
 .comment-form button:disabled { opacity: .45; }

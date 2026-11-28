@@ -2,7 +2,7 @@
   <section class="survey-detail">
     <div class="survey-detail__grid">
       <article class="survey-card">
-        <form class="prospect-form" @submit.prevent>
+        <form class="prospect-form" @submit.prevent="saveProspect">
           <div class="selected-event-banner">
             <span>Event</span>
             <strong>INAHEF 2026</strong>
@@ -65,7 +65,12 @@
       <article class="survey-card prospect-data-card">
         <header class="prospect-data-card__header">
           <h2>Data Prospek Terkumpul - INAHEF 2026</h2>
-          <span>1 Prospek</span>
+          <div class="prospect-data-card__actions">
+            <span class="prospect-data-card__count">{{ prospects.length }} Prospek</span>
+            <button type="button" class="prospect-data-card__download" :disabled="!prospects.length || isDownloading" @click="downloadExcel">
+              {{ isDownloading ? 'Menyiapkan...' : 'Download Excel' }}
+            </button>
+          </div>
         </header>
 
         <div class="prospect-table-wrap custom-scrollbar">
@@ -79,14 +84,15 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>dr. Budi Santoso</td>
-                <td>RS Medika</td>
-                <td>USG, CT Scan</td>
+              <tr v-for="(prospect, index) in prospects" :key="index">
+                <td>{{ prospect.fullName }}</td>
+                <td>{{ prospect.institution }}</td>
+                <td>{{ prospect.interestedProducts }}</td>
                 <td>
-                  <span class="interest-badge">Sangat Tertarik (Hot Prospek)</span>
+                  <span class="interest-badge">{{ prospect.interestLevel }}</span>
                 </td>
               </tr>
+              <tr v-if="!prospects.length"><td colspan="4">Belum ada prospek tersimpan.</td></tr>
             </tbody>
           </table>
         </div>
@@ -96,7 +102,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { downloadProspects, loadProspects, storageKey, type Prospect } from './prospectData'
+
+const prospects = ref<Prospect[]>(loadProspects())
+const isDownloading = ref(false)
 
 const form = reactive({
   fullName: '',
@@ -104,6 +114,42 @@ const form = reactive({
   interestedProducts: '',
   interestLevel: 'Sangat Tertarik (Hot Prospek)',
 })
+
+function saveProspect(): void {
+  const prospect: Prospect = {
+    fullName: form.fullName.trim(),
+    institution: form.institution.trim(),
+    interestedProducts: form.interestedProducts.trim(),
+    interestLevel: form.interestLevel,
+    createdAt: new Date().toISOString(),
+  }
+  if (!prospect.fullName || !prospect.institution || !prospect.interestedProducts) return
+
+  const next = [...prospects.value, prospect]
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(next))
+  } catch {
+    window.alert('Data tidak dapat disimpan. Periksa ruang penyimpanan browser.')
+    return
+  }
+  prospects.value = next
+  form.fullName = ''
+  form.institution = ''
+  form.interestedProducts = ''
+  form.interestLevel = 'Sangat Tertarik (Hot Prospek)'
+}
+
+function downloadExcel(): void {
+  if (!prospects.value.length || isDownloading.value) return
+  isDownloading.value = true
+  try {
+    downloadProspects(prospects.value)
+  } catch {
+    window.alert('Excel gagal dibuat. Coba lagi.')
+  } finally {
+    isDownloading.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -277,7 +323,7 @@ const form = reactive({
   font-weight: 700;
 }
 
-.prospect-data-card__header > span,
+.prospect-data-card__count,
 .interest-badge {
   border: 1px solid rgba(var(--app-primary-rgb, 24, 166, 228), 0.18);
   border-radius: 999px;
@@ -286,10 +332,32 @@ const form = reactive({
   font-weight: 700;
 }
 
-.prospect-data-card__header > span {
+.prospect-data-card__count {
   flex: 0 0 auto;
   padding: 6px 10px;
   font-size: 10.5px;
+}
+
+.prospect-data-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.prospect-data-card__download {
+  border: 0;
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: #fff;
+  background: var(--app-primary, #18a6e4);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.prospect-data-card__download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .prospect-table-wrap {
@@ -347,6 +415,11 @@ const form = reactive({
 
   .prospect-data-card__header {
     align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .prospect-data-card__actions {
+    flex-wrap: wrap;
   }
 }
 </style>

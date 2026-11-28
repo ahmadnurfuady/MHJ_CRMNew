@@ -4,23 +4,21 @@
       <header class="material-documents-card__header">
         <div>
           <span class="material-documents-card__eyebrow">MARKETING TOOLS</span>
-          <h1>{{ selectedDivision ? selectedDivision.label : 'Pilih Divisi' }}</h1>
+          <h1>{{ selectedProductType || selectedDivision?.label || 'Pilih Divisi' }}</h1>
           <p>
-            {{ selectedDivision
-              ? 'Materi dan dokumen untuk divisi ini.'
-              : 'Pilih divisi untuk melihat marketing tools yang tersedia.' }}
+            {{ selectedProductType
+              ? `Materi dan dokumen untuk ${selectedDivision?.label}.`
+              : selectedDivision
+                ? `Pilih tipe produk untuk divisi ${selectedDivision.label}.`
+                : 'Pilih divisi untuk melihat marketing tools yang tersedia.' }}
           </p>
         </div>
       </header>
 
       <div class="material-documents-toolbar">
-        <button v-if="selectedDivision" type="button" class="division-back" @click="clearDivision">
-          <SolarIcon name="alt-arrow-left" :size="18" aria-hidden="true" />
-          Pilih divisi lain
-        </button>
         <label class="document-search">
           <span class="visually-hidden">
-            {{ selectedDivision ? 'Cari materi atau dokumen' : 'Cari divisi' }}
+            {{ selectedProductType ? 'Cari materi atau dokumen' : selectedDivision ? 'Cari tipe produk' : 'Cari divisi' }}
           </span>
           <SolarIcon
             name="magnifier"
@@ -31,9 +29,22 @@
           <input
             v-model="searchQuery"
             type="search"
-            :placeholder="selectedDivision ? 'Cari materi atau dokumen' : 'Cari divisi'"
+            :placeholder="selectedProductType ? 'Cari materi atau dokumen' : selectedDivision ? 'Cari tipe produk' : 'Cari divisi'"
           />
         </label>
+      </div>
+
+      <div v-if="selectedProductType" class="category-filter" role="group" aria-label="Filter kategori dokumen">
+        <button
+          v-for="category in categories"
+          :key="category"
+          type="button"
+          :class="{ active: selectedCategory === category }"
+          :aria-pressed="selectedCategory === category"
+          @click="selectedCategory = category"
+        >
+          {{ category }}
+        </button>
       </div>
 
       <div
@@ -49,7 +60,7 @@
           @click="selectDivision(division)"
         >
           <span class="document-row__icon" aria-hidden="true">
-            <SolarIcon name="folder-duotone" :size="25" color="var(--app-primary, #18a6e4)" />
+            <SolarIcon name="folder-tree" :size="25" color="var(--app-primary, #18a6e4)" />
           </span>
           <span class="document-row__content">
             <strong>{{ division.label }}</strong>
@@ -59,7 +70,26 @@
       </div>
 
       <div
-        v-else-if="selectedDivision && filteredDocuments.length"
+        v-else-if="selectedDivision && !selectedProductType && filteredProductTypes.length"
+        class="document-list"
+        aria-label="Daftar tipe produk"
+      >
+        <button
+          v-for="productType in pagedProductTypes"
+          :key="productType"
+          type="button"
+          class="document-row"
+          @click="selectProductType(productType)"
+        >
+          <span class="document-row__icon" aria-hidden="true">
+            <SolarIcon name="folder" :size="25" color="var(--app-primary, #18a6e4)" />
+          </span>
+          <span class="document-row__content"><strong>{{ productType }}</strong></span>
+        </button>
+      </div>
+
+      <div
+        v-else-if="selectedProductType && filteredDocuments.length"
         class="document-list"
         aria-label="Daftar dokumen"
       >
@@ -93,20 +123,22 @@
         <span class="document-empty__icon" aria-hidden="true">
           <SolarIcon name="document-text" :size="29" color="currentColor" />
         </span>
-        <strong>{{ divisionError || (divisionLoading ? 'Memuat divisi...' : selectedDivision ? 'Dokumen tidak ditemukan' : 'Divisi tidak ditemukan') }}</strong>
-        <p v-if="!divisionError && !divisionLoading">
-          {{ selectedDivision
+        <strong>{{ selectedDivision && !selectedProductType ? productError || (productLoading ? 'Memuat tipe produk...' : 'Tipe produk tidak ditemukan') : divisionError || (divisionLoading ? 'Memuat divisi...' : selectedProductType ? 'Dokumen tidak ditemukan' : 'Divisi tidak ditemukan') }}</strong>
+        <p v-if="!divisionError && !divisionLoading && !productError && !productLoading">
+          {{ selectedProductType
             ? 'Belum ada dokumen untuk divisi ini atau kata kunci yang dicari.'
-            : 'Coba gunakan kata kunci divisi yang berbeda.' }}
+            : selectedDivision
+              ? 'Coba gunakan kata kunci tipe produk yang berbeda.'
+              : 'Coba gunakan kata kunci divisi yang berbeda.' }}
         </p>
       </div>
 
       <ListPagination
-        v-if="selectedDivision ? filteredDocuments.length : filteredDivisions.length"
+        v-if="selectedProductType ? filteredDocuments.length : selectedDivision ? filteredProductTypes.length : filteredDivisions.length"
         v-model="currentPage"
         class="material-documents-pagination"
         :total-pages="totalPages"
-        :aria-label="selectedDivision ? 'Pagination dokumen' : 'Pagination divisi'"
+        :aria-label="selectedProductType ? 'Pagination dokumen' : selectedDivision ? 'Pagination tipe produk' : 'Pagination divisi'"
       />
     </section>
   </div>
@@ -117,21 +149,33 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import ListPagination from '@/components/shared/ListPagination.vue'
-import { usePageBackRoute } from '@/composable/usePageHeader'
+import { usePageBackHandler, usePageTitle } from '@/composable/usePageHeader'
 import { routes } from '@/router/routes'
 import { masterDataService } from '@/services/masterDataService'
 
 type Division = { value: string; label: string }
+const categories = ['All', 'Brochure', 'Specification', 'Pitch Deck', 'Video', 'White Paper', 'Install Base', 'Site Planning'] as const
+type DocumentCategory = (typeof categories)[number]
 
 const router = useRouter()
-usePageBackRoute(routes.Dashboards.Default)
 const searchQuery = ref('')
 const selectedDivision = ref<Division | null>(null)
+const selectedProductType = ref<string | null>(null)
+usePageTitle(computed(() => selectedProductType.value ? 'Materi & Dokumen' : selectedDivision.value ? 'Tipe Produk' : 'Marketing Tools'))
+usePageBackHandler(() => {
+  if (selectedDivision.value) goBack()
+  else void router.push(routes.Dashboards.Default)
+})
+const selectedCategory = ref<DocumentCategory>('All')
 const divisions = ref<Division[]>([])
 const divisionLoading = ref(true)
 const divisionError = ref('')
+const productLoading = ref(false)
+const productError = ref('')
 const currentPage = ref(1)
 const PAGE_SIZE = 10
+const productTypes = ref<string[]>([])
+let productRequest = 0
 
 const documents = [
   {
@@ -139,6 +183,7 @@ const documents = [
     title: 'Pricelist Alkes Q2 2026',
     date: '12 Mei 2026',
     division: 'alkes',
+    category: null as DocumentCategory | null,
     status: 'Rahasia',
   },
 ]
@@ -150,6 +195,11 @@ const filteredDivisions = computed(() => {
   )
 })
 
+const filteredProductTypes = computed(() => {
+  const keyword = searchQuery.value.trim().toLocaleLowerCase('id-ID')
+  return productTypes.value.filter((productType) => productType.toLocaleLowerCase('id-ID').includes(keyword))
+})
+
 const filteredDocuments = computed(() => {
   const keyword = searchQuery.value.trim().toLocaleLowerCase('id-ID')
 
@@ -157,27 +207,32 @@ const filteredDocuments = computed(() => {
     const matchesDivision = selectedDivision.value?.label
       .toLocaleLowerCase('id-ID')
       .includes(document.division)
+    const matchesCategory = selectedCategory.value === 'All' || document.category === selectedCategory.value
     const matchesSearch = `${document.title} ${document.date}`
       .toLocaleLowerCase('id-ID')
       .includes(keyword)
 
-    return matchesDivision && matchesSearch
+    return matchesDivision && matchesCategory && matchesSearch
   })
 })
 
 const totalPages = computed(() =>
-  Math.max(1, Math.ceil((selectedDivision.value ? filteredDocuments.value : filteredDivisions.value).length / PAGE_SIZE)),
+  Math.max(1, Math.ceil((selectedProductType.value ? filteredDocuments.value : selectedDivision.value ? filteredProductTypes.value : filteredDivisions.value).length / PAGE_SIZE)),
 )
 const pagedDivisions = computed(() => {
   const start = (currentPage.value - 1) * PAGE_SIZE
   return filteredDivisions.value.slice(start, start + PAGE_SIZE)
+})
+const pagedProductTypes = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE
+  return filteredProductTypes.value.slice(start, start + PAGE_SIZE)
 })
 const pagedDocuments = computed(() => {
   const start = (currentPage.value - 1) * PAGE_SIZE
   return filteredDocuments.value.slice(start, start + PAGE_SIZE)
 })
 
-watch(searchQuery, () => {
+watch([searchQuery, selectedCategory], () => {
   currentPage.value = 1
 })
 
@@ -197,14 +252,41 @@ onMounted(async () => {
   }
 })
 
-function selectDivision(division: Division) {
+async function selectDivision(division: Division) {
   selectedDivision.value = division
+  searchQuery.value = ''
+  currentPage.value = 1
+  productTypes.value = []
+  productError.value = ''
+  productLoading.value = true
+  const request = ++productRequest
+  try {
+    const products = await masterDataService.getProduk(division.value)
+    if (request !== productRequest) return
+    productTypes.value = [...new Set(products.map((product) => product.label.trim()).filter(Boolean))]
+  } catch (error) {
+    if (request !== productRequest) return
+    console.error('Gagal memuat daftar tipe produk:', error)
+    productError.value = 'Daftar tipe produk gagal dimuat.'
+  } finally {
+    if (request === productRequest) productLoading.value = false
+  }
+}
+
+function selectProductType(productType: string) {
+  selectedProductType.value = productType
+  selectedCategory.value = 'All'
   searchQuery.value = ''
   currentPage.value = 1
 }
 
-function clearDivision() {
-  selectedDivision.value = null
+function goBack() {
+  if (selectedProductType.value) selectedProductType.value = null
+  else {
+    ++productRequest
+    selectedDivision.value = null
+    productLoading.value = false
+  }
   searchQuery.value = ''
   currentPage.value = 1
 }
@@ -314,17 +396,35 @@ function openDocument() {
   color: #98a5af;
 }
 
-.division-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 22px 20px;
+}
+
+.category-filter button {
+  min-height: 36px;
   border: 0;
-  padding: 8px 0;
-  color: var(--app-primary-dark, #087cae);
-  background: transparent;
-  font-size: 12px;
+  border-radius: 999px;
+  padding: 7px 15px;
+  color: #526170;
+  background: #f1f5f9;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+  transition: color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.category-filter button:hover {
+  color: var(--app-primary-dark, #087cae);
+  background: #e7f5fb;
+}
+
+.category-filter button.active {
+  color: var(--app-primary-dark, #087cae);
+  background: #e0f2fe;
+  box-shadow: inset 0 0 0 1px rgba(var(--app-primary-rgb, 24, 166, 228), 0.12);
 }
 
 .document-list {
@@ -454,6 +554,16 @@ function openDocument() {
   .material-documents-card__header,
   .material-documents-toolbar {
     padding: 18px;
+  }
+
+  .category-filter {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0 18px 18px;
+  }
+
+  .category-filter button {
+    flex: 0 0 auto;
   }
 
   .document-list {

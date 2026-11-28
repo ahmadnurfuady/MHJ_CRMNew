@@ -64,6 +64,7 @@ import { FileTextIcon as FileTextLinearIcon } from "@solar-icons/vue/bold/file-t
 import { FilterIcon } from "@solar-icons/vue/bold/filter";
 import { FolderIcon } from "@solar-icons/vue/bold/folder";
 import { FolderOpenIcon } from "@solar-icons/vue/bold/folder-open";
+import { FolderTreeIcon } from "@solar-icons/vue/bold/folder-tree";
 import { ForbiddenCircleIcon } from "@solar-icons/vue/bold/forbidden-circle";
 import { ForwardIcon } from "@solar-icons/vue/bold/forward";
 import { GalleryIcon } from "@solar-icons/vue/bold/gallery";
@@ -235,6 +236,7 @@ const icons: Record<string, Component> = {
   filter: FilterIcon,
   folder: FolderIcon,
   "folder-open": FolderOpenIcon,
+  "folder-tree": FolderTreeIcon,
   forbidden: ForbiddenCircleIcon,
   forward: ForwardIcon,
   gallery: GalleryIcon,

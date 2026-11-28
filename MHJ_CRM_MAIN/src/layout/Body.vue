@@ -221,6 +221,29 @@ onBeforeUnmount(() => {
   height: calc(100dvh - 56px);
 }
 
+@media (min-width: 1200px) {
+  .app-shell.compact-wrapper .page-header {
+    box-sizing: border-box;
+    width: calc(100% - 265px);
+    margin-left: 265px;
+  }
+
+  .app-shell.compact-wrapper .page-header.close_icon {
+    width: calc(100% - 90px);
+    margin-left: 90px;
+  }
+
+  .app-shell.compact-wrapper .page-body-wrapper > .page-body {
+    width: calc(100% - 265px);
+    margin-left: 265px;
+  }
+
+  .app-shell.compact-wrapper .page-body-wrapper > .sidebar-wrapper.close_icon ~ .page-body {
+    width: calc(100% - 90px);
+    margin-left: 90px;
+  }
+}
+
 .app-shell.horizontal-wrapper .page-body-wrapper > .sidebar-wrapper {
   top: var(--app-header-height, 79px);
   border-top-color: rgba(255, 255, 255, 0.18);
@@ -334,6 +357,47 @@ onBeforeUnmount(() => {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
+}
+
+/* Header dan konten digeser tepat 90px saat sidebar ciut, jadi lebar sidebar
+   harus sama (bukan `auto` dari tema) supaya tidak menimpa konten.
+   Saat di-hover sidebar tetap melebar seperti biasa. */
+.app-shell.compact-wrapper :deep(.sidebar-wrapper.close_icon:not(:hover)) {
+  width: 90px;
+}
+
+/* Scrollbar menu hanya terlihat saat mouse berada di sidebar. */
+.app-shell.compact-wrapper :deep(.sidebar-wrapper:not(:hover) .sidebar-links) {
+  scrollbar-color: transparent transparent;
+}
+
+/* Saat ciut, scrollbar tidak memakan tempat dan ikon berada di tengah. */
+.app-shell.compact-wrapper :deep(.sidebar-wrapper.close_icon:not(:hover) .sidebar-links) {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+  scrollbar-width: none;
+  scrollbar-gutter: auto;
+}
+
+.app-shell.compact-wrapper
+  :deep(.sidebar-wrapper.close_icon:not(:hover) .sidebar-links > li:not(.back-btn)) {
+  padding-right: 18px !important;
+  padding-left: 18px !important;
+  text-align: center;
+}
+
+.app-shell.compact-wrapper
+  :deep(.sidebar-wrapper.close_icon:not(:hover) .sidebar-links .sidebar-link) {
+  display: flex;
+  justify-content: center;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+.app-shell.compact-wrapper
+  :deep(.sidebar-wrapper.close_icon:not(:hover) .sidebar-links .sidebar-link > *) {
+  margin-right: 0 !important;
+  margin-left: 0 !important;
 }
 
 .app-shell.compact-wrapper :deep(.sidebar-wrapper > .logo-wrapper),

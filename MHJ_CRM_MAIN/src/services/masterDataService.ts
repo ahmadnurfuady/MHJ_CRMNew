@@ -29,6 +29,14 @@ export const masterDataService = {
     return asArray<MasterDevisiItem>(res.data)
   },
 
+  /** GET /api/tasks/produk — barang aktif milik divisi terpilih. */
+  async getProduk(divisi: string): Promise<{ value: string; label: string }[]> {
+    const res = await api.get<{ produk: { value: string; label: string }[] }>('/tasks/produk', {
+      params: { divisi, limit: 10000 },
+    })
+    return res.data.produk
+  },
+
   /** GET /api/master-data/tipe — seluruh tipe marketing. */
   async getTipeMarketing(): Promise<MasterTipeMarketingItem[]> {
     const res = await api.get('/master-data/tipe')

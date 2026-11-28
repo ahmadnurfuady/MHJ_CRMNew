@@ -5,6 +5,9 @@
         <h1>Pilih Event</h1>
         <p>Pilih event untuk mulai isi survey prospek.</p>
       </div>
+      <button type="button" class="survey-download" :disabled="!prospects.length || isDownloading" @click="downloadExcel">
+        {{ isDownloading ? 'Menyiapkan...' : 'Download Excel' }}
+      </button>
     </header>
 
     <div class="survey-panel__body">
@@ -21,7 +24,7 @@
           <span>10 -12 Agustus 2026</span>
         </span>
         <span class="event-card__prospects">
-          <strong>1</strong>
+          <strong>{{ prospects.length }}</strong>
           <span>Prospek</span>
         </span>
         <SolarIcon
@@ -46,6 +49,7 @@
 import { ref } from 'vue'
 
 import ListPagination from '@/components/shared/ListPagination.vue'
+import { downloadProspects, loadProspects } from './prospectData'
 
 const emit = defineEmits<{
   select: []
@@ -53,6 +57,20 @@ const emit = defineEmits<{
 
 const currentPage = ref(1)
 const totalPages = 1
+const prospects = ref(loadProspects())
+const isDownloading = ref(false)
+
+function downloadExcel(): void {
+  if (!prospects.value.length || isDownloading.value) return
+  isDownloading.value = true
+  try {
+    downloadProspects(prospects.value)
+  } catch {
+    window.alert('Excel gagal dibuat. Coba lagi.')
+  } finally {
+    isDownloading.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -83,6 +101,23 @@ const totalPages = 1
   margin: 5px 0 0;
   color: #7d8a94;
   font-size: 12px;
+}
+
+.survey-download {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  background: var(--app-primary, #18a6e4);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.survey-download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .survey-panel__body {
@@ -184,6 +219,12 @@ const totalPages = 1
 
   .survey-panel__header h1 {
     font-size: 16px;
+  }
+
+  .survey-panel__header {
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .event-card {
