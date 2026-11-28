@@ -41,6 +41,8 @@ const client = axios.create({
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
+    // Penanda asal request; backend membedakan input web vs mobile di /api/* yang sama.
+    'X-Client-Platform': 'web',
   },
 })
 
